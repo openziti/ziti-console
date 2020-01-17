@@ -1,0 +1,47 @@
+
+:root {
+	--primary: #fe0029;
+    --secondary: #0027ab;
+    --highlighted: #f5a93d;;
+    --red: #ff104b;
+    --white: #18191D;
+    --green: #00db48;
+	--menu: #434c5e;
+	--stroke: #2A2B31;
+	--black: #FFF;
+	--shaded: #1D2024;
+	--background: #18191D;
+	--placeholder: #2A2B31;
+	--text: #FFF;
+    --shadow: 0px 0px 8px 2px rgba(255,255,255,0.2);
+    --shadowColor: rgba(255,255,255,0.08);
+    --transition: 0.5s;
+    --offWhite: #2A2B31;
+}
+
+.filters .navigate {
+    background-color: var(--primary);
+}
+
+.title {
+    filter: brightness(100%);
+}
+nav .title {
+    filter: brightness(100%);
+}
+
+#NotificationsMenu {
+    background-color: var(--white);
+}
+
+label {
+    color: var(--black);
+}
+
+.launcher {
+    background-color: var(--offWhite);
+}
+
+option {
+    background-color: var(--shaded);
+}

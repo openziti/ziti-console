@@ -1,0 +1,184 @@
+.nfchart {
+    width: 300px;
+    height: 90vh;
+    margin-top:20px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+}
+
+.nfchart .inner {
+    overflow: hidden;
+}
+
+.nfchart .nfcolumn {
+    position: absolute;
+    width: 300px;
+    transition: 0.5s;
+    cursor: pointer;
+}
+
+.nfchart .nfcolumn.notselected .nfmiddle .ngleftlabel, .nfchart .nfcolumn.notselected .nfmiddle .ngrightlabel {
+    opacity: 0.1;
+}
+
+.nfopaque {
+    opacity: 0.1;
+}
+
+.nfchart .nfcolumn.selected {
+    opacity: 1.0;
+    transform: scale(1.2);
+}
+
+.nfchart .nfcolumn.selected .nfside {
+    opacity: 1.0;
+}
+
+.nfside.right {
+    left: unset;
+    right: -320px;
+    text-align: left;
+}
+
+.nfside {
+    opacity: 0.0;
+    transition: 0.5s;
+    left: -320px;
+    width: 100%;
+    text-align: right;
+    top: 50px;
+    position: absolute;
+}
+
+.nfside .sub {
+    color: var(--black);
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.nfside .label {
+    color: var(--primary);
+    font-size: 14px;
+    margin-bottom: -4px;
+}
+
+.nfside .value {
+    color: var(--black);
+    font-size: 12px;    
+}
+
+.nfchart .nfcolumn.selected:hover {
+    transform: scale(1.4);
+}
+
+.nfchart .nfcolumn:hover {
+    transform: scale(1.1);
+}
+
+.nfchart .nfcolumn .nfcontents {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    min-height: 94px;
+}
+
+.nfchart .nfcolumn .nftop {
+    width: 100%;
+    height: 72px;
+    border-radius: 100%;
+    position: absolute;
+    z-index: 3;
+}
+
+.nfchart .nfcolumn .nfmiddle {
+    width: 100%;
+    top: 36px;
+    bottom: 36px;
+    position: absolute;
+    z-index: 2;
+}
+
+.nfchart .nfcolumn .nfmiddle .ngleftlabel {
+    font-size: 18px;
+    position: absolute;
+    left: -320px;
+    color: var(--black);
+    text-align: right;
+    width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    opacity: 0.6;
+}
+
+.nfchart .nfcategory {
+    font-size: 24px;
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    color: var(--primary);
+    text-align: left;
+    white-space: nowrap;
+    transform: rotate(-90deg);
+    padding-bottom: 260px;
+    height: 300px;
+}
+
+.nfchart .nfcategory .nfsuper {
+    font-size: 12px;
+    position: absolute;
+    top: -6px;
+    white-space: nowrap;
+}
+
+.nfchart .nfcategory .nfsub {
+    text-transform: uppercase;
+    opacity: 0.4;
+}
+
+.nfchart .nfcolumn .nfmiddle .ngrightlabel {
+    font-size: 18px;
+    position: absolute;
+    right: -320px;
+    color: var(--black);
+    text-align: left;
+    width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    opacity: 0.6;
+}
+
+.nfchart .nfcolumn .nfbottom {
+    width: 100%;
+    height: 72px;
+    border-radius: 100%;
+    position: absolute;
+    bottom: 0px;
+    z-index: 1;
+}
+
+.nfchart .nfcolumn.service .nftop {
+    background-color: #455771;
+}
+
+.nfchart .nfcolumn.service .nfmiddle, .nfchart .nfcolumn.service .nfbottom {
+    background-color: #2d3b4f;
+}
+
+.nfchart .nfcolumn.client .nftop {
+    background-color: #61ff05;
+}
+
+.nfchart .nfcolumn.client .nfmiddle, .nfchart .nfcolumn.client .nfbottom {
+    background-color: #3ca103;
+}
+
+.nfchart .nfcolumn.error .nftop {
+    background-color: #ff052f;
+}
+
+.nfchart .nfcolumn.error .nfmiddle, .nfchart .nfcolumn.error .nfbottom {
+    background-color: #9f0922;
+}

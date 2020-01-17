@@ -1,0 +1,426 @@
+    <div class="header">
+        <div class="title">Manage <span data-bind="pageTitle"></span></div>
+        <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
+        <div class="line"></div>
+        <div class="tabs">
+            <div class="tab selected">Manage <span data-bind="pageTitle"></span></div>
+            <div class="tab" data-go="/services">Manage Services</div>
+            <div class="tab" data-go="/gateways">Manage Routers</div>
+        </div>
+    </div>
+    <div class="action icon-plus" data-action="add"></div>
+    <div class="filters">
+        <input id="SearchFilter" type="text" class="search" placeholder="Type to Filter" />
+        <div class="clear"></div>
+        <div class="counters"><span id="Start">-</span>-<span id="End">-</span> of <span id="Total">-</span></div>
+        <div class="navigate prev icon-prev disabled"></div>
+        <div class="navigate next icon-next disabled"></div>
+    </div>
+    <div class="area data">
+        <div class="table">
+            <div class="head grid seven">
+                <div class="col">
+                    <div class="selector all"></div>
+                </div>
+                <div class="col sort asc" data-by="name">Name<div class="dragger"></div></div>
+                <div class="col sort desktop" data-by="typeId">Type<div class="dragger"></div></div>
+                <div class="col sort desktop" data-by="createdAt">Created<div class="dragger"></div></div>
+                <div class="col sort desktop" data-by="isAdmin">Admin<div class="dragger"></div></div>
+                <div class="col">Token</div>
+                <div class="col"></div>
+            </div>
+            <div class="rows">
+                <!-- This area will be replaced by data rows -->
+            </div>
+        </div>
+    </div>
+    <div class="nodata">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
+
+    <!-- Data Table Template -->
+    <div id="RowTemplate" class="row grid seven template">
+        <div class="col">
+            <div class="selector" data-id="{{id}}"></div>
+        </div>
+        <div class="col" data-id="{{id}}"><strong>{{name}}</strong></div>
+        <div class="col desktop" data-id="{{id}}">{{type}}</div>
+        <div class="col desktop" data-id="{{id}}">{{createdAt}}</div>
+        <div class="col desktop" data-id="{{id}}">{{isAdmin}}</div>
+        <div class="col notitle">{{tokenLink}}</div>
+        <div class="col allowOver">
+            <div class="dots" data-id="{{id}}">...
+                <div class="gridMenu" data-id="{{id}}">
+                    <div class="gridAction" data-id="{{id}}" data-action="edit">Edit</div>
+                    <div class="gridAction {{hiddenClass}}" data-id="{{id}}" data-action="download">Download JWT</div>
+                    <div class="gridAction {{hiddenClass}}" data-id="{{id}}" data-action="qr">View QR</div>
+                    <div class="gridAction" data-id="{{id}}" data-action="delete">Delete</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+	<!-- Modification Modals -->
+	<div id="AddModal" class="modal box full">
+        <div class="sized">
+            <div class="close icon-close"></div>
+            <div class="title adding">Create <span data-bind="singular"></span></div>
+            <div class="subtitle adding">Add a New <span data-bind="singular"></span></div>
+            <div class="title editing">Edit <span data-bind="singular"></span></div>
+            <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
+            <label for="Username">Name</label>
+            <input id="Username" type="text" maxlength="500" placeholder="Enter a name" />
+            <label for="Roles">Roles</label>
+            <input id="Roles" type="text" maxlength="500" placeholder="Enter a list of roles" />
+            <div class="split unsplit">
+                <div>
+                    <label for="IdentityType">Identity Type</label>
+                    <select id="IdentityType">
+                        <option value="Device" selected>Device</option>
+                        <option value="Service">Service</option>
+                        <option value="User">User</option>
+                    </select>
+                </div>
+                <div id="UserArea" style="display:none;">
+                    <label>Is this User an Admin?</label>
+                    <div id="IsAdmin" class="toggle">
+                        <div class="switch"></div>
+                        <div class="label"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="split unsplit">
+                <div>
+                    <label for="Enrollment">Enrollment Type</label>
+                    <select id="EnrollmentType" disabled>
+                        <option value="ott" selected>One Time Token</option>
+                        <option value="CA">Certificate Authority</option>
+                    </select>
+                </div>
+                <div id="CertAuthoritiesArea" style="display:none">
+                    <label for="Authorities">Certificate Authority</label>
+                    <select id="Authorities"></select>
+                </div>
+            </div>
+            <div id="TagArea"></div>
+            <div class="buttons">
+                <div class="linkButton closer">Oops, No get me out of here</div>
+                <div id="SaveButton" class="button">Save</div>
+            </div>
+        </div>
+    </div>
+    
+	<div id="QRModal" class="modal box full">
+        <div class="sized center">
+            <div class="close icon-close"></div>
+            <div class="title">Scan QR Code</div>
+            <div class="subtitle">Use your tunneler app to scan this code</div>
+            <div id="QRCode"></div>
+        </div>
+    </div>
+
+    
+    
+    <script language="javascript" type="text/javascript">
+        page = {
+            binding: {
+                pageTitle: "Identities",
+                singular: "Identity"
+            },
+            data: [],
+            tagData: [],
+            deleting: [],
+            editId: "",
+            init: function() {
+                this.events();
+                context.addListener(tags.name, page.tagsLoaded);
+                context.addListener(identities.name, page.getLoaded);
+                context.addListener(cas.name, page.casLoaded);
+                identities.init();
+                cas.get();
+            }, 
+            events: function() {
+                $(".action").click(page.handleAction);
+                $("#IdentityType").change(page.toggleUserType);
+                $("#EnrollmentType").change(page.toggleType);
+                $("#SaveButton").click(page.save);
+                $("#SearchFilter").keyup(page.search);
+		        $(".clear").click(page.clear);
+            },
+            tagsLoaded: function() {
+                var html = "";
+                for (var i=0; i<tags.data.length; i++) {
+                    if (tags.data[i].objects=="all"||tags.data[i].objects.indexOf('identity')>=0) {
+                        page.tagData[page.tagData.length] = tags.data[i];
+                        html += tags.html(tags.data[i]);
+                    }
+                }
+                $("#TagArea").html(html);
+                tags.events();
+            },
+            clear: function() {
+                $("#SearchFilter").val("");
+                identities.filter = "";
+                identities.get();
+                $(".clear").removeClass("showing");
+            },
+            search: function(e) {
+                if (page.searchId) clearTimeout(page.searchId);
+                identities.filter = $("#SearchFilter").val();
+                if ($("#SearchFilter").val().trim().length>0) $(".clear").addClass("showing");
+                else $(".clear").removeClass("showing");
+                if (e.keyCode==13) {
+                    identities.get();
+                } else {
+                    page.searchId = setTimeout(function() {
+                        identities.get();
+                    }, 1000);
+                }
+            },
+            clickEdit: function(e) {
+                var id = $(e.currentTarget).data("id");
+                if (id) page.edit(id);
+            },
+            casLoaded: function(e) {
+                var select = document.getElementById("Authorities");
+                select.options = [];
+                if (cas.data.length>0) {
+                    $("#EnrollmentType").attr("disabled", false);
+                    for (var i=0; i<cas.data.length; i++) {
+                        var option = document.createElement("option");
+                        option.value = cas.data[i].id;
+                        option.text = cas.data[i].name;
+                        select.add( option );
+                    }
+                } else {
+                    $("#EnrollmentType").attr("disabled", true);
+                }
+            },
+            getLoaded: function(e) {
+                $(".selector.selected").removeClass("selected");
+                app.setAction();
+                $(".rows").html("");
+                page.data = identities.data;
+                if (identities.data.length>0) {
+                    $("#Start").html(identities.start());
+                    $("#End").html(identities.end());
+                    $("#Total").html(identities.total());
+                    for (var i=0; i<identities.data.length; i++) {
+                        var element = $("#RowTemplate").clone();
+                        element.removeClass("template");
+                        element.attr("id","Row"+i);
+                        element.html(element.html().split("{{id}}").join(identities.data[i].id));
+                        element.html(element.html().split("{{name}}").join(identities.data[i].name));
+                        element.html(element.html().split("{{type}}").join(identities.data[i].type.name));
+                        element.html(element.html().split("{{createdAt}}").join(moment(identities.data[i].createdAt).fromNow()));
+                        element.html(element.html().split("{{isAdmin}}").join(identities.data[i].isAdmin));
+                        var enrollment = "N/A";
+                        if (identities.data[i].enrollment&&identities.data[i].enrollment.ott&&identities.data[i].enrollment.ott.jwt) {
+                            var difference = moment(identities.data[i].enrollment.ott.expiresAt).diff(moment(new Date()));
+                            if (difference>0) {
+                                enrollment = '<span class="cert" data-id="'+identities.data[i].id+'"></span><span class="qr icon-qr" data-id="'+identities.data[i].id+'"></span>';
+                            }                            
+                        }
+                        if (enrollment=="N/A") element.html(element.html().split("{{hiddenClass}}").join("hidden"));
+                        else element.html(element.html().split("{{hiddenClass}}").join(""));
+                        element.html(element.html().split("{{tokenLink}}").join(enrollment));
+                        $(".rows").append(element);
+                    }
+                    page.pageLoaded(); 
+                    $(".data").show();
+                    $(".nodata").hide();       
+                } else {
+                    $(".data").hide();
+                    $(".nodata").show();
+                }
+            },
+            genQR: function(e) {
+                var id = $(e.currentTarget).data("id");
+                var identity = identities.details(id);
+                if (identity&&identity.enrollment&&identity.enrollment.ott&&identity.enrollment.ott.jwt) {
+                    $("#QRCode").html("");
+                    var qrcode = new QRCode("QRCode", {
+                        text: encodeURIComponent(identity.enrollment.ott.jwt),
+                        width: 300,
+                        height: 300,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.M
+                    });
+                    modal.show("QRModal");
+                }
+            },
+            pageLoaded: function() {
+                $(".cert").click(page.getCert);
+                $(".qr").click(page.genQR);
+                $(".gridAction").click(page.gridAction);
+                $(".navigate").off("click");
+                $(".navigate").addClass("disabled");
+                $(".clickEdit").click(page.clickEdit);
+                if (!identities.isFirst()) {
+                    $(".navigate.prev").removeClass("disabled");
+                    $(".navigate.prev").on("click", identities.prev);
+                }
+                if (!identities.isLast()) {
+                    $(".navigate.next").removeClass("disabled");
+                    $(".navigate.next").on("click", identities.next);
+                } 
+                app.postLoad();
+            },
+            gridAction: function(e) {
+                var action = $(e.currentTarget).data("action");
+                var id = $(e.currentTarget).data("id");
+                if (action=="delete") {
+                    page.deleting = [];
+                    page.deleting[page.deleting.length] = id;
+                    modal.confirm("you want to delete this "+page.singular, page.confirmedDelete);
+                } else if (action=="edit") {
+                    page.edit(id);
+                } else if (action=="download") {
+                    page.getCert(e);
+                } else if (action=="qr") {
+                    page.genQR(e);
+                }
+            },
+            edit: function(id) {
+                page.reset();
+                var detail = identities.details(id);
+                tags.reset(page.tagData,detail);
+                $(".adding").hide();
+                $(".editing").show();
+                $("#Username").val(detail.name);
+                $("#Roles").val(detail.roleAttributes);
+                $("#IdentityType").val(detail.type.name);
+                $("#IsAdmin").removeClass("on");
+                $("#EnrollmentType").val("ott");
+                $("#EnrollmentType").attr("disabled", true);
+                $("#Authorities").attr("disabled", true);
+                $("#CertAuthoritiesArea").parent().addClass("unsplit");
+                if (detail.enrollment&&detail.enrollment.ca) {
+                    $("#EnrollmentType").val("CA");
+                    if (detail.enrollment&&detail.enrollment.ca.caId) {
+                        $("#Authorities").val(detail.enrollment.ca.caId);
+                        $("#CertAuthoritiesArea").show();
+                        $("#CertAuthoritiesArea").parent().removeClass("unsplit");
+                    }
+                }
+                if (detail.isAdmin) $("#IsAdmin").addClass("on");
+                var area = "#UserArea";
+                if (detail.type.name=="User") {
+                    $(area).parent().removeClass("unsplit");
+                    $(area).show();
+                } else {
+                    $(area).parent().addClass("unsplit");
+                    $(area).hide();
+                }                 
+                page.editId = id;
+                modal.show("AddModal");
+            },
+            getCert: function(e) {
+                var id = $(e.currentTarget).data("id");
+                var identity = identities.details(id);
+                if (identity&&identity.enrollment&&identity.enrollment.ott&&identity.enrollment.ott.jwt) {
+                    var name = identity.name.split(" ").join("");
+                    var element = document.createElement('a');
+                    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(identity.enrollment.ott.jwt));
+                    element.setAttribute('download', name+".jwt");
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
+                }
+            },
+            toggleUserType: function(e) {
+                var area = "#UserArea";
+                var type = $("#IdentityType").val();
+                if (type=="User") {
+                    $(area).parent().removeClass("unsplit");
+                    $(area).show();
+                } else {
+                    $(area).parent().addClass("unsplit");
+                    $(area).hide();
+                } 
+            },
+            toggleType: function(e) {
+                var area = "#CertAuthoritiesArea";
+                var type = $("#EnrollmentType").val();
+                if (type=="CA") {
+                    $(area).parent().removeClass("unsplit");
+                    $(area).show();
+                } else {
+                    $(area).parent().addClass("unsplit");
+                    $(area).hide();
+                } 
+            },
+            validate: function() {
+                $(".errors").removeClass("errors");
+                if ($("#Username").val().trim().length==0) $("#Username").addClass("errors");
+                return $(".errors").length==0;
+            },
+            save: function() {
+                if (page.validate()) {
+                    if (localStorage.getItem("filterAfterSave")=="on") {
+                        $("#SearchFilter").val($("#Username").val());
+                        identities.filter = $("#SearchFilter").val();
+                    }
+                    var roles = page.getRoles($("#Roles").val().trim().split(','));
+                    identities.save(
+                        $("#Username").val(),
+                        $("#IdentityType").val(),
+                        $("#IsAdmin").hasClass("on"),
+                        $("#EnrollmentType").val(),
+                        $("#Authorities").val(), 
+                        roles,
+                        tags.getValues(page.tagData),
+                        page.editId);
+                    
+                } else growler.form();
+            }, 
+            getRoles: function(roles) {
+                var values = [];
+                for (var i=0; i<roles.length; i++) {
+                    var item = roles[i].trim();
+                    if (item.length>0) values[values.length] = item;
+                }
+                return values;
+            },
+            deleteMulti: function(e) {
+                page.deleting = [];
+                $(".selector.selected").each(function(index, e) {
+                    page.deleting[page.deleting.length] = $(e).data("id");
+                });
+                if (page.deleting.length>0) {
+                    modal.confirm("you want to delete these "+page.deleting.length+" "+((page.deleting.length>1)?page.binding.pageTitle:page.binding.singular), page.confirmedDelete);
+                }
+            },
+            confirmedDelete: function() {
+                identities.delete(page.deleting);
+                app.reset();
+            },
+            reset: function() {
+                tags.reset(page.tagData);
+                page.editId = "";
+                $("#Username").val("");
+                $("#Roles").val("");
+                $("#IdentityType").val("Device");
+                $("#IsAdmin").removeClass("on");
+                $("#EnrollmentType").val("ott");
+                if (cas.data.length>0) $("#EnrollmentType").removeAttr("disabled");
+                else $("#EnrollmentType").attr("disabled", "true");
+                page.toggleType();
+            },
+            handleAction: function(e) {
+                var action = $(e.currentTarget).data("action");
+                if (action=="add") {
+                    page.reset();
+                    page.add();
+                } else if (action=="remove") {
+                    page.deleteMulti();
+                }
+            },
+            add: function() {
+                $(".adding").show();
+                $(".editing").hide();
+                modal.show("AddModal");
+            }
+        }
+    </script>

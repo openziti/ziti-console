@@ -1,0 +1,222 @@
+<div class="header">
+    <div class="title">Manage <span data-bind="pageTitle"></span></div>
+    <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
+    <div class="line"></div>
+    <div class="tabs">
+        <div class="tab" data-go="/servers">Manage Servers</div>
+        <div class="tab selected">Manage Custom Fields</div>
+    </div>
+</div>
+<div class="action icon-plus" data-action="add"></div>
+<div class="area data">
+    <div class="noitems"></div>
+    <div class="table">
+        <div class="head grid flive">
+            <div class="col asc">Id<div class="dragger"></div></div>
+            <div class="col">Label<div class="dragger"></div></div>
+            <div class="col desktop">Type<div class="dragger"></div></div>
+            <div class="col desktop">Description</div>
+            <div class="col"></div>
+        </div>
+        <div class="rows">
+            <!-- This area will be replaced by data rows -->
+        </div>
+    </div>
+</div>
+
+<!-- Row Template -->
+<div id="RowTemplate" class="row grid flive template">
+    <div class="col" data-id="{{id}}"><strong>{{id}}</strong></div>
+    <div class="col" data-id="{{id}}">{{label}}</div>
+    <div class="col desktop" data-id="{{id}}">{{type}}</div>
+    <div class="col desktop" data-id="{{id}}">{{description}}</div>
+    <div class="col allowOver">
+        <div class="dots" data-id="{{id}}">...
+            <div class="gridMenu" data-id="{{id}}">
+                <div class="gridAction" data-id="{{id}}" data-action="edit">Edit</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modification Modals -->
+<div id="AddModal" class="modal box full">
+    <div class="sized">
+        <div class="close icon-close"></div>
+        <div class="title adding">Create <span data-bind="singular"></span></div>
+        <div class="subtitle adding">Add a New <span data-bind="singular"></span> by completing the following form</div>
+        <div class="title editing">Edit <span data-bind="singular"></span></div>
+        <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
+        <label for="Label">Label</label>
+        <input id="Label" type="text" maxlength="500" placeholder="Enter a Label to display" />
+        <label for="Id">Id</label>
+        <input id="Id" type="text" maxlength="500" placeholder="Enter a unique identifier" />
+        <label for="Default">Default</label>
+        <input id="Default" type="text" maxlength="500" placeholder="Enter a default value for the form" />
+        <label for="Description">Description</label>
+        <input id="Description" type="text" maxlength="500" placeholder="Enter a description that will display in fields" />
+        <label for="InputType">Input Type</label>
+        <select id="InputType">
+            <option value="string">String</option>
+            <option value="icon">Icon</option>
+            <option value="avatar">Avatar</option>
+            <option value="boolean">Checkbox</option>
+            <option value="map">Map - GeoLocation</option>
+        </select>
+        <label for="Objects">Object the input should be </label>
+        <select id="Objects">
+            <option value="all">All Objects</option>
+            <option value="select">Select Objects</option>
+        </select>
+        <div id="ObjectsList" class="tagSelect"></div>
+        <div class="buttons">
+            <div class="linkButton closer">Oops, No get me out of here</div>
+            <div id="SaveButton" class="button">Save</div>
+        </div>
+    </div>
+</div>
+
+<script language="javascript" type="text/javascript">
+    page = {
+        binding: {
+            pageTitle: "Custom Fields",
+            singular: "Custom Field"
+        },
+        editId: "",
+        data: [],
+        objects: ["gateway","service","appwan","identity","cas","cluster"],
+        init: function() {
+            for (var i=0; i<page.objects.length; i++) {
+                $("#ObjectsList").append('<div class="tag" data-object="'+page.objects[i]+'">'+page.objects[i]+'</div>')
+            }
+            this.events();
+        },
+        events: function() {
+            context.addListener(tags.name, page.tagsLoaded);
+            $(".action").click(page.handleAction);
+            $("#Objects").change(page.toggleList);
+            $("#SaveButton").click(page.save);
+            $("#Label").keyup(page.setId);
+            $(".tag").off("click");
+            $(".tag").on("click", page.toggleTag);            
+        },
+        setId: function() {
+            $("#Id").val($("#Label").val().split(' ').join('').toLowerCase());
+        },
+        tagsLoaded: function() {
+            app.setAction();
+            $(".rows").html("");
+            if (tags.data.length>0) {
+                for (var i=0; i<tags.data.length; i++) {
+                    var element = $("#RowTemplate").clone();
+                    element.removeClass("template");
+                    element.attr("id","Row"+i);
+                    for (var key in tags.data[i]) element.html(element.html().split("{{"+key+"}}").join(tags.data[i][key]));
+                    $(".rows").append(element);
+                }
+                page.pageLoaded();  
+                $(".data").show();
+            }
+        },
+        toggleTag: function(e) {
+            var tag = $(e.currentTarget);
+            if (tag.hasClass("selected")) tag.removeClass("selected");
+            else tag.addClass("selected");
+        },
+        pageLoaded: function() {
+            $(".gridAction").click(page.gridAction);
+            $(".clickEdit").click(page.clickEdit);
+            app.postLoad();
+        },
+        toggleList: function() {
+            if ($("#Objects").val()=="all") {
+                $("#ObjectsList").hide();
+            } else {
+                $("#ObjectsList").show();
+            }
+        },
+        gridAction: function(e) {
+            var action = $(e.currentTarget).data("action");
+            var id = $(e.currentTarget).data("id");
+            if (action=="edit") page.edit(id);
+        },
+        save: function() {
+            if (page.validate()) {
+                var objects = "";
+                if ($("#Objects").val()=="all") objects = "all";
+                else {
+                    $("#ObjectsList").children(".selected").each(function(index, tag) {
+                        objects += ((index>0)?",":"") + $(tag).data("object");
+                    });
+                }
+                tags.save(
+                    $("#Id").val(),
+                    $("#Label").val(),
+                    $("#Description").val(),
+                    $("#Default").val(),
+                    $("#InputType").val(),
+                    objects
+                );
+			    modal.close();
+            } else growler.form();
+        },
+        edit: function(id) {
+            page.reset();
+            var detail = tags.details(id);
+            $(".adding").hide();
+            $(".editing").show();
+
+            $("#Id").val(detail.id);
+            $("#Id").attr('readonly', true);
+            $("#Label").val(detail.label);
+            $("#Default").val(detail.default);
+            $("#Description").val(detail.description);
+            $("#InputType").val(detail.value);
+            if (detail.objects=="all") $("#Objects").val("all");
+            else {
+                $("#Objects").val("select");
+                var items = detail.objects.split(',');
+                for (var i=0; i<items.length; i++) {
+                    $("*[data-object="+items[i]+"]").addClass("selected");
+                }
+            }
+
+            page.editId = id;
+            modal.show("AddModal");
+        },
+        validate: function() {
+            $(".errors").removeClass("errors");
+            if ($("#Label").val().trim().length==0) $("#Label").addClass("errors");
+            if ($("#Id").val().trim().length==0) $("#Id").addClass("errors");
+            if ($("#Objects").val()!="all"&&$("#ObjectList").children(".selected")==0) $("#Objects").addClass("errors");
+            return $(".errors").length==0;
+        },        
+        reset: function() {
+            page.editId = "";
+            $("#Label").val("");
+            $("#Id").attr('readonly', false);
+            $("#Id").val("");
+            $("#Default").val("");
+            $("#Description").val("");
+            $("#Objects").val("all");
+            $("#ObjectList").children(".selected").removeClass("selected");
+            $("#InputType").val("string");
+            $("#ObjectsList").hide();
+        },
+        handleAction: function(e) {
+            page.reset();
+            var action = $(e.currentTarget).data("action");
+            if (action=="add") page.add();
+        },
+        clickEdit: function(e) {
+            var id = $(e.currentTarget).data("id");
+            if (id) page.edit(id);
+        },
+        add: function() {
+            $(".adding").show();
+            $(".editing").hide();
+            modal.show("AddModal");
+        }
+    }
+</script>

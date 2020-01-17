@@ -1,0 +1,80 @@
+		<script language="javascript" type="text/javascript">
+			page = {
+				isSetup: false,
+				init: function() {
+					this.events();
+					settings.init();
+					$("main").addClass("login");
+				}, 
+				events: function() {
+					$("#LoginButton").click(page.login);
+					$("#CreateButton").click(page.create);
+					context.addListener(user.name,page.loggedIn);
+					context.addListener(settings.name, page.settingsReturned);
+				},
+				login: function() {
+					context.set("serviceUrl", $("#EdgeControllerList").val());
+					user.login(
+						$("#EdgeControllerList").val(),
+						$("#Username").val(), 
+						$("#Password").val()
+					);
+				},
+				loggedIn: function() {
+					
+				},
+				create: function() {
+					if (page.validate()) {
+						settings.addContoller($("#EdgeName").val(), $("#EdgeUrl").val());
+					} else growler.form();
+				},
+				validate: function() {
+					$(".errors").removeClass("errors");
+					if ($("#EdgeName").val().trim().length==0) $("#EdgeName").addClass("errors");
+					if ($("#EdgeUrl").val().trim().length==0) $("#EdgeUrl").addClass("errors");
+					return $(".errors").length==0;
+				},
+				settingsReturned: function(e) {
+					$(".open").removeClass("open");
+					$("#EdgeControllerList").html("");
+					if (settings.data.edgeControllers.length>0) {
+						$(".userlogin").addClass("open");
+						for (var i=0; i<settings.data.edgeControllers.length; i++) {
+							page.isSetup = true;
+							$("#EdgeControllerList").append('<option value="'+settings.data.edgeControllers[i].url+'">'+settings.data.edgeControllers[i].name+' ('+settings.data.edgeControllers[i].url+')</option>');
+						}
+					} else {
+						$(".edgecreate").addClass("open");
+					}
+				}
+			}
+		</script>
+		<style>
+			.edgecreate, .userlogin {
+				display: none;
+			}
+			.edgecreate.open, .userlogin.open {
+				display: inline-block;
+			}
+		</style>
+		<div id="LoginForm" class="form mini">
+			<div class="title">Ziti Admin Console</div>
+			<div class="subtitle">Welcome, please login to continue</div>
+
+			<label for="EdgeControllerList" class="userlogin">Edge Controller</label>
+			<select id="EdgeControllerList" class="userlogin"></select>
+			<label for="Username" class="edgecreate">Edge Controller Name</label>
+			<input id="EdgeName" type="text" max="500" placeholder="enter a name for your controller" data-enter="LoginButton" class="edgecreate" />
+			<label for="EdgeUrl" class="edgecreate">Url</label>
+			<input id="EdgeUrl" type="text" max="500" placeholder="e.g. http://10.0.0.1:1280" data-enter="LoginButton" class="edgecreate" />
+
+			<label for="Username" class="userlogin">Username</label> 
+			<input id="Username" class="userlogin" type="text" max="500" placeholder="enter your login username" data-enter="LoginButton" autocomplete="on" />
+			<label for="Password" class="userlogin">Password</label>
+			<input id="Password" class="userlogin" type="password" max="500" placeholder="enter the password for your account" data-enter="LoginButton" autocomplete="on" />
+
+			<div class="buttons">
+				<div id="LoginButton" class="button userlogin">Login</div>
+				<div id="CreateButton" class="button edgecreate">Set Controller</div>
+			</div>
+		</div>

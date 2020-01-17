@@ -1,0 +1,151 @@
+/***
+ ** Navigation Styles 
+***/
+
+nav {
+    position: fixed;
+    top: -10px;
+    left: 0px;
+    width: 60px;
+    bottom: -10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-color: var(--shaded);
+	box-shadow: inset 0px 4px 16px 0px rgba(0, 0, 0, 0.08);
+}
+
+nav .title {
+    color: var(--primary);
+    filter: brightness(50%);
+    font-size: 28px;
+    font-family: 'Russo One';
+    text-align: center;
+    margin-left: 110px;
+    margin-right: 45px;
+    font-size: 24px;
+    line-height: 56px;
+}
+
+nav.open {
+    width: 380px;
+}
+
+nav.open .navList {
+    display: grid;
+}
+
+nav .navArea {
+    display: none;
+}
+
+nav .navArea.open {
+    display: inline;
+}
+
+nav .navList {    
+	grid-template-columns: 50% 50%;
+	grid-row-gap: 20px;
+    margin-left: 85px;
+    margin-right: 20px;
+    display: none;
+	color: var(--white);
+}
+
+nav .navList .navButton {
+    position: relative;
+    display: inline-block;
+    text-align: center;
+    height: 125px;
+    cursor: pointer;
+}
+
+nav .navList .navButton.disabled {
+    opacity: 0.2;
+    pointer-events: none;
+}
+
+nav .navList .navButton .iconArea {
+    width: 85px;
+    height: 85px;
+    border-radius: 15px;
+    display: inline-block;
+    position: relative;
+    border-width: 2px;
+    border-style: solid;
+    background-color: var(--white);
+    box-shadow: var(--shadow);
+    border-color: var(--white);
+    transition: var(--transition);
+	overflow: hidden;
+}
+
+nav .navList .navButton:hover .iconArea {
+	box-shadow: 0 14px 20px rgba(0, 0, 0, .05), 0 14px 20px rgba(0, 0, 0, .05);
+}
+
+nav .navList .navButton .iconArea.selected {
+    border-color: var(--secondary);
+}
+
+nav .navList .navButton:active .iconArea {
+	box-shadow: 0 14px 20px rgba(0, 0, 0, .05), 0 14px 20px rgba(0, 0, 0, .05);	
+}
+
+nav .navList .navButton .image::before {
+    color: var(--primary);
+}
+
+nav .navList .navButton .image {
+    position: absolute;
+    top: 7px;
+    right: 0px;
+    left: 0px;
+    height: 55px;
+    bottom: 10px;
+    background-position: center center;
+    background-size: contain;
+    font-size: 50px;
+    line-height: 70px;
+    width: 100%;
+    text-align: center;
+}
+
+nav .navList .navButton .label {
+    color: var(--text);
+    position: absolute;
+    font-size: 14px;
+    text-transform: uppercase;
+    bottom: -5px;
+    line-height: 14px;
+    font-weight: 600;
+    text-align: center;
+    font-family: 'Open Sans';
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+nav .lock::before {
+	color: var(--text) !important;	
+}
+
+nav .lock {
+    position: absolute;
+    bottom: 20px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+	font-size: 30px;
+	line-height: 30px;
+	text-align: center;
+    opacity: 0.2;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+nav .lock:hover {
+    opacity: 0.4;
+}
+
+nav .lock.locked {
+    opacity: 0.6;
+}

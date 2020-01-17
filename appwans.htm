@@ -1,0 +1,533 @@
+    <div class="header">
+        <div class="title">Manage <span data-bind="pageTitle"></span></div>
+        <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
+        <div class="line"></div>
+        <div class="tabs">
+            <div class="tab selected">Manage <span data-bind="pageTitle"></span></div>
+            <div class="tab" data-go="/identities">Manage Identities</div>
+            <div class="tab" data-go="/services">Manage Services</div>
+            <div class="tab" data-go="/gateways">Manage Routers</div>
+        </div>
+    </div>
+    <div class="action icon-plus" data-action="add"></div>
+    <div class="filters">
+        <div class="clear"></div>
+        <input id="SearchFilter" type="text" class="search" placeholder="Type to Filter" />
+        <div class="counters"><span id="Start">-</span>-<span id="End">-</span> of <span id="Total">-</span></div>
+        <div class="navigate prev icon-prev disabled"></div>
+        <div class="navigate next icon-next disabled"></div>
+    </div>
+    <div class="area">
+        <div class="noitems"></div>
+        <div class="table">
+            <div class="head grid six">
+                <div class="col">
+                    <div class="selector all"></div>
+                </div>
+                <div class="col sort asc" data-by="name">Name<div class="dragger"></div></div>
+                <div class="col desktop">Identities<div class="dragger"></div></div>
+                <div class="col desktop">Services<div class="dragger"></div></div>
+                <div class="col sort" data-by="createdAt">Created</div>
+                <div class="col"></div>
+            </div>
+            <div class="rows">
+                <!-- This area will be replaced by data rows -->
+            </div>
+        </div>
+    </div>
+    <div class="nodata">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
+
+    <div id="RowTemplate" class="row grid six template">
+        <div class="col">
+            <div class="selector" data-id="{{id}}"></div>
+        </div>
+        <div class="col" data-id="{{id}}"><strong>{{name}}</strong></div>
+        <div class="col desktop" data-id="{{id}}">-</div>
+        <div class="col desktop" data-id="{{id}}">-</div>
+        <div class="col" data-id="{{id}}">{{createdAt}}</div>
+        <div class="col allowOver">
+            <div class="dots" data-id="{{id}}">...
+                <div class="gridMenu" data-id="{{id}}">
+                    <!-- <div class="gridAction" data-id="{{id}}" data-action="visual">Visual</div> -->
+                    <div class="gridAction" data-id="{{id}}" data-action="flow" style="display: none;">Flow</div>
+                    <div class="gridAction" data-id="{{id}}" data-action="edit">Edit</div>
+                    <div class="gridAction" data-id="{{id}}" data-action="delete">Delete</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flow Modal -->
+    <div id="FlowModal" class="modal box full">
+        <div class="close icon-close"></div>
+        <div id="FlowTitle">
+            <div class="relate">
+                <div class="super">AppWAN</div>
+            </div>
+            <div id="FlowInfo"></div>
+        </div>
+        <canvas id="FlowArea" width="500" height="500"></canvas>
+    </div>
+
+    <!-- Visualization Modal -->
+    <div id="VisualModal" class="modal box full">
+        <div class="close icon-close"></div>
+        <div id="VisualTitle">
+            <div class="relate">
+                <div class="super">AppWAN</div>
+            </div>
+            <div id="VisualInfo">
+            </div>
+        </div>
+        <div id="Visual"></div>
+    </div>
+
+    <!-- Modification Modals -->
+    <div id="AddModal" class="modal box full">
+        <div class="sized">
+            <div class="close icon-close"></div>
+            <div class="title adding">Create <span data-bind="singular"></span></div>
+            <div class="subtitle adding">Add a New <span data-bind="singular"></span> by completing the following form</div>
+            <div class="title editing">Edit <span data-bind="singular"></span></div>
+            <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
+            <label for="Name">Name</label>
+            <input id="Name" type="text" maxlength="500" placeholder="Enter a name" />
+            <div class="split unsplit">
+                <div>
+                    <label for="Services">Services<input id="ServiceFilter" type="text" placeholder="filter services" class="filter" /></label>
+                    <div id="Services" class="tagSelect"></div>
+                </div>
+                <div>
+                    <label for="Identities">Identities</label>
+                    <div id="SelectIdentitiesArea" class="selectList">
+                        <div class="smallForm">
+                            <input id="IdentityFilter" type="text" placeholder="filter identities" class="filter" />
+                            <div id="ClearIdsButton" class="filterIcon icon-clear"></div>
+                        </div>
+                        <div class="smallForm">
+                            <input id="AddIdentity" type="text" placeholder="add identity" class="filter" data-enter="AddIdButton"/>
+                            <div id="AddIdButton" class="filterIcon icon-add"></div>
+                        </div>
+                        <div id="Identities" class="list"></div>
+                        <div id="IdentitiesSelected" class="list"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="TagArea"></div>
+            <div class="buttons">
+                <div class="linkButton closer">Oops, No get me out of here</div>
+                <div id="SaveButton" class="button">Save</div>
+            </div>
+        </div>
+    </div>
+
+    <script language="javascript" type="text/javascript">
+        page = {
+            binding: {
+                pageTitle: "AppWANs",
+                singular: "AppWAN"
+            },
+            data: [],
+            tagData: [],
+            deleting: [],
+            editId: "",
+            removal: {},
+            action: "",
+            loaded: {
+                ids: false,
+                services: false
+            },
+            selectedIds: [],
+            addingId: "",
+            init: function() {
+                this.events();
+                context.addListener(tags.name, page.tagsLoaded);
+                context.addListener(identities.name, page.identitiesLoaded);
+                context.addListener(services.name, page.servicesLoaded);
+                context.addListener("servicessub", page.servicesSubLoaded);
+                context.addListener("identitiessub", page.identitiesSubLoaded);
+                context.addListener(appwans.name, page.getLoaded);
+                appwans.init();
+                cas.get();
+                services.all();
+                identities.all();
+            }, 
+            events: function() {
+                $(".action").click(page.handleAction);
+                $("#SaveButton").click(page.save);
+                $("#SearchFilter").keyup(page.search);
+                $("#IdentityFilter").keyup(page.filterIds);
+                $("#ServiceFilter").keyup(page.filterServices);
+                $("#ClearIdsButton").click(page.clearIds);
+                $("#AddIdButton").click(page.addIdentity);
+		        $(".clear").click(page.clear);
+            },
+            clear: function() {
+                $("#SearchFilter").val("");
+                appwans.filter = "";
+                appwans.get();
+                $(".clear").removeClass("showing");
+            },
+            tagsLoaded: function() {
+                var html = "";
+                for (var i=0; i<tags.data.length; i++) {
+                    if (tags.data[i].objects=="all"||tags.data[i].objects.indexOf('appwan')>=0) {
+                        page.tagData[page.tagData.length] = tags.data[i];
+                        html += tags.html(tags.data[i]);
+                    }
+                }
+                $("#TagArea").html(html);
+                tags.events();
+            },
+            filterIds: function(e) {
+                if (page.filterIdentitiesId) clearTimeout(page.filterIdentitiesId);
+                if (e.keyCode==13) {         
+                    page.doFilterIds();
+                } else {
+                    page.filterIdentitiesId = setTimeout(function() {   
+                        page.doFilterIds();           
+                    }, 1000);
+                }  
+            },
+            clearIds: function() {
+                $("#IdentityFilter").val("");
+                page.doFilterIds();
+            },
+            addIdentity: function() {
+                var name = $("#AddIdentity").val().trim();
+                if (name.length==0) {
+                    growler.error("The identity name cannot be blank.")
+                } else {
+                    page.addingId = name;
+                    identities.inlineSave = true;
+                    identities.save(name, "Device", false, "ott", cas.data[0].id, {}, "");
+                }
+            },
+            doFilterIds: function() {
+                var starts = $("#IdentityFilter").val();
+                $("#Identities").children().each(function(i,element) {
+                    var id = $(element).data("id");
+                    if ($(element).html().toLowerCase().startsWith(starts.toLowerCase())&&$("#IdentitiesSelected").find('*[data-id="'+id+'"]').is(":hidden")) $(element).show();
+                    else $(element).hide();
+                });
+            },
+            filterServices: function(e) {
+                if (page.filterServiceId) clearTimeout(page.filterServiceId);
+                var starts = $("#ServiceFilter").val();
+                services.filter = starts;
+                if (e.keyCode==13) {
+                    services.all();
+                } else {
+                    page.filterServiceId = setTimeout(function() {
+                        services.all();
+                    }, 1000);
+                }                
+            },
+            search: function(e) {
+                if (page.searchId) clearTimeout(page.searchId);
+                appwans.filter = $("#SearchFilter").val();
+                if ($("#SearchFilter").val().trim().length>0) $(".clear").addClass("showing");
+                else $(".clear").removeClass("showing");
+                if (e.keyCode==13) {
+                    appwans.get();
+                } else {
+                    page.searchId = setTimeout(function() {
+                        appwans.get();
+                    }, 1000);
+                }
+            },
+            clickEdit: function(e) {
+                var id = $(e.currentTarget).data("id");
+                if (id) page.edit(id);
+            },
+            getLoaded: function(e) {
+                $(".selector.selected").removeClass("selected");
+                app.setAction();
+                $(".rows").html("");
+                page.data = appwans.data;
+                if (appwans.data.length>0) {
+                    $("#Start").html(appwans.start());
+                    $("#End").html(appwans.end());
+                    $("#Total").html(appwans.total());
+                    for (var i=0; i<appwans.data.length; i++) {
+                        var element = $("#RowTemplate").clone();
+                        element.removeClass("template");
+                        element.attr("id","Row"+i);
+                        element.html(element.html().split("{{id}}").join(appwans.data[i].id));
+                        element.html(element.html().split("{{name}}").join(appwans.data[i].name));
+                        // Add Count (Change these to property iterators)
+                        element.html(element.html().split("{{createdAt}}").join(moment(appwans.data[i].createdAt).fromNow()));
+                        $(".rows").append(element);
+                    }
+                    page.pageLoaded();     
+                    $(".data").show();
+                    $(".nodata").hide();       
+                } else {
+                    $(".data").hide();
+                    $(".nodata").show();
+                }           
+            },
+            toggleTag: function(e) {
+                var tag = $(e.currentTarget);
+                if (tag.hasClass("selected")) tag.removeClass("selected");
+                else tag.addClass("selected");
+            },
+            servicesLoaded: function(e) {
+                var elements = $("#Services").children(".selected");
+                $("#Services").html("");
+                $("#Services").append(elements);
+                for (var i=0; i<services.data.length; i++) {
+                    if ($("#Services").find('*[data-id="'+services.data[i].id+'"]').length==0) $("#Services").append('<div class="tag" data-id="'+services.data[i].id+'">'+services.data[i].name+'</div>');
+                } 
+                $(".tag").off("click");
+                $(".tag").on("click", page.toggleTag);
+            },
+            identitiesLoaded: function(e) {
+                $("#Identities").html("");
+                $("#IdentitiesSelected").html("");
+                for (var i=0; i<identities.data.length; i++) {
+                    var hasCert = false;
+                    if (identities.data[i].enrollment!=null&&identities.data[i].enrollment.ott!=null&&identities.data[i].enrollment.ott.expiresAt!=null) {
+                        var difference = moment(identities.data[i].enrollment.ott.expiresAt).diff(moment(new Date()));
+                        if (difference>0) {
+                            hasCert = true;
+                        }
+                    }
+                    var itemString = '<div class="listItem" data-id="'+identities.data[i].id+'" data-list="Identities">'+identities.data[i].name+((hasCert)?'<span class="cert" data-id="'+identities.data[i].id+'"></div>':'')+'</div>';
+                    var itemStringSelected = '<div class="listItem" style="display:none" data-id="'+identities.data[i].id+'" data-list="Identities">'+identities.data[i].name+((hasCert)?'<span class="cert" data-id="'+identities.data[i].id+'"></div>':'')+'</div>';
+                    if ($("#Identities").find('*[data-id="'+identities.data[i].id+'"]').length==0) $("#Identities").append(itemString);
+                    if ($("#IdentitiesSelected").find('*[data-id="'+identities.data[i].id+'"]').length==0) $("#IdentitiesSelected").append(itemStringSelected);
+                }
+                $(".listItem").off("click");
+                $(".listItem").on("click", page.toggleItem);
+                $(".cert").click(page.getCert);
+                if (page.selectedIds.length>0) {
+                    if (page.addingId.length>0) {
+                        $("#Identities").find("*:contains('"+page.addingId+"')").hide();
+                        var element = $("#IdentitiesSelected").find("*:contains('"+page.addingId+"')");
+                        element.show();
+                        page.selectedIds[page.selectedIds.length] = element.data("id");
+                        page.addingId = "";
+                        $("#AddIdentity").val("");
+                    }
+                    for (var i=0; i<page.selectedIds.length; i++) {
+                        var id = page.selectedIds[i];
+                        $("#IdentitiesSelected").find('*[data-id="'+id+'"]').show();
+                        $("#Identities").find('*[data-id="'+id+'"]').hide();
+                    }
+                    page.doFilterIds();
+                } 
+            },
+            getCert: function(e) {
+                e.stopPropagation();
+                var id = $(e.currentTarget).data("id");
+                var identity = identities.details(id);
+                if (identity&&identity.enrollment&&identity.enrollment.ott&&identity.enrollment.ott.jwt) {
+                    var name = identity.name.split(" ").join("");
+                    var element = document.createElement('a');
+                    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(identity.enrollment.ott.jwt));
+                    element.setAttribute('download', name+".jwt");
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
+                }
+            },
+            toggleItem: function(e) {
+                var item = $(e.currentTarget);
+                var id = item.data("id");
+                var list = item.data("list");
+                var parentId = item.parent().attr("id");
+                if (parentId.endsWith("Selected")) {
+                    $("#IdentitiesSelected").find('*[data-id="'+id+'"]').hide();
+                    $("#Identities").find('*[data-id="'+id+'"]').show();
+                } else {
+                    $("#IdentitiesSelected").find('*[data-id="'+id+'"]').show();
+                    $("#Identities").find('*[data-id="'+id+'"]').hide();
+                }
+                page.selecteds = [];
+                $("#IdentitiesSelected").find("div").each(function(e,elem) {
+                    if ($(elem).is(":visible")) page.selectedIds[page.selectedIds.length] = $(elem).data("id");
+                });
+            },
+            validate: function() {
+                $(".errors").removeClass("errors");
+                if ($("#Name").val().trim().length==0) $("#Name").addClass("errors");
+                return $(".errors").length==0;
+            },
+            flow: function(id) {
+                page.reset();
+                var detail = appwans.details(id);
+                appwans.getSubs(id, "services", detail._links.services);
+                appwans.getSubs(id, "identities", detail._links.identities);
+                $(".adding").hide();
+                $(".editing").show();
+
+                $("#FlowInfo").html(detail.name);
+
+                page.editId = id;
+                modal.show("FlowModal");
+            },
+            visual: function(id) {
+                page.reset();
+                var detail = appwans.details(id);
+                appwans.getSubs(id, "services", detail._links.services);
+                appwans.getSubs(id, "identities", detail._links.identities);
+                $(".adding").hide();
+                $(".editing").show();
+
+                $("#VisualInfo").html(detail.name);
+
+                page.editId = id;
+                modal.show("VisualModal");
+            },
+            bothLoaded: function() {
+                console.log(page.action);
+                $("#Visual").html("");
+                if (page.action=="visual") {
+                    var chart = new Column("Visual");
+                    chart.services = appwans.current.services;
+                    chart.clients = appwans.current.identities;
+                    chart.render();
+                } else if (page.action=="flow") {
+                    var flow = new Flows("FlowArea");
+                    flow.services = appwans.current.services;
+                    flow.clients = appwans.current.identities;
+                    flow.render();
+                }
+            },
+            edit: function(id) {
+                page.reset();
+                var detail = appwans.details(id);
+                tags.reset(page.tagData,detail);
+                appwans.getSubs(id, "services", detail._links.services);
+                appwans.getSubs(id, "identities", detail._links.identities);
+                $(".adding").hide();
+                $(".editing").show();
+
+                $("#Name").val(detail.name);
+
+                page.editId = id;
+                modal.show("AddModal");
+            },
+            servicesSubLoaded: function(e) {
+                var data = context.get("servicessub");
+                page.removal.services = [];
+                appwans.current.services = data;
+                for (var i=0; i<data.length; i++) {
+                    page.removal.services[page.removal.services.length] = data[i].id;
+                    $("#Services").find('*[data-id="'+data[i].id+'"]').addClass("selected");
+                }
+                page.loaded.services = true;
+                if (page.loaded.ids) page.bothLoaded();
+            },
+            identitiesSubLoaded: function(e) {
+                var data = context.get("identitiessub");
+                page.removal.identities = [];
+                appwans.current.identities = data;
+                for (var i=0; i<data.length; i++) {
+                    page.selectedIds[page.selectedIds.length] = data[i].id;
+                    page.removal.identities[page.removal.identities.length] = data[i].id;
+                    $("#IdentitiesSelected").find('*[data-id="'+data[i].id+'"]').show();
+                    $("#Identities").find('*[data-id="'+data[i].id+'"]').hide();
+                }
+                page.loaded.ids = true;
+                if (page.loaded.services) page.bothLoaded();
+            },
+            isInArray: function(array, id) {
+                for (var i=0; i<array.length; i++) {
+                    if (array[i]==id) return true;
+                }
+                return false;
+            },
+            save: function() {
+                if (page.validate()) {
+                    var services = [];
+                    var identities = [];
+                    $("#Services").children(".selected").each(function(index, tag) {
+                        services[services.length] = $(tag).data("id")
+                    });
+                    for (var i=0; i<page.selectedIds.length; i++) {
+                        if (!page.isInArray(identities, page.selectedIds[i])) identities[identities.length] = page.selectedIds[i];
+                    }
+                    if (localStorage.getItem("filterAfterSave")=="on") {
+                        $("#SearchFilter").val($("#Name").val());
+                        appwans.filter = $("#SearchFilter").val();
+                    }
+                    appwans.save($("#Name").val(), identities, services, tags.getValues(page.tagData), page.editId, page.removal);
+                }
+            },
+            deleteMulti: function(e) {
+                page.deleting = [];
+                $(".selector.selected").each(function(index, e) {
+                    page.deleting[page.deleting.length] = $(e).data("id");
+                });
+                if (page.deleting.length>0) {
+                    modal.confirm("you want to delete these "+page.deleting.length+" "+((page.deleting.length>1)?page.binding.pageTitle:page.binding.singular), page.confirmedDelete);
+                }
+            },
+            confirmedDelete: function() {
+                appwans.delete(page.deleting);
+                app.reset();
+            },
+            reset: function() {
+                tags.reset(page.tagData);
+                $(".selected").removeClass("selected");
+                page.loaded.ids = false;
+                page.loaded.services = false;
+                page.editId = "";
+                $("#Identities").children().show();
+                $("#IdentityFilter").val("");
+                page.selectedIds = [];
+                $("#AddIdentity").val("");
+                $("#IdentitiesSelected").children().hide();
+                $("#Name").val("");
+                page.servicesLoaded();
+                page.identitiesLoaded();
+            },
+            pageLoaded: function() {
+                $(".gridAction").click(page.gridAction);
+                $(".navigate").off("click");
+                $(".navigate").addClass("disabled");
+                $(".clickEdit").click(page.clickEdit);
+                if (!appwans.isFirst()) {
+                    $(".navigate.prev").removeClass("disabled");
+                    $(".navigate.prev").on("click", appwans.prev);
+                }
+                if (!appwans.isLast()) {
+                    $(".navigate.next").removeClass("disabled");
+                    $(".navigate.next").on("click", appwans.next);
+                } 
+                app.postLoad();
+            },
+            gridAction: function(e) {
+                page.action = $(e.currentTarget).data("action");
+                var id = $(e.currentTarget).data("id");
+                if (page.action=="delete") {
+                    page.deleting = [];
+                    page.deleting[page.deleting.length] = id;
+                    modal.confirm("you want to delete this "+page.binding.singular, page.confirmedDelete);
+                } else if (page.action=="edit") {
+                    page.edit(id);
+                } else if (page.action=="visual") {
+                    page.visual(id);
+                } else if (page.action=="flow") {
+                    page.flow(id);
+                }
+            },
+            handleAction: function(e) {
+                var action = $(e.currentTarget).data("action");
+                if (action=="add") {
+                    page.reset();
+                    page.add();
+                } else if (action=="remove") {
+                    page.deleteMulti();
+                }
+            },
+            add: function() {
+                $(".adding").show();
+                $(".editing").hide();
+                modal.show("AddModal");
+            }
+        }
+    </script>

@@ -1,0 +1,226 @@
+/***
+ ** Header Styles 
+***/
+
+header {
+    position: fixed;
+    left: 0px;
+    width: 65px;
+    top: 0px;
+    bottom: 0px;
+    z-index: 100;
+    background: linear-gradient(to bottom, var(--primary) 0%, var(--secondary) 100%);
+}
+
+.header .title {
+    height: 30px;
+    overflow: hidden;
+}
+
+header .topButtons {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    height: 50%;
+    z-index: 5;
+}
+
+header .bottomButtons {
+    position: absolute;
+    bottom: 20px;
+    left: 0px;
+    right: 0px;
+    z-index: 5;
+}
+
+header .clickable {
+    position: relative;
+    clear: both;
+    display: block;
+    float: left;
+    width: 54px;
+    height: 44px;
+    margin-left: 5px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+header .clickable .icon {
+    width: 27px;
+    height: 27px;
+    position: absolute;
+    left: 14px;
+    top: 14px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+header .clickable .main {
+    opacity: 1.0;
+    width: 37px;
+    height: 37px;
+    left: 9px;
+    top: 9px;
+    border-radius: 37px;
+    position: absolute;
+    transition: var(--transition);
+}
+
+header .clickable.open .circle {
+    opacity: 0.3;
+}
+
+header .clickable .circle {
+    opacity: 0.0;
+    z-index: -2;
+    background-color: var(--white);
+    width: 45px;
+    height: 45px;
+    left: 5px;
+    top: 5px;
+    border-radius: 33px;
+    position: absolute;
+    transition: var(--transition); 
+}
+
+header .clickable:hover .circle {
+    opacity: 0.3;
+}
+
+header .clickable.selected .circle {
+    background-color: var(--black);
+    opacity: 0.2;
+}
+
+header #NavigationButton .icon {
+    background-image: url(/assets/svgs/MainMenuNetworks.svg);
+}
+
+header #AddButton .icon {
+    background-image: url(/assets/svgs/MainMenuPlus.svg);
+}
+
+header #SearchButton .icon {
+    background-image: url(/assets/svgs/MainMenuSearch.svg);
+}
+
+header #AlertButton .icon {
+    background-image: url(/assets/svgs/MainMenuNotifications.svg);
+}
+
+header #HelpButton .icon {
+    background-image: url(/assets/svgs/MainMenuSupport.svg);
+}
+
+header #OrgButton .icon {
+    background-image: url(/assets/svgs/settings.svg);
+}
+
+header #ProfileButton .icon {
+    background-image: url(/assets/svgs/MainMenuBlankUser.svg);
+    width: 37px;
+    height: 37px;
+    left: 9px;
+    top: 9px;
+    border-radius: 50px;
+}
+
+#ProfileMenu {
+    position: absolute;
+    bottom: -55px;
+    left: 45px;
+}
+
+#ProfileMenu.open {
+    bottom: -5px;
+}
+
+#AlertButton .count {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    font-weight: 400;
+    font-family: 'Open Sans', Arial, sans-serif;
+    background-color: var(--secondary);
+    z-index: 20;
+    color: var(--white);
+    font-size: 8px;
+    line-height: 12px;
+    font-weight: bold;
+    position: absolute;
+    right: 13px;
+    top: 15px;
+    text-align: center;
+    box-shadow: var(--shadows);
+}
+
+.menu {
+	background-color: var(--menu);
+	border-radius: 7px;
+    box-shadow: 0 0 0 1px var(--shadow), 0 8px 16px var(--shadow);
+	font-size: 14px;
+	font-weight: 600;
+	text-transform: uppercase;
+	color: var(--white);
+	letter-spacing: 1px;
+	height: 0px;
+	opacity: 0;
+	transition: 0.2s;
+	z-index: 50;
+	padding-bottom: 10px;
+	padding-top: 10px;
+}
+
+.menu.open {
+	height: unset;
+	opacity: 1.0;
+}
+
+.menu .link {
+	cursor: pointer;
+    line-height: 36px;
+    white-space: nowrap;
+    padding-left: 20px;
+    padding-right: 20px;
+	transition: 0.2s;
+}
+
+.menu .link:hover {
+	background-color: var(--primary);	
+}
+
+.menu .menutitle {
+	opacity: 0.8;
+	white-space: nowrap;
+    line-height: 36px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.hover {
+	white-space: nowrap;
+	position: absolute;
+	pointer-events: none;
+	left: 54px;
+	top: 7px;
+	background-color: var(--menu);
+	padding: 10px;
+	border-radius: 4px;
+	box-shadow: var(--shadows);
+	font-size: 14px;
+	color: var(--white);
+	letter-spacing: 1px;
+	height: 0px;
+	opacity: 0;
+	font-family: Open Sans;
+	font-weight: 600;
+	transition: 0.2s;
+}
+
+.hover.open {
+	height: unset;
+	opacity: 1.0;
+}
