@@ -108,7 +108,7 @@ var routerPolicy = {
 		return this.meta.pagination.offset==0;
 	},
 	isLast: function() {
-		return (this.meta.pagination.offset*this.meta.pagination.limit)+this.meta.pagination.limit>=this.meta.pagination.totalCount;
+		return (this.meta.pagination.offset+this.meta.pagination.limit)>=this.meta.pagination.totalCount;
 	},
 	next: function() {
 		if (!routerPolicy.isLast()) {

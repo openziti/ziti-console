@@ -345,7 +345,7 @@
                     $("#IdentitiesSelected").find('*[data-id="'+id+'"]').show();
                     $("#Identities").find('*[data-id="'+id+'"]').hide();
                 }
-                page.selecteds = [];
+                page.selectedIds = [];
                 $("#IdentitiesSelected").find("div").each(function(e,elem) {
                     if ($(elem).is(":visible")) page.selectedIds[page.selectedIds.length] = $(elem).data("id");
                 });

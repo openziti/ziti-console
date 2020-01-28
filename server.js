@@ -449,7 +449,8 @@ app.post("/api/dataSave", function(request, response) {
 				else {
 					log(JSON.stringify(body));
 					if (body.error) {
-						response.json( {error: body.error.cause.message} );
+						if (body.error.cause&&body.error.cause.message) response.json( {error: body.error.cause.message} );
+						else response.json( {error: body.error} );
 					} else if (body.data) {
 						if (additional) {
 							var objects = Object.entries(additional);
@@ -587,7 +588,8 @@ app.post("/api/dataSubs", function(request, response) {
 			if (err) response.json({ error: err });
 			else {
 				if (body.error) {
-					response.json( {error: body.error.cause.message} );
+					if (body.error.cause&&body.error.cause.message) response.json( {error: body.error.cause.message} );
+					else response.json( {error: body.error} );
 				} else if (body.data) {
 					log(body.data.length);
 					response.json({
