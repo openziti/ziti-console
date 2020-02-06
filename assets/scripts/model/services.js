@@ -86,21 +86,17 @@ var services = {
 			}
 		}
 	},
-	save: function(name, hostname, port, router, endpointAddress, roles, tags, id, removal) {
+	save: function(name, router, endpointAddress, roles, tags, id, removal) {
 		var params = this.getParams();
 		params.save = {
 			name: name,
-			dns: {
-				hostname: hostname,
-				port: Number(port)
-			},
 			legacyPassthrough: true,
 			egressRouter: router,
 			endpointAddress: endpointAddress,
 			tags: tags,
 			roleAttributes: roles
 		};
-		if (id.trim().length>0) {
+		if (id!=null&&id.trim().length>0) {
 			params.additional = {};
 			params.id = id;
 			params.removal = removal;
