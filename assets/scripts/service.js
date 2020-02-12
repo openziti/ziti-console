@@ -34,6 +34,12 @@ var service = {
 						window.location = "/login";
 					}, 2000);
 				}
+				if (e.responseJSON.error!=null&&e.responseJSON.error.indexOf("credentials are invalid")>0) {
+					growler.error("Cannot Reach Server", e.responseJSON.error);
+					setTimeout(function() {
+						window.location = "/login";
+					}, 2000);
+				}
 			},
 			success: returnTo
 		});

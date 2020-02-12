@@ -26,6 +26,15 @@
 	width: 100%;
 }
 
+.grid.threedelete {
+	grid-template-columns: 50% auto 30px;
+    line-height: 45px;
+    font-size: 16px;
+    height: 45px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .split {
 	display: grid;
 	grid-gap: 10px;

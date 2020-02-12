@@ -86,13 +86,14 @@ var services = {
 			}
 		}
 	},
-	save: function(name, router, endpointAddress, roles, tags, id, removal) {
+	save: function(name, router, endpointAddress, roles, configs, tags, id, removal) {
 		var params = this.getParams();
 		params.save = {
 			name: name,
 			legacyPassthrough: true,
 			egressRouter: router,
 			endpointAddress: endpointAddress,
+			configs: configs,
 			tags: tags,
 			roleAttributes: roles
 		};

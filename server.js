@@ -408,6 +408,35 @@ app.post("/api/delete", function(request, response) {
 	});
 });
 
+app.post("/api/subSave", function(request, response) {
+	if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
+	else {
+		var id = request.body.id;
+		var type = request.body.type;
+		var doing = request.body.doing;
+		var parentType = request.body.parentType;
+		var fullType = parentType+"/"+id+"/"+type;
+		var url = serviceUrl+"/"+fullType;
+		var saveParams = request.body.save;
+		var user = request.session.user;
+		if (hasAccess(user)) {
+			log(url);
+			log("Saving As: "+doing+" "+JSON.stringify(saveParams));
+			external(url, {method: doing, json: saveParams, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+				if (err) {
+					log(err);
+					response.json({ error: err });
+				} else {
+					log(JSON.stringify(body));
+					GetItems(fullType, null, request, response);
+				}
+			});
+		} else {
+			response.json({error:"loggedout"});
+		}
+	}
+});
+
 app.post("/api/dataSave", function(request, response) {
 	if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
 	else {
@@ -425,7 +454,6 @@ app.post("/api/dataSave", function(request, response) {
 			if (id&&id.trim().length>0) {
 				method = "PUT";
 				url += "/"+id.trim();
-				//saveParams.tags = {};
 				saveParams.permissions = [];
 				log("removing");
 				if (removal) {
@@ -443,7 +471,7 @@ app.post("/api/dataSave", function(request, response) {
 				}
 			}
 			log(url);
-			log("Saving As: "+JSON.stringify(saveParams));
+			log("Saving As: "+method+" "+JSON.stringify(saveParams));
 			external(url, {method: method, json: saveParams, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 				if (err) response.json({ error: err });
 				else {
@@ -539,28 +567,54 @@ app.post("/api/dataFabric", function(request, response) {
 });
 
 function GetFabricItems(type, response) {
-	log("Calling Fabric: "+type+" "+fabricUrl+"/ctrl/"+type);
-	external.get(fabricUrl+"/ctrl/"+type, { json: {}, rejectUnauthorized: false }, function(err, res, body) {
-		if (err) {
-			response.json({ error: "Unable to connect to fabric" });
-		} else {
-			if (body.error) {
-				response.json( {error: body.error.message} );
-			} else if (body.data) {
-				response.json( body );
-			} else {
-				response.json( {error: "Unable to retrieve data"} );
-			}
+	var canCall = false; 
+	for (var i=0; i<settings.fabricControllers.length; i++) {
+		console.log("Fab: "+JSON.stringify(settings.fabricControllers[i]));
+		if (settings.fabricControllers[i].url==fabricUrl) {
+			canCall = true;
+			break;
 		}
-	});
+	}
+	if (canCall) {
+		log("Calling Fabric: "+type+" "+fabricUrl+"/ctrl/"+type);
+		external.get(fabricUrl+"/ctrl/"+type, { json: {}, rejectUnauthorized: false }, function(err, res, body) {
+			if (err) {
+				response.json({ error: "Unable to connect to fabric" });
+			} else {
+				if (body.error) {
+					response.json( {error: body.error.message} );
+				} else if (body.data) {
+					response.json( body );
+				} else {
+					response.json( {error: "Unable to retrieve data"} );
+				}
+			}
+		});
+	} else {
+		fabricUrl = "";
+		response.json({ data: [] });
+	}
 }
 
+app.post("/api/data", function(request, response) {
+	var type = request.body.type;
+	var paging = request.body.paging;
+	GetItems(type, paging, request, response);
+});
+
 function GetItems(type, paging, request, response) {
-	if (!paging.filter) paging.filter = "";
+	var urlFilter = "";
+	if (paging!=null) {
+		if (!paging.filter) {
+			paging.filter = "";
+		} else {
+			if (paging.page!=-1) urlFilter = "?filter=(name contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
+		}
+	}
 	if(serviceUrl==null||serviceUrl.trim().length==0) response.json({error:"loggedout"});
 	else {
-		log(serviceUrl+"/"+type+"?filter=(name contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order);
-		external.get(serviceUrl+"/"+type+"?filter=(name contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order, {json: {}, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+		log(serviceUrl+"/"+type+urlFilter);
+		external.get(serviceUrl+"/"+type+urlFilter, {json: {}, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 			if (err) {
 				log("Error: "+JSON.stringify(err));
 				response.json({ error: err });
@@ -571,7 +625,10 @@ function GetItems(type, paging, request, response) {
 					log("Items: "+body.data.length);
 					response.json( body );
 				} else {
-					response.json( {error: "Unable to retrieve data"} );
+					body.data = [];
+					log(JSON.stringify(body));
+					response.json( body );
+					//response.json( {error: "Unable to retrieve data"} );
 				}
 			}
 		});
@@ -671,12 +728,6 @@ app.post("/api/series", function(request, response) {
 		log(error);
 		response.json({ error: error });
 	});
-});
-
-app.post("/api/data", function(request, response) {
-	var type = request.body.type;
-	var paging = request.body.paging;
-	GetItems(type, paging, request, response);
 });
 
 function AppendObject(obj, request, index) {

@@ -62,12 +62,13 @@ var routerPolicy = {
 			context.set(routerPolicy.name, routerPolicy.data);
 		}
 	},
-	save: function(name, routerRoles, identityRoled, tags, id) {
+	save: function(name, routerRoles, identityRoled, semantic, tags, id) {
 		var params = this.getParams();
 		params.save = {
 			name: name,
 			edgeRouterRoles: routerRoles,
 			identityRoles: identityRoled,
+			semantic: semantic,
 			tags: tags
 		};
 		if (id.trim().length>0) params.save.id = id;

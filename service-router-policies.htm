@@ -3,9 +3,9 @@
         <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
         <div class="line"></div>
         <div class="tabs">
-            <div class="tab selected">Edge Router Policies</div>
-            <div class="tab" data-go="/service-policies">Service Policies</div>
-            <div class="tab" data-go="/service-router-policies">Service Edge Router Policies</div>
+            <div class="tab" data-go="/router-policies">Edge Router Policies</div>
+            <div class="tab" data-go="/service-policies">Service Edge Policies</div>
+            <div class="tab selected">Service Edge Router Policies</div>
         </div>
     </div>
     <div class="action icon-plus" data-action="add"></div>
@@ -25,7 +25,7 @@
                 </div>
                 <div class="col sort asc" data-by="name">Name<div class="dragger"></div></div>
                 <div class="col">Router Roles<div class="dragger"></div></div>
-                <div class="col">Identity Roles<div class="dragger"></div></div>
+                <div class="col">Service Roles<div class="dragger"></div></div>
                 <div class="col sort" data-by="semantic">Semantic<div class="dragger"></div></div>
                 <div class="col"></div>
             </div>
@@ -42,7 +42,7 @@
         </div>
         <div class="col" data-id="{{id}}"><strong>{{name}}</strong></div>
         <div class="col" data-id="{{id}}">{{edgeRouterRoles}}</div>
-        <div class="col" data-id="{{id}}">{{identityRoles}}</div>
+        <div class="col" data-id="{{id}}">{{serviceRoles}}</div>
         <div class="col" data-id="{{id}}">{{semantic}}</div>
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
@@ -66,8 +66,8 @@
             <input id="Name" type="text" maxlength="500" placeholder="Enter a name" />
             <label for="Roles">Router Roles</label>
             <input id="Roles" type="text" maxlength="500" placeholder="Enter a list of roles" />
-            <label for="IDRoles">Identity Roles</label>
-            <input id="IDRoles" type="text" maxlength="500" placeholder="Enter a list of roles" />
+            <label for="ServiceRoles">Service Roles</label>
+            <input id="ServiceRoles" type="text" maxlength="500" placeholder="Enter a list of roles" />
             <label for="Semantics">Semantics</label>
             <select id="Semantics">
                 <option value="AnyOf">Has Any Role</option>
@@ -86,8 +86,8 @@
     <script language="javascript" type="text/javascript">
         page = {
             binding: {
-                pageTitle: "Router Policies",
-                singular: "Router Policy"
+                pageTitle: "Service Router Policies",
+                singular: "Service Router Policy"
             },
             tagData: [],
             data: [],
@@ -97,8 +97,8 @@
             init: function() {
                 this.events();
                 context.addListener(tags.name, page.tagsLoaded);
-                context.addListener(routerPolicy.name, page.getLoaded);
-                routerPolicy.init();
+                context.addListener(serviceRouterPolicy.name, page.getLoaded);
+                serviceRouterPolicy.init();
             }, 
             events: function() {
                 $(".action").click(page.handleAction);
@@ -120,20 +120,20 @@
             },
             clear: function() {
                 $("#SearchFilter").val("");
-                routerPolicy.filter = "";
-                routerPolicy.get();
+                serviceRouterPolicy.filter = "";
+                serviceRouterPolicy.get();
                 $(".clear").removeClass("showing");
             },
             search: function(e) {
                 if (page.searchId) clearTimeout(page.searchId);
-                routerPolicy.filter = $("#SearchFilter").val();
+                serviceRouterPolicy.filter = $("#SearchFilter").val();
                 if ($("#SearchFilter").val().trim().length>0) $(".clear").addClass("showing");
                 else $(".clear").removeClass("showing");
                 if (e.keyCode==13) {
-                    routerPolicy.get();
+                    serviceRouterPolicy.get();
                 } else {
                     page.searchId = setTimeout(function() {
-                        routerPolicy.get();
+                        serviceRouterPolicy.get();
                     }, 1000);
                 }
             },
@@ -144,17 +144,17 @@
             getLoaded: function(e) {
                 $(".selector.selected").removeClass("selected");
                 app.setAction();
-                page.data = routerPolicy.data;
+                page.data = serviceRouterPolicy.data;
                 $(".rows").html("");
-                if (routerPolicy.data.length>0) {
-                    $("#Start").html(routerPolicy.start());
-                    $("#End").html(routerPolicy.end());
-                    $("#Total").html(routerPolicy.total());
-                    for (var i=0; i<routerPolicy.data.length; i++) {
+                if (serviceRouterPolicy.data.length>0) {
+                    $("#Start").html(serviceRouterPolicy.start());
+                    $("#End").html(serviceRouterPolicy.end());
+                    $("#Total").html(serviceRouterPolicy.total());
+                    for (var i=0; i<serviceRouterPolicy.data.length; i++) {
                         var element = $("#RowTemplate").clone();
                         element.removeClass("template");
                         element.attr("id","Row"+i);
-                        var obj = routerPolicy;
+                        var obj = serviceRouterPolicy;
 						for (var prop in obj.data[i]) {
                             element.html(element.html().split("{{"+prop+"}}").join(obj.data[i][prop]));
                             element.html(element.html().split("{{moment."+prop+"}}").join(moment(obj.data[i][prop]).utc().fromNow()));
@@ -174,13 +174,13 @@
                 $(".navigate").off("click");
                 $(".navigate").addClass("disabled");
                 $(".clickEdit").click(page.clickEdit);
-                if (!routerPolicy.isFirst()) {
+                if (!serviceRouterPolicy.isFirst()) {
                     $(".navigate.prev").removeClass("disabled");
-                    $(".navigate.prev").on("click", routerPolicy.prev);
+                    $(".navigate.prev").on("click", serviceRouterPolicy.prev);
                 }
-                if (!routerPolicy.isLast()) {
+                if (!serviceRouterPolicy.isLast()) {
                     $(".navigate.next").removeClass("disabled");
-                    $(".navigate.next").on("click", routerPolicy.next);
+                    $(".navigate.next").on("click", serviceRouterPolicy.next);
                 } 
                 app.postLoad();
             },
@@ -197,7 +197,7 @@
             },
             edit: function(id) {
                 page.reset();
-                var detail = routerPolicy.details(id);
+                var detail = serviceRouterPolicy.details(id);
                 $(".adding").hide();
                 $(".editing").show();
 
@@ -205,7 +205,7 @@
                 tags.extended(detail, $("#TagExtended"));
                 $("#Name").val(detail.name);
                 $("#Roles").val(detail.edgeRouterRoles);
-                $("#IDRoles").val(detail.identityRoles);
+                $("#ServiceRoles").val(detail.serviceRoles); 
                 $("#Semantics").val(detail.semantic);
 
                 page.editId = id;
@@ -215,11 +215,17 @@
                 if (page.validate()) {
                     if (localStorage.getItem("filterAfterSave")=="on") {
                         $("#SearchFilter").val($("#Name").val());
-                        routerPolicy.filter = $("#SearchFilter").val();
+                        serviceRouterPolicy.filter = $("#SearchFilter").val();
                     }
                     var roles = page.getRoles($("#Roles").val().trim().split(','));
-                    var idRoles = page.getRoles($("#IDRoles").val().trim().split(','));
-                    routerPolicy.save($("#Name").val(),roles,idRoles,$("#Semantics").val(),tags.getValues(page.tagData),page.editId);
+                    var ServiceRoles = page.getRoles($("#ServiceRoles").val().trim().split(','));
+                    serviceRouterPolicy.save(
+                        $("#Name").val(),
+                        roles,
+                        ServiceRoles,
+                        $("#Semantics").val(),
+                        tags.getValues(page.tagData),
+                        page.editId);
                 } else growler.form();
             },
             getRoles: function(roles) {
@@ -240,7 +246,7 @@
                 }
             },
             confirmedDelete: function() {
-                routerPolicy.delete(page.deleting);
+                serviceRouterPolicy.delete(page.deleting);
                 app.reset();
             },
             validate: function() {
@@ -255,7 +261,7 @@
                 page.removal = {};
                 $("#Name").val("");
                 $("#Roles").val("");
-                $("#IDRoles").val("");
+                $("#ServiceRoles").val("");
             },
             handleAction: function(e) {
                 page.reset();

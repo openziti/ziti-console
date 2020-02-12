@@ -5,6 +5,7 @@
         <div class="tabs">
             <div class="tab" data-go="/router-policies">Edge Router Policies</div>
             <div class="tab selected">Service Policies</div>
+            <div class="tab" data-go="/service-router-policies">Service Edge Router Policies</div>
         </div>
     </div>
     <div class="action icon-plus" data-action="add"></div>
@@ -18,11 +19,14 @@
     <div class="area data">
         <div class="noitems"></div>
         <div class="table">
-            <div class="head grid three">
+            <div class="head grid six">
                 <div class="col">
                     <div class="selector all"></div>
                 </div>
                 <div class="col sort asc" data-by="name">Name<div class="dragger"></div></div>
+                <div class="col">Identity Roles<div class="dragger"></div></div>
+                <div class="col">Service Roles<div class="dragger"></div></div>
+                <div class="col sort" data-by="semantic">Semantic<div class="dragger"></div></div>
                 <div class="col"></div>
             </div>
             <div class="rows">
@@ -32,11 +36,14 @@
     </div>
     <div class="nodata">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
 
-    <div id="RowTemplate" class="row grid three template">
+    <div id="RowTemplate" class="row grid six template">
         <div class="col">
             <div class="selector" data-id="{{id}}"></div>
         </div>
         <div class="col" data-id="{{id}}"><strong>{{name}}</strong></div>
+        <div class="col" data-id="{{id}}">{{identityRoles}}</div>
+        <div class="col" data-id="{{id}}">{{serviceRoles}}</div>
+        <div class="col" data-id="{{id}}">{{semantic}}</div>
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
                 <div class="gridMenu" data-id="{{id}}">
@@ -66,6 +73,11 @@
             <input id="Roles" type="text" maxlength="500" placeholder="Enter a list of roles" />
             <label for="IDRoles">Identity Roles</label>
             <input id="IDRoles" type="text" maxlength="500" placeholder="Enter a list of roles" />
+            <label for="Semantics">Semantics</label>
+            <select id="Semantics">
+                <option value="AnyOf">Has Any Role</option>
+                <option value="AllOf">Must Have All Roles</option>
+            </select>
             <div id="TagArea"></div>
             <div id="TagExtended"></div>
             <div class="buttons">
@@ -147,11 +159,11 @@
                         var element = $("#RowTemplate").clone();
                         element.removeClass("template");
                         element.attr("id","Row"+i);
-                        element.html(element.html().split("{{id}}").join(servicePolicy.data[i].id));
-                        element.html(element.html().split("{{name}}").join(servicePolicy.data[i].name));
-                        element.html(element.html().split("{{isVerified}}").join(servicePolicy.data[i].isVerified));
-                        element.html(element.html().split("{{isOnline}}").join(servicePolicy.data[i].isOnline));
-                        element.html(element.html().split("{{createdAt}}").join(moment(servicePolicy.data[i].createdAt).fromNow()));
+                        var obj = servicePolicy;
+						for (var prop in obj.data[i]) {
+                            element.html(element.html().split("{{"+prop+"}}").join(obj.data[i][prop]));
+                            element.html(element.html().split("{{moment."+prop+"}}").join(moment(obj.data[i][prop]).utc().fromNow()));
+                        }
                         $(".rows").append(element);
                     }
                     page.pageLoaded();     
@@ -183,7 +195,7 @@
                 if (action=="delete") {
                     page.deleting = [];
                     page.deleting[page.deleting.length] = id;
-                    modal.confirm("you want to delete this "+page.singular, page.confirmedDelete);
+                    modal.confirm("you want to delete this "+page.binding.singular, page.confirmedDelete);
                 } else if (action=="edit") {
                     page.edit(id);
                 }
@@ -199,6 +211,7 @@
                 $("#Name").val(detail.name);
                 $("#Roles").val(detail.serviceRoles);
                 $("#IDRoles").val(detail.identityRoles);
+                $("#Semantics").val(detail.semantic);
 
                 page.editId = id;
                 modal.show("AddModal");
@@ -216,6 +229,7 @@
                         $("#Type").val(),
                         roles,
                         idRoles,
+                        $("#Semantics").val(),
                         tags.getValues(page.tagData),
                         page.editId);
                 } else growler.form();

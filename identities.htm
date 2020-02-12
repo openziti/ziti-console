@@ -52,12 +52,46 @@
                     <div class="gridAction" data-id="{{id}}" data-action="edit">Edit</div>
                     <div class="gridAction {{hiddenClass}}" data-id="{{id}}" data-action="download">Download JWT</div>
                     <div class="gridAction {{hiddenClass}}" data-id="{{id}}" data-action="qr">View QR</div>
+                    <div class="gridAction" data-id="{{id}}" data-action="override">Overrides</div>
                     <div class="gridAction" data-id="{{id}}" data-action="delete">Delete</div>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="OverrideTemplate" class="row grid threedelete template">
+        <div>{{serviceName}}</div>
+        <div>{{configName}}</div>
+        <div class="relative">
+            <div class="remove icon-minus removeAssoc" data-config="{{config}}" data-service="{{service}}"></div>
+        </div>
+    </div>
+
+    <div id="OverrideModal" class="modal box full">
+        <div class="sized">
+            <div class="close icon-close"></div>
+            <div class="title">Identity Overrides</div>
+            <div class="subtitle">Manage the Service Config Identity Overrides</div>
+            <div class="darkened overrides" style="display: none;">Current Overrides</div>
+            <div id="OverrideList" class="grid splitRemove overrides" style="display: none;">
+
+            </div>
+            <div class="darkened">Add Override Config</div>
+            <div class="grid split">
+                <div>
+                    <label for="ServiceList">Service</label>
+                    <select id="ServiceList"></select>
+                </div>
+                <div>
+                    <label for="ConfigList">Configuration</label>
+                    <select id="ConfigList"></select>
+                </div>
+            </div>
+            <div class="buttons">
+                <div id="AssociateButton" class="button">Add</div>
+            </div>
+        </div>
+    </div>
 
 	<!-- Modification Modals -->
 	<div id="AddModal" class="modal box full">
@@ -132,19 +166,91 @@
             editId: "",
             init: function() {
                 this.events();
+                identities.init();
+                cas.get();
+                services.all();
+                configs.all();
+            }, 
+            events: function() {
                 context.addListener(tags.name, page.tagsLoaded);
                 context.addListener(identities.name, page.getLoaded);
                 context.addListener(cas.name, page.casLoaded);
-                identities.init();
-                cas.get();
-            }, 
-            events: function() {
+                context.addListener(services.name, page.servicesLoaded);
+                context.addListener(configs.name, page.configsLoaded);
+                context.addListener("service-configs", page.overridesLoaded);
                 $(".action").click(page.handleAction);
                 $("#IdentityType").change(page.toggleUserType);
                 $("#EnrollmentType").change(page.toggleType);
                 $("#SaveButton").click(page.save);
                 $("#SearchFilter").keyup(page.search);
+                $("#AssociateButton").click(page.addOveride);
 		        $(".clear").click(page.clear);
+            },
+            addOveride: function(e) {
+                identities.addOverRide(page.editId, $("#ServiceList").val(), $("#ConfigList").val());
+            },
+            configsLoaded: function(e) {
+                var cons = context.get(configs.name);
+                $("#ConfigList").html("");
+                for (var i=0; i<cons.length; i++) {
+                    $("#ConfigList").append('<option value="'+cons[i].id+'">'+cons[i].name+' - '+page.getPropString(cons[i].data)+'</option>');
+                }
+            },
+            servicesLoaded: function(e) {
+                var items = context.get(services.name);
+                $("#ServiceList").html("");
+                for (var i=0; i<items.length; i++) {
+                    $("#ServiceList").append('<option value="'+items[i].id+'">'+items[i].name+'</option>');
+                }
+            },
+            getPropString: function(obj) {
+                var data = "";
+                for (var key in obj) {
+                    data += " "+obj[key];
+                }
+                return data;
+            },
+            getOverrides: function(id) {
+                page.editId = id;
+                console.log("Calling It");
+                identities.getOverrides(id);
+                modal.show("OverrideModal");
+            },
+            overridesLoaded: function(e) {
+                var overrides = context.get("service-configs");
+                $("#OverrideList").html("");
+                if (overrides.length>0) {
+                    for (var i=0; i<overrides.length; i++) {
+                        var element = $("#OverrideTemplate").clone();
+                        element.removeClass("template");
+                        element.html(element.html().split("{{service}}").join(overrides[i].service));
+                        element.html(element.html().split("{{config}}").join(overrides[i].config));
+                        element.html(element.html().split("{{serviceName}}").join(page.getServiceName(overrides[i].service)));
+                        element.html(element.html().split("{{configName}}").join(page.getConfigName(overrides[i].config)));
+                        $("#OverrideList").append(element);
+                    }
+                    $(".overrides").show();
+                    $(".removeAssoc").click(page.removeOveride);
+                } else {
+                    $(".overrides").hide();
+                }
+            },
+            removeOveride: function(e) {
+                var serviceId = $(e.currentTarget).data("service");
+                var configId = $(e.currentTarget).data("config");
+                identities.deleteOverRide(page.editId, serviceId, configId);
+            },
+            getServiceName: function(id) {
+                for (var i=0; i<services.data.length; i++) {
+                    if (services.data[i].id==id) return services.data[i].name;
+                }
+                return "";
+            },
+            getConfigName: function(id) {
+                for (var i=0; i<configs.data.length; i++) {
+                    if (configs.data[i].id==id) return configs.data[i].name;
+                }
+                return "";
             },
             tagsLoaded: function() {
                 var html = "";
@@ -279,6 +385,8 @@
                     page.getCert(e);
                 } else if (action=="qr") {
                     page.genQR(e);
+                } else if (action=="override") {
+                    page.getOverrides(id);
                 }
             },
             edit: function(id) {
@@ -363,16 +471,7 @@
                         identities.filter = $("#SearchFilter").val();
                     }
                     var roles = page.getRoles($("#Roles").val().trim().split(','));
-                    identities.save(
-                        $("#Username").val(),
-                        $("#IdentityType").val(),
-                        $("#IsAdmin").hasClass("on"),
-                        $("#EnrollmentType").val(),
-                        $("#Authorities").val(), 
-                        roles,
-                        tags.getValues(page.tagData),
-                        page.editId);
-                    
+                    identities.save($("#Username").val(),$("#IdentityType").val(),$("#IsAdmin").hasClass("on"),$("#EnrollmentType").val(),$("#Authorities").val(), roles,tags.getValues(page.tagData),page.editId);
                 } else growler.form();
             }, 
             getRoles: function(roles) {

@@ -94,6 +94,19 @@ var identities = {
 			context.set(identities.name, identities.data);
 		} else growler.error("Error saving "+identities.name, e.error);
 	},
+	deleteOverRide: function(id, serv, config) {
+		service.call("subSave" , { type: "service-configs", parentType: identities.name, id: id, doing: "DELETE", save: [{ service: serv, config: config }] }, identities.overridesLoaded);
+	},
+	addOverRide: function(id, serv, config) {
+		service.call("subSave" , { type: "service-configs", parentType: identities.name, id: id, doing: "POST", save: [{ service: serv, config: config }] }, identities.overridesLoaded);
+	},
+	getOverrides: function(id) {
+		service.call("data" , { type: identities.name+"/"+id+"/service-configs" }, identities.overridesLoaded);
+	},
+	overridesLoaded: function(e) {
+		if (e.error) growler.error("Error assigning config override ", e.error);
+		else context.set("service-configs", e.data);
+	},
 	details: function(id) {
 		for (var i=0; i<this.data.length; i++) {
 			if (this.data[i].id==id) return this.data[i];

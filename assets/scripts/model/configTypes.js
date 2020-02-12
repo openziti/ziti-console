@@ -10,8 +10,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-var servicePolicy = {
-	name: "service-policies",
+var configTypes = {
+	name: "config-types",
 	page: 1,
 	limit: 25,
 	data: [],
@@ -25,6 +25,10 @@ var servicePolicy = {
 	},
 	events: function() {
 		$(".sort").click(this.doSort);
+	},
+	all: function() {
+		this.limit = 500;
+		this.get();
 	},
 	getParams: function() {
 		return {
@@ -40,15 +44,15 @@ var servicePolicy = {
 	},
 	doSort: function(e) {
 		var sortBy = $(e.currentTarget).data("by");
-		if (servicePolicy.sort==sortBy) {
-			if (servicePolicy.order=="ASC") servicePolicy.order = "DESC";
-			else servicePolicy.order = "ASC";
-		} else servicePolicy.order = "ASC";
-		servicePolicy.sort = sortBy;
+		if (configTypes.sort==sortBy) {
+			if (configTypes.order=="ASC") configTypes.order = "DESC";
+			else configTypes.order = "ASC";
+		} else configTypes.order = "ASC";
+		configTypes.sort = sortBy;
 		$(".asc").removeClass("asc");
 		$(".desc").removeClass("desc");
-		$(e.currentTarget).addClass(servicePolicy.order.toLowerservicePolicye());
-		servicePolicy.get();
+		$(e.currentTarget).addClass(configTypes.order.toLowerCase());
+		configTypes.get();
 	},
 	get: function() {
 		var params = this.getParams();
@@ -57,32 +61,29 @@ var servicePolicy = {
 	getReturned: function(e) {
 		if (e.error) growler.error("Error", e.error);
 		if (e.data) {
-			servicePolicy.data = e.data;
-			servicePolicy.meta = e.meta;
-			context.set(servicePolicy.name, servicePolicy.data);
+			configTypes.data = e.data;
+			configTypes.meta = e.meta;
+			context.set(configTypes.name, configTypes.data);
 		}
 	},
-	save: function(name, type, serviceRoles, identityRoled, semantic, tags, id) {
+	save: function(name, schema, tags, id) {
 		var params = this.getParams();
 		params.save = {
 			name: name,
-			type: type,
-			serviceRoles: serviceRoles,
-			identityRoles: identityRoled,
-			semantic: semantic,
+			schema: schema,
 			tags: tags
 		};
-		if (id.trim().length>0) params.save.id = id;
+		if (id!=null&&id.trim().length>0) params.id = id;
 		service.call("dataSave", params, this.saveReturned);
 	},
 	saveReturned: function(e) {
 		if (e.data) {
 			if (page) page.reset();
 			modal.close();
-			servicePolicy.data = e.data;
-			servicePolicy.meta = e.meta;
-			context.set(servicePolicy.name, servicePolicy.data);
-		} else growler.error("Error saving "+servicePolicy.name, e.error);
+			configTypes.data = e.data;
+			configTypes.meta = e.meta;
+			context.set(configTypes.name, configTypes.data);
+		} else growler.error("Error saving "+configTypes.name, e.error);
 	},
 	details: function(id) {
 		for (var i=0; i<this.data.length; i++) {
@@ -113,15 +114,15 @@ var servicePolicy = {
 		return (this.meta.pagination.offset+this.meta.pagination.limit)>=this.meta.pagination.totalCount;
 	},
 	next: function() {
-		if (!servicePolicy.isLast()) {
-			servicePolicy.page = servicePolicy.page+1;
-			servicePolicy.get();
+		if (!configTypes.isLast()) {
+			configTypes.page = configTypes.page+1;
+			configTypes.get();
 		}
 	},
 	prev: function() {
-		if (!servicePolicy.isFirst()) {
-			servicePolicy.page = servicePolicy.page-1;
-			servicePolicy.get();
+		if (!configTypes.isFirst()) {
+			configTypes.page = configTypes.page-1;
+			configTypes.get();
 		}
 	}
 }

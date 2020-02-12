@@ -10,8 +10,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-var servicePolicy = {
-	name: "service-policies",
+var serviceRouterPolicy = {
+	name: "service-edge-router-policies",
 	page: 1,
 	limit: 25,
 	data: [],
@@ -40,15 +40,15 @@ var servicePolicy = {
 	},
 	doSort: function(e) {
 		var sortBy = $(e.currentTarget).data("by");
-		if (servicePolicy.sort==sortBy) {
-			if (servicePolicy.order=="ASC") servicePolicy.order = "DESC";
-			else servicePolicy.order = "ASC";
-		} else servicePolicy.order = "ASC";
-		servicePolicy.sort = sortBy;
+		if (serviceRouterPolicy.sort==sortBy) {
+			if (serviceRouterPolicy.order=="ASC") serviceRouterPolicy.order = "DESC";
+			else serviceRouterPolicy.order = "ASC";
+		} else serviceRouterPolicy.order = "ASC";
+		serviceRouterPolicy.sort = sortBy;
 		$(".asc").removeClass("asc");
 		$(".desc").removeClass("desc");
-		$(e.currentTarget).addClass(servicePolicy.order.toLowerservicePolicye());
-		servicePolicy.get();
+		$(e.currentTarget).addClass(serviceRouterPolicy.order.toLowerserviceRouterPolicye());
+		serviceRouterPolicy.get();
 	},
 	get: function() {
 		var params = this.getParams();
@@ -57,18 +57,17 @@ var servicePolicy = {
 	getReturned: function(e) {
 		if (e.error) growler.error("Error", e.error);
 		if (e.data) {
-			servicePolicy.data = e.data;
-			servicePolicy.meta = e.meta;
-			context.set(servicePolicy.name, servicePolicy.data);
+			serviceRouterPolicy.data = e.data;
+			serviceRouterPolicy.meta = e.meta;
+			context.set(serviceRouterPolicy.name, serviceRouterPolicy.data);
 		}
 	},
-	save: function(name, type, serviceRoles, identityRoled, semantic, tags, id) {
+	save: function(name, routerRoles, serviceRoles, semantic, tags, id) {
 		var params = this.getParams();
 		params.save = {
 			name: name,
-			type: type,
+			edgeRouterRoles: routerRoles,
 			serviceRoles: serviceRoles,
-			identityRoles: identityRoled,
 			semantic: semantic,
 			tags: tags
 		};
@@ -79,10 +78,10 @@ var servicePolicy = {
 		if (e.data) {
 			if (page) page.reset();
 			modal.close();
-			servicePolicy.data = e.data;
-			servicePolicy.meta = e.meta;
-			context.set(servicePolicy.name, servicePolicy.data);
-		} else growler.error("Error saving "+servicePolicy.name, e.error);
+			serviceRouterPolicy.data = e.data;
+			serviceRouterPolicy.meta = e.meta;
+			context.set(serviceRouterPolicy.name, serviceRouterPolicy.data);
+		} else growler.error("Error saving "+serviceRouterPolicy.name, e.error);
 	},
 	details: function(id) {
 		for (var i=0; i<this.data.length; i++) {
@@ -113,15 +112,15 @@ var servicePolicy = {
 		return (this.meta.pagination.offset+this.meta.pagination.limit)>=this.meta.pagination.totalCount;
 	},
 	next: function() {
-		if (!servicePolicy.isLast()) {
-			servicePolicy.page = servicePolicy.page+1;
-			servicePolicy.get();
+		if (!serviceRouterPolicy.isLast()) {
+			serviceRouterPolicy.page = serviceRouterPolicy.page+1;
+			serviceRouterPolicy.get();
 		}
 	},
 	prev: function() {
-		if (!servicePolicy.isFirst()) {
-			servicePolicy.page = servicePolicy.page-1;
-			servicePolicy.get();
+		if (!serviceRouterPolicy.isFirst()) {
+			serviceRouterPolicy.page = serviceRouterPolicy.page-1;
+			serviceRouterPolicy.get();
 		}
 	}
 }

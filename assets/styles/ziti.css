@@ -1318,6 +1318,29 @@ path.green {
     padding-right: 20px;
 }
 
+.remove::before {
+    color: var(--white) !important;
+}
+
+.remove {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    border-radius: 10px;
+    background-color: var(--red);
+    color: var(--white);
+    text-align: center;
+    opacity: 0.4;
+    font-size: 18px;
+    margin-top: 10px;
+    line-height: 20px;
+    transition: 0.5s;
+}
+
+.remove:hover {
+    opacity: 1.0;
+}
+
 .border {
     background-color: var(--black);
     color: var(--white);

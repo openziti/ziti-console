@@ -10,8 +10,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-var servicePolicy = {
-	name: "service-policies",
+var configs = {
+	name: "configs",
 	page: 1,
 	limit: 25,
 	data: [],
@@ -38,17 +38,21 @@ var servicePolicy = {
 			}
 		};
 	},
+	all: function() {
+		this.limit = 500;
+		this.get();
+	},
 	doSort: function(e) {
 		var sortBy = $(e.currentTarget).data("by");
-		if (servicePolicy.sort==sortBy) {
-			if (servicePolicy.order=="ASC") servicePolicy.order = "DESC";
-			else servicePolicy.order = "ASC";
-		} else servicePolicy.order = "ASC";
-		servicePolicy.sort = sortBy;
+		if (configs.sort==sortBy) {
+			if (configs.order=="ASC") configs.order = "DESC";
+			else configs.order = "ASC";
+		} else configs.order = "ASC";
+		configs.sort = sortBy;
 		$(".asc").removeClass("asc");
 		$(".desc").removeClass("desc");
-		$(e.currentTarget).addClass(servicePolicy.order.toLowerservicePolicye());
-		servicePolicy.get();
+		$(e.currentTarget).addClass(configs.order.toLowerconfigse());
+		configs.get();
 	},
 	get: function() {
 		var params = this.getParams();
@@ -57,32 +61,30 @@ var servicePolicy = {
 	getReturned: function(e) {
 		if (e.error) growler.error("Error", e.error);
 		if (e.data) {
-			servicePolicy.data = e.data;
-			servicePolicy.meta = e.meta;
-			context.set(servicePolicy.name, servicePolicy.data);
+			configs.data = e.data;
+			configs.meta = e.meta;
+			context.set(configs.name, configs.data);
 		}
 	},
-	save: function(name, type, serviceRoles, identityRoled, semantic, tags, id) {
+	save: function(name, type, data, tags, id) {
 		var params = this.getParams();
 		params.save = {
 			name: name,
-			type: type,
-			serviceRoles: serviceRoles,
-			identityRoles: identityRoled,
-			semantic: semantic,
+            type: type,
+            data: data,
 			tags: tags
 		};
-		if (id.trim().length>0) params.save.id = id;
+		if (id!=null&&id.trim().length>0) params.id = id;
 		service.call("dataSave", params, this.saveReturned);
 	},
 	saveReturned: function(e) {
 		if (e.data) {
 			if (page) page.reset();
 			modal.close();
-			servicePolicy.data = e.data;
-			servicePolicy.meta = e.meta;
-			context.set(servicePolicy.name, servicePolicy.data);
-		} else growler.error("Error saving "+servicePolicy.name, e.error);
+			configs.data = e.data;
+			configs.meta = e.meta;
+			context.set(configs.name, configs.data);
+		} else growler.error("Error saving "+configs.name, e.error);
 	},
 	details: function(id) {
 		for (var i=0; i<this.data.length; i++) {
@@ -113,15 +115,15 @@ var servicePolicy = {
 		return (this.meta.pagination.offset+this.meta.pagination.limit)>=this.meta.pagination.totalCount;
 	},
 	next: function() {
-		if (!servicePolicy.isLast()) {
-			servicePolicy.page = servicePolicy.page+1;
-			servicePolicy.get();
+		if (!configs.isLast()) {
+			configs.page = configs.page+1;
+			configs.get();
 		}
 	},
 	prev: function() {
-		if (!servicePolicy.isFirst()) {
-			servicePolicy.page = servicePolicy.page-1;
-			servicePolicy.get();
+		if (!configs.isFirst()) {
+			configs.page = configs.page-1;
+			configs.get();
 		}
 	}
 }

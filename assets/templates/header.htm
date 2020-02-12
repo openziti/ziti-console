@@ -48,6 +48,8 @@
 		<!-- 3rd Party Includes -->
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 		<script type="text/javascript" src="/assets/scripts/components/moment.js"></script>
+		<link href="/assets/styles/select2.css" rel="stylesheet" type="text/css"/>
+		<script type="text/javascript" src="/assets/scripts/components/select2.min.js"></script>
   
 		<script type="text/javascript" src="/assets/scripts/components/spectrum.js"></script>
 		<script type="text/javascript" src="/assets/scripts/components/leaflet/leaflet.js"></script>	
@@ -57,7 +59,19 @@
 		<!-- NetFoundry Components -->
 		<link href="/assets/scripts/components/column.css" rel="stylesheet" type="text/css"/>
 		<script src="/assets/scripts/components/column.js"></script>
-		<link href="/assets/scripts/components/flows.css" rel="stylesheet" type="text/css"/>
+		<script src="/assets/scripts/components/column.js"></script>
+		<link href="/assets/scripts/components/codemirror/codemirror.css" rel="stylesheet" type="text/css"/>
+        <script type="text/javascript" src="/assets/scripts/components/codemirror/codemirror.js"></script>
+        <script type="text/javascript" src="/assets/scripts/components/codemirror/modes/xml.js"></script>
+        <script type="text/javascript" src="/assets/scripts/components/codemirror/modes/javascript.js"></script>
+        <script type="text/javascript" src="/assets/scripts/components/codemirror/modes/css.js"></script>
+        <script type="text/javascript" src="/assets/scripts/components/codemirror/modes/htmlmixed.js"></script>
+        <script type="text/javascript" src="/assets/scripts/components/codemirror/modes/addons/closetags.js"></script>
+        <script type="text/javascript" src="/assets/scripts/components/codemirror/modes/addons/colorize.js"></script>
+        <script type="text/javascript" src="/assets/scripts/components/codemirror/modes/addons/css-hint.js"></script>
+        <script type="text/javascript" src="/assets/scripts/components/codemirror/modes/addons/html-hint.js"></script>
+        <script type="text/javascript" src="/assets/scripts/components/codemirror/modes/addons/javascript-hint.js"></script>
+        <script type="text/javascript" src="/assets/scripts/components/codemirror/modes/addons/show-hint.js"></script>
 		<script src="/assets/scripts/components/flows.js"></script>
 		<script src="/assets/scripts/components/qrcode.min.js"></script>
 		<!-- Application Utilities -->
@@ -77,11 +91,15 @@
 		<script type="text/javascript" src="/assets/scripts/model/gateways.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/routerPolicy.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/servicePolicy.js"></script>
+		<script type="text/javascript" src="/assets/scripts/model/serviceRouterPolicy.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/services.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/summary.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/tags.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/cas.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/clusters.js"></script>
+		<script type="text/javascript" src="/assets/scripts/model/configs.js"></script>
+		<script type="text/javascript" src="/assets/scripts/model/configTypes.js"></script>
+		<script type="text/javascript" src="/assets/scripts/model/fabric.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/fabric.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/fabricServices.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/routers.js"></script>
@@ -182,11 +200,11 @@
 					</div>
 					<div class="navButton" data-go="/router-policies">
 						<div class="iconArea rippler"><div class="image icon-routerpolicy"></div></div>
-						<div class="label">Router<br/>Policies</div>
+						<div class="label">Ziti<br/>Policies</div>
 					</div>
-					<div class="navButton" data-go="/service-policies">
+					<div class="navButton" data-go="/configs">
 						<div class="iconArea rippler"><div class="image icon-policy"></div></div>
-						<div class="label">Service<br/>Policies</div>
+						<div class="label">Ziti<br/>Config</div>
 					</div>
 					<div class="navButton" data-go="/cas">
 						<div class="iconArea rippler"><div class="image icon-cas"></div></div>

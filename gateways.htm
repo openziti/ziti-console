@@ -183,7 +183,7 @@
                 if (action=="delete") {
                     page.deleting = [];
                     page.deleting[page.deleting.length] = id;
-                    modal.confirm("you want to delete this "+page.singular, page.confirmedDelete);
+                    modal.confirm("you want to delete this "+page.binding.singular, page.confirmedDelete);
                 } else if (action=="edit") {
                     page.edit(id);
                 }

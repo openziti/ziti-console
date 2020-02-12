@@ -70,8 +70,8 @@
             <input id="Roles" type="text" maxlength="500" placeholder="Enter a list of roles" />
             <label for="Routers">Router</label>
             <select id="Routers"></select>
-            <div class="darkened endpoint">Endpoint Service</div>
-            <div id="RoutersArea" class="grid three endpoint">
+            <div class="darkened endpoint" style="display: none;">Endpoint Service</div>
+            <div class="grid three endpoint" style="display: none;">
                 <div>
                     <label for="Protocol">Protocol</label>
                     <select id="Protocol" type="text">
@@ -90,7 +90,8 @@
                     <input id="EndPointPort" type="number" max="65535" min="1" data-restrict="port" />
                 </div>
             </div>
-            <div>
+            <div class="darkened">Configurations</div>
+            <div id="ConfigList"></div>
             <div id="TagArea"></div>
             <div class="buttons">
                 <div class="linkButton closer">Oops, No get me out of here</div>
@@ -121,9 +122,12 @@
                 context.addListener(services.name, page.getLoaded);
                 context.addListener(routers.name, page.routersLoaded);
                 context.addListener(gateways.name, page.gatewaysLoaded);
+                context.addListener(configTypes.name, page.configTypesLoaded);
+                context.addListener(configs.name, page.configsLoaded);
                 services.init();
                 routers.init();
                 gateways.all();
+                configTypes.all();
             }, 
             events: function() {
                 $(".action").click(page.handleAction);
@@ -131,7 +135,39 @@
                 $("#SearchFilter").keyup(page.search);
                 $("#IdentityFilter").keyup(page.filterIds);
                 $("#Filter").keyup(page.filter);
-		        $(".clear").click(page.clear);
+                $(".clear").click(page.clear);
+                $("#Routers").change(page.routerChanged)
+            },
+            configTypesLoaded: function(e) {
+                var types = context.get(configTypes.name);
+                var html = "";
+                for (var i=0; i<types.length; i++) {
+                    html += '<label id="Type_'+types[i].id+'_Label" style="display:none">'+types[i].name+'</label>';
+                    html += '<select id="Type_'+types[i].id+'" style="display:none"></select>';
+                }
+                $("#ConfigList").html(html);
+                configs.all();
+            },
+            configsLoaded: function(e) {
+                var cons = context.get(configs.name);
+                for (var i=0; i<cons.length; i++) {
+                    if ($("#Type_"+cons[i].type+" option").length==0) $("#Type_"+cons[i].type).append('<option value="">Select Required Configurations</option>');
+                    $("#Type_"+cons[i].type+"_Label").show();
+                    $("#Type_"+cons[i].type).show();
+                    $("#Type_"+cons[i].type).append('<option value="'+cons[i].id+'">'+cons[i].name+' - '+page.getPropString(cons[i].data)+'</option>');
+                }
+            },
+            getPropString: function(obj) {
+                var data = "";
+                for (var key in obj) {
+                    data += " "+obj[key];
+                }
+                return data;
+            },
+            routerChanged: function() {
+                var val = $("#Routers").val();
+                if (val.trim().length==0) $(".endpoint").hide();
+                else $(".endpoint").show();
             },
             clear: function() {
                 $("#SearchFilter").val("");
@@ -251,7 +287,7 @@
                 if (action=="delete") {
                     page.deleting = [];
                     page.deleting[page.deleting.length] = id;
-                    modal.confirm("you want to delete this "+page.singular, page.confirmedDelete);
+                    modal.confirm("you want to delete this "+page.binding.singular, page.confirmedDelete);
                 } else if (action=="edit") {
                     page.edit(id);
                 }
@@ -264,12 +300,11 @@
                 $(".editing").show();
 
                 $("#Name").val(detail.name);
-                $("#HostName").val(detail.dns.hostname);
-                $("#Port").val(detail.dns.port);
                 $("#Roles").val(detail.roleAttributes);
                 var router = "";
                 if (detail.egressRouter&&detail.egressRouter!="unknown") router = detail.egressRouter;
                 $("#Routers").val(router);
+                page.routerChanged();
                 var protocol = "tcp";
                 var host = "";
                 var port = "";
@@ -279,11 +314,22 @@
                     if (endpoint.length>0) protocol = endpoint[0];
                     if (endpoint.length>1) host = endpoint[1].split('//').join('');
                     if (endpoint.length>2) port = endpoint[2];
-                    
                 }
+
                 $("#Protocol").val(protocol);
                 $("#EndPointHost").val(host);
                 $("#EndPointPort").val(port);
+                if (detail.configs) {
+                    for (var i=0; i<detail.configs.length; i++) {
+                        $("#ConfigList select").each(function(index,e) {
+                            console.log($(e).attr("id"));
+                            console.log(detail.configs[i]);
+                            if ($(e).children("option[value='"+detail.configs[i]+"']").length>0) {
+                                $(e).val(detail.configs[i]);
+                            }
+                        });
+                    }
+                }
         
                 page.editId = id;
                 modal.show("AddModal");
@@ -303,10 +349,25 @@
                         $("#Routers").val(),
                         endpoint,
                         roles, 
+                        page.getConfigs(),
                         tags.getValues(page.tagData),
                         page.editId, 
                         page.removal);
                 } else growler.form();
+            },
+            getConfigs: function() {
+                var configs = [];
+                var types = context.get(configTypes.name);
+                var html = "";
+                for (var i=0; i<types.length; i++) {
+                    html += '<label id="Type_'+types[i].id+'_Label" style="display:none">'+types[i].name+'</label>';
+                    html += '<select id="Type_'+types[i].id+'" style="display:none"></select>';
+                    if ($("#Type_"+types[i].id+" option").length>0) {
+                        var typeVal = $("#Type_"+types[i].id).val().trim();
+                        if (typeVal.length>0) configs[configs.length] = typeVal;
+                    }
+                }
+                return configs;
             },
             getRoles: function(roles) {
                 var values = [];
@@ -347,6 +408,7 @@
                 $("#Name").val("");
                 $("#Fabrics").val("");
                 $("#Roles").val("");
+                $("select").val("");
                 $("#Protocol").val("tcp");
                 $("#EndPointHost").val("");
                 $("#EndPointPort").val("");
