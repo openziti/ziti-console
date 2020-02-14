@@ -72,7 +72,7 @@ var servicePolicy = {
 			semantic: semantic,
 			tags: tags
 		};
-		if (id.trim().length>0) params.save.id = id;
+		if (id.trim().length>0) params.id = id;
 		service.call("dataSave", params, this.saveReturned);
 	},
 	saveReturned: function(e) {
