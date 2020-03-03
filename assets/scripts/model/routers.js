@@ -25,6 +25,10 @@ var routers = {
 			url: context.get("fabricUrl")
 		};
 	},
+	all: function() {
+		this.limit = 500;
+		this.get();
+	},
 	get: function() {
 		if (context.get("fabricUrl").trim().length>0) {
 			var params = this.getParams();

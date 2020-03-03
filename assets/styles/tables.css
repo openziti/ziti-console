@@ -118,7 +118,7 @@
 }
 
 .grid.six {
-	grid-template-columns: 50px auto 150px 150px 150px 50px;
+	grid-template-columns: 50px auto 20% 20% 150px 50px;
 }
 
 .grid.seven {

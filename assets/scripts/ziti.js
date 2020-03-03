@@ -58,8 +58,8 @@ var app = {
 		$(".dots").click(app.dots);
 		if (window.location.href.endsWith("#a")) page.add();
 		$(".col").each(function(i, obj) {
-			var value = $(obj).text().split('\n').join(' ').split('  ').join(' ');
-			if (!$(obj).hasClass("notitle")&&!$(obj).hasClass("allowOver")) $(obj).attr("title", value);
+			var value = $(obj).text().split('\n').join(' ').split('  ').join(' ').split('"').join('');
+			if (!$(obj).hasClass("notitle")&&!$(obj).hasClass("allowOver")&&!$(obj).parent().hasClass("template")) $(obj).attr("title", value);
 		});
 	},
 	settingsReturned: function() {

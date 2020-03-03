@@ -102,13 +102,13 @@
             <div class="title editing">Edit <span data-bind="singular"></span></div>
             <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
             <label for="Username">Name</label>
-            <input id="Username" type="text" maxlength="500" placeholder="Enter a name" />
+            <input id="Username" type="text" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
             <label for="Roles">Roles</label>
-            <input id="Roles" type="text" maxlength="500" placeholder="Enter a list of roles" />
+            <input id="Roles" type="text" maxlength="500" placeholder="Enter a list of roles" data-enter="SaveButton" />
             <div class="split unsplit">
                 <div>
                     <label for="IdentityType">Identity Type</label>
-                    <select id="IdentityType">
+                    <select id="IdentityType" data-enter="SaveButton">
                         <option value="Device" selected>Device</option>
                         <option value="Service">Service</option>
                         <option value="User">User</option>
@@ -125,14 +125,14 @@
             <div class="split unsplit">
                 <div>
                     <label for="Enrollment">Enrollment Type</label>
-                    <select id="EnrollmentType" disabled>
+                    <select id="EnrollmentType" data-enter="SaveButton" disabled>
                         <option value="ott" selected>One Time Token</option>
                         <option value="CA">Certificate Authority</option>
                     </select>
                 </div>
                 <div id="CertAuthoritiesArea" style="display:none">
                     <label for="Authorities">Certificate Authority</label>
-                    <select id="Authorities"></select>
+                    <select id="Authorities" data-enter="SaveButton"></select>
                 </div>
             </div>
             <div id="TagArea"></div>

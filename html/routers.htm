@@ -55,7 +55,6 @@
                         element.removeClass("template");
                         element.attr("id","Row"+i);
                         for (var prop in page.data[i]) element.html(element.html().split("{{"+prop+"}}").join(page.data[i][prop]));
-                        console.log(element);
                         $(".rows").append(element);
                     }
                     page.pageLoaded();     

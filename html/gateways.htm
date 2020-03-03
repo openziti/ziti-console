@@ -3,9 +3,9 @@
         <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
         <div class="line"></div>
         <div class="tabs">
-            <div class="tab selected">Edge Router Policies</div>
-            <div class="tab" data-go="/service-policies">Service Policies</div>
-            <div class="tab" data-go="/service-router-policies">Service Edge Router Policies</div>
+            <div class="tab" data-go="/identities">Manage Identities</div>
+            <div class="tab" data-go="/services">Manage Services</div>
+            <div class="tab selected">Manage Routers</div>
         </div>
     </div>
     <div class="action icon-plus" data-action="add"></div>
@@ -24,9 +24,9 @@
                     <div class="selector all"></div>
                 </div>
                 <div class="col sort asc" data-by="name">Name<div class="dragger"></div></div>
-                <div class="col">Router Roles<div class="dragger"></div></div>
-                <div class="col">Identity Roles<div class="dragger"></div></div>
-                <div class="col sort" data-by="semantic">Semantic<div class="dragger"></div></div>
+                <div class="col desktop">Verified<div class="dragger"></div></div>
+                <div class="col desktop">Online<div class="dragger"></div></div>
+                <div class="col sort" data-by="createdAt">Created</div>
                 <div class="col"></div>
             </div>
             <div class="rows">
@@ -41,9 +41,9 @@
             <div class="selector" data-id="{{id}}"></div>
         </div>
         <div class="col" data-id="{{id}}"><strong>{{name}}</strong></div>
-        <div class="col" data-id="{{id}}">{{edgeRouterRoles}}</div>
-        <div class="col" data-id="{{id}}">{{identityRoles}}</div>
-        <div class="col" data-id="{{id}}">{{semantic}}</div>
+        <div class="col desktop" data-id="{{id}}">{{isVerified}}</div>
+        <div class="col desktop" data-id="{{id}}">{{isOnline}}</div>
+        <div class="col" data-id="{{id}}">{{createdAt}}</div>
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
                 <div class="gridMenu" data-id="{{id}}">
@@ -63,16 +63,9 @@
             <div class="title editing">Edit <span data-bind="singular"></span></div>
             <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
             <label for="Name">Name</label>
-            <input id="Name" type="text" maxlength="500" placeholder="Enter a name" />
-            <label for="Roles">Router Roles</label>
-            <input id="Roles" type="text" maxlength="500" placeholder="Enter a list of roles" />
-            <label for="IDRoles">Identity Roles</label>
-            <input id="IDRoles" type="text" maxlength="500" placeholder="Enter a list of roles" />
-            <label for="Semantics">Semantics</label>
-            <select id="Semantics">
-                <option value="AnyOf">Has Any Role</option>
-                <option value="AllOf">Must Have All Roles</option>
-            </select>
+            <input id="Name" type="text" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
+            <label for="Roles">Roles</label>
+            <input id="Roles" type="text" maxlength="500" placeholder="Enter a list of roles" data-enter="SaveButton" />
             <div id="TagArea"></div>
             <div id="TagExtended"></div>
             <div class="buttons">
@@ -86,8 +79,8 @@
     <script language="javascript" type="text/javascript">
         page = {
             binding: {
-                pageTitle: "Router Policies",
-                singular: "Router Policy"
+                pageTitle: "Routers",
+                singular: "Router"
             },
             tagData: [],
             data: [],
@@ -97,8 +90,8 @@
             init: function() {
                 this.events();
                 context.addListener(tags.name, page.tagsLoaded);
-                context.addListener(routerPolicy.name, page.getLoaded);
-                routerPolicy.init();
+                context.addListener(gateways.name, page.getLoaded);
+                gateways.init();
             }, 
             events: function() {
                 $(".action").click(page.handleAction);
@@ -110,7 +103,7 @@
             tagsLoaded: function() {
                 var html = "";
                 for (var i=0; i<tags.data.length; i++) {
-                    if (tags.data[i].objects=="all"||tags.data[i].objects.indexOf('policies')>=0) {
+                    if (tags.data[i].objects=="all"||tags.data[i].objects.indexOf('gateway')>=0) {
                         page.tagData[page.tagData.length] = tags.data[i];
                         html += tags.html(tags.data[i]);
                     }
@@ -120,20 +113,20 @@
             },
             clear: function() {
                 $("#SearchFilter").val("");
-                routerPolicy.filter = "";
-                routerPolicy.get();
+                gateways.filter = "";
+                gateways.get();
                 $(".clear").removeClass("showing");
             },
             search: function(e) {
                 if (page.searchId) clearTimeout(page.searchId);
-                routerPolicy.filter = $("#SearchFilter").val();
+                gateways.filter = $("#SearchFilter").val();
                 if ($("#SearchFilter").val().trim().length>0) $(".clear").addClass("showing");
                 else $(".clear").removeClass("showing");
                 if (e.keyCode==13) {
-                    routerPolicy.get();
+                    gateways.get();
                 } else {
                     page.searchId = setTimeout(function() {
-                        routerPolicy.get();
+                        gateways.get();
                     }, 1000);
                 }
             },
@@ -144,21 +137,21 @@
             getLoaded: function(e) {
                 $(".selector.selected").removeClass("selected");
                 app.setAction();
-                page.data = routerPolicy.data;
+                page.data = gateways.data;
                 $(".rows").html("");
-                if (routerPolicy.data.length>0) {
-                    $("#Start").html(routerPolicy.start());
-                    $("#End").html(routerPolicy.end());
-                    $("#Total").html(routerPolicy.total());
-                    for (var i=0; i<routerPolicy.data.length; i++) {
+                if (gateways.data.length>0) {
+                    $("#Start").html(gateways.start());
+                    $("#End").html(gateways.end());
+                    $("#Total").html(gateways.total());
+                    for (var i=0; i<gateways.data.length; i++) {
                         var element = $("#RowTemplate").clone();
                         element.removeClass("template");
                         element.attr("id","Row"+i);
-                        var obj = routerPolicy;
-						for (var prop in obj.data[i]) {
-                            element.html(element.html().split("{{"+prop+"}}").join(obj.data[i][prop]));
-                            element.html(element.html().split("{{moment."+prop+"}}").join(moment(obj.data[i][prop]).utc().fromNow()));
-                        }
+                        element.html(element.html().split("{{id}}").join(gateways.data[i].id));
+                        element.html(element.html().split("{{name}}").join(gateways.data[i].name));
+                        element.html(element.html().split("{{isVerified}}").join(gateways.data[i].isVerified));
+                        element.html(element.html().split("{{isOnline}}").join(gateways.data[i].isOnline));
+                        element.html(element.html().split("{{createdAt}}").join(moment(gateways.data[i].createdAt).fromNow()));
                         $(".rows").append(element);
                     }
                     page.pageLoaded();     
@@ -174,13 +167,13 @@
                 $(".navigate").off("click");
                 $(".navigate").addClass("disabled");
                 $(".clickEdit").click(page.clickEdit);
-                if (!routerPolicy.isFirst()) {
+                if (!gateways.isFirst()) {
                     $(".navigate.prev").removeClass("disabled");
-                    $(".navigate.prev").on("click", routerPolicy.prev);
+                    $(".navigate.prev").on("click", gateways.prev);
                 }
-                if (!routerPolicy.isLast()) {
+                if (!gateways.isLast()) {
                     $(".navigate.next").removeClass("disabled");
-                    $(".navigate.next").on("click", routerPolicy.next);
+                    $(".navigate.next").on("click", gateways.next);
                 } 
                 app.postLoad();
             },
@@ -197,16 +190,14 @@
             },
             edit: function(id) {
                 page.reset();
-                var detail = routerPolicy.details(id);
+                var detail = gateways.details(id);
                 $(".adding").hide();
                 $(".editing").show();
 
                 tags.reset(page.tagData,detail);
                 tags.extended(detail, $("#TagExtended"));
                 $("#Name").val(detail.name);
-                $("#Roles").val(detail.edgeRouterRoles);
-                $("#IDRoles").val(detail.identityRoles);
-                $("#Semantics").val(detail.semantic);
+                $("#Roles").val(detail.roleAttributes);
 
                 page.editId = id;
                 modal.show("AddModal");
@@ -215,11 +206,14 @@
                 if (page.validate()) {
                     if (localStorage.getItem("filterAfterSave")=="on") {
                         $("#SearchFilter").val($("#Name").val());
-                        routerPolicy.filter = $("#SearchFilter").val();
+                        gateways.filter = $("#SearchFilter").val();
                     }
                     var roles = page.getRoles($("#Roles").val().trim().split(','));
-                    var idRoles = page.getRoles($("#IDRoles").val().trim().split(','));
-                    routerPolicy.save($("#Name").val(),roles,idRoles,$("#Semantics").val(),tags.getValues(page.tagData),page.editId);
+                    gateways.save(
+                        $("#Name").val(),
+                        roles,
+                        tags.getValues(page.tagData),
+                        page.editId);
                 } else growler.form();
             },
             getRoles: function(roles) {
@@ -240,7 +234,7 @@
                 }
             },
             confirmedDelete: function() {
-                routerPolicy.delete(page.deleting);
+                gateways.delete(page.deleting);
                 app.reset();
             },
             validate: function() {
@@ -255,7 +249,6 @@
                 page.removal = {};
                 $("#Name").val("");
                 $("#Roles").val("");
-                $("#IDRoles").val("");
             },
             handleAction: function(e) {
                 page.reset();

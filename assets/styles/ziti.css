@@ -1341,6 +1341,124 @@ path.green {
     opacity: 1.0;
 }
 
+.searchSelector .tagButton {
+    cursor: pointer;
+    transition: 0.5s;
+}
+
+.searchSelector .tagButton:hover {
+    opacity: 0.5;
+}
+
+.hashtag, .attag {
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: var(--primary);
+    color: #FFF;
+    position: relative;
+    float: left;
+    line-height: 30px;
+    border-radius: 7px;
+    margin-left: 2px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    transition: 0.5s;
+}
+
+.attag {
+    background-color: var(--secondary);
+}
+
+.searchSelector .hashtag {
+    margin-top: unset;
+    padding-left: 10px;
+    padding-right: 10px;
+    color: #FFF;
+    background-color: var(--primary);
+    position: relative;
+    float: left;
+    line-height: 30px;
+    border-radius: 7px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+    transition: 0.5s;
+}
+
+.searchSelector .hashtag .label, .searchSelector .attag .label {
+    font-size: 16px;
+    font-family: "Open Sans";
+    margin-left: 5px;
+}
+
+.searchSelector .attag.error, .searchSelector .hashtag.error {
+    background-color: var(--red);
+}
+
+.searchSelector .attag {
+    margin-top: unset;
+    padding-left: 10px;
+    padding-right: 10px;
+    color: #FFF;
+    background-color: var(--secondary);
+    position: relative;
+    float: left;
+    line-height: 30px;
+    border-radius: 7px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+    transition: 0.5s;
+}
+
+.searchSelector {
+    border-radius: 7px;
+    border-width: 2px;
+    border-color: var(--stroke);
+    border-style: solid;
+    width: 100%;
+    position: relative;
+    overflow: auto;
+    transition: 0.5s;
+}
+
+.searchSelector input {
+    border-color: var(--white);
+}
+
+.suggests {
+    width: 100%;
+    top: 50px;
+    overflow: auto;
+    max-height: 300px;
+    z-index: 10;
+    background-color: var(--white);
+    border-top: solid #FFF 0px;
+    border-bottom: solid #FFF 0px;
+    opacity: 0;
+    transition: 0.5s;
+}
+
+.suggests.open {
+    border-top: solid var(--stroke) 2px;
+    border-bottom: solid var(--stroke) 2px;
+    margin-bottom: 10px;
+    opacity: 1.0;
+}
+
+.suggests .suggest {
+    padding-left: 10px;
+    padding-right: 10px;
+    width: 100%;
+    line-height: 30px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.5s;
+}
+
+.suggests .suggest:hover, .suggests .suggest.highlighted {
+    background-color: var(--primary);
+    color: #FFF;
+}
+
 .border {
     background-color: var(--black);
     color: var(--white);
@@ -1407,7 +1525,7 @@ div:focus {
     }  
 	.grid.four, .grid.five, .grid.six, .grid.seven, .grid.sleven, .grid.ten, .grid.nine, .grid.eight {
 		display: grid;
-	  	grid-template-columns: 15% auto 20% 15%;
+	  	grid-template-columns: 15% auto 50px;
 	  	grid-template-rows: auto;
     }	
     .grid.quad, .grid.quint {

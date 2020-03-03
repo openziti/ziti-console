@@ -9,6 +9,7 @@
 				events: function() {
 					$("#LoginButton").click(page.login);
 					$("#CreateButton").click(page.create);
+					$("#EdgeControllerList").change(page.edgeChanged);
 					context.addListener(user.name,page.loggedIn);
 					context.addListener(settings.name, page.settingsReturned);
 				},
@@ -34,6 +35,16 @@
 					if ($("#EdgeUrl").val().trim().length==0) $("#EdgeUrl").addClass("errors");
 					return $(".errors").length==0;
 				},
+				edgeChanged: function(e) {
+					var val = $("#EdgeControllerList").val();
+					if (val.length==0) {
+						$(".edgecreate").addClass("open");
+						$(".userlogin").removeClass("open");
+					} else {
+						$(".edgecreate").removeClass("open");
+						$(".userlogin").addClass("open");
+					}
+				},
 				settingsReturned: function(e) {
 					$(".open").removeClass("open");
 					$("#EdgeControllerList").html("");
@@ -46,6 +57,7 @@
 					} else {
 						$(".edgecreate").addClass("open");
 					}
+					$("#EdgeControllerList").append('<option value="">Connect to a new Edge Controller</option>');
 					var lastUrl = context.get("serviceUrl");
 					$("#EdgeControllerList").val(lastUrl);
 				}

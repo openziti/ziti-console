@@ -1,0 +1,447 @@
+    <div class="header">
+        <div class="title">Manage <span data-bind="pageTitle"></span></div>
+        <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
+        <div class="line"></div>
+        <div class="tabs">
+            <div class="tab selected">Edge Router Policies</div>
+            <div class="tab" data-go="/service-policies">Service Policies</div>
+            <div class="tab" data-go="/service-router-policies">Service Edge Router Policies</div>
+        </div>
+    </div>
+    <div class="action icon-plus" data-action="add"></div>
+    <div class="filters">
+        <input id="SearchFilter" type="text" class="search" placeholder="Type to Filter" />
+        <div class="clear"></div>
+        <div class="counters"><span id="Start">-</span>-<span id="End">-</span> of <span id="Total">-</span></div>
+        <div class="navigate prev icon-prev disabled"></div>
+        <div class="navigate next icon-next disabled"></div>
+    </div>
+    <div class="area data">
+        <div class="noitems"></div>
+        <div class="table">
+            <div class="head grid six">
+                <div class="col">
+                    <div class="selector all"></div>
+                </div>
+                <div class="col sort asc" data-by="name">Name<div class="dragger"></div></div>
+                <div class="col desktop">Router Roles<div class="dragger"></div></div>
+                <div class="col desktop">Identity Roles<div class="dragger"></div></div>
+                <div class="col desktop sort" data-by="semantic">Semantic<div class="dragger"></div></div>
+                <div class="col"></div>
+            </div>
+            <div class="rows">
+                <!-- This area will be replaced by data rows -->
+            </div>
+        </div>
+    </div>
+    <div class="nodata">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
+
+    <div id="RowTemplate" class="row grid six template">
+        <div class="col">
+            <div class="selector" data-id="{{id}}"></div>
+        </div>
+        <div class="col" data-id="{{id}}"><strong>{{name}}</strong></div>
+        <div class="col desktop" data-id="{{id}}">{{edgeRouterRoles}}</div>
+        <div class="col desktop" data-id="{{id}}">{{identityRoles}}</div>
+        <div class="col desktop" data-id="{{id}}">{{semantic}}</div>
+        <div class="col allowOver">
+            <div class="dots" data-id="{{id}}">...
+                <div class="gridMenu" data-id="{{id}}">
+                    <div class="gridAction" data-id="{{id}}" data-action="edit">Edit</div>
+                    <div class="gridAction" data-id="{{id}}" data-action="delete">Delete</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	<!-- Modification Modals -->
+    <div id="AddModal" class="modal box full">
+        <div class="sized">
+            <div class="close icon-close"></div>
+            <div class="title adding">Create <span data-bind="singular"></span></div>
+            <div class="subtitle adding">Add a New <span data-bind="singular"></span> by completing the following form</div>
+            <div class="title editing">Edit <span data-bind="singular"></span></div>
+            <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
+            <label for="Name">Name</label>
+            <input id="Name" type="text" maxlength="500" placeholder="Enter a name" />
+            <label for="Roles">Router Roles</label>
+            <div class="searchSelector">
+                <input id="Roles" type="text" maxlength="500" placeholder="Type to select service attributes" />
+                <div id="RolesSuggest" data-index="0" data-type="edge-routers" class="suggests" ></div>
+                <div id="RolesSelected" class="tagArea"></div>
+                <div class="clear: both"></div>
+            </div>
+            <label for="IDRoles">Identity Roles</label>
+            <div class="searchSelector">
+                <input id="IDRoles" type="text" maxlength="500" placeholder="Type to select identity attributes" />
+                <div id="IDRolesSuggest" data-index="0" data-type="identities" class="suggests"></div>
+                <div id="IDRolesSelected" class="tagArea"></div>
+                <div class="clear: both"></div>
+            </div>
+            <label for="Semantics">Semantics</label>
+            <select id="Semantics">
+                <option value="AnyOf">Has Any Role</option>
+                <option value="AllOf">Must Have All Roles</option>
+            </select>
+            <div id="TagArea"></div>
+            <div id="TagExtended"></div>
+            <div class="buttons">
+                <div class="linkButton closer">Oops, No get me out of here</div>
+                <div id="SaveButton" class="button">Save</div>
+            </div>
+        </div>
+	</div>
+    
+    
+    <script language="javascript" type="text/javascript">
+        page = {
+            binding: {
+                pageTitle: "Router Policies",
+                singular: "Router Policy"
+            },
+            tagData: [],
+            data: [],
+            roles: [],
+            idRoles: [],
+            deleting: [],
+            removal: {},
+            searchId: null,
+            init: function() {
+                this.events();
+                context.addListener(tags.name, page.tagsLoaded);
+                context.addListener(routerPolicy.name, page.getLoaded);
+                routerPolicy.init();
+                gateways.all();
+                identities.all();
+            }, 
+            events: function() {
+                $(".action").click(page.handleAction);
+                $("#SaveButton").click(page.save);
+                $("#SearchFilter").keyup(page.search);
+                $("#Filter").keyup(page.filter);
+		        $(".clear").click(page.clear);
+                $("#Roles").keyup(page.commit);
+                $("#IDRoles").keyup(page.commit);
+                $("#Roles").blur(page.commit); 
+                $("#IDRoles").blur(page.commit);
+            },
+            blurred: function(e) {
+                var item = $(e.currentTarget).val().trim();
+                if (item.indexOf("@")!=0&&item.indexOf("#")!=0) item = "#"+item;
+                if (item.length>1) {
+                    if (item.indexOf("@")==0||item.indexOf("#")==0) page.addIfNotExists($(e.currentTarget), item);
+                    $(".tagButton").off("click", function(e) {
+                        $(e.currentTarget).remove();
+                    });
+                    $(".tagButton").on("click", function(e) {
+                        $(e.currentTarget).remove();
+                    });
+                }
+            },
+            addIfNotExists: function(input, item) {
+                var found = false;
+                input.parent().find(".tagArea").children().each(function(i, e) {
+                    var itemValue =  $(e).children("span").html();
+                    if (itemValue==item) {
+                        found = true;
+                        var obj = $(e);
+                        obj.addClass("error");
+                        setTimeout(function() {
+                            obj.removeClass("error");
+                        }, 500);
+                    }
+                });          
+                if (!found) {
+                    input.val("");
+                    var type = "hash";
+                    if (item.indexOf("@")==0) type="at";
+                    input.parent().find(".tagArea").append('<div class="'+type+'tag tagButton icon-close"><span class="label">'+item+'</span></div>');
+                }  
+            },
+            commit: function(e) {
+                var suggests = $(e.currentTarget).parent().find(".suggests");
+                if (e.keyCode==13) {
+                    if (suggests.find(".highlighted").length>0) {
+                        var selected = $(suggests.find(".highlighted")).html();
+                        var input = $(suggests.find(".highlighted")).parent().parent().find("input");
+                        page.addIfNotExists(input, "@"+selected);
+                        $(".tagButton").off("click", function(e) {
+                            $(e.currentTarget).remove();
+                        });
+                        $(".tagButton").on("click", function(e) {
+                            $(e.currentTarget).remove();
+                        });
+                        suggests.removeClass("open");
+                        suggests.html("");
+                    } else page.blurred(e);
+                }
+                if (e.keyCode==186||e.keyCode==188) {
+                    $(e.currentTarget).val($(e.currentTarget).val().slice(0, -1));
+                    page.blurred(e);
+                }
+                if (e.keyCode==38||e.keyCode==40) {
+                    var index = suggests.data("index");
+                    var max = suggests.children().length;
+                    if (e.keyCode==40) index++;
+                    else index--
+                    if (index>=max) index = 0;
+                    if (index<0) index = max-1;
+                    $(".suggest").removeClass("highlighted");
+                    $(suggests.children()[index]).addClass("highlighted");
+                    suggests.data("index", index);
+                } else {
+                    suggests.data("index", -1);
+                    var searchVal = $(e.currentTarget).val();
+                    if (searchVal.indexOf('@')==0&&searchVal.length>2) {
+                        searchVal = searchVal.substr(1);
+                        suggests.html("");
+                        var found = false;
+                        var suggestItems = context.get(suggests.data("type"));
+                        for (var i=0; i<suggestItems.length; i++) {
+                            if (suggestItems[i].name.startsWith(searchVal)) {
+                                found = true;
+                                suggests.append('<div class="suggest">'+suggestItems[i].name+'</div>');
+                            }
+                        }
+                        if (found) {
+                            suggests.addClass("open");
+                            $(".suggest").click(function(e) {
+                                var selected = $(e.currentTarget).html();
+                                var input = $(e.currentTarget).parent().parent().find("input");
+                                page.addIfNotExists(input, "@"+selected);
+                                $(".tagButton").off("click", function(e) {
+                                    $(e.currentTarget).remove();
+                                });
+                                $(".tagButton").on("click", function(e) {
+                                    $(e.currentTarget).remove();
+                                });
+                                suggests.removeClass("open");
+                                suggests.html("");
+                            });
+                        }
+                    } else {
+                        suggests.html("");
+                        suggests.removeClass("open");
+                    }
+                }
+            },
+            tagsLoaded: function() {
+                var html = "";
+                for (var i=0; i<tags.data.length; i++) {
+                    if (tags.data[i].objects=="all"||tags.data[i].objects.indexOf('policies')>=0) {
+                        page.tagData[page.tagData.length] = tags.data[i];
+                        html += tags.html(tags.data[i]);
+                    }
+                }
+                $("#TagArea").html(html);
+                tags.events();
+            },
+            clear: function() {
+                $("#SearchFilter").val("");
+                routerPolicy.filter = "";
+                routerPolicy.get();
+                $(".clear").removeClass("showing");
+            },
+            search: function(e) {
+                if (page.searchId) clearTimeout(page.searchId);
+                routerPolicy.filter = $("#SearchFilter").val();
+                if ($("#SearchFilter").val().trim().length>0) $(".clear").addClass("showing");
+                else $(".clear").removeClass("showing");
+                if (e.keyCode==13) {
+                    routerPolicy.get();
+                } else {
+                    page.searchId = setTimeout(function() {
+                        routerPolicy.get();
+                    }, 1000);
+                }
+            },
+            clickEdit: function(e) {
+                var id = $(e.currentTarget).data("id");
+                if (id) page.edit(id);
+            },
+            getLoaded: function(e) {
+                $(".selector.selected").removeClass("selected");
+                app.setAction();
+                page.data = routerPolicy.data;
+                $(".rows").html("");
+                if (routerPolicy.data.length>0) {
+                    $("#Start").html(routerPolicy.start());
+                    $("#End").html(routerPolicy.end());
+                    $("#Total").html(routerPolicy.total());
+                    for (var i=0; i<routerPolicy.data.length; i++) {
+                        var element = $("#RowTemplate").clone();
+                        element.removeClass("template");
+                        element.attr("id","Row"+i);
+                        var obj = routerPolicy;
+                        var identityRoles = obj.data[i].identityRoles;
+                        var idString = "";
+                        if (identityRoles.length>0) {
+                            for (var j=0; j<identityRoles.length; j++) {
+                                var type = "hash";
+                                var item = identityRoles[j];
+                                if (item.indexOf("@")==0) type="at";
+                                idString += '<div class="'+type+'tag">'+item+'</div>';
+                            }
+                        } else idString = "None";
+                        console.log(idString);
+                        element.html(element.html().split("{{identityRoles}}").join(idString));
+                        var edgeRouterRoles = obj.data[i].edgeRouterRoles;
+                        idString = "";
+                        if (edgeRouterRoles.length>0) {
+                            for (var j=0; j<edgeRouterRoles.length; j++) {
+                                var type = "hash";
+                                var item = edgeRouterRoles[j];
+                                if (item.indexOf("@")==0) type="at";
+                                idString += '<div class="'+type+'tag">'+item+'</div>';
+                            }
+                        } else idString = "None";
+                                console.log(idString);
+                        element.html(element.html().split("{{edgeRouterRoles}}").join(idString));
+						for (var prop in obj.data[i]) {
+                            element.html(element.html().split("{{"+prop+"}}").join(obj.data[i][prop]));
+                            element.html(element.html().split("{{moment."+prop+"}}").join(moment(obj.data[i][prop]).utc().fromNow()));
+                        }
+                        $(".rows").append(element);
+                    }
+                    page.pageLoaded();     
+                    $(".data").show();
+                    $(".nodata").hide();       
+                } else {
+                    $(".data").hide();
+                    $(".nodata").show();
+                }       
+            },
+            pageLoaded: function() {
+                $(".gridAction").click(page.gridAction);
+                $(".navigate").off("click");
+                $(".navigate").addClass("disabled");
+                $(".clickEdit").click(page.clickEdit);
+                if (!routerPolicy.isFirst()) {
+                    $(".navigate.prev").removeClass("disabled");
+                    $(".navigate.prev").on("click", routerPolicy.prev);
+                }
+                if (!routerPolicy.isLast()) {
+                    $(".navigate.next").removeClass("disabled");
+                    $(".navigate.next").on("click", routerPolicy.next);
+                } 
+                app.postLoad();
+            },
+            gridAction: function(e) {
+                var action = $(e.currentTarget).data("action");
+                var id = $(e.currentTarget).data("id");
+                if (action=="delete") {
+                    page.deleting = [];
+                    page.deleting[page.deleting.length] = id;
+                    modal.confirm("you want to delete this "+page.binding.singular, page.confirmedDelete);
+                } else if (action=="edit") {
+                    page.edit(id);
+                }
+            },
+            edit: function(id) {
+                page.reset();
+                var detail = routerPolicy.details(id);
+                $(".adding").hide();
+                $(".editing").show();
+
+                tags.reset(page.tagData,detail);
+                tags.extended(detail, $("#TagExtended"));
+                $("#Name").val(detail.name);
+
+                var roles = detail.edgeRouterRoles;
+                $("#RolesSelected").html("");
+                for (var i=0; i<roles.length; i++) {
+                    var role = roles[i];
+                    if (role.indexOf("#")==0) $("#RolesSelected").append('<div class="hashtag tagButton icon-close"><span class="label">'+role+'</span></div>');
+                    else if (role.indexOf("@")==0) $("#RolesSelected").append('<div class="attag tagButton icon-close"><span class="label">'+role+'</span></div>');
+                }
+                $("#Roles").val("");
+                
+                var idRoles = detail.identityRoles;
+                $("#IDRolesSelected").html("");
+                for (var i=0; i<idRoles.length; i++) {
+                    var idRole = idRoles[i];
+                    if (idRole.indexOf("#")==0) $("#IDRolesSelected").append('<div class="hashtag tagButton icon-close"><span class="label">'+idRole+'</span></div>');
+                    else if (idRole.indexOf("@")==0) $("#IDRolesSelected").append('<div class="attag tagButton icon-close"><span class="label">'+idRole+'</span></div>');
+                }
+                $("#IDRoles").val("");
+
+                $(".tagButton").on("click", function(e) {
+                    $(e.currentTarget).remove();
+                });
+
+                $("#Semantics").val(detail.semantic);
+
+                page.editId = id;
+                modal.show("AddModal");
+            },
+            save: function() {
+                if (page.validate()) {
+                    if (localStorage.getItem("filterAfterSave")=="on") {
+                        $("#SearchFilter").val($("#Name").val());
+                        routerPolicy.filter = $("#SearchFilter").val();
+                    }
+                    var roles = [];
+                    $("#RolesSelected").children().each(function(i, e) {
+                        roles[roles.length] = $(e).children("span").html();
+                    });
+
+                    var idRoles = [];
+                    $("#IDRolesSelected").children().each(function(i, e) {
+                        idRoles[idRoles.length] = $(e).children("span").html();
+                    });
+
+                    routerPolicy.save($("#Name").val(),page.getRoles(roles),page.getRoles(idRoles),$("#Semantics").val(),tags.getValues(page.tagData),page.editId);
+                } else growler.form();
+            },
+            getRoles: function(roles) {
+                var values = [];
+                for (var i=0; i<roles.length; i++) {
+                    var item = roles[i].trim();
+                    if (item.length>0) values[values.length] = item;
+                }
+                return values;
+            },
+            deleteMulti: function(e) {
+                page.deleting = [];
+                $(".selector.selected").each(function(index, e) {
+                    page.deleting[page.deleting.length] = $(e).data("id");
+                });
+                if (page.deleting.length>0) {
+                    modal.confirm("you want to delete these "+page.deleting.length+" "+((page.deleting.length>1)?page.binding.pageTitle:page.binding.singular), page.confirmedDelete);
+                }
+            },
+            confirmedDelete: function() {
+                routerPolicy.delete(page.deleting);
+                app.reset();
+            },
+            validate: function() {
+                $(".errors").removeClass("errors");
+                if ($("#Name").val().trim().length==0) $("#Name").addClass("errors");
+                return $(".errors").length==0;
+            },
+            reset: function() {
+                $("#TagExtended").html("");
+                $(".tagArea").html("");
+                tags.reset(page.tagData);
+                page.editId = "";
+                page.removal = {};
+                $("#Name").val("");
+                $("#Roles").val("");
+                $("#IDRoles").val("");
+            },
+            handleAction: function(e) {
+                page.reset();
+                var action = $(e.currentTarget).data("action");
+                if (action=="add") {
+                    page.add();
+                } else if (action=="remove") {
+                    page.deleteMulti();
+                }
+            },
+            add: function() {
+                $(".adding").show();
+                $(".editing").hide();
+                modal.show("AddModal");
+            }
+        }
+    </script>

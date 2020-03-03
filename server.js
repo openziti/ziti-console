@@ -41,7 +41,8 @@ fs.watchFile(footerFile, (curr, prev) => {
 });
 
 var errors = {
-	access: "You Do Not Have Access To Perform This Operations"
+	access: "You Do Not Have Access To Perform This Operations",
+	invalidServer: "Invalid Edge Controller"
 }
 
 /**
@@ -69,7 +70,6 @@ if (!fs.existsSync(__dirname+settingsPath+'tags.json')) {
 	fs.copyFileSync(__dirname+'/assets/data/tags.json', __dirname+settingsPath+'tags.json');
 }
 if (!fs.existsSync(__dirname+settingsPath+'settings.json')) {
-	log("Settings not found");
 	fs.copyFileSync(__dirname+'/assets/data/settings.json', __dirname+settingsPath+'settings.json');
 }
 if (!fs.existsSync(__dirname+settingsPath+'/resources')) {
@@ -94,6 +94,9 @@ for (var i=0; i<settings.fabricControllers.length; i++) {
 	}
 }
 
+/**
+ * Setup static pages from configuration files defined in /data/site.json
+ */
 for (var i=0; i<pages.length; i++) {
 	app.get(pages[i].url, function(request, response) {
 		var page = pages[0];
@@ -107,7 +110,7 @@ for (var i=0; i<pages.length; i++) {
 			if (page.url=="/login") request.session.user = null;
 			var headerNow = header.split("{{title}}").join(page.title);
 			headerNow = headerNow.split("{{auth}}").join("");
-			fs.readFile(__dirname+page.page, 'utf8', function(err, data) {
+			fs.readFile(__dirname+"/html"+page.page, 'utf8', function(err, data) {
 				response.send(headerNow+data+footer);
 			});
 		} else {
@@ -116,7 +119,7 @@ for (var i=0; i<pages.length; i++) {
 				if (Number(page.access)<=Number(request.session.authorization)) {
 					var headerNow = header.split("{{title}}").join(page.title);
 					headerNow = headerNow.split("{{auth}}").join(" loggedIn");
-					fs.readFile(__dirname+page.page, 'utf8', function(err, data) {
+					fs.readFile(__dirname+"/html"+page.page, 'utf8', function(err, data) {
 						response.send(headerNow+data+footer);
 					});
 				} else response.redirect('/login');
@@ -124,6 +127,12 @@ for (var i=0; i<pages.length; i++) {
 		}
 	});
 }
+
+
+
+/**------------- Authentication Section -------------**/
+
+
 
 /**
  * Just tests if the user exists as a session or not, would add on to validate roles, etc if the system is expanded to 
@@ -138,42 +147,45 @@ function hasAccess(user) {
  * Authentication method, authenticates the user to the provided edge controller defined by url
  */
 app.post("/api/login", function(request, response) {
-	serviceUrl = request.body.url;
-	var params = {
-		username: request.body.username,
-		password: request.body.password
-	}
-	log("Connecting to: "+serviceUrl+"/authenticate?method=password");
-	log("Posting: "+JSON.stringify(params));
-	external.post(serviceUrl+"/authenticate?method=password", {json: params, rejectUnauthorized: false }, function(err, res, body) {
-		if (err) {
-			log(err);
-			var error = "Server Not Accessible";
-			if (err.code!="ECONNREFUSED") response.json( {error: err.code} );
-			response.json( {error: error} );
-		} else {
-			if (body.error) {
-				response.json( {error:body.error.message} );
-			} else {
-				if (body.data.session&&body.data.session.token) request.session.user = body.data.session.token;
-				else request.session.user = body.data.token;
-				log("Session: "+request.session.user);
-				request.session.authorization = 100;
-				response.json( {success: "Logged In"} );
-			}
+	var urlToSet = request.body.url;
+	if (!IsServerDefined(urlToSet)) response.json({error: errors.invalidServer });
+	else {
+		serviceUrl = urlToSet;
+		var params = {
+			username: request.body.username,
+			password: request.body.password
 		}
-	});
+		log("Connecting to: "+serviceUrl+"/authenticate?method=password");
+		log("Posting: "+JSON.stringify(params));
+		external.post(serviceUrl+"/authenticate?method=password", {json: params, rejectUnauthorized: false }, function(err, res, body) {
+			if (err) {
+				log(err);
+				var error = "Server Not Accessible";
+				if (err.code!="ECONNREFUSED") response.json( {error: err.code} );
+				response.json( {error: error} );
+			} else {
+				if (body.error) response.json( {error:body.error.message} );
+				else {
+					if (body.data&&body.data.token) {
+						request.session.user = body.data.token;
+						log("Session: "+request.session.user);
+						request.session.authorization = 100;
+						response.json( {success: "Logged In"} );
+					} else response.json( {error: "Invalid Account"} );
+				}
+			}
+		});
+	}
 });
 
-
-
-
+/**
+ * Returned the version of the edge-controller server
+ */
 app.post('/api/version', function(request, response) {
 	if (serviceUrl) {
 		external.get(serviceUrl+"/version", {rejectUnauthorized: false}, function(err, res, body) {
-			if (err) {
-				log(err);
-			} else {
+			if (err) log(err);
+			else {
 				 var data = JSON.parse(body);
 				 if (data&&data.data) response.json( {data: data.data} );
 				 else response.json({});
@@ -182,10 +194,65 @@ app.post('/api/version', function(request, response) {
 	} else response.json({});
 });
 
+/**
+ * Reset the current users password
+ */
+app.post("/api/reset", function(request, response) {
+	if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
+	else {
+		if (request.body.newpassword!=request.body.confirm) response.json({error: "Password does not match confirmation"});
+		else {
+			var params = {
+				current: request.body.password,
+				new: request.body.newpassword
+			}
+			log("Connecting to: "+serviceUrl+"/current-identity/updb/password");
+			log("Posting: "+JSON.stringify(params));
+			external.put(serviceUrl+"/current-identity/updb/password", {json: params, rejectUnauthorized: false, headers: { "zt-session": request.session.user }}, function(err, res, body) {
+				if (err) {
+					log(err);
+					var error = "Server Not Accessible";
+					if (err.code!="ECONNREFUSED") response.json( {error: err.code} );
+					response.json( {error: error} );
+				} else {
+					if (body.error) {
+						log(JSON.stringify(body.error));
+						response.json( {error: body.error.message} );
+					} else response.json( {success: "Password Updated"} );
+				}
+			});
+		}
+	}
+});
+
+
+
+/**------------- Server Settings Section -------------**/
+
+
+
+/**
+ * Tests whether the service url exists in the system to prevent hitting unknown server sources
+ * 
+ * @param {The Url to check if it exists in the configuration} url 
+ */
+function IsServerDefined(url) {
+	for (var i=0; i<settings.edgeControllers.length; i++) {
+		if (settings.edgeControllers[i].url==url) return true;
+	}
+	return false;
+}
+
+/**
+ * Returns the current system settings
+ */
 app.post("/api/settings", function(request, response) {
 	response.json(settings);
 });
 
+/**
+ * Save controller information to the settings file if the server exists
+ */
 app.post("/api/controllerSave", function(request, response) {
 	var name = request.body.name.trim();
 	var url = request.body.url.trim();
@@ -197,12 +264,10 @@ app.post("/api/controllerSave", function(request, response) {
 		response.json({ errors: errors });
 	} else {
 		external.get(url+"/version", {rejectUnauthorized: false}, function(err, res, body) {
-			if (err) {
-				response.json( {error: "Edge Controller not Online"} );
-			} else {
-				if (body.error) {
-					response.json( {error: "Invalid Edge Controller"} );
-				} else {
+			if (err) response.json( {error: "Edge Controller not Online"} );
+			else {
+				if (body.error) response.json( {error: "Invalid Edge Controller"} );
+				else {
 					var found = false;
 					for (var i=0; i<settings.edgeControllers.length; i++) {
 						if (settings.edgeControllers[i].url==url) {
@@ -229,6 +294,44 @@ app.post("/api/controllerSave", function(request, response) {
 	}
 });
 
+/**
+ * Save fabric controller information to the settings file if the server exists
+ */
+app.post("/api/fabricSave", function(request, response) {
+	var name = request.body.name.trim();
+	var url = request.body.url.trim();
+	if (url.endsWith('/')) url = url.substr(0, url.length-1);
+	var errors = [];
+	if (name.length==0) errors[errors.length] = "name";
+	if (url.length==0) errors[errors.length] = "url";
+	if (errors.length>0) response.json({ errors: errors });
+	else {
+		var found = false;
+		for (var i=0; i<settings.fabricControllers.length; i++) {
+			if (settings.fabricControllers[i].url==url) {
+				found = true;
+				settings.fabricControllers[i] = {
+					name: name,
+					url: url
+				};
+				break;
+			}
+		}
+		if (!found) {
+			settings.fabricControllers[settings.fabricControllers.length] = {
+				name: name,
+				url: url
+			};
+		}
+		fs.writeFileSync(__dirname+settingsPath+'/settings.json', JSON.stringify(settings));
+		response.json(settings);
+	}
+});
+
+/**
+ * Remove the server definition (fabric or edge controller) from the settings
+ * based on the passed in url parameter
+ */
 app.delete("/api/server", function(request, response) {
 	var user = request.session.user;
 	if (hasAccess(user)) {
@@ -256,362 +359,50 @@ app.delete("/api/server", function(request, response) {
 	}
 });
 
-app.post("/api/fabricSave", function(request, response) {
-	var name = request.body.name.trim();
-	var url = request.body.url.trim();
-	if (url.endsWith('/')) url = url.substr(0, url.length-1);
-	var errors = [];
-	if (name.length==0) errors[errors.length] = "name";
-	if (url.length==0) errors[errors.length] = "url";
-	if (errors.length>0) {
-		response.json({ errors: errors });
-	} else {
-		var found = false;
-		for (var i=0; i<settings.fabricControllers.length; i++) {
-			if (settings.fabricControllers[i].url==url) {
-				found = true;
-				settings.fabricControllers[i] = {
-					name: name,
-					url: url
-				};
-				break;
-			}
-		}
-		if (!found) {
-			settings.fabricControllers[settings.fabricControllers.length] = {
-				name: name,
-				url: url
-			};
-		}
-		fs.writeFileSync(__dirname+settingsPath+'/settings.json', JSON.stringify(settings));
-		response.json(settings);
-	}
-});
-
+/**
+ * Set the current controller to use
+ */
 app.post("/api/controller", function(request, response) {
-	serviceUrl = request.body.url;
+	var urlToSet = request.body.url;
+	if (!IsServerDefined(urlToSet)) response.json({error: errors.invalidServer });
+	else serviceUrl = urlToSet;
 });
 
-app.post("/api/reset", function(request, response) {
-	if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
-	else {
-		if (request.body.newpassword!=request.body.confirm) response.json({error: "Password does not match confirmation"});
-		else {
-			var params = {
-				current: request.body.password,
-				new: request.body.newpassword
-			}
-			log("Connecting to: "+serviceUrl+"/current-identity/updb/password");
-			log("Posting: "+JSON.stringify(params));
-			external.put(serviceUrl+"/current-identity/updb/password", {json: params, rejectUnauthorized: false, headers: { "zt-session": request.session.user }}, function(err, res, body) {
-				if (err) {
-					log(err);
-					var error = "Server Not Accessible";
-					if (err.code!="ECONNREFUSED") response.json( {error: err.code} );
-					response.json( {error: error} );
-				} else {
-					if (body.error) {
-						log(JSON.stringify(body.error));
-						response.json( {error: body.error.message} );
-					} else {
-						response.json( {success: "Password Updated"} );
-					}
-				}
-			});
-		}
-	}
-});
 
-app.post("/api/tags", function(request, response) {
-	response.json(tags);
-});
 
-app.post("/api/tagSave", function(request, response) {
-	var user = request.session.user;
-	tags = request.body.tags;
-	if (hasAccess(user)) {
-		let data = JSON.stringify(tags);  
-		fs.writeFileSync(__dirname+settingsPath+'/tags.json', data);
-	}
-	response.json(tags);
-});
 
-function extractHostname(url) {
-    var hostname;
-    if (url.indexOf("//") > -1) hostname = url.split('/')[2];
-    else hostname = url.split('/')[0];
-    hostname = hostname.split(':')[0];
-    hostname = hostname.split('?')[0];
-    return hostname;
-}
+/**------------- Server Search Section -------------**/
 
-app.get('/resource/:resource/:name', function(request, response) {
-    var name = request.params.name;
-	var resource = request.params.resource;
-	response.sendFile(path.resolve(__dirname+settingsPath+'/resources/'+resource+'/'+name));
-});
 
-app.post('/api/upload', function(request, response) {
-	if (Object.keys(request.files).length == 0) { 
-		return response.status(400).send("No Files Sent");
-	}
-	var image = request.files.image;
-	var resource = request.body.resource;
 
-	var saveTo = __dirname+settingsPath+'/resources/'+resource+'/'+image.name;
-	var fullUrl = '/resource/'+resource+'/'+image.name;
-	
-	image.mv(saveTo, function(error) {
-		if (error) return response.status(500).send(error);
-		else {
-			return response.send(fullUrl);
-		}
-	});
-});
 
-function GetResources(type, response) {
-	var toReturn = [];
-	fs.readdir(__dirname+settingsPath+'/resources/'+type+'/', (err, files) => {
-		if (err) response.json({ type: type, data: toReturn });
-		else {
-			files.forEach(file => {
-				toReturn[toReturn.length] = "/resource/"+type+"/"+file;
-			});
-			response.json({ type: type, data: toReturn });
-		}
-	});	
-}
-
-app.post("/api/resources", function(request, response) {
-	var type = request.body.type;
-	GetResources(type, response);
-});
-
-app.post("/api/delete", function(request, response) {
-	var ids = request.body.ids;
-	var type = request.body.type;
-	var paging = request.body.paging;
-	var user = request.session.user;
-
-	var promises = [];
-
-	ids.forEach(function(id) {
-		promises.push(ProcessDelete(type, id, user));
-	});
-	
-	Promise.all(promises).then(function(e) {
-		log("Then: "+e);
-		GetItems(type, paging, request, response);
-	}).catch(error => { 
-		log("Catch: "+error.message);
-		response.json({error: error.causeMessage});
-	});
-});
-
-app.post("/api/subSave", function(request, response) {
-	if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
-	else {
-		var id = request.body.id;
-		var type = request.body.type;
-		var doing = request.body.doing;
-		var parentType = request.body.parentType;
-		var fullType = parentType+"/"+id+"/"+type;
-		var url = serviceUrl+"/"+fullType;
-		var saveParams = request.body.save;
-		var user = request.session.user;
-		if (hasAccess(user)) {
-			log(url);
-			log("Saving As: "+doing+" "+JSON.stringify(saveParams));
-			external(url, {method: doing, json: saveParams, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-				if (err) {
-					log(err);
-					response.json({ error: err });
-				} else {
-					log(JSON.stringify(body));
-					GetItems(fullType, null, request, response);
-				}
-			});
-		} else {
-			response.json({error:"loggedout"});
-		}
-	}
-});
-
-app.post("/api/dataSave", function(request, response) {
-	if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
-	else {
-		var saveParams = request.body.save;
-		log("Saving: "+JSON.stringify(saveParams));
-		var additional = request.body.additional;
-		var removal = request.body.removal;
-		var type = request.body.type;
-		var paging = request.body.paging;
-		var method = "POST";
-		var id = request.body.id;
-		var url = serviceUrl+"/"+type;
-		var user = request.session.user;
-		if (hasAccess(user)) {
-			if (id&&id.trim().length>0) {
-				method = "PUT";
-				url += "/"+id.trim();
-				saveParams.permissions = [];
-				log("removing");
-				if (removal) {
-					log("removing Now");
-					var objects = Object.entries(removal);
-					if (objects.length>0) {
-						for (var i=0; i<objects.length; i++) {
-							var params = {};
-							params.ids = objects[i][1];
-							log("Delete:"+serviceUrl+"/"+type+"/"+id.trim()+"/"+objects[i][0]);
-							log(JSON.stringify(params));
-							external.delete(serviceUrl+"/"+type+"/"+id.trim()+"/"+objects[i][0], {json: params, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {});
-						}
-					}
-				}
-			}
-			log(url);
-			log("Saving As: "+method+" "+JSON.stringify(saveParams));
-			external(url, {method: method, json: saveParams, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-				if (err) response.json({ error: err });
-				else {
-					log(JSON.stringify(body));
-					if (body.error) {
-						if (body.error.cause&&body.error.cause.message) response.json( {error: body.error.cause.message} );
-						else response.json( {error: body.error} );
-					} else if (body.data) {
-						if (additional) {
-							var objects = Object.entries(additional);
-							var index = 0;
-							if (objects.length>0) {
-								if (method=="POST") id = body.data.id;
-								for (var i=0; i<objects.length; i++) {
-									log("Body: "+JSON.stringify(body.data));
-									log("Url: "+serviceUrl+"/"+type+"/"+id+"/"+objects[i][0]);
-									log("Objects: "+JSON.stringify({ ids: objects[i][1] }));
-									external.put(serviceUrl+"/"+type+"/"+id+"/"+objects[i][0], {json: { ids: objects[i][1] }, rejectUnauthorized: false, headers: { "zt-session": user } }, function(err, res, body) {
-										index++;
-										if (index==objects.length) GetItems(type, paging, request, response);
-									});
-								}
-							} else GetItems(type, paging, request, response);
-						} else {
-							GetItems(type, paging, request, response);
-						}
-					} else {
-						response.json( {error: "Unable to save data"} );
-					}
-				}	
-			});
-		}
-	}
-});
-
-function ProcessAdditonal(type, id, index, objects, user) {
-	return new Promise(function(res, reject) {
-		var props = Object.entries(objects);
-		var key = props[index][0];
-		var values = props[index][1];
-		index++;
-		if (values.length>0) {
-			var promise = ProcessSub(type, id, key, values, user);
-			promise.then(function(results) {}, function(error) {}).finally(function(e) {
-				if (index==props.length) {
-					res("Complete");
-				} else ProcessAdditonal(type, id, index, objects, user);
-			});
-		} else {
-			if (index==props.length) res("Complete");
-			else ProcessAdditonal(type, id, index, objects, user);
-		}
-	});
-}
-
-function ProcessDelete(type, id, user) {
-	return new Promise(function(resolve, reject) {
-		log("Delete: "+serviceUrl+"/"+type+"/"+id)
-		external.delete(serviceUrl+"/"+type+"/"+id, {json: {}, rejectUnauthorized: false, headers: { "zt-session": user } }, function(err, res, body) {
-			if (err) {
-				log("Err: "+err);
-				reject(err);
-			} else {
-				log(JSON.stringify(body));
-				if (body.error) reject(body.error);
-				else resolve(body.data);
-			}
-		});
-	});
-}
-
-function ProcessSub(type, id, key, values, user) {
-	return new Promise(function(resolve, reject) {
-		log(serviceUrl+"/"+type+"/"+id+"/"+key);
-		external.put(serviceUrl+"/"+type+"/"+id+"/"+key, {json: { ids: values }, rejectUnauthorized: false, headers: { "zt-session": user } }, function(err, res, body) {
-			if (err) {
-				log("It Errored:");
-				log(JSON.stringify(err));
-				reject(err);
-			} else {
-				log("It Errored:");
-				log(JSON.stringify(body));
-				resolve(body);
-			}
-		});
-	});
-}
-
-app.post("/api/dataFabric", function(request, response) {
-	var type = request.body.type;
-	fabricUrl = request.body.url;
-	GetFabricItems(type, response);
-});
-
-function GetFabricItems(type, response) {
-	var canCall = false; 
-	for (var i=0; i<settings.fabricControllers.length; i++) {
-		console.log("Fab: "+JSON.stringify(settings.fabricControllers[i]));
-		if (settings.fabricControllers[i].url==fabricUrl) {
-			canCall = true;
-			break;
-		}
-	}
-	if (canCall) {
-		log("Calling Fabric: "+type+" "+fabricUrl+"/ctrl/"+type);
-		external.get(fabricUrl+"/ctrl/"+type, { json: {}, rejectUnauthorized: false }, function(err, res, body) {
-			if (err) {
-				response.json({ error: "Unable to connect to fabric" });
-			} else {
-				if (body.error) {
-					response.json( {error: body.error.message} );
-				} else if (body.data) {
-					response.json( body );
-				} else {
-					response.json( {error: "Unable to retrieve data"} );
-				}
-			}
-		});
-	} else {
-		fabricUrl = "";
-		response.json({ data: [] });
-	}
-}
-
+/**
+ * Get the data from the edge controller based on the type of object and the 
+ * defined search parameters
+ */
 app.post("/api/data", function(request, response) {
 	var type = request.body.type;
 	var paging = request.body.paging;
 	GetItems(type, paging, request, response);
 });
 
+/**
+ * Get the data from the edge controller
+ * 
+ * @param {The type of object to search for (identity, router, gateway, etc)} type 
+ * @param {Paging request parameters (see edge controller API docs)} paging 
+ * @param {The server request object} request 
+ * @param {The server response object} response 
+ */
 function GetItems(type, paging, request, response) {
 	var urlFilter = "";
 	if (paging!=null) {
-		if (!paging.filter) {
-			paging.filter = "";
-		} else {
+		if (!paging.filter) paging.filter = "";
+		else {
 			if (paging.page!=-1) urlFilter = "?filter=(name contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
 		}
 	}
-	if(serviceUrl==null||serviceUrl.trim().length==0) response.json({error:"loggedout"});
+	if (serviceUrl==null||serviceUrl.trim().length==0) response.json({error:"loggedout"});
 	else {
 		log(serviceUrl+"/"+type+urlFilter);
 		external.get(serviceUrl+"/"+type+urlFilter, {json: {}, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
@@ -619,22 +410,22 @@ function GetItems(type, paging, request, response) {
 				log("Error: "+JSON.stringify(err));
 				response.json({ error: err });
 			} else {
-				if (body.error) {
-					response.json( {error: body.error.message} );
-				} else if (body.data) {
+				if (body.error) response.json( {error: body.error.message} );
+				else if (body.data) {
 					log("Items: "+body.data.length);
 					response.json( body );
 				} else {
 					body.data = [];
-					log(JSON.stringify(body));
 					response.json( body );
-					//response.json( {error: "Unable to retrieve data"} );
 				}
 			}
 		});
 	}
 }
 
+/**
+ * Get all of the sub objects associated with a parent objects, like all of the services defined in an AppWAN
+ */
 app.post("/api/dataSubs", function(request, response) {
 	var id = request.body.id;
 	var type = request.body.type;
@@ -663,6 +454,323 @@ app.post("/api/dataSubs", function(request, response) {
 	} else response.json( {error: "Invalid Sub Data Url"});
 });
 
+/**
+ * Get the data directly from a provided link from the json _links returned from
+ * the edge controller parent data call.
+ */
+app.post("/api/subdata", function(request, response) {
+	var url = request.body.url.split("./").join("");
+	var id = request.body.id;
+	var type = request.body.type;
+	var parentType = request.body.name;
+	external.get(url, {json: {}, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+		if (err) response.json({ error: err });
+		else {
+			response.json({ 
+				id: id,
+				parent: parentType,
+				type: type,
+				data: body.data
+			});
+		}
+	});
+});
+
+/**
+ * Get the data from a fabrice controller based on the type of object
+ */
+app.post("/api/dataFabric", function(request, response) {
+	var type = request.body.type;
+	fabricUrl = request.body.url;
+	GetFabricItems(type, response);
+});
+
+/**
+ * Get the data from the fabric controller
+ * 
+ * @param {The type of data to get from the controller (e.g. links, routers, etc)} type 
+ * @param {The server response object} response 
+ */
+function GetFabricItems(type, response) {
+	var canCall = false; 
+	for (var i=0; i<settings.fabricControllers.length; i++) {
+		if (settings.fabricControllers[i].url==fabricUrl) {
+			canCall = true;
+			break;
+		}
+	}
+	if (canCall) {
+		log("Calling Fabric: "+type+" "+fabricUrl+"/ctrl/"+type);
+		external.get(fabricUrl+"/ctrl/"+type, { json: {}, rejectUnauthorized: false }, function(err, res, body) {
+			if (err) response.json({ error: "Unable to connect to fabric" });
+			else {
+				if (body.error) response.json( {error: body.error.message} );
+				else if (body.data) response.json( body );
+				else response.json( {error: "Unable to retrieve data"} );
+			}
+		});
+	} else {
+		fabricUrl = "";
+		response.json({ data: [] });
+	}
+}
+
+
+
+
+/**------------- Data Save Section -------------**/
+
+
+
+
+/**
+ * Save the object to the edge controller based on the provided type and passed in JSON 
+ * parameters. If it exists, do an update, if not do a create operation.
+ */
+app.post("/api/dataSave", function(request, response) {
+	if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
+	else {
+		var saveParams = request.body.save;
+		var additional = request.body.additional;
+		var removal = request.body.removal;
+		var type = request.body.type;
+		var paging = request.body.paging;
+		var method = "POST";
+		var id = request.body.id;
+		var url = serviceUrl+"/"+type;
+		var user = request.session.user;
+		if (hasAccess(user)) {
+			if (id&&id.trim().length>0) {
+				method = "PUT";
+				url += "/"+id.trim();
+				if (removal) {
+					var objects = Object.entries(removal);
+					if (objects.length>0) {
+						for (var i=0; i<objects.length; i++) {
+							var params = {};
+							params.ids = objects[i][1];
+							log("Delete:"+serviceUrl+"/"+type+"/"+id.trim()+"/"+objects[i][0]);
+							log(JSON.stringify(params));
+							external.delete(serviceUrl+"/"+type+"/"+id.trim()+"/"+objects[i][0], {json: params, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {});
+						}
+					}
+				}
+			}
+			log("Calling: "+url);
+			log("Saving As: "+method+" "+JSON.stringify(saveParams));
+			external(url, {method: method, json: saveParams, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+				if (err) response.json({ error: err });
+				else {
+					log(JSON.stringify(body));
+					if (body.error) {
+						if (body.error.cause&&body.error.cause.message) response.json( {error: body.error.cause.message} );
+						else response.json( {error: body.error} );
+					} else if (body.data) {
+						if (additional) {
+							var objects = Object.entries(additional);
+							var index = 0;
+							if (objects.length>0) {
+								if (method=="POST") id = body.data.id;
+								for (var i=0; i<objects.length; i++) {
+									log("Body: "+JSON.stringify(body.data));
+									log("Url: "+serviceUrl+"/"+type+"/"+id+"/"+objects[i][0]);
+									log("Objects: "+JSON.stringify({ ids: objects[i][1] }));
+									external.put(serviceUrl+"/"+type+"/"+id+"/"+objects[i][0], {json: { ids: objects[i][1] }, rejectUnauthorized: false, headers: { "zt-session": user } }, function(err, res, body) {
+										index++;
+										if (index==objects.length) GetItems(type, paging, request, response);
+									});
+								}
+							} else GetItems(type, paging, request, response);
+						} else GetItems(type, paging, request, response);
+					} else response.json( {error: "Unable to save data"} );
+				}	
+			});
+		}
+	}
+});
+
+/**
+ * Save the data associated to one object to the parent object
+ */
+app.post("/api/subSave", function(request, response) {
+	if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
+	else {
+		var id = request.body.id;
+		var type = request.body.type;
+		var doing = request.body.doing;
+		var parentType = request.body.parentType;
+		var fullType = parentType+"/"+id+"/"+type;
+		var url = serviceUrl+"/"+fullType;
+		var saveParams = request.body.save;
+		var user = request.session.user;
+		if (hasAccess(user)) {
+			log(url);
+			log("Saving As: "+doing+" "+JSON.stringify(saveParams));
+			external(url, {method: doing, json: saveParams, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+				if (err) {
+					log(err);
+					response.json({ error: err });
+				} else {
+					log(JSON.stringify(body));
+					GetItems(fullType, null, request, response);
+				}
+			});
+		} else response.json({error:"loggedout"});
+	}
+});
+
+
+
+
+/**------------- Data Deletion Section -------------**/
+
+
+
+
+/**
+ * Delete the specified list of objects from edhe controller, and return the remaining 
+ * list while retaining the last search filter properties.
+ */
+app.post("/api/delete", function(request, response) {
+	var ids = request.body.ids;
+	var type = request.body.type;
+	var paging = request.body.paging;
+	var user = request.session.user;
+
+	var promises = [];
+
+	ids.forEach(function(id) {
+		promises.push(ProcessDelete(type, id, user));
+	});
+	
+	Promise.all(promises).then(function(e) {
+		GetItems(type, paging, request, response);
+	}).catch(error => { 
+		log("Catch: "+error.message);
+		response.json({error: error.causeMessage});
+	});
+});
+
+/**
+ * Create the promise required to delete a specific object from the edge controller
+ * 
+ * @param {The type of object being deleted} type 
+ * @param {The id of the object to delete} id 
+ * @param {The specified user token deleting the object} user 
+ */
+function ProcessDelete(type, id, user) {
+	return new Promise(function(resolve, reject) {
+		log("Delete: "+serviceUrl+"/"+type+"/"+id)
+		external.delete(serviceUrl+"/"+type+"/"+id, {json: {}, rejectUnauthorized: false, headers: { "zt-session": user } }, function(err, res, body) {
+			if (err) {
+				log("Err: "+err);
+				reject(err);
+			} else {
+				log(JSON.stringify(body));
+				if (body.error) reject(body.error);
+				else resolve(body.data);
+			}
+		});
+	});
+}
+
+
+
+/**------------- Customized ZAC only resources Section -------------**/
+
+
+
+
+/**
+ * Get the specified resource and send it back to the client. Generally icons and custom images
+ */
+app.get('/resource/:resource/:name', function(request, response) {
+    var name = request.params.name;
+	var resource = request.params.resource;
+	response.sendFile(path.resolve(__dirname+settingsPath+'/resources/'+resource+'/'+name));
+});
+
+/**
+ * Save the customized resource to the system in their specific folder defined by the type of
+ * resource being sent. Profile Images, Identity Images, Icons, etc
+ */
+app.post('/api/upload', function(request, response) {
+	if (Object.keys(request.files).length == 0) return response.status(400).send("No Files Sent");
+
+	var image = request.files.image;
+	var resource = request.body.resource;
+	var saveTo = __dirname+settingsPath+'/resources/'+resource+'/'+image.name;
+	var fullUrl = '/resource/'+resource+'/'+image.name;
+	
+	image.mv(saveTo, function(error) {
+		if (error) return response.status(500).send(error);
+		else return response.send(fullUrl);
+	});
+});
+
+/**
+ * Get the list of all resources defined for a specific type
+ */
+app.post("/api/resources", function(request, response) {
+	var type = request.body.type;
+	GetResources(type, response);
+});
+
+/**
+ * Returns the list of all resources defined for a specific type
+ * 
+ * @param {The Type of Resource (e.g. image, icon, etc)} type 
+ * @param {*} response 
+ */
+function GetResources(type, response) {
+	var toReturn = [];
+	fs.readdir(__dirname+settingsPath+'/resources/'+type+'/', (err, files) => {
+		if (err) response.json({ type: type, data: toReturn });
+		else {
+			files.forEach(file => {
+				toReturn[toReturn.length] = "/resource/"+type+"/"+file;
+			});
+			response.json({ type: type, data: toReturn });
+		}
+	});	
+}
+
+
+
+/**------------- ZAC only specified tag Section -------------**/
+
+
+
+/**
+ * Get the current well defined list of tags that ZAC uses to display
+ * UI defined tag definitions.
+ */
+app.post("/api/tags", function(request, response) {
+	response.json(tags);
+});
+
+/**
+ * Save the current tag data to the system.
+ */
+app.post("/api/tagSave", function(request, response) {
+	var user = request.session.user;
+	tags = request.body.tags;
+	if (hasAccess(user)) {
+		let data = JSON.stringify(tags);  
+		fs.writeFileSync(__dirname+settingsPath+'/tags.json', data);
+	}
+	response.json(tags);
+});
+
+
+
+
+/**------------- Fabric Series Data Funcations -------------**/
+
+
+/**
+ * Get the averages from the series data in the system influx DB
+ */
 app.post("/api/average", function(request, response) {
 	var core = request.body.core;
 	var item = request.body.item;
@@ -673,8 +781,6 @@ app.post("/api/average", function(request, response) {
 	if (item.trim().length>0) source +="."+item;
 	if (readwrite.trim().length>0) source +="."+readwrite;
 	source +="."+type;
-	log(source);
-	log(request.body.url)
 	var url = new URL(request.body.url);
 	domain = url.hostname;
 	
@@ -696,6 +802,11 @@ app.post("/api/average", function(request, response) {
 	});
 });
 
+
+
+/**
+ * Get the mean value from the series data in the system influx DB
+ */
 app.post("/api/series", function(request, response) {
 	var core = request.body.core;
 	var item = request.body.item;
@@ -706,8 +817,6 @@ app.post("/api/series", function(request, response) {
 	if (item.trim().length>0) source +="."+item;
 	if (readwrite.trim().length>0) source +="."+readwrite;
 	source +="."+type;
-	log(source);
-	log(request.body.url)
 	var url = new URL(request.body.url);
 	domain = url.hostname;
 	
@@ -730,64 +839,15 @@ app.post("/api/series", function(request, response) {
 	});
 });
 
-function AppendObject(obj, request, index) {
-	if (obj.length==index) return obj;
-	else {
-		var total = 0;
-		delete obj[index]._links.self;
-		var props = Object.entries(obj[index]._links);
-		props.forEach(entry => {
-			var key = entry[0];
-			var url = entry[1].href;
-			var promise = GetSubData(url.split("./").join(""), request);
-			promise.then(function(result) {
-				obj[index][key] = result;
-			}, function(error) {
-				obj[index][key] = [];
-			}).finally(function() {
-				total++;
-				if (total==props.length) {
-					index++;
-					if (index==obj.length) {
-						return obj;
-					} else {
-						obj = AppendObject(obj, request, index);
-					}
-				}
-			});
-		});
-	}
-}
 
-app.post("/api/subdata", function(request, response) {
-	var url = request.body.url.split("./").join("");
-	var id = request.body.id;
-	var type = request.body.type;
-	var parentType = request.body.name;
-	external.get(url, {json: {}, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-		if (err) response.json({ error: err });
-		else {
-			response.json({ 
-				id: id,
-				parent: parentType,
-				type: type,
-				data: body.data
-			});
-		}
-	});
-});
 
-function GetSubData(url, request) {
-    return new Promise(function(resolve, reject) {
-		external.get(serviceUrl+"/"+url, {json: {}, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-			if (err) reject(err);
-			else resolve(body.data);
-		});
-	});
-}
+
+/**------------- System Application Funcations -------------**/
+
+
 
 /***
- * Send a message to NetFoundry to report errors or requst features
+ * Send a message to NetFoundry to report errors or request features
  */
 app.post("/api/message", function(request, response) {
 	var type = request.body.type;
@@ -817,14 +877,23 @@ function log(message) {
 	if (isDebugging) console.log(message);
 }
 
-/***
- ** Serve App
-***/
 
+
+
+/**------------- Serve the Express Application -------------**/
+
+
+
+/**
+ * Serve the current app on the defined port
+ */
 app.listen(port, function() {
 	log("Ziti Server running on port "+port);
 });
 
+/**
+ * If certificates are defined, setup an https redirection service
+ */
 if (fs.existsSync("./server.key")&&fs.existsSync("./server.chain.pem")) {
     log("Initializing TLS");
 	try {
@@ -836,7 +905,6 @@ if (fs.existsSync("./server.key")&&fs.existsSync("./server.chain.pem")) {
 		https.createServer(options, app).listen(portTLS);
 	} catch(err) {
 		log("ERROR: Could not initialize TLS!");
-		log("");
 		throw err;
 	}
 }
