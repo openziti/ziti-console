@@ -135,7 +135,7 @@
                 routers.init();
             }, 
             events: function() {
-                context.addListener(page.edgeRoutersObject, page.edgeRoutersLoaded);
+                context.addListener(page.edgeRoutersObject.name, page.edgeRoutersLoaded);
                 context.addListener(routers.name, page.fabricRoutersLoaded);
                 context.addListener(page.configsObject.name, page.configsLoaded);
                 context.addListener(page.configsTypesObject.name, page.configTypesLoaded);
