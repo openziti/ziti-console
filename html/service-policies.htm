@@ -1,3 +1,5 @@
+    
+    <!-- General Page Layout HTML -->
     <div class="header">
         <div class="title">Manage <span data-bind="pageTitle"></span></div>
         <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
@@ -10,39 +12,41 @@
     </div>
     <div class="action icon-plus" data-action="add"></div>
     <div class="filters">
-        <input id="SearchFilter" type="text" class="search" placeholder="Type to Filter" />
-        <div class="clear"></div>
+        <input id="SearchFilter" data-defined="search" type="text" class="search" placeholder="Type to Filter" />
+        <div class="clear" data-defined="clear"></div>
         <div class="counters"><span id="Start">-</span>-<span id="End">-</span> of <span id="Total">-</span></div>
         <div class="navigate prev icon-prev disabled"></div>
         <div class="navigate next icon-next disabled"></div>
     </div>
-    <div class="area data">
-        <div class="noitems"></div>
+    <div class="area data" data-defined="table">
         <div class="table">
             <div class="head grid six">
                 <div class="col">
                     <div class="selector all"></div>
                 </div>
                 <div class="col sort asc" data-by="name">Name<div class="dragger"></div></div>
-                <div class="col">Identity Roles<div class="dragger"></div></div>
                 <div class="col">Service Roles<div class="dragger"></div></div>
+                <div class="col">Identity Roles<div class="dragger"></div></div>
                 <div class="col sort" data-by="semantic">Semantic<div class="dragger"></div></div>
                 <div class="col"></div>
             </div>
-            <div class="rows">
+            <div class="rows" data-defined="rows">
                 <!-- This area will be replaced by data rows -->
             </div>
         </div>
     </div>
-    <div class="nodata">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
+    <div class="nodata" data-defined="empty">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
 
-    <div id="RowTemplate" class="row grid six template">
-        <div class="col">
+
+
+    <!-- Template HTML will be used to display rows of data -->
+    <div id="RowTemplate" class="row grid six template" data-defined="template">
+        <div class="col notitle">
             <div class="selector" data-id="{{id}}"></div>
         </div>
         <div class="col" data-id="{{id}}"><strong>{{name}}</strong></div>
-        <div class="col" data-id="{{id}}">{{identityRoles}}</div>
-        <div class="col" data-id="{{id}}">{{serviceRoles}}</div>
+        <div class="col" data-id="{{id}}">{{selector.serviceRoles}}</div>
+        <div class="col" data-id="{{id}}">{{selector.identityRoles}}</div>
         <div class="col" data-id="{{id}}">{{semantic}}</div>
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
@@ -54,6 +58,9 @@
         </div>
     </div>
 
+
+
+
 	<!-- Modification Modals -->
     <div id="AddModal" class="modal box full">
         <div class="sized">
@@ -63,26 +70,26 @@
             <div class="title editing">Edit <span data-bind="singular"></span></div>
             <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
             <label for="Name">Name</label>
-            <input id="Name" type="text" maxlength="500" placeholder="Enter a name" />
+            <input id="Name" type="text" data-bind="data.name" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
             <label for="Type">Type</label>
-            <select id="Type">
+            <select id="Type" data-bind="data.type" data-default="Bind" data-enter="SaveButton">
                 <option value="Bind" selected>Bind</option>
                 <option value="Dial">Dial</option>
             </select>
-            <label for="Roles">Router Roles</label>
-            <input id="Roles" type="text" maxlength="500" placeholder="Enter a list of roles" />
+            <label for="Roles">Service Roles</label>
+            <div id="Roles"></div>
             <label for="IDRoles">Identity Roles</label>
-            <input id="IDRoles" type="text" maxlength="500" placeholder="Enter a list of roles" />
+            <div id="IDRoles"></div>
             <label for="Semantics">Semantics</label>
-            <select id="Semantics">
+            <select id="Semantics" data-bind="data.semantic" data-default="AnyOf" data-enter="SaveButton">
                 <option value="AnyOf">Has Any Role</option>
                 <option value="AllOf">Must Have All Roles</option>
             </select>
-            <div id="TagArea"></div>
+            <div id="TagArea" data-tagarea="policies"></div>
             <div id="TagExtended"></div>
             <div class="buttons">
                 <div class="linkButton closer">Oops, No get me out of here</div>
-                <div id="SaveButton" class="button">Save</div>
+                <div id="SaveButton" class="button" data-defined="save">Save</div>
             </div>
         </div>
 	</div>
@@ -94,195 +101,46 @@
                 pageTitle: "Service Policies",
                 singular: "Service Policy"
             },
-            tagData: [],
-            data: [],
-            deleting: [],
-            removal: {},
-            searchId: null,
+            filterObject: null,
+            serviceRoles: null,
+            identityRoles: null,
             init: function() {
-                this.events();
-                context.addListener(tags.name, page.tagsLoaded);
-                context.addListener(servicePolicy.name, page.getLoaded);
-                servicePolicy.init();
+                page.serviceRoles = new Selector("Roles","roles","services");
+                page.identityRoles = new Selector("IDRoles","identities","identities");
+                page.filterObject = new Data("service-policies");
+                page.serviceRoles.init();
+                page.identityRoles.init();
+                page.filterObject.init(true, true);
             }, 
-            events: function() {
-                $(".action").click(page.handleAction);
-                $("#SaveButton").click(page.save);
-                $("#SearchFilter").keyup(page.search);
-                $("#Filter").keyup(page.filter);
-		        $(".clear").click(page.clear);
-            },
-            tagsLoaded: function() {
-                var html = "";
-                for (var i=0; i<tags.data.length; i++) {
-                    if (tags.data[i].objects=="all"||tags.data[i].objects.indexOf('policies')>=0) {
-                        page.tagData[page.tagData.length] = tags.data[i];
-                        html += tags.html(tags.data[i]);
-                    }
-                }
-                $("#TagArea").html(html);
-                tags.events();
-            },
-            clear: function() {
-                $("#SearchFilter").val("");
-                servicePolicy.filter = "";
-                servicePolicy.get();
-                $(".clear").removeClass("showing");
-            },
-            search: function(e) {
-                if (page.searchId) clearTimeout(page.searchId);
-                servicePolicy.filter = $("#SearchFilter").val();
-                if ($("#SearchFilter").val().trim().length>0) $(".clear").addClass("showing");
-                else $(".clear").removeClass("showing");
-                if (e.keyCode==13) {
-                    servicePolicy.get();
-                } else {
-                    page.searchId = setTimeout(function() {
-                        servicePolicy.get();
-                    }, 1000);
-                }
-            },
-            clickEdit: function(e) {
-                var id = $(e.currentTarget).data("id");
-                if (id) page.edit(id);
-            },
-            getLoaded: function(e) {
-                $(".selector.selected").removeClass("selected");
-                app.setAction();
-                page.data = servicePolicy.data;
-                $(".rows").html("");
-                if (servicePolicy.data.length>0) {
-                    $("#Start").html(servicePolicy.start());
-                    $("#End").html(servicePolicy.end());
-                    $("#Total").html(servicePolicy.total());
-                    for (var i=0; i<servicePolicy.data.length; i++) {
-                        var element = $("#RowTemplate").clone();
-                        element.removeClass("template");
-                        element.attr("id","Row"+i);
-                        var obj = servicePolicy;
-						for (var prop in obj.data[i]) {
-                            element.html(element.html().split("{{"+prop+"}}").join(obj.data[i][prop]));
-                            element.html(element.html().split("{{moment."+prop+"}}").join(moment(obj.data[i][prop]).utc().fromNow()));
-                        }
-                        $(".rows").append(element);
-                    }
-                    page.pageLoaded();     
-                    $(".data").show();
-                    $(".nodata").hide();       
-                } else {
-                    $(".data").hide();
-                    $(".nodata").show();
-                }       
-            },
-            pageLoaded: function() {
-                $(".gridAction").click(page.gridAction);
-                $(".navigate").off("click");
-                $(".navigate").addClass("disabled");
-                $(".clickEdit").click(page.clickEdit);
-                if (!servicePolicy.isFirst()) {
-                    $(".navigate.prev").removeClass("disabled");
-                    $(".navigate.prev").on("click", servicePolicy.prev);
-                }
-                if (!servicePolicy.isLast()) {
-                    $(".navigate.next").removeClass("disabled");
-                    $(".navigate.next").on("click", servicePolicy.next);
-                } 
-                app.postLoad();
-            },
             gridAction: function(e) {
                 var action = $(e.currentTarget).data("action");
                 var id = $(e.currentTarget).data("id");
-                if (action=="delete") {
-                    page.deleting = [];
-                    page.deleting[page.deleting.length] = id;
-                    modal.confirm("you want to delete this "+page.binding.singular, page.confirmedDelete);
-                } else if (action=="edit") {
-                    page.edit(id);
-                }
+                if (action=="delete") page.filterObject.delete([id]);
+                else if (action=="edit") page.edit(id);
             },
             edit: function(id) {
-                page.reset();
-                var detail = servicePolicy.details(id);
-                $(".adding").hide();
-                $(".editing").show();
-
-                tags.reset(page.tagData,detail);
-                tags.extended(detail, $("#TagExtended"));
-                $("#Name").val(detail.name);
-                $("#Roles").val(detail.serviceRoles);
-                $("#IDRoles").val(detail.identityRoles);
-                $("#Semantics").val(detail.semantic);
-                $("#Type").val(detail.type);
-
-                page.editId = id;
+                var detail = page.filterObject.details(id);
+                page.serviceRoles.val(detail.serviceRoles);
+                page.identityRoles.val(detail.identityRoles);
                 modal.show("AddModal");
             },
             save: function() {
                 if (page.validate()) {
-                    if (localStorage.getItem("filterAfterSave")=="on") {
-                        $("#SearchFilter").val($("#Name").val());
-                        servicePolicy.filter = $("#SearchFilter").val();
-                    }
-                    var roles = page.getRoles($("#Roles").val().trim().split(','));
-                    var idRoles = page.getRoles($("#IDRoles").val().trim().split(','));
-                    servicePolicy.save(
-                        $("#Name").val(),
-                        $("#Type").val(),
-                        roles,
-                        idRoles,
-                        $("#Semantics").val(),
-                        tags.getValues(page.tagData),
-                        page.editId);
+                    var obj = {
+                        name: $("#Name").val(),
+                        type: $("#Type").val(),
+                        serviceRoles: page.serviceRoles.val(),
+                        identityRoles: page.identityRoles.val(),
+                        semantic: $("#Semantics").val(),
+                        tags: tags.val()
+                    };
+                    page.filterObject.save(obj);
                 } else growler.form();
-            },
-            getRoles: function(roles) {
-                var values = [];
-                for (var i=0; i<roles.length; i++) {
-                    var item = roles[i].trim();
-                    if (item.length>0) values[values.length] = item;
-                }
-                return values;
-            },
-            deleteMulti: function(e) {
-                page.deleting = [];
-                $(".selector.selected").each(function(index, e) {
-                    page.deleting[page.deleting.length] = $(e).data("id");
-                });
-                if (page.deleting.length>0) {
-                    modal.confirm("you want to delete these "+page.deleting.length+" "+((page.deleting.length>1)?page.binding.pageTitle:page.binding.singular), page.confirmedDelete);
-                }
-            },
-            confirmedDelete: function() {
-                servicePolicy.delete(page.deleting);
-                app.reset();
             },
             validate: function() {
                 $(".errors").removeClass("errors");
                 if ($("#Name").val().trim().length==0) $("#Name").addClass("errors");
                 return $(".errors").length==0;
-            },
-            reset: function() {
-                $("#TagExtended").html("");
-                tags.reset(page.tagData);
-                page.editId = "";
-                page.removal = {};
-                $("#Name").val("");
-                $("#Roles").val("");
-                $("#IDRoles").val("");
-            },
-            handleAction: function(e) {
-                page.reset();
-                var action = $(e.currentTarget).data("action");
-                if (action=="add") {
-                    page.add();
-                } else if (action=="remove") {
-                    page.deleteMulti();
-                }
-            },
-            add: function() {
-                $(".adding").show();
-                $(".editing").hide();
-                modal.show("AddModal");
             }
         }
     </script>

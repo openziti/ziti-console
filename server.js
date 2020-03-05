@@ -398,13 +398,11 @@ function GetItems(type, paging, request, response) {
 	var urlFilter = "";
 	if (paging!=null) {
 		if (!paging.filter) paging.filter = "";
-		else {
-			if (paging.page!=-1) urlFilter = "?filter=(name contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
-		}
+		if (paging.page!=-1) urlFilter = "?filter=(name contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
 	}
 	if (serviceUrl==null||serviceUrl.trim().length==0) response.json({error:"loggedout"});
 	else {
-		log(serviceUrl+"/"+type+urlFilter);
+		log("Calling: "+serviceUrl+"/"+type+urlFilter);
 		external.get(serviceUrl+"/"+type+urlFilter, {json: {}, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 			if (err) {
 				log("Error: "+JSON.stringify(err));
@@ -413,6 +411,7 @@ function GetItems(type, paging, request, response) {
 				if (body.error) response.json( {error: body.error.message} );
 				else if (body.data) {
 					log("Items: "+body.data.length);
+					log("Results: "+JSON.stringify(body.data));
 					response.json( body );
 				} else {
 					body.data = [];

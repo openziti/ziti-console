@@ -13,6 +13,7 @@ limitations under the License.
 var tags = {
     name: "tags",
     data: [],
+    tagData: [],
     map: null,
 	init: function() {
         tags.get();
@@ -129,7 +130,8 @@ var tags = {
         }
         return ((tag.default)?tag.default:"");
     },
-    reset: function(values, obj) {
+    reset: function(obj) {
+        var values = tags.tagData;
         for (var i=0; i<values.length; i++) {
             var value = tags.getObjTag(values[i], obj);
             var tag = values[i];
@@ -165,6 +167,9 @@ var tags = {
                 $("#Tag_"+tag.id).val(value);
             }
         }
+    },
+    val: function() {
+        return this.getValues(tags.tagData);
     },
     getValues: function(values) {
         var toReturn = {};
@@ -205,6 +210,21 @@ var tags = {
     getReturned: function(e) {
         tags.data = e;
         context.set(tags.name, tags.data);
+        if ($("*[data-tagarea]").length==1) tags.bind();
+    },
+    bind: function() {
+        var html = "";
+        var tagArea = $("*[data-tagarea]");
+        var matcher = tagArea.data("tagarea");
+        tagArea.html("");
+        for (var i=0; i<tags.data.length; i++) {
+            if (tags.data[i].objects=="all"||tags.data[i].objects.indexOf(matcher)>=0) {
+                this.tagData[this.tagData.length] = tags.data[i];
+                html += tags.html(tags.data[i]);
+            }
+        }
+        tagArea.html(html);
+        tags.events();
     },
     extended: function(details, element) {
         for (key in details.tags) {

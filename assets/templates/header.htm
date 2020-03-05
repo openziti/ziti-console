@@ -48,14 +48,11 @@
 		<!-- 3rd Party Includes -->
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 		<script type="text/javascript" src="/assets/scripts/components/moment.js"></script>
-		<link href="/assets/styles/select2.css" rel="stylesheet" type="text/css"/>
-		<script type="text/javascript" src="/assets/scripts/components/select2.min.js"></script>
-  
 		<script type="text/javascript" src="/assets/scripts/components/spectrum.js"></script>
 		<script type="text/javascript" src="/assets/scripts/components/leaflet/leaflet.js"></script>	
 		<script type="text/javascript" src="/assets/scripts/components/network/vis-network.js"></script>
-
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+
 		<!-- NetFoundry Components -->
 		<link href="/assets/scripts/components/column.css" rel="stylesheet" type="text/css"/>
 		<script src="/assets/scripts/components/column.js"></script>
@@ -72,6 +69,7 @@
         <script type="text/javascript" src="/assets/scripts/components/codemirror/modes/addons/html-hint.js"></script>
         <script type="text/javascript" src="/assets/scripts/components/codemirror/modes/addons/javascript-hint.js"></script>
         <script type="text/javascript" src="/assets/scripts/components/codemirror/modes/addons/show-hint.js"></script>
+        <script type="text/javascript" src="/assets/scripts/components/codemirror/modes/addons/formatting.js"></script>
 		<script src="/assets/scripts/components/flows.js"></script>
 		<script src="/assets/scripts/components/qrcode.min.js"></script>
 		<!-- Application Utilities -->
@@ -84,21 +82,12 @@
 		<script type="text/javascript" src="/assets/scripts/components/resources.js"></script>
 		<script type="text/javascript" src="/assets/scripts/components/uploader.js"></script>
 		<!-- Application Objects -->
+		<script type="text/javascript" src="/assets/scripts/model/data.js"></script>
+		<script type="text/javascript" src="/assets/scripts/components/selector.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/settings.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/user.js"></script>
-		<script type="text/javascript" src="/assets/scripts/model/appwans.js"></script>
-		<script type="text/javascript" src="/assets/scripts/model/identities.js"></script>
-		<script type="text/javascript" src="/assets/scripts/model/gateways.js"></script>
-		<script type="text/javascript" src="/assets/scripts/model/routerPolicy.js"></script>
-		<script type="text/javascript" src="/assets/scripts/model/servicePolicy.js"></script>
-		<script type="text/javascript" src="/assets/scripts/model/serviceRouterPolicy.js"></script>
-		<script type="text/javascript" src="/assets/scripts/model/services.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/summary.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/tags.js"></script>
-		<script type="text/javascript" src="/assets/scripts/model/cas.js"></script>
-		<script type="text/javascript" src="/assets/scripts/model/clusters.js"></script>
-		<script type="text/javascript" src="/assets/scripts/model/configs.js"></script>
-		<script type="text/javascript" src="/assets/scripts/model/configTypes.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/fabric.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/fabric.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/fabricServices.js"></script>
@@ -190,11 +179,11 @@
 						<div class="iconArea rippler"><div class="image icon-identity"></div></div>
 						<div class="label">Edge<br/>Identities</div>
 					</div>
-					<div class="navButton" data-go="/services">
+					<div class="navButton" data-go="/edge-services">
 						<div class="iconArea rippler"><div class="image icon-migrating"></div></div>
 						<div class="label">Edge<br/>Services</div>
 					</div>
-					<div class="navButton" data-go="/gateways">
+					<div class="navButton" data-go="/edge-routers">
 						<div class="iconArea rippler"><div class="image icon-route"></div></div>
 						<div class="label">Edge<br/>Routers</div>
 					</div>
@@ -210,15 +199,15 @@
 						<div class="iconArea rippler"><div class="image icon-cas"></div></div>
 						<div class="label">Certificate<br/>Authorities</div>
 					</div>
-					<div class="navButton iffabric disabled" data-go="/fabricServices">
+					<div class="navButton iffabric disabled" data-go="/fabric-services">
 						<div class="iconArea rippler"><div class="image icon-fabricServices"></div></div>
 						<div class="label">Fabric<br/>Services</div> 
 					</div>
-					<div class="navButton iffabric disabled" data-go="/routers">
+					<div class="navButton iffabric disabled" data-go="/fabric-routers">
 						<div class="iconArea rippler"><div class="image icon-routers"></div></div>
 						<div class="label">Fabric<br/>Routers</div>
 					</div>
-					<div class="navButton iffabric disabled" data-go="/links">
+					<div class="navButton iffabric disabled" data-go="/fabric-links">
 						<div class="iconArea rippler"><div class="image icon-linked"></div></div>
 						<div class="label">Fabric<br/>Links</div>
 					</div>

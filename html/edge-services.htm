@@ -1,3 +1,4 @@
+    <!-- General Page Layout HTML -->  
     <div class="header">
         <div class="title">Manage <span data-bind="pageTitle"></span></div>
         <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
@@ -5,18 +6,19 @@
         <div class="tabs">
             <div class="tab" data-go="/identities">Manage Identities</div>
             <div class="tab selected">Manage Services</div>
-            <div class="tab" data-go="/gateways">Manage Routers</div>
+            <div class="tab" data-go="/edge-routers">Manage Routers</div>
         </div>
     </div>
     <div class="action icon-plus" data-action="add"></div>
     <div class="filters">
         <div class="clear"></div>
-        <input id="SearchFilter" type="text" class="search" placeholder="Type to Filter" />
+        <input id="SearchFilter" data-defined="search" type="text" class="search" placeholder="Type to Filter" />
+        <div class="clear" data-defined="clear"></div>        
         <div class="counters"><span id="Start">-</span>-<span id="End">-</span> of <span id="Total">-</span></div>
         <div class="navigate prev icon-prev disabled"></div>
         <div class="navigate next icon-next disabled"></div>
     </div>
-    <div class="area data">
+    <div class="area data" data-defined="table">
         <div class="noitems"></div>
         <div class="table">
             <div class="head grid seven">
@@ -30,22 +32,22 @@
                 <div class="col sort" data-by="createdAt">Created</div>
                 <div class="col"></div>
             </div>
-            <div class="rows">
+            <div class="rows" data-defined="rows">
                 <!-- This area will be replaced by data rows -->
             </div>
         </div>
     </div>
-    <div class="nodata">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
+    <div class="nodata" data-defined="empty">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
 
-    <div id="RowTemplate" class="row grid seven template">
+    <div id="RowTemplate" class="row grid seven template" data-defined="template">
         <div class="col">
             <div class="selector" data-id="{{id}}"></div>
         </div>
         <div class="col" data-id="{{id}}"><strong>{{name}}</strong></div>
-        <div class="col desktop" data-id="{{id}}">{{roleAttributes}}</div>
+        <div class="col desktop" data-id="{{id}}">{{selector.roleAttributes}}</div>
         <div class="col desktop" data-id="{{id}}">{{egressRouter}}</div>
         <div class="col desktop" data-id="{{id}}">{{endpointAddress}}</div>
-        <div class="col" data-id="{{id}}">{{createdAt}}</div>
+        <div class="col" data-id="{{id}}">{{moment.createdAt}}</div>
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
                 <div class="gridMenu" data-id="{{id}}">
@@ -65,16 +67,16 @@
             <div class="title editing">Edit <span data-bind="singular"></span></div>
             <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
             <label for="Name">Name</label>
-            <input id="Name" type="text" maxlength="500" placeholder="Enter a name" data-restrict="empty" />
+            <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" data-restrict="empty" />
             <label for="Roles">Roles</label>
-            <input id="Roles" type="text" maxlength="500" placeholder="Enter a list of roles" />
+            <div id="Roles"></div>
             <label for="Routers">Router</label>
-            <select id="Routers"></select>
+            <select id="Routers" data-bind="data.egressRouter"></select>
             <div class="darkened endpoint" style="display: none;">Endpoint Service</div>
             <div class="grid three endpoint" style="display: none;">
                 <div>
                     <label for="Protocol">Protocol</label>
-                    <select id="Protocol" type="text">
+                    <select id="Protocol" data-default="tcp" type="text">
                         <option value="tcp">tcp</option>
                         <option value="tls">tls</option>
                         <option value="udp">udp</option>
@@ -92,10 +94,11 @@
             </div>
             <div class="darkened">Configurations</div>
             <div id="ConfigList"></div>
-            <div id="TagArea"></div>
+            <div id="TagArea" data-tagarea="service"></div>
+            <div id="TagExtended"></div>
             <div class="buttons">
                 <div class="linkButton closer">Oops, No get me out of here</div>
-                <div id="SaveButton" class="button">Save</div>
+                <div id="SaveButton" class="button" data-defined="save">Save</div>
             </div>
         </div>
 	</div>
@@ -107,49 +110,51 @@
                 pageTitle: "Services",
                 singular: "Service"
             },
-            editId: "",
-            data: [],
-            tagData: [],
-            deleting: [],
-            removal: {},
-            searchId: null,
+            roles: null,
+            filterObject: null,
+            edgeRoutersObject: null,
+            configsObject: null,
+            configsTypesObject: null,
             isFirstLoaded: false,
             init: function() {
-                this.events();
                 this.isFirstLoaded = false;
-                if (localStorage.getItem("hideTags")=="yes") $("#TagArea").addClass("hidden");
-                context.addListener(tags.name, page.tagsLoaded);
-                context.addListener(services.name, page.getLoaded);
-                context.addListener(routers.name, page.routersLoaded);
-                context.addListener(gateways.name, page.gatewaysLoaded);
-                context.addListener(configTypes.name, page.configTypesLoaded);
-                context.addListener(configs.name, page.configsLoaded);
-                services.init();
+                page.roles = new Selector("Roles","roles");
+                page.edgeRoutersObject = new Data("edge-routers");
+                page.configsObject = new Data("configs");
+                page.configsTypesObject = new Data("config-types");
+                page.filterObject = new Data("services");
+
+                this.events();
+
+                page.roles.isForceHash = false;
+                page.roles.init();
+                page.edgeRoutersObject.init(true);
+                page.configsTypesObject.init(true);
+                page.filterObject.init(true, true);
+                
                 routers.init();
-                gateways.all();
-                configTypes.all();
             }, 
             events: function() {
-                $(".action").click(page.handleAction);
-                $("#SaveButton").click(page.save);
-                $("#SearchFilter").keyup(page.search);
+                context.addListener(page.edgeRoutersObject, page.edgeRoutersLoaded);
+                context.addListener(routers.name, page.fabricRoutersLoaded);
+                context.addListener(page.configsObject.name, page.configsLoaded);
+                context.addListener(page.configsTypesObject.name, page.configTypesLoaded);
+
                 $("#IdentityFilter").keyup(page.filterIds);
-                $("#Filter").keyup(page.filter);
-                $(".clear").click(page.clear);
                 $("#Routers").change(page.routerChanged)
             },
             configTypesLoaded: function(e) {
-                var types = context.get(configTypes.name);
+                var types = context.get(page.configsTypesObject.name);
                 var html = "";
                 for (var i=0; i<types.length; i++) {
                     html += '<label id="Type_'+types[i].id+'_Label" style="display:none">'+types[i].name+'</label>';
                     html += '<select id="Type_'+types[i].id+'" style="display:none"></select>';
                 }
                 $("#ConfigList").html(html);
-                configs.all();
+                page.configsObject.init(true, false, true);
             },
             configsLoaded: function(e) {
-                var cons = context.get(configs.name);
+                var cons = context.get(page.configsObject.name);
                 for (var i=0; i<cons.length; i++) {
                     if ($("#Type_"+cons[i].type+" option").length==0) $("#Type_"+cons[i].type).append('<option value="">Select Required Configurations</option>');
                     $("#Type_"+cons[i].type+"_Label").show();
@@ -159,9 +164,7 @@
             },
             getPropString: function(obj) {
                 var data = "";
-                for (var key in obj) {
-                    data += " "+obj[key];
-                }
+                for (var key in obj) data += " "+obj[key];
                 return data;
             },
             routerChanged: function() {
@@ -169,61 +172,7 @@
                 if (val.trim().length==0) $(".endpoint").hide();
                 else $(".endpoint").show();
             },
-            clear: function() {
-                $("#SearchFilter").val("");
-                services.filter = "";
-                services.get();
-                $(".clear").removeClass("showing");
-            },
-            tagsLoaded: function() {
-                var html = "";
-                for (var i=0; i<tags.data.length; i++) {
-                    if (tags.data[i].objects=="all"||tags.data[i].objects.indexOf('service')>=0) {
-                        page.tagData[page.tagData.length] = tags.data[i];
-                        html += tags.html(tags.data[i]);
-                    }
-                }
-                $("#TagArea").html(html);
-                tags.events();
-            },
-            clickEdit: function(e) {
-                var id = $(e.currentTarget).data("id");
-                if (id) page.edit(id);
-            },
-            getLoaded: function(e) {
-                $(".selector.selected").removeClass("selected");
-                app.setAction();
-                page.data = services.data;
-                $(".rows").html("");
-                if (services.data.length>0) {
-                    $("#Start").html(services.start());
-                    $("#End").html(services.end());
-                    $("#Total").html(services.total());
-                    for (var i=0; i<services.data.length; i++) {
-                        var element = $("#RowTemplate").clone();
-                        var egress = "N/A";
-                        if (services.data[i].egressRouter&&services.data[i].egressRouter!="unknown") egress = services.data[i].egressRouter;
-                        var endpoint = "self";
-                        if (services.data[i].endpointAddress) endpoint = services.data[i].endpointAddress;
-                        element.removeClass("template");
-                        element.attr("id","Row"+i);
-                        element.html(element.html().split("{{id}}").join(services.data[i].id));
-                        element.html(element.html().split("{{name}}").join(services.data[i].name));
-                        element.html(element.html().split("{{roleAttributes}}").join(services.data[i].roleAttributes));
-                        element.html(element.html().split("{{egressRouter}}").join(egress));
-                        element.html(element.html().split("{{endpointAddress}}").join(endpoint));
-                        element.html(element.html().split("{{createdAt}}").join(moment(services.data[i].createdAt).fromNow()));
-                        $(".rows").append(element);
-                    }
-                    page.pageLoaded();     
-                    $(".data").show();
-                    $(".nodata").hide();       
-                } else {
-                    $(".data").hide();
-                    $(".nodata").show();
-                }       
-            },
-            routersLoaded: function(e) {
+            fabricRoutersLoaded: function(e) {
                 var select = document.getElementById("Routers");
                 select.options = [];
                 if (!page.isFirstLoaded) {
@@ -242,7 +191,7 @@
                     }
                 }
             },
-            gatewaysLoaded: function(e) {
+            edgeRoutersLoaded: function(e) {
                 var select = document.getElementById("Routers");
                 select.options = [];
                 if (!page.isFirstLoaded) {
@@ -252,58 +201,28 @@
                     option.text = "Hosted (No Router)";
                     select.add( option );
                 }
-                if (gateways.data.length>0) {
-                    for (var i=0; i<gateways.data.length; i++) {
+                if (page.edgeRoutersObject.data.length>0) {
+                    for (var i=0; i<page.edgeRoutersObject.data.length; i++) {
                         var option = document.createElement("option");
-                        option.value = gateways.data[i].id;
-                        option.text = gateways.data[i].name;
+                        option.value = page.edgeRoutersObject.data[i].id;
+                        option.text = page.edgeRoutersObject.data[i].name;
                         select.add( option );
                     }
                 }
             },
-            toggleTag: function(e) {
-                var tag = $(e.currentTarget);
-                if (tag.hasClass("selected")) tag.removeClass("selected");
-                else tag.addClass("selected");
-            },
-            pageLoaded: function() {
-                $(".gridAction").click(page.gridAction);
-                $(".navigate").off("click");
-                $(".navigate").addClass("disabled");
-                $(".clickEdit").click(page.clickEdit);
-                if (!services.isFirst()) {
-                    $(".navigate.prev").removeClass("disabled");
-                    $(".navigate.prev").on("click", services.prev);
-                }
-                if (!services.isLast()) {
-                    $(".navigate.next").removeClass("disabled");
-                    $(".navigate.next").on("click", services.next);
-                } 
-                app.postLoad();
-            },
             gridAction: function(e) {
                 var action = $(e.currentTarget).data("action");
                 var id = $(e.currentTarget).data("id");
-                if (action=="delete") {
-                    page.deleting = [];
-                    page.deleting[page.deleting.length] = id;
-                    modal.confirm("you want to delete this "+page.binding.singular, page.confirmedDelete);
-                } else if (action=="edit") {
-                    page.edit(id);
-                }
+                if (action=="delete") page.filterObject.delete([id]);
+                else if (action=="edit") page.edit(id);
             },
             edit: function(id) {
-                page.reset();
-                var detail = services.details(id);
-                tags.reset(page.tagData,detail);
-                $(".adding").hide();
-                $(".editing").show();
+                var detail = page.filterObject.details(id);
 
-                $("#Name").val(detail.name);
-                $("#Roles").val(detail.roleAttributes);
                 var router = "";
                 if (detail.egressRouter&&detail.egressRouter!="unknown") router = detail.egressRouter;
                 $("#Routers").val(router);
+                page.roles.val(detail.roleAttributes);
                 page.routerChanged();
                 var protocol = "tcp";
                 var host = "";
@@ -322,8 +241,6 @@
                 if (detail.configs) {
                     for (var i=0; i<detail.configs.length; i++) {
                         $("#ConfigList select").each(function(index,e) {
-                            console.log($(e).attr("id"));
-                            console.log(detail.configs[i]);
                             if ($(e).children("option[value='"+detail.configs[i]+"']").length>0) {
                                 $(e).val(detail.configs[i]);
                             }
@@ -331,33 +248,28 @@
                     }
                 }
         
-                page.editId = id;
                 modal.show("AddModal");
             },
             save: function() {
                 if (page.validate()) {
-                    if (localStorage.getItem("filterAfterSave")=="on") {
-                        $("#SearchFilter").val($("#Name").val());
-                        services.filter = $("#SearchFilter").val();
-                    }
                     var endpoint = '';
-                    var roles = page.getRoles($("#Roles").val().trim().split(','));
-                    
                     if ($("#Routers").val().trim().length!==0) endpoint = $("#Protocol").val()+":"+$("#EndPointHost").val()+":"+$("#EndPointPort").val();
-                    services.save(
-                        $("#Name").val(),
-                        $("#Routers").val(),
-                        endpoint,
-                        roles, 
-                        page.getConfigs(),
-                        tags.getValues(page.tagData),
-                        page.editId, 
-                        page.removal);
+        
+                    var obj = {
+                        name: $("#Name").val(),
+                        egressRouter: $("#Routers").val(),
+                        endpointAddress: endpoint,
+                        configs: page.getConfigs(),
+                        tags: tags.val(),
+                        roleAttributes: page.roles.val()
+                    };
+
+                    page.filterObject.save(obj);
                 } else growler.form();
             },
             getConfigs: function() {
                 var configs = [];
-                var types = context.get(configTypes.name);
+                var types = context.get(page.configsTypesObject.name);
                 var html = "";
                 for (var i=0; i<types.length; i++) {
                     html += '<label id="Type_'+types[i].id+'_Label" style="display:none">'+types[i].name+'</label>';
@@ -369,27 +281,6 @@
                 }
                 return configs;
             },
-            getRoles: function(roles) {
-                var values = [];
-                for (var i=0; i<roles.length; i++) {
-                    var item = roles[i].trim();
-                    if (item.length>0) values[values.length] = item;
-                }
-                return values;
-            },
-            deleteMulti: function(e) {
-                page.deleting = [];
-                $(".selector.selected").each(function(index, e) {
-                    page.deleting[page.deleting.length] = $(e).data("id");
-                });
-                if (page.deleting.length>0) {
-                    modal.confirm("you want to delete these "+page.deleting.length+" "+((page.deleting.length>1)?page.binding.pageTitle:page.binding.singular), page.confirmedDelete);
-                }
-            },
-            confirmedDelete: function() {
-                services.delete(page.deleting);
-                app.reset();
-            },
             validate: function() {
                 $(".errors").removeClass("errors");
                 if ($("#Name").val().trim().length==0) $("#Name").addClass("errors");
@@ -398,35 +289,6 @@
                     if ($("#EndPointPort").val().trim().length==0) $("#EndPointPort").addClass("errors");
                 }
                 return $(".errors").length==0;
-            },
-            reset: function() {
-                tags.reset(page.tagData);
-                page.editId = "";
-                page.removal = {};
-                $(".errors").removeClass("errors");
-                $(".tag.selected").removeClass("selected");
-                $("#Name").val("");
-                $("#Fabrics").val("");
-                $("#Roles").val("");
-                $("select").val("");
-                $("#Protocol").val("tcp");
-                $("#EndPointHost").val("");
-                $("#EndPointPort").val("");
-            },
-            handleAction: function(e) {
-                page.reset();
-                var action = $(e.currentTarget).data("action");
-                if (action=="add") {
-                    page.add();
-                } else if (action=="remove") {
-                    page.reset();
-                    page.deleteMulti();
-                }
-            },
-            add: function() {
-                $(".adding").show();
-                $(".editing").hide();
-                modal.show("AddModal");
             }
         }
     </script>

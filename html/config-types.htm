@@ -1,3 +1,4 @@
+    <!-- General Page Layout HTML -->  
     <div class="header">
         <div class="title">Manage <span data-bind="pageTitle"></span></div>
         <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
@@ -9,13 +10,13 @@
     </div>
     <div class="action icon-plus" data-action="add"></div>
     <div class="filters">
-        <div class="clear"></div>
-        <input id="SearchFilter" type="text" class="search" placeholder="Type to Filter" />
+        <input id="SearchFilter" data-defined="search" type="text" class="search" placeholder="Type to Filter" />
+        <div class="clear" data-defined="clear"></div>
         <div class="counters"><span id="Start">-</span>-<span id="End">-</span> of <span id="Total">-</span></div>
         <div class="navigate prev icon-prev disabled"></div>
         <div class="navigate next icon-next disabled"></div>
     </div>
-    <div class="area data">
+    <div class="area data" data-defined="table">
         <div class="noitems"></div>
         <div class="table">
             <div class="head grid four">
@@ -26,14 +27,17 @@
                 <div class="col sort" data-by="createdAt">Created</div>
                 <div class="col"></div>
             </div>
-            <div class="rows">
+            <div class="rows" data-defined="rows">
                 <!-- This area will be replaced by data rows -->
             </div>
         </div>
     </div>
-    <div class="nodata">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
+    <div class="nodata" data-defined="empty">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
 
-    <div id="RowTemplate" class="row grid four template">
+
+
+    <!-- Template HTML will be used to display rows of data -->
+    <div id="RowTemplate" class="row grid four template" data-defined="template">
         <div class="col">
             <div class="selector" data-id="{{id}}"></div>
         </div>
@@ -58,14 +62,14 @@
             <div class="title editing">Edit <span data-bind="singular"></span></div>
             <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
             <label for="Name">Name</label>
-            <input id="Name" type="text" maxlength="500" placeholder="Enter a name" data-restrict="empty" />
+            <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" data-restrict="empty" />
             <label for="Schema">Schema</label>
             <textarea id="Schema"></textarea>
             <div>
             <div id="TagArea"></div>
             <div class="buttons">
                 <div class="linkButton closer">Oops, No get me out of here</div>
-                <div id="SaveButton" class="button">Save</div>
+                <div id="SaveButton" class="button" data-defined="save">Save</div>
             </div>
         </div>
 	</div>
@@ -77,129 +81,34 @@
                 pageTitle: "Config Types",
                 singular: "Config Type"
             },
-            editId: "",
+            filterObject: null,
             schema: null,
-            data: [],
-            tagData: [],
-            deleting: [],
-            removal: {},
-            searchId: null,
             init: function() {
-                this.events();
-                context.addListener(tags.name, page.tagsLoaded);
-                context.addListener(configTypes.name, page.getLoaded);
+                page.filterObject = new Data("config-types");
+                page.filterObject.init(true, true);
                 page.schema = CodeMirror.fromTextArea(document.getElementById("Schema"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"} });
-                configTypes.init();
             }, 
-            events: function() {
-                $(".action").click(page.handleAction);
-                $("#SaveButton").click(page.save);
-                $("#SearchFilter").keyup(page.search);
-                $(".clear").click(page.clear);
-            },
-            clear: function() {
-                $("#SearchFilter").val("");
-                configTypes.filter = "";
-                configTypes.get();
-                $(".clear").removeClass("showing");
-            },
-            clickEdit: function(e) {
-                var id = $(e.currentTarget).data("id");
-                if (id) page.edit(id);
-            },
-            getLoaded: function(e) {
-                $(".selector.selected").removeClass("selected");
-                app.setAction();
-                page.data = configTypes.data;
-                $(".rows").html("");
-                if (configTypes.data.length>0) {
-                    $("#Start").html(configTypes.start());
-                    $("#End").html(configTypes.end());
-                    $("#Total").html(configTypes.total());
-                    for (var i=0; i<configTypes.data.length; i++) {
-                        var element = $("#RowTemplate").clone();
-                        element.removeClass("template");
-                        element.attr("id","Row"+i);
-                        var obj = configTypes;
-						for (var prop in obj.data[i]) {
-                            element.html(element.html().split("{{"+prop+"}}").join(obj.data[i][prop]));
-                            element.html(element.html().split("{{moment."+prop+"}}").join(moment(obj.data[i][prop]).utc().fromNow()));
-                        }
-                        $(".rows").append(element);
-                    }
-                    page.pageLoaded();     
-                    $(".data").show();
-                    $(".nodata").hide();       
-                } else {
-                    $(".data").hide();
-                    $(".nodata").show();
-                }       
-            },
-            toggleTag: function(e) {
-                var tag = $(e.currentTarget);
-                if (tag.hasClass("selected")) tag.removeClass("selected");
-                else tag.addClass("selected");
-            },
-            pageLoaded: function() {
-                $(".gridAction").click(page.gridAction);
-                $(".navigate").off("click");
-                $(".navigate").addClass("disabled");
-                $(".clickEdit").click(page.clickEdit);
-                if (!configTypes.isFirst()) {
-                    $(".navigate.prev").removeClass("disabled");
-                    $(".navigate.prev").on("click", configTypes.prev);
-                }
-                if (!configTypes.isLast()) {
-                    $(".navigate.next").removeClass("disabled");
-                    $(".navigate.next").on("click", configTypes.next);
-                } 
-                app.postLoad();
-            },
             gridAction: function(e) {
                 var action = $(e.currentTarget).data("action");
                 var id = $(e.currentTarget).data("id");
-                if (action=="delete") {
-                    page.deleting = [];
-                    page.deleting[page.deleting.length] = id;
-                    modal.confirm("you want to delete this "+page.binding.singular, page.confirmedDelete);
-                } else if (action=="edit") {
-                    page.edit(id);
-                }
+                if (action=="delete") page.filterObject.delete([id]);
+                else if (action=="edit") page.edit(id);
             },
             edit: function(id) {
-                page.reset();
-                var detail = configTypes.details(id);
-                tags.reset(page.tagData,detail);
-                $(".adding").hide();
-                $(".editing").show();
-
-                $("#Name").val(detail.name);
+                var detail = page.filterObject.details(id);
                 page.schema.setValue(JSON.stringify(detail.schema));
-
-                page.editId = id;
+                page.schema.autoFormatRange({line:0, ch:0}, {line:page.schema.lineCount()});
                 modal.show("AddModal");
             },
             save: function() {
                 if (page.validate()) {
-                    if (localStorage.getItem("filterAfterSave")=="on") {
-                        $("#SearchFilter").val($("#Name").val());
-                        configTypes.filter = $("#SearchFilter").val();
-                    }
-                    configTypes.save($("#Name").val(),JSON.parse(page.schema.getValue()),tags.getValues(page.tagData),page.editId,page.removal);
+                    var obj = {
+                        name: $("#Name").val(),
+                        schema: JSON.parse(page.schema.getValue()),
+                        tags: tags.val()
+                    };
+                    page.filterObject.save(obj);
                 } else growler.form();
-            },
-            deleteMulti: function(e) {
-                page.deleting = [];
-                $(".selector.selected").each(function(index, e) {
-                    page.deleting[page.deleting.length] = $(e).data("id");
-                });
-                if (page.deleting.length>0) {
-                    modal.confirm("you want to delete these "+page.deleting.length+" "+((page.deleting.length>1)?page.binding.pageTitle:page.binding.singular), page.confirmedDelete);
-                }
-            },
-            confirmedDelete: function() {
-                configTypes.delete(page.deleting);
-                app.reset();
             },
             validate: function() {
                 $(".errors").removeClass("errors");
@@ -207,29 +116,7 @@
                 return $(".errors").length==0;
             },
             reset: function() {
-                tags.reset(page.tagData);
-                page.editId = "";
-                page.removal = {};
                 page.schema.setValue("");
-                $(".errors").removeClass("errors");
-                $(".tag.selected").removeClass("selected");
-                $("#Name").val("");
-                $("#Schema").val("");
-            },
-            handleAction: function(e) {
-                page.reset();
-                var action = $(e.currentTarget).data("action");
-                if (action=="add") {
-                    page.add();
-                } else if (action=="remove") {
-                    page.reset();
-                    page.deleteMulti();
-                }
-            },
-            add: function() {
-                $(".adding").show();
-                $(".editing").hide();
-                modal.show("AddModal");
             }
         }
     </script>

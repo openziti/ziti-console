@@ -1,42 +1,49 @@
 
-    <div id="Summary" class="grid five same">
-        <div class="cardStack clickable" data-go="/identities">
-            <div class="card2"></div>
-            <div class="card1"></div>
-            <div class="title">Identities</div>
-            <div class="icon icon-ids"></div>
-            <div id="IdentitiesTotal" class="subtitle"></div>
+    <style>
+        main {
+            padding: 0px !important;
+        }
+    </style>
+    <div style="width: 100vw; height: 100vh; position: relative;">
+        <div id="Summary" class="grid same">
+            <div class="cardStack clickable" data-go="/identities">
+                <div class="card2"></div>
+                <div class="card1"></div>
+                <div class="title">Identities</div>
+                <div class="icon icon-ids"></div>
+                <div id="IdentitiesTotal" class="subtitle"></div>
+            </div>
+            <div class="cardStack clickable" data-go="/services">
+                <div class="card2"></div>
+                <div class="card1"></div>
+                <div class="title">Services</div>
+                <div class="icon icon-services"></div>
+                <div id="ServiceTotal" class="subtitle"></div>
+            </div>
+            <div class="cardStack clickable" data-go="/routers">
+                <div class="card2"></div>
+                <div class="card1"></div>
+                <div class="title">Routers</div>
+                <div class="icon icon-route"></div>
+                <div id="Routers" class="subtitle"></div>
+            </div>
+            <div class="cardStack clickable" data-go="/cas">
+                <div class="card2"></div>
+                <div class="card1"></div>
+                <div class="title">Authorities</div>
+                <div class="icon icon-cas"></div>
+                <div id="CasTotal" class="subtitle"></div>
+            </div>
+            <div class="cardStack clickable" data-go="/clusters">
+                <div class="card2"></div>
+                <div class="card1"></div>
+                <div class="title">Policies</div>
+                <div class="icon icon-routerpolicy"></div>
+                <div id="Policies" class="subtitle"></div>
+            </div>
         </div>
-        <div class="cardStack clickable" data-go="/services">
-            <div class="card2"></div>
-            <div class="card1"></div>
-            <div class="title">Services</div>
-            <div class="icon icon-services"></div>
-            <div id="ServiceTotal" class="subtitle"></div>
-        </div>
-        <div class="cardStack clickable" data-go="/routers">
-            <div class="card2"></div>
-            <div class="card1"></div>
-            <div class="title">Routers</div>
-            <div class="icon icon-route"></div>
-            <div id="Routers" class="subtitle"></div>
-        </div>
-        <div class="cardStack clickable" data-go="/cas">
-            <div class="card2"></div>
-            <div class="card1"></div>
-            <div class="title">Authorities</div>
-            <div class="icon icon-cas"></div>
-            <div id="CasTotal" class="subtitle"></div>
-        </div>
-        <div class="cardStack clickable" data-go="/clusters">
-            <div class="card2"></div>
-            <div class="card1"></div>
-            <div class="title">Policies</div>
-            <div class="icon icon-routerpolicy"></div>
-            <div id="Policies" class="subtitle"></div>
-        </div>
+        <div id="MainMap"></div>
     </div>
-    <div id="MainMap"></div>
 
     <script language="javascript" type="text/javascript">
         page = {
@@ -46,22 +53,24 @@
                 singular: "Dashboard"
             },
             data: [],
+            idsObject: null,
             init: function() {
-                this.events();
-                context.addListener(identities.name, page.idsLoaded);
-                context.addListener(summary.name, page.getLoaded);
+                page.idsObject = new Data("identities");
+
+                page.events();
+
+                page.idsObject.init(true);
                 summary.get();
-                identities.all();
-                page.map = L.map("MainMap");
+                
+                page.map = L.map("MainMap", {zoomControl: false});
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '&copy; NetFoundry Inc.'}).addTo(page.map);
             }, 
             events: function() {
+                context.addListener(page.idsObject.name, page.idsLoaded);
+                context.addListener(summary.name, page.getLoaded);
             },
             getLoaded: function(e) {
                 page.data = context.get(summary.name);
-                page.setup();
-            },
-            setup: function() {
                 $("#AppWansTotal").html(page.data.appWans);
                 $("#IdentitiesTotal").html(page.data.identities);
                 $("#ServiceTotal").html(page.data.services);
@@ -71,15 +80,15 @@
             },
             idsLoaded: function(e) {
                 var index = 0;
-                for (var i=0; i<identities.data.length; i++) {
-                    if (identities.data[i].tags&&identities.data[i].tags.geolocation&&identities.data[i].tags.geolocation.split(',').length==2) {
-                        var items = identities.data[i].tags.geolocation.split(',');
+                for (var i=0; i<page.idsObject.data.length; i++) {
+                    if (page.idsObject.data[i].tags&&page.idsObject.data[i].tags.geolocation&&page.idsObject.data[i].tags.geolocation.split(',').length==2) {
+                        var items = page.idsObject.data[i].tags.geolocation.split(',');
                         if (!isNaN(items[0])&&!isNaN(items[1])) {
                             if (index==0) {
                                 page.map.setView([items[0], items[1]], 10);
                                 index++;
                             }
-                            L.marker([items[0], items[1]]).addTo(page.map).bindPopup(identities.data[i].name).openPopup();
+                            L.marker([items[0], items[1]]).addTo(page.map).bindPopup(page.idsObject.data[i].name).openPopup();
                         }
                     }
                 }

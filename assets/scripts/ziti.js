@@ -166,5 +166,12 @@ var app = {
 		$(".action").removeClass("icon-minus");
 		$(".action").removeClass("remove");
 		$(".action").data("action", "add");
-	}
+	},
+	areas: [{
+		name: "Ziti Policies",
+		sections: [
+			{name:"Edge Router Policies", url: "/router-polocies", singular: "Router Policy", plural: "Router Policies", data: "edge-router-policies" },
+			{name:"Service Policies", url: "/service-polocies", singular: "Service Policy", plural: "Service Policies", data: "service-policies" }
+		]
+	}]
 }

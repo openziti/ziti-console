@@ -1,22 +1,23 @@
+    <!-- General Page Layout HTML -->
     <div class="header">
         <div class="title">Manage <span data-bind="pageTitle"></span></div>
         <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
         <div class="line"></div>
         <div class="tabs">
             <div class="tab selected">Manage <span data-bind="pageTitle"></span></div>
-            <div class="tab" data-go="/services">Manage Services</div>
-            <div class="tab" data-go="/gateways">Manage Routers</div>
+            <div class="tab" data-go="/edge-services">Manage Services</div>
+            <div class="tab" data-go="/edge-routers">Manage Routers</div>
         </div>
     </div>
     <div class="action icon-plus" data-action="add"></div>
     <div class="filters">
-        <input id="SearchFilter" type="text" class="search" placeholder="Type to Filter" />
-        <div class="clear"></div>
+        <input id="SearchFilter" data-defined="search" type="text" class="search" placeholder="Type to Filter" />
+        <div class="clear" data-defined="clear"></div>
         <div class="counters"><span id="Start">-</span>-<span id="End">-</span> of <span id="Total">-</span></div>
         <div class="navigate prev icon-prev disabled"></div>
         <div class="navigate next icon-next disabled"></div>
     </div>
-    <div class="area data">
+    <div class="area data" data-defined="table">
         <div class="table">
             <div class="head grid seven">
                 <div class="col">
@@ -24,27 +25,27 @@
                 </div>
                 <div class="col sort asc" data-by="name">Name<div class="dragger"></div></div>
                 <div class="col sort desktop" data-by="typeId">Type<div class="dragger"></div></div>
-                <div class="col sort desktop" data-by="createdAt">Created<div class="dragger"></div></div>
                 <div class="col sort desktop" data-by="isAdmin">Admin<div class="dragger"></div></div>
+                <div class="col sort desktop" data-by="createdAt">Created<div class="dragger"></div></div>
                 <div class="col">Token</div>
                 <div class="col"></div>
             </div>
-            <div class="rows">
+            <div class="rows" data-defined="rows">
                 <!-- This area will be replaced by data rows -->
             </div>
         </div>
     </div>
-    <div class="nodata">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
+    <div class="nodata" data-defined="empty">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
 
     <!-- Data Table Template -->
-    <div id="RowTemplate" class="row grid seven template">
+    <div id="RowTemplate" class="row grid seven template" data-defined="template">
         <div class="col">
             <div class="selector" data-id="{{id}}"></div>
         </div>
         <div class="col" data-id="{{id}}"><strong>{{name}}</strong></div>
         <div class="col desktop" data-id="{{id}}">{{type}}</div>
-        <div class="col desktop" data-id="{{id}}">{{createdAt}}</div>
         <div class="col desktop" data-id="{{id}}">{{isAdmin}}</div>
+        <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
         <div class="col notitle">{{tokenLink}}</div>
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
@@ -93,6 +94,8 @@
         </div>
     </div>
 
+
+
 	<!-- Modification Modals -->
 	<div id="AddModal" class="modal box full">
         <div class="sized">
@@ -101,14 +104,14 @@
             <div class="subtitle adding">Add a New <span data-bind="singular"></span></div>
             <div class="title editing">Edit <span data-bind="singular"></span></div>
             <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
-            <label for="Username">Name</label>
-            <input id="Username" type="text" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
+            <label for="Name">Name</label>
+            <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
             <label for="Roles">Roles</label>
-            <input id="Roles" type="text" maxlength="500" placeholder="Enter a list of roles" data-enter="SaveButton" />
+            <div id="Roles"></div>
             <div class="split unsplit">
                 <div>
                     <label for="IdentityType">Identity Type</label>
-                    <select id="IdentityType" data-enter="SaveButton">
+                    <select id="IdentityType" data-default="Device" data-enter="SaveButton">
                         <option value="Device" selected>Device</option>
                         <option value="Service">Service</option>
                         <option value="User">User</option>
@@ -125,7 +128,7 @@
             <div class="split unsplit">
                 <div>
                     <label for="Enrollment">Enrollment Type</label>
-                    <select id="EnrollmentType" data-enter="SaveButton" disabled>
+                    <select id="EnrollmentType" data-bind="data.enrollmentType" data-default="ott" data-enter="SaveButton" disabled>
                         <option value="ott" selected>One Time Token</option>
                         <option value="CA">Certificate Authority</option>
                     </select>
@@ -135,10 +138,11 @@
                     <select id="Authorities" data-enter="SaveButton"></select>
                 </div>
             </div>
-            <div id="TagArea"></div>
+            <div id="TagArea" data-tagarea="identity"></div>
+            <div id="TagExtended"></div>
             <div class="buttons">
                 <div class="linkButton closer">Oops, No get me out of here</div>
-                <div id="SaveButton" class="button">Save</div>
+                <div id="SaveButton" class="button" data-defined="save">Save</div>
             </div>
         </div>
     </div>
@@ -160,243 +164,60 @@
                 pageTitle: "Identities",
                 singular: "Identity"
             },
-            data: [],
-            tagData: [],
-            deleting: [],
-            editId: "",
+            filterObject: null,
+            casObject: null,
+            configs: null,
+            servicesObject: null,
+            roles: null,
             init: function() {
-                this.events();
-                identities.init();
-                cas.get();
-                services.all();
-                configs.all();
+                page.roles = new Selector("Roles","roles");
+                page.casObject = new Data("cas");
+                page.servicesObject = new Data("services");
+                page.configsObject = new Data("configs");
+                page.filterObject = new Data("identities");
+
+                page.events();
+
+                page.roles.isForceHash = false;
+                page.roles.init();
+                page.casObject.init(true);
+                page.servicesObject.init(true);
+                page.configsObject.init(true);
+                page.filterObject.init(true, true);
             }, 
             events: function() {
-                context.addListener(tags.name, page.tagsLoaded);
-                context.addListener(identities.name, page.getLoaded);
-                context.addListener(cas.name, page.casLoaded);
-                context.addListener(services.name, page.servicesLoaded);
-                context.addListener(configs.name, page.configsLoaded);
-                context.addListener("service-configs", page.overridesLoaded);
-                $(".action").click(page.handleAction);
+                context.addListener(page.filterObject.name, page.loaded);
+                context.addListener(page.casObject.name, page.casLoaded);
+                context.addListener(page.servicesObject.name, page.servicesLoaded);
+                context.addListener(page.configsObject.name, page.configsLoaded);
                 $("#IdentityType").change(page.toggleUserType);
                 $("#EnrollmentType").change(page.toggleType);
-                $("#SaveButton").click(page.save);
-                $("#SearchFilter").keyup(page.search);
                 $("#AssociateButton").click(page.addOveride);
-		        $(".clear").click(page.clear);
             },
-            addOveride: function(e) {
-                identities.addOverRide(page.editId, $("#ServiceList").val(), $("#ConfigList").val());
-            },
-            configsLoaded: function(e) {
-                var cons = context.get(configs.name);
-                $("#ConfigList").html("");
-                for (var i=0; i<cons.length; i++) {
-                    $("#ConfigList").append('<option value="'+cons[i].id+'">'+cons[i].name+' - '+page.getPropString(cons[i].data)+'</option>');
+            row: function(template, data) {
+                template = template.split("{{type}}").join(data.type.name);
+                var enrollment = "N/A";
+                if (data.enrollment&&data.enrollment.ott&&data.enrollment.ott.jwt) {
+                    var difference = moment(data.enrollment.ott.expiresAt).diff(moment(new Date()));
+                    if (difference>0) enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
                 }
-            },
-            servicesLoaded: function(e) {
-                var items = context.get(services.name);
-                $("#ServiceList").html("");
-                for (var i=0; i<items.length; i++) {
-                    $("#ServiceList").append('<option value="'+items[i].id+'">'+items[i].name+'</option>');
-                }
-            },
-            getPropString: function(obj) {
-                var data = "";
-                for (var key in obj) {
-                    data += " "+obj[key];
-                }
-                return data;
-            },
-            getOverrides: function(id) {
-                page.editId = id;
-                console.log("Calling It");
-                identities.getOverrides(id);
-                modal.show("OverrideModal");
-            },
-            overridesLoaded: function(e) {
-                var overrides = context.get("service-configs");
-                $("#OverrideList").html("");
-                if (overrides.length>0) {
-                    for (var i=0; i<overrides.length; i++) {
-                        var element = $("#OverrideTemplate").clone();
-                        element.removeClass("template");
-                        element.html(element.html().split("{{service}}").join(overrides[i].service));
-                        element.html(element.html().split("{{config}}").join(overrides[i].config));
-                        element.html(element.html().split("{{serviceName}}").join(page.getServiceName(overrides[i].service)));
-                        element.html(element.html().split("{{configName}}").join(page.getConfigName(overrides[i].config)));
-                        $("#OverrideList").append(element);
-                    }
-                    $(".overrides").show();
-                    $(".removeAssoc").click(page.removeOveride);
-                } else {
-                    $(".overrides").hide();
-                }
-            },
-            removeOveride: function(e) {
-                var serviceId = $(e.currentTarget).data("service");
-                var configId = $(e.currentTarget).data("config");
-                identities.deleteOverRide(page.editId, serviceId, configId);
-            },
-            getServiceName: function(id) {
-                for (var i=0; i<services.data.length; i++) {
-                    if (services.data[i].id==id) return services.data[i].name;
-                }
-                return "";
-            },
-            getConfigName: function(id) {
-                for (var i=0; i<configs.data.length; i++) {
-                    if (configs.data[i].id==id) return configs.data[i].name;
-                }
-                return "";
-            },
-            tagsLoaded: function() {
-                var html = "";
-                for (var i=0; i<tags.data.length; i++) {
-                    if (tags.data[i].objects=="all"||tags.data[i].objects.indexOf('identity')>=0) {
-                        page.tagData[page.tagData.length] = tags.data[i];
-                        html += tags.html(tags.data[i]);
-                    }
-                }
-                $("#TagArea").html(html);
-                tags.events();
-            },
-            clear: function() {
-                $("#SearchFilter").val("");
-                identities.filter = "";
-                identities.get();
-                $(".clear").removeClass("showing");
-            },
-            search: function(e) {
-                if (page.searchId) clearTimeout(page.searchId);
-                identities.filter = $("#SearchFilter").val();
-                if ($("#SearchFilter").val().trim().length>0) $(".clear").addClass("showing");
-                else $(".clear").removeClass("showing");
-                if (e.keyCode==13) {
-                    identities.get();
-                } else {
-                    page.searchId = setTimeout(function() {
-                        identities.get();
-                    }, 1000);
-                }
-            },
-            clickEdit: function(e) {
-                var id = $(e.currentTarget).data("id");
-                if (id) page.edit(id);
-            },
-            casLoaded: function(e) {
-                var select = document.getElementById("Authorities");
-                select.options = [];
-                if (cas.data.length>0) {
-                    $("#EnrollmentType").attr("disabled", false);
-                    for (var i=0; i<cas.data.length; i++) {
-                        var option = document.createElement("option");
-                        option.value = cas.data[i].id;
-                        option.text = cas.data[i].name;
-                        select.add( option );
-                    }
-                } else {
-                    $("#EnrollmentType").attr("disabled", true);
-                }
-            },
-            getLoaded: function(e) {
-                $(".selector.selected").removeClass("selected");
-                app.setAction();
-                $(".rows").html("");
-                page.data = identities.data;
-                if (identities.data.length>0) {
-                    $("#Start").html(identities.start());
-                    $("#End").html(identities.end());
-                    $("#Total").html(identities.total());
-                    for (var i=0; i<identities.data.length; i++) {
-                        var element = $("#RowTemplate").clone();
-                        element.removeClass("template");
-                        element.attr("id","Row"+i);
-                        element.html(element.html().split("{{id}}").join(identities.data[i].id));
-                        element.html(element.html().split("{{name}}").join(identities.data[i].name));
-                        element.html(element.html().split("{{type}}").join(identities.data[i].type.name));
-                        element.html(element.html().split("{{createdAt}}").join(moment(identities.data[i].createdAt).fromNow()));
-                        element.html(element.html().split("{{isAdmin}}").join(identities.data[i].isAdmin));
-                        var enrollment = "N/A";
-                        if (identities.data[i].enrollment&&identities.data[i].enrollment.ott&&identities.data[i].enrollment.ott.jwt) {
-                            var difference = moment(identities.data[i].enrollment.ott.expiresAt).diff(moment(new Date()));
-                            if (difference>0) {
-                                enrollment = '<span class="cert" data-id="'+identities.data[i].id+'"></span><span class="qr icon-qr" data-id="'+identities.data[i].id+'"></span>';
-                            }                            
-                        }
-                        if (enrollment=="N/A") element.html(element.html().split("{{hiddenClass}}").join("hidden"));
-                        else element.html(element.html().split("{{hiddenClass}}").join(""));
-                        element.html(element.html().split("{{tokenLink}}").join(enrollment));
-                        $(".rows").append(element);
-                    }
-                    page.pageLoaded(); 
-                    $(".data").show();
-                    $(".nodata").hide();       
-                } else {
-                    $(".data").hide();
-                    $(".nodata").show();
-                }
-            },
-            genQR: function(e) {
-                var id = $(e.currentTarget).data("id");
-                var identity = identities.details(id);
-                if (identity&&identity.enrollment&&identity.enrollment.ott&&identity.enrollment.ott.jwt) {
-                    $("#QRCode").html("");
-                    var qrcode = new QRCode("QRCode", {
-                        text: encodeURIComponent(identity.enrollment.ott.jwt),
-                        width: 300,
-                        height: 300,
-                        colorDark : "#000000",
-                        colorLight : "#ffffff",
-                        correctLevel : QRCode.CorrectLevel.M
-                    });
-                    modal.show("QRModal");
-                }
-            },
-            pageLoaded: function() {
-                $(".cert").click(page.getCert);
-                $(".qr").click(page.genQR);
-                $(".gridAction").click(page.gridAction);
-                $(".navigate").off("click");
-                $(".navigate").addClass("disabled");
-                $(".clickEdit").click(page.clickEdit);
-                if (!identities.isFirst()) {
-                    $(".navigate.prev").removeClass("disabled");
-                    $(".navigate.prev").on("click", identities.prev);
-                }
-                if (!identities.isLast()) {
-                    $(".navigate.next").removeClass("disabled");
-                    $(".navigate.next").on("click", identities.next);
-                } 
-                app.postLoad();
+                if (enrollment=="N/A") template = template.split("{{hiddenClass}}").join("hidden");
+                else template = template.split("{{hiddenClass}}").join("");
+                template = template.split("{{tokenLink}}").join(enrollment);
+                return template;
             },
             gridAction: function(e) {
                 var action = $(e.currentTarget).data("action");
                 var id = $(e.currentTarget).data("id");
-                if (action=="delete") {
-                    page.deleting = [];
-                    page.deleting[page.deleting.length] = id;
-                    modal.confirm("you want to delete this "+page.singular, page.confirmedDelete);
-                } else if (action=="edit") {
-                    page.edit(id);
-                } else if (action=="download") {
-                    page.getCert(e);
-                } else if (action=="qr") {
-                    page.genQR(e);
-                } else if (action=="override") {
-                    page.getOverrides(id);
-                }
+                if (action=="delete") page.filterObject.delete([id]);
+                else if (action=="edit") page.edit(id);
+                else if (action=="download") page.getCert(e);
+                else if (action=="qr") page.genQR(e);
+                else if (action=="override") page.getOverrides(id);
             },
             edit: function(id) {
-                page.reset();
-                var detail = identities.details(id);
-                tags.reset(page.tagData,detail);
-                $(".adding").hide();
-                $(".editing").show();
-                $("#Username").val(detail.name);
-                $("#Roles").val(detail.roleAttributes);
+                var detail = page.filterObject.details(id);
+                page.roles.val(detail.roleAttributes);
                 $("#IdentityType").val(detail.type.name);
                 $("#IsAdmin").removeClass("on");
                 $("#EnrollmentType").val("ott");
@@ -420,12 +241,49 @@
                     $(area).parent().addClass("unsplit");
                     $(area).hide();
                 }                 
-                page.editId = id;
                 modal.show("AddModal");
+            },
+            save: function() {
+                if (page.validate()) {
+                    var obj = {
+                        name: $("#Name").val(),
+                        type: $("#IdentityType").val(),
+                        isAdmin: $("#IsAdmin").hasClass("on"),
+                        roleAttributes: page.roles.val(),
+                        tags: tags.val()
+                    };
+                    if (!page.filterObject.isEditing()) {
+                        obj.enrollment = {};
+                        if ($("#EnrollmentType").val()=="ott") obj.enrollment.ott = true;
+                        else obj.enrollment.ca = $("#Authorities").val();
+                    }
+                    if (obj.type=="User") obj.isAdmin = $("#IsAdmin").hasClass("on");
+                    page.filterObject.save(obj);
+                } else growler.form();
+            }, 
+            loaded: function() {
+                $(".cert").click(page.getCert);
+                $(".qr").click(page.genQR);
+            },
+            genQR: function(e) {
+                var id = $(e.currentTarget).data("id");
+                var identity = page.filterObject.details(id);
+                if (identity&&identity.enrollment&&identity.enrollment.ott&&identity.enrollment.ott.jwt) {
+                    $("#QRCode").html("");
+                    var qrcode = new QRCode("QRCode", {
+                        text: encodeURIComponent(identity.enrollment.ott.jwt),
+                        width: 300,
+                        height: 300,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.M
+                    });
+                    modal.show("QRModal");
+                }
             },
             getCert: function(e) {
                 var id = $(e.currentTarget).data("id");
-                var identity = identities.details(id);
+                var identity = page.filterObject.details(id);
                 if (identity&&identity.enrollment&&identity.enrollment.ott&&identity.enrollment.ott.jwt) {
                     var name = identity.name.split(" ").join("");
                     var element = document.createElement('a');
@@ -437,16 +295,50 @@
                     document.body.removeChild(element);
                 }
             },
-            toggleUserType: function(e) {
-                var area = "#UserArea";
-                var type = $("#IdentityType").val();
-                if (type=="User") {
-                    $(area).parent().removeClass("unsplit");
-                    $(area).show();
-                } else {
-                    $(area).parent().addClass("unsplit");
-                    $(area).hide();
-                } 
+            getPropString: function(obj) {
+                var data = "";
+                for (var key in obj) data += " "+obj[key];
+                return data;
+            },
+            configsLoaded: function(e) {
+                var cons = context.get(page.configsObject.name);
+                $("#ConfigList").html("");
+                for (var i=0; i<cons.length; i++) {
+                    $("#ConfigList").append('<option value="'+cons[i].id+'">'+cons[i].name+' - '+page.getPropString(cons[i].data)+'</option>');
+                }
+            },
+            getConfigName: function(id) {
+                for (var i=0; i<page.configsObject.data.length; i++) {
+                    if (page.configsObject.data[i].id==id) return page.configsObject.data[i].name;
+                }
+                return "";
+            },
+            servicesLoaded: function(e) {
+                var items = context.get(page.servicesObject.name);
+                $("#ServiceList").html("");
+                for (var i=0; i<items.length; i++) {
+                    $("#ServiceList").append('<option value="'+items[i].id+'">'+items[i].name+'</option>');
+                }
+            },
+            getServiceName: function(id) {
+                for (var i=0; i<page.servicesObject.data.length; i++) {
+                    if (page.servicesObject.data[i].id==id) return page.servicesObject.data[i].name;
+                }
+                return "";
+            },
+            casLoaded: function(e) {
+                var select = document.getElementById("Authorities");
+                select.options = [];
+                if (page.casObject.data.length>0) {
+                    $("#EnrollmentType").attr("disabled", false);
+                    for (var i=0; i<page.casObject.data.length; i++) {
+                        if (i==0) $("#Authorities").data("default",page.casObject.data[i].id);
+                        var option = document.createElement("option");
+                        option.value = page.casObject.data[i].id;
+                        option.text = page.casObject.data[i].name;
+                        select.add( option );
+                    }
+                } else $("#EnrollmentType").attr("disabled", true);
             },
             toggleType: function(e) {
                 var area = "#CertAuthoritiesArea";
@@ -459,67 +351,78 @@
                     $(area).hide();
                 } 
             },
-            validate: function() {
-                $(".errors").removeClass("errors");
-                if ($("#Username").val().trim().length==0) $("#Username").addClass("errors");
-                return $(".errors").length==0;
-            },
-            save: function() {
-                if (page.validate()) {
-                    if (localStorage.getItem("filterAfterSave")=="on") {
-                        $("#SearchFilter").val($("#Username").val());
-                        identities.filter = $("#SearchFilter").val();
-                    }
-                    var roles = page.getRoles($("#Roles").val().trim().split(','));
-                    identities.save($("#Username").val(),$("#IdentityType").val(),$("#IsAdmin").hasClass("on"),$("#EnrollmentType").val(),$("#Authorities").val(), roles,tags.getValues(page.tagData),page.editId);
-                } else growler.form();
-            }, 
-            getRoles: function(roles) {
-                var values = [];
-                for (var i=0; i<roles.length; i++) {
-                    var item = roles[i].trim();
-                    if (item.length>0) values[values.length] = item;
-                }
-                return values;
-            },
-            deleteMulti: function(e) {
-                page.deleting = [];
-                $(".selector.selected").each(function(index, e) {
-                    page.deleting[page.deleting.length] = $(e).data("id");
-                });
-                if (page.deleting.length>0) {
-                    modal.confirm("you want to delete these "+page.deleting.length+" "+((page.deleting.length>1)?page.binding.pageTitle:page.binding.singular), page.confirmedDelete);
-                }
-            },
-            confirmedDelete: function() {
-                identities.delete(page.deleting);
-                app.reset();
+            toggleUserType: function(e) {
+                var area = "#UserArea";
+                var type = $("#IdentityType").val();
+                if (type=="User") {
+                    $(area).parent().removeClass("unsplit");
+                    $(area).show();
+                } else {
+                    $(area).parent().addClass("unsplit");
+                    $(area).hide();
+                } 
             },
             reset: function() {
-                tags.reset(page.tagData);
-                page.editId = "";
-                $("#Username").val("");
-                $("#Roles").val("");
-                $("#IdentityType").val("Device");
-                $("#IsAdmin").removeClass("on");
-                $("#EnrollmentType").val("ott");
-                if (cas.data.length>0) $("#EnrollmentType").removeAttr("disabled");
+                if (page.casObject.data.length>0) $("#EnrollmentType").removeAttr("disabled");
                 else $("#EnrollmentType").attr("disabled", "true");
                 page.toggleType();
             },
-            handleAction: function(e) {
-                var action = $(e.currentTarget).data("action");
-                if (action=="add") {
-                    page.reset();
-                    page.add();
-                } else if (action=="remove") {
-                    page.deleteMulti();
+            validate: function() {
+                $(".errors").removeClass("errors");
+                if ($("#Name").val().trim().length==0) $("#Name").addClass("errors");
+                return $(".errors").length==0;
+            },
+            addOveride: function(e) {
+                service.call("subSave" , { 
+                    type: "service-configs", 
+                    parentType: page.filterObject.name, 
+                    id: page.filterObject.editId, 
+                    doing: "POST", 
+                    save: [{ 
+                        service: $("#ServiceList").val(), 
+                        config: $("#ConfigList").val() }] 
+                    }, 
+                    page.overridesLoaded
+                );
+            },
+            getOverrides: function(id) {
+                var detail = page.filterObject.details(id);
+                service.call("data" , { type: page.filterObject.name+"/"+page.filterObject.editId+"/service-configs" }, page.overridesLoaded);
+                modal.show("OverrideModal");
+            },
+            overridesLoaded: function(e) {
+                if (e.error) growler.error("Error assigning config override ", e.error);
+                else {
+                    var overrides = e.data;
+                    $("#OverrideList").html("");
+                    if (overrides.length>0) {
+                        for (var i=0; i<overrides.length; i++) {
+                            var element = $("#OverrideTemplate").clone();
+                            element.removeClass("template");
+                            element.html(element.html().split("{{service}}").join(overrides[i].service));
+                            element.html(element.html().split("{{config}}").join(overrides[i].config));
+                            element.html(element.html().split("{{serviceName}}").join(page.getServiceName(overrides[i].service)));
+                            element.html(element.html().split("{{configName}}").join(page.getConfigName(overrides[i].config)));
+                            $("#OverrideList").append(element);
+                        }
+                        $(".overrides").show();
+                        $(".removeAssoc").click(page.removeOveride);
+                    } else {
+                        $(".overrides").hide();
+                    }
                 }
             },
-            add: function() {
-                $(".adding").show();
-                $(".editing").hide();
-                modal.show("AddModal");
+            removeOveride: function(e) {
+                service.call("subSave" , { 
+                    type: "service-configs", 
+                    parentType: page.filterObject.name, 
+                    id: page.filterObject.editId, 
+                    doing: "DELETE", 
+                    save: [{ 
+                        service: $(e.currentTarget).data("service"), 
+                        config: $(e.currentTarget).data("config") 
+                    }] 
+                }, page.overridesLoaded);
             }
         }
     </script>

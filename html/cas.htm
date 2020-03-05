@@ -1,44 +1,55 @@
+    <!-- General Page Layout HTML -->
     <div class="header">
         <div class="title">Manage <span data-bind="pageTitle"></span></div>
         <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
         <div class="line"></div>
         <div class="tabs">
             <div class="tab selected">Manage <span data-bind="pageTitle"></span></div>
-            <div class="tab" data-go="/clusters">Manage Clusters</div>
         </div>
     </div>
     <div class="action icon-plus" data-action="add"></div>
     <div class="filters">
-        <input id="SearchFilter" type="text" class="search" placeholder="Type to Filter" />
-        <div class="clear"></div>
+        <input id="SearchFilter" data-defined="search" type="text" class="search" placeholder="Type to Filter" />
+        <div class="clear" data-defined="clear"></div>
         <div class="counters"><span id="Start">-</span>-<span id="End">-</span> of <span id="Total">-</span></div>
         <div class="navigate prev icon-prev disabled"></div>
         <div class="navigate next icon-next disabled"></div>
     </div>
-    <div class="area data">
+    <div class="area data" data-defined="table">
         <div class="noitems"></div>
         <div class="table">
-            <div class="head grid four">
+            <div class="head grid eight">
                 <div class="col">
                     <div class="selector all"></div>
                 </div>
                 <div class="col sort asc" data-by="name">Name<div class="dragger"></div></div>
-                <div class="col sort" data-by="createdAt">Created</div>
+                <div class="col sort" data-by="isVerified">Verified</div>
+                <div class="col sort" data-by="isAutoCaEnrollmentEnabled">Auto Enroll</div>
+                <div class="col sort" data-by="isOttCaEnrollmentEnabled">OTT Auto</div>
+                <div class="col sort" data-by="isAuthEnabled">Auth</div>
+                <div class="col sort" data-by="dateCreated">Created</div>
                 <div class="col"></div>
             </div>
-            <div class="rows">
+            <div class="rows" data-defined="rows">
                 <!-- This area will be replaced by data rows -->
             </div>
         </div>
     </div>
-    <div class="nodata">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
+    <div class="nodata" data-defined="empty">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
 
-    <div id="RowTemplate" class="row grid four template">
+
+
+    <!-- Template HTML will be used to display rows of data -->
+    <div id="RowTemplate" class="row grid eight template" data-defined="template">
         <div class="col">
             <div class="selector all" data-id="{{id}}"></div>
         </div>
         <div class="col" data-id="{{id}}"><strong>{{name}}</strong></div>
-        <div class="col" data-id="{{id}}">{{createdAt}}</div>
+        <div class="col desktop" data-id="{{id}}">{{isVerified}}</div>
+        <div class="col desktop" data-id="{{id}}">{{isAutoCaEnrollmentEnabled}}</div>
+        <div class="col desktop" data-id="{{id}}">{{isOttCaEnrollmentEnabled}}</div>
+        <div class="col desktop" data-id="{{id}}">{{isAuthEnabled}}</div>
+        <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
                 <div class="gridMenu" data-id="{{id}}">
@@ -49,6 +60,8 @@
         </div>
     </div>
 
+
+
     <!-- Modification Modals -->
     <div id="AddModal" class="modal box full">
         <div class="sized">
@@ -58,7 +71,7 @@
             <div class="title editing">Edit <span data-bind="singular"></span></div>
             <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
             <label for="Name">Name</label>
-            <input id="Name" type="text" maxlength="500" placeholder="Enter a name" />
+            <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" />
             <div class="three">
                 <div>
                     <label>Is Auto Enrollment?</label>
@@ -83,11 +96,11 @@
                 </div>
             </div>
             <label for="Pem">PEM<span id="SelectFile" class="note">Select File</span><input id="PemFile" type="file" accept=".pem"/></label>
-            <textarea id="Pem" placeholder="paste pem contents or select a file"></textarea>
+            <textarea id="Pem" data-bind="data.certPem" placeholder="paste pem contents or select a file"></textarea>
             <div id="TagArea"></div>
             <div class="buttons">
                 <div class="linkButton closer">Oops, No get me out of here</div>
-                <div id="SaveButton" class="button">Save</div>
+                <div id="SaveButton" class="button" data-defined="save">Save</div>
             </div>
         </div>
     </div>
@@ -98,90 +111,22 @@
                 pageTitle: "Certificate Authorities",
                 singular: "Certificate Authority"
             },
-            data: [],
-            tagData: [],
-            deleting: [],
-            editId: "",
+            filterObject: null,
             init: function() {
                 this.events();
-                context.addListener(tags.name, page.tagsLoaded);
-                context.addListener(cas.name, page.getLoaded);
-                cas.init();
+                page.filterObject = new Data("cas");
+                page.filterObject.init(true, true);
             }, 
             events: function() {
-                $(".action").click(page.handleAction);
                 $("#PemFile").change(page.loadFile);
                 $("#SelectFile").click(function() { $("#PemFile").click(); });
-                $("#SaveButton").click(page.save);
-                $("#SearchFilter").keyup(page.search);
-		        $(".clear").click(page.clear);
             },
-            tagsLoaded: function() {
-                var html = "";
-                for (var i=0; i<tags.data.length; i++) {
-                    if (tags.data[i].objects=="all"||tags.data[i].objects.indexOf('cas')>=0) {
-                        page.tagData[page.tagData.length] = tags.data[i];
-                        html += tags.html(tags.data[i]);
-                    }
-                }
-                $("#TagArea").html(html);
-                tags.events();
-            },
-            clear: function() {
-                $("#SearchFilter").val("");
-                cas.filter = "";
-                cas.get();
-                $(".clear").removeClass("showing");
-            },
-            search: function(e) {
-                if (page.searchId) clearTimeout(page.searchId);
-                cas.filter = $("#SearchFilter").val();
-                if ($("#SearchFilter").val().trim().length>0) $(".clear").addClass("showing");
-                else $(".clear").removeClass("showing");
-                if (e.keyCode==13) {
-                    cas.get();
-                } else {
-                    page.searchId = setTimeout(function() {
-                        cas.get();
-                    }, 1000);
-                }
-            },
-            clickEdit: function(e) {
+            gridAction: function(e) {
+                var action = $(e.currentTarget).data("action");
                 var id = $(e.currentTarget).data("id");
-                if (id) page.edit(id);
-            },
-            getLoaded: function(e) {
-                $(".selector.selected").removeClass("selected");
-                app.setAction();
-                page.data = cas.data;
-                $("#Start").html(cas.start());
-                $("#End").html(cas.end());
-                $("#Total").html(cas.total());
-                $(".rows").html("");
-                    if (cas.data.length>0) {
-                    for (var i=0; i<cas.data.length; i++) {
-                        var element = $("#RowTemplate").clone();
-                        element.removeClass("template");
-                        element.attr("id","Row"+i);
-                        element.html(element.html().split("{{id}}").join(cas.data[i].id));
-                        element.html(element.html().split("{{name}}").join(cas.data[i].name));
-                        element.html(element.html().split("{{createdAt}}").join(moment(cas.data[i].createdAt).fromNow()));
-                        $(".rows").append(element);
-                    }
-                    page.pageLoaded();     
-                    $(".data").show();
-                    $(".nodata").hide();       
-                } else {
-                    $(".data").hide();
-                    $(".nodata").show();
-                }
-            },
-            reset: function() {
-                $("#Name").val("");
-                $("#Pem").val("");
-                $("#IsEnrollmentEnabled").removeClass("on");
-                $("#IsAuthEnabled").removeClass("on");
-            },
+                if (action=="delete") page.filterObject.delete([id]);
+                else if (action=="edit") page.edit(id);
+            },    
             loadFile: function(e) {
                 try {
                     var fileToLoad = document.getElementById("PemFile").files[0];
@@ -195,96 +140,30 @@
                     growler.error("Invalid File", "Unable to read file, try opening in a text editor and pasting into the text field.");
                 } 
             },
-            pageLoaded: function() {
-                $(".gridAction").click(page.gridAction);
-                $(".navigate").off("click");
-                $(".navigate").addClass("disabled");
-                $(".clickEdit").click(page.clickEdit);
-                if (!cas.isFirst()) {
-                    $(".navigate.prev").removeClass("disabled");
-                    $(".navigate.prev").on("click", cas.prev);
-                }
-                if (!cas.isLast()) {
-                    $(".navigate.next").removeClass("disabled");
-                    $(".navigate.next").on("click", cas.next);
-                } 
-                app.postLoad();
-            },
-            validate: function() {
-                    $(".errors").removeClass("errors");
-                    if ($("#Name").val().trim().length==0) $("#Name").addClass("errors");
-                    if ($("#Pem").val().trim().length==0) $("#Pem").addClass("errors");
-                    return $(".errors").length==0;
-            },
             edit: function(id) {
-                page.reset();
-                var detail = cas.details(id);
-                $(".adding").hide();
-                $(".editing").show();
-
-                $("#Name").val(detail.name);
-                $("#Pem").val(detail.certPem);
-                $("#IsEnrollmentEnabled").removeClass("on");
-                $("#IsAuthEnabled").removeClass("on");
+                var detail = page.filterObject.details(id);
                 if (detail.isOttCaEnrollmentEnabled) $("#IsEnrollmentEnabled").addClass("on");
                 if (detail.isAuthEnabled) $("#IsAuthEnabled").addClass("on");
-
-                page.editId = id;
                 modal.show("AddModal");
             },
             save: function() {
-                if (page.validate()) {  
-                    if (localStorage.getItem("filterAfterSave")=="on") {
-                        $("#SearchFilter").val($("#Name").val());
-                        cas.filter = $("#SearchFilter").val();
-                    }
-                    cas.save(
-                        $("#Name").val(),
-                        $("#IsAutoEnrollmentEnabled").hasClass("on"),
-                        $("#IsOTTEnrollmentEnabled").hasClass("on"),
-                        $("#IsAuthEnabled").hasClass("on"),
-                        $("#Pem").val(),
-                        tags.getValues(page.tagData),
-                        page.editId);
+                if (page.validate()) {
+                    var obj = {
+                        name: $("#Name").val(),
+                        isAutoCaEnrollmentEnabled: $("#IsAutoEnrollmentEnabled").hasClass("on"),
+                        isOttCaEnrollmentEnabled: $("#IsOTTEnrollmentEnabled").hasClass("on"),
+                        isAuthEnabled: $("#IsAuthEnabled").hasClass("on"),
+                        certPem: $("#Pem").val(),
+                        tags: tags.val()
+                    };
+                    page.filterObject.save(obj);
                 } else growler.form();
             },
-            deleteMulti: function(e) {
-                page.deleting = [];
-                $(".selector.selected").each(function(index, e) {
-                    page.deleting[page.deleting.length] = $(e).data("id");
-                });
-                if (page.deleting.length>0) {
-                    modal.confirm("you want to delete these "+page.deleting.length+" "+((page.deleting.length>1)?page.binding.pageTitle:page.binding.singular), page.confirmedDelete);
-                }
-            },
-            confirmedDelete: function() {
-                cas.delete(page.deleting);
-                app.reset();
-            },
-            gridAction: function(e) {
-                var action = $(e.currentTarget).data("action");
-                var id = $(e.currentTarget).data("id");
-                if (action=="delete") {
-                    page.deleting = [];
-                    page.deleting[page.deleting.length] = id;
-                    modal.confirm("you want to delete this "+page.binding.singular, page.confirmedDelete);
-                } else if (action=="edit") {
-                    page.edit(id);
-                }
-            },    
-            handleAction: function(e) {
-                var action = $(e.currentTarget).data("action");
-                if (action=="add") {
-                    page.reset();
-                    page.add();
-                } else if (action=="remove") {
-                    page.deleteMulti();
-                }
-            },
-            add: function() {
-                $(".adding").show();
-                $(".editing").hide();
-                modal.show("AddModal");
+            validate: function() {
+                $(".errors").removeClass("errors");
+                if ($("#Name").val().trim().length==0) $("#Name").addClass("errors");
+                if ($("#Pem").val().trim().length==0) $("#Pem").addClass("errors");
+                return $(".errors").length==0;
             }
         }
     </script>
