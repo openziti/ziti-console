@@ -54,6 +54,7 @@
             <div class="dots" data-id="{{id}}">...
                 <div class="gridMenu" data-id="{{id}}">
                     <div class="gridAction" data-id="{{id}}" data-action="edit">Edit</div>
+                    <div class="gridAction {{hiddenClass}}" data-id="{{id}}" data-action="verify">Verify</div>
                     <div class="gridAction" data-id="{{id}}" data-action="delete">Delete</div>
                 </div>
             </div>
@@ -64,7 +65,7 @@
 
     <!-- Modification Modals -->
     <div id="AddModal" class="modal box full">
-        <div class="sized">
+        <div class="sized large">
             <div class="close icon-close"></div>
             <div class="title adding">Create <span data-bind="singular"></span></div>
             <div class="subtitle adding">Add a New <span data-bind="singular"></span></div>
@@ -96,11 +97,29 @@
                 </div>
             </div>
             <label for="Pem">PEM<span id="SelectFile" class="note">Select File</span><input id="PemFile" type="file" accept=".pem"/></label>
-            <textarea id="Pem" data-bind="data.certPem" placeholder="paste pem contents or select a file"></textarea>
+            <textarea id="Pem" data-bind="data.certPem" style="height: 300px; font-size: 12px;" placeholder="paste pem contents or select a file"></textarea>
             <div id="TagArea"></div>
             <div class="buttons">
                 <div class="linkButton closer">Oops, No get me out of here</div>
                 <div id="SaveButton" class="button" data-defined="save">Save</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="VerifyModal" class="modal box full">
+        <div class="sized large">
+            <div class="close icon-close"></div>
+            <div class="title adding">Verify Certificate</div>
+            <div class="subtitle adding">Send Your Certificate for Verification</div>
+            <label for="Certificate">
+                Certificate
+                <span id="SelectCertificateFile" class="note">Select Certificate</span>
+                <input id="CertificateFile" type="file" accept=".pem"/>
+            </label>
+            <textarea id="Certificate" style="height: 300px; font-size: 12px;" placeholder="paste certificate contents or select a file"></textarea>
+            <div class="buttons">
+                <div class="linkButton closer">Oops, No get me out of here</div>
+                <div id="VerifyButton" class="button">Verify</div>
             </div>
         </div>
     </div>
@@ -119,13 +138,22 @@
             }, 
             events: function() {
                 $("#PemFile").change(page.loadFile);
+                $("#CertificateFile").change(page.loadCertFile);
                 $("#SelectFile").click(function() { $("#PemFile").click(); });
+                $("#SelectCertificateFile").click(function() { $("#CertificateFile").click(); });
+                $("#VerifyButton").click(page.verify);
+            },
+            row: function(template, data) {
+                if (data.isVerified) template = template.split("{{hiddenClass}}").join("hidden");
+                else template = template.split("{{hiddenClass}}").join("");
+                return template;
             },
             gridAction: function(e) {
                 var action = $(e.currentTarget).data("action");
                 var id = $(e.currentTarget).data("id");
                 if (action=="delete") page.filterObject.delete([id]);
                 else if (action=="edit") page.edit(id);
+                else if (action=="verify") page.showVerify(id);
             },    
             loadFile: function(e) {
                 try {
@@ -140,8 +168,27 @@
                     growler.error("Invalid File", "Unable to read file, try opening in a text editor and pasting into the text field.");
                 } 
             },
+            loadCertFile: function(e) {
+                try {
+                    var fileToLoad = document.getElementById("CertificateFile").files[0];
+                    var fileReader = new FileReader();
+                    fileReader.onload = function(fileLoadedEvent){
+                        var textFromFileLoaded = fileLoadedEvent.target.result;
+                        $("#Certificate").val(textFromFileLoaded);
+                    };
+                    fileReader.readAsText(fileToLoad, "UTF-8");
+                } catch (e) {
+                    growler.error("Invalid File", "Unable to read file, try opening in a text editor and pasting into the text field.");
+                } 
+            },
+            showVerify: function(id) {
+                var detail = page.filterObject.details(id);
+                modal.show("VerifyModal");
+            },
             edit: function(id) {
                 var detail = page.filterObject.details(id);
+                $("#Pem").attr("readonly",true);
+                $("#SelectFile").hide();
                 if (detail.isOttCaEnrollmentEnabled) $("#IsEnrollmentEnabled").addClass("on");
                 if (detail.isAuthEnabled) $("#IsAuthEnabled").addClass("on");
                 modal.show("AddModal");
@@ -153,9 +200,9 @@
                         isAutoCaEnrollmentEnabled: $("#IsAutoEnrollmentEnabled").hasClass("on"),
                         isOttCaEnrollmentEnabled: $("#IsOTTEnrollmentEnabled").hasClass("on"),
                         isAuthEnabled: $("#IsAuthEnabled").hasClass("on"),
-                        certPem: $("#Pem").val(),
                         tags: tags.val()
                     };
+                    if (page.filterObject.editId=="") obj.certPem = $("#Pem").val();
                     page.filterObject.save(obj);
                 } else growler.form();
             },
@@ -164,6 +211,22 @@
                 if ($("#Name").val().trim().length==0) $("#Name").addClass("errors");
                 if ($("#Pem").val().trim().length==0) $("#Pem").addClass("errors");
                 return $(".errors").length==0;
+            },
+            reset: function() {
+                $("#SelectFile").show();
+                $("#Pem").attr("readonly",false);
+            },
+            verify: function(e) {
+                service.call("verify", { id: page.filterObject.editId, cert: $("#Certificate").val() }, page.verified);
+            },
+            verified: function(e) {
+                if (e.error) growler.error(e.error);
+                else {
+                    growler.success("Certificate Verified");
+                    modal.close();
+                    page.filterObject.editId = "";
+                    page.filterObject.get();
+                }
             }
         }
     </script>

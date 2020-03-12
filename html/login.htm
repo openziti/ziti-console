@@ -38,6 +38,8 @@
 				edgeChanged: function(e) {
 					var val = $("#EdgeControllerList").val();
 					if (val.length==0) {
+						$("#EdgeName").val("");
+						$("#EdgeUrl").val("");
 						$(".edgecreate").addClass("open");
 						$(".userlogin").removeClass("open");
 					} else {
@@ -59,7 +61,7 @@
 					}
 					$("#EdgeControllerList").append('<option value="">Connect to a new Edge Controller</option>');
 					var lastUrl = context.get("serviceUrl");
-					$("#EdgeControllerList").val(lastUrl);
+					if (lastUrl&&lastUrl.trim().length>0) $("#EdgeControllerList").val(lastUrl);
 				}
 			}
 		</script>
@@ -77,7 +79,7 @@
 
 			<label for="EdgeControllerList" class="userlogin">Edge Controller</label>
 			<select id="EdgeControllerList" class="userlogin"></select>
-			<label for="Username" class="edgecreate">Edge Controller Name</label>
+			<label for="EdgeName" class="edgecreate">Edge Controller Name</label>
 			<input id="EdgeName" type="text" max="500" placeholder="enter a name for your controller" data-enter="LoginButton" class="edgecreate" />
 			<label for="EdgeUrl" class="edgecreate">Url</label>
 			<input id="EdgeUrl" type="text" max="500" placeholder="e.g. http://10.0.0.1:1280" data-enter="LoginButton" class="edgecreate" />

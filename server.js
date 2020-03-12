@@ -400,6 +400,11 @@ function GetItems(type, paging, request, response) {
 		if (!paging.filter) paging.filter = "";
 		if (paging.page!=-1) urlFilter = "?filter=(name contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
 	}
+	if (paging.params) {
+		for (var key in paging.params) {
+			urlFilter += ((urlFilter.length==0)?"?":"&")+key+"="+paging.params[key];
+		}
+	}
 	if (serviceUrl==null||serviceUrl.trim().length==0) response.json({error:"loggedout"});
 	else {
 		log("Calling: "+serviceUrl+"/"+type+urlFilter);
@@ -615,6 +620,35 @@ app.post("/api/subSave", function(request, response) {
 				}
 			});
 		} else response.json({error:"loggedout"});
+	}
+});
+
+app.post("/api/verify", function(request, response) {
+	if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
+	else {
+		var id = request.body.id;
+		var cert = request.body.cert;
+		var url = serviceUrl+"/cas/"+id+"/verify";
+		var user = request.session.user;
+		if (hasAccess(user)) {
+			log(url);
+			log("Verifying As: "+url+" "+cert);
+			external(url, {method: "POST", body: cert, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+				console.log("Body:"+body);
+				var result = JSON.parse(body);
+				if (err) {
+					log(err);
+					response.json({ error: err });
+				} else {
+					if (result.error) response.json( {error: result.error.message} );
+					else {
+						log(JSON.stringify(body));
+						response.json({ success: "Certificate Verified"});
+					}
+				}
+			});
+		} else response.json({error:"loggedout"});
+
 	}
 });
 

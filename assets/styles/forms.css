@@ -61,8 +61,8 @@ input:focus, select:focus, textarea:focus {
     outline: none !important;
 }
 
-input:disabled, select:disabled {
-	opacity: 0.2;
+input:disabled, select:disabled, textarea:disabled {
+	opacity: 0.2 !important;
 }
 
 div.errors {

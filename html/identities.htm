@@ -27,7 +27,7 @@
                 <div class="col sort desktop" data-by="typeId">Type<div class="dragger"></div></div>
                 <div class="col sort desktop" data-by="isAdmin">Admin<div class="dragger"></div></div>
                 <div class="col sort desktop" data-by="createdAt">Created<div class="dragger"></div></div>
-                <div class="col">Token</div>
+                <div class="col desktop">Token</div>
                 <div class="col"></div>
             </div>
             <div class="rows" data-defined="rows">
@@ -46,7 +46,7 @@
         <div class="col desktop" data-id="{{id}}">{{type}}</div>
         <div class="col desktop" data-id="{{id}}">{{isAdmin}}</div>
         <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
-        <div class="col notitle">{{tokenLink}}</div>
+        <div class="col desktop notitle">{{tokenLink}}</div>
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
                 <div class="gridMenu" data-id="{{id}}">
@@ -108,6 +108,8 @@
             <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
             <label for="Roles">Roles</label>
             <div id="Roles"></div>
+            <label for="Services" class="editing">Services</label>
+            <div id="Services" class="row editing"></div>
             <div class="split unsplit">
                 <div>
                     <label for="IdentityType">Identity Type</label>
@@ -168,6 +170,7 @@
             casObject: null,
             configs: null,
             servicesObject: null,
+            idServices: null,
             roles: null,
             init: function() {
                 page.roles = new Selector("Roles","roles");
@@ -175,6 +178,7 @@
                 page.servicesObject = new Data("services");
                 page.configsObject = new Data("configs");
                 page.filterObject = new Data("identities");
+                page.idServices = new Data("services","idservices");
 
                 page.events();
 
@@ -184,12 +188,15 @@
                 page.servicesObject.init(true);
                 page.configsObject.init(true);
                 page.filterObject.init(true, true);
+                page.idServices.init();
+                page.idServices.closeModals = false;
             }, 
             events: function() {
                 context.addListener(page.filterObject.name, page.loaded);
                 context.addListener(page.casObject.name, page.casLoaded);
                 context.addListener(page.servicesObject.name, page.servicesLoaded);
                 context.addListener(page.configsObject.name, page.configsLoaded);
+                context.addListener("idservices", page.idServicesLoaded);
                 $("#IdentityType").change(page.toggleUserType);
                 $("#EnrollmentType").change(page.toggleType);
                 $("#AssociateButton").click(page.addOveride);
@@ -217,6 +224,7 @@
             },
             edit: function(id) {
                 var detail = page.filterObject.details(id);
+                console.log(detail);
                 page.roles.val(detail.roleAttributes);
                 $("#IdentityType").val(detail.type.name);
                 $("#IsAdmin").removeClass("on");
@@ -241,7 +249,21 @@
                     $(area).parent().addClass("unsplit");
                     $(area).hide();
                 }                 
+                $("#Services").html("Loading...");
+                page.idServices.params["asIdentity"] = id;
+                page.idServices.get();
                 modal.show("AddModal");
+            },
+            idServicesLoaded: function(e) {
+                var services = e.data;
+                var html = "No Services Assigned";
+                if (services&&services.length>0) {
+                    html = "";
+                    for (var i=0; i<services.length; i++) {
+                        html += '<div class="hashtag">'+services[i].name+'</div>';
+                    }
+                }
+                $("#Services").html(html);
             },
             save: function() {
                 if (page.validate()) {

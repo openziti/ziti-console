@@ -27,18 +27,20 @@ var service = {
 					setTimeout(function() {
 						window.location = "/login";
 					}, 2000);
-				}
-				if (e.responseJSON&&e.responseJSON.error&&e.responseJSON.error=="loggedout") {
-					growler.error("Cannot Reach Server", "Logging out");
-					setTimeout(function() {
-						window.location = "/login";
-					}, 2000);
-				}
-				if (e.responseJSON.error!=null&&e.responseJSON.error.indexOf("credentials are invalid")>0) {
-					growler.error("Cannot Reach Server", e.responseJSON.error);
-					setTimeout(function() {
-						window.location = "/login";
-					}, 2000);
+				} else {
+					if (e.responseJSON&&e.responseJSON.error&&e.responseJSON.error=="loggedout") {
+						growler.error("Cannot Reach Server", "Logging out");
+						setTimeout(function() {
+							window.location = "/login";
+						}, 2000);
+					} else {
+						if (e.responseJSON.error!=null&&e.responseJSON.error.indexOf("credentials are invalid")>0) {
+							growler.error("Cannot Reach Server", e.responseJSON.error);
+							setTimeout(function() {
+								window.location = "/login";
+							}, 2000);
+						}
+					}
 				}
 			},
 			success: returnTo

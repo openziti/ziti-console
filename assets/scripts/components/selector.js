@@ -63,6 +63,7 @@ var Selector = function(id, label, atType, hashType) {
                 var val = vals[i];
                 if (val.indexOf("#")==0) selected.append('<div class="hashtag tagButton icon-close"><span class="label">'+val+'</span></div>');
                 else if (val.indexOf("@")==0) selected.append('<div class="attag tagButton icon-close"><span class="label">'+val+'</span></div>');
+                else selected.append('<div class="hashtag"><span class="label">'+val+'</span></div>');
             }
             $("#"+this.id+"Search").val("");
             $(".tagButton").off("click", function(e) {

@@ -20,11 +20,13 @@ var Data = function(name, context) {
 	this.context = ((context)?context:this.name);
 	this.searchField = null;
 	this.clearField = null;
+	this.closeModals = true;
 	this.searchId = null;
 	this.saveButton = null;
 	this.deleting = [];
 	this.editId = "";
 	this.isFirstLoad = true;
+	this.params = {};
 	this.paging = {
 		page: 1,
 		total: 50,
@@ -61,7 +63,7 @@ var Data = function(name, context) {
 			this.searchField = $("*[data-defined='search']");
 			if (this.searchField.length==1) this.searchField.keyup(this.search.bind(this));
 			this.clearField = $("*[data-defined='clear']");	
-			if (this.searchField.length==1) this.searchField.click(this.clear.bind(this));
+			if (this.clearField.length==1) this.clearField.click(this.clear.bind(this));
 			$(".action").click(this.action.bind(this));
 			this.saveButton = $("*[data-defined='save']");
 			if (page&&page.save) this.saveButton.click(page.save);
@@ -80,8 +82,9 @@ var Data = function(name, context) {
 		} else if (action=="remove") {
 			this.deleting = [];
 			$(".selector.selected").each(function(index, e) {
-				this.deleting[this.deleting.length] = $(e).data("id");
-			});
+				var id = $(e).data("id");
+				if (id&&id.trim().length>0&&id!="{{id}}") this.deleting[this.deleting.length] = id;
+			}.bind(this));
 			if (this.deleting.length>0) {
 				this.delete(this.deleting);
 			}
@@ -128,8 +131,10 @@ var Data = function(name, context) {
 	this.loaded = function(e) {
 		if (e.error) growler.error("Error", e.error);
 		if (e.data) {
-			this.formReset();
-			modal.close();
+			if (this.closeModals) {
+				modal.close();
+				this.formReset();
+			}
 			this.data = e.data;
 			this.meta = e.meta;
 			if (this.autoBind) {
@@ -138,7 +143,7 @@ var Data = function(name, context) {
 					if (window.location.href.endsWith("#a")) setTimeout(function() { $(".action").click(); }, 500);
 				}
 			}
-			window.context.set(this.name, this.data);
+			window.context.set(this.context, this.data);
 			this.isFirstLoad = false;
 		}
 	};

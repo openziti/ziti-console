@@ -170,6 +170,7 @@
             edit: function(id) {
                 var detail = page.filterObject.details(id);
                 page.editData = detail.data;
+                $("#Types").attr("disabled",true);
                 page.typechanged();
                 modal.show("AddModal");
             },
@@ -177,10 +178,10 @@
                 if (page.validate()) {
                     var obj = {
                         name: $("#Name").val(),
-                        type: $("#Types").val(),
                         data: page.getData(),
                         tags: tags.val()
                     };
+                    if (page.filterObject.editId=="") obj.type = $("#Types").val();
                     page.filterObject.save(obj);
                 } else growler.form();
             },
@@ -216,6 +217,7 @@
                 return $(".errors").length==0;
             },
             reset: function() {
+                $("#Types").attr("disabled",false);
                 page.editData = {};
                 page.typechanged();
             }

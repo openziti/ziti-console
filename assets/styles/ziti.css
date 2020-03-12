@@ -712,6 +712,12 @@ aside .icon {
     border-radius: 7px;
 }
 
+#Services.row {
+    width: 100%;
+    position: relative;
+    overflow: auto;
+}
+
 .row:nth-child(even) .dots {
     background-color: var(--shaded);
 }
@@ -1542,7 +1548,7 @@ div:focus {
     }  
 	.grid.four, .grid.five, .grid.six, .grid.seven, .grid.sleven, .grid.ten, .grid.nine, .grid.eight {
 		display: grid;
-	  	grid-template-columns: 15% auto 50px;
+	  	grid-template-columns: 50px auto 75px;
 	  	grid-template-rows: auto;
     }	
     .grid.quad, .grid.quint {
