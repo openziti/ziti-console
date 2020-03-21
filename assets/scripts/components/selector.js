@@ -21,7 +21,7 @@ var Selector = function(id, label, atType, hashType) {
     this.isForceHash = true;
     this.atData = [];
     this.init = function() {
-        var element = $("#"+this.id);
+        var element = $("#"+this.id); 
         if (element) {
             var html = '<div class="searchSelector"><input id="'+this.id+'Search" type="text" maxlength="500" placeholder="Type to select '+this.label+' attributes" />';
             html += '<div id="'+this.id+'Suggest" data-index="0" class="suggests"></div>';
@@ -30,14 +30,15 @@ var Selector = function(id, label, atType, hashType) {
         }
         this.events();
         if (this.atType) {
-            var data = new Data(this.atType,"name");
+            var data = new Data(this.atType);
+            data.paging.sort = "name";
             data.init(true);
         }
     };
     this.events = function() {
         if (this.atType) context.addListener(this.atType, this.atLoaded.bind(this));
         $("#"+this.id+"Search").keyup(this.commit.bind(this));
-        $("#"+this.id+"Search").blur(this.commit.bind(this));
+        $("#"+this.id+"Search").blur(this.blurred.bind(this));
     };
     this.atLoaded = function(e) {
         this.atData = e.data;
