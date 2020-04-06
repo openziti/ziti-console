@@ -1364,15 +1364,6 @@ path.green {
     opacity: 1.0;
 }
 
-.searchSelector .tagButton {
-    cursor: pointer;
-    transition: 0.5s;
-}
-
-.searchSelector .tagButton:hover {
-    opacity: 0.5;
-}
-
 .hashtag, .attag {
     padding-left: 10px;
     padding-right: 10px;
@@ -1390,6 +1381,15 @@ path.green {
 
 .attag {
     background-color: var(--secondary);
+}
+
+.searchSelector .tagButton {
+    cursor: pointer;
+    transition: 0.5s;
+}
+
+.searchSelector .tagButton:hover {
+    opacity: 0.5;
 }
 
 .searchSelector .hashtag {

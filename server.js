@@ -399,10 +399,10 @@ function GetItems(type, paging, request, response) {
 	if (paging!=null) {
 		if (!paging.filter) paging.filter = "";
 		if (paging.page!=-1) urlFilter = "?filter=(name contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
-	}
-	if (paging.params) {
-		for (var key in paging.params) {
-			urlFilter += ((urlFilter.length==0)?"?":"&")+key+"="+paging.params[key];
+		if (paging.params) {
+			for (var key in paging.params) {
+				urlFilter += ((urlFilter.length==0)?"?":"&")+key+"="+paging.params[key];
+			}
 		}
 	}
 	if (serviceUrl==null||serviceUrl.trim().length==0) response.json({error:"loggedout"});
@@ -524,7 +524,12 @@ function GetFabricItems(type, response) {
 
 /**------------- Data Save Section -------------**/
 
-
+function HandleError(response, error) {
+	if (error.cause&&error.causeMessage&&error.causeMessage.length>0) response.json({ error: error.causeMessage });
+	else if (error.cause&&error.cause.message&&error.cause.message.length>0) response.json({ error: error.cause.message });
+	else if (error.message&&error.message.length>0) response.json({ error: errorc.message });
+	else response.json({ error: error });
+}
 
 
 /**
@@ -563,13 +568,11 @@ app.post("/api/dataSave", function(request, response) {
 			log("Calling: "+url);
 			log("Saving As: "+method+" "+JSON.stringify(saveParams));
 			external(url, {method: method, json: saveParams, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-				if (err) response.json({ error: err });
+				if (err) HandleError(response, err);
 				else {
 					log(JSON.stringify(body));
-					if (body.error) {
-						if (body.error.cause&&body.error.cause.message) response.json( {error: body.error.cause.message} );
-						else response.json( {error: body.error} );
-					} else if (body.data) {
+					if (body.error) HandleError(response, body.error);
+					else if (body.data) {
 						if (additional) {
 							var objects = Object.entries(additional);
 							var index = 0;
