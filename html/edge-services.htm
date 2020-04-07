@@ -67,28 +67,6 @@
             <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" data-restrict="empty" />
             <label for="Roles">Roles</label>
             <div id="Roles"></div>
-            <label for="Routers">Router</label>
-            <select id="Routers" data-bind="data.egressRouter"></select>
-            <div class="darkened endpoint" style="display: none;">Endpoint Service</div>
-            <div class="grid three endpoint" style="display: none;">
-                <div>
-                    <label for="Protocol">Protocol</label>
-                    <select id="Protocol" data-default="tcp" type="text">
-                        <option value="tcp">tcp</option>
-                        <option value="tls">tls</option>
-                        <option value="udp">udp</option>
-                        <option value="quic">quic</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="EndPoint">Host</label>
-                    <input id="EndPointHost" type="text" maxlength="500" placeholder="google.com" />
-                </div>
-                <div>
-                    <label for="EndPoint">Port</label>
-                    <input id="EndPointPort" type="number" max="65535" min="1" data-restrict="port" />
-                </div>
-            </div>
             <div class="darkened">Configurations</div>
             <div id="ConfigList"></div>
             <div id="TagArea" data-tagarea="service"></div>
@@ -109,14 +87,10 @@
             },
             roles: null,
             filterObject: null,
-            edgeRoutersObject: null,
             configsObject: null,
             configsTypesObject: null,
-            isFirstLoaded: false,
             init: function() {
-                this.isFirstLoaded = false;
                 page.roles = new Selector("Roles","roles");
-                page.edgeRoutersObject = new Data("edge-routers");
                 page.configsObject = new Data("configs");
                 page.configsTypesObject = new Data("config-types");
                 page.filterObject = new Data("services");
@@ -125,20 +99,16 @@
 
                 page.roles.isForceHash = false;
                 page.roles.init();
-                page.edgeRoutersObject.init(true);
                 page.configsTypesObject.init(true);
                 page.filterObject.init(true, true);
                 
                 routers.init();
             }, 
             events: function() {
-                context.addListener(page.edgeRoutersObject.name, page.edgeRoutersLoaded);
-                context.addListener(routers.name, page.fabricRoutersLoaded);
                 context.addListener(page.configsObject.name, page.configsLoaded);
                 context.addListener(page.configsTypesObject.name, page.configTypesLoaded);
 
                 $("#IdentityFilter").keyup(page.filterIds);
-                $("#Routers").change(page.routerChanged)
             },
             configTypesLoaded: function(e) {
                 var types = context.get(page.configsTypesObject.name);
@@ -164,49 +134,6 @@
                 for (var key in obj) data += " "+obj[key];
                 return data;
             },
-            routerChanged: function() {
-                var val = $("#Routers").val();
-                if (val.trim().length==0) $(".endpoint").hide();
-                else $(".endpoint").show();
-            },
-            fabricRoutersLoaded: function(e) {
-                var select = document.getElementById("Routers");
-                select.options = [];
-                if (!page.isFirstLoaded) {
-                    page.isFirstLoaded = true;
-                    var option = document.createElement("option");
-                    option.value = "";
-                    option.text = "Hosted (No Router)";
-                    select.add( option );
-                }
-                if (routers.data.length>0) {
-                    for (var i=0; i<routers.data.length; i++) {
-                        var option = document.createElement("option");
-                        option.value = routers.data[i].id;
-                        option.text = routers.data[i].id;
-                        select.add( option );
-                    }
-                }
-            },
-            edgeRoutersLoaded: function(e) {
-                var select = document.getElementById("Routers");
-                select.options = [];
-                if (!page.isFirstLoaded) {
-                    page.isFirstLoaded = true;
-                    var option = document.createElement("option");
-                    option.value = "";
-                    option.text = "Hosted (No Router)";
-                    select.add( option );
-                }
-                if (page.edgeRoutersObject.data.length>0) {
-                    for (var i=0; i<page.edgeRoutersObject.data.length; i++) {
-                        var option = document.createElement("option");
-                        option.value = page.edgeRoutersObject.data[i].id;
-                        option.text = page.edgeRoutersObject.data[i].name;
-                        select.add( option );
-                    }
-                }
-            },
             gridAction: function(e) {
                 var action = $(e.currentTarget).data("action");
                 var id = $(e.currentTarget).data("id");
@@ -215,26 +142,7 @@
             },
             edit: function(id) {
                 var detail = page.filterObject.details(id);
-
-                var router = "";
-                if (detail.egressRouter&&detail.egressRouter!="unknown") router = detail.egressRouter;
-                $("#Routers").val(router);
                 page.roles.val(detail.roleAttributes);
-                page.routerChanged();
-                var protocol = "tcp";
-                var host = "";
-                var port = "";
-            
-                if (detail.endpointAddress) {
-                    var endpoint = detail.endpointAddress.split(':');
-                    if (endpoint.length>0) protocol = endpoint[0];
-                    if (endpoint.length>1) host = endpoint[1].split('//').join('');
-                    if (endpoint.length>2) port = endpoint[2];
-                }
-
-                $("#Protocol").val(protocol);
-                $("#EndPointHost").val(host);
-                $("#EndPointPort").val(port);
                 if (detail.configs) {
                     for (var i=0; i<detail.configs.length; i++) {
                         $("#ConfigList select").each(function(index,e) {
@@ -244,23 +152,16 @@
                         });
                     }
                 }
-        
                 modal.show("AddModal");
             },
             save: function() {
                 if (page.validate()) {
-                    var endpoint = '';
-                    if ($("#Routers").val().trim().length!==0) endpoint = $("#Protocol").val()+":"+$("#EndPointHost").val()+":"+$("#EndPointPort").val();
-        
                     var obj = {
                         name: $("#Name").val(),
-                        egressRouter: $("#Routers").val(),
-                        endpointAddress: endpoint,
                         configs: page.getConfigs(),
                         tags: tags.val(),
                         roleAttributes: page.roles.val()
                     };
-
                     page.filterObject.save(obj);
                 } else growler.form();
             },
@@ -281,10 +182,6 @@
             validate: function() {
                 $(".errors").removeClass("errors");
                 if ($("#Name").val().trim().length==0) $("#Name").addClass("errors");
-                if ($("#Routers").val().trim().length!==0) {
-                    if ($("#EndPointHost").val().trim().length==0) $("#EndPointHost").addClass("errors");
-                    if ($("#EndPointPort").val().trim().length==0) $("#EndPointPort").addClass("errors");
-                }
                 return $(".errors").length==0;
             }
         }
