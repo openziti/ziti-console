@@ -30,6 +30,7 @@ var app = {
 		if (tags) tags.init();
 		if (settings) settings.init();
 		if (restrictions) restrictions.init();
+		$('*[data-go="'+window.location.pathname+'"]').addClass("selected");
  	},
 	events: function() {
 		if (localStorage.getItem("hideTags")=="yes") $("#TagArea").addClass("hidden");

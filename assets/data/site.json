@@ -6,6 +6,7 @@
 
 	{ "page": "/edge-services.htm", "url": "/edge-services", "access": "100", "title": "Services" },
 	{ "page": "/edge-routers.htm", "url": "/edge-routers", "access": "100", "title": "Routers" },
+	{ "page": "/transit-routers.htm", "url": "/transit-routers", "access": "100", "title": "Transit Routers" },
 	{ "page": "/edge-clusters.htm", "url": "/edge-clusters", "access": "100", "title": "Edge Clusters" },
 	{ "page": "/config-types.htm", "url": "/config-types", "access": "100", "title": "Config Types" },
 	{ "page": "/configs.htm", "url": "/configs", "access": "100", "title": "Configs" },

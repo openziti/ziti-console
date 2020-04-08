@@ -413,7 +413,7 @@ function GetItems(type, paging, request, response) {
 				log("Error: "+JSON.stringify(err));
 				response.json({ error: err });
 			} else {
-				if (body.error) response.json( {error: body.error.message} );
+				if (body.error) HandleError(response, body.error);
 				else if (body.data) {
 					log("Items: "+body.data.length);
 					log("Results: "+JSON.stringify(body.data));
