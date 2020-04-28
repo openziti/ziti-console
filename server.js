@@ -396,7 +396,7 @@ app.post("/api/data", function(request, response) {
  */
 function GetItems(type, paging, request, response) {
 	var urlFilter = "";
-	if (paging!=null) {
+	if (paging.sort!=null) {
 		if (!paging.filter) paging.filter = "";
 		if (paging.page!=-1) urlFilter = "?filter=(name contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
 		if (paging.params) {
