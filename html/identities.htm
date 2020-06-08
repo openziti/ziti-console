@@ -311,7 +311,7 @@
                 if (identity&&identity.enrollment&&identity.enrollment.ott&&identity.enrollment.ott.jwt) {
                     var name = identity.name.split(" ").join("");
                     var element = document.createElement('a');
-                    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(identity.enrollment.ott.jwt));
+                    element.setAttribute('href', 'data:application/ziti-jwt;charset=utf-8,' + encodeURIComponent(identity.enrollment.ott.jwt));
                     element.setAttribute('download', name+".jwt");
                     element.style.display = 'none';
                     document.body.appendChild(element);
