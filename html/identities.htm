@@ -207,8 +207,12 @@
                 template = template.split("{{type}}").join(data.type.name);
                 var enrollment = "N/A";
                 if (data.enrollment&&data.enrollment.ott&&data.enrollment.ott.jwt) {
-                    var difference = moment(data.enrollment.ott.expiresAt).diff(moment(new Date()));
-                    if (difference>0) enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
+                    if (data.enrollment.ott.expiresAt!=null) {
+                        var difference = moment(data.enrollment.ott.expiresAt).diff(moment(new Date()));
+                        if (difference>0) enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
+                    } else {
+                        enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
+                    }
                 }
                 if (enrollment=="N/A") template = template.split("{{hiddenClass}}").join("hidden");
                 else template = template.split("{{hiddenClass}}").join("");
