@@ -178,11 +178,10 @@
                 if (page.validate()) {
                     var obj = {
                         name: $("#Name").val(),
-                        configTypeId: $("#Types").val(),
                         data: page.getData(),
                         tags: tags.val()
                     };
-                    if (page.filterObject.editId=="") obj.type = $("#Types").val();
+                    if (page.filterObject.editId=="") obj.configTypeId = $("#Types").val();
                     page.filterObject.save(obj);
                 } else growler.form();
             },
