@@ -374,7 +374,26 @@ app.post("/api/controller", function(request, response) {
 /**------------- Server Search Section -------------**/
 
 
-
+/**
+ * Staight call for uncommon calls to the edge controller
+ */
+app.post("/api/call", function(request, response) {
+	log("Calling: "+serviceUrl+"/"+request.body.url);
+	external.get(serviceUrl+"/"+request.body.url, {json: {}, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+		if (err) {
+			log("Error: "+JSON.stringify(err));
+			response.json({ error: err });
+		} else {
+			if (body.error) HandleError(response, body.error);
+			else if (body.data) {
+				response.json( body );
+			} else {
+				body.data = [];
+				response.json( body );
+			}
+		}
+	});
+});
 
 /**
  * Get the data from the edge controller based on the type of object and the 

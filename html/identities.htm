@@ -110,8 +110,10 @@
             <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
             <label for="Roles">Roles</label>
             <div id="Roles"></div>
-            <label for="Services" class="editing">Services</label>
+            <label for="Services" class="editing">Services<div class="info">click to test connection</div></label>
             <div id="Services" class="row editing"></div>
+            <label for="ServiceIssues" class="issues"><span id="ServiceClicked"></span> Connection Issues</label>
+            <div id="ServiceIssues" class="issues"></div>
             <div class="split unsplit">
                 <div>
                     <label for="IdentityType">Identity Type</label>
@@ -144,12 +146,12 @@
             </div>
             <div id="TagArea" data-tagarea="identity"></div>
             <div id="TagExtended"></div>
-            <div class="buttons">
+            <div class="buttons">           
                 <div class="linkButton closer">Oops, No get me out of here</div>
                 <div id="SaveButton" class="button" data-defined="save">Save</div>
-            </div>
+            </div>   
         </div>
-    </div>
+    </div>         
     
 	<div id="QRModal" class="modal box full">
         <div class="sized center">
@@ -168,6 +170,7 @@
                 pageTitle: "Identities",
                 singular: "Identity"
             },
+            editeId: -1,
             filterObject: null,
             casObject: null,
             configs: null,
@@ -231,6 +234,7 @@
             edit: function(id) {
                 var detail = page.filterObject.details(id);
                 console.log(detail);
+                page.editId = id;
                 page.roles.val(detail.roleAttributes);
                 $("#IdentityType").val(detail.type.name);
                 $("#IsAdmin").removeClass("on");
@@ -266,10 +270,43 @@
                 if (services&&services.length>0) {
                     html = "";
                     for (var i=0; i<services.length; i++) {
-                        html += '<div class="hashtag">'+services[i].name+'</div>';
+                        html += '<div class="hashtag clickable" data-id="'+services[i].id+'">'+services[i].name+'</div>';
                     }
                 }
                 $("#Services").html(html);
+                $(".hashtag").click(page.status);
+            },
+            status: function(e) {
+                var serviceId = $(e.currentTarget).data("id");
+                $(".clicked").removeClass("clicked");
+                $(e.currentTarget).addClass("clicked");
+                $("#ServiceClicked").text($(e.currentTarget).text());
+                service.call("call", {url: "/identities/"+page.editId+"/policy-advice/"+serviceId}, page.statusReturned);
+            },
+            statusReturned: function(e) {
+                var errors = [];
+                var info = e.data;
+                if (!info.isDialAllowed&&!info.isBindAllowed) errors.push("No access to service. Adjust service policies.");
+                if (info.identityRouterCount<1) errors.push("Identity has no edge routers assigned. Adjust edge router policies.");
+                if (info.serviceRouterCount<1) errors.push("Service has no edge routers assigned. Adjust edge router policies.");
+                if (info.identityRouterCount>0&&info.serviceRouterCount>0) {
+                    if (info.commonCount<1) errors.push("Identity and services have no edge routers in common. Adjust edge router policies and/or service edge router policies.");
+                    else if (info.onlineCount<1) errors.push("Common edge routers are all off-line. Bring routers back on-line or adjust edge router policies and/or service edge router policies.");
+                }
+                var status = "";
+                if (info.isDialAllowed) {
+                    if (info.isBindAllowed) status = "(Dial,Bind)";
+                    else status = "(Dial)";
+                } else {
+                    if (info.isBindAllowed) status = "(Bind)";
+                }
+                if (errors.length>0) {
+                    for (var i=0; i<errors.length; i++) {
+                        status += "<br/>"+errors[i];
+                    }
+                } else status += "<br/>Everything is configured properly";
+                $("#ServiceIssues").html(status);
+                $(".issues").show();
             },
             save: function() {
                 if (page.validate()) {
@@ -394,6 +431,7 @@
                 if (page.casObject.data.length>0) $("#EnrollmentType").removeAttr("disabled");
                 else $("#EnrollmentType").attr("disabled", "true");
                 page.toggleType();
+                $(".issues").hide();
             },
             validate: function() {
                 $(".errors").removeClass("errors");

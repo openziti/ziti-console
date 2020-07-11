@@ -1364,6 +1364,28 @@ path.green {
     opacity: 1.0;
 }
 
+.hashtag.clickable {
+    cursor: pointer;
+    transition: 0.5s;
+}
+
+.hashtag.clickable.clicked {
+    cursor: default;
+    background-color: var(--menu);
+    color: #FFF;
+}
+
+.hashtag.clickable:hover {
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+#ServiceIssues {
+    background-color: var(--menu);
+    border-radius: 7px;
+    padding: 10px;
+}
+
 .hashtag, .attag {
     padding-left: 10px;
     padding-right: 10px;
