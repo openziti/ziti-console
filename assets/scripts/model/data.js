@@ -285,12 +285,14 @@ var Data = function(name, context) {
 			for (var prop in details) {
 				var element = $("*[data-bind='data."+prop+"']");
 				if (element.length>0) {
-					var type = element.prop("tagName");
-					if (details[prop]) {
-						if (type=="INPUT"||type=="SELECT") element.val(details[prop]);
-						else if (type=="TEXTAREA") element.val(details[prop].split('\\n').join('\n'));
-						else if (type=="DIV"||type=="SPAN") element.html(details[prop]);
-					}
+					$(element).each(function(index, elem) {
+						var type = $(elem).prop("tagName");
+						if (details[prop]) {
+							if (type=="INPUT"||type=="SELECT") $(elem).val(details[prop]);
+							else if (type=="TEXTAREA") $(elem).val(details[prop].split('\\n').join('\n'));
+							else if (type=="DIV"||type=="SPAN") $(elem).html(details[prop]);
+						}
+					});
 				}
 			}
 		}

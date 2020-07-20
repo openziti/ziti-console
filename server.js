@@ -653,10 +653,7 @@ app.post("/api/verify", function(request, response) {
 		var url = serviceUrl+"/cas/"+id+"/verify";
 		var user = request.session.user;
 		if (hasAccess(user)) {
-			log(url);
-			log("Verifying As: "+url+" "+cert);
-			external(url, {method: "POST", body: cert, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-				console.log("Body:"+body);
+			external(url, {method: "POST", body: cert, rejectUnauthorized: false, headers: { "zt-session": request.session.user, "Content-Type": "text/plain" } }, function(err, res, body) {
 				var result = JSON.parse(body);
 				if (err) {
 					log(err);

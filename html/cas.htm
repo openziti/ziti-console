@@ -73,6 +73,8 @@
             <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
             <label for="Name">Name</label>
             <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" />
+            <label for="IDRoles">Identity Roles</label>
+            <div id="IDRoles"></div>
             <div class="three">
                 <div>
                     <label>Is Auto Enrollment?</label>
@@ -109,8 +111,11 @@
     <div id="VerifyModal" class="modal box full">
         <div class="sized large">
             <div class="close icon-close"></div>
-            <div class="title adding">Verify Certificate</div>
-            <div class="subtitle adding">Send Your Certificate for Verification</div>
+            <div class="title">Verify Certificate</div>
+            <div class="subtitle">Send Your Certificate for Verification</div>
+            <div><h3>To Do</h3>Generate a Certificate with the common name CN=<strong><span data-bind="data.verificationToken"></span></strong> and submit it here for verification.</div>
+            <label for="VerificationCode">Verification Token</label>
+            <input id="VerificationCode" data-bind="data.verificationToken" type="text" maxlength="500" readonly="true" />
             <label for="Certificate">
                 Certificate
                 <span id="SelectCertificateFile" class="note">Select Certificate</span>
@@ -131,8 +136,11 @@
                 singular: "Certificate Authority"
             },
             filterObject: null,
+            identityRoles: null,
             init: function() {
                 this.events();
+                page.identityRoles = new Selector("IDRoles","identities","identities");
+                page.identityRoles.init();
                 page.filterObject = new Data("cas");
                 page.filterObject.init(true, true);
             }, 
@@ -141,7 +149,13 @@
                 $("#CertificateFile").change(page.loadCertFile);
                 $("#SelectFile").click(function() { $("#PemFile").click(); });
                 $("#SelectCertificateFile").click(function() { $("#CertificateFile").click(); });
-                $("#VerifyButton").click(page.verify);
+                $("#VerifyButton").click(page.verify); 
+                $("#VerificationCode").click(page.copy);
+            },
+            copy: function() {
+                document.querySelector("#VerificationCode").select();
+                document.execCommand("copy");
+                growler.info("Code: "+$("#VerificationCode").val()+" copied to clipboard");
             },
             row: function(template, data) {
                 if (data.isVerified) template = template.split("{{hiddenClass}}").join("hidden");
@@ -159,7 +173,7 @@
                 try {
                     var fileToLoad = document.getElementById("PemFile").files[0];
                     var fileReader = new FileReader();
-                    fileReader.onload = function(fileLoadedEvent){
+                    fileReader.onload = function(fileLoadedEvent) {
                         var textFromFileLoaded = fileLoadedEvent.target.result;
                         $("#Pem").val(textFromFileLoaded);
                     };
@@ -191,6 +205,7 @@
                 $("#SelectFile").hide();
                 if (detail.isOttCaEnrollmentEnabled) $("#IsEnrollmentEnabled").addClass("on");
                 if (detail.isAuthEnabled) $("#IsAuthEnabled").addClass("on");
+                page.identityRoles.val(detail.identityRoles);
                 modal.show("AddModal");
             },
             save: function() {
@@ -199,6 +214,7 @@
                         name: $("#Name").val(),
                         isAutoCaEnrollmentEnabled: $("#IsAutoEnrollmentEnabled").hasClass("on"),
                         isOttCaEnrollmentEnabled: $("#IsOTTEnrollmentEnabled").hasClass("on"),
+                        identityRoles: page.identityRoles.val(),
                         isAuthEnabled: $("#IsAuthEnabled").hasClass("on"),
                         tags: tags.val()
                     };
