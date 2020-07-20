@@ -113,7 +113,7 @@
             },
             configTypesLoaded: function(e) {
                 var types = context.get(page.configsTypesObject.name);
-                var html = "";
+                var html = ""; 
                 for (var i=0; i<types.length; i++) {
                     html += '<label id="Type_'+types[i].id+'_Label" style="display:none">'+types[i].name+'</label>';
                     html += '<select id="Type_'+types[i].id+'" style="display:none"></select>';
@@ -124,10 +124,11 @@
             configsLoaded: function(e) {
                 var cons = context.get(page.configsObject.name);
                 for (var i=0; i<cons.length; i++) {
-                    if ($("#Type_"+cons[i].type+" option").length==0) $("#Type_"+cons[i].type).append('<option value="">Select Required Configurations</option>');
-                    $("#Type_"+cons[i].type+"_Label").show();
-                    $("#Type_"+cons[i].type).show();
-                    $("#Type_"+cons[i].type).append('<option value="'+cons[i].id+'">'+cons[i].name+' - '+page.getPropString(cons[i].data)+'</option>');
+                    var type = cons[i].configType.id;
+                    if ($("#Type_"+type+" option").length==0) $("#Type_"+type).append('<option value="">Select Required Configurations</option>');
+                    $("#Type_"+type+"_Label").show();
+                    $("#Type_"+type).show();
+                    $("#Type_"+type).append('<option value="'+cons[i].id+'">'+cons[i].name+' - '+page.getPropString(cons[i].data)+'</option>');
                 }
             },
             getPropString: function(obj) {
