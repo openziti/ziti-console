@@ -415,9 +415,11 @@ app.post("/api/data", function(request, response) {
  */
 function GetItems(type, paging, request, response) {
 	var urlFilter = "";
+	var toSearchOn = "name";
 	if (paging.sort!=null) {
+		if (paging.searchOn) toSearchOn = paging.searchOn;
 		if (!paging.filter) paging.filter = "";
-		if (paging.page!=-1) urlFilter = "?filter=(name contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
+		if (paging.page!=-1) urlFilter = "?filter=("+toSearchOn+" contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
 		if (paging.params) {
 			for (var key in paging.params) {
 				urlFilter += ((urlFilter.length==0)?"?":"&")+key+"="+paging.params[key];

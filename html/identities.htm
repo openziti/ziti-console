@@ -233,7 +233,6 @@
             },
             edit: function(id) {
                 var detail = page.filterObject.details(id);
-                console.log(detail);
                 page.editId = id;
                 page.roles.val(detail.roleAttributes);
                 $("#IdentityType").val(detail.type.name);

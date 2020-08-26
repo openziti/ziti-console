@@ -84,6 +84,12 @@
 	grid-template-columns: auto;
 }
 
+.grid.tags { 
+	grid-template-columns: 50% auto;
+	position: relative;
+	width: 100%;
+}
+
 .grid.triple {
 	grid-template-columns: 300px auto 300px;
 }

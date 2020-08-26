@@ -1522,6 +1522,30 @@ path.green {
     width: 100%;
 }
 
+.removeIcon {
+    position: absolute;
+    font-size: 24px;
+    color: var(--red);
+    cursor: pointer;
+    right: 10px;
+    top: 14px;
+    transition: 0.5s;
+}
+
+.addIcon {
+    position: absolute;
+    font-size: 24px;
+    color: var(--primary);
+    cursor: pointer;
+    right: 10px;
+    top: 14px;
+    transition: 0.5s;
+}
+
+.addIcon:hover, .removeIcon:hover {
+    opacity: 0.3;
+}
+
 canvas { outline: none !important; }
 
 div:focus {
@@ -1568,7 +1592,7 @@ div:focus {
     .grid.triple {
         grid-template-columns: 100px auto 100px;
     }  
-	.grid.four, .grid.five, .grid.six, .grid.seven, .grid.sleven, .grid.ten, .grid.nine, .grid.eight {
+	.grid.four, .grid.five, .grid.fives, .grid.six, .grid.seven, .grid.sleven, .grid.ten, .grid.nine, .grid.eight {
 		display: grid;
 	  	grid-template-columns: 50px auto 40px !important;
 	  	grid-template-rows: auto;

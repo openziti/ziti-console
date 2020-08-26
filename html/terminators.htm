@@ -93,7 +93,8 @@
                 page.edgeRoutersObject = new Data("transit-routers");
                 page.edgeServicesObject = new Data("services");
                 page.filterObject = new Data("terminators");
-                page.filterObject.paging.sort = null;
+                page.filterObject.paging.sort = "address";
+                page.filterObject.paging.searchOn = "address";
 
                 this.events();
 
