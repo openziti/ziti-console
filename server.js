@@ -52,7 +52,7 @@ const app = express();
 app.use(cors());
 app.use(helmet());
 app.use(function(req, res, next) {
-    res.setHeader("Content-Security-Policy", "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdnjs.com https://apis.google.com https://ajax.googleapis.com https://fonts.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com; object-src 'none'; form-action 'none'; frame-ancestors 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdnjs.com https://fonts.googleapis.com");
+    res.setHeader("Content-Security-Policy", "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdnjs.com https://apis.google.com https://ajax.googleapis.com https://fonts.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com; object-src 'none'; form-action 'none'; frame-ancestors 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdnjs.com https://fonts.googleapis.com");
     return next();
 });
 app.use(bodyParser.json());
@@ -370,7 +370,6 @@ app.post("/api/controller", function(request, response) {
 
 
 
-
 /**------------- Server Search Section -------------**/
 
 
@@ -414,37 +413,41 @@ app.post("/api/data", function(request, response) {
  * @param {The server response object} response 
  */
 function GetItems(type, paging, request, response) {
-	var urlFilter = "";
-	var toSearchOn = "name";
-	if (paging.sort!=null) {
-		if (paging.searchOn) toSearchOn = paging.searchOn;
-		if (!paging.filter) paging.filter = "";
-		if (paging.page!=-1) urlFilter = "?filter=("+toSearchOn+" contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
-		if (paging.params) {
-			for (var key in paging.params) {
-				urlFilter += ((urlFilter.length==0)?"?":"&")+key+"="+paging.params[key];
-			}
-		}
-	}
-	if (serviceUrl==null||serviceUrl.trim().length==0) response.json({error:"loggedout"});
-	else {
-		log("Calling: "+serviceUrl+"/"+type+urlFilter);
-		external.get(serviceUrl+"/"+type+urlFilter, {json: {}, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-			if (err) {
-				log("Error: "+JSON.stringify(err));
-				response.json({ error: err });
-			} else {
-				if (body.error) HandleError(response, body.error);
-				else if (body.data) {
-					log("Items: "+body.data.length);
-					log("Results: "+JSON.stringify(body.data));
-					response.json( body );
-				} else {
-					body.data = [];
-					response.json( body );
+	if (request.body.url) {
+		GetSubs(request.body.url.split("./").join(""), request.body.type, "", "", request, response);
+	} else {
+		var urlFilter = "";
+		var toSearchOn = "name";
+		if (paging.sort!=null) {
+			if (paging.searchOn) toSearchOn = paging.searchOn;
+			if (!paging.filter) paging.filter = "";
+			if (paging.page!=-1) urlFilter = "?filter=("+toSearchOn+" contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
+			if (paging.params) {
+				for (var key in paging.params) {
+					urlFilter += ((urlFilter.length==0)?"?":"&")+key+"="+paging.params[key];
 				}
 			}
-		});
+		}
+		if (serviceUrl==null||serviceUrl.trim().length==0) response.json({error:"loggedout"});
+		else {
+			log("Calling: "+serviceUrl+"/"+type+urlFilter);
+			external.get(serviceUrl+"/"+type+urlFilter, {json: {}, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+				if (err) {
+					log("Error: "+JSON.stringify(err));
+					response.json({ error: err });
+				} else {
+					if (body.error) HandleError(response, body.error);
+					else if (body.data) {
+						log("Items: "+body.data.length);
+						log("Results: "+JSON.stringify(body.data));
+						response.json( body );
+					} else {
+						body.data = [];
+						response.json( body );
+					}
+				}
+			});
+		}
 	}
 }
 
@@ -488,9 +491,15 @@ app.post("/api/subdata", function(request, response) {
 	var id = request.body.id;
 	var type = request.body.type;
 	var parentType = request.body.name;
-	external.get(url, {json: {}, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+	GetSubs(url, type, id, parentType, request, response);
+});
+
+function GetSubs(url, type, id, parentType, request, response) {
+	log("Calling: "+serviceUrl+"/"+url);
+	external.get(serviceUrl+"/"+url, {json: {}, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 		if (err) response.json({ error: err });
 		else {
+			log("Returned: "+JSON.stringify(body));
 			response.json({ 
 				id: id,
 				parent: parentType,
@@ -499,7 +508,7 @@ app.post("/api/subdata", function(request, response) {
 			});
 		}
 	});
-});
+}
 
 /**
  * Get the data from a fabrice controller based on the type of object
@@ -548,6 +557,7 @@ function GetFabricItems(type, response) {
 function HandleError(response, error) {
 	if (error.cause&&error.causeMessage&&error.causeMessage.length>0) response.json({ error: error.causeMessage });
 	else if (error.cause&&error.cause.message&&error.cause.message.length>0) response.json({ error: error.cause.message });
+	else if (error.cause&&error.cause.reason&&error.cause.reason.length>0) response.json({ error: error.cause.reason });
 	else if (error.message&&error.message.length>0) response.json({ error: error.message });
 	else response.json({ error: error });
 }
@@ -569,6 +579,8 @@ app.post("/api/dataSave", function(request, response) {
 		var id = request.body.id;
 		var url = serviceUrl+"/"+type;
 		var user = request.session.user;
+		var chained = false;
+		if (request.body.chained) chained = request.body.chained;
 		if (hasAccess(user)) {
 			if (id&&id.trim().length>0) {
 				method = "PUT";
@@ -605,11 +617,20 @@ app.post("/api/dataSave", function(request, response) {
 									log("Objects: "+JSON.stringify({ ids: objects[i][1] }));
 									external.put(serviceUrl+"/"+type+"/"+id+"/"+objects[i][0], {json: { ids: objects[i][1] }, rejectUnauthorized: false, headers: { "zt-session": user } }, function(err, res, body) {
 										index++;
-										if (index==objects.length) GetItems(type, paging, request, response);
+										if (index==objects.length) {
+											if (chained) response.json(body.data);
+											else GetItems(type, paging, request, response);
+										}
 									});
 								}
-							} else GetItems(type, paging, request, response);
-						} else GetItems(type, paging, request, response);
+							} else {
+								if (chained) response.json(body.data);
+								else GetItems(type, paging, request, response);
+							}
+						} else {
+							if (chained) response.json(body.data);
+							else GetItems(type, paging, request, response);
+						}
 					} else response.json( {error: "Unable to save data"} );
 				}	
 			});

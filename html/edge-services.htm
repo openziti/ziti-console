@@ -23,7 +23,7 @@
     <div class="area data" data-defined="table">
         <div class="noitems"></div>
         <div class="table">
-            <div class="head grid five">
+            <div class="head grid serviceTable">
                 <div class="col">
                     <div class="selector all"></div>
                 </div>
@@ -39,7 +39,7 @@
     </div>
     <div class="nodata" data-defined="empty">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
 
-    <div id="RowTemplate" class="row grid five template" data-defined="template">
+    <div id="RowTemplate" class="row grid serviceTable template" data-defined="template">
         <div class="col">
             <div class="selector" data-id="{{id}}"></div>
         </div>
@@ -58,20 +58,99 @@
 
 	<!-- Modification Modals -->
     <div id="AddModal" class="modal box full">
-        <div class="sized">
+        <div class="sized large">
             <div class="close icon-close"></div>
             <div class="title adding">Create <span data-bind="singular"></span></div>
             <div class="subtitle adding">Add a New <span data-bind="singular"></span> by completing the following form</div>
             <div class="title editing">Edit <span data-bind="singular"></span></div>
             <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
-            <label for="Name">Name</label>
-            <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" data-restrict="empty" />
-            <label for="Roles">Roles</label>
-            <div id="Roles"></div>
-            <div class="darkened">Configurations</div>
-            <div id="ConfigList"></div>
-            <div id="TagArea" data-tagarea="service"></div>
-            <div id="TagExtended"></div>
+            <div class="split">
+                <div>
+                    <label for="Name">Name</label>
+                    <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" data-restrict="empty" />
+                    <label for="Roles">Roles</label>
+                    <div id="Roles"></div>
+                    <label for="Strategy">Terminator Strategy</label>
+                    <select id="Strategry" data-bind="data.terminatorStrategy">
+                        <option value="">Select a Strategy....</option>
+                        <option value="smartrouting">Smart Routing</option>
+                        <option value="weighted">Weighted</option>
+                        <option value="random">Random</option>
+                        <option value="ha">High Availability</option>
+                    </select>
+                    <div class="grid checkLabel">
+                        <div id="EncryptionRequired" class="toggle">
+                            <div class="switch"></div>
+                            <div class="label"></div>
+                        </div>
+                        <div class="toggleLabel">Require Encryption</div>
+                    </div>
+                    <div id="TagArea" data-tagarea="service"></div>
+                    <div id="TagExtended"></div>
+                </div>
+                <div>
+                    <div class="darkened">Configurations</div>
+                    <div class="configBox">
+                        <label for="ConfigType">Configuration Types</label>
+                        <select id="ConfigType"></select>
+                        <div class="configs">
+                            <label for="Configs">Pre-Defined Configurations</label>
+                            <select id="Configs"></select>
+                            <div id="OnOffButton" class="onoff configsForm" style="display:none">{JSON}</div>
+                            <label for="ConfigName" class="configsForm" style="display:none">Name</label>
+                            <input id="ConfigName" class="configsForm" type="text" maxlength="100" style="display:none"/>
+                            <div id="ConfigForm" style="display:none"></div>
+                            <div id="ConfigJSONArea" style="display:none">
+                                <label for="ConfigJSON">JSON Configuration</label>
+                                <textarea id="ConfigJSON"></textarea>
+                            </div>
+                            <div id="ButtonArea" class="buttons" style="display: none;">
+                                <div></div>
+                                <div id="AddConfigButton" class="minibutton">Add</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="ConfigList" class="lightBox"></div>
+                    <div class="darkened">Terminators</div>
+                    <div class="configBox">
+                        <label for="Routers">Router</label>
+                        <select id="Routers"></select>
+                        <div class="routerArea">
+                            <label for="BindingType">Binding</label>
+                            <select id="BindingType">
+                                <option value="">Select Binding....</option>
+                                <option value="transport">Transport</option>
+                                <option value="udp">Udp</option>
+                                <option value="0">Other</option>
+                            </select>
+                            <label for="CustomBinding" class="customBind" style="display: none;">Custom Binding</label>
+                            <input id="CustomBinding" class="customBind" type="text" maxlength="100" style="display: none;"/>
+                            <div class="grid three">
+                                <div>
+                                    <label for="TerminatorProtocol">Protocol</label>
+                                    <select id="TerminatorProtocol">
+                                        <option value="tcp">tcp</option>
+                                        <option value="udp">udp</option> 
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="TerminatorHost">Host</label>
+                                    <input id="TerminatorHost" placeholder="example.com" maxlength="200"/>
+                                </div>
+                                <div>
+                                    <label for="TerminatorPort">Port</label>
+                                    <input id="TerminatorPort" placeholder="80, 443, etc" maxlength="10" value="80"/>
+                                </div>
+                            </div>
+                            <div class="buttons">
+                                <div></div>
+                                <div id="AddTerminatorButton" class="minibutton">Add</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="TerminatorList" class="lightBox"></div>
+                </div>
+            </div>
             <div class="buttons">
                 <div class="linkButton closer">Oops, No get me out of here</div>
                 <div id="SaveButton" class="button" data-defined="save">Save</div>
@@ -89,52 +168,383 @@
             roles: null,
             filterObject: null,
             configsObject: null,
+            edgeRoutersObject: null,
             configsTypesObject: null,
-            init: function() {
+            terminatorsObject: null,
+            editor: null,
+            editData: {},
+            configsSelected: [],
+            terminators: [],
+            details: {},
+            init: function() {                   
+                page.editor = CodeMirror.fromTextArea(document.getElementById("ConfigJSON"), { mode: "application/json", lineNumbers: true, autoRefresh: true, extraKeys: {"Ctrl-Space": "autocomplete"} });
+                page.editor.on('keyup', function () {
+                    try {
+                        page.editData = JSON.parse(page.editor.getValue());
+                        page.loadChanges();
+                    } catch(e) {
+                        console.log("Invalid JSON");
+                    }
+                });   
+
                 page.roles = new Selector("Roles","roles");
                 page.configsObject = new Data("configs");
                 page.configsTypesObject = new Data("config-types");
                 page.filterObject = new Data("services");
+                page.edgeRoutersObject = new Data("transit-routers");
+                page.terminatorsObject = new Data("terminators");
+                page.edgeRoutersObject.init(true, false, true);
+                page.configsObject.closeModals = false;
+                page.terminatorsObject.closeModals = false;
 
                 this.events();
 
                 page.roles.isForceHash = false;
                 page.roles.init();
                 page.configsTypesObject.init(true);
+                page.terminatorsObject.init(false);
                 page.filterObject.init(true, true);
                 
                 routers.init();
             }, 
+            loadChanges: function() {
+                for (var prop in page.editData) {
+                    $("#schema_"+prop).val(page.editData[prop]);
+                }
+            },
             events: function() {
+                context.addListener(page.edgeRoutersObject.name, page.edgeRoutersLoaded);
                 context.addListener(page.configsObject.name, page.configsLoaded);
+                context.addListener(page.terminatorsObject.name, page.terminatorsLoaded);
                 context.addListener(page.configsTypesObject.name, page.configTypesLoaded);
 
                 $("#IdentityFilter").keyup(page.filterIds);
+                $(".toggler").click(page.toggle);
+                $("#ConfigType").change(page.configTypeSelected);
+                $("#Configs").change(page.configSelected);
+                $("#OnOffButton").click(page.toggleEditor);
+                $("#Routers").change(page.routerSelected);
+                $("#AddConfigButton").click(page.addConfig);
+                $("#BindingType").change(page.bindingChanged);
+                $("#AddTerminatorButton").click(page.addTerminator);
+            },
+            bindingChanged: function(e) {
+                var binding = $("#BindingType").val();
+                if (binding=="0") {
+                    $(".customBind").show();
+                } else {
+                    $(".customBind").hide();
+                    if (binding=="udp") $("#TerminatorProtocol").val("udp");
+                    else $("#TerminatorProtocol").val("tcp");
+                }
+            },
+            edgeRoutersLoaded: function(e) {
+                var select = document.getElementById("Routers");
+                select.options = [];
+                var option = document.createElement("option");
+                option.value = "";
+                option.text = "Select A Router...";
+                select.add( option );
+                if (page.edgeRoutersObject.data.length>0) {
+                    for (var i=0; i<page.edgeRoutersObject.data.length; i++) {
+                        var option = document.createElement("option");
+                        option.value = page.edgeRoutersObject.data[i].id;
+                        option.text = page.edgeRoutersObject.data[i].name;
+                        select.add( option );
+                    }
+                }
+            },
+            toggle: function(e) {
+                var obj = $(e.currentTarget);
+                if (obj.hasClass("no")) {
+                    obj.removeClass("no");
+                    $(".routerArea").addClass("open");
+                    obj.children(".toggleLabel").html("Yes");
+                } else {
+                    obj.addClass("no");
+                    $(".routerArea").removeClass("open");
+                    obj.children(".toggleLabel").html("No");
+                }
+            },
+            removeConfig: function(e) {
+                var id = $(e.currentTarget).data("id");
+                $("#Config_"+id).removeClass("on");
+                $("#ConfigSelected").html($(".configrow.on").length);
+                page.configSelected = page.getConfigs();
+            },
+            addConfig: function(e) {
+                var id = $("#Configs").val();
+                if (id!="") {
+                    if (id!="0") { 
+                        $("#Config_"+id).addClass("on");
+                    } else {
+                        var obj = {
+                            name: $("#ConfigName").val(),
+                            configTypeId: $("#ConfigType").val(),
+                            data: page.getData()
+                        };
+                        page.configsObject.save(obj);
+                    }
+                } else growler.error("You must select a config");
+                $("#ConfigSelected").html($(".configrow.on").length);
+                page.configSelected = page.getConfigs();
+            },
+            getData: function() {
+                var id = $("#ConfigType").val();
+                var data = {};
+                if (id!='') {
+                    var detail = page.configsTypesObject.details(id);
+                    var data = {};
+                    for (var key in detail.schema.properties) {
+                        var theValue = $("#schema_"+key).val();
+                        if (detail.schema.properties[key].type=="integer") data[key] = Number(theValue);
+                        else data[key] = theValue;
+                    }
+                }
+                return data;
+            },
+            routerSelected: function(e) {
+                var id = $("#Routers").val();
+                if (id=="") {
+                    $(".routerArea").removeClass("open");
+                } else {
+                    $(".routerArea").addClass("open");
+                }
+            },
+            toggleEditor: function(e) {
+                if ($("#OnOffButton").hasClass("on")) {
+                    $("#OnOffButton").removeClass("on");
+                    $("#ConfigJSONArea").hide();
+                    $("#ConfigForm").show();
+                } else {
+                    $("#OnOffButton").addClass("on");
+                    $("#ConfigJSONArea").show();
+                    $("#ConfigForm").hide();
+                }
+            },
+            configTypeSelected: function(e) {
+                $("#ConfigJSONArea").hide();
+                $("#ConfigForm").hide();
+                $("#ButtonArea").hide();
+                $(".configsForm").hide();
+                var cons = context.get(page.configsObject.name);
+                var typeId = $("#ConfigType").val();
+                $("#Configs").empty();
+                $("#Configs").append($('<option>').val("").text("Select a configuration..."));
+                if (typeId!="") {
+                    for (var i=0; i<cons.length; i++) {
+                        if (cons[i].configTypeId==typeId) {
+                            $("#Configs").append($('<option>').val(cons[i].id).text(cons[i].name+' - '+page.getPropString(cons[i].data)));
+                        }
+                    }
+                    $("#Configs").append($('<option>').val("0").text("Add A New Configuration"));
+                    $(".configs").addClass("open");
+                } else {
+                    $(".configs").removeClass("open");
+                }
+            },
+            configSelected: function(e) {
+                var configId = $(e.currentTarget).val();
+                if (configId=="0") {
+                    var id = $("#ConfigType").val();
+                    if (id!='') {
+                        var detail = page.configsTypesObject.details(id);
+                        var totalProps = 0;
+                        var gridCount = "";
+                        var html = '';
+                        
+                        for (var key in detail.schema.properties) totalProps++;
+
+                        if (totalProps%2==0) gridCount = "split";
+                        else {
+                            if (totalProps%3==0) gridCount = "three";
+                        }
+                        
+                        html += '<div class="grid '+gridCount+'">';
+                        var data = {};
+                        for (var key in detail.schema.properties) {
+                            data[key] = "";
+                            html += '<div>';
+                            var type = "text";
+                            var placeholder = "Enter a valid "+key;
+                            if (detail.schema.properties[key].type=="integer") {
+                                type = "number";
+                                if (detail.schema.properties[key].minimum&&detail.schema.properties[key].maximum) placeholder = "Number Between "+detail.schema.properties[key].minimum+"-"+detail.schema.properties[key].maximum;
+                                else {
+                                    if (detail.schema.properties[key].minimum) placeholder = "Number great than "+detail.schema.properties[key].minimum;
+                                    if (detail.schema.properties[key].maximum) placeholder = "Number less than "+detail.schema.properties[key].maximum;
+                                }
+                            }
+                            html += '<label for="schema_'+key+'">'+key+'</label>';
+                            if (detail.schema.properties[key].enum&&detail.schema.properties[key].enum.length>0) {
+                                html += '<select id="schema_'+key+'" >';
+                                for (var j=0; j<detail.schema.properties[key].enum.length; j++) {
+                                    html += '<option value="'+detail.schema.properties[key].enum[j]+'">'+detail.schema.properties[key].enum[j]+'</option>';
+                                }
+                                html += '</select>';
+                            } else if (detail.schema.properties[key].type=="boolean") {
+                                html += '<div id="schema_'+key+'" class="toggle '+((page.editData[key])?'on':'')+'"><div class="switch"></div><div class="label"></div></div>';
+                            } else {
+                                html += '<input id="schema_'+key+'" type="text" />';
+                            }
+                            html += '</div>';
+                        }  
+                        html += '</div>';
+                        page.editor.setValue(JSON.stringify(data));
+                        page.editor.autoFormatRange({line:0, ch:0}, {line:page.editor.lineCount()});
+                        page.editor.setSize(null, 120);
+                        page.editor.refresh();
+                        $("#ConfigForm").show();
+                        $(".configsForm").show();
+                        $("#ConfigJSONArea").hide();
+                        $("#OnOffButton").removeClass("on");
+                        $("#ConfigForm").html(html);
+                        $("#ButtonArea").show();
+                    } else {
+                        $("#ConfigJSONArea").hide();
+                        $(".configsForm").hide();
+                        $("#ConfigForm").hide();
+                        $("#ButtonArea").hide();
+                    }
+                } else {
+                        $("#ConfigJSONArea").hide();
+                        $("#ConfigForm").hide();
+                        $(".configsForm").hide();
+                    if (configId!="") {
+                        $("#ButtonArea").show();
+                    } else {
+                        $("#ButtonArea").hide();
+                    }
+                }
             },
             configTypesLoaded: function(e) {
                 var types = context.get(page.configsTypesObject.name);
-                var html = ""; 
+                $("#ConfigType").empty();
+                $("#ConfigType").append($('<option>').val("").text("Select a type of configuration..."));
                 for (var i=0; i<types.length; i++) {
-                    html += '<label id="Type_'+types[i].id+'_Label" style="display:none">'+types[i].name+'</label>';
-                    html += '<select id="Type_'+types[i].id+'" style="display:none"></select>';
+                    $("#ConfigType").append($('<option>').val(types[i].id).text(types[i].name));
                 }
-                $("#ConfigList").html(html);
-                page.configsObject.init(true, false, true);
+                page.configsObject.init(true, false, true);  
             },
             configsLoaded: function(e) {
+                var lastName = $("#ConfigName").val();
                 var cons = context.get(page.configsObject.name);
+                var html = '<label><span id="ConfigSelected">0</span> Selected Configurations</label>';
                 for (var i=0; i<cons.length; i++) {
-                    var type = cons[i].configType.id;
-                    if ($("#Type_"+type+" option").length==0) $("#Type_"+type).append('<option value="">Select Required Configurations</option>');
-                    $("#Type_"+type+"_Label").show();
-                    $("#Type_"+type).show();
-                    $("#Type_"+type).append('<option value="'+cons[i].id+'">'+cons[i].name+' - '+page.getPropString(cons[i].data)+'</option>');
+                    if (cons[i].name==lastName&&cons[i].configTypeId==$("#ConfigType").val()) page.configsSelected.push(cons[i].id);
+                    html += '<div id="Config_'+cons[i].id+'" class="inlinerow configrow'+((page.configsSelected.includes(cons[i].id))?" on":"")+'" data-id="'+cons[i].id+'">';
+                    html += '<div class="configRemove icon-clear" data-id="'+cons[i].id+'"></div>';
+                    html += '<div class="name">'+cons[i].name+'</div>';
+                    html += '<div class="detail">'+page.getPropString(cons[i].data)+'</div>';
+                    html += '</div>';
+                }
+                $("#ConfigName").val("");
+                $("#ConfigList").html(html);
+                $("#ConfigJSONArea").hide();
+                $("#ConfigForm").hide();
+                $("#ButtonArea").hide();
+                $(".configsForm").hide();
+                $("#ConfigType").val("");
+                $("#ConfigSelected").html($(".configrow.on").length);
+                page.configTypeSelected();
+                $(".configRemove").click(page.removeConfig);
+            },
+
+            // Terminator Features
+            terminatorsLoaded: function(e) {
+                page.terminators = e.data;
+                page.terminatorSetup();
+            },
+            terminatorSetup: function() {
+                var html = '<label><span id="TerminatorsSelected">'+page.terminators.length+'</span> Terminating Routers</label>';
+                for (var i=0; i<page.terminators.length; i++) {
+                    html += '<div id="Term_'+page.terminators[i].id+'" class="inlinerow terminatorrow on" data-id="'+page.terminators[i].id+'">';
+                    html += '<div class="terminatorRemove icon-clear" data-id="'+page.terminators[i].id+'"></div>';
+                    html += '<div class="name">'+page.terminators[i].binding+'</div>';
+                    html += '<div class="detail">'+page.terminators[i].address+'</div>';
+                    html += '</div>';
+                } 
+                $("#TerminatorList").html(html);
+                $(".terminatorRemove").click(page.removeTerminator);
+            },
+            termId: "",
+            termIndex: 0,
+            addTerminator: function(e) {
+                $(".errors").removeClass("errors");
+                var errors = [];
+                var binding = $("#BindingType").val().trim();
+                var router = $("#Routers").val().trim();
+                var protocol = $("#TerminatorProtocol").val().trim();
+                var host = $("#TerminatorHost").val().trim();
+                var port = $("#TerminatorPort").val().trim();
+                if (binding=="0") binding = $("#CustomBinding").val().trim();
+                if (binding.length==0) errors.push("BindingType");
+                if (protocol.length==0) errors.push("TerminatorProtocol");
+                if (host.length==0) errors.push("TerminatorHost");
+                if (port.length==0) errors.push("TerminatorPort");
+
+                if (errors.length>0) {
+                    growler.error("Invalid Form");
+                    for (var i=0; i<errors.length; i++) $("#"+errors[i]).addClass("errors");
+                } else { 
+                    if (page.filterObject.editId=="") {
+                        var fullValue = router+':'+binding+':'+protocol+':'+host+':'+port;
+                        var html = '';
+                        html += '<div id="Term_'+page.termIndex+'" class="inlinerow terminatorrow on appendterm" data-id="TEMP:'+page.termIndex+'" data-value="'+fullValue+'">';
+                        html += '<div class="terminatorRemove icon-clear" data-id="TEMP:'+page.termIndex+'"></div>';
+                        html += '<div class="name">'+binding+'</div>';
+                        html += '<div class="detail">'+protocol+":"+host+":"+port+'</div>'; 
+                        html += '</div>';
+                        page.termIndex++; 
+                        $("#TerminatorList").append(html);
+                    } else {
+                        var obj = {
+                            service: page.filterObject.editId,
+                            router: router,
+                            binding: binding, 
+                            address: protocol+":"+host+":"+port
+                        };
+                        page.terminatorsObject.saveInline(obj, page.details._links.terminators.href);
+                    }
+                    $("#Routers").val("");
+                    $("#BindingType").val("");
+                    $("#TerminatorProtocol").val("tcp");
+                    $("#TerminatorHost").val("");
+                    $("#TerminatorPort").val("");
+                    page.routerSelected();
                 }
             },
-            getPropString: function(obj) {
+            removeTerminator: function(e) {
+                var id = $(e.currentTarget).data("id");
+                $("#Term_"+id).removeClass("on");
+                $("#TerminatorsSelected").html($(".terminatorrow.on").length);
+                if (id.indexOf("TEMP:")==0) {
+
+                } else {
+                    page.terminatorsObject.deleting = [id];
+                    page.terminatorsObject.inlineDelete(page.details._links.terminators.href);
+                }
+            },
+
+
+            getPropString: function(obj) { 
                 var data = "";
-                for (var key in obj) data += " "+obj[key];
+                for (var key in obj) {
+                    var label = obj[key];
+                    if (label.constructor==({}).constructor) label = JSON.stringify(label);
+                    data += " "+label;
+                }
                 return data;
+            },
+            reset: function() {
+                page.termIndex = 0;
+                $(".configrow.on").removeClass("on");
+                page.terminators = [];
+                page.configTypeSelected();
+                page.terminatorSetup();
+                page.routerSelected();
+                $("#TerminatorProtocol").val("tcp");
+                $("#ConfigSelected").html($(".configrow.on").length);
             },
             gridAction: function(e) {
                 var action = $(e.currentTarget).data("action");
@@ -143,17 +553,23 @@
                 else if (action=="edit") page.edit(id);
             },
             edit: function(id) {
+                page.configsSelected = [];
                 var detail = page.filterObject.details(id);
+                page.details = detail;
+                page.filterObject.getSubs(detail, page.terminatorsObject.name);
+                $("#ConfigJSONArea").hide();
+                $("#ConfigForm").hide();
+                $("#ButtonArea").hide();
+                $(".configsForm").hide();
+                if (detail.encryptionRequired) $("#EncryptionRequired").addClass("on");
                 page.roles.val(detail.roleAttributes);
                 if (detail.configs) {
+                    page.configsSelected = detail.configs;
                     for (var i=0; i<detail.configs.length; i++) {
-                        $("#ConfigList select").each(function(index,e) {
-                            if ($(e).children("option[value='"+detail.configs[i]+"']").length>0) {
-                                $(e).val(detail.configs[i]);
-                            }
-                        });
+                        $("#Config_"+detail.configs[i]).addClass("on");
                     }
                 }
+                $("#ConfigSelected").html($(".configrow.on").length);
                 modal.show("AddModal");
             },
             save: function() {
@@ -162,23 +578,40 @@
                         name: $("#Name").val(),
                         configs: page.getConfigs(),
                         tags: tags.val(),
+                        terminatorStrategy: $("#Strategy").val(),
+                        encryptionRequired: $("EncryptionRequired").hasClass("on"),
                         roleAttributes: page.roles.val()
                     };
-                    page.filterObject.save(obj);
+                    if (page.filterObject.editId=="") page.filterObject.saveChain(obj);
+                    else page.filterObject.save(obj);
                 } else growler.form();
+            },
+            saved: function(e) {
+                if (e&&e.id&&e.id.trim().length>0) {
+                    var id = e.id;
+                    $(".appendterm").each(function(i,e) {
+                        if ($(e).hasClass("on")) {
+                            var values = $(e).data("value").split(':');
+                            if (values.length==5) {
+                                var obj = {
+                                    service: id,
+                                    router: values[0],
+                                    binding: values[1], 
+                                    address: values[2]+":"+values[3]+":"+values[4]
+                                };
+                                page.terminatorsObject.saveChain(obj);
+                            }
+                        }
+                    });
+                }
+                page.filterObject.get();
+                modal.close();
             },
             getConfigs: function() {
                 var configs = [];
-                var types = context.get(page.configsTypesObject.name);
-                var html = "";
-                for (var i=0; i<types.length; i++) {
-                    html += '<label id="Type_'+types[i].id+'_Label" style="display:none">'+types[i].name+'</label>';
-                    html += '<select id="Type_'+types[i].id+'" style="display:none"></select>';
-                    if ($("#Type_"+types[i].id+" option").length>0) {
-                        var typeVal = $("#Type_"+types[i].id).val().trim();
-                        if (typeVal.length>0) configs[configs.length] = typeVal;
-                    }
-                }
+                $(".configrow.on").each(function(i, e) {
+                    configs.push($(e).data("id"));
+                });
                 return configs;
             },
             validate: function() {

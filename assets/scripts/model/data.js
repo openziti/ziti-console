@@ -222,7 +222,10 @@ var Data = function(name, context) {
 		$("#AddModal").find(".tagArea").html("");
 		$("#TagExtended").html("");
 		$(".toggle").removeClass("on");
-		if (tags) tags.reset();
+		if (tags) {
+			tags.reset();
+			tags.extended($("#TagExtended"));
+		}
 		if (page&&page.editId) page.editId = "";
 		if (page&&page.reset) page.reset();
 	};
@@ -260,8 +263,24 @@ var Data = function(name, context) {
 	this.getParams = function() {
 		return { type: this.name, paging: this.paging };
 	};
+	this.saveChain = function(obj) {
+		var params = this.getParams();
+		params.save = obj;
+		params.chained = true;
+		service.call("dataSave", params, this.saved.bind(this));
+	},
+	this.saved = function(e) {
+		if (page.saved) page.saved(e);
+	},
+	this.saveInline = function(obj, url) {
+		var params = this.getParams();
+		params.save = obj;
+		params.url = url;
+		params.type = this.name;
+		service.call("dataSave", params, this.subLoaded.bind(this));
+	},
 	this.save = function(obj) {
-		if (localStorage.getItem("filterAfterSave")=="on") {
+		if (localStorage.getItem("filterAfterSave")=="on"&&this.closeModals) {
 			if (this.searchField) this.searchField.val($("#Name").val()); 
 			this.paging.filter = this.searchField.val();
 		}
@@ -269,6 +288,15 @@ var Data = function(name, context) {
 		params.save = obj;
 		if (this.editId.trim().length>0) params.id = this.editId;
 		service.call("dataSave", params, this.loaded.bind(this));
+	};
+	this.getSubs = function(detail, type) {		
+		service.call("subdata", { url: detail._links[type].href, name: this.name, type: type }, this.subLoaded.bind(this));
+	};
+	this.subLoaded = function(e) {
+		if (e.error) growler.error("Error", e.error);
+		if (e.data) {
+			window.context.set(e.type, e.data);
+		}
 	};
 	this.details = function(id) {
 		if (this.autoBind) this.formReset();
@@ -281,7 +309,7 @@ var Data = function(name, context) {
 			$(".adding").hide();
 			$(".editing").show();
 			tags.reset(details);
-			tags.extended(details, $("#TagExtended"));
+			tags.extended($("#TagExtended"), details);
 			for (var prop in details) {
 				var element = $("*[data-bind='data."+prop+"']");
 				if (element.length>0) {
@@ -298,6 +326,12 @@ var Data = function(name, context) {
 		}
 		return details;
 	};
+	this.inlineDelete = function(url) {
+		var params = this.getParams();
+		params.ids = this.deleting;
+		params.url = url;
+		service.call("delete", params, this.loaded.bind(this));
+	},
 	this.doDelete = function() {
 		var params = this.getParams();
 		params.ids = this.deleting;

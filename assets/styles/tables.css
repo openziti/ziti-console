@@ -88,6 +88,12 @@
 	grid-template-columns: 50% auto;
 	position: relative;
 	width: 100%;
+    margin-bottom: 10px;	
+}
+
+.grid.checkLabel {
+	grid-template-columns: 70px auto;
+	margin-top: 10px;
 }
 
 .grid.triple {
@@ -104,6 +110,10 @@
 
 .grid.flour {
 	grid-template-columns: 50px 150px auto 50px;
+}
+
+.grid.serviceTable {
+	grid-template-columns: 50px auto 30% 150px 50px;
 }
 
 .grid.five {

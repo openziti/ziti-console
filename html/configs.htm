@@ -19,11 +19,12 @@
     <div class="area data" data-defined="table">
         <div class="noitems"></div>
         <div class="table">
-            <div class="head grid four">
+            <div class="head grid fives">
                 <div class="col">
                     <div class="selector all"></div>
                 </div>
                 <div class="col sort asc" data-by="name">Name<div class="dragger"></div></div>
+                <div class="col">Type<div class="dragger"></div></div>
                 <div class="col desktop sort" data-by="createdAt">Created</div>
                 <div class="col"></div>
             </div>
@@ -37,11 +38,12 @@
 
 
     <!-- Template HTML will be used to display rows of data -->
-    <div id="RowTemplate" class="row grid four template" data-defined="template">
+    <div id="RowTemplate" class="row grid fives template" data-defined="template">
         <div class="col">
             <div class="selector" data-id="{{id}}"></div>
         </div>
         <div class="col" data-id="{{id}}"><strong>{{name}}</strong></div>
+        <div class="col" data-id="{{id}}">{{configType.name}}</div>
         <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
@@ -57,7 +59,10 @@
     <div id="AddModal" class="modal box full">
         <div class="sized">
             <div class="close icon-close"></div>
-            <div class="title adding">Create <span data-bind="singular"></span></div>
+            <div class="title adding">
+                Create <span data-bind="singular"></span>
+                <div class="onoff">{JSON}</div>
+            </div>
             <div class="subtitle adding">Add a New <span data-bind="singular"></span> by completing the following form</div>
             <div class="title editing">Edit <span data-bind="singular"></span></div>
             <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
@@ -66,6 +71,8 @@
             <label for="Types">Types</label>
             <select id="Types" data-bind="data.configTypeId" data-default=""></select>
             <div id="SchemaList"></div>
+            <label for="JSONView">JSON</label> 
+            <textarea id="JSONView" style="height: 150px;"></textarea>
             <div id="TagArea"></div>
             <div class="buttons">
                 <div class="linkButton closer">Oops, No get me out of here</div>
@@ -85,6 +92,7 @@
             configTypes: null,
             schema: null,
             editData: {},
+            json: null,
             init: function() {
                 this.events();
 
@@ -92,10 +100,39 @@
                 page.filterObject.init(true, true);
                 page.configTypes = new Data("config-types");
                 page.configTypes.init(true, false, true);
+
+                page.json = CodeMirror.fromTextArea(document.getElementById("JSONView"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"} });
+                page.json.on('keyup', function () {
+                    page.editData = JSON.parse(page.json.getValue());
+                    page.loadChanges();
+                });                
             }, 
             events: function() {
                 context.addListener("config-types", page.typesLoaded);
                 $("#Types").change(page.typechanged);
+                $(".onoff").click(function(e) {
+                    var obj = $(e.currentTarget);
+                    if (obj.hasClass("on")) obj.removeClass("on");
+                    else obj.addClass("on");
+                    if (obj.hasClass("on")) {
+                        $("#JSONView").show();
+                        $("#JSONView").hide();
+                    } else {
+                        $("#JSONView").show();
+                        $("#JSONView").hide();
+                    }
+                });
+            },
+            getVisualData: function() {
+                var type = $("#Types").val();
+                var detail = page.configTypes.details(type);
+                var data = {};
+                for (var key in detail.schema.properties) {
+                    var theValue = $("#schema_"+key).val();
+                    if (detail.schema.properties[key].type=="integer") data[key] = theValue;
+                    else data[key] = theValue;
+                }
+                return data;
             },
             getData: function() {
                 var type = $("#Types").val();
@@ -107,6 +144,15 @@
                     else data[key] = theValue;
                 }
                 return data;
+            },
+            row: function(template, data) {
+                template = template.split("{{configType.name}}").join(data.configType.name);
+                return template;
+            },
+            loadChanges: function() {
+                for (var prop in page.editData) {
+                    $("#schema_"+prop).val(page.editData[prop]);
+                }
             },
             typechanged: function(e) {
                 var type = $("#Types").val();
@@ -127,7 +173,7 @@
                         }
                         html += '<label for="schema_'+key+'">'+key+'</label>';
                         if (detail.schema.properties[key].enum&&detail.schema.properties[key].enum.length>0) {
-                            html += '<select id="schema_'+key+'" >';
+                            html += '<select id="schema_'+key+'" class="jsonEntry">';
                             for (var i=0; i<detail.schema.properties[key].enum.length; i++) {
                                 html += '<option value="'+detail.schema.properties[key].enum[i]+'">'+detail.schema.properties[key].enum[i]+'</option>';
                             }
@@ -135,13 +181,18 @@
                         } else if (detail.schema.properties[key].type=="boolean") {
                             html += '<div id="schema_'+key+'" class="toggle '+((page.editData[key])?'on':'')+'"><div class="switch"></div><div class="label"></div></div>';
                         } else {
-                            html += '<input id="schema_'+key+'" type="text" />';
+                            html += '<input id="schema_'+key+'" type="text" class="jsonEntry" />';
                         }
                     }
                     $("#SchemaList").html(html);
                     for (var prop in page.editData) {
                         $("#schema_"+prop).val(page.editData[prop]);
                     }
+                    $(".jsonEntry").keyup(function(e) {
+                        var data = page.getVisualData();
+                        page.json.setValue(JSON.stringify(data));
+                        page.json.autoFormatRange({line:0, ch:0}, {line:page.json.lineCount()});
+                    });
                     $(".toggle").click(app.toggle);
                 }
             },
@@ -170,6 +221,9 @@
             edit: function(id) {
                 var detail = page.filterObject.details(id);
                 page.editData = detail.data;
+                page.json.setValue(JSON.stringify(detail.data));
+                page.json.autoFormatRange({line:0, ch:0}, {line:page.json.lineCount()});
+                page.json.setSize(null, 120);
                 $("#Types").attr("disabled",true);
                 page.typechanged();
                 modal.show("AddModal");

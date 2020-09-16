@@ -15,6 +15,7 @@ var tags = {
     data: [],
     tagData: [],
     map: null,
+    custom: [],
 	init: function() {
         tags.get();
 	},
@@ -194,11 +195,11 @@ var tags = {
             }
             if (value.trim().length>0) toReturn[tag.id] = value;
         }
-        $("*[data-extended]").each(function(i, element) {
-            var id = $(element).data("extended");
-            var value = $(element).val();
+        for (var i=0; i<tags.custom.length; i++) {
+            var id = $("#Tag_"+tags.custom[i]).val();
+            var value = $("#TagVal_"+tags.custom[i]).val();
             toReturn[id] = value;
-        });
+        }
         return toReturn;
     },
     removeMe: function(e) {
@@ -217,6 +218,7 @@ var tags = {
         var tagArea = $("*[data-tagarea]");
         var matcher = tagArea.data("tagarea");
         tagArea.html("");
+        var customList = [];
         for (var i=0; i<tags.data.length; i++) {
             if (tags.data[i].objects=="all"||tags.data[i].objects.indexOf(matcher)>=0) {
                 this.tagData[this.tagData.length] = tags.data[i];
@@ -226,13 +228,67 @@ var tags = {
         tagArea.html(html);
         tags.events();
     },
-    extended: function(details, element) {
-        for (key in details.tags) {
-            if (!tags.isDefined(key)) {
-                element.append('<label for="Tag_'+key+'">'+key+'</label>');
-                element.append('<input id="Tag_'+key+'" type="text" data-extended="'+key+'" maxlength="500" value="'+details.tags[key]+'" />');
+    extended: function(element, details) {
+        var html = '';
+        html += '<div class="grid tags">';
+        html += '    <label>Name</label><label>Value</label>';
+        html += '</div>';
+        html += '<div id="NewTags">';
+        if (details) {
+            for (key in details.tags) {
+                if (!tags.isDefined(key)) {
+                    tags.custom.push(key);
+                    html += '<div id="Area_'+key+'" class="grid tags">';
+                    html += '<input id="Tag_'+key+'" placeholder="enter the tag key" type="text"  maxlength="100" value="'+key+'"/>';
+                    html += '<input id="TagVal_'+key+'" placeholder="enter the value" type="text"  maxlength="100" value="'+details.tags[key]+'"/><div data-id="'+key+'" class="removeIcon icon-clear"></div>';
+                    html += '</div>';
+                }
             }
         }
+        html += '</div>';
+        html += '<div class="grid tags">';
+        html += '    <input id="NewKey" type="text" data-enter="AddCustomButton" maxlength="100" placeholder="enter the tag key" /><input id="NewValue" data-enter="AddCustomButton" placeholder="enter the value" type="text" maxlength="100"/><div id="AddCustomButton" class="addIcon icon-add"></div>';
+        html += '</div>';
+        element.html(html);
+        $(".removeIcon").off("click");
+        $(".removeIcon").on("click", tags.removeTag);
+        $(".addIcon").off("click");
+        $(".addIcon").on("click", tags.defineTag);
+        $("#NewKey").on("keyup", app.enter);
+        $("#NewValue").on("keyup", app.enter);
+    },
+    defineTag: function(e) {
+        $("#NewKey").removeClass("errors");
+        var newKey = $("#NewKey").val().trim().split(' ').join('');
+        var newVal = $("#NewValue").val().trim();
+        var found = false;
+        for (var i=0; i<tags.data.length; i++) {
+            if (tags.data[i].id==newKey) {
+                found = true;
+                break;
+            }
+        }
+        if (found) {
+            $("#NewKey").addClass("errors");
+            growler.error("Key already exists.")
+        }
+        if (newKey&&newKey.length>0&&newVal&&newVal.length>0&&!found) {
+            var html = '';
+            html += '<div id="Area_'+newKey+'" class="grid tags">';
+            html += '<input id="Tag_'+newKey+'" type="text" maxlength="100" placeholder="enter the tag key" value="'+newKey+'" />';
+            html += '<input id="TagVal_'+newKey+'" placeholder="enter the value" type="text" maxlength="100" value="'+newVal+'"/><div data-id="'+newKey+'" class="removeIcon icon-clear"></div>';
+            html += '</div>';
+            tags.custom.push(newKey);
+            $("#NewKey").val("");
+            $("#NewValue").val("");
+            $("#NewTags").append(html);
+            $(".removeIcon").off("click");
+            $(".removeIcon").on("click", tags.removeTag);
+        } 
+    },
+    removeTag: function(e) {
+        var key = $(e.currentTarget).data("id");
+        $("#Area_"+key).remove();
     },
     isDefined: function(key) {
         for (var i=0; i<tags.data.length; i++) {
