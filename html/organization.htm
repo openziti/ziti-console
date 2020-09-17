@@ -85,7 +85,7 @@
         },
         editId: "",
         data: [],
-        objects: ["gateway","service","appwan","identity","cas","cluster"],
+        objects: ["router","service","terminator","identity","policy"],
         init: function() {
             for (var i=0; i<page.objects.length; i++) {
                 $("#ObjectsList").append('<div class="tag" data-object="'+page.objects[i]+'">'+page.objects[i]+'</div>')
@@ -173,13 +173,16 @@
             $("#Default").val(detail.default);
             $("#Description").val(detail.description);
             $("#InputType").val(detail.value);
-            if (detail.objects=="all") $("#Objects").val("all");
-            else {
+            if (detail.objects=="all") {
+                $("#Objects").val("all");
+                $("#ObjectsList").hide();
+            } else {
                 $("#Objects").val("select");
                 var items = detail.objects.split(',');
                 for (var i=0; i<items.length; i++) {
                     $("*[data-object="+items[i]+"]").addClass("selected");
                 }
+                $("#ObjectsList").show();
             }
 
             page.editId = id;

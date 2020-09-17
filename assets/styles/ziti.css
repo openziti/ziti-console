@@ -564,6 +564,10 @@ aside .icon {
     width: 100%;
 }
 
+.configBox label {
+    color: var(--black);
+}
+
 .configBox {
     background-color: var(--stroke);
     border-radius: 7px;
@@ -572,7 +576,12 @@ aside .icon {
     position: relative;
 }
 
+.configBox {
+    color: var(--black);
+}
+
 .lightBox {
+    color: #FFF;
     background-color: var(--menu);
     border-radius: 7px;
     padding: 10px;

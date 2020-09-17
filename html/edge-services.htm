@@ -71,7 +71,7 @@
                     <label for="Roles">Roles</label>
                     <div id="Roles"></div>
                     <label for="Strategy">Terminator Strategy</label>
-                    <select id="Strategry" data-bind="data.terminatorStrategy">
+                    <select id="Strategy" data-bind="data.terminatorStrategy">
                         <option value="">Select a Strategy....</option>
                         <option value="smartrouting">Smart Routing</option>
                         <option value="weighted">Weighted</option>
@@ -274,6 +274,8 @@
             },
             addConfig: function(e) {
                 var id = $("#Configs").val();
+                var typeId = $("#ConfigType").val();
+                $("div[data-type='"+typeId+"']").removeClass("on");
                 if (id!="") {
                     if (id!="0") { 
                         $("#Config_"+id).addClass("on");
@@ -432,7 +434,7 @@
                 var html = '<label><span id="ConfigSelected">0</span> Selected Configurations</label>';
                 for (var i=0; i<cons.length; i++) {
                     if (cons[i].name==lastName&&cons[i].configTypeId==$("#ConfigType").val()) page.configsSelected.push(cons[i].id);
-                    html += '<div id="Config_'+cons[i].id+'" class="inlinerow configrow'+((page.configsSelected.includes(cons[i].id))?" on":"")+'" data-id="'+cons[i].id+'">';
+                    html += '<div id="Config_'+cons[i].id+'" class="inlinerow configrow'+((page.configsSelected.includes(cons[i].id))?" on":"")+'" data-id="'+cons[i].id+'" data-type="'+cons[i].configTypeId+'">';
                     html += '<div class="configRemove icon-clear" data-id="'+cons[i].id+'"></div>';
                     html += '<div class="name">'+cons[i].name+'</div>';
                     html += '<div class="detail">'+page.getPropString(cons[i].data)+'</div>';
