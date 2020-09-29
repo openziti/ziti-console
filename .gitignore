@@ -4,3 +4,4 @@ node-console.iml
 node-console.ipr
 node-console.iws
 
+assets/scripts/components/debug.log
