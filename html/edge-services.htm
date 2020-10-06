@@ -78,7 +78,8 @@
                         <option value="random">Random</option>
                         <option value="ha">High Availability</option>
                     </select>
-                    <div class="grid checkLabel">
+                    <label id="IsEncryptionRequired" class="label ediing"></label>
+                    <div class="grid checkLabel adding">
                         <div id="EncryptionRequired" class="toggle">
                             <div class="switch"></div>
                             <div class="label"></div>
@@ -563,7 +564,13 @@
                 $("#ConfigForm").hide();
                 $("#ButtonArea").hide();
                 $(".configsForm").hide();
-                if (detail.encryptionRequired) $("#EncryptionRequired").addClass("on");
+                if (detail.encryptionRequired) {
+                    $("#EncryptionRequired").addClass("on");
+                    $("#IsEncryptionRequired").html("Encryption Is Required");
+                } else {
+                    $("#EncryptionRequired").removeClass("on");
+                    $("#IsEncryptionRequired").html("Encryption Is Not Required");
+                }
                 page.roles.val(detail.roleAttributes);
                 if (detail.configs) {
                     page.configsSelected = detail.configs;
