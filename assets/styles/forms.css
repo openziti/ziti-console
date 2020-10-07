@@ -96,11 +96,6 @@ label .info {
 	top: 5px;
 }
 
-label .info:hover {
-	color: var(--secondary);
-	text-decoration: underline;
-}
-
 label .note {
 	position: absolute;
 	right: 0px;

@@ -110,9 +110,7 @@ var Data = function(name, context) {
 		if (e.keyCode==13) {
 			this.get();
 		} else {
-			this.searchId = setTimeout(function() {
-				this.get();
-			}, 1000);
+			this.searchId = setTimeout(this.get.bind(this), 1000);
 		}
 	};
 	this.clear = function(e) {

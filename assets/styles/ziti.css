@@ -1581,7 +1581,7 @@ path.green {
 }
 
 #ServiceIssues {
-    background-color: var(--menu);
+    background-color: #FFF;
     border-radius: 7px;
     padding: 10px;
 }
