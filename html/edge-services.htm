@@ -323,6 +323,11 @@
                     $("#OnOffButton").addClass("on");
                     $("#ConfigJSONArea").show();
                     $("#ConfigForm").hide();
+                    var data = page.getVisualData();
+                    page.editor.setValue(JSON.stringify(data));
+                    page.editor.setSize(null, 120);
+                    page.editor.autoFormatRange({line:0, ch:0}, {line:page.editor.lineCount()});
+                    page.editor.refresh();
                 }
             },
             configTypeSelected: function(e) {
@@ -345,6 +350,17 @@
                 } else {
                     $(".configs").removeClass("open");
                 }
+            },
+            getVisualData: function() {
+                var type = $("#ConfigType").val();
+                var detail = page.configsTypesObject.details(type);
+                var data = {};
+                for (var key in detail.schema.properties) {
+                    var theValue = $("#schema_"+key).val();
+                    if (detail.schema.properties[key].type=="integer") data[key] = theValue;
+                    else data[key] = theValue;
+                }
+                return data;
             },
             configSelected: function(e) {
                 var configId = $(e.currentTarget).val();
@@ -384,6 +400,12 @@
                                 for (var j=0; j<detail.schema.properties[key].enum.length; j++) {
                                     html += '<option value="'+detail.schema.properties[key].enum[j]+'">'+detail.schema.properties[key].enum[j]+'</option>';
                                 }
+                                html += '</select>'; 
+                            } else if (detail.schema.properties[key].type=="array") {
+                                html += '<select id="schema_'+key+'">';
+                                for (var i=0; i<detail.schema.properties[key].items.enum.length; i++) {
+                                    html += '<option value="'+detail.schema.properties[key].items.enum[i]+'">'+detail.schema.properties[key].items.enum[i]+'</option>';
+                                }
                                 html += '</select>';
                             } else if (detail.schema.properties[key].type=="boolean") {
                                 html += '<div id="schema_'+key+'" class="toggle '+((page.editData[key])?'on':'')+'"><div class="switch"></div><div class="label"></div></div>';
@@ -393,16 +415,19 @@
                             html += '</div>';
                         }  
                         html += '</div>';
-                        page.editor.setValue(JSON.stringify(data));
-                        page.editor.autoFormatRange({line:0, ch:0}, {line:page.editor.lineCount()});
-                        page.editor.setSize(null, 120);
-                        page.editor.refresh();
                         $("#ConfigForm").show();
                         $(".configsForm").show();
                         $("#ConfigJSONArea").hide();
                         $("#OnOffButton").removeClass("on");
                         $("#ConfigForm").html(html);
                         $("#ButtonArea").show();
+                        setTimeout(function() {
+                            var data = page.getVisualData();
+                            page.editor.setValue(JSON.stringify(data));
+                            page.editor.setSize(null, 120);
+                            page.editor.autoFormatRange({line:0, ch:0}, {line:page.editor.lineCount()});
+                            page.editor.refresh();
+                        }, 500);
                     } else {
                         $("#ConfigJSONArea").hide();
                         $(".configsForm").hide();

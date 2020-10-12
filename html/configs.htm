@@ -61,7 +61,6 @@
             <div class="close icon-close"></div>
             <div class="title adding">
                 Create <span data-bind="singular"></span>
-                <div class="onoff">{JSON}</div>
             </div>
             <div class="subtitle adding">Add a New <span data-bind="singular"></span> by completing the following form</div>
             <div class="title editing">Edit <span data-bind="singular"></span></div>
@@ -71,8 +70,8 @@
             <label for="Types">Types</label>
             <select id="Types" data-bind="data.configTypeId" data-default=""></select>
             <div id="SchemaList"></div>
-            <label for="JSONView">JSON</label> 
-            <textarea id="JSONView" style="height: 150px;"></textarea>
+            <label for="JSONView" class="jsonV">JSON</label> 
+            <textarea id="JSONView" style="height: 75px;"></textarea>
             <div id="TagArea"></div>
             <div class="buttons">
                 <div class="linkButton closer">Oops, No get me out of here</div>
@@ -102,6 +101,7 @@
                 page.configTypes.init(true, false, true);
 
                 page.json = CodeMirror.fromTextArea(document.getElementById("JSONView"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"} });
+                page.json.setSize(null, 120);
                 page.json.on('keyup', function () {
                     page.editData = JSON.parse(page.json.getValue());
                     page.loadChanges();
@@ -173,9 +173,15 @@
                         }
                         html += '<label for="schema_'+key+'">'+key+'</label>';
                         if (detail.schema.properties[key].enum&&detail.schema.properties[key].enum.length>0) {
-                            html += '<select id="schema_'+key+'" class="jsonEntry">';
+                            html += '<select id="schema_'+key+'" class="jsonSelect">';
                             for (var i=0; i<detail.schema.properties[key].enum.length; i++) {
                                 html += '<option value="'+detail.schema.properties[key].enum[i]+'">'+detail.schema.properties[key].enum[i]+'</option>';
+                            }
+                            html += '</select>';
+                        } else if (detail.schema.properties[key].type=="array") {
+                            html += '<select id="schema_'+key+'" class="jsonSelect">';
+                            for (var i=0; i<detail.schema.properties[key].items.enum.length; i++) {
+                                html += '<option value="'+detail.schema.properties[key].items.enum[i]+'">'+detail.schema.properties[key].items.enum[i]+'</option>';
                             }
                             html += '</select>';
                         } else if (detail.schema.properties[key].type=="boolean") {
@@ -193,7 +199,22 @@
                         page.json.setValue(JSON.stringify(data));
                         page.json.autoFormatRange({line:0, ch:0}, {line:page.json.lineCount()});
                     });
+                    $(".jsonSelect").change(function(e) {
+                        var data = page.getVisualData();
+                        page.json.setValue(JSON.stringify(data));
+                        page.json.autoFormatRange({line:0, ch:0}, {line:page.json.lineCount()});
+                    });
+                    setTimeout(function() {
+                        var data = page.getVisualData();
+                        page.json.setValue(JSON.stringify(data));
+                        page.json.autoFormatRange({line:0, ch:0}, {line:page.json.lineCount()});
+                    }, 500);
                     $(".toggle").click(app.toggle);
+                    $(".jsonV").show();
+                    $(".CodeMirror").show();
+                } else {
+                    $(".jsonV").hide();
+                    $(".CodeMirror").hide();
                 }
             },
             typesLoaded: function(e) {
