@@ -30,6 +30,11 @@ input, select, textarea {
     -webkit-appearance: none;
 }
 
+input[type="checkbox"] {
+	width: 40px;
+	height: 40px;
+}
+
 input[type="file"] {
 	display: none;
 }
@@ -83,6 +88,51 @@ select {
     padding-right: 28px;
 }
 
+.check {
+    width: 20px;
+    height: 20px;
+    border-radius: 7px;
+    position: relative;
+    margin-right: 10px;
+    float: left;
+    border-width: 2px;
+    border-style: solid;
+    border-color: var(--primary);
+    background-color: var(--navigation) !important;
+    background-position: center center;
+	background-size: 8px 8px;
+	cursor: pointer;
+}
+
+.check.checked {
+	background-image: url(/assets/images/check.png);
+	background-color: var(--primary) !important;
+}
+
+.subform {
+	background-color: var(--primary);
+	padding: 20px;
+	border-radius: 7px;
+	display: grid;
+	grid-template-columns: 40% auto;
+	column-gap: 20px;
+	padding-top: 10px;
+}
+
+.subform .button {    
+	background-color: var(--stroke);
+    color: #FFF;
+    margin-top: 36px;
+    width: 75px;
+    padding-left: 5px;
+    padding-right: 5px;
+    min-width: unset;
+}
+
+.subform.three {
+	grid-template-columns: 40% auto 80px;
+}
+
 .issues {
 	display: none;
 }
@@ -121,6 +171,8 @@ label .note:hover {
     display: inline-block;
 	margin-top: 10px;
 	transition: var(--transition);
+    float: left;
+    margin-right: 20px;
 }
 
 .toggle.on {

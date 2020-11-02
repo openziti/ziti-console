@@ -12,6 +12,7 @@ const moment = require("moment");
 const Influx = require('influx');
 const helmet = require('helmet');
 const https = require("https");
+const $RefParser = require("@apidevtools/json-schema-ref-parser");
 
 /**
  * Command line Launch Settings
@@ -52,7 +53,7 @@ const app = express();
 app.use(cors());
 app.use(helmet());
 app.use(function(req, res, next) {
-    res.setHeader("Content-Security-Policy", "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdnjs.com https://apis.google.com https://ajax.googleapis.com https://fonts.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com; object-src 'none'; form-action 'none'; frame-ancestors 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdnjs.com https://fonts.googleapis.com");
+    res.setHeader("Content-Security-Policy", "script-src 'self' 'unsafe-eval' 'unsafe-inline' http://cdn.jsdelivr.net http://maxcdn.bootstrapcdn.com https://cdn.jsdelivr.net http://cdnjs.cloudflare.com https://cdnjs.cloudflare.com https://cdnjs.com https://apis.google.com https://ajax.googleapis.com https://fonts.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com; object-src 'none'; form-action 'none'; frame-ancestors 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://maxcdn.bootstrapcdn.com http://maxcdn.bootstrapcdn.com http://cdn.jsdelivr.net https://cdnjs.com https://fonts.googleapis.com");
     return next();
 });
 app.use(bodyParser.json());
@@ -694,7 +695,16 @@ app.post("/api/verify", function(request, response) {
 	}
 });
 
-
+/*
+ * Schema Dereference Tool
+ */ 
+app.post("/api/schema", function(request, response) {
+	var data = request.body.schema;
+	$RefParser.dereference(data, (err, schema) => {
+		if (err) response.json({error:err});
+		else response.json({data:schema});
+	})	
+});
 
 
 /**------------- Data Deletion Section -------------**/

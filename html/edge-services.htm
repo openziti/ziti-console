@@ -78,7 +78,6 @@
                         <option value="random">Random</option>
                         <option value="ha">High Availability</option>
                     </select>
-                    <label id="IsEncryptionRequired" class="label ediing"></label>
                     <div class="grid checkLabel adding">
                         <div id="EncryptionRequired" class="toggle">
                             <div class="switch"></div>
@@ -97,14 +96,12 @@
                         <div class="configs">
                             <label for="Configs">Pre-Defined Configurations</label>
                             <select id="Configs"></select>
-                            <div id="OnOffButton" class="onoff configsForm" style="display:none">{JSON}</div>
+                            <div id="OnOffButton" class="onoff jsonButton configsForm" style="display:none">{JSON}</div>
                             <label for="ConfigName" class="configsForm" style="display:none">Name</label>
-                            <input id="ConfigName" class="configsForm" type="text" maxlength="100" style="display:none"/>
+                            <input id="ConfigName" class="configsForm" type="text" placeholder="enter a name for the config" maxlength="100" style="display:none"/>
                             <div id="ConfigForm" style="display:none"></div>
-                            <div id="ConfigJSONArea" style="display:none">
-                                <label for="ConfigJSON">JSON Configuration</label>
-                                <textarea id="ConfigJSON"></textarea>
-                            </div>
+                            <label for="JSONView" class="jsonV">JSON Configuration</label>
+                            <textarea id="JSONView"></textarea>
                             <div id="ButtonArea" class="buttons" style="display: none;">
                                 <div></div>
                                 <div id="AddConfigButton" class="minibutton">Add</div>
@@ -177,16 +174,8 @@
             configsSelected: [],
             terminators: [],
             details: {},
-            init: function() {                   
-                page.editor = CodeMirror.fromTextArea(document.getElementById("ConfigJSON"), { mode: "application/json", lineNumbers: true, autoRefresh: true, extraKeys: {"Ctrl-Space": "autocomplete"} });
-                page.editor.on('keyup', function () {
-                    try {
-                        page.editData = JSON.parse(page.editor.getValue());
-                        page.loadChanges();
-                    } catch(e) {
-                        console.log("Invalid JSON");
-                    }
-                });   
+            init: function() {                
+                schema.init("ConfigForm", "JSONView");
 
                 page.roles = new Selector("Roles","roles");
                 page.configsObject = new Data("configs");
@@ -228,6 +217,15 @@
                 $("#AddConfigButton").click(page.addConfig);
                 $("#BindingType").change(page.bindingChanged);
                 $("#AddTerminatorButton").click(page.addTerminator);
+
+                $(".jsonButton").click(function(e) {
+                    if ($(e.currentTarget).hasClass("on")) $(e.currentTarget).removeClass("on");
+                    else $(e.currentTarget).addClass("on");
+                    var type = $("#ConfigType").val();
+                    if (type!='') {
+                        schema.setView($(".jsonButton").hasClass("on"));
+                    }
+                });
             },
             bindingChanged: function(e) {
                 var binding = $("#BindingType").val();
@@ -284,27 +282,13 @@
                         var obj = {
                             name: $("#ConfigName").val(),
                             configTypeId: $("#ConfigType").val(),
-                            data: page.getData()
+                            data: schema.val()
                         };
                         page.configsObject.save(obj);
                     }
                 } else growler.error("You must select a config");
                 $("#ConfigSelected").html($(".configrow.on").length);
                 page.configSelected = page.getConfigs();
-            },
-            getData: function() {
-                var id = $("#ConfigType").val();
-                var data = {};
-                if (id!='') {
-                    var detail = page.configsTypesObject.details(id);
-                    var data = {};
-                    for (var key in detail.schema.properties) {
-                        var theValue = $("#schema_"+key).val();
-                        if (detail.schema.properties[key].type=="integer") data[key] = Number(theValue);
-                        else data[key] = theValue;
-                    }
-                }
-                return data;
             },
             routerSelected: function(e) {
                 var id = $("#Routers").val();
@@ -314,24 +298,9 @@
                     $(".routerArea").addClass("open");
                 }
             },
-            toggleEditor: function(e) {
-                if ($("#OnOffButton").hasClass("on")) {
-                    $("#OnOffButton").removeClass("on");
-                    $("#ConfigJSONArea").hide();
-                    $("#ConfigForm").show();
-                } else {
-                    $("#OnOffButton").addClass("on");
-                    $("#ConfigJSONArea").show();
-                    $("#ConfigForm").hide();
-                    var data = page.getVisualData();
-                    page.editor.setValue(JSON.stringify(data));
-                    page.editor.setSize(null, 120);
-                    page.editor.autoFormatRange({line:0, ch:0}, {line:page.editor.lineCount()});
-                    page.editor.refresh();
-                }
-            },
             configTypeSelected: function(e) {
-                $("#ConfigJSONArea").hide();
+                $(".CodeMirror").hide();
+                $(".jsonV").hide();
                 $("#ConfigForm").hide();
                 $("#ButtonArea").hide();
                 $(".configsForm").hide();
@@ -351,91 +320,34 @@
                     $(".configs").removeClass("open");
                 }
             },
-            getVisualData: function() {
-                var type = $("#ConfigType").val();
-                var detail = page.configsTypesObject.details(type);
-                var data = {};
-                for (var key in detail.schema.properties) {
-                    var theValue = $("#schema_"+key).val();
-                    if (detail.schema.properties[key].type=="integer") data[key] = theValue;
-                    else data[key] = theValue;
-                }
-                return data;
+            schemaReturned: function(e) {
+                schema.data = e.data;
+                schema.render();
+                schema.setView($(".jsonButton").hasClass("on"));
+                $(".configsForm").show();
+                $("#ConfigForm").show();
+                $("#ButtonArea").show();
             },
             configSelected: function(e) {
                 var configId = $(e.currentTarget).val();
+                $(".jsonV").hide();
+                $(".CodeMirror").hide();
                 if (configId=="0") {
                     var id = $("#ConfigType").val();
                     if (id!='') {
-                        var detail = page.configsTypesObject.details(id);
-                        var totalProps = 0;
-                        var gridCount = "";
-                        var html = '';
-                        
-                        for (var key in detail.schema.properties) totalProps++;
+                        var schemaType = page.configsTypesObject.details(id);
 
-                        if (totalProps%2==0) gridCount = "split";
-                        else {
-                            if (totalProps%3==0) gridCount = "three";
+                        $("#ConfigForm").html('');
+                        if (schemaType) {
+                            service.call("schema", {schema: schemaType.schema}, page.schemaReturned);
                         }
-                        
-                        html += '<div class="grid '+gridCount+'">';
-                        var data = {};
-                        for (var key in detail.schema.properties) {
-                            data[key] = "";
-                            html += '<div>';
-                            var type = "text";
-                            var placeholder = "Enter a valid "+key;
-                            if (detail.schema.properties[key].type=="integer") {
-                                type = "number";
-                                if (detail.schema.properties[key].minimum&&detail.schema.properties[key].maximum) placeholder = "Number Between "+detail.schema.properties[key].minimum+"-"+detail.schema.properties[key].maximum;
-                                else {
-                                    if (detail.schema.properties[key].minimum) placeholder = "Number great than "+detail.schema.properties[key].minimum;
-                                    if (detail.schema.properties[key].maximum) placeholder = "Number less than "+detail.schema.properties[key].maximum;
-                                }
-                            }
-                            html += '<label for="schema_'+key+'">'+key+'</label>';
-                            if (detail.schema.properties[key].enum&&detail.schema.properties[key].enum.length>0) {
-                                html += '<select id="schema_'+key+'" >';
-                                for (var j=0; j<detail.schema.properties[key].enum.length; j++) {
-                                    html += '<option value="'+detail.schema.properties[key].enum[j]+'">'+detail.schema.properties[key].enum[j]+'</option>';
-                                }
-                                html += '</select>'; 
-                            } else if (detail.schema.properties[key].type=="array") {
-                                html += '<select id="schema_'+key+'">';
-                                for (var i=0; i<detail.schema.properties[key].items.enum.length; i++) {
-                                    html += '<option value="'+detail.schema.properties[key].items.enum[i]+'">'+detail.schema.properties[key].items.enum[i]+'</option>';
-                                }
-                                html += '</select>';
-                            } else if (detail.schema.properties[key].type=="boolean") {
-                                html += '<div id="schema_'+key+'" class="toggle '+((page.editData[key])?'on':'')+'"><div class="switch"></div><div class="label"></div></div>';
-                            } else {
-                                html += '<input id="schema_'+key+'" type="text" />';
-                            }
-                            html += '</div>';
-                        }  
-                        html += '</div>';
-                        $("#ConfigForm").show();
-                        $(".configsForm").show();
-                        $("#ConfigJSONArea").hide();
-                        $("#OnOffButton").removeClass("on");
-                        $("#ConfigForm").html(html);
-                        $("#ButtonArea").show();
-                        setTimeout(function() {
-                            var data = page.getVisualData();
-                            page.editor.setValue(JSON.stringify(data));
-                            page.editor.setSize(null, 120);
-                            page.editor.autoFormatRange({line:0, ch:0}, {line:page.editor.lineCount()});
-                            page.editor.refresh();
-                        }, 500);
+
                     } else {
-                        $("#ConfigJSONArea").hide();
                         $(".configsForm").hide();
                         $("#ConfigForm").hide();
                         $("#ButtonArea").hide();
                     }
                 } else {
-                        $("#ConfigJSONArea").hide();
                         $("#ConfigForm").hide();
                         $(".configsForm").hide();
                     if (configId!="") {

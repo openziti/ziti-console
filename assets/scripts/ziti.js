@@ -132,6 +132,13 @@ var app = {
 			$(e.currentTarget).addClass("on");
 		}
 	},
+	check: function(e) {
+		if ($(e.currentTarget).hasClass("checked")) {
+			$(e.currentTarget).removeClass("checked");
+		} else {
+			$(e.currentTarget).addClass("checked");
+		}
+	},
 	select: function(e) {
 		var selector = $(e.currentTarget);
 		if (selector.hasClass("selected")) {

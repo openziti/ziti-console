@@ -61,9 +61,13 @@
             <div class="close icon-close"></div>
             <div class="title adding">
                 Create <span data-bind="singular"></span>
+                <div class="jsonButton">{ JSON }</div>
             </div>
             <div class="subtitle adding">Add a New <span data-bind="singular"></span> by completing the following form</div>
-            <div class="title editing">Edit <span data-bind="singular"></span></div>
+            <div class="title editing">
+                Edit <span data-bind="singular"></span>
+                <div class="jsonButton">{ JSON }</div>
+            </div>
             <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
             <label for="Name">Name</label>
             <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" data-restrict="empty" />
@@ -88,134 +92,51 @@
                 singular: "Configurations"
             },
             filterObject: null,
+            editData: null,
             configTypes: null,
-            schema: null,
-            editData: {},
-            json: null,
             init: function() {
                 this.events();
 
                 page.filterObject = new Data("configs");
                 page.filterObject.init(true, true);
                 page.configTypes = new Data("config-types");
-                page.configTypes.init(true, false, true);
-
-                page.json = CodeMirror.fromTextArea(document.getElementById("JSONView"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"} });
-                page.json.setSize(null, 120);
-                page.json.on('keyup', function () {
-                    page.editData = JSON.parse(page.json.getValue());
-                    page.loadChanges();
-                });                
+                page.configTypes.init(true, false, true);   
+                
+                schema.init("SchemaList", "JSONView");
             }, 
             events: function() {
                 context.addListener("config-types", page.typesLoaded);
                 $("#Types").change(page.typechanged);
-                $(".onoff").click(function(e) {
-                    var obj = $(e.currentTarget);
-                    if (obj.hasClass("on")) obj.removeClass("on");
-                    else obj.addClass("on");
-                    if (obj.hasClass("on")) {
-                        $("#JSONView").show();
-                        $("#JSONView").hide();
-                    } else {
-                        $("#JSONView").show();
-                        $("#JSONView").hide();
+                $(".jsonButton").click(function(e) {
+                    if ($(e.currentTarget).hasClass("on")) $(e.currentTarget).removeClass("on");
+                    else $(e.currentTarget).addClass("on");
+                    var type = $("#Types").val();
+                    if (type!='') {
+                        schema.setView($(".jsonButton").hasClass("on"));
                     }
                 });
-            },
-            getVisualData: function() {
-                var type = $("#Types").val();
-                var detail = page.configTypes.details(type);
-                var data = {};
-                for (var key in detail.schema.properties) {
-                    var theValue = $("#schema_"+key).val();
-                    if (detail.schema.properties[key].type=="integer") data[key] = theValue;
-                    else data[key] = theValue;
-                }
-                return data;
-            },
-            getData: function() {
-                var type = $("#Types").val();
-                var detail = page.configTypes.details(type);
-                var data = {};
-                for (var key in detail.schema.properties) {
-                    var theValue = $("#schema_"+key).val();
-                    if (detail.schema.properties[key].type=="integer") data[key] = Number(theValue);
-                    else data[key] = theValue;
-                }
-                return data;
             },
             row: function(template, data) {
                 template = template.split("{{configType.name}}").join(data.configType.name);
                 return template;
             },
-            loadChanges: function() {
-                for (var prop in page.editData) {
-                    $("#schema_"+prop).val(page.editData[prop]);
-                }
-            },
             typechanged: function(e) {
                 var type = $("#Types").val();
-                var detail = page.configTypes.details(type);
+                var schemaType = page.configTypes.details(type);
                 var html = '';
                 $("#SchemaList").html(html);
-                if (detail) {
-                    for (var key in detail.schema.properties) {
-                        var type = "text";
-                        var placeholder = "Enter a valid "+key;
-                        if (detail.schema.properties[key].type=="integer") {
-                            type = "number";
-                            if (detail.schema.properties[key].minimum&&detail.schema.properties[key].maximum) placeholder = "Number Between "+detail.schema.properties[key].minimum+"-"+detail.schema.properties[key].maximum;
-                            else {
-                                if (detail.schema.properties[key].minimum) placeholder = "Number great than "+detail.schema.properties[key].minimum;
-                                if (detail.schema.properties[key].maximum) placeholder = "Number less than "+detail.schema.properties[key].maximum;
-                            }
-                        }
-                        html += '<label for="schema_'+key+'">'+key+'</label>';
-                        if (detail.schema.properties[key].enum&&detail.schema.properties[key].enum.length>0) {
-                            html += '<select id="schema_'+key+'" class="jsonSelect">';
-                            for (var i=0; i<detail.schema.properties[key].enum.length; i++) {
-                                html += '<option value="'+detail.schema.properties[key].enum[i]+'">'+detail.schema.properties[key].enum[i]+'</option>';
-                            }
-                            html += '</select>';
-                        } else if (detail.schema.properties[key].type=="array") {
-                            html += '<select id="schema_'+key+'" class="jsonSelect">';
-                            for (var i=0; i<detail.schema.properties[key].items.enum.length; i++) {
-                                html += '<option value="'+detail.schema.properties[key].items.enum[i]+'">'+detail.schema.properties[key].items.enum[i]+'</option>';
-                            }
-                            html += '</select>';
-                        } else if (detail.schema.properties[key].type=="boolean") {
-                            html += '<div id="schema_'+key+'" class="toggle '+((page.editData[key])?'on':'')+'"><div class="switch"></div><div class="label"></div></div>';
-                        } else {
-                            html += '<input id="schema_'+key+'" type="text" class="jsonEntry" />';
-                        }
-                    }
-                    $("#SchemaList").html(html);
-                    for (var prop in page.editData) {
-                        $("#schema_"+prop).val(page.editData[prop]);
-                    }
-                    $(".jsonEntry").keyup(function(e) {
-                        var data = page.getVisualData();
-                        page.json.setValue(JSON.stringify(data));
-                        page.json.autoFormatRange({line:0, ch:0}, {line:page.json.lineCount()});
-                    });
-                    $(".jsonSelect").change(function(e) {
-                        var data = page.getVisualData();
-                        page.json.setValue(JSON.stringify(data));
-                        page.json.autoFormatRange({line:0, ch:0}, {line:page.json.lineCount()});
-                    });
-                    setTimeout(function() {
-                        var data = page.getVisualData();
-                        page.json.setValue(JSON.stringify(data));
-                        page.json.autoFormatRange({line:0, ch:0}, {line:page.json.lineCount()});
-                    }, 500);
-                    $(".toggle").click(app.toggle);
-                    $(".jsonV").show();
-                    $(".CodeMirror").show();
+                if (schemaType) {
+                    service.call("schema", {schema: schemaType.schema}, page.schemaReturned);
                 } else {
                     $(".jsonV").hide();
                     $(".CodeMirror").hide();
                 }
+            },
+            schemaReturned: function(e) {
+                schema.data = e.data;
+                schema.render();
+                schema.val(page.editData);
+                schema.setView($(".jsonButton").hasClass("on"));
             },
             typesLoaded: function(e) {
                 var types = context.get(page.configTypes.name);
@@ -242,9 +163,6 @@
             edit: function(id) {
                 var detail = page.filterObject.details(id);
                 page.editData = detail.data;
-                page.json.setValue(JSON.stringify(detail.data));
-                page.json.autoFormatRange({line:0, ch:0}, {line:page.json.lineCount()});
-                page.json.setSize(null, 120);
                 $("#Types").attr("disabled",true);
                 page.typechanged();
                 modal.show("AddModal");
@@ -253,7 +171,7 @@
                 if (page.validate()) {
                     var obj = {
                         name: $("#Name").val(),
-                        data: page.getData(),
+                        data: schema.val(),
                         tags: tags.val()
                     };
                     if (page.filterObject.editId=="") obj.configTypeId = $("#Types").val();
@@ -265,34 +183,12 @@
                 if ($("#Name").val().trim().length==0) $("#Name").addClass("errors");
                 if ($("#Types").val().trim().length==0) $("#Types").addClass("errors");
                 var type = $("#Types").val();
-                var detail = page.configTypes.details(type);
-                var data = {};
-                if (detail) {
-                    for (var key in detail.schema.properties) {
-                        var elem = $("#schema_"+key);
-                        var theValue = elem.val().trim();
-                        if (detail.schema.properties[key].type=="integer") {
-                            if  (detail.schema.required.includes(key)) {
-                                var min = null;
-                                var max = null;
-                                if (detail.schema.properties[key].minimum) min = Number(detail.schema.properties[key].minimum);
-                                if (detail.schema.properties[key].maximum) max = Number(detail.schema.properties[key].maximum);
-                                if (isNaN(parseInt(theValue))) elem.addClass("errors");
-                                else {
-                                    var val = Number(theValue);
-                                    if (min!=null&val<min) elem.addClass("errors");
-                                    if (max!=null&val>max) elem.addClass("errors");
-                                }
-                            }
-                        } else {
-                            if (detail.schema.required.includes(key)&&theValue.length==0) elem.addClass("errors");
-                        }
-                    }
-                }
+                schema.validate();
                 return $(".errors").length==0;
             },
             reset: function() {
                 $("#Types").attr("disabled",false);
+                $(".jsonButton").removeClass("on");
                 page.editData = {};
                 page.typechanged();
             }

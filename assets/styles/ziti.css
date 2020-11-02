@@ -565,7 +565,11 @@ aside .icon {
 }
 
 .configBox label {
+    margin-top: 5px;
     color: var(--black);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .configBox {
@@ -734,10 +738,6 @@ aside .icon {
 
 .toggler.no .toggleButton {
     left: 2px;
-}
-
-.configBox label {
-    margin-top: 0px;
 }
 
 .configBox input, .configBox select {
@@ -1341,11 +1341,28 @@ aside .icon {
     transform: rotate(12deg);
 }
 
-#TagArea .tag {
+.jsonButton {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.5s;
+}
+
+.jsonButton:hover {
+    opacity: 0.4;
+}
+
+.jsonButton.on {
+    color: var(--black);
+}
+
+#TagArea .tag, .selectedItems .tag {
     line-height: 30px;
     font-size: 16px;
     color: #FFF;
-    background-color: var(--placeholder);
+    background-color: var(--primary);
     padding-left: 20px;
     padding-right: 20px;
     border-radius: 20px;
