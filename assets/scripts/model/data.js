@@ -164,6 +164,7 @@ var Data = function(name, context) {
 					for (var prop in obj) {
 						if (page.row) row.html(page.row(row.html(), obj));
 						row.html(row.html().split("{{"+prop+"}}").join(obj[prop]));
+						row.html(row.html().split("{{selector."+prop+"}}").join(SelectorStyles.format(obj[prop+"Display"])));
 						row.html(row.html().split("{{selector."+prop+"}}").join(SelectorStyles.format(obj[prop])));
 						row.html(row.html().split("{{moment."+prop+"}}").join(moment(obj[prop]).utc().fromNow()));
 					}
