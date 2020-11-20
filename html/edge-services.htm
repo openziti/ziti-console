@@ -525,7 +525,7 @@
                         configs: page.getConfigs(),
                         tags: tags.val(),
                         terminatorStrategy: $("#Strategy").val(),
-                        encryptionRequired: $("EncryptionRequired").hasClass("on"),
+                        encryptionRequired: $("#EncryptionRequired").hasClass("on"),
                         roleAttributes: page.roles.val()
                     };
                     if (page.filterObject.editId=="") page.filterObject.saveChain(obj);
