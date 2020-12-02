@@ -611,6 +611,14 @@ aside .icon {
     height: auto;
 }
 
+.forminfo {
+    display: block;
+    margin-top: 10px;
+    padding-left: 5px;
+    color: var(--menu);
+    font-weight: bold;
+}
+
 .configs {
     height: 0px;
     overflow: hidden;
