@@ -2102,6 +2102,19 @@ div:focus {
     text-align: center;
 }
 
+.circle {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: var(--stroke);
+    border-radius: 10px;
+    margin-right: 2px;
+}
+
+.circle.true {
+    background-color: var(--green);
+}
+
 .circular {
 	width: 40px;
 	height: 40px;

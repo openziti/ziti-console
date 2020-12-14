@@ -44,7 +44,11 @@
         <div class="col">
             <div class="selector" data-id="{{id}}"></div>
         </div>
-        <div class="col" data-id="{{id}}"><strong>{{name}}</strong></div>
+        <div class="col" data-id="{{id}}">
+            <span class="circle {{hasApiSession}}" title="Api Session"></span>
+            <span class="circle {{hasEdgeRouterConnection}}" title="Edge Router Connected"></span>
+            <strong>{{name}}</strong>
+        </div>
         <div class="col desktop" data-id="{{id}}">{{type}}</div>
         <div class="col desktop" data-id="{{id}}">{{isAdmin}}</div>
         <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
@@ -134,14 +138,19 @@
             <div class="split unsplit">
                 <div>
                     <label for="Enrollment">Enrollment Type</label>
-                    <select id="EnrollmentType" data-bind="data.enrollmentType" data-default="ott" data-enter="SaveButton" disabled>
+                    <select id="EnrollmentType" data-bind="data.enrollmentType" data-default="ott" data-enter="SaveButton">
                         <option value="ott" selected>One Time Token</option>
                         <option value="CA">Certificate Authority</option>
+                        <option value="updb">UPDB</option>
                     </select>
                 </div>
                 <div id="CertAuthoritiesArea" style="display:none">
                     <label for="Authorities">Certificate Authority</label>
                     <select id="Authorities" data-enter="SaveButton"></select>
+                </div>
+                <div id="UpDbArea" style="display:none">
+                    <label for="UPDBName">UPDB Username</label>
+                    <input id="UPDBName" data-bind="data.enrollment.updb" type="text" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
                 </div>
             </div>
             <div id="TagArea" data-tagarea="identity"></div>
@@ -216,6 +225,15 @@
                     } else {
                         enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
                     }
+                } else { 
+                    if (data.enrollment.updb) {
+                        if (data.enrollment.updb.expiresAt!=null) {
+                            var difference = moment(data.enrollment.updb.expiresAt).diff(moment(new Date()));
+                            if (difference>0) enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
+                        } else {
+                            enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
+                        }
+                    }
                 }
                 if (enrollment=="N/A") template = template.split("{{hiddenClass}}").join("hidden");
                 else template = template.split("{{hiddenClass}}").join("");
@@ -247,6 +265,10 @@
                         $("#Authorities").val(detail.enrollment.ca.caId);
                         $("#CertAuthoritiesArea").show();
                         $("#CertAuthoritiesArea").parent().removeClass("unsplit");
+                    }
+                } else {
+                    if (detail.enrollment.updb) {
+                        $("#EnrollmentType").val("updb");
                     }
                 }
                 if (detail.isAdmin) $("#IsAdmin").addClass("on");
@@ -319,7 +341,13 @@
                     if (!page.filterObject.isEditing()) {
                         obj.enrollment = {};
                         if ($("#EnrollmentType").val()=="ott") obj.enrollment.ott = true;
-                        else obj.enrollment.ca = $("#Authorities").val();
+                        else{
+                            if ($("#EnrollmentType").val()=="ott") {
+                                obj.enrollment.ca = $("#Authorities").val();
+                            } else {
+                                obj.enrollment.updb = $("#UPDBName").val();
+                            }
+                        } 
                     }
                     if (obj.type=="User") obj.isAdmin = $("#IsAdmin").hasClass("on");
                     page.filterObject.save(obj);
@@ -343,6 +371,17 @@
                         correctLevel : QRCode.CorrectLevel.M
                     });
                     modal.show("QRModal");
+                } else if (identity&&identity.enrollment&&identity.enrollment.updb&&identity.enrollment.updb.jwt) {
+                    $("#QRCode").html("");
+                    var qrcode = new QRCode("QRCode", {
+                        text: encodeURIComponent(identity.enrollment.updb.jwt),
+                        width: 300,
+                        height: 300,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.M
+                    });
+                    modal.show("QRModal");
                 }
             },
             getCert: function(e) {
@@ -352,6 +391,15 @@
                     var name = identity.name.split(" ").join("");
                     var element = document.createElement('a');
                     element.setAttribute('href', 'data:application/ziti-jwt;charset=utf-8,' + encodeURIComponent(identity.enrollment.ott.jwt));
+                    element.setAttribute('download', name+".jwt");
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
+                } else if (identity&&identity.enrollment&&identity.enrollment.updb&&identity.enrollment.updb.jwt) {
+                    var name = identity.name.split(" ").join("");
+                    var element = document.createElement('a');
+                    element.setAttribute('href', 'data:application/ziti-jwt;charset=utf-8,' + encodeURIComponent(identity.enrollment.updb.jwt));
                     element.setAttribute('download', name+".jwt");
                     element.style.display = 'none';
                     document.body.appendChild(element);
@@ -394,7 +442,6 @@
                 var select = document.getElementById("Authorities");
                 select.options = [];
                 if (page.casObject.data.length>0) {
-                    $("#EnrollmentType").attr("disabled", false);
                     for (var i=0; i<page.casObject.data.length; i++) {
                         if (i==0) $("#Authorities").data("default",page.casObject.data[i].id);
                         var option = document.createElement("option");
@@ -402,18 +449,23 @@
                         option.text = page.casObject.data[i].name;
                         select.add( option );
                     }
-                } else $("#EnrollmentType").attr("disabled", true);
+                }
             },
             toggleType: function(e) {
+                $("#CertAuthoritiesArea").hide();
+                $("#UpDbArea").hide();
                 var area = "#CertAuthoritiesArea";
                 var type = $("#EnrollmentType").val();
                 if (type=="CA") {
                     $(area).parent().removeClass("unsplit");
                     $(area).show();
-                } else {
+                } else if (type=="ott") {
                     $(area).parent().addClass("unsplit");
-                    $(area).hide();
-                } 
+                } else {
+                    area = "#UpDbArea";
+                    $(area).parent().removeClass("unsplit");
+                    $(area).show();
+                }
             },
             toggleUserType: function(e) {
                 var area = "#UserArea";
@@ -427,8 +479,6 @@
                 } 
             },
             reset: function() {
-                if (page.casObject.data.length>0) $("#EnrollmentType").removeAttr("disabled");
-                else $("#EnrollmentType").attr("disabled", "true");
                 page.toggleType();
                 $(".issues").hide();
             },
