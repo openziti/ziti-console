@@ -297,6 +297,7 @@
                 if (detail.envInfo.arch) osDetails += "<br/><b>Arch:</b> "+detail.envInfo.arch;
                 if (detail.envInfo.osRelease) osDetails += "<br/><b>Release:</b> "+detail.envInfo.osRelease;
                 if (detail.envInfo.osVersion) osDetails += "<br/><b>Version:</b> "+detail.envInfo.osVersion;
+                if (osDetails.length==0) osDetails = "No Info Available";
                 $("#Environment").html(osDetails);
                 if (detail.isAdmin) $("#IsAdmin").addClass("on");
                 var area = "#UserArea";
