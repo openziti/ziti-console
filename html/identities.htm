@@ -21,12 +21,12 @@
     </div>
     <div class="area data" data-defined="table">
         <div class="table">
-            <div class="head grid seven">
+            <div class="head grid eightOS">
                 <div class="col">
                     <div class="selector all"></div>
                 </div>
                 <div class="col sort asc" data-by="name">Name<div class="dragger"></div></div>
-                <div class="col sort desktop" data-by="typeId">Type<div class="dragger"></div></div>
+                <div class="col desktop" data-by="typeId">O/S<div class="dragger"></div></div>
                 <div class="col sort desktop" data-by="isAdmin">Admin<div class="dragger"></div></div>
                 <div class="col sort desktop" data-by="createdAt">Created<div class="dragger"></div></div>
                 <div class="col desktop">Token</div>
@@ -40,7 +40,7 @@
     <div class="nodata" data-defined="empty">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
 
     <!-- Data Table Template -->
-    <div id="RowTemplate" class="row grid seven template" data-defined="template">
+    <div id="RowTemplate" class="row grid eightOS template" data-defined="template">
         <div class="col">
             <div class="selector" data-id="{{id}}"></div>
         </div>
@@ -49,6 +49,7 @@
             <span class="circle {{hasEdgeRouterConnection}}" title="Edge Router Connected"></span>
             <strong>{{name}}</strong>
         </div>
+        <div class="col desktop" data-id="{{id}}" style="overflow: unset;"><span class="os {{os}}" data-balloon-pos="up" aria-label="{{osDetails}}"></span></div>
         <div class="col desktop" data-id="{{id}}">{{type}}</div>
         <div class="col desktop" data-id="{{id}}">{{isAdmin}}</div>
         <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
@@ -112,6 +113,8 @@
             <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
             <label for="Name">Name</label>
             <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
+            <label for="Environment" class="editing">Name</label>
+            <div id="Environment" class="editing"></div>
             <label for="Roles">Roles</label>
             <div id="Roles"></div>
             <label for="Services" class="editing">Services<div class="info">click to test connection</div></label>
@@ -238,6 +241,24 @@
                 if (enrollment=="N/A") template = template.split("{{hiddenClass}}").join("hidden");
                 else template = template.split("{{hiddenClass}}").join("");
                 template = template.split("{{tokenLink}}").join(enrollment);
+                var os = "other";
+                var osDetails = "";
+                if (data.envInfo) {
+                    if (data.envInfo.osVersion&&data.envInfo.osVersion.toLowerCase().indexOf("windows")>=0) os = "windows";
+                    else {
+                        if (data.envInfo.os&&data.envInfo.os.toLowerCase().indexOf("darwin")>=0) os = "apple";
+                        else if (data.envInfo.os&&data.envInfo.os.toLowerCase().indexOf("linux")>=0) os = "linux";
+                        else if (data.envInfo.os&&data.envInfo.os.toLowerCase().indexOf("android")>=0) os = "android";
+                        else if (data.envInfo.os&&data.envInfo.os.toLowerCase().indexOf("windows")>=0) os = "windows";
+                    }
+                    if (data.envInfo.os) osDetails += "OS: "+data.envInfo.os;
+                    if (data.envInfo.arch) osDetails += "&#10;Arch: "+data.envInfo.arch;
+                    if (data.envInfo.osRelease) osDetails += "&#10;Release: "+data.envInfo.osRelease;
+                    if (data.envInfo.osVersion) osDetails += "&#10;Version: "+data.envInfo.osVersion;
+                }
+                if (osDetails.length==0) osDetails = "No Info Available";
+                template = template.split("{{os}}").join(os);
+                template = template.split("{{osDetails}}").join(osDetails);
                 return template;
             },
             gridAction: function(e) {
@@ -271,6 +292,12 @@
                         $("#EnrollmentType").val("updb");
                     }
                 }
+                var osDetails = "";
+                if (detail.envInfo.os) osDetails += "<b>OS:</b> "+detail.envInfo.os;
+                if (detail.envInfo.arch) osDetails += "<br/><b>Arch:</b> "+detail.envInfo.arch;
+                if (detail.envInfo.osRelease) osDetails += "<br/><b>Release:</b> "+detail.envInfo.osRelease;
+                if (detail.envInfo.osVersion) osDetails += "<br/><b>Version:</b> "+detail.envInfo.osVersion;
+                $("#Environment").html(osDetails);
                 if (detail.isAdmin) $("#IsAdmin").addClass("on");
                 var area = "#UserArea";
                 if (detail.type.name=="User") {
