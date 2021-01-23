@@ -1851,7 +1851,7 @@ div:focus {
     .grid.triple {
         grid-template-columns: 100px auto 100px;
     }  
-	.grid.four, .grid.five, .grid.fives, .grid.six, .grid.seven, .grid.sleven, .grid.ten, .grid.nine, .grid.eight {
+	.grid.four, .grid.five, .grid.fives, .grid.six, .grid.seven, .grid.sleven, .grid.ten, .grid.nine, .grid.eight, .grid.nineOS {
 		display: grid;
 	  	grid-template-columns: 50px auto 40px !important;
 	  	grid-template-rows: auto;
