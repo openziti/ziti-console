@@ -145,8 +145,8 @@
 	grid-template-columns: 50px auto 250px 150px 150px 150px 50px;
 }
 
-.grid.eightOS {
-	grid-template-columns: 50px auto 50px 20% 150px 150px 150px 50px;
+.grid.nineOS {
+	grid-template-columns: 50px auto 50px 120px 20%  150px 150px 150px 50px;
 }
 
 .grid.eight {
