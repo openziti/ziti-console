@@ -42,20 +42,20 @@ var Data = function(name, context) {
 	};
     this.events = function() {
         $(".sort").click($.proxy(function (e) {
-            this.query.sort = $(e.currentTarget).data("sort");
+            this.paging.sort = $(e.currentTarget).data("by");
             if ($(e.currentTarget).hasClass("asc")) {
                 $(e.currentTarget).removeClass("asc");
                 $(e.currentTarget).addClass("desc");
-                this.query.sortType = "desc";
+                this.paging.order = "desc";
             } else if ($(e.currentTarget).hasClass("desc")) {
                 $(e.currentTarget).removeClass("desc");
                 $(e.currentTarget).addClass("asc");
-                this.query.sortType = "asc";
+                this.paging.order = "asc";
             } else {
                 $(".asc").removeClass("asc");
                 $(".desc").removeClass("desc");
                 $(e.currentTarget).addClass("asc");
-                this.query.sortType = "asc";
+                this.paging.order = "asc";
             }
             this.get();
 		}, this));

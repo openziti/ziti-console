@@ -146,11 +146,15 @@
 }
 
 .grid.nineOS {
-	grid-template-columns: 50px auto 50px 120px 20%  150px 150px 150px 50px;
+	grid-template-columns: 50px auto 50px 120px 20% 150px 150px 150px 50px;
 }
 
 .grid.eight {
 	grid-template-columns: 50px 200px auto 15% 15% 15% 15% 50px;
+}
+
+.grid.eightOS {
+	grid-template-columns: 50px 200px 50px auto 15% 15% 15% 15% 50px;
 }
 
 .grid.nine {

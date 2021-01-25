@@ -52,7 +52,7 @@
             <strong>{{name}}</strong>
         </div>
         <div class="col desktop" data-id="{{id}}" style="overflow: unset;"><span class="os {{os}}" data-balloon-pos="up" aria-label="{{osDetails}}"></span></div>
-        <div class="col desktop" data-id="{{id}}" style="overflow: unset;" data-balloon-pos="up" aria-label="{{sdk}}">{{version}}</div>
+        <div class="col desktop" data-id="{{id}}" style="overflow: unset;" data-balloon-pos="up" aria-label="{{sdk}}"><span class="oneline">{{version}}</span></div>
         <div class="col desktop" data-id="{{id}}">{{type}}</div>
         <div class="col desktop" data-id="{{id}}">{{isAdmin}}</div>
         <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
@@ -275,7 +275,10 @@
                 var sdk = "";
                 var version = "-";
                 if (data.sdkInfo) {
-                    if (data.sdkInfo.version) version = data.sdkInfo.version; 
+                    version = "";
+                    if (data.sdkInfo.version) version += data.sdkInfo.version; 
+                    if (data.sdkInfo.appId) sdk += data.sdkInfo.appId; 
+                    if (data.sdkInfo.appVersion) sdk += data.sdkInfo.appVersion; 
                     if (data.sdkInfo.type) sdk += data.sdkInfo.type;
                     if (data.sdkInfo.type) sdk += "&#10;"+data.sdkInfo.branch;
                     if (data.sdkInfo.revision) sdk += " - "+data.sdkInfo.revision;
@@ -329,7 +332,10 @@
                 var sdk = "";
                 var version = "-";
                 if (detail.sdkInfo) {
+                    version = "";
                     if (detail.sdkInfo.version) sdk = "<b>Version:</b> "+detail.sdkInfo.version; 
+                    if (detail.sdkInfo.appId) sdk += "<br/><b>Id:</b> "+detail.sdkInfo.appId; 
+                    if (detail.sdkInfo.appVersion) sdk += "<br/><b>App Version:</b> "+detail.sdkInfo.appVersion; 
                     if (detail.sdkInfo.type) sdk += "<br/><b>Type:</b> "+detail.sdkInfo.type;
                     if (detail.sdkInfo.type) sdk += "<br/><b>Branch:</b> "+detail.sdkInfo.branch;
                     if (detail.sdkInfo.revision) sdk += "<br/><b>Revision:</b> "+detail.sdkInfo.revision;

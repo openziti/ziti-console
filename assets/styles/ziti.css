@@ -1805,6 +1805,16 @@ path.green {
     opacity: 0.3;
 }
 
+.oneline {
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+}
+
 canvas { outline: none !important; }
 
 div:focus {
