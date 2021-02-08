@@ -26,6 +26,7 @@ var Data = function(name, context) {
 	this.deleting = [];
 	this.editId = "";
 	this.isFirstLoad = true;
+	this.isSortable = false;
 	this.params = {};
 	this.paging = {
 		page: 1,
@@ -35,30 +36,35 @@ var Data = function(name, context) {
 		filter: ""
 	};
 	this.init = function(load, autoBind, all) {
-		if (autoBind) this.autoBind = autoBind;
+		if (autoBind) {
+			this.autoBind = autoBind;
+			this.isSortable = true;
+		}
 		this.events();
 		if (all) this.paging.total = this.max;
 		if (load) this.get();
 	};
     this.events = function() {
-        $(".sort").click($.proxy(function (e) {
-            this.paging.sort = $(e.currentTarget).data("by");
-            if ($(e.currentTarget).hasClass("asc")) {
-                $(e.currentTarget).removeClass("asc");
-                $(e.currentTarget).addClass("desc");
-                this.paging.order = "desc";
-            } else if ($(e.currentTarget).hasClass("desc")) {
-                $(e.currentTarget).removeClass("desc");
-                $(e.currentTarget).addClass("asc");
-                this.paging.order = "asc";
-            } else {
-                $(".asc").removeClass("asc");
-                $(".desc").removeClass("desc");
-                $(e.currentTarget).addClass("asc");
-                this.paging.order = "asc";
-            }
-            this.get();
-		}, this));
+		if (this.isSortable) {
+			$(".sort").click($.proxy(function (e) {
+				this.paging.sort = $(e.currentTarget).data("by");
+				if ($(e.currentTarget).hasClass("asc")) {
+					$(e.currentTarget).removeClass("asc");
+					$(e.currentTarget).addClass("desc");
+					this.paging.order = "desc";
+				} else if ($(e.currentTarget).hasClass("desc")) {
+					$(e.currentTarget).removeClass("desc");
+					$(e.currentTarget).addClass("asc");
+					this.paging.order = "asc";
+				} else {
+					$(".asc").removeClass("asc");
+					$(".desc").removeClass("desc");
+					$(e.currentTarget).addClass("asc");
+					this.paging.order = "asc";
+				}
+				this.get();
+			}, this));
+		}
 		if (this.autoBind) {
 			this.searchField = $("*[data-defined='search']");
 			if (this.searchField.length==1) this.searchField.keyup(this.search.bind(this));
