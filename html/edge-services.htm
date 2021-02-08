@@ -268,7 +268,7 @@
             },
             removeConfig: function(e) {
                 var id = $(e.currentTarget).data("id");
-                $("#Config_"+id).removeClass("on");
+                $("#Config_"+id.split('.').join('')).removeClass("on");
                 $("#ConfigSelected").html($(".configrow.on").length);
                 page.configSelected = page.getConfigs();
             },
@@ -278,7 +278,7 @@
                 $("div[data-type='"+typeId+"']").removeClass("on");
                 if (id!="") {
                     if (id!="0") { 
-                        $("#Config_"+id).addClass("on");
+                        $("#Config_"+id.split('.').join('')).addClass("on");
                     } else {
                         var obj = {
                             name: $("#ConfigName").val(),
@@ -373,7 +373,7 @@
                 var html = '<label><span id="ConfigSelected">0</span> Selected Configurations</label>';
                 for (var i=0; i<cons.length; i++) {
                     if (cons[i].name==lastName&&cons[i].configTypeId==$("#ConfigType").val()) page.configsSelected.push(cons[i].id);
-                    html += '<div id="Config_'+cons[i].id+'" class="inlinerow configrow'+((page.configsSelected.includes(cons[i].id))?" on":"")+'" data-id="'+cons[i].id+'" data-type="'+cons[i].configTypeId+'">';
+                    html += '<div id="Config_'+cons[i].id.split('.').join('')+'" class="inlinerow configrow'+((page.configsSelected.includes(cons[i].id))?" on":"")+'" data-id="'+cons[i].id+'" data-type="'+cons[i].configTypeId+'">';
                     html += '<div class="configRemove icon-clear" data-id="'+cons[i].id+'"></div>';
                     html += '<div class="name">'+cons[i].name+'</div>';
                     html += '<div class="detail">'+page.getPropString(cons[i].data)+'</div>';
@@ -513,7 +513,7 @@
                 if (detail.configs) {
                     page.configsSelected = detail.configs;
                     for (var i=0; i<detail.configs.length; i++) {
-                        $("#Config_"+detail.configs[i]).addClass("on");
+                        $("#Config_"+detail.configs[i].split('.').join('')).addClass("on");
                     }
                 }
                 $("#ConfigSelected").html($(".configrow.on").length);
