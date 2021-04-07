@@ -363,11 +363,11 @@
                 if (services&&services.length>0) {
                     html = "";
                     for (var i=0; i<services.length; i++) {
-                        html += '<div class="hashtag clickable" data-id="'+services[i].id+'">'+services[i].name+'</div>';
+                        html += '<div class="hashtag hashtager clickable" data-id="'+services[i].id+'">'+services[i].name+'</div>';
                     }
                 }
                 $("#Services").html(html);
-                $(".hashtag").click(page.status);
+                $(".hashtager").click(page.status);
             },
             status: function(e) {
                 var serviceId = $(e.currentTarget).data("id");
