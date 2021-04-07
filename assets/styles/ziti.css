@@ -1642,6 +1642,7 @@ path.green {
     background-color: #FFF;
     border-radius: 7px;
     padding: 10px;
+    color: #000;
 }
 
 .hashtag, .attag {

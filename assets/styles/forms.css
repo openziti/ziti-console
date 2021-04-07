@@ -114,9 +114,17 @@ select {
 	padding: 20px;
 	border-radius: 7px;
 	display: grid;
-	grid-template-columns: 40% auto;
 	column-gap: 20px;
 	padding-top: 10px;
+}
+
+.subForm input, .subForm select {
+	background-color: var(--background);
+}
+
+.subForm .subForm {
+	padding: 0px;
+	background-color: var(--secondary);
 }
 
 .subform .button {    

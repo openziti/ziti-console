@@ -127,21 +127,26 @@ var schema = {
             html += '<input id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'" type="number" class="jsonEntry" placeholder="'+placeholder+'" /></div>';
         } else if (schema.getType(property)=="array")  {
             html = '<div>'+html;
-            if (property.allOf[1].items.type=="object"&&property.allOf[1].items.properties!=null) {
+            var items = {};
+            if (property.allOf&&property.allOf.length>=2) items = property.allOf[1];
+            if (property.items) items = property.items;
+
+            if (items.type&&items.type=="object"&&items.properties!=null) {
+                var properties = items.properties;
                 html += '<div id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'_selected" class="selectedItems"></div>';
-                html += '<div class="subform three">';
+                html += '<div class="subform">';
                 var values = [];
-                for (var subKey in property.allOf[1].items.properties) {
+                for (var subKey in properties) {
                     values.push(subKey);
-                    html += schema.getField(subKey, property.allOf[1].items.properties[subKey], key);
+                    html += schema.getField(subKey, properties[subKey], key);
                 }
                 html += '<div><div id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'_Button" class="button subobject" data-id="'+key+'_schema" data-to="schema_'+key+'_selected" data-values="'+values.toString()+'">Add</div></div>'
-                html += '</div>';            
+                html += '</div>';  
             } else {
-                if (Array.isArray(property.allOf[1].items.enum)) {
-                    html += '<div id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'" data-total="'+property.allOf[1].items.enum.length+'" class="checkboxList">';
-                    for (var i=0; i<property.allOf[1].items.enum.length; i++) {
-                        html += '<label><div id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'_'+i+'" data-value="'+property.allOf[1].items.enum[i]+'" class="check"></div> '+property.allOf[1].items.enum[i]+'</label>';
+                if (Array.isArray(items.enum)) {
+                    html += '<div id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'" data-total="'+items.enum.length+'" class="checkboxList">';
+                    for (var i=0; i<items.enum.length; i++) {
+                        html += '<label><div id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'_'+i+'" data-value="'+items.enum[i]+'" class="check"></div> '+items.enum[i]+'</label>';
                     }
                     html += '</div>';
                 } else {
@@ -350,11 +355,11 @@ var schema = {
             var theValue = '';
             if (elem.val()!=null) theValue = elem.val();
             if (type=="integer") {
-                if  (schema.data.required.includes(key)) {
+                if  (schema.data.required&&schema.data.required.includes(key)) {
                     var min = null;
                     var max = null;
-                    if (property[key].minimum) min = Number(property[key].minimum);
-                    if (property[key].maximum) max = Number(property[key].maximum);
+                    if (property.minimum) min = Number(property.minimum);
+                    if (property.maximum) max = Number(property.maximum);
                     if (isNaN(parseInt(theValue))) elem.addClass("errors");
                     else {
                         var val = Number(theValue);
@@ -363,7 +368,7 @@ var schema = {
                     }
                 }
             } else if (type=="array") {
-                if  (schema.data.required.includes(key)) {
+                if  (schema.data.required&&schema.data.required.includes(key)) {
                     if ($("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).hasClass("checkboxList")) {
                         var obj = $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key);
                         var total = obj.data("total");
@@ -381,7 +386,7 @@ var schema = {
                     }
                 }
             } else {
-                if (schema.data.required.includes(key)&&theValue.length==0) elem.addClass("errors");
+                if (schema.data.required&&schema.data.required.includes(key)&&theValue.length==0) elem.addClass("errors");
             }
         }
     }

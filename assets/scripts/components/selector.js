@@ -90,13 +90,13 @@ var Selector = function(id, label, atType, hashType) {
             for (var i=0; i<vals.length; i++) {
                 var val = vals[i];
                 if (val.name) {
-                    if (val.name.indexOf("#")==0) selected.append('<div class="hashtag tagButton icon-close" data-id="'+val.role+'"><span class="label">'+val.name+'</span></div>');
-                    else if (val.name.indexOf("@")==0) selected.append('<div class="attag tagButton icon-close" data-id="'+val.role+'"><span class="label">'+val.name+'</span></div>');
-                    else selected.append('<div class="hashtag tagButton icon-close"><span class="label" data-id="'+val.role+'">'+val.name+'</span></div>');
+                    if (val.name.indexOf("#")==0) selected.append('<div class="hashtag tagButton icon-close" data-id="'+val.name+'"><span class="label">'+val.name+'</span></div>');
+                    else if (val.name.indexOf("@")==0) selected.append('<div class="attag tagButton icon-close" data-id="'+val.name+'"><span class="label">'+val.name+'</span></div>');
+                    else selected.append('<div class="hashtag tagButton icon-close" data-id="'+val.name+'"><span class="label">'+val.name+'</span></div>');
                 } else {
                     if (val.indexOf("#")==0) selected.append('<div class="hashtag tagButton icon-close" data-id="'+val+'"><span class="label">'+val+'</span></div>');
                     else if (val.indexOf("@")==0) selected.append('<div class="attag tagButton icon-close" data-id="'+val+'"><span class="label">'+val+'</span></div>');
-                    else selected.append('<div class="hashtag tagButton icon-close"><span class="label" data-id="'+val+'">'+val+'</span></div>');
+                    else selected.append('<div class="hashtag tagButton icon-close" data-id="'+val+'"><span class="label">'+val+'</span></div>');
                 }
             }
             $("#"+this.id+"Search").val("");
