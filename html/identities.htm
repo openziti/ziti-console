@@ -9,6 +9,7 @@
             <div class="tab" data-go="/edge-routers">Edge Routers</div>
             <div class="tab" data-go="/transit-routers">Transit Routers</div>
             <div class="tab" data-go="/terminators">Terminators</div>
+            <div class="tab" data-go="/posture-checks">Posture Checks</div>
         </div>
     </div>
     <div class="action icon-plus" data-action="add"></div>
@@ -21,7 +22,7 @@
     </div>
     <div class="area data" data-defined="table">
         <div class="table">
-            <div class="head grid nineOS">
+            <div class="head grid tenOS">
                 <div class="col">
                     <div class="selector all"></div>
                 </div>
@@ -31,7 +32,8 @@
                 <div class="col sort desktop" data-by="type">Type<div class="dragger"></div></div>
                 <div class="col sort desktop" data-by="isAdmin">Admin<div class="dragger"></div></div>
                 <div class="col sort desktop" data-by="createdAt">Created<div class="dragger"></div></div>
-                <div class="col desktop">Token</div>
+                <div class="col desktop">Token<div class="dragger"></div></div>
+                <div class="col desktop">MFA</div>
                 <div class="col"></div>
             </div>
             <div class="rows" data-defined="rows">
@@ -42,7 +44,7 @@
     <div class="nodata" data-defined="empty">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
 
     <!-- Data Table Template -->
-    <div id="RowTemplate" class="row grid nineOS template" data-defined="template">
+    <div id="RowTemplate" class="row grid tenOS template" data-defined="template">
         <div class="col">
             <div class="selector" data-id="{{id}}"></div>
         </div>
@@ -57,10 +59,12 @@
         <div class="col desktop" data-id="{{id}}">{{isAdmin}}</div>
         <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
         <div class="col desktop notitle">{{tokenLink}}</div>
+        <div class="col desktop notitle">{{mfaEnabled}}</div>
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
                 <div class="gridMenu" data-id="{{id}}">
                     <div class="gridAction" data-id="{{id}}" data-action="edit">Edit</div>
+                    <div class="gridAction {{hiddenMFAClass}}" data-id="{{id}}" data-action="mfa">Remove MFA</div>
                     <div class="gridAction {{hiddenClass}}" data-id="{{id}}" data-action="download">Download JWT</div>
                     <div class="gridAction {{hiddenClass}}" data-id="{{id}}" data-action="qr">View QR</div>
                     <div class="gridAction" data-id="{{id}}" data-action="override">Overrides</div>
@@ -125,6 +129,10 @@
                     <label for="SdkInfo" class="editing">Sdk</label>
                     <div id="SdkInfo" class="editing"></div>
                 </div>
+            </div>
+            <div id="MFAArea">
+                <label for="MFA">MFA Enabled</label>
+                <div id="ToggleMFA" class="toggle on"><div class="switch"></div><div class="label"></div></div> <span class="sidenote">Click To Remove</span>
             </div>
             <label for="Roles">Roles</label>
             <div id="Roles"></div>
@@ -193,7 +201,7 @@
                 pageTitle: "Identities",
                 singular: "Identity"
             },
-            editeId: -1,
+            editId: -1,
             filterObject: null,
             casObject: null,
             configs: null,
@@ -228,6 +236,7 @@
                 $("#IdentityType").change(page.toggleUserType);
                 $("#EnrollmentType").change(page.toggleType);
                 $("#AssociateButton").click(page.addOveride);
+                $("#ToggleMFA").click(page.inlineMfa);
             },
             row: function(template, data) {
                 template = template.split("{{type}}").join(data.type.name);
@@ -251,6 +260,15 @@
                 }
                 if (enrollment=="N/A") template = template.split("{{hiddenClass}}").join("hidden");
                 else template = template.split("{{hiddenClass}}").join("");
+                
+                if (!data.isMfaEnabled) {
+                    template = template.split("{{hiddenMFAClass}}").join("hidden");
+                    template = template.split("{{mfaEnabled}}").join("no");
+                } else {
+                    template = template.split("{{hiddenMFAClass}}").join("");
+                    template = template.split("{{mfaEnabled}}").join("yes");
+                }
+
                 template = template.split("{{tokenLink}}").join(enrollment);
 
                 var os = "other";
@@ -296,7 +314,34 @@
                 else if (action=="edit") page.edit(id);
                 else if (action=="download") page.getCert(e);
                 else if (action=="qr") page.genQR(e);
+                else if (action=="mfa") page.mfa(id);
                 else if (action=="override") page.getOverrides(id);
+            },
+            inlineMfa: function(e) {
+                service.call("mfa", {id: page.editId}, page.imfaRemoved, "DELETE");
+            },
+            mfa: function(id) {
+                this.editId = id;
+                modal.confirm("you want to remove mfa for this identity?", this.doMfa.bind(this));
+            },
+            doMfa: function(e) {
+                service.call("mfa", {id: page.editId}, page.mfaRemoved, "DELETE");
+            },
+            imfaRemoved: function(e) {
+                if (e.error) growler.error(e.error);
+                else {
+                    growler.success("MFA Removed");
+                    page.filterObject.closeModals = false;
+                    page.filterObject.get();
+                    $("#MFAArea").hide();
+                }
+            },
+            mfaRemoved: function(e) {
+                if (e.error) growler.error(e.error);
+                else {
+                    growler.success("MFA Removed");
+                    page.filterObject.get();
+                }
             },
             edit: function(id) {
                 var detail = page.filterObject.details(id);
@@ -308,6 +353,13 @@
                 $("#EnrollmentType").attr("disabled", true);
                 $("#Authorities").attr("disabled", true);
                 $("#CertAuthoritiesArea").parent().addClass("unsplit");
+                if (detail.isMfaEnabled) {
+                    $("#MFAArea").show();
+                    $("#ToggleMFA").addClass("on");
+                } else {
+                    $("#MFAArea").hide();
+                    $("#ToggleMFA").removeClass("on");
+                }
                 if (detail.enrollment&&detail.enrollment.ca) {
                     $("#EnrollmentType").val("CA");
                     if (detail.enrollment&&detail.enrollment.ca.caId) {

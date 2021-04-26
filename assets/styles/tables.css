@@ -120,6 +120,14 @@
 	grid-template-columns: 50px auto 150px 150px 50px;
 }
 
+.grid.splitadd {
+	grid-template-columns: auto auto 100px;
+}
+
+.grid.fived {
+	grid-template-columns: 50px 150px 150px auto 50px;
+}
+
 .grid.fives {
 	grid-template-columns: 50px 200px auto 150px 50px;
 }
@@ -149,6 +157,10 @@
 	grid-template-columns: 50px auto 50px 120px 20% 150px 150px 150px 50px;
 }
 
+.grid.tenOS {
+	grid-template-columns: 50px auto 50px 120px 20% 150px 150px 100px 100px 50px;
+}
+
 .grid.eight {
 	grid-template-columns: 50px 200px auto 15% 15% 15% 15% 50px;
 }
@@ -170,6 +182,11 @@
 	grid-column-gap: 1%;
 }
 
+.grid.oss {
+	grid-template-columns: 70px 100px auto;
+	margin-bottom: 10px;
+}
+
 .grid.quint {
 	grid-template-columns: 24% 24% 24% 24% 50px;
 }
@@ -177,6 +194,18 @@
 .grid.trio {
 	grid-template-columns: 75px auto;
 	grid-column-gap: 1%;
+}
+
+.grid.addressProtocol {
+	grid-template-columns: 150px auto;
+}
+
+.grid.addressPort {
+	grid-template-columns: auto 100px;
+}
+
+.grid.addressFull {
+	grid-template-columns: 150px auto 100px;
 }
 
 .head.grid {

@@ -52,6 +52,7 @@ var context = {
 		context.items[id] = null;
 		localStorage.setItem(context.ns+"-context", keys);
 		localStorage.removeItem(context.ns+"-"+id+"-value");
+		localStorage.removeItem(context.ns+"-"+id+"-updated");
 	},
 	set: function(id, obj) {
 		context.items[id] = {

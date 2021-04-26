@@ -80,6 +80,7 @@ var Data = function(name, context) {
 	},
 	this.action = function(e) {
 		this.formReset();
+		if (page&&page.formReset) page.formReset();
 		var action = $(e.currentTarget).data("action");
 		if (action=="add") {
 			$(".adding").show();

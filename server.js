@@ -371,6 +371,29 @@ app.post("/api/controller", function(request, response) {
 
 
 
+/**------------- Server One Off Functions -------------**/
+
+/**
+ * Remove MFA from an identity
+ */
+app.delete("/api/mfa", function(request, response) {
+	var user = request.session.user;
+	if (hasAccess(user)) {
+		var id = request.body.id;
+		external.delete(serviceUrl+"/identities/"+id.trim()+"/mfa", {rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+			if (err) {
+				log("Error: "+JSON.stringify(body.err));
+				response.json({error: err});
+			} else {
+				log("Success: "+JSON.stringify(body.data));
+				response.json({success: "MFA Removed"});
+			}
+		});
+	}
+});
+
+
+
 /**------------- Server Search Section -------------**/
 
 
@@ -512,7 +535,7 @@ function GetSubs(url, type, id, parentType, request, response) {
 }
 
 /**
- * Get the data from a fabrice controller based on the type of object
+ * Get the data from a fabric controller based on the type of object
  */
 app.post("/api/dataFabric", function(request, response) {
 	var type = request.body.type;

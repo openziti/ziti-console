@@ -944,6 +944,30 @@ aside .icon {
     overflow: unset !important;
 }
 
+.grid.oss .tagSelect.disabled {
+    opacity: 0.2;
+    pointer-events: none;
+    transition: 0.5s;
+}
+
+.grid.oss .tagSelect {
+    height: 40px;
+    margin-top: 5px;
+    overflow: hidden;
+    padding: 3px;
+    pointer-events: all;
+    opacity: 1.0;
+    transition: 0.5s;
+}
+
+.grid.oss .tagSelect .tag.selected {
+    color: var(--green);
+}
+
+.grid.oss .tagSelect .tag {
+    color: var(--red);
+}
+
 .tagSelect {
     border-width: 2px;
     border-style: solid;
@@ -1763,6 +1787,15 @@ path.green {
     color: #FFF;
 }
 
+.sidenote {
+    color: var(--input);
+    line-height: 50px;
+    box-sizing: border-box;
+    display: inline-block;
+    opacity: 0.3;
+    height: 50px;
+}
+
 .border {
     background-color: var(--black);
     color: var(--white);
@@ -1862,7 +1895,7 @@ div:focus {
     .grid.triple {
         grid-template-columns: 100px auto 100px;
     }  
-	.grid.four, .grid.five, .grid.fives, .grid.six, .grid.seven, .grid.sleven, .grid.ten, .grid.nine, .grid.eight, .grid.nineOS {
+	.grid.four, .grid.five, .grid.fives, .grid.six, .grid.seven, .grid.sleven, .grid.ten, .grid.nine, .grid.eight, .grid.nineOS, .grid.tenOS {
 		display: grid;
 	  	grid-template-columns: 50px auto 40px !important;
 	  	grid-template-rows: auto;

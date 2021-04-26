@@ -1,0 +1,43 @@
+<div class="grid address">
+    <div>
+        <label for="Protocol">Protocol</label>
+        <select id="Protocol" data-bind="data.protocol">
+            <option value="tcp">tcp</option>
+            <option value="udp">tcp</option>
+            <option value="stcp">stcp</option>
+        </select>
+    </div>
+    <div>
+        <label for="Address">Address</label>
+        <input id="Address" type="text" data-bind="data.address" />
+    </div>
+    <div>
+        <label for="Port">Port</label>
+        <input id="Port" type="number" data-bind="data.port" />
+    </div>
+</div>
+<label>Dial Intercept</label>
+<div class="subForm">
+    <div class="grid three">
+        <div>
+            <label for="DialInterceptAddress">Address</label>
+            <div id="DialInterceptAddress" class="toggle on"><div class="switch"></div><div class="label"></div></div>
+        </div>
+        <div>
+            <label for="DialInterceptPort">Port</label>
+            <div id="DialInterceptPort" class="toggle on"><div class="switch"></div><div class="label"></div></div>
+        </div>
+        <div>
+            <label for="DialInterceptProtocol">Protocol</label>
+            <div id="DialInterceptProtocol" class="toggle on"><div class="switch"></div><div class="label"></div></div>
+        </div>
+    </div>
+</div>
+<label>Listen Options</label>
+<div class="subForm">
+    <label for="BingUsingId">Bind Using Identity</label>
+    <div class="grid onoff">
+        <div id="BingUsingIdSwitch" class="toggle"><div class="switch"></div><div class="label"></div></div>
+        <input id="BingUsingId" type="text" data-type="typeahead" data-objects="identity" disabled/>
+    </div>
+</div>

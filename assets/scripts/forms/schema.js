@@ -5,6 +5,9 @@ var schema = {
     value: {},
     codeView: null,
     timeoutId: null,
+    suggesting: null,
+    suggestId: null,
+    suggestingField: "",
     init: function(formId, codeId) {
         schema.formId = formId;
         if (codeId) {
@@ -44,6 +47,44 @@ var schema = {
         $(".toggle").on("click", app.toggle);
         $(".check").click(app.check);
         $(".subobject").click(schema.subobject);
+        $("input[data-suggest]").keyup(schema.suggest);
+    },
+    suggest: function(e) {
+        var element = $(e.currentTarget);
+        schema.suggestingField = element.attr("id");
+        var suggestionSource = element.data("suggest");
+        schema.suggesting = new Data(suggestionSource);
+        schema.suggesting.closeModals = false;
+        schema.suggesting.init(false, false, false);
+        context.removeListener(suggestionSource);
+        context.addListener(suggestionSource, schema.suggestLoaded);
+         
+		if (this.suggestId) clearTimeout(this.suggestId);
+
+		schema.suggesting.paging.filter = element.val();
+		if (e.keyCode==13) {
+			schema.suggesting.get();
+		} else {
+			this.suggestId = setTimeout(schema.suggesting.get.bind(schema.suggesting), 500);
+		}
+    },
+    suggestLoaded: function(e) {
+        var list = $("#"+schema.suggestingField+"_Suggestions");
+        list.html("");
+        if (e.data.length>0) {
+            for (var i=0; i<e.data.length; i++) {
+                list.append('<div class="suggestItem" data-field="'+schema.suggestingField+'">'+e.data[i].name+'</div>');
+            }
+            list.addClass("open");
+            $(".suggestItem").click((e) => {
+                var suggested = $(e.currentTarget);
+                $("#"+suggested.data("field")).val(suggested.html());
+                $("#"+schema.suggestingField+"_Suggestions").removeClass("open");
+                $("#"+schema.suggestingField+"_Suggestions").html("");
+            });
+        } else {
+            list.removeClass("open");
+        }
     },
     removeMe: function(e) {
         $(e.currentTarget).remove();
@@ -130,17 +171,20 @@ var schema = {
             var items = {};
             if (property.allOf&&property.allOf.length>=2) items = property.allOf[1];
             if (property.items) items = property.items;
+            if (items.items) items = items.items;
 
             if (items.type&&items.type=="object"&&items.properties!=null) {
                 var properties = items.properties;
                 html += '<div id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'_selected" class="selectedItems"></div>';
                 html += '<div class="subform">';
                 var values = [];
+                if (key=="portRanges") html += '<div class="grid splitadd">';
                 for (var subKey in properties) {
                     values.push(subKey);
                     html += schema.getField(subKey, properties[subKey], key);
                 }
                 html += '<div><div id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'_Button" class="button subobject" data-id="'+key+'_schema" data-to="schema_'+key+'_selected" data-values="'+values.toString()+'">Add</div></div>'
+                if (key=="portRanges") html += '</div>';
                 html += '</div>';  
             } else {
                 if (Array.isArray(items.enum)) {
@@ -166,18 +210,86 @@ var schema = {
                 }
                 html += '</select></div>';
             } else {
-                html += '<input id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'" type="text" class="jsonEntry" placeholder="enter values seperated with a comma"/></div>';
+                if (key=="identity") {
+                    html += '<input id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'" type="text" data-suggest="identities" class="jsonEntry" placeholder="start typing to see identities"/><div id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'_Suggestions" class="suggestions"></div></div>';
+                } else {
+                    html += '<input id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'" type="text" class="jsonEntry" placeholder="enter the value"/></div>';
+                }
             }
+        }
+        return html;
+    },
+    pullItem: function(key, items) {
+        for (var i=0; i<items.length; i++) {
+            if (items[i].key==key) return items[i].content;
+        }
+        return "";
+    },
+    pullAll: function(exclude, items) {
+        var html = "";
+        for (var i=0; i<items.length; i++) {
+            if (!exclude.includes(items[i].key)) html += items[i].content;
         }
         return html;
     },
     render: function() {
         var html = '';
+        var items = [];
         if (schema.data&&schema.data.properties) {
             for (var key in schema.data.properties) {
-                html += schema.getField(key, schema.data.properties[key]);
+                console.log(key);
+                if (key!="httpChecks"&&key!="portChecks") {
+                    items.push({ key: key.toLowerCase(), content: schema.getField(key, schema.data.properties[key]) });
+                }
             }
         }
+        var hasAddress = false;
+        var hasHostName = false;
+        var hasPort = false;
+        var hasProtocol = false;
+        for (var i=0; i<items.length; i++) {
+            if (items[i].key=="port") hasPort = true;
+            else if (items[i].key=="address") hasAddress = true;
+            else if (items[i].key=="hostname") hasHostName = true;
+            else if (items[i].key=="protocol") hasProtocol = true;
+        }
+
+        var exclude = [];
+        if (hasHostName) {
+            if (hasProtocol&&hasPort) {
+                exclude = ["protocol","hostname","port"];
+                html += '<div class="grid addressFull">'+schema.pullItem("protocol", items)+schema.pullItem("hostname", items)+schema.pullItem("port", items)+"</div>";
+            } else {
+                if (hasPort) {
+                    exclude = ["hostname","port"];
+                    html += '<div class="grid addressPort">'+schema.pullItem("hostname", items)+schema.pullItem("port", items)+"</div>";
+                } else {
+                    if (hasProtocol) {
+                        exclude = ["hostname","protocol"];
+                        html += '<div class="grid addressProtocol">'+schema.pullItem("protocol", items)+schema.pullItem("hostname", items)+"</div>";
+                    }
+                }
+            }
+        } else {
+            if (hasAddress) {
+                if (hasProtocol&&hasPort) {
+                    exclude = ["protocol","address","port"];
+                    html += '<div class="grid addressFull">'+schema.pullItem("protocol", items)+schema.pullItem("address", items)+schema.pullItem("port", items)+"</div>";
+                } else {
+                    if (hasPort) {
+                        exclude = ["address","port"];
+                        html += '<div class="grid addressPort">'+schema.pullItem("address", items)+schema.pullItem("port", items)+"</div>";
+                    } else {
+                        if (hasProtocol) {
+                            exclude = ["address","protocol"];
+                            html += '<div class="grid addressProtocol">'+schema.pullItem("protocol", items)+schema.pullItem("address", items)+"</div>";
+                        }
+                    }
+                }
+            }
+        }
+        html += schema.pullAll(exclude, items);
+
         $("#"+schema.formId).html(html);
         if (schema.codeView!=null) {
             setTimeout(function() {

@@ -3,6 +3,7 @@
 	{ "page": "/index.htm", "url": "/", "access": "100", "title": "Ziti Dashboard" },
 	{ "page": "/identities.htm", "url": "/identities", "access": "100", "title": "Identities" },
 	{ "page": "/terminators.htm", "url": "/terminators", "access": "100", "title": "Terminators" },
+	{ "page": "/posture-checks.htm", "url": "/posture-checks", "access": "100", "title": "Posture Checks" },
 
 	{ "page": "/edge-services.htm", "url": "/edge-services", "access": "100", "title": "Services" },
 	{ "page": "/edge-routers.htm", "url": "/edge-routers", "access": "100", "title": "Routers" },

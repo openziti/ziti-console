@@ -7,8 +7,11 @@ label {
     width: 100%;
     margin-bottom: 3px;
     font-size: 14px;
+    white-space: nowrap;
     font-weight: 600;
     font-family: 'Open Sans';
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 input, select, textarea {
@@ -116,6 +119,31 @@ select {
 	display: grid;
 	column-gap: 20px;
 	padding-top: 10px;
+}
+
+.suggestions {
+	width: 100%;
+	height: 0px;
+	opacity: 0;
+	transition: 0.5s;
+	padding-left: 10px;
+}
+
+.suggestions.open {
+	height: auto;
+	max-height: 200px;
+	opacity: 1;
+	overflow-y: scroll;
+}
+
+.suggestItem {
+	height: 25px;
+	line-height: 25px;
+	font-size: 14px;
+	width: 100%;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	cursor: pointer;
 }
 
 .subForm input, .subForm select {
