@@ -172,7 +172,7 @@ var schema = {
                 for (var subKey in property.properties) {
                     html += schema.getField(subKey, property.properties[subKey], key);
                 }
-                html += '</div>';
+                html += '</div></div>';
             } else html = '';
         } else if (schema.getType(property)=="integer")  {
             html = '<div>'+html;
@@ -203,14 +203,14 @@ var schema = {
                 }
                 html += '<div><div id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'_Button" class="button subobject" data-id="'+key+'_schema" data-to="schema_'+key+'_selected" data-values="'+values.toString()+'">Add</div></div>'
                 if (key=="portRanges") html += '</div>';
-                html += '</div>';  
+                html += '</div></div>';  
             } else {
                 if (Array.isArray(items.enum)) {
                     html += '<div id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'" data-total="'+items.enum.length+'" class="checkboxList">';
                     for (var i=0; i<items.enum.length; i++) {
                         html += '<label><div id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'_'+i+'" data-value="'+items.enum[i]+'" class="check"></div> '+items.enum[i]+'</label>';
                     }
-                    html += '</div>';
+                    html += '</div></div>';
                 } else {
                     html += '<div id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'_selected" class="selectedItems"></div>';
                     html += '<input id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'" type="text" class="jsonEntry arrayEntry" placeholder="enter values seperated with a comma"/></div>';
@@ -292,11 +292,17 @@ var schema = {
         var hasHostName = false;
         var hasPort = false;
         var hasProtocol = false;
+        var hasForwardProtocol = false;
+        var hasForwardPort = false;
+        var hasForwardAddress = false;
         for (var i=0; i<items.length; i++) {
             if (items[i].key=="port") hasPort = true;
             else if (items[i].key=="address") hasAddress = true;
             else if (items[i].key=="hostname") hasHostName = true;
             else if (items[i].key=="protocol") hasProtocol = true;
+            else if (items[i].key=="forwardprotocol") hasForwardProtocol = true;
+            else if (items[i].key=="forwardport") hasForwardPort = true;
+            else if (items[i].key=="forwardaddress") hasForwardAddress = true;
         }
 
         var exclude = [];
@@ -330,8 +336,24 @@ var schema = {
                             html += '<div class="grid addressProtocol">'+schema.pullItem("protocol", items)+schema.pullItem("address", items)+"</div>";
                         }
                     }
-                }
+                } 
             }
+        }
+        if (hasForwardProtocol) {
+            exclude = exclude.concat(["forwardprotocol","allowedprotocols"]);
+            html += schema.pullItem("forwardprotocol", items);
+            html += '<div class="schema_forwardProtocol_area" style="display:none">'+schema.pullItem("allowedprotocols", items)+'</div ass>';
+        }
+        if (hasForwardAddress) {
+            exclude = exclude.concat(["forwardaddress","allowedaddresses"]);
+            html += schema.pullItem("forwardaddress", items);
+            html += '<div class="schema_forwardAddress_area" style="display:none">'+schema.pullItem("allowedaddresses", items)+'</div>';
+        }
+        if (hasForwardPort) {
+            exclude = exclude.concat(["forwardport","allowedportranges"]);
+            html += schema.pullItem("forwardport", items);
+            console.log(schema.pullItem("allowedportranges", items));
+            html += '<div class="schema_forwardPort_area" style="display:none">'+schema.pullItem("allowedportranges", items)+'</div>';
         }
         html += schema.pullAll(exclude, items);
 
@@ -406,6 +428,24 @@ var schema = {
                     delete json.dialInterceptedPort;
                 } else {
                     delete json.dialInterceptedPort;
+                }
+                if (json.forwardProtocol) {
+                    delete json.protocol;
+                } else {
+                    delete json.forwardProtocol;
+                    delete json.allowedProtocols;
+                }
+                if (json.forwardPort) {
+                    delete json.port;
+                } else {
+                    delete json.forwardPort;
+                    delete json.allowedPortRanges;
+                }
+                if (json.forwardAddress) {
+                    delete json.address;
+                } else {
+                    delete json.forwardAddress;
+                    delete json.allowedAddresses;
                 }
                 if (json.listenOptions) delete json.listenOptions;
                 if (json.httpChecks) delete json.httpChecks;
