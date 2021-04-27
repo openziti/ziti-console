@@ -960,6 +960,24 @@ aside .icon {
     transition: 0.5s;
 }
 
+.grid.versionArea {
+    opacity: 1.0;
+    pointer-events: all;
+    display: grid;
+    grid-template-columns: 100px auto 100px auto;
+}
+
+.grid.versionArea label {
+    padding-right: 10px;
+    line-height: 35px;
+    text-align: right;
+}
+
+.grid.versionArea.disabled {
+    opacity: 0.2;
+    pointer-events: none;
+}
+
 .grid.oss .tagSelect .tag.selected {
     color: var(--green);
 }

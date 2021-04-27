@@ -9,8 +9,12 @@ var SelectorStyles = {
                     if (item.name.indexOf("@")==0) type="at";
                     valString += '<div class="'+type+'tag">'+item.name+'</div>';
                 } else {
-                    if (item.indexOf("@")==0) type="at";
-                    valString += '<div class="'+type+'tag">'+item+'</div>';
+                    if (typeof item === 'object') {
+                        valString += "";
+                    } else {
+                        if (item.indexOf("@")==0) type="at";
+                        valString += '<div class="'+type+'tag">'+item+'</div>';
+                    }
                 }
             }
         } else valString = "None";

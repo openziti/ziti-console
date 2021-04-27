@@ -44,11 +44,25 @@ var schema = {
         $('.arrayEntry').keyup(schema.addArray);
         $('.arrayEntry').blur(schema.addBlurArray);
         $(".toggle").off("click");
-        $(".toggle").on("click", app.toggle);
+        $(".toggle").on("click", schema.toggle);
         $(".check").click(app.check);
         $(".subobject").click(schema.subobject);
         $("input[data-suggest]").keyup(schema.suggest);
     },
+    toggle: function(e) {
+        var id = $(e.currentTarget).attr("id");
+		if ($(e.currentTarget).hasClass("on")) {
+			$(e.currentTarget).removeClass("on");
+            if (id) {
+                $("."+id+"_area").hide();
+            }
+		} else {
+			$(e.currentTarget).addClass("on");
+            if (id) {
+                $("."+id+"_area").show();
+            }
+		}
+    },  
     suggest: function(e) {
         var element = $(e.currentTarget);
         schema.suggestingField = element.attr("id");
@@ -132,14 +146,17 @@ var schema = {
         }
     },
     getType: function(property) {
-        if (property.enum!=null) return "String";
+        if (property.type=="boolean") return property.type;
         else {
-            if (property.type) return property.type;
+            if (property.enum!=null) return "String";
             else {
-                if (property.allOf&&property.allOf.length>0) {
-                    return property.allOf[0].type;
-                } else {
-                    return "String";
+                if (property.type) return property.type;
+                else {
+                    if (property.allOf&&property.allOf.length>0) {
+                        return property.allOf[0].type;
+                    } else {
+                        return "String";
+                    }
                 }
             }
         }
@@ -148,6 +165,7 @@ var schema = {
         var html = '';
         var type = "text";
         html += '<label for="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'">'+key.replace(/([A-Z])/g, ' $1').trim()+'</label>';
+        console.log(schema.getType(property)+" "+key);
         if (schema.getType(property)=="object") {
             if (property.properties!=null) {
                 html += '<div class="subform">';
@@ -200,7 +218,34 @@ var schema = {
             }
         } else if (schema.getType(property)=="boolean") {
             html = '<div>'+html;
-            html += '<div id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'" class="toggle"><div class="switch"></div><div class="label"></div></div></div>';
+            html += '<div id="schema_'+key+'" class="toggle"><div class="switch"></div><div class="label"></div></div></div>';
+            if (key=="dialInterceptedAddress") {
+                html += '<div class="schema_dialInterceptedAddress_area" style="display:none">';
+                html += '<label for="schema_'+key+'_allowedAddresses">Forward Addresses</label>';
+                html += '<div id="schema_'+key+'_allowedAddresses_selected" class="selectedItems"></div>';
+                html += '<input id="schema_'+key+'_allowedAddresses" type="text" class="jsonEntry arrayEntry" placeholder="enter values seperated with a comma"/></div>';
+                html += "</div>";
+            }
+            if (key=="dialInterceptedPort") {
+                html += '<div class="schema_dialInterceptedPort_area" style="display:none">';
+                html += '<label for="schema_'+key+'_allowedPorts">Forward Port Ranges</label>';
+                html += '<div id="schema_'+key+'_allowedPorts_selected" class="selectedItems"></div>';
+
+                html += '<div class="subform"><div class="grid splitadd">';
+                html += '<div><label for="">High</label>';
+                html += '<input id="schema_'+key+'_allowedPorts_high" type="text" class="jsonEntry" placeholder="enter the value"/></div>';
+                html += '<div><label for="">Low</label>';
+                html += '<input id="schema_'+key+'_allowedPorts_low" type="text" class="jsonEntry" placeholder="enter the value"/></div>';
+                html += '<lab><div id="'+key+'_Button" class="button subobject" data-id="schema_'+key+'_allowedPorts" data-to="schema_'+key+'_allowedPorts_selected" data-types="number,number" data-values="high,low">Add</div></label>'
+                html += '</div></div></div>';
+            }
+            if (key=="dialInterceptedProtocol") {
+                html += '<div class="schema_dialInterceptedProtocol_area" style="display:none">';
+                html += '<label for="schema_'+key+'_allowedProtocols">Forward Protocols</label>';
+                html += '<div id="schema_'+key+'_allowedProtocols_selected" class="selectedItems"></div>';
+                html += '<input id="schema_'+key+'_allowedProtocols" type="text" class="jsonEntry arrayEntry" placeholder="enter values seperated with a comma"/></div>';
+                html += "</div>";
+            }
         } else {
             html = '<div>'+html;
             if (property.enum&&property.enum.length>0) {
@@ -238,7 +283,7 @@ var schema = {
         if (schema.data&&schema.data.properties) {
             for (var key in schema.data.properties) {
                 console.log(key);
-                if (key!="httpChecks"&&key!="portChecks") {
+                if (key!="httpChecks"&&key!="portChecks"&&key!="listenOptions") {
                     items.push({ key: key.toLowerCase(), content: schema.getField(key, schema.data.properties[key]) });
                 }
             }
@@ -338,6 +383,33 @@ var schema = {
                         }
                     } else json = schema.getValue(key, property, json);
                 }
+                if (json.dialInterceptedAddress) {
+                    json.allowedAddresses = schema.getListValue('schema_dialInterceptedAddress_allowedAddresses');
+                    json.forwardAddress = true;
+                    delete json.address;
+                    delete json.dialInterceptedAddress;
+                } else {
+                    delete json.dialInterceptedAddress;
+                }
+                if (json.dialInterceptedProtocol) {
+                    json.allowedProtocols = schema.getListValue('schema_dialInterceptedProtocol_allowedProtocols');
+                    json.forwardProtocol = true;
+                    delete json.protocol;
+                    delete json.dialInterceptedProtocol;
+                } else {
+                    delete json.dialInterceptedProtocol;
+                }
+                if (json.dialInterceptedPort) {
+                    json.allowedPortRanges = schema.getListValue('schema_dialInterceptedPort_allowedPorts');
+                    json.forwardPort = true;
+                    delete json.port;
+                    delete json.dialInterceptedPort;
+                } else {
+                    delete json.dialInterceptedPort;
+                }
+                if (json.listenOptions) delete json.listenOptions;
+                if (json.httpChecks) delete json.httpChecks;
+                if (json.portChecks) delete json.portChecks; 
             }
             return json;
         }
@@ -353,6 +425,9 @@ var schema = {
             } else {
                 value = "";
             }
+        } else if (type=="boolean") {
+            if (value) $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).addClass("on");
+            else $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).removeClass("on");
         } else {
             if (type=="array") {
                 $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key+"_selected").html("");
@@ -399,10 +474,7 @@ var schema = {
                         }
                     }
                 }
-             } else if (type=="boolean") {
-                if (value) $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).addClass("on");
-                else $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).removeClass("on");
-            } else {    
+             } else {    
                 $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).val(value);
             }
         }
@@ -449,6 +521,29 @@ var schema = {
             json[key] = $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).val();
         }       
         return json;
+    },
+    getListValue: function(id) {
+        var listItems = [];
+        $("#"+id+"_selected").children().each(function(i, e) {
+            if ($(e).hasClass("obj")) {
+                var items = $(e).html().split(',');
+                var obj = {};
+                for (var i=0; i<items.length; i++) {
+                    var info = items[i].split(':');
+                    var prop = info.shift();
+                    var value = info.join(':').trim();
+                    if (!isNaN(value)) {
+                        obj[prop] = Number(value);
+                    } else {
+                        obj[prop] = value;
+                    }
+                }
+                listItems.push(obj);
+            } else {
+                listItems.push($(e).html());
+            }
+        });
+        return listItems;
     },
     validate: function() {
         for (var key in schema.data.properties) {

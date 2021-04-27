@@ -73,7 +73,7 @@
             <label for="Roles">Roles</label>
             <div id="Roles"></div>
             <label for="PostureType">Posture Check Type</label>
-            <select id="PostureType" data-bind="data.postureCheckType"></select>
+            <select id="PostureType" data-bind="data.typeId"></select>
             <div id="DOMAINArea" class="subarea" style="display: none;">
                 <label for="Domains">Domains</label>
                 <div id="Domains"></div>
@@ -155,7 +155,7 @@
                     details = obj.domains.join(',');
                 } else if (obj.typeId=="MAC") {
                     for (var i=0; i<obj.macAddresses.length; i++) {
-                        details += obj.macAddresses[i].match( /.{1,2}/g).reverse().join( ':' ).toUpperCase();
+                        details += obj.macAddresses[i].match( /.{1,2}/g).reverse().join(':').toUpperCase();
                     }
                 } else if (obj.typeId=="OS") {
                     for (var i=0; i<obj.operatingSystems.length; i++) {
@@ -169,6 +169,11 @@
                 }
                 template = template.split("{{details}}").join(details);
                 return template;
+            },
+            reset: function() {
+                $(".subarea").hide();
+                $(".toggle.on").removeClass("on");
+                $(".versionArea").addClass("disabled");
             },
             selected: function(e) {
                 var type = $("#PostureType").val();
@@ -205,21 +210,26 @@
                 var html = '';
                 for (var i=0; i<oss.length; i++) {
                     var os = oss[i];
-                    html += '<div class="grid oss"><div id="OS'+i+'" class="toggle on"><div class="switch"></div><div class="label"></div></div><div class="toggleLabel">'+os.type+'</div><div id="OS'+i+'Version" class="tagSelect disabled">';
+                    html += '<div class="grid oss">';
+                    html += '<div id="OS'+os.type+'" class="toggle on '+os.type+'"><div class="switch"></div><div class="label"></div></div>';
+                    html += '<div class="toggleLabel">'+os.type+'</div><div id="OS'+os.type+'Version" class="grid versionArea disabled">';
+                    html += '<label for="OS'+os.type+'VersionLow">Minimum</label><input id="OS'+os.type+'VersionLow" type="text" placeholder="#.#.#" />';
+                    html += '<label for="OS'+os.type+'VersionHigh">Minimum</label><input id="OS'+os.type+'VersionHigh" type="text" placeholder="#.#.#" />';
+                    /*
                     for (var j=0; j<os.versions.length; j++) {
                         var version = os.versions[j];
                         html += '<div class="tag" data-os="'+os.type+'" data-version="'+version+'">'+version+'</div>';
                     }
-                    html += '</div></div>';
+                    */
+                    html += '</div></div></div>';
                     var option = document.createElement("option");
                     option.value = os.type;
                     option.text = os.type;
                     select.add( option );
                 }
                 $("#OSs").html(html);
-		        $("#OSs .toggle").click(page.toggle);
-                $(".tag").off("click");
-                $(".tag").on("click", page.toggleTag);
+                $(".toggle").off("click");
+                $(".toggle").click(page.toggle);
                 page.isOSSetup = true;
             },
             toggleTag: function(e) {
@@ -248,6 +258,41 @@
             },
             edit: function(id) {
                 var detail = page.filterObject.details(id);
+                page.roles.val(detail.roleAttributes);
+                $(".subarea").hide();
+                $("#"+detail.typeId+"Area").show();
+                if (detail.typeId=="OS") {
+                    $(".toggle.on").removeClass("on");
+                    $(".versionArea").addClass("disabled");
+
+                    for (var i=0; i<detail.operatingSystems.length; i++) {
+                        $("#OS"+detail.operatingSystems[i].type+"Version").removeClass("disabled");
+                        var low = "";
+                        var high = "";
+
+                        $("#OS"+detail.operatingSystems[i].type).addClass("on");
+                        $("#OS"+detail.operatingSystems[i].type+"Version").removeClass("disabled");
+
+                        if (detail.operatingSystems[i].versions) {
+                            if (detail.operatingSystems[i].versions.length>=1) low = detail.operatingSystems[i].versions[0];
+                            if (detail.operatingSystems[i].versions.length>=2) high = detail.operatingSystems[i].versions[1];
+                        }
+
+                        $("#OS"+detail.operatingSystems[i].type+"VersionLow").val(low);
+                        $("#OS"+detail.operatingSystems[i].type+"VersionHigh").val(high);
+                    }
+                    
+                } else if (detail.typeId=="PROCESS") {
+                    $("#OsForProcess").val(detail.process.osType);
+                    $("#Path").val(detail.process.path);
+                    $("#OsForProcess").val(detail.process.osType);
+                    if (detail.process.signerFingerprint) $("#Fingerprint").val(detail.process.signerFingerprint);
+                    if (detail.process.hashes) page.hashes.val(detail.process.hashes);
+                } else if (detail.typeId=="MAC") {
+                    page.macs.val(detail.macAddresses);
+                } else if (detail.typeId=="DOMAIN") {
+                    page.domains.val(detail.domains);
+                }
                 modal.show("AddModal");
             },
             save: function() {
@@ -266,11 +311,10 @@
                         obj.operatingSystems = [];
                         for (var i=0; i<page.oss.length; i++) {
                             var os = page.oss[i];
-                            if ($("#OS"+i).hasClass("on")) {
+                            if ($("#OS"+os.type).hasClass("on")) {
                                 var versions = [];
-                                $('#OS'+i+'Version .selected').each(function(i, e) {
-                                    versions.push($(e).html());
-                                });
+                                versions.push($('#OS'+os.type+'VersionLow').val());
+                                if ($('#OS'+os.type+'VersionHigh').val().trim()!="") versions.push($('#OS'+os.type+'VersionHigh').val());
                                 obj.operatingSystems.push({
                                     type: os.type,
                                     versions: versions

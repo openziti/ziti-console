@@ -170,6 +170,7 @@ var Data = function(name, context) {
 					var obj = this.data[i];
 					for (var prop in obj) {
 						if (page.row) row.html(page.row(row.html(), obj));
+						console.log(prop);
 						row.html(row.html().split("{{"+prop+"}}").join(obj[prop]));
 						row.html(row.html().split("{{selector."+prop+"}}").join(SelectorStyles.format(obj[prop+"Display"])));
 						row.html(row.html().split("{{selector."+prop+"}}").join(SelectorStyles.format(obj[prop])));
