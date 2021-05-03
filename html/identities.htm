@@ -343,6 +343,9 @@
                     page.filterObject.get();
                 }
             },
+            formReset: function() {
+                $("#MFAArea").hide();
+            },
             edit: function(id) {
                 var detail = page.filterObject.details(id);
                 page.editId = id;
