@@ -11,4 +11,4 @@ COPY . .
 
 # Fetch dependencies
 RUN npm install
-CMD ["node server.js"]
+CMD ["node", "/usr/src/app/server.js"]
