@@ -10,8 +10,5 @@ EXPOSE 1408
 COPY . .
 
 # Fetch dependencies
-RUN yarn clean
-RUN yarn 
-
-# Build app and start server from script
-CMD ["/usr/src/app/run.sh"]
+RUN npm install
+CMD ["node server.js"]
