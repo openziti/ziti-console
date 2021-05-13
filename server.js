@@ -22,6 +22,7 @@ const portTLS = process.env.PORTTLS||8443;
 const settingsPath = process.env.SETTINGS || '/../ziti/';
 
 var serviceUrl = "";
+var baseUrl = "";
 var fabricUrl = "";
 var headerFile = __dirname+"/assets/templates/header.htm";
 var footerFile = __dirname+"/assets/templates/footer.htm";
@@ -151,40 +152,58 @@ app.post("/api/login", function(request, response) {
 	var urlToSet = request.body.url;
 	if (!IsServerDefined(urlToSet)) response.json({error: errors.invalidServer });
 	else {
-		serviceUrl = urlToSet;
-		var params = {
-			username: request.body.username,
-			password: request.body.password
-		}
-		log("Connecting to: "+serviceUrl+"/authenticate?method=password");
-		log("Posting: "+JSON.stringify(params));
-		external.post(serviceUrl+"/authenticate?method=password", {json: params, rejectUnauthorized: false }, function(err, res, body) {
-			if (err) {
-				log(err);
-				var error = "Server Not Accessible";
-				if (err.code!="ECONNREFUSED") response.json( {error: err.code} );
-				response.json( {error: error} );
-			} else {
-				if (body.error) response.json( {error:body.error.message} );
-				else {
-					if (body.data&&body.data.token) {
-						request.session.user = body.data.token;
-						log("Session: "+request.session.user);
-						request.session.authorization = 100;
-						response.json( {success: "Logged In"} );
-					} else response.json( {error: "Invalid Account"} );
-				}
+		baseUrl = urlToSet;
+		GetPath().then((prefix) => {
+			serviceUrl = urlToSet+prefix;
+			var params = {
+				username: request.body.username,
+				password: request.body.password
 			}
+			log("Connecting to: "+serviceUrl+"/authenticate?method=password");
+			log("Posting: "+JSON.stringify(params));
+			external.post(serviceUrl+"/authenticate?method=password", {json: params, rejectUnauthorized: false }, function(err, res, body) {
+				if (err) {
+					log(err);
+					var error = "Server Not Accessible";
+					if (err.code!="ECONNREFUSED") response.json( {error: err.code} );
+					response.json( {error: error} );
+				} else {
+					if (body.error) response.json( {error:body.error.message} );
+					else {
+						if (body.data&&body.data.token) {
+							request.session.user = body.data.token;
+							log("Session: "+request.session.user);
+							request.session.authorization = 100;
+							response.json( {success: "Logged In"} );
+						} else response.json( {error: "Invalid Account"} );
+					}
+				}
+			});
 		});
 	}
 });
 
 /**
+ * Return the server path to the services
+ * 
+ * @returns The path to the services
+ */
+function GetPath() {
+	return new Promise(function(resolve, reject) {
+		external.get(baseUrl+"/version", {rejectUnauthorized: false}, function(err, res, body) {
+			var data = JSON.parse(body);
+			console.log(JSON.stringify(data.data));
+			resolve(data.data.apiVersions.edge.v1.path);
+		});
+	});
+}
+
+/**
  * Returned the version of the edge-controller server
  */
 app.post('/api/version', function(request, response) {
-	if (serviceUrl) {
-		external.get(serviceUrl+"/version", {rejectUnauthorized: false}, function(err, res, body) {
+	if (baseUrl) {
+		external.get(baseUrl+"/version", {rejectUnauthorized: false}, function(err, res, body) {
 			if (err) log(err);
 			else {
 				 var data = JSON.parse(body);
