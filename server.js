@@ -192,8 +192,7 @@ function GetPath() {
 	return new Promise(function(resolve, reject) {
 		external.get(baseUrl+"/version", {rejectUnauthorized: false}, function(err, res, body) {
 			var data = JSON.parse(body);
-			console.log(JSON.stringify(data.data));
-			resolve(data.data.apiVersions.edge.v1.path);
+			resolve(data.data.apiVersions["edge-management"].v1.path);
 		});
 	});
 }
