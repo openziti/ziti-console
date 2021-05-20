@@ -221,23 +221,45 @@ app.post("/api/reset", function(request, response) {
 	else {
 		if (request.body.newpassword!=request.body.confirm) response.json({error: "Password does not match confirmation"});
 		else {
-			var params = {
-				current: request.body.password,
-				new: request.body.newpassword
-			}
-			log("Connecting to: "+serviceUrl+"/current-identity/updb/password");
-			log("Posting: "+JSON.stringify(params));
-			external.put(serviceUrl+"/current-identity/updb/password", {json: params, rejectUnauthorized: false, headers: { "zt-session": request.session.user }}, function(err, res, body) {
+			log("Connecting to: "+serviceUrl+"/current-identity/authenticators?filter=method=\"updb\"");
+			external.get(serviceUrl+"/current-identity/authenticators?filter=method=\"updb\"", {rejectUnauthorized: false, headers: { "zt-session": request.session.user }}, function(err, res, body) {
 				if (err) {
 					log(err);
 					var error = "Server Not Accessible";
 					if (err.code!="ECONNREFUSED") response.json( {error: err.code} );
 					response.json( {error: error} );
 				} else {
-					if (body.error) {
-						log(JSON.stringify(body.error));
-						response.json( {error: body.error.message} );
-					} else response.json( {success: "Password Updated"} );
+					var data = JSON.parse(body);
+					console.log(JSON.stringify(data));
+					if (data.error) {
+						log(JSON.stringify(data.error));
+						response.json( {error: data.error.message} );
+					} else {
+						if (data.data.length>0) {
+							var id = data.data[0].id;
+							var params = {
+								currentPassword: request.body.password,
+								password: request.body.newpassword,
+								username: data.data[0].username
+							}
+							log("Connecting to: "+serviceUrl+"/current-identity/authenticators/"+id);
+							external.put(serviceUrl+"/current-identity/authenticators/"+id, {json: params, rejectUnauthorized: false, headers: { "zt-session": request.session.user }}, function(err, res, body) {
+								if (err) {
+									log(err);
+									var error = "Server Not Accessible";
+									if (err.code!="ECONNREFUSED") response.json( {error: err.code} );
+									response.json( {error: error} );
+								} else {
+									if (body.error) {
+										log(JSON.stringify(body.error));
+										response.json( {error: body.error.message} );
+									} else response.json( {success: "Password Updated"} );
+								}
+							});
+						} else {
+							response.json({ error: "Unknown User" });
+						}
+					}
 				}
 			});
 		}
