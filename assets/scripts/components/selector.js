@@ -57,6 +57,7 @@ var Selector = function(id, label, atType, hashType) {
     this.atLoaded = function(e) {
         this.atData = e.data;
         var suggestItems = this.atData;
+        this.suggests.html("");
         if (suggestItems.length>0) {
             for (var i=0; i<suggestItems.length; i++) {
                 this.suggests.append('<div class="suggest">'+suggestItems[i].name+'</div>');
@@ -79,9 +80,7 @@ var Selector = function(id, label, atType, hashType) {
             } else {
                 if (item.indexOf("#")==0||!this.isForceHash) this.addIfNotExists($(e.currentTarget), item);
             }
-            $(".tagButton").off("click", function(e) {
-                $(e.currentTarget).remove();
-            });
+            $(".tagButton").off("click");
             $(".tagButton").on("click", function(e) {
                 $(e.currentTarget).remove();
             });
@@ -93,10 +92,11 @@ var Selector = function(id, label, atType, hashType) {
             selected.html("");
             for (var i=0; i<vals.length; i++) {
                 var val = vals[i];
-                if (val.name) {
-                    if (val.name.indexOf("#")==0) selected.append('<div class="hashtag tagButton icon-close" data-id="'+val.name+'"><span class="label">'+val.name+'</span></div>');
-                    else if (val.name.indexOf("@")==0) selected.append('<div class="attag tagButton icon-close" data-id="'+val.name+'"><span class="label">'+val.name+'</span></div>');
-                    else selected.append('<div class="hashtag tagButton icon-close" data-id="'+val.name+'"><span class="label">'+val.name+'</span></div>');
+                console.log(val);
+                if (val.role) {
+                    if (val.role.indexOf("#")==0) selected.append('<div class="hashtag tagButton icon-close" data-id="'+val.role+'"><span class="label">'+val.name+'</span></div>');
+                    else if (val.role.indexOf("@")==0) selected.append('<div class="attag tagButton icon-close" data-id="'+val.role+'"><span class="label">'+val.name+'</span></div>');
+                    else selected.append('<div class="hashtag tagButton icon-close" data-id="'+val.role+'"><span class="label">'+val.name+'</span></div>');
                 } else {
                     if (val.indexOf("#")==0) selected.append('<div class="hashtag tagButton icon-close" data-id="'+val+'"><span class="label">'+val+'</span></div>');
                     else if (val.indexOf("@")==0) selected.append('<div class="attag tagButton icon-close" data-id="'+val+'"><span class="label">'+val+'</span></div>');
@@ -136,16 +136,18 @@ var Selector = function(id, label, atType, hashType) {
             var type = "hash";
             var found = true;
             if (item.indexOf("@")==0) {
-                type="at";
+                type = "at";
                 found = false;
             }
             for (var i=0; i<this.atData.length; i++) {
-                if (this.atData[i].name==item) {
-                    input.parent().find(".tagArea").append('<div class="'+type+'tag tagButton icon-close" data-id="'+this.atData[i].role+'"><span class="label">'+item+'</span></div>');
+                console.log(this.atData[i].name);
+                if (this.atData[i].name==item.substr(1)) {
+                    input.parent().find(".tagArea").append('<div class="'+type+'tag tagButton icon-close" data-id="@'+this.atData[i].id+'"><span class="label">'+item+'</span></div>');
+                    found = true;
                     break;
                 }
             }
-            if (found) input.parent().find(".tagArea").append('<div class="'+type+'tag tagButton icon-close" data-id="'+item+'"><span class="label">'+item+'</span></div>');
+            if (!found) input.parent().find(".tagArea").append('<div class="'+type+'tag tagButton icon-close" data-id="'+item+'"><span class="label">'+item+'</span></div>');
         }  
     };
     this.suggestClicked = function(e) {
@@ -169,9 +171,7 @@ var Selector = function(id, label, atType, hashType) {
                 var selected = $(this.suggests.find(".highlighted")).html();
                 var input = $(this.suggests.find(".highlighted")).parent().parent().find("input");
                 this.addIfNotExists(input, "@"+selected);
-                $(".tagButton").off("click", function(e) {
-                    $(e.currentTarget).remove();
-                });
+                $(".tagButton").off("click");
                 $(".tagButton").on("click", function(e) {
                     $(e.currentTarget).remove();
                 });
