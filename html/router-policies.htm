@@ -113,8 +113,8 @@
             },
             edit: function(id) {
                 var detail = page.filterObject.details(id);
-                page.routerRoles.val(detail.edgeRouterRoles);
-                page.identityRoles.val(detail.identityRoles);
+                page.routerRoles.val(detail.edgeRouterRolesDisplay);
+                page.identityRoles.val(detail.identityRolesDisplay);
                 modal.show("AddModal");
             },
             save: function() {
