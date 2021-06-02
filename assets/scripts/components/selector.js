@@ -134,10 +134,9 @@ var Selector = function(id, label, atType, hashType) {
         if (!found) {
             input.val("");
             var type = "hash";
-            var found = true;
+            var found = false;
             if (item.indexOf("@")==0) {
                 type = "at";
-                found = false;
             }
             for (var i=0; i<this.atData.length; i++) {
                 console.log(this.atData[i].name);
@@ -147,7 +146,13 @@ var Selector = function(id, label, atType, hashType) {
                     break;
                 }
             }
-            if (!found) input.parent().find(".tagArea").append('<div class="'+type+'tag tagButton icon-close" data-id="'+item+'"><span class="label">'+item+'</span></div>');
+            if (!found) {
+                if (item.indexOf("#")==0) {
+                    input.parent().find(".tagArea").append('<div class="'+type+'tag tagButton icon-close" data-id="'+item+'"><span class="label">'+item+'</span></div>');
+                } else {
+                    input.parent().find(".tagArea").append('<div class="'+type+'tag tagButton icon-close" data-id="#'+item+'"><span class="label">#'+item+'</span></div>');
+                }
+            }
         }  
     };
     this.suggestClicked = function(e) {
