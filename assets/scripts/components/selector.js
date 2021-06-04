@@ -150,7 +150,8 @@ var Selector = function(id, label, atType, hashType) {
                 if (item.indexOf("#")==0) {
                     input.parent().find(".tagArea").append('<div class="'+type+'tag tagButton icon-close" data-id="'+item+'"><span class="label">'+item+'</span></div>');
                 } else {
-                    input.parent().find(".tagArea").append('<div class="'+type+'tag tagButton icon-close" data-id="#'+item+'"><span class="label">#'+item+'</span></div>');
+                    if (this.isForceHash) input.parent().find(".tagArea").append('<div class="'+type+'tag tagButton icon-close" data-id="#'+item+'"><span class="label">#'+item+'</span></div>');
+                    else input.parent().find(".tagArea").append('<div class="'+type+'tag tagButton icon-close" data-id="'+item+'"><span class="label">'+item+'</span></div>');
                 }
             }
         }  

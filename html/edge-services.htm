@@ -467,8 +467,9 @@
                     page.terminatorsObject.inlineDelete(page.details._links.terminators.href);
                 }
             },
-
-
+            formReset: function() {
+                $(".configrow").removeClass("on");
+            },
             getPropString: function(obj) { 
                 var data = "";
                 for (var key in obj) {
