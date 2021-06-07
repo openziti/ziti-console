@@ -80,6 +80,13 @@
             <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
             <label for="Name">Name</label>
             <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
+            <div class="grid checkLabel">
+                <div id="IsTunnelerEnabled" class="toggle">
+                    <div class="switch"></div>
+                    <div class="label"></div>
+                </div>
+                <div class="toggleLabel">Is Tunneler Enabled?</div>
+            </div>
             <label for="Roles">Router Roles</label>
             <div id="Roles"></div>
             <div id="TagArea" data-tagarea="router"></div>
@@ -136,6 +143,8 @@
             edit: function(id) {
                 var detail = page.filterObject.details(id);
                 page.roles.val(detail.roleAttributes);
+                if (detail.isTunnelerEnabled) $("#IsTunnelerEnabled").addClass("on");
+                else $("#IsTunnelerEnabled").removeClass("on");
                 modal.show("AddModal");
             },
             save: function() {
@@ -143,6 +152,7 @@
                     var obj = {
                         name: $("#Name").val(),
                         roleAttributes: page.roles.val(),
+                        isTunnelerEnabled: $("#IsTunnelerEnabled").hasClass("on"),
                         tags: tags.val()
                     };
                     page.filterObject.save(obj);

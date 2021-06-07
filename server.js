@@ -647,7 +647,7 @@ app.post("/api/dataSave", function(request, response) {
 		if (request.body.chained) chained = request.body.chained;
 		if (hasAccess(user)) {
 			if (id&&id.trim().length>0) {
-				method = "PUT";
+				method = "PATCH";
 				url += "/"+id.trim();
 				if (removal) {
 					var objects = Object.entries(removal);
