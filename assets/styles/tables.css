@@ -153,6 +153,10 @@
 	grid-template-columns: 50px auto 250px 150px 150px 150px 50px;
 }
 
+.grid.policies {
+	grid-template-columns: 50px auto 20% 20% 20% 150px 50px;
+}
+
 .grid.nineOS {
 	grid-template-columns: 50px auto 50px 120px 20% 150px 150px 150px 50px;
 }

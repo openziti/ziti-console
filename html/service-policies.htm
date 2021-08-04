@@ -20,13 +20,14 @@
     </div>
     <div class="area data" data-defined="table">
         <div class="table">
-            <div class="head grid six">
+            <div class="head grid policies">
                 <div class="col">
                     <div class="selector all"></div>
                 </div>
                 <div class="col sort asc" data-by="name">Name<div class="dragger"></div></div>
                 <div class="col desktop">Service Roles<div class="dragger"></div></div>
                 <div class="col desktop">Identity Roles<div class="dragger"></div></div>
+                <div class="col desktop">Posture Check Roles<div class="dragger"></div></div>
                 <div class="col desktop sort" data-by="semantic">Semantic<div class="dragger"></div></div>
                 <div class="col"></div>
             </div>
@@ -40,13 +41,14 @@
 
 
     <!-- Template HTML will be used to display rows of data -->
-    <div id="RowTemplate" class="row grid six template" data-defined="template">
+    <div id="RowTemplate" class="row grid policies template" data-defined="template">
         <div class="col notitle">
             <div class="selector" data-id="{{id}}"></div>
         </div>
         <div class="col" data-id="{{id}}"><strong>{{name}}</strong></div>
         <div class="col desktop" data-id="{{id}}">{{selector.serviceRoles}}</div>
         <div class="col desktop" data-id="{{id}}">{{selector.identityRoles}}</div>
+        <div class="col desktop" data-id="{{id}}">{{selector.postureCheckRoles}}</div>
         <div class="col desktop" data-id="{{id}}">{{semantic}}</div>
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
@@ -80,6 +82,8 @@
             <div id="Roles"></div>
             <label for="IDRoles">Identity Roles</label>
             <div id="IDRoles"></div>
+            <label for="PCRoles">Posture Check Roles</label>
+            <div id="PCRoles"></div>
             <label for="Semantics">Semantics</label>
             <select id="Semantics" data-bind="data.semantic" data-default="AnyOf" data-enter="SaveButton">
                 <option value="AnyOf">Has Any Role</option>
@@ -104,12 +108,15 @@
             filterObject: null,
             serviceRoles: null,
             identityRoles: null,
+            pcRoles: null,
             init: function() {
                 page.serviceRoles = new Selector("Roles","roles","services");
                 page.identityRoles = new Selector("IDRoles","identities","identities");
+                page.pcRoles = new Selector("PCRoles","posture-checks","posture-checks");
                 page.filterObject = new Data("service-policies");
                 page.serviceRoles.init();
                 page.identityRoles.init();
+                page.pcRoles.init();
                 page.filterObject.init(true, true);
             }, 
             gridAction: function(e) {
@@ -122,6 +129,7 @@
                 var detail = page.filterObject.details(id);
                 page.serviceRoles.val(detail.serviceRolesDisplay);
                 page.identityRoles.val(detail.identityRolesDisplay);
+                page.pcRoles.val(detail.postureCheckRolesDisplay);
                 modal.show("AddModal");
             },
             save: function() {
@@ -131,6 +139,7 @@
                         type: $("#Type").val(),
                         serviceRoles: page.serviceRoles.val(),
                         identityRoles: page.identityRoles.val(),
+                        postureCheckRoles: page.pcRoles.val(),
                         semantic: $("#Semantics").val(),
                         tags: tags.val()
                     };

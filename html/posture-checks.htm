@@ -86,6 +86,26 @@
                 <label for="OSs">Operating Systems <div class="note">select versions</div></label>
                 <div id="OSs"></div>
             </div>
+            <div id="MFAArea" class="subarea" style="display: none;">
+                <label for="Timeout">Timeout</label>
+                <input id="Timeout" type="number" placeholder="# in seconds" />
+                <div class="grid split">
+                    <div style="display: block;">
+                        <div id="OnWake" class="toggle">
+                            <div class="switch"></div>
+                            <div class="label"></div>
+                        </div>
+                        <div class="toggleLabel">Require On Wake</div>
+                    </div>
+                    <div style="display: block;">
+                        <div id="OnUnlock" class="toggle">
+                            <div class="switch"></div>
+                            <div class="label"></div>
+                        </div>
+                        <div class="toggleLabel">Require On Unlock</div>
+                    </div>
+                </div>
+            </div>
             <div id="PROCESSArea" class="subarea" style="display: none;">
                 <label for="OsForProcess">Operating System</label>
                 <select id="OsForProcess"></select>
@@ -196,6 +216,10 @@
                         if (!page.isOSSetup) page.osSetup(page.filterTypesObject.data[i].operatingSystems);
                     }
                 }
+                var mfa = document.createElement("option");
+                mfa.value = "MFA";
+                mfa.text = "Multi Factor";
+                select.add( mfa );
             },
             osSetup: function(oss) {
                 page.oss = oss;
@@ -292,6 +316,13 @@
                     page.macs.val(detail.macAddresses);
                 } else if (detail.typeId=="DOMAIN") {
                     page.domains.val(detail.domains);
+                } else if (detail.typeId=="MFA") {
+                    if (detail.timeoutSeconds) $("#Timeout").val(detail.timeoutSeconds);
+                    else $("#Timeout").val("");
+                    if (detail.promptOnUnlock) $("#OnUnlock").addClass("on");
+                    else $("#OnUnlock").removeClass("on");
+                    if (detail.promptOnWake) $("#OnWake").addClass("on");
+                    else $("#OnWake").removeClass("on");
                 }
                 modal.show("AddModal");
             },
@@ -328,6 +359,10 @@
                             path: $("#Path").val(),
                             signerFingerprint: $("#Fingerprint").val()
                         };
+                    } else if (obj.typeId=="MFA") {
+                        obj.timeoutSeconds = Number($("#Timeout").val());
+                        obj.promptOnWake = $("#OnWake").hasClass("on");
+                        obj.promptOnUnlock = $("#OnUnlock").hasClass("on");
                     } else {
 
                     }
