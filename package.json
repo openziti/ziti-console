@@ -38,7 +38,7 @@
   "license": "ISC",
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^9.0.6",
-    "aws-sdk": "^2.504.0",
+    "aws-sdk": "^2.814.0",
     "cors": "^2.8.5",
     "cross-conf-env": "^1.1.2",
     "express": "^4.16.4",
