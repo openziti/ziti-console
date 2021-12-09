@@ -28,7 +28,7 @@ var headerFile = __dirname+"/assets/templates/header.htm";
 var footerFile = __dirname+"/assets/templates/footer.htm";
 var header = fs.readFileSync(headerFile, 'utf8');
 var footer = fs.readFileSync(footerFile, 'utf8');
-var isDebugging = true;
+var isDebugging = false;
 
 /**
  * Watch for header and footer file changes and load them
@@ -51,6 +51,7 @@ var errors = {
  * Define Express Settings
  */
 const app = express();
+app.use('/assets', express.static('assets'));
 app.use(cors());
 app.use(helmet());
 app.use(function(req, res, next) {
@@ -59,8 +60,14 @@ app.use(function(req, res, next) {
 });
 app.use(bodyParser.json());
 app.use(fileUpload());
-app.use('/assets', express.static('assets'));
-app.use(session({store: new sessionStore, secret: 'NetFoundryZiti', retries: 10, resave: true, saveUninitialized:true, ttl: 60000 }));
+app.use(session({ 
+	store: new sessionStore, 
+	secret: 'NetFoundryZiti', 
+	retries: 10, 
+	resave: true, 
+	saveUninitialized: true, 
+	ttl: 60000
+}));
 
 /**
  * Load configurable settings, or create the settings in place if they have never been defined
@@ -160,7 +167,6 @@ app.post("/api/login", function(request, response) {
 				password: request.body.password
 			}
 			log("Connecting to: "+serviceUrl+"/authenticate?method=password");
-			log("Posting: "+JSON.stringify(params));
 			external.post(serviceUrl+"/authenticate?method=password", {json: params, rejectUnauthorized: false }, function(err, res, body) {
 				if (err) {
 					log(err);
@@ -172,7 +178,6 @@ app.post("/api/login", function(request, response) {
 					else {
 						if (body.data&&body.data.token) {
 							request.session.user = body.data.token;
-							log("Session: "+request.session.user);
 							request.session.authorization = 100;
 							response.json( {success: "Logged In"} );
 						} else response.json( {error: "Invalid Account"} );
@@ -202,10 +207,12 @@ function GetPath() {
  */
 app.post('/api/version', function(request, response) {
 	if (baseUrl) {
+		log("Checking Version: "+baseUrl+"/version");
 		external.get(baseUrl+"/version", {rejectUnauthorized: false}, function(err, res, body) {
 			if (err) log(err);
 			else {
 				 var data = JSON.parse(body);
+				 log("Version: "+body);
 				 if (data&&data.data) response.json( {data: data.data} );
 				 else response.json({});
 			}
@@ -502,8 +509,10 @@ function GetItems(type, paging, request, response) {
 				} else {
 					if (body.error) HandleError(response, body.error);
 					else if (body.data) {
-						log("Items: "+body.data.length);
-						log("Results: "+JSON.stringify(body.data));
+						log("\nItems: "+body.data.length);
+						for (var i=0; i<body.data.length; i++) {
+							log("\nResult "+(i+1)+":\n"+JSON.stringify(body.data[i]));
+						}
 						response.json( body );
 					} else {
 						body.data = [];
@@ -619,11 +628,14 @@ function GetFabricItems(type, response) {
 /**------------- Data Save Section -------------**/
 
 function HandleError(response, error) {
-	if (error.cause&&error.causeMessage&&error.causeMessage.length>0) response.json({ error: error.causeMessage });
-	else if (error.cause&&error.cause.message&&error.cause.message.length>0) response.json({ error: error.cause.message });
-	else if (error.cause&&error.cause.reason&&error.cause.reason.length>0) response.json({ error: error.cause.reason });
-	else if (error.message&&error.message.length>0) response.json({ error: error.message });
-	else response.json({ error: error });
+	if (error.cause&&error.cause.code&&error.cause.code=="UNHANDLED") response.json({error:"loggedout"});
+	else {
+		if (error.cause&&error.causeMessage&&error.causeMessage.length>0) response.json({ error: error.causeMessage });
+		else if (error.cause&&error.cause.message&&error.cause.message.length>0) response.json({ error: error.cause.message });
+		else if (error.cause&&error.cause.reason&&error.cause.reason.length>0) response.json({ error: error.cause.reason });
+		else if (error.message&&error.message.length>0) response.json({ error: error.message });
+		else response.json({ error: error });
+	}
 }
 
 
@@ -1036,7 +1048,7 @@ function log(message) {
  * Serve the current app on the defined port
  */
 app.listen(port, function() {
-	log("Ziti Server running on port "+port);
+	console.log("Ziti Server running on port "+port);
 });
 
 /**
