@@ -146,23 +146,30 @@ select {
 	cursor: pointer;
 }
 
-.subForm input, .subForm select {
+.subform input, .subform select {
 	background-color: var(--background);
 }
 
-.subForm .subForm {
-	padding: 0px;
-	background-color: var(--secondary);
+.subform .subform {
+    padding: 10px;
+    border-width: 3px;
+    border-style: solid;
+    border-color: var(--secondary);
+    border-radius: 15px;
 }
 
 .subform .button {    
 	background-color: var(--stroke);
-    color: #FFF;
+    color: #000;
     margin-top: 36px;
     width: 75px;
     padding-left: 5px;
     padding-right: 5px;
     min-width: unset;
+}
+
+.subform .suggestItem {
+	color: #fff;
 }
 
 .subform.three {

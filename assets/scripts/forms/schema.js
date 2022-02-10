@@ -196,12 +196,26 @@ var schema = {
                 html += '<div id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'_selected" class="selectedItems"></div>';
                 html += '<div class="subform">';
                 var values = [];
-                if (key=="portRanges") html += '<div class="grid splitadd">';
+                if (key=="portRanges"||key=="allowedPortRanges") html += '<div class="grid splitadd">';
+                var order = ['low','high'];
+                var subItems = [];
                 for (var subKey in properties) {
-                    values.push(subKey);
-                    html += schema.getField(subKey, properties[subKey], key);
+                    subItems.push({
+                        key: key,
+                        subKey: subKey,
+                        value: properties[subKey]
+                    });
                 }
-                html += '<div><div id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'_Button" class="button subobject" data-id="'+key+'_schema" data-to="schema_'+key+'_selected" data-values="'+values.toString()+'">Add</div></div>'
+                subItems.sort(function(a, b) {
+                    var aPort = a.subKey.replace(/[^A-Za-z]+/g, '').toLowerCase().replace(/\s/g, '');
+                    var bPort = b.subKey.replace(/[^A-Za-z]+/g, '').toLowerCase().replace(/\s/g, '');
+                    return order.indexOf(aPort) - order.indexOf(bPort);
+                });
+                for (var i=0; i<subItems.length; i++) {
+                    values.push(subItems[i].subKey);
+                    html += schema.getField(subItems[i].subKey, subItems[i].value, subItems[i].key);
+                }
+                html += '<div><div id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'_Button" class="button subobject" data-id="'+key+'_schema" data-to="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'_selected" data-values="'+values.toString()+'">Add</div></div>'
                 if (key=="portRanges") html += '</div>';
                 html += '</div></div>';  
             } else {

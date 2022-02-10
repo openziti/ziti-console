@@ -27,6 +27,7 @@
 				create: function() {
 					if (page.validate()) {
 						settings.addContoller($("#EdgeName").val(), $("#EdgeUrl").val());
+						context.set("serviceUrl", $("#EdgeUrl").val());
 					} else growler.form();
 				},
 				validate: function() {

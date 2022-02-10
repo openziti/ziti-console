@@ -28,7 +28,7 @@ var headerFile = __dirname+"/assets/templates/header.htm";
 var footerFile = __dirname+"/assets/templates/footer.htm";
 var header = fs.readFileSync(headerFile, 'utf8');
 var footer = fs.readFileSync(footerFile, 'utf8');
-var isDebugging = false;
+var isDebugging = true;
 
 /**
  * Watch for header and footer file changes and load them
@@ -196,8 +196,13 @@ app.post("/api/login", function(request, response) {
 function GetPath() {
 	return new Promise(function(resolve, reject) {
 		external.get(baseUrl+"/version", {rejectUnauthorized: false}, function(err, res, body) {
-			var data = JSON.parse(body);
-			resolve(data.data.apiVersions["edge-management"].v1.path);
+			try {
+				var data = JSON.parse(body);
+				resolve(data.data.apiVersions["edge-management"].v1.path);
+			} catch (e) {
+				log("Invalid Json Result on Version: "+e);
+				resolve("");
+			}
 		});
 	});
 }
@@ -211,10 +216,15 @@ app.post('/api/version', function(request, response) {
 		external.get(baseUrl+"/version", {rejectUnauthorized: false}, function(err, res, body) {
 			if (err) log(err);
 			else {
-				 var data = JSON.parse(body);
-				 log("Version: "+body);
-				 if (data&&data.data) response.json( {data: data.data} );
-				 else response.json({});
+				try {
+					var data = JSON.parse(body);
+					log("Version: "+body);
+					if (data&&data.data) response.json( {data: data.data} );
+					else response.json({});
+				} catch (e) {
+					log("Invalid Json Result on Version: "+e);
+					response.json({});
+				}
 			}
 		});
 	} else response.json({});
@@ -311,31 +321,39 @@ app.post("/api/controllerSave", function(request, response) {
 	if (errors.length>0) {
 		response.json({ errors: errors });
 	} else {
+		log("Calling Controller: "+url);
 		external.get(url+"/version", {rejectUnauthorized: false}, function(err, res, body) {
 			if (err) response.json( {error: "Edge Controller not Online"} );
 			else {
-				if (body.error) response.json( {error: "Invalid Edge Controller"} );
-				else {
-					var found = false;
-					for (var i=0; i<settings.edgeControllers.length; i++) {
-						if (settings.edgeControllers[i].url==url) {
-							found = true;
-							settings.edgeControllers[i].name = name;
-							settings.edgeControllers[i].url = url;
-							break;
+				try {
+					var results = JSON.parse(body);
+					if (body.error) response.json( {error: "Invalid Edge Controller"} );
+					else {
+						log("Controller: "+url+" Returned: "+body);
+						var found = false;
+						for (var i=0; i<settings.edgeControllers.length; i++) {
+							if (settings.edgeControllers[i].url==url) {
+								found = true;
+								settings.edgeControllers[i].name = name;
+								settings.edgeControllers[i].url = url;
+								break;
+							}
 						}
+						if (!found) {
+							var isDefault = false;
+							if (settings.edgeControllers.length==0) isDefault = true;
+							settings.edgeControllers[settings.edgeControllers.length] = {
+								name: name,
+								url: url,
+								default: isDefault
+							};
+						}
+						fs.writeFileSync(__dirname+settingsPath+'/settings.json', JSON.stringify(settings));
+						response.json(settings);
 					}
-					if (!found) {
-						var isDefault = false;
-						if (settings.edgeControllers.length==0) isDefault = true;
-						settings.edgeControllers[settings.edgeControllers.length] = {
-							name: name,
-							url: url,
-							default: isDefault
-						};
-					}
-					fs.writeFileSync(__dirname+settingsPath+'/settings.json', JSON.stringify(settings));
-					response.json(settings);
+				} catch (e) {
+					log("Controller: "+url+" Returned "+(typeof body)+": "+body);
+					response.json( {error: body} );
 				}
 			}
 		});		

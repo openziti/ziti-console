@@ -121,7 +121,8 @@
 }
 
 .grid.splitadd {
-	grid-template-columns: auto auto 100px;
+	grid-template-columns: auto auto 100px;    
+	column-gap: 10px;
 }
 
 .grid.fived {

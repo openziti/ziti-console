@@ -564,6 +564,24 @@ aside .icon {
     width: 100%;
 }
 
+.configBox .subform label {
+    color: var(--white);
+}
+
+.subform input, .subform select {
+    background-color: var(--white) !important;
+    color: var(--primary);
+}
+
+.subform .selectedItems .tag {
+    background-color: var(--stroke);
+    color: var(--black);
+}
+
+.subform .check {
+    border-color: #FFF !important;
+}
+
 .configBox label {
     margin-top: 5px;
     color: var(--black);
@@ -1427,7 +1445,7 @@ aside .icon {
 .jsonButton {
     position: absolute;
     right: 0px;
-    top: 0px;
+    top: 10px;
     font-size: 12px;
     cursor: pointer;
     transition: 0.5s;
