@@ -17,7 +17,7 @@
 					context.set("serviceUrl", $("#EdgeControllerList").val());
 					user.login(
 						$("#EdgeControllerList").val(),
-						$("#Username").val(), 
+						$("#Username").val().trim(), 
 						$("#Password").val()
 					);
 				},
