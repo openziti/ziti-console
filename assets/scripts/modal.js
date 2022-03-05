@@ -27,12 +27,14 @@ var modal = {
 		$(".modal.background").addClass("open");
 		modal.id = id;
 		$("#"+id).addClass("open");
+		$("body").addClass("noscroll");
 	},
 	showing: function(id) {
 		return id.trim().length>0&&modal.id==id;
 	},
 	close: function(e) {
 		modal.id = "";
+		$("body").removeClass("noscroll");
 		$(".modal.open").removeClass("open");
 	},
 	confirm: function(message, onConfirmed) {

@@ -23,6 +23,12 @@
 	margin-bottom: 10px;
 }
 
+#NotificationsList .nonotify {
+    padding-left: 11px;
+    font-size: 19px;
+    opacity: 0.4;	
+}
+
 .growler {
 	background-color: #f6f7fb;    
 	min-height: 105px;
@@ -102,6 +108,7 @@ font-family: "Open Sans";
     font-weight: bold;
     padding-left: 75px;
     padding-right: 10px;
+	overflow: hidden;
 }
 
 .growler .content {

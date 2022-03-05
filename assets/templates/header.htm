@@ -121,14 +121,16 @@
 			<div class="topButtons">
 			  <div id="NavigationButton" class="clickable main AreaNavigation" data-open="AreaNavigation" data-hover="NetworkHover">
 					<div class="circle"></div>
-					<div class="icon"></div>
+					<div class="icon icon-globe"></div>
 					<div id="NetworkHover" class="hover">Network Settings</div>
 			  </div> 
+			  <!-- 
 			  <div id="AddButton" class="clickable" data-hover="AddHover">
 					<div class="circle"></div>
 					<div class="icon"></div>
 					<div id="AddHover" class="hover">Add New</div>
 			  </div>
+			   -->
 			  <div id="SearchButton" class="clickable" data-hover="SearchHover" style="display: none;">
 					<div class="clicked"></div>
 					<div class="circle"></div>
@@ -142,7 +144,7 @@
 				<div class="icon"></div>
 					<div id="AlarmCount" class="count"></div>
 			  	</div>
-			  <div id="HelpButton" class="clickable AreaSupport" data-open="AreaSupport">
+			  <div id="HelpButton" class="clickable AreaSupport" data-modal="AddMessageModal">
 				<div class="clicked"></div>
 				<div class="circle"></div>
 				<div class="icon"></div>
@@ -173,32 +175,53 @@
 				<div class="navList">
 					<div class="navButton" data-go="/">
 						<div class="iconArea rippler"><div class="image icon-dashboard"></div></div>
-						<div class="label">Network<br/>Dashboard</div>
+						<div class="label">Dashboard</div>
 					</div>
 					<div class="navButton" data-go="/identities">
 						<div class="iconArea rippler"><div class="image icon-identity"></div></div>
-						<div class="label">Edge<br/>Identities</div>
+						<div class="label">Identities</div>
 					</div>
 					<div class="navButton" data-go="/edge-services">
-						<div class="iconArea rippler"><div class="image icon-migrating"></div></div>
-						<div class="label">Edge<br/>Services</div>
+						<div class="iconArea rippler"><div class="image icon-services"></div></div>
+						<div class="label">Services</div>
 					</div>
 					<div class="navButton" data-go="/edge-routers">
-						<div class="iconArea rippler"><div class="image icon-route"></div></div>
-						<div class="label">Edge<br/>Routers</div>
+						<div class="iconArea rippler"><div class="image icon-router"></div></div>
+						<div class="label">Edge Routers</div>
+					</div>
+					<div class="navButton" data-go="/transit-routers">
+						<div class="iconArea rippler"><div class="image icon-transitrouter"></div></div>
+						<div class="label">Transit Routers</div>
+					</div>
+					<div class="navButton" data-go="/terminators">
+						<div class="iconArea rippler"><div class="image icon-terminators"></div></div>
+						<div class="label">Terminators</div>
+					</div>
+					<div class="navButton" data-go="/service-policies">
+						<div class="iconArea rippler"><div class="image icon-servicepolicy"></div></div>
+						<div class="label">Service Policies</div>
 					</div>
 					<div class="navButton" data-go="/router-policies">
-						<div class="iconArea rippler"><div class="image icon-routerpolicy"></div></div>
-						<div class="label">Ziti<br/>Policies</div>
+						<div class="iconArea rippler"><div class="image icon-servers"></div></div>
+						<div class="label">Router Policies</div>
+					</div>
+					<div class="navButton" data-go="/service-router-edgepolicies">
+						<div class="iconArea rippler"><div class="image icon-servicepolicy"></div></div>
+						<div class="label">Service/Router Policies</div>
 					</div>
 					<div class="navButton" data-go="/configs">
-						<div class="iconArea rippler"><div class="image icon-policy"></div></div>
-						<div class="label">Ziti<br/>Config</div>
+						<div class="iconArea rippler"><div class="image icon-change"></div></div>
+						<div class="label">Service Configurations</div>
+					</div>
+					<div class="navButton" data-go="/config-types">
+						<div class="iconArea rippler"><div class="image icon-schema"></div></div>
+						<div class="label">Config Schemas</div>
 					</div>
 					<div class="navButton" data-go="/cas">
-						<div class="iconArea rippler"><div class="image icon-cas"></div></div>
-						<div class="label">Certificate<br/>Authorities</div>
+						<div class="iconArea rippler"><div class="image icon-certificates"></div></div>
+						<div class="label">Certificate Authorities</div>
 					</div>
+					<!--
 					<div class="navButton iffabric disabled" data-go="/fabric-services">
 						<div class="iconArea rippler"><div class="image icon-fabricServices"></div></div>
 						<div class="label">Fabric<br/>Services</div> 
@@ -211,24 +234,18 @@
 						<div class="iconArea rippler"><div class="image icon-linked"></div></div>
 						<div class="label">Fabric<br/>Links</div>
 					</div>
-				</div>
-			</div>
-			<div id="AreaSupport" class="navArea">
-				<div class="navList">
-					<div class="navButton" data-modal="AddMessageModal">
-						<div class="iconArea rippler"><div class="image icon-conversation"></div></div>
-						<div class="label">Send<br/>Message</div>
-					</div>
+
+					-->
 				</div>
 			</div>
 			<div id="AreaOrganization" class="navArea">
 				<div class="navList">
 					<div class="navButton" data-go="/servers">
-						<div class="iconArea rippler"><div class="image icon-server"></div></div>
+						<div class="iconArea rippler"><div class="image icon-server-1"></div></div>
 						<div class="label">Server<br/>Settings</div>
 					</div>
 					<div class="navButton" data-go="/organization">
-						<div class="iconArea rippler"><div class="image icon-checklist"></div></div>
+						<div class="iconArea rippler"><div class="image icon-configuration"></div></div>
 						<div class="label">Custom<br/>Fields</div>
 					</div>
 				</div>
@@ -238,6 +255,7 @@
 			<div id="NotificationMenuClose" class="close icon-close"></div>
 			<div class="row">
 				<div class="header title">Recent Notifications</div>
+				<div id="ClearNotificationsButton" class="subLink">Clear Notifications</div>
 			</div>
 			<div class="hr"></div>
 			<div id="NotificationsList"></div>

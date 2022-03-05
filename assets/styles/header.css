@@ -96,7 +96,10 @@ header .clickable.selected .circle {
 }
 
 header #NavigationButton .icon {
-    background-image: url(/assets/svgs/MainMenuNetworks.svg);
+    color: var(--white);
+    font-size: 27px;
+    line-height: 27px;
+    text-align: center;
 }
 
 header #AddButton .icon {

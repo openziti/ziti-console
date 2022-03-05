@@ -5,41 +5,30 @@
         }
     </style>
     <div style="width: 100vw; height: 100vh; position: relative;">
-        <div id="Summary" class="grid same">
-            <div class="cardStack clickable" data-go="/identities">
-                <div class="card2"></div>
-                <div class="card1"></div>
-                <div class="title">Identities</div>
-                <div class="icon icon-ids"></div>
-                <div id="IdentitiesTotal" class="subtitle"></div>
+        <div id="Summary">
+            <div class="totals">
+                <label>Identities</label>
+                <div id="IdCount" class="total">0</div>
             </div>
-            <div class="cardStack clickable" data-go="/edge-services">
-                <div class="card2"></div>
-                <div class="card1"></div>
-                <div class="title">Services</div>
-                <div class="icon icon-services"></div>
-                <div id="ServiceTotal" class="subtitle"></div>
+            <div class="totals">
+                <label>Services</label>
+                <div id="ServiceCount" class="total">0</div>
             </div>
-            <div class="cardStack clickable" data-go="/edge-routers">
-                <div class="card2"></div>
-                <div class="card1"></div>
-                <div class="title">Routers</div>
-                <div class="icon icon-route"></div>
-                <div id="Routers" class="subtitle"></div>
+            <div class="totals">
+                <label>Authenticators</label>
+                <div id="AuthCount" class="total">0</div>
             </div>
-            <div class="cardStack clickable" data-go="/cas">
-                <div class="card2"></div>
-                <div class="card1"></div>
-                <div class="title">Authorities</div>
-                <div class="icon icon-cas"></div>
-                <div id="CasTotal" class="subtitle"></div>
+            <div class="totals">
+                <label>Configurations</label>
+                <div id="ConfigCount" class="total">0</div>
             </div>
-            <div class="cardStack clickable" data-go="/router-policies">
-                <div class="card2"></div>
-                <div class="card1"></div>
-                <div class="title">Policies</div>
-                <div class="icon icon-routerpolicy"></div>
-                <div id="Policies" class="subtitle"></div>
+            <div class="totals">
+                <label>Policies</label>
+                <div id="PolicyCount" class="total">0</div>
+            </div>
+            <div class="totals">
+                <label>Sessions</label>
+                <div id="SessionCount" class="total">0</div>
             </div>
         </div>
         <div id="MainMap"></div>
@@ -71,12 +60,12 @@
             },
             getLoaded: function(e) {
                 page.data = context.get(summary.name);
-                $("#AppWansTotal").html(page.data.appWans);
-                $("#IdentitiesTotal").html(page.data.identities);
-                $("#ServiceTotal").html(page.data.services);
-                $("#CasTotal").html(page.data.cas);
-                $("#Routers").html(page.data.routers);
-                $("#Policies").html(page.data.edgeRouterPolicies);
+                $("#IdCount").html(page.data.identities);
+                $("#ServiceCount").html(page.data.services);
+                $("#AuthCount").html(page.data.autheticators);
+                $("#ConfigCount").html(page.data.configs);
+                $("#PolicyCount").html(page.data.servicePolicies+page.data.edgeRouterPolicies+page.data.serviceEdgeRouterPolicies);
+                $("#SessionCount").html(page.data.sessions);
             },
             idsLoaded: function(e) {
                 var index = 0;

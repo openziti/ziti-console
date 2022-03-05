@@ -40,6 +40,7 @@ var app = {
 		$(".toggle").click(app.toggle);
 		$("main").mouseover(app.hideNav);
 		$("body").keyup(app.keypress);
+		$("#ClearNotificationsButton").click(app.clearNotifications);
 		context.addListener(settings.name, app.settingsReturned);
 		context.addListener("version", app.versionReturned);
 	},
@@ -76,6 +77,11 @@ var app = {
 		if (settings.versionData&&settings.versionData.data&&settings.versionData.data.version) {
 			$("#Version").html(settings.versionData.data.version);
 		}
+	},
+	clearNotifications: function(e) {
+		modal.confirm("Are you sure you want to clear the notification history?", () => {
+			growler.clear();
+		});
 	},
 	dots: function(e) {
 		var menu = $(e.currentTarget).children(".gridMenu");

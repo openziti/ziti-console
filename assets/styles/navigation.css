@@ -43,7 +43,7 @@ nav .navArea.open {
 }
 
 nav .navList {    
-	grid-template-columns: 50% 50%;
+	grid-template-columns: 100%;
 	grid-row-gap: 20px;
     margin-left: 85px;
     margin-right: 20px;
@@ -55,8 +55,9 @@ nav .navList .navButton {
     position: relative;
     display: inline-block;
     text-align: center;
-    height: 125px;
+    height: 50px;
     cursor: pointer;
+    width: 100%;
 }
 
 nav .navList .navButton.disabled {
@@ -65,22 +66,27 @@ nav .navList .navButton.disabled {
 }
 
 nav .navList .navButton .iconArea {
-    width: 85px;
-    height: 85px;
-    border-radius: 15px;
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
     display: inline-block;
     position: relative;
     border-width: 2px;
+    float: left;
     border-style: solid;
     background-color: var(--white);
     box-shadow: var(--shadow);
     border-color: var(--white);
     transition: var(--transition);
-	overflow: hidden;
+    overflow: hidden;
 }
 
 nav .navList .navButton:hover .iconArea {
 	box-shadow: 0 14px 20px rgba(0, 0, 0, .05), 0 14px 20px rgba(0, 0, 0, .05);
+}
+
+nav .navList:hover {
+    background-color: ;
 }
 
 nav .navList .navButton .iconArea.selected {
@@ -96,32 +102,31 @@ nav .navList .navButton .image::before {
 }
 
 nav .navList .navButton .image {
-    position: absolute;
-    top: 7px;
-    right: 0px;
-    left: 0px;
-    height: 55px;
-    bottom: 10px;
+    position: absolute; 
+    height: 100%;
+    width: 100%;
     background-position: center center;
     background-size: contain;
-    font-size: 50px;
-    line-height: 70px;
-    width: 100%;
+    font-size: 35px;
+    line-height: 50px;
     text-align: center;
 }
 
 nav .navList .navButton .label {
     color: var(--text);
-    position: absolute;
-    font-size: 14px;
+    font-size: 15px;
     text-transform: uppercase;
-    bottom: -5px;
-    line-height: 14px;
+    line-height: 50px;
     font-weight: 600;
-    text-align: center;
+    text-align: left;
     font-family: 'Open Sans';
-    width: 100%;
     margin-bottom: 5px;
+    float: left;
+    position: relative;
+    margin-left: 20px;
+    text-overflow: clip;
+    overflow: hidden;
+    height: 50px;
 }
 
 nav .lock::before {
@@ -148,4 +153,30 @@ nav .lock:hover {
 
 nav .lock.locked {
     opacity: 0.6;
+}
+
+@media (max-height:920px) {
+    nav .navList {
+        grid-row-gap: 10px;
+    }
+
+    nav .navList .navButton {
+        height: 40px;
+    }
+
+    nav .navList .navButton .iconArea {
+        width: 40px;
+        height: 40px;
+        border-radius: 5px;
+    }
+
+    nav .navList .navButton .label {
+        font-size: 12px;
+        line-height: 40px;
+    }
+
+    nav .navList .navButton .image {
+        font-size: 25px;
+        line-height: 40px;
+    }
 }

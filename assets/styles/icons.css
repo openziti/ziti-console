@@ -1,150 +1,115 @@
 @font-face {
-  font-family: 'icomoon';
-  src:  url('../fonts/icomoon.eot?yqckv0');
-  src:  url('../fonts/icomoon.eot?yqckv0#iefix') format('embedded-opentype'),
-      url('../fonts/icomoon.woff2?yqckv0') format('woff2'),
-      url('../fonts/icomoon.ttf?yqckv0') format('truetype'),
-      url('../fonts/icomoon.woff?yqckv0') format('woff'),
-      url('../fonts/icomoon.svg?yqckv0#icomoon') format('svg');
+  font-family: 'zac';
+  src:  url('../fonts/zac.eot?l2gtmj');
+  src:  url('../fonts/zac.eot?l2gtmj#iefix') format('embedded-opentype'),
+    url('../fonts/zac.woff2?l2gtmj') format('woff2'),
+    url('../fonts/zac.ttf?l2gtmj') format('truetype'),
+    url('../fonts/zac.woff?l2gtmj') format('woff'),
+    url('../fonts/zac.svg?l2gtmj#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
+  font-display: block;
 }
-  
+
 [class^="icon-"], [class*=" icon-"] {
-  font-family: 'icomoon' !important;
-  speak: none;
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'zac' !important;
+  speak: never;
   font-style: normal;
   font-weight: normal;
   font-variant: normal;
   text-transform: none;
   line-height: 1;
+
+  /* Better Font Rendering =========== */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-
-
-
-
-.icon-routerpolicy:before {
-  content: "\e922";
-}
-.icon-policy:before {
-  content: "\e923";
-}
-.icon-migrating:before {
-  content: "\e91f";
-}
-.icon-identity:before {
-  content: "\e920";
-}
-.icon-route:before {
-  content: "\e921";
-}
-.icon-clear:before {
-  content: "\e91e";
-}
-.icon-add:before {
+.icon-check:before {
   content: "\e91c";
 }
-.icon-magnify:before {
-  content: "\e91d";
+.icon-question-sign:before {
+  content: "\e917";
 }
-.icon-qr:before {
-  content: "\e91b";
-}
-.icon-network:before {
-  content: "\e91a";
-}
-.icon-logical:before {
+.icon-hearts:before {
   content: "\e918";
 }
-.icon-listview:before {
+.icon-bulb:before {
   content: "\e919";
 }
-  .icon-linked:before {
-    content: "\e917";
-  }
-  .icon-checklist:before {
-    content: "\e915";
-  }
-  .icon-server:before {
-    content: "\e916";
-  }
-  .icon-gateways:before {
-    content: "\e914";
-  }
-  .icon-checked:before {
-    content: "\e913";
-  }
-  .icon-heart:before {
-    content: "\e90e";
-  }
-  .icon-idea:before {
-    content: "\e90f";
-  }
-  .icon-bug:before {
-    content: "\e910";
-  }
-  .icon-conversation:before {
-    content: "\e911";
-  }
-  .icon-conference:before {
-    content: "\e912";
-  }
-  .icon-prev:before {
-    content: "\e90c";
-    color: #000;
-  }
-  .icon-next:before {
-    content: "\e90d";
-    color: #000;
-  }
-  .icon-close:before {
-    content: "\e90b";
-  }
-  .icon-plus:before {
-    content: "\e909";
-    color: #000;
-  }
-  .icon-minus:before {
-    content: "\e90a";
-    color: #000;
-  }
-  .icon-lock:before {
-    content: "\e908";
-    color: #000;
-  }
-  .icon-services:before {
-    content: "\e900";
-    color: #000;
-  }
-  .icon-ids:before {
-    content: "\e901";
-    color: #000;
-  }
-  .icon-routers:before {
-    content: "\e902";
-    color: #000;
-  }
-  .icon-appwans:before {
-    content: "\e903";
-    color: #000;
-  }
-  .icon-clusters:before {
-    content: "\e904";
-    color: #000;
-  }
-  .icon-cas:before {
-    content: "\e905";
-    color: #000;
-  }
-  .icon-fabricServices:before {
-    content: "\e906";
-    color: #000;
-  }
-  .icon-dashboard:before {
-    content: "\e907";
-    color: #000;
-  }
-  
+.icon-bug:before {
+  content: "\e91a";
+}
+.icon-close:before {
+  content: "\e91b";
+}
+.icon-certificates:before {
+  content: "\e900";
+}
+.icon-change:before {
+  content: "\e901";
+}
+.icon-configuration:before {
+  content: "\e902";
+}
+.icon-customize:before {
+  content: "\e903";
+}
+.icon-dashboard:before {
+  content: "\e904";
+}
+.icon-edgepolicies:before {
+  content: "\e905";
+}
+.icon-globe:before {
+  content: "\e906";
+}
+.icon-help:before {
+  content: "\e907";
+}
+.icon-identity:before {
+  content: "\e908";
+}
+.icon-notify:before {
+  content: "\e909";
+}
+.icon-plus:before {
+  content: "\e90a";
+}
+.icon-posture:before {
+  content: "\e90b";
+}
+.icon-profile:before {
+  content: "\e90c";
+}
+.icon-router:before {
+  content: "\e90d";
+}
+.icon-routerpolicies:before {
+  content: "\e90e";
+}
+.icon-schema:before {
+  content: "\e90f";
+}
+.icon-server-1:before {
+  content: "\e910";
+}
+.icon-servers:before {
+  content: "\e911";
+}
+.icon-servicepolicy:before {
+  content: "\e912";
+}
+.icon-services:before {
+  content: "\e913";
+}
+.icon-settings:before {
+  content: "\e914";
+}
+.icon-terminators:before {
+  content: "\e915";
+}
+.icon-transitrouter:before {
+  content: "\e916";
+}

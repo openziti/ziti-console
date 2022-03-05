@@ -38,50 +38,53 @@
 			</div>
 
 			<!-- Submit Bug UI -->
-			<div id="AddMessageModal" class="modal box" style="height: 760px; width: 900px">
-				<div class="close icon-close"></div>
-				<div class="title">Send a Message To The Team</div>
-				<div class="subtitle">Fill out the following form to send a message</div>
-				<div class="split unsplit">
+			<div id="AddMessageModal" class="modal box full">
+				<div class="sized">
+					<div class="close icon-close"></div>
+					<div class="title">Send a Message To The Team</div>
+					<div class="subtitle">Fill out the following form to send a message</div>
+					<div class="split unsplit">
+						<div>
+							<label for="SendName">Name</label>
+							<input id="SendName" type="text" maxlength="500" placeholder="Enter a name" />
+						</div>
+						<div>
+							<label for="SendEMail">EMail Address</label>
+							<input id="SendEMail" type="text" maxlength="500" placeholder="Enter your email address" />
+						</div>
+					</div>
+					<label>Message</label>
 					<div>
-						<label for="SendName">Name</label>
-						<input id="SendName" type="text" maxlength="500" placeholder="Enter a name" />
+						<textarea id="SendMessage" placeholder="Enter the message you would like to send"></textarea>
 					</div>
-					<div>
-						<label for="SendEMail">EMail Address</label>
-						<input id="SendEMail" type="text" maxlength="500" placeholder="Enter your email address" />
+					<label id="MessageType">Type Of Message</label>
+					<div class="grid quad">
+						<div class="card option" data-type="bug">
+							<div class="icon icon-bug"></div>
+							<div class="contents">Bug</div>
+							<div class="checkbox icon-check"></div>
+						</div>
+						<div class="card option" data-type="feature">
+							<div class="icon icon-bulb"></div>
+							<div class="contents">Feature Request</div>
+							<div class="checkbox icon-check"></div>
+						</div>
+						<div class="card option" data-type="love">
+							<div class="icon icon-hearts"></div>
+							<div class="contents">Love Letter</div>
+							<div class="checkbox icon-check"></div>
+						</div>
+						<div class="card option" data-type="message">
+							<div class="icon icon-question-sign"></div>
+							<div class="contents">Message</div>
+							<div class="checkbox icon-check"></div>
+						</div>
 					</div>
-				</div>
-				<label>Message</label>
-				<div>
-					<textarea id="SendMessage" placeholder="Enter the message you would like to send"></textarea>
-				</div>
-				<label id="MessageType">Type Of Message<div class="loved"></div></label>
-				<div class="grid quad">
-					<div class="card option" data-type="bug">
-						<div class="icon icon-bug"></div>
-						<div class="contents">Bug</div>
-						<div class="checkbox icon-checked"></div>
+					<div class="loved"></div>
+					<div class="buttons">
+						<div class="linkButton closer">Oops, No get me out of here</div>
+						<div id="SendMessageButton" class="button">Send</div>
 					</div>
-					<div class="card option" data-type="feature">
-						<div class="icon icon-idea"></div>
-						<div class="contents">Feature Request</div>
-						<div class="checkbox icon-checked"></div>
-					</div>
-					<div class="card option" data-type="love">
-						<div class="icon icon-heart"></div>
-						<div class="contents">Love Letter</div>
-						<div class="checkbox icon-checked"></div>
-					</div>
-					<div class="card option" data-type="message">
-						<div class="icon icon-conversation"></div>
-						<div class="contents">Message</div>
-						<div class="checkbox icon-checked"></div>
-					</div>
-				</div>
-				<div class="buttons">
-					<div class="linkButton closer">Oops, No get me out of here</div>
-					<div id="SendMessageButton" class="button">Send</div>
 				</div>
 			</div>
 		</main>

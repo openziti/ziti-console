@@ -33,6 +33,11 @@ var growler = {
       $("#NotificationsMenu").addClass("open");
     }
   },
+  clear: function() {
+    context.remove("growlers");
+    growler.data = [];
+    growler.loadLogs();
+  },
   loadLogs: function() {
     $("#NotificationsList").html("");
     if (growler.data.length>0) {
@@ -49,8 +54,10 @@ var growler = {
           element.html(element.html().split("{{time}}").join(moment(growler.data[i].time).fromNow()));
           $("#NotificationsList").append(element);
       }
+      $("#ClearNotificationsButton").show();
     } else {
-        $("#NotificationsList").text("No Notifications to Display")
+      $("#ClearNotificationsButton").hide();
+      $("#NotificationsList").html("<span class='nonotify'>No Notifications to Display</span>")
     }
   },
 	show: function(type, title, subtitle, message) {
