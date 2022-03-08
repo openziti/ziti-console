@@ -63,7 +63,7 @@ app.use(fileUpload());
 app.use(session({ 
 	store: new sessionStore, 
 	secret: 'NetFoundryZiti', 
-	retries: 10, 
+	retries: 0, 
 	resave: true, 
 	saveUninitialized: true, 
 	ttl: 60000

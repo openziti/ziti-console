@@ -26,6 +26,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-lock:before {
+  content: "\e91d";
+}
 .icon-check:before {
   content: "\e91c";
 }
