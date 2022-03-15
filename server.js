@@ -28,7 +28,7 @@ var headerFile = __dirname+"/assets/templates/header.htm";
 var footerFile = __dirname+"/assets/templates/footer.htm";
 var header = fs.readFileSync(headerFile, 'utf8');
 var footer = fs.readFileSync(footerFile, 'utf8');
-var isDebugging = true;
+var isDebugging = false;
 
 /**
  * Watch for header and footer file changes and load them
@@ -176,7 +176,6 @@ app.post("/api/login", function(request, response) {
 				} else {
 					if (body.error) response.json( {error:body.error.message} );
 					else {
-						console.log("Session: "+body.data.token);
 						if (body.data&&body.data.token) {
 							request.session.user = body.data.token;
 							request.session.authorization = 100;
