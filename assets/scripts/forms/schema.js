@@ -55,11 +55,14 @@ var schema = {
 			$(e.currentTarget).removeClass("on");
             if (id) {
                 $("."+id+"_area").hide();
+                $("#"+id.split("forward").join("").toLowerCase()).prop("disabled", false);
             }
 		} else {
 			$(e.currentTarget).addClass("on");
             if (id) {
                 $("."+id+"_area").show();
+                $("#"+id.split("forward").join("").toLowerCase()).prop("disabled", true);
+                if ($("#"+id.split("forward").join("").toLowerCase()).prop('nodeName')=="INPUT") $("#"+id.split("forward").join("").toLowerCase()).val("");
             }
 		}
     },  
@@ -367,7 +370,7 @@ var schema = {
             exclude = exclude.concat(["forwardport","allowedportranges"]);
             html += schema.pullItem("forwardport", items);
             console.log(schema.pullItem("allowedportranges", items));
-            html += '<div class="schema_forwardPort_area" style="display:none">'+schema.pullItem("allowedportranges", items)+'</div>';
+            html += '<div class="schema_forwardPort_area" style="display:none">'+schema.pullItem("allowedportranges", items)+'</div></div>';
         }
         html += schema.pullAll(exclude, items);
 
@@ -483,6 +486,8 @@ var schema = {
             if (value) {
                 $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).addClass("on");
                 $("."+((parentKey!=null)?parentKey+'_':'')+"schema_"+key+"_area").show();
+                $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key.split("forward").join("").toLowerCase()).prop("disabled", true);
+                if ($("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key.split("forward").join("").toLowerCase()).prop('nodeName')=="INPUT") $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key.split("forward").join("").toLowerCase()).val("");
             } else $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).removeClass("on");
         } else {
             if (type=="array") {
