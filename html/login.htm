@@ -12,6 +12,11 @@
 					$("#EdgeControllerList").change(page.edgeChanged);
 					context.addListener(user.name,page.loggedIn);
 					context.addListener(settings.name, page.settingsReturned);
+					if ((new URLSearchParams(window.location.search)).has("logout")) {
+						setTimeout(() => {
+							growler.error("Cannot Reach Server", "Your session has expired");
+						}, 500);
+					}
 				},
 				login: function() {
 					context.set("serviceUrl", $("#EdgeControllerList").val());

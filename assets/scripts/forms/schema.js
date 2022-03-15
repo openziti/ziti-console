@@ -480,8 +480,10 @@ var schema = {
                 value = "";
             }
         } else if (type=="boolean") {
-            if (value) $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).addClass("on");
-            else $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).removeClass("on");
+            if (value) {
+                $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).addClass("on");
+                $("."+((parentKey!=null)?parentKey+'_':'')+"schema_"+key+"_area").show();
+            } else $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).removeClass("on");
         } else {
             if (type=="array") {
                 $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key+"_selected").html("");
