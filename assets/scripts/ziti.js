@@ -75,7 +75,7 @@ var app = {
 	},
 	versionReturned: function(e) {
 		if (settings.versionData&&settings.versionData.data&&settings.versionData.data.version) {
-			$("#Version").html(settings.versionData.data.version);
+			$("#Version").html("Controller: "+settings.versionData.data.version+" ZAC: "+settings.versionData.zac);
 		}
 	},
 	clearNotifications: function(e) {

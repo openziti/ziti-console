@@ -20,6 +20,7 @@ const $RefParser = require("@apidevtools/json-schema-ref-parser");
 const port = process.env.PORT||1408;
 const portTLS = process.env.PORTTLS||8443;
 const settingsPath = process.env.SETTINGS || '/../ziti/';
+const zacVersion = "2.2.5";
 
 var serviceUrl = "";
 var baseUrl = "";
@@ -219,7 +220,7 @@ app.post('/api/version', function(request, response) {
 				try {
 					var data = JSON.parse(body);
 					log("Version: "+body);
-					if (data&&data.data) response.json( {data: data.data} );
+					if (data&&data.data) response.json( {data: data.data, zac: zacVersion} );
 					else response.json({});
 				} catch (e) {
 					log("Invalid Json Result on Version: "+e);
