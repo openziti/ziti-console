@@ -45,3 +45,7 @@ label {
 option {
     background-color: var(--shaded);
 }
+
+nav .navList .navButton:hover .iconArea {
+	box-shadow: 0 14px 20px rgba(255, 255, 255, .05), 0 14px 20px rgba(255, 255, 255, .05);
+}

@@ -26,6 +26,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-prev:before {
+  content: "\e91f";
+}
+.icon-next:before {
+  content: "\e920";
+}
 .icon-lock:before {
   content: "\e91d";
 }
@@ -115,4 +121,7 @@
 }
 .icon-transitrouter:before {
   content: "\e916";
+}
+.icon-minus:before {
+  content: "\e91e";
 }

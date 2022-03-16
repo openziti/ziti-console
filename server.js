@@ -530,7 +530,7 @@ function GetItems(type, paging, request, response) {
 					else if (body.data) {
 						log("\nItems: "+body.data.length);
 						for (var i=0; i<body.data.length; i++) {
-							log("\nResult "+(i+1)+":\n"+JSON.stringify(body.data[i]));
+							// log("\nResult "+(i+1)+":\n"+JSON.stringify(body.data[i]));
 						}
 						response.json( body );
 					} else {
@@ -695,6 +695,14 @@ app.post("/api/dataSave", function(request, response) {
 			}
 			log("Calling: "+url);
 			log("Saving As: "+method+" "+JSON.stringify(saveParams));
+			for (prop in saveParams.data) {
+				if (Array.isArray(saveParams.data[prop]) && saveParams.data[prop].length==0) {
+					console.log("Is Array: "+prop);
+					delete saveParams.data[prop];
+				} else {
+					console.log("Not Array: "+prop+" "+saveParams.data[prop].length);
+				}
+			}
 			external(url, {method: method, json: saveParams, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 				if (err) HandleError(response, err);
 				else {
@@ -749,7 +757,7 @@ app.post("/api/subSave", function(request, response) {
 		var user = request.session.user;
 		if (hasAccess(user)) {
 			log(url);
-			log("Saving As: "+doing+" "+JSON.stringify(saveParams));
+			log("Sub Saving As: "+doing+" "+JSON.stringify(saveParams));
 			external(url, {method: doing, json: saveParams, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 				if (err) {
 					log(err);

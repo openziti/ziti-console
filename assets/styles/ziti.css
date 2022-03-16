@@ -117,6 +117,10 @@ div {
 	box-sizing: border-box;
 	background-repeat: no-repeat;
 }
+
+a, a:hover {
+    text-decoration: none !important;
+}
  
 main {
     position: absolute;
