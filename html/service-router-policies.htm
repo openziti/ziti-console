@@ -24,8 +24,8 @@
                     <div class="selector all"></div>
                 </div>
                 <div class="col sort asc" data-by="name">Name<div class="dragger"></div></div>
-                <div class="col desktop">Router Roles<div class="dragger"></div></div>
-                <div class="col desktop">Service Roles<div class="dragger"></div></div>
+                <div class="col desktop">Routers<div class="dragger"></div></div>
+                <div class="col desktop">Services<div class="dragger"></div></div>
                 <div class="col desktop sort" data-by="semantic">Semantic<div class="dragger"></div></div>
                 <div class="col"></div>
             </div>
@@ -70,14 +70,14 @@
             <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
             <label for="Name">Name</label>
             <input id="Name" type="text" data-bind="data.name" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
-            <label for="RouterRoles">Router Roles</label>
+            <label for="RouterRoles">Router Role Attributes</label>
             <div id="RouterRoles"></div>
-            <label for="ServiceRoles">Service Roles</label>
+            <label for="ServiceRoles">Service Role Attributes</label>
             <div id="ServiceRoles"></div>
             <label for="Semantics">Semantics</label>
             <select id="Semantics" data-bind="data.semantic" data-default="AnyOf" data-enter="SaveButton">
-                <option value="AnyOf">Has Any Role</option>
-                <option value="AllOf">Must Have All Roles</option>
+                <option value="AnyOf">Has Any Role Attribute</option>
+                <option value="AllOf">Must Have All Role Attributes</option>
             </select>
             <div id="TagArea" data-tagarea="policies"></div>
             <div id="TagExtended"></div>

@@ -25,10 +25,11 @@
                     <div class="selector all"></div>
                 </div>
                 <div class="col sort asc" data-by="name">Name<div class="dragger"></div></div>
-                <div class="col desktop">Service Roles<div class="dragger"></div></div>
-                <div class="col desktop">Identity Roles<div class="dragger"></div></div>
-                <div class="col desktop">Posture Check Roles<div class="dragger"></div></div>
+                <div class="col desktop">Services<div class="dragger"></div></div>
+                <div class="col desktop">Identities<div class="dragger"></div></div>
+                <div class="col desktop">Posture Checks<div class="dragger"></div></div>
                 <div class="col desktop sort" data-by="semantic">Semantic<div class="dragger"></div></div>
+                <div class="col desktop sort">Type<div class="dragger"></div></div>
                 <div class="col"></div>
             </div>
             <div class="rows" data-defined="rows">
@@ -50,6 +51,7 @@
         <div class="col desktop" data-id="{{id}}">{{selector.identityRoles}}</div>
         <div class="col desktop" data-id="{{id}}">{{selector.postureCheckRoles}}</div>
         <div class="col desktop" data-id="{{id}}">{{semantic}}</div>
+        <div class="col desktop" data-id="{{id}}">{{type}}</div>
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
                 <div class="gridMenu" data-id="{{id}}">
@@ -78,11 +80,11 @@
                 <option value="Bind" selected>Bind</option>
                 <option value="Dial">Dial</option>
             </select>
-            <label for="Roles">Service Roles</label>
+            <label for="Roles">Service Role Attributes</label>
             <div id="Roles"></div>
-            <label for="IDRoles">Identity Roles</label>
+            <label for="IDRoles">Identity Role Attributes</label>
             <div id="IDRoles"></div>
-            <label for="PCRoles">Posture Check Roles</label>
+            <label for="PCRoles">Posture Check Role Attributes</label>
             <div id="PCRoles"></div>
             <label for="Semantics">Semantics</label>
             <select id="Semantics" data-bind="data.semantic" data-default="AnyOf" data-enter="SaveButton">
