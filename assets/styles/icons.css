@@ -25,7 +25,12 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
+.icon-known:before {
+  content: "\e922";
+}
+.icon-template:before {
+  content: "\e923";
+}
 .icon-qr:before {
   content: "\e921";
 }

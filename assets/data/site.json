@@ -24,5 +24,7 @@
 	{ "page": "/settings.htm", "url": "/settings", "access": "100", "title": "Personal Settings" },
 	{ "page": "/profile.htm", "url": "/profile", "access": "100", "title": "Profile" },
 	{ "page": "/organization.htm", "url": "/organization", "access": "100", "title": "Organization Settings" },
-	{ "page": "/servers.htm", "url": "/servers", "access": "100", "title": "Server Settings" }
+	{ "page": "/servers.htm", "url": "/servers", "access": "100", "title": "Server Settings" },
+	{ "page": "/templates.htm", "url": "/templates", "access": "100", "title": "Templates" },
+	{ "page": "/known.htm", "url": "/known", "access": "100", "title": "Well Known" }
 ]

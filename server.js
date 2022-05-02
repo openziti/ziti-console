@@ -12,6 +12,7 @@ const moment = require("moment");
 const Influx = require('influx');
 const helmet = require('helmet');
 const https = require("https");
+const crypto = require('crypto');
 const $RefParser = require("@apidevtools/json-schema-ref-parser");
 
 /**
@@ -29,7 +30,7 @@ var headerFile = __dirname+"/assets/templates/header.htm";
 var footerFile = __dirname+"/assets/templates/footer.htm";
 var header = fs.readFileSync(headerFile, 'utf8');
 var footer = fs.readFileSync(footerFile, 'utf8');
-var isDebugging = false;
+var isDebugging = true;
 
 /**
  * Watch for header and footer file changes and load them
@@ -67,7 +68,8 @@ app.use(session({
 	retries: 0, 
 	resave: true, 
 	saveUninitialized: true, 
-	ttl: 60000
+	ttl: 60000, 
+	logFn: () => {}
 }));
 
 /**
@@ -79,6 +81,9 @@ if (!fs.existsSync(__dirname+settingsPath)) {
 if (!fs.existsSync(__dirname+settingsPath+'tags.json')) {
 	fs.copyFileSync(__dirname+'/assets/data/tags.json', __dirname+settingsPath+'tags.json');
 }
+if (!fs.existsSync(__dirname+settingsPath+'templates.json')) {
+	fs.copyFileSync(__dirname+'/assets/data/templates.json', __dirname+settingsPath+'templates.json');
+}
 if (!fs.existsSync(__dirname+settingsPath+'settings.json')) {
 	fs.copyFileSync(__dirname+'/assets/data/settings.json', __dirname+settingsPath+'settings.json');
 }
@@ -88,7 +93,10 @@ if (!fs.existsSync(__dirname+settingsPath+'/resources')) {
 }
 var pages = JSON.parse(fs.readFileSync(__dirname+'/assets/data/site.json', 'utf8'));
 var tags = JSON.parse(fs.readFileSync(__dirname+settingsPath+'tags.json', 'utf8'));
+var templates = JSON.parse(fs.readFileSync(__dirname+settingsPath+'templates.json', 'utf8'));
 var settings = JSON.parse(fs.readFileSync(__dirname+settingsPath+'settings.json', 'utf8'));
+
+console.log(__dirname+settingsPath+'templates.json');
 
 for (var i=0; i<settings.edgeControllers.length; i++) {
 	if (settings.edgeControllers[i].default) {
@@ -163,31 +171,41 @@ app.post("/api/login", function(request, response) {
 		baseUrl = urlToSet;
 		GetPath().then((prefix) => {
 			serviceUrl = urlToSet+prefix;
-			var params = {
+			request.session.creds = {
 				username: request.body.username,
 				password: request.body.password
-			}
-			log("Connecting to: "+serviceUrl+"/authenticate?method=password");
-			external.post(serviceUrl+"/authenticate?method=password", {json: params, rejectUnauthorized: false }, function(err, res, body) {
-				if (err) {
-					log(err);
-					var error = "Server Not Accessible";
-					if (err.code!="ECONNREFUSED") response.json( {error: err.code} );
-					response.json( {error: error} );
-				} else {
-					if (body.error) response.json( {error:body.error.message} );
-					else {
-						if (body.data&&body.data.token) {
-							request.session.user = body.data.token;
-							request.session.authorization = 100;
-							response.json( {success: "Logged In"} );
-						} else response.json( {error: "Invalid Account"} );
-					}
-				}
+			};
+			Authenticate(request).then((results) => {
+				response.json(results);
 			});
 		});
 	}
 });
+
+function Authenticate(request) {
+	return new Promise(function(resolve, reject) {
+		log("Connecting to: "+serviceUrl+"/authenticate?method=password");
+		if (request.session.creds != null) {
+			external.post(serviceUrl+"/authenticate?method=password", {json: request.session.creds , rejectUnauthorized: false }, function(err, res, body) {
+				if (err) {
+					log(err);
+					var error = "Server Not Accessible";
+					if (err.code!="ECONNREFUSED") response.json( {error: err.code} );
+					resolve( {error: error} );
+				} else {
+					if (body.error) response.json( {error: body.error.message} );
+					else {
+						if (body.data&&body.data.token) {
+							request.session.user = body.data.token;
+							request.session.authorization = 100;
+							resolve( {success: "Logged In"} );
+						} else resolve( {error: "Invalid Account"} );
+					}
+				}				
+			});
+		}
+	});
+}
 
 /**
  * Return the server path to the services
@@ -446,14 +464,16 @@ app.delete("/api/mfa", function(request, response) {
 	var user = request.session.user;
 	if (hasAccess(user)) {
 		var id = request.body.id;
-		external.delete(serviceUrl+"/identities/"+id.trim()+"/mfa", {rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-			if (err) {
-				log("Error: "+JSON.stringify(body.err));
-				response.json({error: err});
-			} else {
-				log("Success: "+JSON.stringify(body.data));
-				response.json({success: "MFA Removed"});
-			}
+		Authenticate(request).then((result) => {
+			external.delete(serviceUrl+"/identities/"+id.trim()+"/mfa", {rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+				if (err) {
+					log("Error: "+JSON.stringify(body.err));
+					response.json({error: err});
+				} else {
+					log("Success: "+JSON.stringify(body.data));
+					response.json({success: "MFA Removed"});
+				}
+			});
 		});
 	}
 });
@@ -468,19 +488,21 @@ app.delete("/api/mfa", function(request, response) {
  */
 app.post("/api/call", function(request, response) {
 	log("Calling: "+serviceUrl+"/"+request.body.url);
-	external.get(serviceUrl+"/"+request.body.url, {json: {}, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-		if (err) {
-			log("Error: "+JSON.stringify(err));
-			response.json({ error: err });
-		} else {
-			if (body.error) HandleError(response, body.error);
-			else if (body.data) {
-				response.json( body );
+	Authenticate(request).then((results) => {
+		external.get(serviceUrl+"/"+request.body.url, {json: {}, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+			if (err) {
+				log("Error: "+JSON.stringify(err));
+				response.json({ error: err });
 			} else {
-				body.data = [];
-				response.json( body );
+				if (body.error) HandleError(response, body.error);
+				else if (body.data) {
+					response.json( body );
+				} else {
+					body.data = [];
+					response.json( body );
+				}
 			}
-		}
+		});
 	});
 });
 
@@ -493,6 +515,36 @@ app.post("/api/data", function(request, response) {
 	var paging = request.body.paging;
 	GetItems(type, paging, request, response);
 });
+
+function DoCall(url, json, request, isFirst=true) {
+	return new Promise(function(resolve, reject) {
+		log("Calling: "+url+" "+isFirst+" "+request.session.user);
+		external.get(url, {json: json, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+			if (err) {
+				log("Server Error: "+JSON.stringify(err));
+				resolve({ error: err });
+			} else {
+				if (body.error) {
+					if (isFirst) {
+						log("Re-authenticate User");
+						Authenticate(request).then((results) => {
+							DoCall(url, json, request, false).then((results) => {
+								resolve(results);
+							});
+						});
+					} else resolve(body);
+				} else if (body.data) {
+					log("Items: "+body.data.length);
+					resolve(body);
+				} else {
+					log("No Items");
+					body.data = [];
+					resolve(body);
+				}
+			}
+		});
+	});
+}
 
 /**
  * Get the data from the edge controller
@@ -520,24 +572,9 @@ function GetItems(type, paging, request, response) {
 		}
 		if (serviceUrl==null||serviceUrl.trim().length==0) response.json({error:"loggedout"});
 		else {
-			log("Calling: "+serviceUrl+"/"+type+urlFilter);
-			external.get(serviceUrl+"/"+type+urlFilter, {json: {}, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-				if (err) {
-					log("Error: "+JSON.stringify(err));
-					response.json({ error: err });
-				} else {
-					if (body.error) HandleError(response, body.error);
-					else if (body.data) {
-						log("\nItems: "+body.data.length);
-						for (var i=0; i<body.data.length; i++) {
-							// log("\nResult "+(i+1)+":\n"+JSON.stringify(body.data[i]));
-						}
-						response.json( body );
-					} else {
-						body.data = [];
-						response.json( body );
-					}
-				}
+			DoCall(serviceUrl+"/"+type+urlFilter, {}, request, true).then((results) => {
+				if (results.error) HandleError(response, results.error);
+				else response.json(results);
 			});
 		}
 	}
@@ -551,25 +588,13 @@ app.post("/api/dataSubs", function(request, response) {
 	var type = request.body.type;
 	if (request.body.url) {
 		var url = request.body.url.href.split("./").join("");
-		log("Calling: "+serviceUrl+"/"+url);
-		external.get(serviceUrl+"/"+url+"?limit=99999999&offset=0&sort=name ASC", {json: {}, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-			if (err) response.json({ error: err });
-			else {
-				if (body.error) {
-					if (body.error.cause&&body.error.cause.message) response.json( {error: body.error.cause.message} );
-					else response.json( {error: body.error} );
-				} else if (body.data) {
-					log(body.data.length);
-					response.json({
-						id: id,
-						type: type,
-						data: body.data
-					});
-				} else {
-					console.log(JSON.stringify(body));
-					response.json( {error: "Unable to retrieve data"} );
-				}
-			}
+		DoCall(serviceUrl+"/"+url+"?limit=99999999&offset=0&sort=name ASC", {}, request, true).then((results) => {
+			if (results.error) HandleError(response, results.error);
+			else response.json({
+				id: id,
+				type: type,
+				data: results.data
+			});
 		});
 	} else response.json( {error: "Invalid Sub Data Url"});
 });
@@ -588,17 +613,19 @@ app.post("/api/subdata", function(request, response) {
 
 function GetSubs(url, type, id, parentType, request, response) {
 	log("Calling: "+serviceUrl+"/"+url);
-	external.get(serviceUrl+"/"+url, {json: {}, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-		if (err) response.json({ error: err });
-		else {
-			log("Returned: "+JSON.stringify(body));
-			response.json({ 
-				id: id,
-				parent: parentType,
-				type: type,
-				data: body.data
-			});
-		}
+	Authenticate(request).then((results) => {
+		external.get(serviceUrl+"/"+url, {json: {}, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+			if (err) response.json({ error: err });
+			else {
+				log("Returned: "+JSON.stringify(body));
+				response.json({ 
+					id: id,
+					parent: parentType,
+					type: type,
+					data: body.data
+				});
+			}
+		});
 	});
 }
 
@@ -676,68 +703,70 @@ app.post("/api/dataSave", function(request, response) {
 		var user = request.session.user;
 		var chained = false;
 		if (request.body.chained) chained = request.body.chained;
-		if (hasAccess(user)) {
-			if (id&&id.trim().length>0) {
-				method = "PATCH";
-				url += "/"+id.trim();
-				if (removal) {
-					var objects = Object.entries(removal);
-					if (objects.length>0) {
-						for (var i=0; i<objects.length; i++) {
-							var params = {};
-							params.ids = objects[i][1];
-							log("Delete:"+serviceUrl+"/"+type+"/"+id.trim()+"/"+objects[i][0]);
-							log(JSON.stringify(params));
-							external.delete(serviceUrl+"/"+type+"/"+id.trim()+"/"+objects[i][0], {json: params, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {});
+		Authenticate(request).then((results) => {
+			if (hasAccess(user)) {
+				if (id&&id.trim().length>0) {
+					method = "PATCH";
+					url += "/"+id.trim();
+					if (removal) {
+						var objects = Object.entries(removal);
+						if (objects.length>0) {
+							for (var i=0; i<objects.length; i++) {
+								var params = {};
+								params.ids = objects[i][1];
+								log("Delete:"+serviceUrl+"/"+type+"/"+id.trim()+"/"+objects[i][0]);
+								log(JSON.stringify(params));
+								external.delete(serviceUrl+"/"+type+"/"+id.trim()+"/"+objects[i][0], {json: params, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {});
+							}
 						}
 					}
 				}
-			}
-			log("Calling: "+url);
-			log("Saving As: "+method+" "+JSON.stringify(saveParams));
-			for (prop in saveParams.data) {
-				if (Array.isArray(saveParams.data[prop]) && saveParams.data[prop].length==0) {
-					console.log("Is Array: "+prop);
-					delete saveParams.data[prop];
-				} else {
-					console.log("Not Array: "+prop+" "+saveParams.data[prop].length);
+				log("Calling: "+url);
+				log("Saving As: "+method+" "+JSON.stringify(saveParams));
+				for (prop in saveParams.data) {
+					if (Array.isArray(saveParams.data[prop]) && saveParams.data[prop].length==0) {
+						console.log("Is Array: "+prop);
+						delete saveParams.data[prop];
+					} else {
+						console.log("Not Array: "+prop+" "+saveParams.data[prop].length);
+					}
 				}
-			}
-			external(url, {method: method, json: saveParams, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-				if (err) HandleError(response, err);
-				else {
-					log(JSON.stringify(body));
-					if (body.error) HandleError(response, body.error);
-					else if (body.data) {
-						if (additional) {
-							var objects = Object.entries(additional);
-							var index = 0;
-							if (objects.length>0) {
-								if (method=="POST") id = body.data.id;
-								for (var i=0; i<objects.length; i++) {
-									log("Body: "+JSON.stringify(body.data));
-									log("Url: "+serviceUrl+"/"+type+"/"+id+"/"+objects[i][0]);
-									log("Objects: "+JSON.stringify({ ids: objects[i][1] }));
-									external.put(serviceUrl+"/"+type+"/"+id+"/"+objects[i][0], {json: { ids: objects[i][1] }, rejectUnauthorized: false, headers: { "zt-session": user } }, function(err, res, body) {
-										index++;
-										if (index==objects.length) {
-											if (chained) response.json(body.data);
-											else GetItems(type, paging, request, response);
-										}
-									});
+				external(url, {method: method, json: saveParams, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+					if (err) HandleError(response, err);
+					else {
+						log(JSON.stringify(body));
+						if (body.error) HandleError(response, body.error);
+						else if (body.data) {
+							if (additional) {
+								var objects = Object.entries(additional);
+								var index = 0;
+								if (objects.length>0) {
+									if (method=="POST") id = body.data.id;
+									for (var i=0; i<objects.length; i++) {
+										log("Body: "+JSON.stringify(body.data));
+										log("Url: "+serviceUrl+"/"+type+"/"+id+"/"+objects[i][0]);
+										log("Objects: "+JSON.stringify({ ids: objects[i][1] }));
+										external.put(serviceUrl+"/"+type+"/"+id+"/"+objects[i][0], {json: { ids: objects[i][1] }, rejectUnauthorized: false, headers: { "zt-session": user } }, function(err, res, body) {
+											index++;
+											if (index==objects.length) {
+												if (chained) response.json(body.data);
+												else GetItems(type, paging, request, response);
+											}
+										});
+									}
+								} else {
+									if (chained) response.json(body.data);
+									else GetItems(type, paging, request, response);
 								}
 							} else {
 								if (chained) response.json(body.data);
 								else GetItems(type, paging, request, response);
 							}
-						} else {
-							if (chained) response.json(body.data);
-							else GetItems(type, paging, request, response);
-						}
-					} else response.json( {error: "Unable to save data"} );
-				}	
-			});
-		}
+						} else response.json( {error: "Unable to save data"} );
+					}	
+				});
+			}
+		});
 	}
 });
 
@@ -755,19 +784,21 @@ app.post("/api/subSave", function(request, response) {
 		var url = serviceUrl+"/"+fullType;
 		var saveParams = request.body.save;
 		var user = request.session.user;
-		if (hasAccess(user)) {
-			log(url);
-			log("Sub Saving As: "+doing+" "+JSON.stringify(saveParams));
-			external(url, {method: doing, json: saveParams, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-				if (err) {
-					log(err);
-					response.json({ error: err });
-				} else {
-					log(JSON.stringify(body));
-					GetItems(fullType, null, request, response);
-				}
-			});
-		} else response.json({error:"loggedout"});
+		Authenticate(request).then((results) => {
+			if (hasAccess(user)) {
+				log(url);
+				log("Sub Saving As: "+doing+" "+JSON.stringify(saveParams));
+				external(url, {method: doing, json: saveParams, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+					if (err) {
+						log(err);
+						response.json({ error: err });
+					} else {
+						log(JSON.stringify(body));
+						GetItems(fullType, null, request, response);
+					}
+				});
+			} else response.json({error:"loggedout"});
+		});
 	}
 });
 
@@ -815,7 +846,7 @@ app.post("/api/schema", function(request, response) {
 
 
 /**
- * Delete the specified list of objects from edhe controller, and return the remaining 
+ * Delete the specified list of objects from edge controller, and return the remaining 
  * list while retaining the last search filter properties.
  */
 app.post("/api/delete", function(request, response) {
@@ -827,7 +858,7 @@ app.post("/api/delete", function(request, response) {
 	var promises = [];
 
 	ids.forEach(function(id) {
-		promises.push(ProcessDelete(type, id, user));
+		promises.push(ProcessDelete(type, id, user, request));
 	});
 	
 	Promise.all(promises).then(function(e) {
@@ -845,7 +876,7 @@ app.post("/api/delete", function(request, response) {
  * @param {The id of the object to delete} id 
  * @param {The specified user token deleting the object} user 
  */
-function ProcessDelete(type, id, user) {
+function ProcessDelete(type, id, user, request, isFirst=true) {
 	return new Promise(function(resolve, reject) {
 		log("Delete: "+serviceUrl+"/"+type+"/"+id)
 		external.delete(serviceUrl+"/"+type+"/"+id, {json: {}, rejectUnauthorized: false, headers: { "zt-session": user } }, function(err, res, body) {
@@ -854,8 +885,16 @@ function ProcessDelete(type, id, user) {
 				reject(err);
 			} else {
 				log(JSON.stringify(body));
-				if (body.error) reject(body.error);
-				else resolve(body.data);
+				if (body.error) {
+					if (isFirst) {
+						log("Re-authenticate User");
+						Authenticate(request).then((results) => {
+							ProcessDelete(type, id, user, request, false).then((results) => {
+								resolve(results);
+							});
+						});
+					} else reject(body.error);
+				} else resolve(body.data);
 			}
 		});
 	});
@@ -950,6 +989,156 @@ app.post("/api/tagSave", function(request, response) {
 });
 
 
+
+/**------------- ZAC only specified template Section -------------**/
+
+
+
+/**
+ * Get the current well defined list of templates that ZAC has defined
+ */
+app.post("/api/templates", function(request, response) {
+	response.json(templates);
+});
+
+/**
+ * Save the current template data to the system.
+ */
+app.post("/api/template", function(request, response) {
+	var user = request.session.user;
+	Authenticate(request).then((results) => {
+		if (hasAccess(user)) {
+			if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
+			else {
+				var template = request.body.template;
+				console.log(template);
+				if (template.id == null) template.id = crypto.randomUUID();
+				var found = false;
+				for (var i=0; i<templates.length; i++) {
+					if (template.id==templates[i].id) {
+						templates[i] = template;
+						found = true;
+						break;
+					}
+				}
+				if (!found) templates.push(template);
+				let data = JSON.stringify(templates);  
+				fs.writeFileSync(__dirname+settingsPath+'/templates.json', data);
+			}
+			response.json(templates);
+		}
+	});
+});
+
+function GetTemplate(id) {
+	for (var i=0; i<templates.length; i++) {
+		if (templates[i].id==id) {
+			return templates[i];
+		}
+	}
+	return null;
+}
+
+app.post("/api/execute", function(request, response) {
+	Authenticate(request).then((results) => {
+		var template = GetTemplate(request.body.id);
+		if (template) {
+			var name = request.body.name.trim();
+			var idNames = [];
+			for (var i=0; i<template.profiles.length; i++) idNames.push(name+"-"+template.profiles[i]);
+			CreateProfile(template, name, 0, request).then((result) => {
+				var promises = [];
+				for (var i=0; i<idNames.length; i++) promises.push(GetIdentity(idNames[i], request));
+				Promise.all(promises).then((identities) => {
+					console.log(JSON.stringify(identities));
+					var promises = [];
+
+					if (template.services.length>0) {
+						var param = {
+							name: name+"-Policy",
+							type: "Dial",
+							serviceRoles: [],
+							identityRoles: [],
+							postureChecks: [],
+							semantic: "AnyOf",
+							tags: {}
+						};
+	
+						for (var i=0; i<identities.length; i++) param.identityRoles.push("@"+identities[i].id);
+						for (var i=0; i<template.services.length; i++) param.serviceRoles.push("@"+template.services[i].id);
+
+						promises.push(DoPost(serviceUrl+"service-policies", param, request));
+					}
+
+					if (template.policies.length>0) {
+						for (var i=0; i<template.policies.length; i++) promises.push(AppendServicePolicy(template.policies[i].id, request));
+					}
+
+					Promise.all(promises).then((results) => {
+						response.json({data: identities});
+					});
+				});
+			});
+		} else response.json({ error: "Template Not Found" });
+	});
+});
+
+function DoPost(url, params, request) {
+	return new Promise(function(resolve, reject) {
+		console.log(url, params, request.session.user, serviceUrl);
+		external.post(url, { json: params, rejectUnauthorized: false, headers: { "zt-session": request.session.user }}, (results) => {
+			resolve(results);
+		});
+	});
+}
+
+function AppendServicePolicy(id, request) {
+	return new Promise(function(resolve, reject) {
+		DoCall(serviceUrl+"service-policies?filter=(id=\""+id+"\")&limit=10&offset=0&sort=createdAt desc", {}, request, true).then((result) => {
+			if (result.data!=null&&result.data.length>0) {
+				var policy = result.data[0];
+				policy.identityRoles.push("@"+id);
+				DoPost(serviceUrl+"service-policies", policy).then((results) => {
+					resolve(true);
+				});
+			} else resolve(null);
+		});
+	});
+}
+
+function GetIdentity(name, request) {
+	return new Promise(function(resolve, reject) {
+		DoCall(serviceUrl+"identities?filter=(name=\""+name+"\")&limit=10&offset=0&sort=createdAt desc", {}, request, true).then((result) => {
+			if (result.data!=null&&result.data.length>0) resolve(result.data[0]);
+			else resolve(null);
+		});
+	});
+}
+
+function CreateProfile(template, name, index, request) {
+	return new Promise(function(resolve, reject) {
+		if (index<template.profiles.length) {
+			var profile = template.profiles[index];
+			index++;
+			var identity = {
+				name: name+"-"+profile,
+				type: "Device",
+				isAdmin: false,
+				enrollment: { 
+					"ott": true
+				}
+			};
+			if (template.roles != null && template.roles.length>0) identity.roleAttributes = template.roles;
+
+			DoPost(serviceUrl+"/identities", identity, request).then((result) => {
+				console.log(result);
+				resolve(CreateProfile(template, name, index, request));
+
+			});
+			
+		} else resolve(true);
+	});
+}
 
 
 /**------------- Fabric Series Data Funcations -------------**/

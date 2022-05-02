@@ -108,6 +108,10 @@
 	grid-template-columns: 50px auto 150px 50px;
 }
 
+.grid.templates {
+	grid-template-columns: 50px 200px 300px 300px auto 50px;
+}
+
 .grid.flour {
 	grid-template-columns: 50px 150px auto 50px;
 }
@@ -202,15 +206,15 @@
 }
 
 .grid.addressProtocol {
-	grid-template-columns: 150px auto;
+	grid-template-columns: 75px auto;
 }
 
 .grid.addressPort {
-	grid-template-columns: auto 100px;
+	grid-template-columns: auto 75px;
 }
 
 .grid.addressFull {
-	grid-template-columns: 150px auto 100px;
+	grid-template-columns: 75px auto 75px;
 }
 
 .head.grid {

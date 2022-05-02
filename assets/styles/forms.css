@@ -166,6 +166,8 @@ select {
     padding-left: 5px;
     padding-right: 5px;
     min-width: unset;
+    height: 50px;
+    line-height: 40px;
 }
 
 .subform .suggestItem {
@@ -300,12 +302,12 @@ label .note:hover {
     overflow: hidden;
     padding-right: 20px;
     height: 40px;
-    padding: 14px;
+    padding: 7px;
 	width: fit-content;
 	text-transform: uppercase;
 	text-align: center;
-	border-radius: 30px;
-	line-height: 12px;
+	border-radius: 7px;
+	line-height: 25px;
 	position: relative;
 	border: 0;
 	background: var(--secondary);
@@ -353,16 +355,11 @@ label .note:hover {
 
 .button:hover, .button:focus {
 	outline: 0;
-	box-shadow: 0 20px 30px -16px #000;
-	-webkit-transform: translateY(3px);
-	transform: translateY(3px);
+	background-color: var(--secondary);
 }
 
 .button:active {
-	background: #648293;
-	box-shadow: 0 20px 30px -16px #000;
-	-webkit-transform: translateY(5px);
-	transform: translateY(5px);
+	background: var(--secondary);
 }
 
 .button:disabled {

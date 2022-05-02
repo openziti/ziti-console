@@ -28,14 +28,17 @@ var Selector = function(id, label, atType, hashType) {
     this.atType = atType;
     this.hashType = hashType;
     this.data;
+    this.isSingleSelect = false;
+    this.isDropOver = false;
     this.isForceHash = true;
+    this.isForceAt = false;
     this.searchVal = "";
     this.atData = [];
     this.suggests;
     this.init = function() {
         var element = $("#"+this.id); 
         if (element) {
-            var html = '<div class="searchSelector"><input id="'+this.id+'Search" type="text" maxlength="500" placeholder="Type to select '+this.label+' attributes" />';
+            var html = '<div class="searchSelector'+((this.isDropOver)?" inline":"")+((this.isSingleSelect)?" only":"")+'"><input id="'+this.id+'Search" type="text" maxlength="500" placeholder="Type to select '+this.label+' attributes" />';
             html += '<div id="'+this.id+'Suggest" data-index="0" class="suggests"></div>';
             html += '<div id="'+this.id+'Selected" class="tagArea"></div></div>';
             element.html(html);
@@ -92,7 +95,6 @@ var Selector = function(id, label, atType, hashType) {
             selected.html("");
             for (var i=0; i<vals.length; i++) {
                 var val = vals[i];
-                console.log(val);
                 if (val.role) {
                     if (val.role.indexOf("#")==0) selected.append('<div class="hashtag tagButton icon-close" data-id="'+val.role+'"><span class="label">'+val.name+'</span></div>');
                     else if (val.role.indexOf("@")==0) selected.append('<div class="attag tagButton icon-close" data-id="'+val.role+'"><span class="label">'+val.name+'</span></div>');
@@ -118,6 +120,34 @@ var Selector = function(id, label, atType, hashType) {
             return values;
         }
     },
+    this.vals = function(vals) {
+        var selected = $("#"+this.id+"Selected");
+        if (vals) {
+            selected.html("");
+            for (var i=0; i<vals.length; i++) {
+                var val = vals[i];
+                if (val.name.indexOf("#")==0) selected.append('<div class="hashtag tagButton icon-close" data-id="'+val.id+'"><span class="label">'+val.name+'</span></div>');
+                else if (val.name.indexOf("@")==0) selected.append('<div class="attag tagButton icon-close" data-id="'+val.id+'"><span class="label">'+val.name+'</span></div>');
+                else selected.append('<div class="hashtag tagButton icon-close" data-id="'+val.id+'"><span class="label">'+val.name+'</span></div>');
+            }
+            $("#"+this.id+"Search").val("");
+            $(".tagButton").off("click", function(e) {
+                $(e.currentTarget).remove();
+            });
+            $(".tagButton").on("click", function(e) {
+                $(e.currentTarget).remove();
+            });
+        } else {
+            var values = [];
+            selected.children().each(function(i, e) {
+                values[values.length] = {
+                    id: $(e).data("id"),
+                    name: $(e).html()
+                }
+            });
+            return values;
+        }
+    },
     this.addIfNotExists = function(input, item) {
         var found = false;
         input.parent().find(".tagArea").children().each(function(i, e) {
@@ -135,6 +165,7 @@ var Selector = function(id, label, atType, hashType) {
             input.val("");
             var type = "hash";
             var found = false;
+            if (this.isSingleSelect) input.parent().find(".tagArea").html("");
             if (item.indexOf("@")==0) {
                 type = "at";
             }
@@ -171,6 +202,13 @@ var Selector = function(id, label, atType, hashType) {
         suggests.html("");
     };
     this.keyup = function(e) {
+        if (this.isForceAt) {
+            var search = $(e.currentTarget).val();
+            if (search.length>0) {
+               if (search.charAt(0)!='@') $(e.currentTarget).val("@"+search)
+               if (this.isSingleSelect) $(e.currentTarget).parent().find(".tagArea").html("");
+            }
+        }
         this.suggests = $(e.currentTarget).parent().find(".suggests");
         if (e.keyCode==13) {
             if (this.suggests.find(".highlighted").length>0) {

@@ -89,7 +89,8 @@
 		<script type="text/javascript" src="/assets/scripts/model/summary.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/tags.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/fabric.js"></script>
-		<script type="text/javascript" src="/assets/scripts/model/fabric.js"></script>
+		<script type="text/javascript" src="/assets/scripts/model/known.js"></script>
+		<script type="text/javascript" src="/assets/scripts/model/templates.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/fabricServices.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/routers.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/links.js"></script>
@@ -191,6 +192,12 @@
 							<div class="label">Identities</div>
 						</div>
 					</a>
+					<a href="/templates">
+						<div class="navButton">
+							<div class="iconArea rippler"><div class="image icon-template"></div></div>
+							<div class="label">Templates</div>
+						</div>
+					</a>
 
 					<a href="/edge-services">
 						<div class="navButton">
@@ -258,13 +265,22 @@
 			</div>
 			<div id="AreaOrganization" class="navArea">
 				<div class="navList">
-					<div class="navButton" data-go="/servers">
-						<div class="iconArea rippler"><div class="image icon-server-1"></div></div>
-						<div class="label">Server<br/>Settings</div>
-					</div>
-					<div class="navButton" data-go="/organization">
-						<div class="iconArea rippler"><div class="image icon-configuration"></div></div>
-						<div class="label">Custom<br/>Fields</div>
+					<a href="/servers">
+						<div class="navButton">
+							<div class="iconArea rippler"><div class="image icon-server-1"></div></div>
+							<div class="label">Server Settings</div>
+						</div>
+					</a>
+					<a href="/organization">
+						<div class="navButton">
+							<div class="iconArea rippler"><div class="image icon-configuration"></div></div>
+							<div class="label">Custom Fields</div>
+						</div>
+					</a>
+
+					<div class="navButton" data-go="/known" style="display: none;">
+						<div class="iconArea rippler"><div class="image icon-known"></div></div>
+						<div class="label">Well Known Services</div>
 					</div>
 				</div>
 			</div>

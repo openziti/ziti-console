@@ -4,47 +4,168 @@
             padding: 0px !important;
         }
     </style>
-    <div style="width: 100vw; height: 100vh; position: relative;">
-        <div id="Summary">
-            <a href="/identities">
-                <div class="totals">
-                    <label>Identities</label>
-                    <div id="IdCount" class="total">0</div>
+
+    <div class="overlayArea">
+
+        <div class="overlaySection">
+            <div class="pod">
+                <div class="title">Policies</div>
+                <div class="grid efour">
+                    <div class="dataArea">
+                        <div id="ServicePolicies" class="count">0</div>
+                        <div class="note">Service</div>
+                    </div>
+                    <div class="dataArea">
+                        <div id="EdgeRouterPolicies" class="count">0</div>
+                        <div class="note">Edge Router</div>
+                    </div>
+                    <div class="dataArea">
+                        <div id="ServiceEdgeRouterPolicies" class="count">0</div>
+                        <div class="note">Service Edge</div>
+                    </div>
+                    <div class="dataArea">
+                        <div id="AuthPolicies" class="count">0</div>
+                        <div class="note">Authorization</div>
+                    </div>
                 </div>
-            </a>
-            <a href="/edge-services">
-                <div class="totals">
-                    <label>Services</label>
-                    <div id="ServiceCount" class="total">0</div>
-                </div>
-            </a>
-            <div class="totals">
-                <label>Authenticators</label>
-                <div id="AuthCount" class="total">0</div>
             </div>
-            <a href="/configs">
-                <div class="totals">
-                    <label>Configurations</label>
-                    <div id="ConfigCount" class="total">0</div>
+    
+            <div class="pod">
+                <div class="title">Services</div>
+                <div class="grid ethree">
+                    <div class="dataArea">
+                        <div id="ServiceCount" class="count">0</div>
+                        <div class="note">Services</div>
+                    </div>
+                    <div class="dataArea">
+                        <div id="ConfigCount" class="count">0</div>
+                        <div class="note">Configs</div>
+                    </div>
+                    <div class="dataArea">
+                        <div id="ConfigTypeCount" class="count">0</div>
+                        <div class="note">Config Types</div>
+                    </div>
                 </div>
-            </a>
-            <a href="/service-policies">
-                <div class="totals">
-                    <label>Policies</label>
-                    <div id="PolicyCount" class="total">0</div>
+            </div>
+    
+            <div class="pod">
+                <div class="title">Access</div>
+                <div class="grid efive">
+                    <div class="dataArea">
+                        <a href="/identities">
+                            <div id="IdentityCount" class="count">0</div>
+                            <div class="note">Identities</div>
+                        </a>
+                    </div>
+                    <div class="dataArea">
+                        <a href="/identities">
+                            <div id="IdentityTypes" class="count">0</div>
+                            <div class="note">Identity Types</div>
+                        </a>
+                    </div>
+                    <div class="dataArea">
+                        <a href="/posture-checks">
+                            <div id="PostureChecks" class="count">0</div>
+                            <div class="note">Posture Checks</div>
+                        </a>
+                    </div>
+                    <div class="dataArea">
+                        <a href="/posture-checks">
+                            <div id="PostureTypes" class="count">0</div>
+                            <div class="note">Posture Types</div>
+                        </a>
+                    </div>
+                    <div class="dataArea">
+                        <a href="/posture-checks">
+                            <div id="Mfas" class="count">0</div>
+                            <div class="note">MFAs</div>
+                        </a>
+                    </div>
                 </div>
-            </a>
-            <div class="totals">
-                <label>Sessions</label>
-                <div id="SessionCount" class="total">0</div>
             </div>
         </div>
-        <div id="MainMap"></div>
+
+        <div class="overlaySection">
+            <div class="pod" style="width: 400px">
+
+                <div id="AddIdentityArea">
+                    <div class="title">Add Identity</div>
+                    <div>
+                        <label for="IdName">Name</label>
+                        <input id="IdName" type="text" autocomplete="new-password" placeholder="enter the name..."/>
+                    </div>
+                    <div>
+                        <label for="RolesSearch">Role</label>
+                        <div id="Roles"></div>
+                    </div>
+                    <div id="AdIdButton" class="button">Add</div>
+                </div>
+
+                <div id="AddedIdArea" style="display: none;">
+                    <div class="title">Identity Created</div>
+                    <div class="grid etwo">
+                        <div class="icon qr"></div>
+                        <div class="icon jwt"></div>
+                    </div>
+                    <div id="StartOverButton" class="button">Start Over</div>
+                </div>
+            </div>
+
+            <div class="pod" style="width: 400px">
+
+                <div id="ConnectIdentityArea">
+                    <div class="title">Connect Identity</div>
+                    <div>
+                        <label for="IdentitiesSearch">Identity</label>
+                        <div id="Identities"></div>
+                    </div>
+                    <div>
+                        <label for="ServicesSearch">Services</label>
+                        <div id="Services"></div>
+                    </div>
+                    <div id="ConnectButton" class="button">Connect</div>
+                </div>
+            </div>
+
+            <div class="pod" style="width: 400px">
+
+                <div id="QuickServiceArea">
+                    <div class="title">Quick Service Create</div>
+                    <div>
+                        <label for="HowHosted">How it's Hosted</label>
+                        <div class="grid addressPort">
+                            <input id="QSAddress" type="text" placeholder="e.g. 127.0.0.1" value="127.0.0.1" />
+                            <input id="QSPort" type="number" placeholder="e.g. 80" value="80" />
+                        </div>
+                    </div>
+                    <div>
+                        <label for="HotToConnect">How To Connect</label>
+                        <div class="grid addressFull">
+                            <select id="ConnProtocol">
+                                <option selected>TCP</option>
+                                <option>UDP</option>
+                            </select>
+                            <input id="ConnAddress" type="text" placeholder="e.g. service.ziti"/>
+                            <input id="ConnPort" type="number" placeholder="e.g. 80" value="80" />
+                        </div>
+                    </div>
+                    <div id="ConnectButton" class="button">Connect</div>
+                </div>
+            </div>
+        </div>
+            
     </div>
+    <div id="MainMap"></div>
+</div>
+
+
 
     <script language="javascript" type="text/javascript">
         page = {
             map: null,
+            roles: null,
+            services: null,
+            identities: null,
             binding: {
                 pageTitle: "Dashboard",
                 singular: "Dashboard"
@@ -53,6 +174,23 @@
             idsObject: null,
             init: function() {
                 page.idsObject = new Data("identities");
+
+                page.services = new Selector("Services","services","services");
+                page.identities = new Selector("Identities","identities","identities");
+
+                page.services.isDropOver = true;
+                page.services.isSingleSelect = true;
+                page.services.isForceAt = true;
+                page.services.init();
+
+                page.identities.isDropOver = true;
+                page.identities.isSingleSelect = true;
+                page.identities.isForceAt = true;
+                page.identities.init();
+
+                page.roles = new Selector("Roles","roles");
+                page.roles.isForceHash = false;
+                page.roles.init();
 
                 page.events();
 
@@ -68,12 +206,17 @@
             },
             getLoaded: function(e) {
                 page.data = context.get(summary.name);
-                $("#IdCount").html(page.data.identities);
+                $("#IdentityCount").html(page.data.identities);
                 $("#ServiceCount").html(page.data.services);
-                $("#AuthCount").html(page.data.autheticators);
                 $("#ConfigCount").html(page.data.configs);
-                $("#PolicyCount").html(page.data.servicePolicies+page.data.edgeRouterPolicies+page.data.serviceEdgeRouterPolicies);
-                $("#SessionCount").html(page.data.sessions);
+                $("#ServicePolicies").html(page.data.servicePolicies);
+                $("#EdgeRouterPolicies").html(page.data.edgeRouterPolicies);
+                $("#ServiceEdgeRouterPolicies").html(page.data.serviceEdgeRouterPolicies);
+                $("#AuthPolicies").html(page.data.authPolicies);
+                $("#PostureChecks").html(page.data.postureChecks);
+                $("#PostureTypes").html(page.data.postureCheckTypes);
+                $("#Mfas").html(page.data.mfas);
+                $("#ConfigTypeCount").html(page.data.configTypes);
             },
             idsLoaded: function(e) {
                 var index = 0;

@@ -5,6 +5,7 @@
         <div class="tabs">
             <div class="tab selected">Manage Servers</div>
             <div class="tab" data-go="/organization">Manage Custom Fields</div>
+            <div class="tab" data-go="/templates">Templates</div>
         </div>
     </div>
     <div class="action icon-plus" data-action="add"></div>
@@ -16,8 +17,8 @@
                     <div class="selector all"></div>
                 </div>
                 <div class="col asc">Name<div class="dragger"></div></div>
-                <div class="col">Url<div class="dragger"></div></div>
-                <div class="col">Type<div class="dragger"></div></div>
+                <div class="col desktop">Url<div class="dragger"></div></div>
+                <div class="col desktop">Type<div class="dragger"></div></div>
                 <div class="col"></div>
             </div>
             <div class="rows">
@@ -37,8 +38,8 @@
             <div class="selector" data-id="{{id}}"></div>
         </div>
         <div class="col" data-id="{{id}}"><strong>{{name}}</strong></div>
-        <div class="col" data-id="{{id}}">{{url}}</div>
-        <div class="col" data-id="{{id}}">{{type}}</div>
+        <div class="col desktop" data-id="{{id}}">{{url}}</div>
+        <div class="col desktop" data-id="{{id}}">{{type}}</div>
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
                 <div class="gridMenu" data-id="{{id}}">
