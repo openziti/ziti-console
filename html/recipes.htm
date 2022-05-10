@@ -82,10 +82,10 @@
 	</div>
 
     <div id="ExecuteModal" class="modal box full">
-        <div class="sized">
+        <div id="Step1" class="sized">
             <div class="close icon-close"></div>
-            <div class="title">Process Template</div>
-            <div class="subtitle adding">Process your identity template by entering a new name</div>
+            <div class="title">Process <span data-bind="singular"></span></div>
+            <div class="subtitle adding">Process your identity <span data-bind="singular"></span> by entering a new name</div>
             <label for="IdName">Name</label>
             <input id="IdName" type="text" maxlength="500" placeholder="Enter a name" autocomplete="new-password" data-restrict="empty" />
             <div class="hasdata" style="display: none;">
@@ -101,14 +101,26 @@
                 </div>
             </div>
         </div>
+        <div id="Step2" class="sized" style="display: none;">
+            <div class="close icon-close"></div>
+            <div class="title">Generated Identities</div>
+            <div class="subtitle adding">Download, Scan or Send your identities</div>
+            <div id="NewIdList"></div>
+            <label for="SendTo">Send To</label>
+            <input id="SendTo" type="text" placeholder="someone@somewhere.com" />
+            <div class="buttons">
+                <div></div>
+                <div id="SendButton" class="button">Send</div>
+            </div>
+        </div>
     </div>
     
     
     <script language="javascript" type="text/javascript">
         page = {
             binding: {
-                pageTitle: "Templates",
-                singular: "Template"
+                pageTitle: "Recipes",
+                singular: "Recipe"
             }, 
             data: [],
             roles: [],
@@ -117,6 +129,8 @@
             services: [],
             editId: null,
             executing: null,
+            deleting: [],
+            newids: [],
             init: function() {
                 page.roles = new Selector("Roles","roles");
                 page.profiles = new Selector("Profiles","profiles");
@@ -142,6 +156,7 @@
             events: function() {
                 $(".action").click(page.handleAction);
                 $("#SaveButton").click(page.save);
+                $("#SendButton").click(page.send);
                 $("#ExecuteButton").click(page.create);
                 context.addListener(templates.name, page.loaded);
             },
@@ -192,6 +207,24 @@
                 page.reset();
                 var action = $(e.currentTarget).data("action");
                 if (action=="add") page.add();
+                else if (action=="remove") {
+                    page.deleting = [];
+                    $(".selector.selected").each(function(index, e) {
+                        var id = $(e).data("id");
+                        if (id&&id.trim().length>0&&id!="{{id}}") page.deleting.push(id);
+                    });
+
+                    if (page.deleting.length>0) page.delete(page.deleting);
+                }
+            },
+            delete:  function(ids) {
+                page.deleting = ids;
+                if (page.deleting.length>0) {
+                    modal.confirm("you want to delete these "+page.deleting.length+" "+((page.deleting.length>1)?page.binding.pageTitle:page.binding.singular), page.doDelete);
+                }
+            },
+            doDelete: function() {
+                service.call("templates", { ids: page.deleting }, templates.loaded, "DELETE");
             },
             add: function() {
                 $(".adding").show();
@@ -201,11 +234,15 @@
             gridAction: function(e) {
                 var action = $(e.currentTarget).data("action");
                 var id = $(e.currentTarget).data("id");
-                if (action=="delete") page.filterObject.delete([id]);
+                if (action=="delete") page.delete([id]);
                 else if (action=="edit") page.edit(id);
                 else if (action=="execute") page.execute(id);
             },
             execute: function(id) {
+                $("#SendTo").val("");
+                $("#Step1").show();
+                $("#Step2").hide();
+                $("#IdName").val("");
                 page.executing = null;
                 var obj = templates.details(id);
 
@@ -261,12 +298,62 @@
                 service.call("execute", params, (result) => {
                     if (result.error) growler.error(result.error);
                     else {
-                        growler.sucess("Execution Complete");
-                        modal.close();
-
-                        modal.show("IdsArea");
+                        growler.success("Execution Complete");
+                        $("#Step1").hide();
+                        $("#NewIdList").html("");
+                        page.newids = result.data;
+                        for (var i=0; i<result.data.length; i++) {
+                            var identity = result.data[i];
+                            var html = "";
+                            html += '<div class="idBox">';
+                            html += '<div class="title">'+identity.name+'</div>';
+                            html += '<div id="Qr_'+i+'" class="qrCode"></div>';
+                            html += '<div class="dlButton linkButton" data-download="'+i+'">Download</div>';
+                            html += '</div>';
+                            $("#NewIdList").append(html);
+                            page.showQr("Qr_"+i, identity.enrollment.ott.jwt);
+                        };
+                        $(".dlButton").click(page.download);
+                        $("#Step2").show();
                     }
                 });
+            },
+            download: function(e) {
+                var id = Number($(e.currentTarget).data("download"));
+                var identity = page.newids[id];
+                if (identity&&identity.enrollment&&identity.enrollment.ott&&identity.enrollment.ott.jwt) {
+                    var name = identity.name.split(" ").join("");
+                    var element = document.createElement('a');
+                    element.setAttribute('href', 'data:application/ziti-jwt;charset=utf-8,' + encodeURIComponent(identity.enrollment.ott.jwt));
+                    element.setAttribute('download', name+".jwt");
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
+                } else if (identity&&identity.enrollment&&identity.enrollment.updb&&identity.enrollment.updb.jwt) {
+                    var name = identity.name.split(" ").join("");
+                    var element = document.createElement('a');
+                    element.setAttribute('href', 'data:application/ziti-jwt;charset=utf-8,' + encodeURIComponent(identity.enrollment.updb.jwt));
+                    element.setAttribute('download', name+".jwt");
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
+                }
+            },
+            showQr: function(id, data) {
+                try {
+                    var qrcode = new QRCode(id, {
+                        text: encodeURIComponent(data),
+                        width: 260,
+                        height: 260,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.M
+                    });
+                } catch (e) {
+                    console.log("Error Generating QR Code");
+                }
             },
             edit: function(id) {
                 var obj = templates.details(id);
@@ -300,12 +387,46 @@
                 return $(".errors").length==0;
             },
             reset: function() {
+                $("#SendTo").removeClass("error");
                 page.editId = null;
                 $("#Name").val("");
                 page.services.vals([]);
                 page.roles.vals([]);
                 page.profiles.vals([]);
                 page.policies.vals([]);
+            },
+            send: function(e) {
+                $("#SendTo").removeClass("error");
+                var to = $("#SendTo").val();
+                if (to.match(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/)) {
+                    var element = $("#NewIdList").clone();
+                    element.find(".dlButton").remove();
+                    element.find(".title").prop("style", "margin-top: 20px; font-size: 20px;");
+                    var message = {
+                        to: to,
+                        body: '<center><h2>The Following Open Ziti Identities have been creatd for you</h2><div style="position:relative; display: inline-block">'+element.html()+'</div></center>',
+                        subject: "Identities Created for Recipe: "+page.executing.name,
+                        attachments: []
+                    }
+                    for (var i=0; i<page.newids.length; i++) {
+                        var identity = page.newids[i];
+                        var content = "";
+                        if (identity&&identity.enrollment&&identity.enrollment.ott&&identity.enrollment.ott.jwt) content = identity.enrollment.ott.jwt;
+                        else if (identity&&identity.enrollment&&identity.enrollment.updb&&identity.enrollment.updb.jwt) content = identity.enrollment.updb.jwt;
+                        message.attachments.push({
+                            filename: identity.name.split(" ").join("")+".jwt",
+                            content: content
+                        });
+                    }
+                    service.call("send", message, page.sendComplete);
+                } else {
+                    $("#SendTo").addClass("error");
+                }
+            },
+            sendComplete: function(e) {
+                var message = "Message Has Been Sent!";
+                $("#SendTo").val("");
+                growler.success(message);
             }
         }
     </script>

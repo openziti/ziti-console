@@ -21,7 +21,7 @@ const $RefParser = require("@apidevtools/json-schema-ref-parser");
 const port = process.env.PORT||1408;
 const portTLS = process.env.PORTTLS||8443;
 const settingsPath = process.env.SETTINGS || '/../ziti/';
-const zacVersion = "2.2.5";
+const zacVersion = "2.3.0";
 
 var serviceUrl = "";
 var baseUrl = "";
@@ -95,8 +95,6 @@ var pages = JSON.parse(fs.readFileSync(__dirname+'/assets/data/site.json', 'utf8
 var tags = JSON.parse(fs.readFileSync(__dirname+settingsPath+'tags.json', 'utf8'));
 var templates = JSON.parse(fs.readFileSync(__dirname+settingsPath+'templates.json', 'utf8'));
 var settings = JSON.parse(fs.readFileSync(__dirname+settingsPath+'settings.json', 'utf8'));
-
-console.log(__dirname+settingsPath+'templates.json');
 
 for (var i=0; i<settings.edgeControllers.length; i++) {
 	if (settings.edgeControllers[i].default) {
@@ -524,6 +522,7 @@ function DoCall(url, json, request, isFirst=true) {
 				log("Server Error: "+JSON.stringify(err));
 				resolve({ error: err });
 			} else {
+				console.log(body);
 				if (body.error) {
 					if (isFirst) {
 						log("Re-authenticate User");
@@ -1002,6 +1001,32 @@ app.post("/api/templates", function(request, response) {
 });
 
 /**
+ * Get the current well defined list of templates that ZAC has defined
+ */
+app.delete("/api/templates", function(request, response) {
+	var ids = request.body.ids;
+
+	var user = request.session.user;
+	Authenticate(request).then((results) => {
+		if (hasAccess(user)) {
+
+			var newTemplates = [];
+
+			for (var i=0; i<templates.length; i++) {
+				if (!ids.includes(templates[i].id)) newTemplates.push(templates[i]);
+			}
+
+			templates = newTemplates;
+			
+			let data = JSON.stringify(templates);  
+			fs.writeFileSync(__dirname+settingsPath+'/templates.json', data);
+
+			response.json(templates);
+		} else response.json(templates);
+	});
+});
+
+/**
  * Save the current template data to the system.
  */
 app.post("/api/template", function(request, response) {
@@ -1011,7 +1036,6 @@ app.post("/api/template", function(request, response) {
 			if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
 			else {
 				var template = request.body.template;
-				console.log(template);
 				if (template.id == null) template.id = crypto.randomUUID();
 				var found = false;
 				for (var i=0; i<templates.length; i++) {
@@ -1052,6 +1076,8 @@ app.post("/api/execute", function(request, response) {
 				Promise.all(promises).then((identities) => {
 					console.log(JSON.stringify(identities));
 					var promises = [];
+					var ids = [];
+					for (var i=0; i<identities.length; i++) ids.push(identities[i].id);
 
 					if (template.services.length>0) {
 						var param = {
@@ -1059,19 +1085,19 @@ app.post("/api/execute", function(request, response) {
 							type: "Dial",
 							serviceRoles: [],
 							identityRoles: [],
-							postureChecks: [],
+							postureCheckRoles: [],
 							semantic: "AnyOf",
 							tags: {}
 						};
 	
 						for (var i=0; i<identities.length; i++) param.identityRoles.push("@"+identities[i].id);
-						for (var i=0; i<template.services.length; i++) param.serviceRoles.push("@"+template.services[i].id);
+						for (var i=0; i<template.services.length; i++) param.serviceRoles.push(template.services[i].id);
 
-						promises.push(DoPost(serviceUrl+"service-policies", param, request));
+						promises.push(DoPost(serviceUrl+"/service-policies", param, request));
 					}
 
 					if (template.policies.length>0) {
-						for (var i=0; i<template.policies.length; i++) promises.push(AppendServicePolicy(template.policies[i].id, request));
+						for (var i=0; i<template.policies.length; i++) promises.push(AppendServicePolicy(template.policies[i].id, ids, request));
 					}
 
 					Promise.all(promises).then((results) => {
@@ -1083,22 +1109,44 @@ app.post("/api/execute", function(request, response) {
 	});
 });
 
-function DoPost(url, params, request) {
+function DoPatch(url, params, request) {
 	return new Promise(function(resolve, reject) {
 		console.log(url, params, request.session.user, serviceUrl);
-		external.post(url, { json: params, rejectUnauthorized: false, headers: { "zt-session": request.session.user }}, (results) => {
-			resolve(results);
+		external.put(url, { json: params, rejectUnauthorized: false, headers: { "zt-session": request.session.user }}, (err, results, body) => {
+			console.log(err);
+			console.log(body);
+			resolve(body);
 		});
 	});
 }
 
-function AppendServicePolicy(id, request) {
+function DoPost(url, params, request) {
 	return new Promise(function(resolve, reject) {
-		DoCall(serviceUrl+"service-policies?filter=(id=\""+id+"\")&limit=10&offset=0&sort=createdAt desc", {}, request, true).then((result) => {
+		console.log(url, params, request.session.user, serviceUrl);
+		external.post(url, { json: params, rejectUnauthorized: false, headers: { "zt-session": request.session.user }}, (err, results, body) => {
+			console.log(err);
+			console.log(body);
+			resolve(body);
+		});
+	});
+}
+
+function AppendServicePolicy(id, ids, request) {
+	return new Promise(function(resolve, reject) {
+		DoCall(serviceUrl+"/service-policies?filter=(id=\""+id.substr(1)+"\")&limit=1&offset=0&sort=createdAt desc", {}, request, true).then((result) => {
 			if (result.data!=null&&result.data.length>0) {
 				var policy = result.data[0];
-				policy.identityRoles.push("@"+id);
-				DoPost(serviceUrl+"service-policies", policy).then((results) => {
+				var patchPolicy = {
+					name: policy.name,
+					serviceRoles: policy.serviceRoles,
+					identityRoles: policy.identityRoles,
+					postureCheckRoles: policy.postureCheckRoles,
+					semantic: policy.semantic,
+					tags: policy.tags,
+					type: policy.type
+				};
+				for (var i=0; i<ids.length; i++) patchPolicy.identityRoles.push("@"+ids[i]);
+				DoPatch(serviceUrl+"/service-policies/"+id.substr(1), patchPolicy, request).then((results) => {
 					resolve(true);
 				});
 			} else resolve(null);
@@ -1108,8 +1156,8 @@ function AppendServicePolicy(id, request) {
 
 function GetIdentity(name, request) {
 	return new Promise(function(resolve, reject) {
-		DoCall(serviceUrl+"identities?filter=(name=\""+name+"\")&limit=10&offset=0&sort=createdAt desc", {}, request, true).then((result) => {
-			if (result.data!=null&&result.data.length>0) resolve(result.data[0]);
+		DoCall(serviceUrl+"/identities?filter=(name=\""+name+"\")&limit=1&offset=0&sort=createdAt desc", {}, request, true).then((results) => {
+			if (results.data!=null&&results.data.length>0) resolve(results.data[0]);
 			else resolve(null);
 		});
 	});
@@ -1129,7 +1177,7 @@ function CreateProfile(template, name, index, request) {
 				}
 			};
 			if (template.roles != null && template.roles.length>0) identity.roleAttributes = template.roles;
-
+			console.log("Creating "+JSON.stringify(identity));
 			DoPost(serviceUrl+"/identities", identity, request).then((result) => {
 				console.log(result);
 				resolve(CreateProfile(template, name, index, request));
@@ -1236,9 +1284,25 @@ app.post("/api/message", function(request, response) {
 		subject: "NetFoundry Ziti - Message"
 	};
 
-	external.post("https://sendmail.netfoundry.io/send", {json: params, rejectUnauthorized: false }, function(err, res, body) {
+	external.post("https://sendmail.netfoundry.io/message", {json: params, rejectUnauthorized: false }, function(err, res, body) {
 		if (err) response.json({ errors: err });
 		else {
+			if (body.error) response.json({ errors: body.error });
+			else response.json({ success: "Mail Sent" });
+		}
+	});
+});
+
+
+/***
+ * Send a message to NetFoundry to report errors or request features
+ */
+app.post("/api/send", function(request, response) {
+	console.log(request.body);
+	external.post("https://sendmail.netfoundry.io/send", {json: request.body, rejectUnauthorized: false }, function(err, res, body) {
+		if (err) response.json({ errors: err });
+		else {
+			console.log(body);
 			if (body.error) response.json({ errors: body.error });
 			else response.json({ success: "Mail Sent" });
 		}

@@ -1148,6 +1148,12 @@ aside .icon {
     transition: var(--transition);
 }
 
+.qrCode {
+    text-align: center;
+    position: relative;
+    display: inline-block;
+}
+
 .qr {
     cursor: pointer;
     width: 30px;
@@ -1500,6 +1506,37 @@ aside .icon {
 
 .jsonButton.on {
     color: var(--black);
+}
+
+#NewIdList {
+    position: relative;
+    text-align: center;
+    display: inline-block;
+    width: 100%;
+}
+
+.idBox {
+    width: 48%;
+    margin: 6px;
+    border-radius: 7px;
+    background-color: var(--stroke);
+    position: relative;
+    display: inline-block;
+}
+
+.idBox .title {
+    font-size: 18px;
+    text-align: center;
+    font-family: "Open Sans";
+    color: #FFF;
+}
+
+.idBox .dlButton {
+    font-size: 14px;
+    text-align: center;
+    font-family: "Open Sans";
+    color: #FFF;
+    font-weight: bold;
 }
 
 #TagArea .tag, .selectedItems .tag {
