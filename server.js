@@ -1035,19 +1035,23 @@ app.post("/api/template", function(request, response) {
 		if (hasAccess(user)) {
 			if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
 			else {
-				var template = request.body.template;
-				if (template.id == null) template.id = crypto.randomUUID();
-				var found = false;
-				for (var i=0; i<templates.length; i++) {
-					if (template.id==templates[i].id) {
-						templates[i] = template;
-						found = true;
-						break;
+				if (crypto.randomUUID) {
+					var template = request.body.template;
+					if (template.id == null) template.id = crypto.randomUUID();
+					var found = false;
+					for (var i=0; i<templates.length; i++) {
+						if (template.id==templates[i].id) {
+							templates[i] = template;
+							found = true;
+							break;
+						}
 					}
+					if (!found) templates.push(template);
+					let data = JSON.stringify(templates);  
+					fs.writeFileSync(__dirname+settingsPath+'/templates.json', data);
+				} else {
+					growler.error("Please update your version of Node JS.")
 				}
-				if (!found) templates.push(template);
-				let data = JSON.stringify(templates);  
-				fs.writeFileSync(__dirname+settingsPath+'/templates.json', data);
 			}
 			response.json(templates);
 		}

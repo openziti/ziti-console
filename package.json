@@ -33,7 +33,10 @@
   },
   "keywords": [
     "ziti"
-  ],
+  ], 
+  "engines" : { 
+    "npm" : ">=14.17.0",
+  },
   "author": "Jeremy Tellier",
   "license": "ISC",
   "dependencies": {
