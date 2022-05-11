@@ -35,7 +35,7 @@
     "ziti"
   ], 
   "engines" : { 
-    "npm" : ">=14.17.0",
+    "node" : ">=14.17"
   },
   "author": "Jeremy Tellier",
   "license": "ISC",
