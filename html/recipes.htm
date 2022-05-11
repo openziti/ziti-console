@@ -307,7 +307,7 @@
                             var html = "";
                             html += '<div class="idBox">';
                             html += '<div class="title">'+identity.name+'</div>';
-                            html += '<div id="Qr_'+i+'" alt="QR '+identity.name+'" class="qrCode"></div>';
+                            html += '<div id="Qr_'+i+'" class="qrCode"></div>';
                             html += '<div class="dlButton linkButton" data-download="'+i+'">Download</div>';
                             html += '</div>';
                             $("#NewIdList").append(html);
@@ -402,6 +402,7 @@
                     var element = $("#NewIdList").clone();
                     element.find(".dlButton").remove();
                     element.find(".title").prop("style", "margin-top: 20px; font-size: 20px;");
+                    element.find("img").prop("alt", "QR Code");
                     var message = {
                         to: to,
                         body: '<center><h2>The Following Open Ziti Identities have been creatd for you</h2><div style="position:relative; display: inline-block">'+element.html()+'</div></center>',
