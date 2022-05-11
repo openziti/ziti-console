@@ -1,5 +1,7 @@
 sessions/
 node_modules/
+iisnode/
+web.config
 node-console.iml
 node-console.ipr
 node-console.iws
