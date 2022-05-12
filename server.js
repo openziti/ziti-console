@@ -30,7 +30,7 @@ var headerFile = __dirname+"/assets/templates/header.htm";
 var footerFile = __dirname+"/assets/templates/footer.htm";
 var header = fs.readFileSync(headerFile, 'utf8');
 var footer = fs.readFileSync(footerFile, 'utf8');
-var isDebugging = true;
+var isDebugging = false;
 
 /**
  * Watch for header and footer file changes and load them
@@ -264,7 +264,6 @@ app.post("/api/reset", function(request, response) {
 					response.json( {error: error} );
 				} else {
 					var data = JSON.parse(body);
-					console.log(JSON.stringify(data));
 					if (data.error) {
 						log(JSON.stringify(data.error));
 						response.json( {error: data.error.message} );
@@ -522,7 +521,6 @@ function DoCall(url, json, request, isFirst=true) {
 				log("Server Error: "+JSON.stringify(err));
 				resolve({ error: err });
 			} else {
-				console.log(body);
 				if (body.error) {
 					if (isFirst) {
 						log("Re-authenticate User");
@@ -724,10 +722,9 @@ app.post("/api/dataSave", function(request, response) {
 				log("Saving As: "+method+" "+JSON.stringify(saveParams));
 				for (prop in saveParams.data) {
 					if (Array.isArray(saveParams.data[prop]) && saveParams.data[prop].length==0) {
-						console.log("Is Array: "+prop);
 						delete saveParams.data[prop];
 					} else {
-						console.log("Not Array: "+prop+" "+saveParams.data[prop].length);
+						//console.log("Not Array: "+prop+" "+saveParams.data[prop].length);
 					}
 				}
 				external(url, {method: method, json: saveParams, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
@@ -1078,7 +1075,6 @@ app.post("/api/execute", function(request, response) {
 				var promises = [];
 				for (var i=0; i<idNames.length; i++) promises.push(GetIdentity(idNames[i], request));
 				Promise.all(promises).then((identities) => {
-					console.log(JSON.stringify(identities));
 					var promises = [];
 					var ids = [];
 					for (var i=0; i<identities.length; i++) ids.push(identities[i].id);
@@ -1115,10 +1111,7 @@ app.post("/api/execute", function(request, response) {
 
 function DoPatch(url, params, request) {
 	return new Promise(function(resolve, reject) {
-		console.log(url, params, request.session.user, serviceUrl);
 		external.put(url, { json: params, rejectUnauthorized: false, headers: { "zt-session": request.session.user }}, (err, results, body) => {
-			console.log(err);
-			console.log(body);
 			resolve(body);
 		});
 	});
@@ -1126,10 +1119,7 @@ function DoPatch(url, params, request) {
 
 function DoPost(url, params, request) {
 	return new Promise(function(resolve, reject) {
-		console.log(url, params, request.session.user, serviceUrl);
 		external.post(url, { json: params, rejectUnauthorized: false, headers: { "zt-session": request.session.user }}, (err, results, body) => {
-			console.log(err);
-			console.log(body);
 			resolve(body);
 		});
 	});
@@ -1181,9 +1171,7 @@ function CreateProfile(template, name, index, request) {
 				}
 			};
 			if (template.roles != null && template.roles.length>0) identity.roleAttributes = template.roles;
-			console.log("Creating "+JSON.stringify(identity));
 			DoPost(serviceUrl+"/identities", identity, request).then((result) => {
-				console.log(result);
 				resolve(CreateProfile(template, name, index, request));
 
 			});
@@ -1302,11 +1290,9 @@ app.post("/api/message", function(request, response) {
  * Send a message to NetFoundry to report errors or request features
  */
 app.post("/api/send", function(request, response) {
-	console.log(request.body);
 	external.post("https://sendmail.netfoundry.io/send", {json: request.body, rejectUnauthorized: false }, function(err, res, body) {
 		if (err) response.json({ errors: err });
 		else {
-			console.log(body);
 			if (body.error) response.json({ errors: body.error });
 			else response.json({ success: "Mail Sent" });
 		}

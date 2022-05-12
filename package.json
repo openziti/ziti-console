@@ -33,9 +33,9 @@
   },
   "keywords": [
     "ziti"
-  ], 
-  "engines" : { 
-    "node" : ">=14.17"
+  ],
+  "engines": {
+    "node": ">=14.17"
   },
   "author": "Jeremy Tellier",
   "license": "ISC",
@@ -55,7 +55,7 @@
     "influxdb-nodejs": "^3.1.0",
     "md5": "^2.3.0",
     "moment": "^2.29.3",
-    "nexe": "^3.3.7",
+    "nexe": "^4.0.0-beta.19",
     "node-rest-client": "^3.1.1",
     "nodemailer": "^6.7.2",
     "psl": "^1.8.0",
