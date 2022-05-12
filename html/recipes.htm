@@ -400,12 +400,13 @@
                 var to = $("#SendTo").val();
                 if (to.match(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/)) {
                     var element = $("#NewIdList").clone();
-                    element.find(".dlButton").remove();
-                    element.find(".title").prop("style", "margin-top: 20px; font-size: 20px;");
-                    element.find("img").prop("alt", "QR Code");
+                    var codes = [];
+                    element.find("img").each((i, elem) => {
+                        codes.push($(elem).prop("src"));
+                    });
                     var message = {
                         to: to,
-                        body: '<center><h2>The Following Open Ziti Identities have been created for you</h2><div style="position:relative; display: inline-block">'+element.html()+'</div></center>',
+                        codes: codes,
                         subject: "Identities Created for Recipe: "+page.executing.name,
                         attachments: []
                     }
