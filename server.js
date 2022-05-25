@@ -21,7 +21,7 @@ const $RefParser = require("@apidevtools/json-schema-ref-parser");
 const port = process.env.PORT||1408;
 const portTLS = process.env.PORTTLS||8443;
 const settingsPath = process.env.SETTINGS || '/../ziti/';
-const zacVersion = "2.3.0";
+const zacVersion = "2.3.1";
 
 var serviceUrl = "";
 var baseUrl = "";
@@ -880,17 +880,21 @@ function ProcessDelete(type, id, user, request, isFirst=true) {
 				log("Err: "+err);
 				reject(err);
 			} else {
-				log(JSON.stringify(body));
-				if (body.error) {
-					if (isFirst) {
-						log("Re-authenticate User");
-						Authenticate(request).then((results) => {
-							ProcessDelete(type, id, user, request, false).then((results) => {
-								resolve(results);
+				if (body) {
+					log(JSON.stringify(body));
+					if (body.error) {
+						if (isFirst) {
+							log("Re-authenticate User");
+							Authenticate(request).then((results) => {
+								ProcessDelete(type, id, user, request, false).then((results) => {
+									resolve(results);
+								});
 							});
-						});
-					} else reject(body.error);
-				} else resolve(body.data);
+						} else reject(body.error);
+					} else resolve(body.data);
+				} else {
+					reject("Controller Unavailable");
+				}
 			}
 		});
 	});

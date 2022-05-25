@@ -36,6 +36,7 @@ var growler = {
   clear: function() {
     context.remove("growlers");
     growler.data = [];
+    $("#AlarmCount").hide();
     growler.loadLogs();
   },
   loadLogs: function() {
@@ -54,8 +55,10 @@ var growler = {
           element.html(element.html().split("{{time}}").join(moment(growler.data[i].time).fromNow()));
           $("#NotificationsList").append(element);
       }
+			$("#AlarmCount").show();
       $("#ClearNotificationsButton").show();
     } else {
+			$("#AlarmCount").hide();
       $("#ClearNotificationsButton").hide();
       $("#NotificationsList").html("<span class='nonotify'>No Notifications to Display</span>")
     }
