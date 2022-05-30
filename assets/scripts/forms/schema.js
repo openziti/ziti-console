@@ -577,12 +577,15 @@ var schema = {
         } else if (schema.getType(property)=="boolean") {
             json[key] = $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).hasClass("on");
         } else if (schema.getType(property)=="integer") {
-            var numValue = $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).val().trim();
-            if (numValue==""||isNaN(numValue)) {
-                numValue = 0;
-                if (key.toLowerCase().indexOf("timeout")>=0) numValue = 5000;
-            } else {
-                numValue = Number(numValue)
+            var numValue = $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).val();
+            if (numValue) {
+                numValue = numValue.trim();
+                if (numValue==""||isNaN(numValue)) {
+                    numValue = 0;
+                    if (key.toLowerCase().indexOf("timeout")>=0) numValue = 5000;
+                } else {
+                    numValue = Number(numValue)
+                }
             }
             json[key] = numValue;
         } else {    
