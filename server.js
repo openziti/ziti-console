@@ -21,7 +21,7 @@ const $RefParser = require("@apidevtools/json-schema-ref-parser");
 const port = process.env.PORT||1408;
 const portTLS = process.env.PORTTLS||8443;
 const settingsPath = process.env.SETTINGS || '/../ziti/';
-const zacVersion = "2.3.2";
+const zacVersion = "2.3.3";
 
 var serviceUrl = "";
 var baseUrl = "";
