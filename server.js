@@ -21,7 +21,7 @@ const $RefParser = require("@apidevtools/json-schema-ref-parser");
 const port = process.env.PORT||1408;
 const portTLS = process.env.PORTTLS||8443;
 const settingsPath = process.env.SETTINGS || '/../ziti/';
-const zacVersion = "2.3.1";
+const zacVersion = "2.3.2";
 
 var serviceUrl = "";
 var baseUrl = "";
@@ -191,7 +191,7 @@ function Authenticate(request) {
 					if (err.code!="ECONNREFUSED") response.json( {error: err.code} );
 					resolve( {error: error} );
 				} else {
-					if (body.error) response.json( {error: body.error.message} );
+					if (body.error) resolve( {error: body.error.message} );
 					else {
 						if (body.data&&body.data.token) {
 							request.session.user = body.data.token;
@@ -727,6 +727,7 @@ app.post("/api/dataSave", function(request, response) {
 						//console.log("Not Array: "+prop+" "+saveParams.data[prop].length);
 					}
 				}
+				console.log("Session: "+request.session.user);
 				external(url, {method: method, json: saveParams, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 					if (err) HandleError(response, err);
 					else {
