@@ -3,9 +3,11 @@
   "version": "0.4.0",
   "description": "Ziti Administration Console",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "clean": "rm -rf node_modules;",
-    "start": "node index.js",
+    "start": "node server.js",
+    "zitified": "ZITI_IDENTITY_FILE=zac-identity.json ZITI_SERVICE_NAME=test-service node server.js",
     "test": "exec",
     "docker:build": "cross-conf-env docker image build . -t $npm_package_config_imageRepo:$npm_package_version",
     "docker-branch:build": "cross-conf-env docker image build . -t $npm_package_config_imageRepo:$npm_package_version-$BITBUCKET_BRANCH-$BITBUCKET_BUILD_NUMBER",
@@ -37,10 +39,15 @@
   "engines": {
     "node": ">=14.17"
   },
-  "author": "Jeremy Tellier",
-  "license": "ISC",
+  "author": {
+    "name": "NetFoundry",
+    "url": "http://openziti.io",
+    "email": "openziti@netfoundry.io"
+  },
+  "license": "Apache-2.0",
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^9.0.9",
+    "@openziti/ziti-sdk-nodejs": "^0.9.0",
     "aws-sdk": "^2.1046.0",
     "cors": "^2.8.5",
     "cross-conf-env": "^1.2.1",
