@@ -188,7 +188,7 @@ function Authenticate(request) {
 				if (err) {
 					log(err);
 					var error = "Server Not Accessible";
-					if (err.code!="ECONNREFUSED") response.json( {error: err.code} );
+					if (err.code!="ECONNREFUSED") resolve( {error: err.code} );
 					resolve( {error: error} );
 				} else {
 					if (body.error) resolve( {error: body.error.message} );
