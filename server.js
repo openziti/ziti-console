@@ -33,7 +33,7 @@ if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'un
 	await ziti.init( zitiIdentityFile ).catch(( err ) => { process.exit(); }); // Authenticate ourselves onto the Ziti network using the specified identity file
 }
 
-const zacVersion = "2.3.3";
+const zacVersion = "2.3.4";
 
 var serviceUrl = "";
 var baseUrl = "";
@@ -205,7 +205,7 @@ function Authenticate(request) {
 				if (err) {
 					log(err);
 					var error = "Server Not Accessible";
-					if (err.code!="ECONNREFUSED") response.json( {error: err.code} );
+					if (err.code!="ECONNREFUSED") resolve( {error: err.code} );
 					resolve( {error: error} );
 				} else {
 					if (body.error) resolve( {error: body.error.message} );

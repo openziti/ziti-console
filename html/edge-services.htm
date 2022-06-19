@@ -484,6 +484,8 @@
             reset: function() {
                 page.termIndex = 0;
                 $(".configrow.on").removeClass("on");
+                $("#EncryptionRequired").removeClass("on");
+                $("#EncryptionRequired").addClass("on");
                 page.terminators = [];
                 page.configTypeSelected();
                 page.terminatorSetup();
