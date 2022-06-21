@@ -80,7 +80,7 @@ var errors = {
 /**
  * Define Express Settings
  */
-var app = express();
+var app;
 if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'undefined')) {
 	app = ziti.express( express, zitiServiceName );	// using Ziti networking
 } else {
