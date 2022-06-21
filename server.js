@@ -73,7 +73,7 @@ if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'un
 } else {
 	app = express();								// using raw  networking
 }
-(/)
+*/
 app.use('/assets', express.static('assets'));
 app.use(cors());
 app.use(helmet());
