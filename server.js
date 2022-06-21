@@ -18,7 +18,25 @@ import $RefParser from '@apidevtools/json-schema-ref-parser';
 import {fileURLToPath} from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-// import ziti from '@openziti/ziti-sdk-nodejs';
+const loadModule = async (modulePath) => {
+	try {
+	  return await import(modulePath)
+	} catch (e) {
+	  throw new Error(`Unable to import module ${modulePath}`)
+	}
+}
+var ziti;
+const zitiServiceName = process.env.ZITI_SERVICE_NAME || 'zac';
+const zitiIdentityFile = process.env.ZITI_IDENTITY_FILE;
+try {
+	ziti = await loadModule('@openziti/ziti-sdk-nodejs')
+} catch (e) {
+	if (typeof zitiIdentityFile !== 'undefined') {
+		console.error(e);
+		process.exit();
+	}
+}
+
 
 /**
  * Command line Launch Settings
@@ -26,14 +44,10 @@ const __dirname = path.dirname(__filename);
 const port = process.env.PORT||1408;
 const portTLS = process.env.PORTTLS||8443;
 const settingsPath = process.env.SETTINGS || '/../ziti/';
-const zitiServiceName = process.env.ZITI_SERVICE_NAME || 'zac';
-const zitiIdentityFile = process.env.ZITI_IDENTITY_FILE;
 
-/*
 if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'undefined')) {
 	await ziti.init( zitiIdentityFile ).catch(( err ) => { process.exit(); }); // Authenticate ourselves onto the Ziti network using the specified identity file
 }
-*/
 
 const zacVersion = "2.3.5";
 
@@ -67,13 +81,11 @@ var errors = {
  * Define Express Settings
  */
 var app = express();
-/*
 if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'undefined')) {
 	app = ziti.express( express, zitiServiceName );	// using Ziti networking
 } else {
 	app = express();								// using raw  networking
 }
-*/
 app.use('/assets', express.static('assets'));
 app.use(cors());
 app.use(helmet());
@@ -741,7 +753,7 @@ app.post("/api/dataSave", function(request, response) {
 				}
 				log("Calling: "+url);
 				log("Saving As: "+method+" "+JSON.stringify(saveParams));
-				for (prop in saveParams.data) {
+				for (let prop in saveParams.data) {
 					if (Array.isArray(saveParams.data[prop]) && saveParams.data[prop].length==0) {
 						delete saveParams.data[prop];
 					} else {
