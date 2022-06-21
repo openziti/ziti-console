@@ -18,7 +18,7 @@ import $RefParser from '@apidevtools/json-schema-ref-parser';
 import {fileURLToPath} from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-import ziti from '@openziti/ziti-sdk-nodejs';
+// import ziti from '@openziti/ziti-sdk-nodejs';
 
 /**
  * Command line Launch Settings
@@ -29,9 +29,11 @@ const settingsPath = process.env.SETTINGS || '/../ziti/';
 const zitiServiceName = process.env.ZITI_SERVICE_NAME || 'zac';
 const zitiIdentityFile = process.env.ZITI_IDENTITY_FILE;
 
+/*
 if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'undefined')) {
 	await ziti.init( zitiIdentityFile ).catch(( err ) => { process.exit(); }); // Authenticate ourselves onto the Ziti network using the specified identity file
 }
+*/
 
 const zacVersion = "2.3.5";
 
@@ -64,12 +66,14 @@ var errors = {
 /**
  * Define Express Settings
  */
-var app;
+var app = express();
+/*
 if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'undefined')) {
 	app = ziti.express( express, zitiServiceName );	// using Ziti networking
 } else {
 	app = express();								// using raw  networking
 }
+(/)
 app.use('/assets', express.static('assets'));
 app.use(cors());
 app.use(helmet());
