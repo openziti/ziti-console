@@ -60,6 +60,12 @@ var header = fs.readFileSync(headerFile, 'utf8');
 var footer = fs.readFileSync(footerFile, 'utf8');
 var isDebugging = false;
 
+for (var i=0; i<process.argv.length; i++) {
+	if (process.argv[i]!=null && process.argv[i].toLowerCase()=="debug") {
+		isDebugging = true;
+	}
+}
+
 /**
  * Watch for header and footer file changes and load them
  */
