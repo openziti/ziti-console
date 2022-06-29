@@ -45,9 +45,6 @@
     "email": "openziti@netfoundry.io"
   },
   "license": "Apache-2.0",
-  "optionalDependencies": {
-    "@openziti/ziti-sdk-nodejs": "^0.9.2"
-  },
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^9.0.9",
     "aws-sdk": "^2.1046.0",
