@@ -3,7 +3,6 @@
   "version": "0.4.1",
   "description": "Ziti Administration Console",
   "main": "server.js",
-  "type": "module",
   "scripts": {
     "clean": "rm -rf node_modules;",
     "start": "node server.js",
