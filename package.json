@@ -1,8 +1,9 @@
 {
   "name": "io.netfoundry.zac",
-  "version": "0.4.1",
+  "version": "2.3.6",
   "description": "Ziti Administration Console",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "clean": "rm -rf node_modules;",
     "start": "node server.js",
@@ -44,13 +45,16 @@
     "email": "openziti@netfoundry.io"
   },
   "license": "Apache-2.0",
+  "optionalDependencies": {
+    "@openziti/ziti-sdk-nodejs": "^0.9.0"
+  },
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^9.0.9",
     "aws-sdk": "^2.1046.0",
     "cors": "^2.8.5",
     "cross-conf-env": "^1.2.1",
     "crypto": "^1.0.1",
-    "express": "^4.18.1",
+    "express": "^4.17.1",
     "express-fileupload": "^1.2.1",
     "express-fileuploader-s3": "0.0.1",
     "express-session": "^1.17.2",
@@ -60,7 +64,7 @@
     "influxdb-nodejs": "^3.1.0",
     "md5": "^2.3.0",
     "moment": "^2.29.3",
-    "nexe": "^1.1.6",
+    "nexe": "^4.0.0-beta.19",
     "node-rest-client": "^3.1.1",
     "nodemailer": "^6.7.2",
     "psl": "^1.8.0",

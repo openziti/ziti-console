@@ -1,21 +1,25 @@
-const express = require('express');
-const fs = require('fs');
-const fse = require('fs-extra');
-const path = require('path');
-const session = require('express-session');
-const sessionStore = require('session-file-store')(session);
-const fileUpload = require('express-fileupload');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const external = require('request');
-const moment = require("moment");
-const Influx = require('influx');
-const helmet = require('helmet');
-const https = require("https");
-const crypto = require('crypto');
-const $RefParser = require("@apidevtools/json-schema-ref-parser");
+import express from 'express';
+import fs from 'fs';
+import fse from 'fs-extra';
+import path from 'path';
+import session from 'express-session';
+import sessionStoreFactory from 'session-file-store';
+const sessionStore = sessionStoreFactory(session);
+import fileUpload from 'express-fileupload';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import external from 'request';
+import moment from 'moment';
+import Influx from 'influx';
+import helmet from 'helmet';
+import https from 'https';
+import crypto from 'crypto';
+import $RefParser from '@apidevtools/json-schema-ref-parser';
+import {fileURLToPath} from 'url';
 
-/*
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const loadModule = async (modulePath) => {
 	try {
 	  return await import(modulePath)
@@ -23,19 +27,19 @@ const loadModule = async (modulePath) => {
 	  throw new Error(`Unable to import module ${modulePath}`)
 	}
 }
-*/
-//var ziti;
-//const zitiServiceName = process.env.ZITI_SERVICE_NAME || 'zac';
-//const zitiIdentityFile = process.env.ZITI_IDENTITY_FILE;
 
-//try {
-//	ziti = await loadModule('@openziti/ziti-sdk-nodejs')
-//} catch (e) {
-//	if (typeof zitiIdentityFile !== 'undefined') {
-//		console.error(e);
-//		process.exit();
-//	}
-//}
+var ziti;
+const zitiServiceName = process.env.ZITI_SERVICE_NAME || 'zac';
+const zitiIdentityFile = process.env.ZITI_IDENTITY_FILE;
+
+try {
+	ziti = await loadModule('@openziti/ziti-sdk-nodejs')
+} catch (e) {
+	if (typeof zitiIdentityFile !== 'undefined') {
+		console.error(e);
+		process.exit();
+	}
+}
 
 
 /**
@@ -45,11 +49,9 @@ const port = process.env.PORT||1408;
 const portTLS = process.env.PORTTLS||8443;
 const settingsPath = process.env.SETTINGS || '/../ziti/';
 
-/*
 if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'undefined')) {
 	await ziti.init( zitiIdentityFile ).catch(( err ) => { process.exit(); }); // Authenticate ourselves onto the Ziti network using the specified identity file
 }
-*/
 
 const zacVersion = "2.3.6";
 
@@ -89,13 +91,13 @@ var errors = {
  * Define Express Settings
  */
 var app = express();
-/*
+
 if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'undefined')) {
 	app = ziti.express( express, zitiServiceName );	// using Ziti networking
 } else {
 	app = express();								// using raw  networking
 }
-*/
+
 app.use('/assets', express.static('assets'));
 app.use(cors());
 app.use(helmet());
