@@ -170,7 +170,6 @@ var Selector = function(id, label, atType, hashType) {
                 type = "at";
             }
             for (var i=0; i<this.atData.length; i++) {
-                console.log(this.atData[i].name);
                 if (this.atData[i].name==item.substr(1)) {
                     input.parent().find(".tagArea").append('<div class="'+type+'tag tagButton icon-close" data-id="@'+this.atData[i].id+'"><span class="label">'+item+'</span></div>');
                     found = true;
@@ -240,7 +239,7 @@ var Selector = function(id, label, atType, hashType) {
         } else {
             this.suggests.data("index", -1);
             var searchVal = $(e.currentTarget).val();
-            if (searchVal.indexOf('@')==0&&searchVal.length>2) {
+            if (searchVal.indexOf('@')==0&&searchVal.length>0) {
                 searchVal = searchVal.substr(1);
                 this.suggests.html("");
                 this.data.paging.filter = searchVal;

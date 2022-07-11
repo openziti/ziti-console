@@ -51,7 +51,7 @@ if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'un
 }
 */
 
-const zacVersion = "2.3.6";
+const zacVersion = "2.3.7";
 
 var serviceUrl = "";
 var baseUrl = "";
