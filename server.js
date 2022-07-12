@@ -206,10 +206,10 @@ function hasAccess(user) {
  * Authentication method, authenticates the user to the provided edge controller defined by url
  */
 app.post("/api/login", function(request, response) {
-	var urlToSet = request.body.url+"/edge/management/v1";
+	var urlToSet = request.body.url;
 	if (!IsServerDefined(urlToSet)) response.json({error: errors.invalidServer });
 	else {
-		baseUrl = urlToSet;
+		baseUrl = urlToSet+"/edge/management/v1";
 		GetPath().then((prefix) => {
 			serviceUrl = urlToSet+prefix;
 			request.session.creds = {
