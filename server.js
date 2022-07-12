@@ -51,7 +51,7 @@ if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'un
 }
 */
 
-const zacVersion = "2.3.7";
+const zacVersion = "2.3.8";
 
 var serviceUrl = "";
 var baseUrl = "";
@@ -381,7 +381,7 @@ app.post("/api/controllerSave", function(request, response) {
 		response.json({ errors: errors });
 	} else {
 		log("Calling Controller: "+url);
-		external.get(url+"/version", {rejectUnauthorized: false}, function(err, res, body) {
+		external.get(url+"/edge/management/v1/version", {rejectUnauthorized: false}, function(err, res, body) {
 			if (err) response.json( {error: "Edge Controller not Online"} );
 			else {
 				try {
