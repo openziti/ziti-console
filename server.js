@@ -263,7 +263,7 @@ function GetPath() {
 				resolve(data.data.apiVersions["edge-management"].v1.path);
 			} catch (e) {
 				log("Invalid Json Result on Version: "+e);
-				reject("Invalid Edge Controller Server");
+				reject("Invalid Management Api");
 			}
 		});
 	});
