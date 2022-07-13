@@ -263,7 +263,7 @@ function GetPath() {
 				resolve(data.data.apiVersions["edge-management"].v1.path);
 			} catch (e) {
 				log("Invalid Json Result on Version: "+e);
-				reject("Invalid Management Api");
+				reject("Invalid Management Api<br/><span style='font-size:12px; font-weight: normal;'>Please confirm the provided Edge Controller host:port is accurate.</span>");
 			}
 		});
 	});
