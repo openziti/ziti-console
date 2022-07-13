@@ -209,7 +209,7 @@ app.post("/api/login", function(request, response) {
 	var urlToSet = request.body.url;
 	if (!IsServerDefined(urlToSet)) response.json({error: errors.invalidServer });
 	else {
-		baseUrl = urlToSet+"/edge/management/v1";
+		baseUrl = urlToSet;
 		GetPath().then((prefix) => {
 			serviceUrl = urlToSet+prefix;
 			request.session.creds = {
@@ -219,6 +219,8 @@ app.post("/api/login", function(request, response) {
 			Authenticate(request).then((results) => {
 				response.json(results);
 			});
+		}).catch((error) {
+			response.json({error: error});
 		});
 	}
 });
@@ -255,13 +257,13 @@ function Authenticate(request) {
  */
 function GetPath() {
 	return new Promise(function(resolve, reject) {
-		external.get(baseUrl+"/version", {rejectUnauthorized: false}, function(err, res, body) {
+		external.get(baseUrl+"/edge/management/v1/version", {rejectUnauthorized: false}, function(err, res, body) {
 			try {
 				var data = JSON.parse(body);
 				resolve(data.data.apiVersions["edge-management"].v1.path);
 			} catch (e) {
 				log("Invalid Json Result on Version: "+e);
-				resolve("");
+				reject("Invalid Edge Controller Server");
 			}
 		});
 	});
