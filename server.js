@@ -219,7 +219,7 @@ app.post("/api/login", function(request, response) {
 			Authenticate(request).then((results) => {
 				response.json(results);
 			});
-		}).catch((error) {
+		}).catch((error) => {
 			response.json({error: error});
 		});
 	}
