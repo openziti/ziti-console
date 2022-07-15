@@ -121,25 +121,6 @@
                         index++;
                     }
                     $("#FabricServicesList").html("");
-                    var fabricUrl = context.get("fabricUrl");
-                    if (settings.data.fabricControllers.length>1) $(".hasFabrics").addClass("has");
-                    else $(".hasFabrics.has").removeClass("has");
-                    for (var i=0; i<settings.data.fabricControllers.length; i++) {
-                        if (fabricUrl.trim().length==0) {
-                            fabricUrl = settings.data.fabricControllers[i].url;
-                        }
-                        $("#FabricServicesList").append('<option value="'+settings.data.fabricControllers[i].url+'">'+settings.data.fabricControllers[i].name+' ('+settings.data.fabricControllers[i].url+')</option>');
-                        var element = $("#RowTemplate").clone();
-                        element.removeClass("template");
-                        element.attr("id","Row"+index);
-                        element.html(element.html().split("{{id}}").join(settings.data.fabricControllers[i].url));
-                        element.html(element.html().split("{{name}}").join(settings.data.fabricControllers[i].name));
-                        element.html(element.html().split("{{url}}").join(settings.data.fabricControllers[i].url));
-                        element.html(element.html().split("{{type}}").join("Fabric"));
-                        $(".rows").append(element);
-                        index++;
-                    }
-                    $("#FabricServicesList").val(fabricUrl);
                     page.pageLoaded();     
                     $(".data").show();
                     $(".nodata").hide();       
@@ -239,7 +220,7 @@
                 if (action=="add") {
                     page.reset();
                     page.add();
-                } else if (action=="remove") page.delete();
+                } else if (action=="remove") page.deleteMulti();
             },
             deleteMulti: function(e) {
                 page.deleting = [];
