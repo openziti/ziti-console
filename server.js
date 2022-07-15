@@ -718,14 +718,11 @@ function GetFabricItems(type, response) {
 /**------------- Data Save Section -------------**/
 
 function HandleError(response, error) {
-	if (error.cause&&error.cause.code&&error.cause.code=="UNHANDLED") response.json({error:"loggedout"});
-	else {
-		if (error.cause&&error.causeMessage&&error.causeMessage.length>0) response.json({ error: error.causeMessage });
-		else if (error.cause&&error.cause.message&&error.cause.message.length>0) response.json({ error: error.cause.message });
-		else if (error.cause&&error.cause.reason&&error.cause.reason.length>0) response.json({ error: error.cause.reason });
-		else if (error.message&&error.message.length>0) response.json({ error: error.message });
-		else response.json({ error: error });
-	}
+	if (error.cause && error.causeMessage && error.causeMessage.length>0) response.json({ error: error.causeMessage });
+	else if (error.cause&&error.cause.message&&error.cause.message.length>0) response.json({ error: error.cause.message });
+	else if (error.cause&&error.cause.reason&&error.cause.reason.length>0) response.json({ error: error.cause.reason });
+	else if (error.message&&error.message.length>0) response.json({ error: error.message });
+	else response.json({ error: error });
 }
 
 
