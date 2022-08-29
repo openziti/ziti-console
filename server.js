@@ -53,7 +53,7 @@ if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'un
 	await ziti.init( zitiIdentityFile ).catch(( err ) => { process.exit(); }); // Authenticate ourselves onto the Ziti network using the specified identity file
 }
 
-const zacVersion = "2.3.8";
+const zacVersion = "2.3.9";
 
 var serviceUrl = "";
 var baseUrl = "";
@@ -896,19 +896,45 @@ app.post("/api/delete", function(request, response) {
 	var paging = request.body.paging;
 	var user = request.session.user;
 
+	log("Deleting: "+type+" "+ids.join(','));
+	DoDelete(type, ids, user, request, 0).then((results) => {
+		GetItems(type, paging, request, response);
+	}).catch((error) => {
+		log("Error: "+JSON.stringify(error));
+		response.json({error: error.cause.message});
+	});
+
+	/*
 	var promises = [];
 
 	ids.forEach(function(id) {
 		promises.push(ProcessDelete(type, id, user, request));
 	});
 	
-	Promise.all(promises).then(function(e) {
-		GetItems(type, paging, request, response);
-	}).catch(error => { 
-		log("Catch: "+error.message);
+	Promise.all(promises).catch((error) => { 
+		log("Catch: "+JSON.stringify(error));
 		response.json({error: error.causeMessage});
+	}).then(function(e) {
+		GetItems(type, paging, request, response);
 	});
+	*/
 });
+
+function DoDelete(type, ids, user, request, index) {
+	return new Promise(function(resolve, reject) {
+		if (index>=ids.length) resolve(true);
+		else {
+			var id = ids[index];
+			index++;
+			ProcessDelete(type, id, user, request, true, index).then((result) => {
+				resolve(DoDelete(type, ids, user, request, index));
+			}).catch((error) => {
+				log("Reject: "+JSON.stringify(error));
+				reject(error);
+			});
+		}
+	});
+}
 
 /**
  * Create the promise required to delete a specific object from the edge controller
@@ -933,12 +959,16 @@ function ProcessDelete(type, id, user, request, isFirst=true) {
 							Authenticate(request).then((results) => {
 								ProcessDelete(type, id, user, request, false).then((results) => {
 									resolve(results);
+								}).catch((error) => {
+									log("Reject After Auth: "+JSON.stringify(error));
+									reject(error);
 								});
 							});
 						} else reject(body.error);
 					} else resolve(body.data);
 				} else {
-					reject("Controller Unavailable");
+					log("Reject: No Controller");
+					reject({ message: "Controller Unavailable" });
 				}
 			}
 		});
