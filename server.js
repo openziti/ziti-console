@@ -375,7 +375,7 @@ app.post("/api/settings", function(request, response) {
  * Save controller information to the settings file if the server exists
  */
 app.post("/api/controllerSave", function(request, response) {
-	var name = request.body.name.trim();
+	var name = request.body.name.trim().replace(/[^a-zA-Z0-9 \-]/g, '');
 	var url = request.body.url.trim();
 	if (url.endsWith('/')) url = url.substr(0, url.length-1);
 	var errors = [];
