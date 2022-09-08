@@ -9,6 +9,7 @@
 				events: function() {
 					$("#LoginButton").click(page.login);
 					$("#CreateButton").click(page.create);
+					$("#BackToLogin").click(page.back);
 					$("#EdgeControllerList").change(page.edgeChanged);
 					context.addListener(user.name,page.loggedIn);
 					context.addListener(settings.name, page.settingsReturned);
@@ -28,6 +29,11 @@
 				},
 				loggedIn: function() {
 					
+				},
+				back: function() {
+					$(".edgecreate").removeClass("open");
+					$(".userlogin").addClass("open");
+					$("#EdgeControllerList").prop('selectedIndex', 0);
 				},
 				create: function() {
 					if (page.validate()) {
@@ -95,8 +101,11 @@
 			<label for="Password" class="userlogin">Password</label>
 			<input id="Password" class="userlogin" type="password" max="500" placeholder="enter the password for your account" data-enter="LoginButton" autocomplete="on" />
 
-			<div class="buttons">
-				<div id="LoginButton" class="button userlogin">Login</div>
-				<div id="CreateButton" class="button edgecreate">Set Controller</div>
+			<div class="buttons userlogin">
+				<div id="LoginButton" class="button">Login</div>
+			</div>
+			<div id="CreateArea" class="edgecreate buttons">
+				<div id="BackToLogin" class="linkButton">Back To Login</div>
+				<div id="CreateButton" class="button ">Set Controller</div>
 			</div>
 		</div>
