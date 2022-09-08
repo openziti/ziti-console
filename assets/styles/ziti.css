@@ -2249,6 +2249,10 @@ div:focus {
     background-color: var(--background) !important;
 }
 
+.buttons.open {
+    display: grid !important;
+}
+
 #LogicalMap {
     width: 100%;
     height: 80vh;

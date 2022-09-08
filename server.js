@@ -53,7 +53,7 @@ if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'un
 	await ziti.init( zitiIdentityFile ).catch(( err ) => { process.exit(); }); // Authenticate ourselves onto the Ziti network using the specified identity file
 }
 
-const zacVersion = "2.3.9";
+const zacVersion = "2.4.0";
 
 var serviceUrl = "";
 var baseUrl = "";
@@ -102,7 +102,7 @@ app.use('/assets', express.static('assets'));
 app.use(cors());
 app.use(helmet());
 app.use(function(req, res, next) {
-    res.setHeader("Content-Security-Policy", "script-src 'self' 'unsafe-inline' http://cdn.jsdelivr.net http://maxcdn.bootstrapcdn.com https://cdn.jsdelivr.net http://cdnjs.cloudflare.com https://cdnjs.cloudflare.com https://cdnjs.com https://apis.google.com https://ajax.googleapis.com https://fonts.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com; object-src 'none'; form-action 'none'; frame-ancestors 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://maxcdn.bootstrapcdn.com http://maxcdn.bootstrapcdn.com http://cdn.jsdelivr.net https://cdnjs.com https://fonts.googleapis.com");
+    res.setHeader("Content-Security-Policy", "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://cdn.jsdelivr.net http://maxcdn.bootstrapcdn.com https://cdn.jsdelivr.net http://cdnjs.cloudflare.com https://cdnjs.cloudflare.com https://cdnjs.com https://apis.google.com https://ajax.googleapis.com https://fonts.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com; object-src 'none'; form-action 'none'; frame-ancestors 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://maxcdn.bootstrapcdn.com http://maxcdn.bootstrapcdn.com http://cdn.jsdelivr.net https://cdnjs.com https://fonts.googleapis.com");
     return next();
 });
 app.use(bodyParser.json());
@@ -377,6 +377,7 @@ app.post("/api/settings", function(request, response) {
 app.post("/api/controllerSave", function(request, response) {
 	var name = request.body.name.trim().replace(/[^a-zA-Z0-9 \-]/g, '');
 	var url = request.body.url.trim();
+	url = url.split('#').join('');
 	if (url.endsWith('/')) url = url.substr(0, url.length-1);
 	var errors = [];
 	if (name.length==0) errors[errors.length] = "name";
@@ -384,39 +385,45 @@ app.post("/api/controllerSave", function(request, response) {
 	if (errors.length>0) {
 		response.json({ errors: errors });
 	} else {
+		url += "/edge/management/v1/version";
 		log("Calling Controller: "+url);
-		external.get(url+"/edge/management/v1/version", {rejectUnauthorized: false}, function(err, res, body) {
+		external.get(url, {rejectUnauthorized: false, timeout: 5000}, function(err, res, body) {
 			if (err) response.json( {error: "Edge Controller not Online"} );
 			else {
 				try {
 					var results = JSON.parse(body);
 					if (body.error) response.json( {error: "Invalid Edge Controller"} );
 					else {
-						log("Controller: "+url+" Returned: "+body);
-						var found = false;
-						for (var i=0; i<settings.edgeControllers.length; i++) {
-							if (settings.edgeControllers[i].url==url) {
-								found = true;
-								settings.edgeControllers[i].name = name;
-								settings.edgeControllers[i].url = url;
-								break;
+						if (results.data.apiVersions.edge.v1 != null) {
+							log("Controller: "+url+" Returned: "+body);
+							var found = false;
+							for (var i=0; i<settings.edgeControllers.length; i++) {
+								if (settings.edgeControllers[i].url==url) {
+									found = true;
+									settings.edgeControllers[i].name = name;
+									settings.edgeControllers[i].url = url;
+									break;
+								}
 							}
+							if (!found) {
+								var isDefault = false;
+								if (settings.edgeControllers.length==0) isDefault = true;
+								settings.edgeControllers[settings.edgeControllers.length] = {
+									name: name,
+									url: url,
+									default: isDefault
+								};
+							}
+							fs.writeFileSync(__dirname+settingsPath+'/settings.json', JSON.stringify(settings));
+							response.json(settings);
+						} else {
+							log("Controller: "+url+" Returned: "+JSON.stringify(results));
+							response.json( {error: "Invalid Edge Controller"} );
 						}
-						if (!found) {
-							var isDefault = false;
-							if (settings.edgeControllers.length==0) isDefault = true;
-							settings.edgeControllers[settings.edgeControllers.length] = {
-								name: name,
-								url: url,
-								default: isDefault
-							};
-						}
-						fs.writeFileSync(__dirname+settingsPath+'/settings.json', JSON.stringify(settings));
-						response.json(settings);
 					}
 				} catch (e) {
 					log("Controller: "+url+" Returned "+(typeof body)+": "+body);
-					response.json( {error: body} );
+					response.json( {error: "Invalid Edge Controller"} );
 				}
 			}
 		});		
