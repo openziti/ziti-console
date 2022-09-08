@@ -2040,7 +2040,7 @@ div:focus {
     .grid.quad, .grid.quint {
         grid-template-columns: 75px auto 75px;
     }
-    .grid.flive {
+    .grid.flive, .grid.floor  {
 	  	grid-template-columns: 150px auto 15%;
     }
     .grid.dual, .grid.singular,.grid.five.same, .duplex {

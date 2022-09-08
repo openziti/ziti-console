@@ -49,7 +49,11 @@ var settings = {
 		}
 	},
 	delete: function(url) {
-		service.call("server", {url: url}, settings.returned, "DELETE");
+		service.call("server", {url: url}, settings.deleted, "DELETE");
+	},
+	deleted: function(e) {
+		if (page!=null&&page.deleting!=null&&page.deleting==settings.versionData.baseUrl) window.location = "/login";
+		else settings.returned(e);
 	},
 	addContoller: function(name, url) {
 		if (name.trim().length==0||url.trim().length==0) growler.error("Invalid Form");

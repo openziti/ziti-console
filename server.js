@@ -53,7 +53,7 @@ if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'un
 	await ziti.init( zitiIdentityFile ).catch(( err ) => { process.exit(); }); // Authenticate ourselves onto the Ziti network using the specified identity file
 }
 
-const zacVersion = "2.4.0";
+const zacVersion = "2.4.1";
 
 var serviceUrl = "";
 var baseUrl = "";
@@ -62,6 +62,7 @@ var headerFile = __dirname+"/assets/templates/header.htm";
 var footerFile = __dirname+"/assets/templates/footer.htm";
 var header = fs.readFileSync(headerFile, 'utf8');
 var footer = fs.readFileSync(footerFile, 'utf8');
+var onlyDeleteSelfController = true;
 var isDebugging = false;
 
 for (var i=0; i<process.argv.length; i++) {
@@ -275,15 +276,15 @@ function GetPath() {
  * Returned the version of the edge-controller server
  */
 app.post('/api/version', function(request, response) {
+	log("Checking Version: "+baseUrl+"/version");
 	if (baseUrl) {
-		log("Checking Version: "+baseUrl+"/version");
 		external.get(baseUrl+"/version", {rejectUnauthorized: false}, function(err, res, body) {
 			if (err) log(err);
 			else {
 				try {
 					var data = JSON.parse(body);
 					log("Version: "+body);
-					if (data&&data.data) response.json( {data: data.data, zac: zacVersion} );
+					if (data&&data.data) response.json( {data: data.data, zac: zacVersion, requireAuth: onlyDeleteSelfController, baseUrl: baseUrl} );
 					else response.json({});
 				} catch (e) {
 					log("Invalid Json Result on Version: "+e);
@@ -377,7 +378,7 @@ app.post("/api/settings", function(request, response) {
 app.post("/api/controllerSave", function(request, response) {
 	var name = request.body.name.trim().replace(/[^a-zA-Z0-9 \-]/g, '');
 	var url = request.body.url.trim();
-	url = url.split('#').join('');
+	url = url.split('#').join('').split('?').join('');
 	if (url.endsWith('/')) url = url.substr(0, url.length-1);
 	var errors = [];
 	if (name.length==0) errors[errors.length] = "name";
@@ -385,9 +386,9 @@ app.post("/api/controllerSave", function(request, response) {
 	if (errors.length>0) {
 		response.json({ errors: errors });
 	} else {
-		url += "/edge/management/v1/version";
-		log("Calling Controller: "+url);
-		external.get(url, {rejectUnauthorized: false, timeout: 5000}, function(err, res, body) {
+		var callUrl = url+ "/edge/management/v1/version";
+		log("Calling Controller: "+callUrl);
+		external.get(callUrl, {rejectUnauthorized: false, timeout: 5000}, function(err, res, body) {
 			if (err) response.json( {error: "Edge Controller not Online"} );
 			else {
 				try {
@@ -474,24 +475,26 @@ app.delete("/api/server", function(request, response) {
 		var url = request.body.url;
 		var edges = [];
 		var fabrics = [];
-		log(url);
-		for (var i=0; i<settings.edgeControllers.length; i++) {
-			log(settings.edgeControllers[i].url);
-			if (settings.edgeControllers[i].url!=url) {
-				edges[edges.length] = settings.edgeControllers[i];
+		log(url+" "+baseUrl);
+		if (baseUrl==url || !onlyDeleteSelfController) {
+			for (var i=0; i<settings.edgeControllers.length; i++) {
+				log(settings.edgeControllers[i].url);
+				if (settings.edgeControllers[i].url!=url) {
+					edges[edges.length] = settings.edgeControllers[i];
+				}
 			}
-		}
-		for (var i=0; i<settings.fabricControllers.length; i++) {
-			log(settings.fabricControllers[i].url);
-			if (settings.fabricControllers[i].url!=url) {
-				fabrics[fabrics.length] = settings.fabricControllers[i];
+			for (var i=0; i<settings.fabricControllers.length; i++) {
+				log(settings.fabricControllers[i].url);
+				if (settings.fabricControllers[i].url!=url) {
+					fabrics[fabrics.length] = settings.fabricControllers[i];
+				}
 			}
-		}
-		settings.fabricControllers = fabrics;
-		settings.edgeControllers = edges;
-		fs.writeFileSync(__dirname+settingsPath+'/settings.json', JSON.stringify(settings));
+			settings.fabricControllers = fabrics;
+			settings.edgeControllers = edges;
+			// fs.writeFileSync(__dirname+settingsPath+'/settings.json', JSON.stringify(settings));
 
-		response.json(settings);
+			response.json(settings);
+		} else response.json({error: "You must be logged into the controller to remove it"});
 	}
 });
 

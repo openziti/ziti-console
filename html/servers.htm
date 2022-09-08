@@ -11,12 +11,9 @@
     <div class="area data">
         <div class="noitems"></div>
         <div class="table">
-            <div class="head grid fives">
-                <div class="col">
-                    <div class="selector all"></div>
-                </div>
-                <div class="col asc">Name<div class="dragger"></div></div>
-                <div class="col desktop">Url<div class="dragger"></div></div>
+            <div class="head grid floor">
+                <div class="col padCol asc">Name<div class="dragger"></div></div>
+                <div class="col">Url<div class="dragger"></div></div>
                 <div class="col desktop">Type<div class="dragger"></div></div>
                 <div class="col"></div>
             </div>
@@ -32,15 +29,12 @@
     </div>
     
     <!-- Row Template -->
-    <div id="RowTemplate" class="row grid fives template">
-        <div class="col">
-            <div class="selector" data-id="{{id}}"></div>
-        </div>
-        <div class="col" data-id="{{id}}"><strong>{{name}}</strong></div>
-        <div class="col desktop" data-id="{{id}}">{{url}}</div>
+    <div id="RowTemplate" class="row grid floor template">
+        <div class="col padCol" data-id="{{id}}"><strong>{{name}}</strong></div>
+        <div class="col" data-id="{{id}}">{{url}}</div>
         <div class="col desktop" data-id="{{id}}">{{type}}</div>
         <div class="col allowOver">
-            <div class="dots" data-id="{{id}}">...
+            <div class="dots {{isMe}}" data-id="{{id}}">...
                 <div class="gridMenu" data-id="{{id}}">
                     <div class="gridAction" data-id="{{id}}" data-action="edit">Edit</div>
                     <div class="gridAction" data-id="{{id}}" data-action="delete">Delete</div>
@@ -88,7 +82,7 @@
             },
             editId: "",
             data: [],
-            deleting: [],
+            deleting: "",
             init: function() {
                 this.events();
                 settings.init();
@@ -144,12 +138,17 @@
             gridAction: function(e) {
                 var action = $(e.currentTarget).data("action");
                 var id = $(e.currentTarget).data("id");
-                if (action=="edit") page.edit(id);
-                else if (action=="delete")  {
-                    page.deleting = [];
-                    page.deleting[page.deleting.length] = id;
-                    modal.confirm("you want to delete this "+page.binding.singular, page.confirmedDelete);
-                }
+
+                var canProceed = true;
+			    if (settings.versionData.requireAuth) canProceed = settings.versionData.baseUrl==id;
+
+                if (canProceed) {
+                    if (action=="edit") page.edit(id);
+                    else if (action=="delete")  {
+                        page.deleting = id;
+                        modal.confirm("you want to delete this "+page.binding.singular, page.confirmedDelete);
+                    }
+                } else growler.error("You can only change edge controllers you have authenticated against.")
             },
             save: function() {
                 if (page.validate()) {
@@ -221,15 +220,6 @@
                     page.reset();
                     page.add();
                 } else if (action=="remove") page.deleteMulti();
-            },
-            deleteMulti: function(e) {
-                page.deleting = [];
-                $(".selector.selected").each(function(index, e) {
-                    page.deleting[page.deleting.length] = $(e).data("id");
-                });
-                if (page.deleting.length>0) {
-                    modal.confirm("you want to delete these "+page.deleting.length+" "+((page.deleting.length>1)?page.binding.pageTitle:page.binding.singular), page.confirmedDelete);
-                }
             },
             confirmedDelete: function() {
                 settings.delete(page.deleting);
