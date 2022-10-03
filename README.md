@@ -3,6 +3,10 @@
 
 Make sure you have an edge controller running
 
+## Requires 
+
+Node JS Version >= 14.17
+
 1. run: npm install
 2. run: node server.js
 
