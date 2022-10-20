@@ -578,7 +578,7 @@ var schema = {
             json[key] = $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).hasClass("on");
         } else if (schema.getType(property)=="integer") {
             var numValue = $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).val();
-            if (numValue) {
+            if (numValue!=null && numValue.trim().length>0) {
                 numValue = numValue.trim();
                 if (numValue==""||isNaN(numValue)) {
                     numValue = 0;
@@ -586,7 +586,7 @@ var schema = {
                 } else {
                     numValue = Number(numValue)
                 }
-            }
+            } else numValue = 0;
             json[key] = numValue;
         } else {    
             json[key] = $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).val();
