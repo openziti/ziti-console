@@ -250,6 +250,7 @@ var tags = {
         html += '    <input id="NewKey" type="text" data-enter="AddCustomButton" maxlength="100" placeholder="enter the tag key" /><input id="NewValue" data-enter="AddCustomButton" placeholder="enter the value" type="text" maxlength="100"/><div id="AddCustomButton" class="addIcon icon-add"></div>';
         html += '</div>';
         element.html(html);
+		$("input").blur(app.trim);
         $(".removeIcon").off("click");
         $(".removeIcon").on("click", tags.removeTag);
         $(".addIcon").off("click");
