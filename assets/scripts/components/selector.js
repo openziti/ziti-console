@@ -35,6 +35,7 @@ var Selector = function(id, label, atType, hashType) {
     this.searchVal = "";
     this.atData = [];
     this.suggests;
+    this.isFocused = false;
     this.init = function() {
         var element = $("#"+this.id); 
         if (element) {
@@ -55,21 +56,28 @@ var Selector = function(id, label, atType, hashType) {
     this.events = function() {
         if (this.atType) context.addListener(this.atType, this.atLoaded.bind(this));
         $("#"+this.id+"Search").keyup(this.keyup.bind(this));
+        $("#"+this.id+"Search").focus(this.focus.bind(this));
         $("#"+this.id+"Search").blur(this.blurred.bind(this));
     };
+    this.focus = function(e) {
+        if (!this.isFocused) this.keyup(e);
+    },
     this.atLoaded = function(e) {
         this.atData = e.data;
         var suggestItems = this.atData;
         this.suggests.html("");
         if (suggestItems.length>0) {
             for (var i=0; i<suggestItems.length; i++) {
-                this.suggests.append('<div class="suggest">'+suggestItems[i].name+'</div>');
+                var val = suggestItems[i];
+                if (val.name!=null) val = val.name;
+                this.suggests.append('<div class="suggest">'+val+'</div>');
             }
             this.suggests.addClass("open");
             $(".suggest").click(this.suggestClicked.bind(this));
         }
     };
     this.blurred = function(e) {
+        this.isFocused = false;
         var item = $("#"+this.id+"Search").val().trim();
         if (item.indexOf("@")!=0&&item.indexOf("#")!=0&&this.isForceHash) item = "#"+item;
         if (item.length>1) {
@@ -189,7 +197,8 @@ var Selector = function(id, label, atType, hashType) {
     this.suggestClicked = function(e) {
         var selected = $(e.currentTarget).html();
         var input = $(e.currentTarget).parent().parent().find("input");
-        this.addIfNotExists(input, "@"+selected);
+        if (this.isForceAt) selected = "@"+selected;
+        this.addIfNotExists(input, selected);
         $(".tagButton").off("click", function(e) {
             $(e.currentTarget).remove();
         });
@@ -204,7 +213,7 @@ var Selector = function(id, label, atType, hashType) {
         if (this.isForceAt) {
             var search = $(e.currentTarget).val();
             if (search.length>0) {
-               if (search.charAt(0)!='@') $(e.currentTarget).val("@"+search)
+               if (search.charAt(0)!='@' && this.isForceAt) $(e.currentTarget).val("@"+search)
                if (this.isSingleSelect) $(e.currentTarget).parent().find(".tagArea").html("");
             }
         }
@@ -213,7 +222,8 @@ var Selector = function(id, label, atType, hashType) {
             if (this.suggests.find(".highlighted").length>0) {
                 var selected = $(this.suggests.find(".highlighted")).html();
                 var input = $(this.suggests.find(".highlighted")).parent().parent().find("input");
-                this.addIfNotExists(input, "@"+selected);
+                if (selected.charAt(0)!='@' && this.isForceAt) selected = '@'+selected;
+                this.addIfNotExists(input, selected);
                 $(".tagButton").off("click");
                 $(".tagButton").on("click", function(e) {
                     $(e.currentTarget).remove();
@@ -239,15 +249,31 @@ var Selector = function(id, label, atType, hashType) {
         } else {
             this.suggests.data("index", -1);
             var searchVal = $(e.currentTarget).val();
-            if (searchVal.indexOf('@')==0&&searchVal.length>0) {
-                searchVal = searchVal.substr(1);
-                this.suggests.html("");
-                this.data.paging.filter = searchVal;
-                this.data.get();
+            if (this.atType.indexOf("attributes")>=0) {
+                this.data.paging.sort = "id";
+                this.data.paging.searchOn = "id";
+            }
+            if (this.isForceAt) {
+                if (searchVal.indexOf('@')==0 && (searchVal.length>0 || !this.isFocused)) {
+                    searchVal = searchVal.substr(1);
+                    this.suggests.html("");
+                    this.data.paging.filter = searchVal;
+                    this.data.get();
+                } else {
+                    this.suggests.html("");
+                    this.suggests.removeClass("open");
+                } 
             } else {
-                this.suggests.html("");
-                this.suggests.removeClass("open");
-            } 
+                if (searchVal.length>0 || !this.isFocused) {
+                    this.suggests.html("");
+                    this.data.paging.filter = searchVal;
+                    this.data.get();
+                } else {
+                    this.suggests.html("");
+                    this.suggests.removeClass("open");
+                } 
+            }
+            this.isFocused = true;
         }
     };
 }

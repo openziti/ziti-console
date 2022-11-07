@@ -375,6 +375,9 @@ var schema = {
         html += schema.pullAll(exclude, items);
 
         $("#"+schema.formId).html(html);
+        $("input").blur((e) => {
+            $(e.currentTarget).val($(e.currentTarget).val().trim());
+        });
         if (schema.codeView!=null) {
             setTimeout(function() {
                 var json = schema.val();

@@ -210,7 +210,7 @@
             idServices: null,
             roles: null,
             init: function() {
-                page.roles = new Selector("Roles","roles");
+                page.roles = new Selector("Roles","roles","identity-role-attributes");
                 page.casObject = new Data("cas");
                 page.servicesObject = new Data("services");
                 page.configsObject = new Data("configs");
@@ -220,6 +220,7 @@
                 page.events();
 
                 page.roles.isForceHash = false;
+                page.roles.isForceAt = false;
                 page.roles.init();
                 page.casObject.init(true);
                 page.servicesObject.init(true);
