@@ -375,11 +375,12 @@
                 var cons = context.get(page.configsObject.name);
                 var html = '<label><span id="ConfigSelected">0</span> Selected Configurations</label>';
                 for (var i=0; i<cons.length; i++) {
+                    var propString = page.getPropString(cons[i].data);
                     if (cons[i].name==lastName&&cons[i].configTypeId==$("#ConfigType").val()) page.configsSelected.push(cons[i].id);
                     html += '<div id="Config_'+cons[i].id.split('.').join('')+'" class="inlinerow configrow'+((page.configsSelected.includes(cons[i].id))?" on":"")+'" data-id="'+cons[i].id+'" data-type="'+cons[i].configTypeId+'">';
                     html += '<div class="configRemove icon-clear" data-id="'+cons[i].id+'"></div>';
                     html += '<div class="name">'+cons[i].name+'</div>';
-                    html += '<div class="detail">'+page.getPropString(cons[i].data)+'</div>';
+                    html += '<div class="detail" title="'+propString.split('"').join('')+'">'+propString+'</div>';
                     html += '</div>';
                 }
                 $("#ConfigName").val("");
@@ -392,6 +393,10 @@
                 $("#ConfigSelected").html($(".configrow.on").length);
                 page.configTypeSelected();
                 $(".configRemove").click(page.removeConfig);
+                $(".detail").dblclick((e) => {
+                    navigator.clipboard.writeText($(e.currentTarget).html());
+                    growler.info("Configuration Details Copied to Clipboard")
+                })
             },
 
             // Terminator Features
@@ -477,6 +482,14 @@
                 for (var key in obj) {
                     var label = obj[key];
                     if (label.constructor==({}).constructor) label = JSON.stringify(label);
+                    else if (label.constructor==[].constructor) {
+                        var theString = "";
+                        for (var i=0; i<label.length; i++) {
+                            if (label[i].constructor==({}).constructor) theString = JSON.stringify(label[i]);
+                            else theString += label[i];
+                        }
+                        label = theString;
+                    }
                     data += " "+label;
                 }
                 return data;
