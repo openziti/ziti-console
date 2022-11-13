@@ -33,12 +33,12 @@ var service = {
 							if (e.responseJSON.error!=null&&e.responseJSON.error.indexOf("credentials are invalid")>0) {
 								console.log("ERROR");
 								console.log(e.responseJSON);
-								//window.location = "/login?logout=true";
+								window.location = "/login?logout=true";
 							}
-						} catch (e) {
-							console.log("ERROR CAUGH");
-							console.log(e.responseJSON);
-							//window.location = "/login?logout=true";
+						} catch (exc) {
+							console.log("ERROR CAUGHT");
+							console.log(exc);
+							// window.location = "/login?logout=true";
 						}
 					}
 				}
