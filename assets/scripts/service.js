@@ -22,6 +22,7 @@ var service = {
 			},
 			complete: function(e) {
 				// Set indication of operation Complete
+				
 				if (e.responseJSON&&e.responseJSON.error&&e.responseJSON.error.code&&e.responseJSON.error.code=="ECONNREFUSED") {
 					window.location = "/login?logout=true";
 				} else {
@@ -30,13 +31,18 @@ var service = {
 					} else {
 						try {
 							if (e.responseJSON.error!=null&&e.responseJSON.error.indexOf("credentials are invalid")>0) {
-								window.location = "/login?logout=true";
+								console.log("ERROR");
+								console.log(e.responseJSON);
+								//window.location = "/login?logout=true";
 							}
 						} catch (e) {
-							window.location = "/login?logout=true";
+							console.log("ERROR CAUGH");
+							console.log(e.responseJSON);
+							//window.location = "/login?logout=true";
 						}
 					}
 				}
+				
 			},
 			success: returnTo
 		});

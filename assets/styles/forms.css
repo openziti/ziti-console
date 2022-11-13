@@ -188,7 +188,7 @@ label .info {
 	text-transform: lowercase;
 	color: var(--menu);
 	transition: var(--transition);
-	top: 5px;
+	top: 0px;
 }
 
 label .note {
