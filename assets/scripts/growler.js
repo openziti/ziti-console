@@ -20,6 +20,8 @@ var growler = {
     growler.events();
     growler.data = context.get("growlers");
     if (!growler.data) growler.data = [];
+    if (growler.data.length>0) $("#AlarmCount").show();
+    else $("#AlarmCount").hide();
   },
   events: function() {
     $("#AlertButton").click(growler.toggle);
@@ -91,6 +93,8 @@ var growler = {
         time: new Date()
       };
       context.set("growlers", growler.data);
+      if (growler.data.length>0) $("#AlarmCount").show();
+      else $("#AlarmCount").hide();
     }
 	},
 	error: function(subtitle, message) {
