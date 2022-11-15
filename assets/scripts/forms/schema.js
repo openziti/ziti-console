@@ -589,10 +589,10 @@ var schema = {
                 } else {
                     numValue = Number(numValue)
                 }
+                json[key] = numValue;
             } else {
-                numValue = 1;
+                delete json[key];
             }
-            json[key] = numValue;
         } else {    
             json[key] = $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).val();
         }       
