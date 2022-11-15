@@ -39,7 +39,7 @@ var Selector = function(id, label, atType, hashType) {
     this.init = function() {
         var element = $("#"+this.id); 
         if (element) {
-            var html = '<div class="searchSelector'+((this.isDropOver)?" inline":"")+((this.isSingleSelect)?" only":"")+'"><input id="'+this.id+'Search" type="text" maxlength="500" placeholder="Type to select '+this.label+' attributes" />';
+            var html = '<div class="searchSelector'+((this.isDropOver)?" inline":"")+((this.isSingleSelect)?" only":"")+'"><input id="'+this.id+'Search" type="text" maxlength="500" placeholder="'+locale.get("Attributes")+' '+this.label+' '+locale.get("Attributes")+'" />';
             html += '<div id="'+this.id+'Suggest" data-index="0" class="suggests"></div>';
             html += '<div id="'+this.id+'Selected" class="tagArea"></div></div>';
             element.html(html);
@@ -249,29 +249,31 @@ var Selector = function(id, label, atType, hashType) {
         } else {
             this.suggests.data("index", -1);
             var searchVal = $(e.currentTarget).val();
-            if (this.atType.indexOf("attributes")>=0) {
-                this.data.paging.sort = "id";
-                this.data.paging.searchOn = "id";
-            }
-            if (this.isForceAt) {
-                if (searchVal.indexOf('@')==0 && (searchVal.length>0 || !this.isFocused)) {
-                    searchVal = searchVal.substr(1);
-                    this.suggests.html("");
-                    this.data.paging.filter = searchVal;
-                    this.data.get();
+            if (this.data) {
+                if (this.atType&&this.atType.indexOf("attributes")>=0) {
+                    this.data.paging.sort = "id";
+                    this.data.paging.searchOn = "id";
+                }
+                if (this.isForceAt) {
+                    if (searchVal.indexOf('@')==0 && (searchVal.length>0 || !this.isFocused)) {
+                        searchVal = searchVal.substr(1);
+                        this.suggests.html("");
+                        this.data.paging.filter = searchVal;
+                        this.data.get();
+                    } else {
+                        this.suggests.html("");
+                        this.suggests.removeClass("open");
+                    } 
                 } else {
-                    this.suggests.html("");
-                    this.suggests.removeClass("open");
-                } 
-            } else {
-                if (searchVal.length>0 || !this.isFocused) {
-                    this.suggests.html("");
-                    this.data.paging.filter = searchVal;
-                    this.data.get();
-                } else {
-                    this.suggests.html("");
-                    this.suggests.removeClass("open");
-                } 
+                    if (searchVal.length>0 || !this.isFocused) {
+                        this.suggests.html("");
+                        this.data.paging.filter = searchVal;
+                        this.data.get();
+                    } else {
+                        this.suggests.html("");
+                        this.suggests.removeClass("open");
+                    } 
+                }
             }
             this.isFocused = true;
         }

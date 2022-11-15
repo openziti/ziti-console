@@ -22,7 +22,7 @@ var app = {
 		app.events();
 		app.setupLock();
 		app.binding();
-		app.language();
+		if(locale) locale.init();
 		if (page) page.init();
 		if (header) header.init();
 		if (user) user.init();
@@ -46,24 +46,6 @@ var app = {
 		$("#ClearNotificationsButton").click(app.clearNotifications);
 		context.addListener(settings.name, app.settingsReturned);
 		context.addListener("version", app.versionReturned);
-	},
-    language: function() {
-		service.call("language", {locale: navigator.language}, app.languageLoaded);
-    },
-	languageLoaded: function(e) {
-		var obj = e;
-		for (var item in obj) {
-			app.keys[item] = obj[item];
-		}
-		$("[data-i18n]").each((i, e) => {
-			var key = $(e).data("i18n");
-			if (!key || key.trim().length>0) {
-				$(e).html(app.keys[key]);
-			} else {
-				var id = $(e).attr("id");
-				$("#"+id).html(app.keys[id]);
-			}
-		});
 	},
 	keypress: function(e) {
 		if (e.keyCode === 27) {

@@ -204,7 +204,8 @@ aside .icon {
     left: 80px;
     color: var(--text);
     opacity: 0.7;
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: bold;
 }
 
 .constrained {
@@ -858,7 +859,7 @@ aside .icon {
 }
 
 .linkButton {
-    color: var(--stroke);
+    color: var(--menu);
     line-height: 40px;
     cursor: pointer;
     transition: var(--transition);

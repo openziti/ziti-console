@@ -60,7 +60,7 @@ var growler = {
     } else {
 			$("#AlarmCount").hide();
       $("#ClearNotificationsButton").hide();
-      $("#NotificationsList").html("<span class='nonotify'>No Notifications to Display</span>")
+      $("#NotificationsList").html("<span class='nonotify'>"+locale.get("NoNotifications")+"</span>")
     }
   },
 	show: function(type, title, subtitle, message) {
@@ -94,24 +94,24 @@ var growler = {
     }
 	},
 	error: function(subtitle, message) {
-		growler.show("error","An Error Occurred", subtitle, message);
+		growler.show("error", locale.get("GrowlerError"), subtitle, message);
   },
   info: function(subtitle, message) {
-		growler.show("info","Information", subtitle, message);
+		growler.show("info", locale.get("GrowlerInfo"), subtitle, message);
   },
   debug: function(subtitle, message) {
-		growler.show("debug","Debugger", subtitle, message);
+		growler.show("debug", locale.get("GrowlerDebug"), subtitle, message);
   },
   warning: function(subtitle, message) {
-		growler.show("warning","Warning Message", subtitle, message);
+		growler.show("warning", locale.get("GrowlerWarn"), subtitle, message);
   },
   bug: function(subtitle, message) {
-		growler.show("bug","System Bug", subtitle, message);
+		growler.show("bug", locale.get("GrowlerBug"), subtitle, message);
   },
   success: function(subtitle, message) {
-		growler.show("success","Success", subtitle, message);
+		growler.show("success", locale.get("GrowlerSuccess"), subtitle, message);
   },
   form: function() {
-    growler.error("Invalid form", "Please correct the highlighted fields and try again.")
+    growler.error(locale.get("GrowlerInvalid"), locale.get("TryAgain"))
   }
 }

@@ -14,6 +14,10 @@ label {
     text-overflow: ellipsis;
 }
 
+textarea::placeholder {
+    font-size: 15px !important;
+}
+
 input, select, textarea {
     font-weight: 400;
     font-family: 'Open Sans', Arial, sans-serif;

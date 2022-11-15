@@ -635,6 +635,7 @@ function GetItems(type, paging, request, response) {
 		if (paging.sort!=null) {
 			if (paging.searchOn) toSearchOn = paging.searchOn;
 			if (!paging.filter) paging.filter = "";
+			paging.filter = paging.filter.split('#').join('');
 			if (paging.page!=-1) urlFilter = "?filter=("+toSearchOn+" contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
 			if (paging.params) {
 				for (var key in paging.params) {
@@ -929,7 +930,7 @@ app.post("/api/delete", function(request, response) {
 		GetItems(type, paging, request, response);
 	}).catch((error) => {
 		log("Error: "+JSON.stringify(error));
-		response.json({error: error.cause.message});
+		HandleError(response, error);
 	});
 
 	/*
