@@ -5,7 +5,7 @@
         <div class="line"></div>
         <div class="tabs">
             <div class="tab" data-go="/identities">Identities</div>
-            <div class="tab" data-go="/templates">Templates</div>
+            <div class="tab" data-go="/recipes">Recipes</div>
             <div class="tab" data-go="/edge-services">Services</div>
             <div class="tab" data-go="/edge-routers">Edge Routers</div>
             <div class="tab" data-go="/transit-routers">Transit Routers</div>
@@ -16,7 +16,8 @@
     <div class="action icon-plus" data-action="add"></div>
     <div class="filters">
         <input id="SearchFilter" data-defined="search" type="text" class="search" placeholder="Type to Filter" />
-        <div class="clear" data-defined="clear"></div>
+        <div class="clear icon-clear" data-defined="clear"></div>
+        <div class="searchButton icon-search"></div>
         <div class="counters"><span id="Start">-</span>-<span id="End">-</span> of <span id="Total">-</span></div>
         <div class="navigate prev icon-prev disabled"></div>
         <div class="navigate next icon-next disabled"></div>
@@ -210,7 +211,7 @@
             idServices: null,
             roles: null,
             init: function() {
-                page.roles = new Selector("Roles","roles");
+                page.roles = new Selector("Roles","roles","identity-role-attributes");
                 page.casObject = new Data("cas");
                 page.servicesObject = new Data("services");
                 page.configsObject = new Data("configs");
@@ -220,6 +221,7 @@
                 page.events();
 
                 page.roles.isForceHash = false;
+                page.roles.isForceAt = false;
                 page.roles.init();
                 page.casObject.init(true);
                 page.servicesObject.init(true);

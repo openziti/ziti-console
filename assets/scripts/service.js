@@ -6,6 +6,7 @@ var service = {
 	call: function(name, params, returnTo, type) {
 		if (!type) type = "POST";
 		var paramString = JSON.stringify(params);
+		console.log(service.host+service.base+"/"+name);
 		$.ajax({
 			type: type,
 			contentType: "application/json",
@@ -22,6 +23,7 @@ var service = {
 			},
 			complete: function(e) {
 				// Set indication of operation Complete
+				
 				if (e.responseJSON&&e.responseJSON.error&&e.responseJSON.error.code&&e.responseJSON.error.code=="ECONNREFUSED") {
 					window.location = "/login?logout=true";
 				} else {
@@ -29,14 +31,19 @@ var service = {
 						window.location = "/login?logout=true";
 					} else {
 						try {
-							if (e.responseJSON.error!=null&&e.responseJSON.error.indexOf("credentials are invalid")>0) {
+							if (e.responseJSON&&e.responseJSON.error!=null&&e.responseJSON.error.indexOf("credentials are invalid")>0) {
+								console.log("ERROR");
+								console.log(e.responseJSON);
 								window.location = "/login?logout=true";
 							}
-						} catch (e) {
-							window.location = "/login?logout=true";
+						} catch (exc) {
+							console.log("ERROR CAUGHT");
+							console.log(exc);
+							// window.location = "/login?logout=true";
 						}
 					}
 				}
+				
 			},
 			success: returnTo
 		});

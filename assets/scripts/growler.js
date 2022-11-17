@@ -1,16 +1,3 @@
-/*
-Copyright 2020 NetFoundry, Inc.
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-https://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
 var growler = {
   isDebugging: true,
   showId: -1,
@@ -20,6 +7,8 @@ var growler = {
     growler.events();
     growler.data = context.get("growlers");
     if (!growler.data) growler.data = [];
+    if (growler.data.length>0) $("#AlarmCount").show();
+    else $("#AlarmCount").hide();
   },
   events: function() {
     $("#AlertButton").click(growler.toggle);
@@ -60,7 +49,7 @@ var growler = {
     } else {
 			$("#AlarmCount").hide();
       $("#ClearNotificationsButton").hide();
-      $("#NotificationsList").html("<span class='nonotify'>No Notifications to Display</span>")
+      $("#NotificationsList").html("<span class='nonotify'>"+locale.get("NoNotifications")+"</span>")
     }
   },
 	show: function(type, title, subtitle, message) {
@@ -91,27 +80,29 @@ var growler = {
         time: new Date()
       };
       context.set("growlers", growler.data);
+      if (growler.data.length>0) $("#AlarmCount").show();
+      else $("#AlarmCount").hide();
     }
 	},
 	error: function(subtitle, message) {
-		growler.show("error","An Error Occurred", subtitle, message);
+		growler.show("error", locale.get("GrowlerError"), subtitle, message);
   },
   info: function(subtitle, message) {
-		growler.show("info","Information", subtitle, message);
+		growler.show("info", locale.get("GrowlerInfo"), subtitle, message);
   },
   debug: function(subtitle, message) {
-		growler.show("debug","Debugger", subtitle, message);
+		growler.show("debug", locale.get("GrowlerDebug"), subtitle, message);
   },
   warning: function(subtitle, message) {
-		growler.show("warning","Warning Message", subtitle, message);
+		growler.show("warning", locale.get("GrowlerWarn"), subtitle, message);
   },
   bug: function(subtitle, message) {
-		growler.show("bug","System Bug", subtitle, message);
+		growler.show("bug", locale.get("GrowlerBug"), subtitle, message);
   },
   success: function(subtitle, message) {
-		growler.show("success","Success", subtitle, message);
+		growler.show("success", locale.get("GrowlerSuccess"), subtitle, message);
   },
   form: function() {
-    growler.error("Invalid form", "Please correct the highlighted fields and try again.")
+    growler.error(locale.get("GrowlerInvalid"), locale.get("TryAgain"))
   }
 }

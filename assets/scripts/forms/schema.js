@@ -375,6 +375,9 @@ var schema = {
         html += schema.pullAll(exclude, items);
 
         $("#"+schema.formId).html(html);
+        $("input").blur((e) => {
+            $(e.currentTarget).val($(e.currentTarget).val().trim());
+        });
         if (schema.codeView!=null) {
             setTimeout(function() {
                 var json = schema.val();
@@ -586,8 +589,10 @@ var schema = {
                 } else {
                     numValue = Number(numValue)
                 }
-            } else numValue = 0;
-            json[key] = numValue;
+                json[key] = numValue;
+            } else {
+                delete json[key];
+            }
         } else {    
             json[key] = $("#"+((parentKey!=null)?parentKey+'_':'')+"schema_"+key).val();
         }       

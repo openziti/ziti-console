@@ -204,7 +204,8 @@ aside .icon {
     left: 80px;
     color: var(--text);
     opacity: 0.7;
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: bold;
 }
 
 .constrained {
@@ -858,7 +859,7 @@ aside .icon {
 }
 
 .linkButton {
-    color: var(--stroke);
+    color: var(--menu);
     line-height: 40px;
     cursor: pointer;
     transition: var(--transition);
@@ -1624,8 +1625,25 @@ aside .icon {
     box-shadow: var(--shadow);
 }
 
+.searchButton {
+    width: 30px;
+    height: 30px;
+    font-size: 25px;
+    left: 340px;
+    top: 18px;
+    color: var(--menu);
+    position: absolute;
+    z-index: 10;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: var(--transition);
+}
+
+.searchButton:hover {
+    opacity: 1.0;
+}
+
 .clear {
-    background-image: url(/assets/svgs/clear.svg);
     width: 20px;
     height: 20px;
     background-size: contain;
@@ -1636,6 +1654,8 @@ aside .icon {
     left: 300px;
     top: 20px;
     z-index: 10;
+    color: var(--menu);
+    font-size: 20px;
 }
 
 .clear.showing:hover {
@@ -1643,7 +1663,7 @@ aside .icon {
 }
 
 .clear.showing {
-    opacity: 1.0;
+    opacity: .8;
 }
 
 .bubble {

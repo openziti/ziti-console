@@ -17,10 +17,12 @@ $(document).ready(function(e) {
 });
 
 var app = {
+	keys: [],
 	init: function() {
 		app.events();
 		app.setupLock();
 		app.binding();
+		if(locale) locale.init();
 		if (page) page.init();
 		if (header) header.init();
 		if (user) user.init();
@@ -40,6 +42,7 @@ var app = {
 		$(".toggle").click(app.toggle);
 		$("main").mouseover(app.hideNav);
 		$("body").keyup(app.keypress);
+		$("input").blur(app.trim);
 		$("#ClearNotificationsButton").click(app.clearNotifications);
 		context.addListener(settings.name, app.settingsReturned);
 		context.addListener("version", app.versionReturned);
@@ -53,6 +56,9 @@ var app = {
 				$("#YesButton").click();
 			}
 		}
+	},
+	trim: function(e) {
+		$(e.currentTarget).val($(e.currentTarget).val().trim());
 	},
 	postLoad: function() {
 		$(".selector").off("click");

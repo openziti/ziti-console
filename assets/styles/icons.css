@@ -25,6 +25,16 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+.icon-clear:before {
+  content: "\e927"; 
+}
+.icon-search:before {
+  content: "\e926";
+}
+.icon-network-hub:before {
+  content: "\e925";
+}
 .icon-known:before {
   content: "\e922";
 }

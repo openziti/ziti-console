@@ -73,6 +73,7 @@ var Data = function(name, context) {
 			$(".action").click(this.action.bind(this));
 			this.saveButton = $("*[data-defined='save']");
 			if (page&&page.save) this.saveButton.click(page.save);
+			$(".searchButton").click(this.get.bind(this));
 		}
 	};
 	this.isEditing = function() {
@@ -117,7 +118,7 @@ var Data = function(name, context) {
 		if (e.keyCode==13) {
 			this.get();
 		} else {
-			this.searchId = setTimeout(this.get.bind(this), 1000);
+			this.searchId = setTimeout(this.get.bind(this), 3000);
 		}
 	};
 	this.clear = function(e) {
@@ -127,6 +128,7 @@ var Data = function(name, context) {
 		this.clearField.removeClass("showing");
 	};
 	this.get = function() { 
+		if (this.searchId) clearTimeout(this.searchId);
 		service.call("data", this.getParams(), this.loaded.bind(this));
 	};
 	this.all = function() {

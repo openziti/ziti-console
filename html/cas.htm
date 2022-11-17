@@ -1,17 +1,18 @@
     <!-- General Page Layout HTML -->
     <div class="header">
-        <div class="title">Manage <span data-bind="pageTitle"></span></div>
-        <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
+        <div class="title"><span data-i18n="Manage"></span> <span data-i18n="CAs"></span></div>
+        <div class="bread"><span data-i18n="ZitiNetwork"></span> <span class="secondary">/</span> <span data-i18n="Manage"></span> <span data-i18n="CAs"></span></div>
         <div class="line"></div>
         <div class="tabs">
-            <div class="tab selected">Manage <span data-bind="pageTitle"></span></div>
+            <div class="tab selected"><span data-i18n="Manage"></span> <span data-i18n="CAs"></span></div>
         </div>
     </div>
     <div class="action icon-plus" data-action="add"></div>
     <div class="filters">
-        <input id="SearchFilter" data-defined="search" type="text" class="search" placeholder="Type to Filter" />
-        <div class="clear" data-defined="clear"></div>
-        <div class="counters"><span id="Start">-</span>-<span id="End">-</span> of <span id="Total">-</span></div>
+        <input id="SearchFilter" data-defined="search" type="text" class="search" data-i18n="EnterFilter" />
+        <div class="clear icon-clear" data-defined="clear"></div>
+        <div class="searchButton icon-search"></div>
+        <div class="counters"><span id="Start">-</span>-<span id="End">-</span> <span data-i18n="Of"></span> <span id="Total">-</span></div>
         <div class="navigate prev icon-prev disabled"></div>
         <div class="navigate next icon-next disabled"></div>
     </div>
@@ -22,12 +23,12 @@
                 <div class="col">
                     <div class="selector all"></div>
                 </div>
-                <div class="col sort asc" data-by="name">Name<div class="dragger"></div></div>
-                <div class="col desktop sort" data-by="isVerified">Verified</div>
-                <div class="col desktop sort" data-by="isAutoCaEnrollmentEnabled">Auto Enroll</div>
-                <div class="col desktop sort" data-by="isOttCaEnrollmentEnabled">OTT Auto</div>
-                <div class="col desktop sort" data-by="isAuthEnabled">Auth</div>
-                <div class="col desktop sort" data-by="dateCreated">Created</div>
+                <div class="col sort asc" data-by="name" data-i18n="Name"><div class="dragger"></div></div>
+                <div class="col desktop sort" data-by="isVerified" data-i18n="Verified"></div>
+                <div class="col desktop sort" data-by="isAutoCaEnrollmentEnabled" data-i18n="AutoEnroll"></div>
+                <div class="col desktop sort" data-by="isOttCaEnrollmentEnabled" data-i18n="OTTAuto"></div>
+                <div class="col desktop sort" data-by="isAuthEnabled" data-i18n="Auth"></div>
+                <div class="col desktop sort" data-by="dateCreated" data-i18n="Created"></div>
                 <div class="col"></div>
             </div>
             <div class="rows" data-defined="rows">
@@ -35,7 +36,7 @@
             </div>
         </div>
     </div>
-    <div class="nodata" data-defined="empty">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
+    <div class="nodata" data-defined="empty"><span data-i18n="No"></span> <span data-i18n="CA"></span> <span data-i18n="NoneDefined"></span> <span data-i18n="CA"></span>.</div>
 
 
 
@@ -53,9 +54,9 @@
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
                 <div class="gridMenu" data-id="{{id}}">
-                    <div class="gridAction" data-id="{{id}}" data-action="edit">Edit</div>
-                    <div class="gridAction {{hiddenClass}}" data-id="{{id}}" data-action="verify">Verify</div>
-                    <div class="gridAction" data-id="{{id}}" data-action="delete">Delete</div>
+                    <div class="gridAction" data-id="{{id}}" data-action="edit" data-i18n="Edit"></div>
+                    <div class="gridAction {{hiddenClass}}" data-id="{{id}}" data-action="verify" data-i18n="Verify"></div>
+                    <div class="gridAction" data-id="{{id}}" data-action="delete" data-i18n="Delete"></div>
                 </div>
             </div>
         </div>
@@ -67,43 +68,43 @@
     <div id="AddModal" class="modal box full">
         <div class="sized large">
             <div class="close icon-close"></div>
-            <div class="title adding">Create <span data-bind="singular"></span></div>
-            <div class="subtitle adding">Add a New <span data-bind="singular"></span></div>
-            <div class="title editing">Edit <span data-bind="singular"></span></div>
-            <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
-            <label for="Name">Name</label>
-            <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" />
-            <label for="IDRoles">Identity Roles</label>
+            <div class="title adding"><span data-i18n="Create"></span> <span data-bind="singular"></span></div>
+            <div class="subtitle adding"><span data-i18n="AddNew"></span> <span data-bind="singular"></span></div>
+            <div class="title editing"><span data-i18n="Edit"></span> <span data-bind="singular"></span></div>
+            <div class="subtitle editing"><span data-i18n="Change"></span> <span data-bind="singular"></span> <span data-i18n="Details"></span></div>
+            <label for="Name" data-i18n="Name"></label>
+            <input id="Name" data-bind="data.name" type="text" maxlength="500" data-i18n="EnterName" />
+            <label for="IDRoles" data-i18n="Name"></label>
             <div id="IDRoles"></div>
             <div class="three">
                 <div>
-                    <label>Is Auto Enrollment?</label>
+                    <label data-i18n="IsAuto"></label>
                     <div id="IsAutoEnrollmentEnabled" class="toggle">
                         <div class="switch"></div>
                         <div class="label"></div>
                     </div>
                 </div>
                 <div>
-                    <label>Is OTT Enrollment?</label>
+                    <label data-i18n="OTTEnabled"></label>
                     <div id="IsOTTEnrollmentEnabled" class="toggle">
                         <div class="switch"></div>
                         <div class="label"></div>
                     </div>
                 </div>
                 <div id="UserArea">
-                    <label>Is Auth Enabled?</label>
+                    <label data-i18n="AuthEnabled"></label>
                     <div id="IsAuthEnabled" class="toggle">
                         <div class="switch"></div>
                         <div class="label"></div>
                     </div>
                 </div>
             </div>
-            <label for="Pem">PEM<span id="SelectFile" class="note">Select File</span><input id="PemFile" type="file" accept=".pem"/></label>
-            <textarea id="Pem" data-bind="data.certPem" style="height: 300px; font-size: 12px;" placeholder="paste pem contents or select a file"></textarea>
+            <label for="Pem"><span data-i18n="PEM"></span> <span id="SelectFile" class="note" data-i18n="SelectFile"></span><input id="PemFile" type="file" accept=".pem"/></label>
+            <textarea id="Pem" data-bind="data.certPem" style="height: 300px; font-size: 12px;" data-i18n="PastePEM"></textarea>
             <div id="TagArea"></div>
             <div class="buttons">
-                <div class="linkButton closer">Oops, No get me out of here</div>
-                <div id="SaveButton" class="button" data-defined="save">Save</div>
+                <div class="linkButton closer" data-i18n="Oops"></div>
+                <div id="SaveButton" class="button" data-defined="save" data-i18n="Save"></div>
             </div>
         </div>
     </div>
@@ -111,30 +112,31 @@
     <div id="VerifyModal" class="modal box full">
         <div class="sized large">
             <div class="close icon-close"></div>
-            <div class="title">Verify Certificate</div>
-            <div class="subtitle">Send Your Certificate for Verification</div>
-            <div><h3>To Do</h3>Generate a Certificate with the common name CN=<strong><span data-bind="data.verificationToken"></span></strong> and submit it here for verification.</div>
-            <label for="VerificationCode">Verification Token</label>
+            <div class="title" data-i18n="VerifyCertificate"></div>
+            <div class="subtitle" data-i18n="SendCertificate"></div>
+            <div>
+                <h3 data-i18n="ToDo"></h3>
+                <span data-i18n="VerifyDirectionStart"></span>
+                <strong><span data-bind="data.verificationToken"></span></strong> 
+                <span data-i18n="VerifyDirectionEnd"></span>
+            </div>
+            <label for="VerificationCode" data-i18n="VerificationToken"></label>
             <input id="VerificationCode" data-bind="data.verificationToken" type="text" maxlength="500" readonly="true" />
             <label for="Certificate">
-                Certificate
-                <span id="SelectCertificateFile" class="note">Select Certificate</span>
+                <span data-i18n="Certificate"></span>
+                <span id="SelectCertificateFile" class="note" data-i18n="SelectCertificate"></span>
                 <input id="CertificateFile" type="file" accept=".pem"/>
             </label>
-            <textarea id="Certificate" style="height: 300px; font-size: 12px;" placeholder="paste certificate contents or select a file"></textarea>
+            <textarea id="Certificate" style="height: 300px; font-size: 12px;" data-i18n="EnterCert"></textarea>
             <div class="buttons">
-                <div class="linkButton closer">Oops, No get me out of here</div>
-                <div id="VerifyButton" class="button">Verify</div>
+                <div class="linkButton closer" data-i18n="Oops"></div>
+                <div id="VerifyButton" class="button" data-i18n="Verify"></div>
             </div>
         </div>
     </div>
 
     <script language="javascript" type="text/javascript">
         page = {
-            binding: {
-                pageTitle: "Certificate Authorities",
-                singular: "Certificate Authority"
-            },
             filterObject: null,
             identityRoles: null,
             init: function() {
@@ -179,7 +181,7 @@
                     };
                     fileReader.readAsText(fileToLoad, "UTF-8");
                 } catch (e) {
-                    growler.error("Invalid File", "Unable to read file, try opening in a text editor and pasting into the text field.");
+                    growler.error("Invalid File", locale.get("ErrorInvalidFile"));
                 } 
             },
             loadCertFile: function(e) {
@@ -192,7 +194,7 @@
                     };
                     fileReader.readAsText(fileToLoad, "UTF-8");
                 } catch (e) {
-                    growler.error("Invalid File", "Unable to read file, try opening in a text editor and pasting into the text field.");
+                    growler.error("Invalid File", locale.get("ErrorInvalidFile"));
                 } 
             },
             showVerify: function(id) {
@@ -238,7 +240,7 @@
             verified: function(e) {
                 if (e.error) growler.error(e.error);
                 else {
-                    growler.success("Certificate Verified");
+                    growler.success(locale.get("CertVerified"));
                     modal.close();
                     page.filterObject.editId = "";
                     page.filterObject.get();

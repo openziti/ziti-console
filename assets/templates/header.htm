@@ -96,6 +96,7 @@
 		<script type="text/javascript" src="/assets/scripts/model/links.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/series.js"></script>
 		<script type="text/javascript" src="/assets/scripts/model/sessions.js"></script>
+		<script type="text/javascript" src="/assets/scripts/locale.js"></script>
 		<!-- Application -->
 		<script type="text/javascript" src="/assets/scripts/header.js"></script>
 		<script type="text/javascript" src="/assets/scripts/ziti.js"></script>
@@ -129,7 +130,7 @@
 			  <div id="NavigationButton" class="clickable main AreaNavigation" data-open="AreaNavigation" data-hover="NetworkHover">
 					<div class="circle"></div>
 					<div class="icon icon-globe"></div>
-					<div id="NetworkHover" class="hover">Network Settings</div>
+					<div id="NetworkHover" class="hover" data-i18n="NetworkSettings"></div>
 			  </div> 
 			  <!-- 
 			  <div id="AddButton" class="clickable" data-hover="AddHover">
@@ -142,7 +143,7 @@
 					<div class="clicked"></div>
 					<div class="circle"></div>
 					<div class="icon"></div>
-					<div id="SearchHover" class="hover">Search</div>
+					<div id="SearchHover" class="hover" data-i18n="Search"></div>
 			  </div>
 			</div>
 			<div class="bottomButtons">
@@ -167,98 +168,97 @@
 				<div class="icon"></div>
 				<div id="ProfileMenu" class="menu">
 				  <div class="menutitle"></div>
-				  <div id="ProfileButton" class="link" data-go="/profile">Edit Profile</div>
-				  <div id="SettingsButton" class="link" data-go="/settings">Personal Settings</div>
-				  <div id="LogoutButton" class="link" data-go="/login">Logout</div>
+				  <div id="ProfileButton" class="link" data-go="/profile" data-i18n="EditProfile"></div>
+				  <div id="SettingsButton" class="link" data-go="/settings" data-i18n="PersonalSettings"></div>
+				  <div id="LogoutButton" class="link" data-go="/login" data-i18n="Logout"></div>
 				</div>
 			  </div>
 			</div>
 		</header>
 		<nav class="auth{{auth}}">
-			<div class="title">Ziti Console</div>
-			<div class="lock icon-lock"></div>
+			<div class="title" data-i18n="AppName"></div>
 			<div id="Version" class="version"></div>
 			<div id="AreaNavigation" class="navArea">
 				<div class="navList">
 					<a href="/">
 						<div class="navButton">
 							<div class="iconArea rippler"><div class="image icon-dashboard"></div></div>
-							<div class="label">Dashboard</div>
+							<div class="label" data-i18n="Dashboard"></div>
 						</div>
 					</a>
 					<a href="/identities">
 						<div class="navButton">
 							<div class="iconArea rippler"><div class="image icon-identity"></div></div>
-							<div class="label">Identities</div>
+							<div class="label" data-i18n="Identities"></div>
 						</div>
 					</a>
 					<a href="/recipes">
 						<div class="navButton">
 							<div class="iconArea rippler"><div class="image icon-template"></div></div>
-							<div class="label">Recipes</div>
+							<div class="label" data-i18n="Recipes"></div>
 						</div>
 					</a>
 
 					<a href="/edge-services">
 						<div class="navButton">
 							<div class="iconArea rippler"><div class="image icon-services"></div></div>
-							<div class="label">Services</div>
+							<div class="label" data-i18n="Services"></div>
 						</div>
 					</a>
 					<a href="/configs">
 						<div class="navButton">
 							<div class="iconArea rippler"><div class="image icon-change"></div></div>
-							<div class="label">Service Configurations</div>
+							<div class="label" data-i18n="ServiceConfigurations"></div>
 						</div>
 					</a>
 					<a href="/service-policies">
 						<div class="navButton">
 							<div class="iconArea rippler"><div class="image icon-servicepolicy"></div></div>
-							<div class="label">Service Policies</div>
+							<div class="label" data-i18n="ServicePolicies"></div>
 						</div>
 					</a>
 
 					<a href="/router-policies">
 						<div class="navButton">
 							<div class="iconArea rippler"><div class="image icon-servers"></div></div>
-							<div class="label">Router Policies</div>
+							<div class="label" data-i18n="RouterPolicies"></div>
 						</div>
 					</a>
 					<a href="/edge-routers">
 						<div class="navButton">
-							<div class="iconArea rippler"><div class="image icon-router"></div></div>
-							<div class="label">Edge Routers</div>
+							<div class="iconArea rippler"><div class="image icon-network-hub"></div></div>
+							<div class="label" data-i18n="EdgeRouters"></div>
 						</div>
 					</a>
 					<a href="/transit-routers">
 						<div class="navButton">
 							<div class="iconArea rippler"><div class="image icon-transitrouter"></div></div>
-							<div class="label">Transit Routers</div>
+							<div class="label" data-i18n="TransitRouters"></div>
 						</div>
 					</a>
 					<a href="/service-router-policies">
 						<div class="navButton">
 							<div class="iconArea rippler"><div class="image icon-servicepolicy"></div></div>
-							<div class="label">Service/Router Policies</div>
+							<div class="label" data-i18n="ServiceRouterPolicies"></div>
 						</div>
 					</a>
 
 					<a href="/terminators">
 						<div class="navButton">
 							<div class="iconArea rippler"><div class="image icon-terminators"></div></div>
-							<div class="label">Terminators</div>
+							<div class="label" data-i18n="Terminators"></div>
 						</div>
 					</a>
 					<a href="/config-types">
 						<div class="navButton">
 							<div class="iconArea rippler"><div class="image icon-schema"></div></div>
-							<div class="label">Config Schemas</div>
+							<div class="label" data-i18n="ConfigSchemas"></div>
 						</div>
 					</a>
 					<a href="/cas">
 						<div class="navButton">
 							<div class="iconArea rippler"><div class="image icon-certificates"></div></div>
-							<div class="label">Certificate Authorities</div>
+							<div class="label" data-i18n="CertificateAuthorities"></div>
 						</div>
 					</a>
 				</div>
@@ -268,19 +268,19 @@
 					<a href="/servers">
 						<div class="navButton">
 							<div class="iconArea rippler"><div class="image icon-server-1"></div></div>
-							<div class="label">Server Settings</div>
+							<div class="label" data-i18n="ServerSettings"></div>
 						</div>
 					</a>
 					<a href="/organization">
 						<div class="navButton">
 							<div class="iconArea rippler"><div class="image icon-configuration"></div></div>
-							<div class="label">Custom Fields</div>
+							<div class="label" data-i18n="CustomFields"></div>
 						</div>
 					</a>
 
 					<div class="navButton" data-go="/known" style="display: none;">
 						<div class="iconArea rippler"><div class="image icon-known"></div></div>
-						<div class="label">Well Known Services</div>
+						<div class="label" data-i18n="WellKnownServices"></div>
 					</div>
 				</div>
 			</div>
@@ -288,8 +288,8 @@
 		<div id="NotificationsMenu">
 			<div id="NotificationMenuClose" class="close icon-close"></div>
 			<div class="row">
-				<div class="header title">Recent Notifications</div>
-				<div id="ClearNotificationsButton" class="subLink">Clear Notifications</div>
+				<div class="header title" data-i18n="RecentNotifications"></div>
+				<div id="ClearNotificationsButton" class="subLink" data-i18n="ClearNotifications"></div>
 			</div>
 			<div class="hr"></div>
 			<div id="NotificationsList"></div>
@@ -297,7 +297,7 @@
 		<aside class="unauth{{auth}}">
 			<div class="overlay"></div>
 			<div class="icon"></div>
-			<div class="title">Administer your NetFoundry Ziti Virtual Network with Ziti Admin console</div>
+			<div class="title" data-i18n="Info"></div>
 		</aside>
 		<main>
 			

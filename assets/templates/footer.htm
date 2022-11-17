@@ -3,23 +3,23 @@
 			<div id="AddAnyModal" class="modal box" style="height: 310px; width: 900px">
 				<div class="underlay"></div>
 				<div class="close icon-close"></div>
-				<div class="title">What would you like to add?</div>
+				<div class="title" data-i18n="AddTitle"></div>
 				<div class="grid singular">
 					<div></div>
 					<div class="launcher" data-add="/identities">
 						<div class="image icon-ids"></div>
-						<div class="label">Add a New<br/>Identity</div>
+						<div class="label" data-i18n="AddIdentity"></div>
 					</div>
 					<div></div>
 				</div>
 				<div class="grid dual">
 					<div class="launcher" data-add="/edge-routers">
 						<div class="image icon-router"></div>
-						<div class="label">Add a New<br/>Router</div>
+						<div class="label" data-i18n="AddRouter"></div>
 					</div>
 					<div class="launcher" data-add="/edge-services">
 						<div class="image icon-services"></div>
-						<div class="label">Add a New<br/>Service</div>
+						<div class="label" data-i18n="AddService"></div>
 					</div>
 				</div>
 			</div>
@@ -27,10 +27,10 @@
 			<!-- Operational Wizard UI -->
 			<div id="WizardModal" class="modal box">
 				<div class="close icon-close"></div>
-				<div class="title">Ziti Wizard</div>
-				<div class="subtitle">Follow these steps to create a ziti service configuration</div>
+				<div class="title" data-i18n="ZitiWizard"></div>
+				<div class="subtitle" data-i18n="WizardService"></div>
 				<div class="wizard area open">
-					<label for="WServiceName">Service Name</label>
+					<label for="WServiceName" data-i18n="ServiceName"></label>
 					<input id="WServiceName" type="text" maxlength="100" />
 					<label for="WServiceRoles"></label>
 				</div>
@@ -41,49 +41,49 @@
 			<div id="AddMessageModal" class="modal box full">
 				<div class="sized">
 					<div class="close icon-close"></div>
-					<div class="title">Send a Message To The Team</div>
-					<div class="subtitle">Fill out the following form to send a message</div>
+					<div class="title" data-i18n="MessageTitle"></div>
+					<div class="subtitle" data-i18n="MessageSubTitle"></div>
 					<div class="split unsplit">
 						<div>
-							<label for="SendName">Name</label>
-							<input id="SendName" type="text" maxlength="500" placeholder="Enter a name" />
+							<label for="SendName" data-i18n="MessageName"></label>
+							<input id="SendName" type="text" maxlength="500" data-i18n="EnterName"/>
 						</div>
 						<div>
-							<label for="SendEMail">EMail Address</label>
-							<input id="SendEMail" type="text" maxlength="500" placeholder="Enter your email address" />
+							<label for="SendEMail" data-i18n="MessageEMail"></label>
+							<input id="SendEMail" type="text" maxlength="500" data-i18n="EnterEMail" />
 						</div>
 					</div>
-					<label>Message</label>
+					<label data-i18n="Message"></label>
 					<div>
 						<textarea id="SendMessage" placeholder="Enter the message you would like to send"></textarea>
 					</div>
-					<label id="MessageType">Type Of Message</label>
+					<label id="MessageType" data-i18n="MessageType"></label>
 					<div class="grid quad">
 						<div class="card option" data-type="bug">
 							<div class="icon icon-bug"></div>
-							<div class="contents">Bug</div>
+							<div class="contents" data-i18n="Bug"></div>
 							<div class="checkbox icon-check"></div>
 						</div>
 						<div class="card option" data-type="feature">
 							<div class="icon icon-bulb"></div>
-							<div class="contents">Feature Request</div>
+							<div class="contents" data-i18n="FeatureRequest"></div>
 							<div class="checkbox icon-check"></div>
 						</div>
 						<div class="card option" data-type="love">
 							<div class="icon icon-hearts"></div>
-							<div class="contents">Love Letter</div>
+							<div class="contents" data-i18n="LoveLetter"></div>
 							<div class="checkbox icon-check"></div>
 						</div>
 						<div class="card option" data-type="message">
 							<div class="icon icon-question-sign"></div>
-							<div class="contents">Message</div>
+							<div class="contents" data-i18n="Message"></div>
 							<div class="checkbox icon-check"></div>
 						</div>
 					</div>
 					<div class="loved"></div>
 					<div class="buttons">
-						<div class="linkButton closer">Oops, No get me out of here</div>
-						<div id="SendMessageButton" class="button">Send</div>
+						<div class="linkButton closer" data-i18n="Oops"></div>
+						<div id="SendMessageButton" class="button" data-i18n="Send"></div>
 					</div>
 				</div>
 			</div>

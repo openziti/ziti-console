@@ -4,7 +4,6 @@ import fse from 'fs-extra';
 import path from 'path';
 import session from 'express-session';
 import sessionStoreFactory from 'session-file-store';
-const sessionStore = sessionStoreFactory(session);
 import fileUpload from 'express-fileupload';
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -19,6 +18,7 @@ import {fileURLToPath} from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const sessionStore = sessionStoreFactory(session);
 
 const loadModule = async (modulePath) => {
 	try {
@@ -53,7 +53,7 @@ if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'un
 	await ziti.init( zitiIdentityFile ).catch(( err ) => { process.exit(); }); // Authenticate ourselves onto the Ziti network using the specified identity file
 }
 
-const zacVersion = "2.4.1";
+const zacVersion = "2.5.0";
 
 var serviceUrl = "";
 var baseUrl = "";
@@ -109,7 +109,7 @@ app.use(function(req, res, next) {
 app.use(bodyParser.json());
 app.use(fileUpload());
 app.use(session({ 
-	store: new sessionStore, 
+	store: new sessionStore({}), 
 	secret: 'NetFoundryZiti', 
 	retries: 0, 
 	resave: true, 
@@ -161,6 +161,8 @@ for (var i=0; i<settings.fabricControllers.length; i++) {
  */
 for (var i=0; i<pages.length; i++) {
 	app.get(pages[i].url, function(request, response) {
+		if (!baseUrl||baseUrl.trim().length==0&&request.session.baseUrl) baseUrl = request.session.baseUrl;
+		if (!serviceUrl||serviceUrl.trim().length==0&&request.session.serviceUrl) serviceUrl = request.session.serviceUrl;
 		var page = pages[0];
 		for (var i=0; i<pages.length; i++) {
 			if (pages[i].url==request.url) {
@@ -213,8 +215,10 @@ app.post("/api/login", function(request, response) {
 	if (!IsServerDefined(urlToSet)) response.json({error: errors.invalidServer });
 	else {
 		baseUrl = urlToSet;
+		request.session.baseUrl = baseUrl;
 		GetPath().then((prefix) => {
 			serviceUrl = urlToSet+prefix;
+			request.session.serviceUrl = serviceUrl;
 			request.session.creds = {
 				username: request.body.username,
 				password: request.body.password
@@ -230,6 +234,8 @@ app.post("/api/login", function(request, response) {
 
 function Authenticate(request) {
 	return new Promise(function(resolve, reject) {
+		if (!baseUrl||baseUrl.trim().length==0&&request.session.baseUrl) baseUrl = request.session.baseUrl;
+		if (!serviceUrl||serviceUrl.trim().length==0&&request.session.serviceUrl) serviceUrl = request.session.serviceUrl;
 		log("Connecting to: "+serviceUrl+"/authenticate?method=password");
 		if (request.session.creds != null) {
 			external.post(serviceUrl+"/authenticate?method=password", {json: request.session.creds , rejectUnauthorized: false }, function(err, res, body) {
@@ -366,9 +372,21 @@ function IsServerDefined(url) {
 }
 
 /**
+ * Get Language File
+ */
+app.post("/api/language", (request, response) => {
+	var locale = request.body.locale;
+	if (fs.existsSync('assets/languages/'+locale+'.json')) {
+		response.sendFile(path.resolve(__dirname+'/assets/languages/'+locale+'.json'));
+	} else {
+		response.sendFile(path.resolve(__dirname+'/assets/languages/en-us.json'));
+	}
+});
+
+/**
  * Returns the current system settings
  */
-app.post("/api/settings", function(request, response) {
+app.post("/api/settings", function(rewwquest, response) {
 	response.json(settings);
 });
 
@@ -614,9 +632,10 @@ function GetItems(type, paging, request, response) {
 	} else {
 		var urlFilter = "";
 		var toSearchOn = "name";
-		if (paging.sort!=null) {
+		if (paging && paging.sort!=null) {
 			if (paging.searchOn) toSearchOn = paging.searchOn;
 			if (!paging.filter) paging.filter = "";
+			paging.filter = paging.filter.split('#').join('');
 			if (paging.page!=-1) urlFilter = "?filter=("+toSearchOn+" contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
 			if (paging.params) {
 				for (var key in paging.params) {
@@ -911,7 +930,7 @@ app.post("/api/delete", function(request, response) {
 		GetItems(type, paging, request, response);
 	}).catch((error) => {
 		log("Error: "+JSON.stringify(error));
-		response.json({error: error.cause.message});
+		HandleError(response, error);
 	});
 
 	/*
