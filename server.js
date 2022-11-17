@@ -632,7 +632,7 @@ function GetItems(type, paging, request, response) {
 	} else {
 		var urlFilter = "";
 		var toSearchOn = "name";
-		if (paging.sort!=null) {
+		if (paging && paging.sort!=null) {
 			if (paging.searchOn) toSearchOn = paging.searchOn;
 			if (!paging.filter) paging.filter = "";
 			paging.filter = paging.filter.split('#').join('');
