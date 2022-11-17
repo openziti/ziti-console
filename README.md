@@ -6,6 +6,10 @@ Make sure you have an edge controller running
 1. run: npm install
 2. run: node server.js
 
+To Debug the service logs to console log
+
+run: node server.js debug
+
 ## Requires 
 
 Node JS Version >= 14.17
