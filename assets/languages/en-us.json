@@ -93,7 +93,7 @@
 
     "ErrorInvalidFile": "Unable to read file, try opening in a text editor and pasting into the text field.",
 
-    "GrowlerError": "An Error Occurreds",
+    "GrowlerError": "An Error Occurred",
     "GrowlerInfo": "Information",
     "GrowlerDebug": "Debugger",
     "GrowlerWarn": "Warning Message",
