@@ -41,7 +41,8 @@
     "EnterEMail": "enter your email address...",
     "EnterFilter": "type to filter...",
     "TypeSelect": "type to select",
-    "Attributes": "attributes...",
+    "MoreAttributes": "attributes...",
+    "Attributes": "Attributes",
 
     "MessageTitle": "Send a Message To The Team",
     "MessageSubTitle": "Fill out the following form to send a message",

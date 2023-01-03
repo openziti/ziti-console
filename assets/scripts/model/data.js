@@ -14,6 +14,7 @@ limitations under the License.
 var Data = function(name, context) {
 	this.name = name;
 	this.max = 1000;
+	this.isLoaded = false;
 	this.autoBind = false;
 	this.data = [];
 	this.meta = {};
@@ -33,7 +34,8 @@ var Data = function(name, context) {
 		total: 50,
 		sort: "name",
 		order: "ASC",
-		filter: ""
+		filter: "",
+		noSearch: false
 	};
 	this.init = function(load, autoBind, all) {
 		if (autoBind) {
@@ -136,6 +138,7 @@ var Data = function(name, context) {
 		this.get();
 	};
 	this.loaded = function(e) {
+		this.isLoaded = true;
 		if (e.error) growler.error("Error", e.error);
 		if (e.data) {
 			if (this.closeModals) {

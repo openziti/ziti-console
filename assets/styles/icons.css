@@ -26,6 +26,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-hash:before {
+  content: "\e929";
+}
+.icon-hashtag:before {
+  content: "\e928";
+}
 .icon-clear:before {
   content: "\e927"; 
 }

@@ -632,14 +632,20 @@ function GetItems(type, paging, request, response) {
 	} else {
 		var urlFilter = "";
 		var toSearchOn = "name";
+		var noSearch = false;
 		if (paging && paging.sort!=null) {
 			if (paging.searchOn) toSearchOn = paging.searchOn;
+			if (paging.noSearch) noSearch = true;
 			if (!paging.filter) paging.filter = "";
 			paging.filter = paging.filter.split('#').join('');
-			if (paging.page!=-1) urlFilter = "?filter=("+toSearchOn+" contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
-			if (paging.params) {
-				for (var key in paging.params) {
-					urlFilter += ((urlFilter.length==0)?"?":"&")+key+"="+paging.params[key];
+			if (noSearch) {
+				if (paging.page!=-1) urlFilter = "?limit="+paging.total+"&offset="+((paging.page-1)*paging.total);
+			} else {
+				if (paging.page!=-1) urlFilter = "?filter=("+toSearchOn+" contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
+				if (paging.params) {
+					for (var key in paging.params) {
+						urlFilter += ((urlFilter.length==0)?"?":"&")+key+"="+paging.params[key];
+					}
 				}
 			}
 		}
