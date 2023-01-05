@@ -64,7 +64,7 @@
     "influxdb-nodejs": "^3.1.0",
     "md5": "^2.3.0",
     "moment": "^2.29.3",
-    "nexe": "^1.1.6",
+    "nexe": "^4.0.0-rc.2",
     "node-rest-client": "^3.1.1",
     "nodemailer": "^6.7.2",
     "psl": "^1.8.0",
