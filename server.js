@@ -15,6 +15,7 @@ import https from 'https';
 import crypto from 'crypto';
 import $RefParser from '@apidevtools/json-schema-ref-parser';
 import {fileURLToPath} from 'url';
+import ws from 'ws';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

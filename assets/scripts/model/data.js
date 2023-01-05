@@ -157,7 +157,8 @@ var Data = function(name, context) {
 			this.isFirstLoad = false;
 		}
 	};
-	this.bind = function() {
+	this.bind = function(data) {
+		if (data) this.data = data;
 		$(".selector.selected").removeClass("selected");
 		app.setAction(); // May Remove this not sure why its here
 		var empty = $("*[data-defined='empty']");
@@ -195,6 +196,62 @@ var Data = function(name, context) {
                     $(".navigate.next").removeClass("disabled");
                     $(".navigate.next").on("click", this.next.bind(this));
                 } 				
+				$(".selector").off("click");
+				$(".selector").click(this.select.bind(this));
+				$(".dots").click(this.dots);
+				$("#Start").html(this.start());
+				$("#End").html(this.end());
+				$("#Total").html(this.total());
+
+				if (window.location.href.endsWith("#a")&&page.add) page.add();
+
+				$(".col").each(function(i, obj) {
+					var value = $(obj).text().split('\n').join(' ').split('  ').join(' ').split('"').join('').replace(/<[^>]*>?/gm, '');
+					if (!$(obj).hasClass("notitle")&&!$(obj).hasClass("allowOver")&&!$(obj).parent().hasClass("template")) $(obj).attr("title", value);
+				});
+
+				if (empty) empty.hide();
+				if (table) table.show();
+			} else {
+				if (empty) empty.show();
+				if (table) table.hide();
+			}
+		} else {
+			if (empty) empty.show();
+			if (table) table.hide();
+		}
+	};
+	this.doBind = function(data) {
+		if (data) this.data = data;
+		$(".selector.selected").removeClass("selected");
+
+		var empty = $("*[data-defined='empty']");
+		var table = $("*[data-defined='table']");
+		var rows = $("*[data-defined='rows']");
+		var template = $("*[data-defined='template']");
+
+		if (rows&&template&&rows.length>0&&template.length>0) {
+			rows.html("");
+			if (this.data.length>0) {
+				for (var i=0; i<this.data.length; i++) {
+					var row = template.clone();
+					row.removeClass("template");
+					row.attr("id", "Row"+i);
+					var obj = this.data[i];
+					for (var prop in obj) {
+						if (page.row) row.html(page.row(row.html(), obj));
+						row.html(row.html().split("{{"+prop+"}}").join(obj[prop]));
+						row.html(row.html().split("{{selector."+prop+"}}").join(SelectorStyles.format(obj[prop+"Display"])));
+						row.html(row.html().split("{{selector."+prop+"}}").join(SelectorStyles.format(obj[prop])));
+						row.html(row.html().split("{{moment."+prop+"}}").join(moment(obj[prop]).utc().fromNow()));
+					}
+					row.attr("data-defined", "");
+					rows.append(row);
+				}
+
+                if (page&&page.gridAction) $(".gridAction").click(page.gridAction);
+                $(".navigate").off("click");
+                $(".navigate").addClass("disabled");		
 				$(".selector").off("click");
 				$(".selector").click(this.select.bind(this));
 				$(".dots").click(this.dots);
@@ -309,6 +366,47 @@ var Data = function(name, context) {
 			window.context.set(e.type, e.data);
 		}
 	};
+	this.getDetails = function(detail, type) {		
+		service.call("subdata", { url: detail._links.self.href, name: this.name, type: type }, this.detailsLoaded.bind(this));
+	};
+	this.detailsLoaded = function(e) {
+		if (e.error) growler.error("Error", e.error);
+		if (e.data) {
+			window.context.set(e.type, e.data);
+			var details = e.data;
+
+			for (var prop in details) {
+				var element = $("*[data-bind='data."+prop+"']");
+				if (element.length>0) {
+					$(element).each(function(index, elem) {
+						var type = $(elem).prop("tagName");
+						if (details[prop]) {
+							if (type=="INPUT"||type=="SELECT") $(elem).val(details[prop]);
+							else if (type=="TEXTAREA") $(elem).val(details[prop].split('\\n').join('\n'));
+							else if (type=="DIV"||type=="SPAN") $(elem).html(details[prop]);
+						}
+					});
+				}
+			}
+
+			modal.show("DetailModal");
+		}
+	};
+	this.applyTemplate = function(data, template, none) {
+		let toReturn = "";
+		if (data.length==0) toReturn = none;
+		else {
+			for (let i=0; i<data.length; i++) {
+				var item = data[i];
+				let line = template;
+				for (prop in item) {
+					line = line.split("{{"+prop+"}}").join(item[prop]);
+				}
+				toReturn += ((i>0)?"<br/>":"")+line;
+			}
+		}
+		return toReturn;
+	},
 	this.details = function(id) {
 		if (this.autoBind) this.formReset();
 		var details;
@@ -357,7 +455,9 @@ var Data = function(name, context) {
 		else return (this.start()-1)+this.data.length;
 	};
 	this.total = function() {
-		return this.meta.pagination.totalCount;
+		if (this.meta && this.meta.pagination) {
+			return this.meta.pagination.totalCount;
+		} else return this.data.length;
 	};
 	this.isFirst = function() {
 		return this.meta.pagination.offset==0;

@@ -26,6 +26,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-time:before {
+  content: "\e92a";
+}
 .icon-hash:before {
   content: "\e929";
 }
