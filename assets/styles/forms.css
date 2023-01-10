@@ -71,6 +71,7 @@ textarea {
 
 input:focus, select:focus, textarea:focus {
     outline: none !important;
+    border-color: var(--primary);
 }
 
 input:disabled, select:disabled, textarea:disabled {
@@ -159,7 +160,12 @@ select {
     border-width: 3px;
     border-style: solid;
     border-color: var(--secondary);
+    background-color: var(--secondary);
     border-radius: 15px;
+}
+
+.subform .subform .subform {
+    background-color: var(--primary);
 }
 
 .subform .button {    
@@ -212,7 +218,7 @@ label .note:hover {
 .toggle {
     width: 60px;
     height: 30px;
-    background-color: var(--stroke);
+    background-color: var(--black);
     color: var(--white);
     cursor: pointer;
     border-radius: 100px;

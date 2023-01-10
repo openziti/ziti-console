@@ -124,5 +124,8 @@
     "Identity": "Identity",
     "PostureChecks": "Posture Checks",
 
-    "ErrorInvalidFile": "Unable to read file, try opening in a text editor and pasting into the text field."
+    "Complete": "Complete",
+
+    "ErrorInvalidFile": "Unable to read file, try opening in a text editor and pasting into the text field.",
+    "ConfirmClose": "The form has unsaved data, are you sure you want to close?"
 }

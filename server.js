@@ -12,10 +12,9 @@ import moment from 'moment';
 import Influx from 'influx';
 import helmet from 'helmet';
 import https from 'https';
-import crypto from 'crypto';
 import $RefParser from '@apidevtools/json-schema-ref-parser';
 import {fileURLToPath} from 'url';
-import ws from 'ws';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -54,7 +53,7 @@ if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'un
 	await ziti.init( zitiIdentityFile ).catch(( err ) => { process.exit(); }); // Authenticate ourselves onto the Ziti network using the specified identity file
 }
 
-const zacVersion = "2.5.2";
+const zacVersion = "2.5.3";
 
 var serviceUrl = "";
 var baseUrl = "";

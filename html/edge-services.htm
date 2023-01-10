@@ -108,7 +108,7 @@
                             <textarea id="JSONView"></textarea>
                             <div id="ButtonArea" class="buttons" style="display: none;">
                                 <div></div>
-                                <div id="AddConfigButton" class="minibutton">Add</div>
+                                <div id="AddConfigButton" class="minibutton" data-i18n="Complete"></div>
                             </div>
                         </div>
                     </div>
@@ -496,6 +496,7 @@
                 return data;
             },
             reset: function() {
+                app.isDirty = false;
                 page.termIndex = 0;
                 $(".configrow.on").removeClass("on");
                 $("#EncryptionRequired").removeClass("on");

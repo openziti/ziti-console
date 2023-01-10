@@ -193,6 +193,7 @@
                 return template;
             },
             reset: function() {
+                app.isDirty = false;
                 $(".subarea").hide();
                 $(".toggle.on").removeClass("on");
                 $(".versionArea").addClass("disabled");

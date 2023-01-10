@@ -609,6 +609,7 @@
                 } 
             },
             reset: function() {
+                app.isDirty = false;
                 $("#EnrollmentType").attr("disabled", false);
                 page.toggleType();
                 $(".issues").hide();

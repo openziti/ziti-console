@@ -208,6 +208,7 @@
                 return $(".errors").length==0;
             },        
             reset: function() {
+                app.isDirty = false;
                 page.editId = "";
                 $("#ServerName").val("");
                 $("#ServerUrl").val("");
