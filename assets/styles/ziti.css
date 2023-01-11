@@ -1916,8 +1916,6 @@ path.green {
 }
 
 .suggests.open {
-    border-top: solid var(--stroke) 2px;
-    border-bottom: solid var(--stroke) 2px;
     margin-bottom: 10px;
     opacity: 1.0;
 }

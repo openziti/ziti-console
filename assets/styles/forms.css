@@ -74,6 +74,14 @@ input:focus, select:focus, textarea:focus {
     border-color: var(--primary);
 }
 
+.searchSelector input:focus {
+    border-color: rgba(0,0,0,0) !important;
+}
+
+.searchSelector:focus-within {
+    border-color: var(--primary);
+}
+
 input:disabled, select:disabled, textarea:disabled {
 	opacity: 0.2 !important;
 }

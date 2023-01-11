@@ -210,8 +210,9 @@
             servicesObject: null,
             idServices: null,
             roles: null,
+            identityRoles: null,
             init: function() {
-                page.roles = new Selector("Roles","roles","identity-role-attributes");
+                page.roles = new Selector("Roles","roles", null, "identity-role-attributes");
                 page.casObject = new Data("cas");
                 page.servicesObject = new Data("services");
                 page.configsObject = new Data("configs");
@@ -226,9 +227,10 @@
                 page.casObject.init(true);
                 page.servicesObject.init(true);
                 page.configsObject.init(true);
-                page.filterObject.init(true, true);
+                page.filterObject.init(true, true); 
                 page.idServices.init();
                 page.idServices.closeModals = false;
+                
             }, 
             events: function() {
                 context.addListener(page.filterObject.name, page.loaded);

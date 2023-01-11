@@ -142,7 +142,7 @@
             hashes: null,
             oss: [],
             init: function() {
-                page.roles = new Selector("Roles","roles");
+                page.roles = new Selector("Roles","roles", null, "service-role-attributes");
                 page.roles.isForceHash = false;
                 page.roles.init();
 

@@ -182,7 +182,8 @@
             init: function() {                
                 schema.init("ConfigForm", "JSONView");
 
-                page.roles = new Selector("Roles","roles");
+                page.roles = new Selector("Roles","roles", null, "service-role-attributes");
+                
                 page.configsObject = new Data("configs");
                 page.configsTypesObject = new Data("config-types");
                 page.filterObject = new Data("services");
