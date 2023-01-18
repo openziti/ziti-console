@@ -1416,8 +1416,6 @@ function log(message) {
 }
 
 
-
-
 /**------------- Serve the Express Application -------------**/
 
 
@@ -1443,7 +1441,7 @@ if (fs.existsSync("./server.key")&&fs.existsSync("./server.chain.pem")) {
 			key: fs.readFileSync("./server.key"),
 			cert: fs.readFileSync("./server.chain.pem")
 		};
-		log("TLS initialized on port: " + portTLS);
+		console.log("TLS initialized on port: " + portTLS);
 		https.createServer(options, app).listen(portTLS);
 	} catch(err) {
 		log("ERROR: Could not initialize TLS!");
