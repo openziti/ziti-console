@@ -1,5 +1,9 @@
-# Release 2.3.1
+# Release 2.5.4
 * Added ARM64 building and version publication to pushLatestDocker.sh
+* Added version.txt to track version
+
+# Release 2.3.0-2.5.4
+Release notes omitted... We'll try to do better! :)
 
 # Release 2.3.0
 
