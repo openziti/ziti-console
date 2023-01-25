@@ -1916,8 +1916,6 @@ path.green {
 }
 
 .suggests.open {
-    border-top: solid var(--stroke) 2px;
-    border-bottom: solid var(--stroke) 2px;
     margin-bottom: 10px;
     opacity: 1.0;
 }
@@ -2052,11 +2050,15 @@ div:focus {
     .grid.triple {
         grid-template-columns: 100px auto 100px;
     }  
-	.grid.four, .grid.templates, .grid.five, .grid.fives, .grid.six, .grid.seven, .grid.sleven, .grid.ten, .grid.nine, .grid.eight, .grid.eightOS, .grid.nineOS, .grid.tenOS, .grid.policies {
+	.grid.four, .grid.templates, .grid.five, .grid.fives, .grid.six, .grid.seven, .grid.sleven, .grid.ten, .grid.nine, .grid.eight, .grid.eightOS, .grid.nineOS, .grid.tenOS, .grid.policies, .grid.columns {
 		display: grid;
 	  	grid-template-columns: 50px auto 40px !important;
 	  	grid-template-rows: auto;
     }	
+    .grid.columns.noAction {
+        grid-template-columns: auto !important;
+        grid-template-rows: auto;       
+    }
     .grid.quad, .grid.quint {
         grid-template-columns: 75px auto 75px;
     }

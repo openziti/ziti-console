@@ -12,10 +12,12 @@
     "Identities": "Identities",
     "Recipes": "Recipes",
     "Services": "Services",
+    "Service": "Service",
     "ServiceConfigurations": "Service Configurations",
     "ServicePolicies": "Service Policies",
     "RouterPolicies": "Router Policies",
     "EdgeRouters": "Edge Routers",
+    "Routers": "Routers",
     "TransitRouters": "Transit Routers",
     "ServiceRouterPolicies": "Service/Router Policies",
     "Terminators": "Terminators",
@@ -41,7 +43,8 @@
     "EnterEMail": "enter your email address...",
     "EnterFilter": "type to filter...",
     "TypeSelect": "type to select",
-    "Attributes": "attributes...",
+    "MoreAttributes": "attributes...",
+    "Attributes": "Attributes",
 
     "MessageTitle": "Send a Message To The Team",
     "MessageSubTitle": "Fill out the following form to send a message",
@@ -65,6 +68,7 @@
     "Created": "Created",
     "NoneDefined": "Defined, Click the plus to add A",
     "No": "No",
+    "View": "View",
     "Delete": "Delete",
     "Verify": "Verify",
     "Edit": "Edit",
@@ -91,8 +95,6 @@
     "CertVerified": "Certificate Verified",
     "EnterCert": "paste certificate contents or select a file...",
 
-    "ErrorInvalidFile": "Unable to read file, try opening in a text editor and pasting into the text field.",
-
     "GrowlerError": "An Error Occurred",
     "GrowlerInfo": "Information",
     "GrowlerDebug": "Debugger",
@@ -101,5 +103,29 @@
     "GrowlerSuccess": "Success",
     "GrowlerInvalid": "Invalid Form",
     "TryAgain": "Please correct the highlighted fields and try again.",
-    "NoNotifications": "No Notifications to Display"
+    "NoNotifications": "No Notifications to Display",
+
+    "Sessions": "Sessions",
+    "Session": "Session",
+    "ViewSessionSubTitle": "View the Session details",
+    "APISessions": "API Sessions",
+    "APISession": "API Session",
+    "ViewAiSessionSubTitle": "View the API Session details",
+    "AttributeSubTotal": "View Attribute Associations",
+
+    "IPAddress": "IP Address",
+    "Id": "Id",
+    "Dash": "-",
+    "Updated": "Updated",
+    "APISessionId": "API Ssession ID",
+    "MFAComplete": "Is Mfa Complete",
+    "MFARequired": "Is MFA Required",
+    "AuthQueries": "Auth Queries",
+    "Identity": "Identity",
+    "PostureChecks": "Posture Checks",
+
+    "Complete": "Complete",
+
+    "ErrorInvalidFile": "Unable to read file, try opening in a text editor and pasting into the text field.",
+    "ConfirmClose": "The form has unsaved data, are you sure you want to close?"
 }

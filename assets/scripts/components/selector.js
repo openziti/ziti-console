@@ -51,11 +51,22 @@ var Selector = function(id, label, atType, hashType) {
             this.data.paging.sort = "name";
             this.data.init(false);
         }
+        if (this.hashType) {
+            this.data = new Data(this.hashType);
+            this.data.init(false, false, true);
+            this.data.paging.searchOn = "id";
+            this.data.paging.sort = "id";
+            this.data.closeModals = false;
+            this.data.paging.total = 1000;
+            this.data.init(false);
+        }
     };
     this.events = function() {
         if (this.atType) context.addListener(this.atType, this.atLoaded.bind(this));
+        if (this.hashType) context.addListener(this.hashType, this.hashLoaded.bind(this));
         $("#"+this.id+"Search").keyup(this.keyup.bind(this));
-        $("#"+this.id+"Search").blur(this.blurred.bind(this));
+        $("#"+this.id+"Search").focus(this.keyup.bind(this));
+        //$("#"+this.id+"Search").blur(this.blurred.bind(this));
     };
     this.atLoaded = function(e) {
         this.atData = e.data;
@@ -64,6 +75,18 @@ var Selector = function(id, label, atType, hashType) {
         if (suggestItems.length>0) {
             for (var i=0; i<suggestItems.length; i++) {
                 this.suggests.append('<div class="suggest">'+suggestItems[i].name+'</div>');
+            }
+            this.suggests.addClass("open");
+            $(".suggest").click(this.suggestClicked.bind(this));
+        }
+    };
+    this.hashLoaded = function(e) {
+        this.atData = e.data;
+        var suggestItems = this.atData;
+        this.suggests.html("");
+        if (suggestItems.length>0) {
+            for (var i=0; i<suggestItems.length; i++) {
+                this.suggests.append('<div class="suggest">'+suggestItems[i]+'</div>');
             }
             this.suggests.addClass("open");
             $(".suggest").click(this.suggestClicked.bind(this));
@@ -189,7 +212,8 @@ var Selector = function(id, label, atType, hashType) {
     this.suggestClicked = function(e) {
         var selected = $(e.currentTarget).html();
         var input = $(e.currentTarget).parent().parent().find("input");
-        this.addIfNotExists(input, "@"+selected);
+        if (this.atType) this.addIfNotExists(input, "@"+selected);
+        else this.addIfNotExists(input, selected);
         $(".tagButton").off("click", function(e) {
             $(e.currentTarget).remove();
         });
@@ -237,17 +261,25 @@ var Selector = function(id, label, atType, hashType) {
             $(this.suggests.children()[index]).addClass("highlighted");
             this.suggests.data("index", index);
         } else {
+            console.log("Right /here");
             this.suggests.data("index", -1);
             var searchVal = $(e.currentTarget).val();
-            if (searchVal.indexOf('@')==0&&searchVal.length>0) {
+            if (this.atType) {
+                if (searchVal.indexOf('@')==0&&searchVal.length>0) {
+                    searchVal = searchVal.substr(1);
+                    this.suggests.html("");
+                    this.data.paging.filter = searchVal;
+                    this.data.get();
+                } else {
+                    this.suggests.html("");
+                    this.suggests.removeClass("open");
+                } 
+            } else {
                 searchVal = searchVal.substr(1);
                 this.suggests.html("");
                 this.data.paging.filter = searchVal;
                 this.data.get();
-            } else {
-                this.suggests.html("");
-                this.suggests.removeClass("open");
-            } 
+            }
         }
     };
 }

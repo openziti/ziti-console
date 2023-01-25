@@ -108,7 +108,7 @@
                             <textarea id="JSONView"></textarea>
                             <div id="ButtonArea" class="buttons" style="display: none;">
                                 <div></div>
-                                <div id="AddConfigButton" class="minibutton">Add</div>
+                                <div id="AddConfigButton" class="minibutton" data-i18n="Complete"></div>
                             </div>
                         </div>
                     </div>
@@ -182,7 +182,8 @@
             init: function() {                
                 schema.init("ConfigForm", "JSONView");
 
-                page.roles = new Selector("Roles","roles");
+                page.roles = new Selector("Roles","roles", null, "service-role-attributes");
+                
                 page.configsObject = new Data("configs");
                 page.configsTypesObject = new Data("config-types");
                 page.filterObject = new Data("services");
@@ -496,6 +497,7 @@
                 return data;
             },
             reset: function() {
+                app.isDirty = false;
                 page.termIndex = 0;
                 $(".configrow.on").removeClass("on");
                 $("#EncryptionRequired").removeClass("on");

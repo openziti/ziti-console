@@ -56,6 +56,9 @@ header .clickable .icon {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center center;
+    font-size: 29px;
+    text-align: center;
+    color: #FFF;
 }
 
 header .clickable .main {

@@ -12,9 +12,9 @@ import moment from 'moment';
 import Influx from 'influx';
 import helmet from 'helmet';
 import https from 'https';
-import crypto from 'crypto';
 import $RefParser from '@apidevtools/json-schema-ref-parser';
 import {fileURLToPath} from 'url';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -53,7 +53,7 @@ if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'un
 	await ziti.init( zitiIdentityFile ).catch(( err ) => { process.exit(); }); // Authenticate ourselves onto the Ziti network using the specified identity file
 }
 
-const zacVersion = "2.5.1";
+const zacVersion = "2.5.4";
 
 var serviceUrl = "";
 var baseUrl = "";
@@ -632,14 +632,20 @@ function GetItems(type, paging, request, response) {
 	} else {
 		var urlFilter = "";
 		var toSearchOn = "name";
+		var noSearch = false;
 		if (paging && paging.sort!=null) {
 			if (paging.searchOn) toSearchOn = paging.searchOn;
+			if (paging.noSearch) noSearch = true;
 			if (!paging.filter) paging.filter = "";
 			paging.filter = paging.filter.split('#').join('');
-			if (paging.page!=-1) urlFilter = "?filter=("+toSearchOn+" contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
-			if (paging.params) {
-				for (var key in paging.params) {
-					urlFilter += ((urlFilter.length==0)?"?":"&")+key+"="+paging.params[key];
+			if (noSearch) {
+				if (paging.page!=-1) urlFilter = "?limit="+paging.total+"&offset="+((paging.page-1)*paging.total);
+			} else {
+				if (paging.page!=-1) urlFilter = "?filter=("+toSearchOn+" contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
+				if (paging.params) {
+					for (var key in paging.params) {
+						urlFilter += ((urlFilter.length==0)?"?":"&")+key+"="+paging.params[key];
+					}
 				}
 			}
 		}

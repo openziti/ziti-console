@@ -18,6 +18,7 @@ $(document).ready(function(e) {
 
 var app = {
 	keys: [],
+	isDirty: false,
 	init: function() {
 		app.events();
 		app.setupLock();
@@ -44,18 +45,23 @@ var app = {
 		$("body").keyup(app.keypress);
 		$("input").blur(app.trim);
 		$("#ClearNotificationsButton").click(app.clearNotifications);
+		$(".modal").find("input").change((e) => { app.isDirty = true; });
 		context.addListener(settings.name, app.settingsReturned);
 		context.addListener("version", app.versionReturned);
 	},
 	keypress: function(e) {
 		if (e.keyCode === 27) {
-			modal.close();
+			if (!$(':focus').is("select")) {
+				if (app.isDirty) {
+					if (confirm(locale.get("ConfirmClose"))) modal.close();
+				} else modal.close();
+			}
 		}
 		if (e.keyCode == 13) {
 			if ($("#ConfirmModal").hasClass("open")) {
 				$("#YesButton").click();
 			}
-		}
+		} else app.isDirty = true;
 	},
 	trim: function(e) {
 		$(e.currentTarget).val($(e.currentTarget).val().trim());
