@@ -1,9 +1,11 @@
-ZAC_VERSION=$(cat version)
+ZAC_VERSION=$(cat version.txt)
 
 if [ -z "${ZAC_VERSION}" ]; then
   echo "ZAC_VERSION was not set and auto-detection failed."
   exit 1
 fi
+
+echo "Building ZAC version ${ZAC_VERSION} for amd64/arm64"
 
 docker buildx create --use --name=zac
 docker buildx build --platform linux/amd64,linux/arm64 . \
