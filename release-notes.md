@@ -1,4 +1,7 @@
-# Release 2.5.4
+# Release 2.5.5
+* Updated all the node components to the latest version
+
+# Release 2.5.5
 * Added ARM64 building and version publication to pushLatestDocker.sh
 * Added version.txt to track version
 
