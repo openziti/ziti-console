@@ -407,12 +407,18 @@ app.post("/api/controllerSave", function(request, response) {
 		var callUrl = url+ "/edge/management/v1/version";
 		log("Calling Controller: "+callUrl);
 		external.get(callUrl, {rejectUnauthorized: false, timeout: 5000}, function(err, res, body) {
-			if (err) response.json( {error: "Edge Controller not Online"} );
-			else {
+			if (err) {
+				log("Add Controller Error");
+				log(err);
+				response.json( {error: "Edge Controller not Online"} );
+			} else {
 				try {
 					var results = JSON.parse(body);
-					if (body.error) response.json( {error: "Invalid Edge Controller"} );
-					else {
+					if (body.error) {
+						log("Add Controller Error");
+						log(body.error);
+						response.json( {error: "Invalid Edge Controller"} );
+					} else {
 						if (results.data.apiVersions.edge.v1 != null) {
 							log("Controller: "+url+" Returned: "+body);
 							var found = false;
