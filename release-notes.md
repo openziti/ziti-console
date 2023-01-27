@@ -1,4 +1,7 @@
 # Release 2.5.5
+* Expose details around invalid controller entry
+
+# Release 2.5.5
 * Updated all the node components to the latest version
 
 # Release 2.5.5
