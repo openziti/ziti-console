@@ -168,7 +168,7 @@ var schema = {
         var html = '';
         var type = "text";
         html += '<label for="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'">'+key.replace(/([A-Z])/g, ' $1').trim()+'</label>';
-        console.log(schema.getType(property)+" "+key);
+        console.log("Schema: "+schema.getType(property)+" "+key);
         if (schema.getType(property)=="object") {
             if (property.properties!=null) {
                 html += '<div class="subform">';
@@ -299,8 +299,7 @@ var schema = {
         var items = [];
         if (schema.data&&schema.data.properties) {
             for (var key in schema.data.properties) {
-                console.log(key);
-                if (key!="httpChecks"&&key!="portChecks"&&key!="listenOptions") {
+                if (key!="httpChecks"&&key!="portChecks") {
                     items.push({ key: key.toLowerCase(), content: schema.getField(key, schema.data.properties[key]) });
                 }
             }
@@ -369,7 +368,6 @@ var schema = {
         if (hasForwardPort) {
             exclude = exclude.concat(["forwardport","allowedportranges"]);
             html += schema.pullItem("forwardport", items);
-            console.log(schema.pullItem("allowedportranges", items));
             html += '<div class="schema_forwardPort_area" style="display:none">'+schema.pullItem("allowedportranges", items)+'</div></div>';
         }
         html += schema.pullAll(exclude, items);
@@ -467,7 +465,7 @@ var schema = {
                     delete json.forwardAddress;
                     delete json.allowedAddresses;
                 }
-                if (json.listenOptions) delete json.listenOptions;
+                // if (json.listenOptions) delete json.listenOptions;
                 if (json.httpChecks) delete json.httpChecks;
                 if (json.portChecks) delete json.portChecks; 
             }

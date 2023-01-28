@@ -1,31 +1,37 @@
     <!-- General Page Layout HTML -->  
     <div class="header">
-        <div class="title">Manage <span data-bind="pageTitle"></span></div>
-        <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
+        <div class="title">
+            <span data-i18n="Manage"></span>
+            <span data-i18n="ConfigTypes"></span>
+        </div>
+        <div class="bread">
+            <span data-i18n="ZitiNetwork"></span>
+            <span class="secondary">/</span>
+            <span data-i18n="Manage"></span>
+            <span data-i18n="ConfigTypes"></span>
+        </div>
         <div class="line"></div>
         <div class="tabs">
-            <div class="tab" data-go="/configs">Configurations</div>
-            <div class="tab selected">Config Types</div>
+            <div class="tab" data-go="/configs" data-i18n="Configurations"></div>
+            <div class="tab selected" data-i18n="ConfigTypes"></div>
         </div>
     </div>
-    <div class="action icon-plus" data-action="add"></div>
-    <div class="filters">
-        <input id="SearchFilter" data-defined="search" type="text" class="search" placeholder="Type to Filter" />
-        <div class="clear icon-clear" data-defined="clear"></div>
-        <div class="searchButton icon-search"></div>
-        <div class="counters"><span id="Start">-</span>-<span id="End">-</span> of <span id="Total">-</span></div>
-        <div class="navigate prev icon-prev disabled"></div>
-        <div class="navigate next icon-next disabled"></div>
-    </div>
+    {{html.add}}
+    {{html.search}}
     <div class="area data" data-defined="table">
-        <div class="noitems"></div>
+        {{html.noitems}}
         <div class="table">
             <div class="head grid four">
                 <div class="col">
                     <div class="selector all"></div>
                 </div>
-                <div class="col sort asc" data-by="name">Name<div class="dragger"></div></div>
-                <div class="col desktop sort" data-by="createdAt">Created</div>
+                <div class="col sort asc" data-by="name">
+                    <span data-i18n="Name"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop sort" data-by="createdAt">
+                    <span data-i18n="Created"></span>
+                </div>
                 <div class="col"></div>
             </div>
             <div class="rows" data-defined="rows">
@@ -33,9 +39,12 @@
             </div>
         </div>
     </div>
-    <div class="nodata" data-defined="empty">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
-
-
+    <div class="nodata" data-defined="empty">
+        <span data-i18n="No"></span>
+        <span data-i18n="ConfigType"></span>
+        <span data-i18n="NoneDefined"></span>
+        <span data-i18n="ConfigType"></span>.
+    </div>
 
     <!-- Template HTML will be used to display rows of data -->
     <div id="RowTemplate" class="row grid four template" data-defined="template">
@@ -47,8 +56,8 @@
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
                 <div class="gridMenu" data-id="{{id}}">
-                    <div class="gridAction" data-id="{{id}}" data-action="edit">Edit</div>
-                    <div class="gridAction" data-id="{{id}}" data-action="delete">Delete</div>
+                    <div class="gridAction" data-id="{{id}}" data-action="edit" data-i18n="Edit"></div>
+                    <div class="gridAction" data-id="{{id}}" data-action="delete" data-i18n="Delete"></div>
                 </div>
             </div>
         </div>
@@ -58,30 +67,37 @@
     <div id="AddModal" class="modal box full">
         <div class="sized">
             <div class="close icon-close"></div>
-            <div class="title adding">Create <span data-bind="singular"></span></div>
-            <div class="subtitle adding">Add a New <span data-bind="singular"></span> by completing the following form</div>
-            <div class="title editing">Edit <span data-bind="singular"></span></div>
-            <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
-            <label for="Name">Name</label>
-            <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" data-restrict="empty" />
-            <label for="Schema">Schema</label>
+            <div class="title adding">
+                <span data-i18n="Create"></span>
+                <span data-i18n="ConfigType"></span>
+            </div>
+            <div class="subtitle adding">
+                <span data-i18n="AddNew"></span>
+                <span data-i18n="ConfigType"></span>
+                <span data-i18n="ByComplete"></span>
+            </div>
+            <div class="title editing">
+                <span data-i18n="Edit"></span>
+                <span data-i18n="ConfigType"></span>
+            </div>
+            <div class="subtitle editing">
+                <span data-i18n="Change"></span>
+                <span data-i18n="ConfigType"></span>
+                <span data-i18n="Details"></span>
+            </div>
+            <label for="Name" data-i18n="Name"></label>
+            <input id="Name" data-bind="data.name" type="text" maxlength="500" data-i18n="EnterName" data-restrict="empty" />
+            <label for="Schema" data-i18n="Schema">Schema</label>
             <textarea id="Schema"></textarea>
             <div>
             <div id="TagArea"></div>
-            <div class="buttons">
-                <div class="linkButton closer">Oops, No get me out of here</div>
-                <div id="SaveButton" class="button" data-defined="save">Save</div>
-            </div>
+            {{html.save}}
         </div>
 	</div>
     
     
     <script language="javascript" type="text/javascript">
         page = {
-            binding: {
-                pageTitle: "Config Types",
-                singular: "Config Type"
-            },
             filterObject: null,
             schema: null,
             init: function() {
@@ -118,7 +134,6 @@
             },
             reset: function() {
                 app.isDirty = false;
-                //page.schema.setValue("");
             }
         }
     </script>

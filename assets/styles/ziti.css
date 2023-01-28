@@ -172,7 +172,8 @@ aside .title {
     padding-left: 30px;
     padding-right: 30px;
     z-index: 30;
-    position: absolute;
+    position: relative;
+    clear: both;
     text-align: center;
     font-weight: 200;
     top: calc(50% - 75px);
@@ -586,6 +587,10 @@ aside .icon {
 }
 
 .configBox .subform label {
+    color: var(--white);
+}
+
+.subform label {
     color: var(--white);
 }
 

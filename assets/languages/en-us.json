@@ -45,9 +45,13 @@
     "TypeSelect": "type to select",
     "MoreAttributes": "attributes...",
     "Attributes": "Attributes",
+    "Type": "Type",
+    "Types": "Types",
+    "ByComplete": "by completing this form",
 
     "MessageTitle": "Send a Message To The Team",
     "MessageSubTitle": "Fill out the following form to send a message",
+    "MessagePlaceholder": "Enter the message you would like to send",
     "MessageName": "Name",
     "MessageEMail": "EMail Address",
     "Message": "Message",
@@ -60,6 +64,12 @@
 
     "CA": "Certificate Authority",
     "CAs": "Certificate Authorities",
+    "ConfigType": "Config Type",
+    "ConfigTypes": "Config Types",
+    "Configuration": "Configuration",
+    "Configurations": "Configurations",
+    "Schema": "Schema",
+
     "Name": "Name",
     "Verified": "Verified",
     "AutoEnroll": "Auto Enroll",

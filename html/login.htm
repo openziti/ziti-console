@@ -4,6 +4,9 @@
 				init: function() {
 					this.events();
 					settings.init();
+					service.call("version", {}, (e) => {
+						$("#LoginVersion").html("V"+e.zac);
+					});
 					$("main").addClass("login");
 				}, 
 				events: function() {

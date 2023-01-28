@@ -1,32 +1,41 @@
     <!-- General Page Layout HTML -->  
     <div class="header">
-        <div class="title">Manage <span data-bind="pageTitle"></span></div>
-        <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
+        <div class="title">
+            <span data-i18n="Manage"></span>
+            <span data-i18n="Configurations"></span>
+        </div>
+        <div class="bread">
+            <span data-i18n="ZitiNetwork"></span>
+            <span class="secondary">/</span>
+            <span data-i18n="Manage"></span>
+            <span data-i18n="Configurations"></span>
+        </div>
         <div class="line"></div>
         <div class="tabs">
-            <div class="tab selected">Configurations</div>
-            <div class="tab" data-go="/config-types">Config Types</div>
+            <div class="tab selected" data-go="/configs" data-i18n="Configurations"></div>
+            <div class="tab" data-i18n="ConfigTypes"></div>
         </div>
     </div>
-    <div class="action icon-plus" data-action="add"></div>
-    <div class="filters">
-        <input id="SearchFilter" data-defined="search" type="text" class="search" placeholder="Type to Filter" />
-        <div class="clear icon-clear" data-defined="clear"></div>
-        <div class="searchButton icon-search"></div>
-        <div class="counters"><span id="Start">-</span>-<span id="End">-</span> of <span id="Total">-</span></div>
-        <div class="navigate prev icon-prev disabled"></div>
-        <div class="navigate next icon-next disabled"></div>
-    </div>
+    {{html.add}}
+    {{html.search}}
     <div class="area data" data-defined="table">
-        <div class="noitems"></div>
+        {{html.noitems}}
         <div class="table">
             <div class="head grid fives">
                 <div class="col">
                     <div class="selector all"></div>
                 </div>
-                <div class="col sort asc" data-by="name">Name<div class="dragger"></div></div>
-                <div class="col desktop">Type<div class="dragger"></div></div>
-                <div class="col desktop sort" data-by="createdAt">Created</div>
+                <div class="col sort asc" data-by="name">
+                    <span data-i18n="Name"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="Type"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop sort" data-by="createdAt">
+                    <span data-i18n="Created"></span>
+                </div>
                 <div class="col"></div>
             </div>
             <div class="rows" data-defined="rows">
@@ -34,9 +43,12 @@
             </div>
         </div>
     </div>
-    <div class="nodata" data-defined="empty">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
-
-
+    <div class="nodata" data-defined="empty">
+        <span data-i18n="No"></span>
+        <span data-i18n="Configuration"></span>
+        <span data-i18n="NoneDefined"></span>
+        <span data-i18n="Configuration"></span>.
+    </div>
 
     <!-- Template HTML will be used to display rows of data -->
     <div id="RowTemplate" class="row grid fives template" data-defined="template">
@@ -61,37 +73,40 @@
         <div class="sized">
             <div class="close icon-close"></div>
             <div class="title adding">
-                Create <span data-bind="singular"></span>
+                <span data-i18n="Create"></span>
+                <span data-i18n="Configuration"></span>
                 <div class="jsonButton">{ JSON }</div>
             </div>
-            <div class="subtitle adding">Add a New <span data-bind="singular"></span> by completing the following form</div>
+            <div class="subtitle adding">
+                <span data-i18n="AddNew"></span>
+                <span data-i18n="Configuration"></span>
+                <span data-i18n="ByComplete"></span>
+            </div>
             <div class="title editing">
-                Edit <span data-bind="singular"></span>
+                <span data-i18n="Edit"></span>
+                <span data-i18n="Configuration"></span>
                 <div class="jsonButton">{ JSON }</div>
             </div>
-            <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
-            <label for="Name">Name</label>
-            <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" data-restrict="empty" />
-            <label for="Types">Types</label>
+            <div class="subtitle editing">
+                <span data-i18n="Change"></span>
+                <span data-i18n="Configuration"></span>
+                <span data-i18n="Details"></span>
+            </div>
+            <label for="Name" data-i18n="Name"></label>
+            <input id="Name" data-bind="data.name" type="text" maxlength="500" data-i18n="EnterName" data-restrict="empty" />
+            <label for="Types" data-i18n="Types"></label>
             <select id="Types" data-bind="data.configTypeId" data-default=""></select>
             <div id="SchemaList"></div>
-            <label for="JSONView" class="jsonV">JSON</label> 
+            <label for="JSONView" class="jsonV" data-i18n="JSON"></label> 
             <textarea id="JSONView" style="height: 75px;"></textarea>
             <div id="TagArea"></div>
-            <div class="buttons">
-                <div class="linkButton closer">Oops, No get me out of here</div>
-                <div id="SaveButton" class="button" data-defined="save">Save</div>
-            </div>
+            {{html.save}}
         </div>
     </div>
 
 
     <script language="javascript" type="text/javascript">
         page = {
-            binding: {
-                pageTitle: "Configuration",
-                singular: "Configurations"
-            },
             filterObject: null,
             editData: null,
             configTypes: null,

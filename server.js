@@ -141,6 +141,12 @@ var pages = JSON.parse(fs.readFileSync(__dirname+'/assets/data/site.json', 'utf8
 var tags = JSON.parse(fs.readFileSync(__dirname+settingsPath+'tags.json', 'utf8'));
 var templates = JSON.parse(fs.readFileSync(__dirname+settingsPath+'templates.json', 'utf8'));
 var settings = JSON.parse(fs.readFileSync(__dirname+settingsPath+'settings.json', 'utf8'));
+var components = {};
+var comFiles = fs.readdirSync(__dirname+"/assets/components");
+for (let i=0; i<comFiles.length; i++) {
+	var name = path.parse(comFiles[i]).name;
+	components[name] = fs.readFileSync(__dirname+"/assets/components/"+comFiles[i], 'utf8');
+}
 
 for (var i=0; i<settings.edgeControllers.length; i++) {
 	if (settings.edgeControllers[i].default) {
@@ -175,7 +181,9 @@ for (var i=0; i<pages.length; i++) {
 			var headerNow = header.split("{{title}}").join(page.title);
 			headerNow = headerNow.split("{{auth}}").join("");
 			fs.readFile(__dirname+"/html"+page.page, 'utf8', function(err, data) {
-				response.send(headerNow+data+footer);
+				var html = headerNow+data+footer;
+				for (let prop in components) html = html.split('{{html.'+prop+'}}').join(components[prop]);
+				response.send(html);
 			});
 		} else {
 			if (request.session.user==null||request.session.user=="") response.redirect("/login");
@@ -184,7 +192,9 @@ for (var i=0; i<pages.length; i++) {
 					var headerNow = header.split("{{title}}").join(page.title);
 					headerNow = headerNow.split("{{auth}}").join(" loggedIn");
 					fs.readFile(__dirname+"/html"+page.page, 'utf8', function(err, data) {
-						response.send(headerNow+data+footer);
+						var html = headerNow+data+footer;
+						for (let prop in components) html = html.split('{{html.'+prop+'}}').join(components[prop]);
+						response.send(html);
 					});
 				} else response.redirect('/login');
 			}
@@ -298,7 +308,7 @@ app.post('/api/version', function(request, response) {
 				}
 			}
 		});
-	} else response.json({});
+	} else response.json({zac: zacVersion});
 });
 
 /**
@@ -410,14 +420,14 @@ app.post("/api/controllerSave", function(request, response) {
 			if (err) {
 				log("Add Controller Error");
 				log(err);
-				response.json( {error: "Edge Controller not Online"} );
+				response.json( {error: "Edge Controller not Online", errorObj: err} );
 			} else {
 				try {
 					var results = JSON.parse(body);
 					if (body.error) {
 						log("Add Controller Error");
 						log(body.error);
-						response.json( {error: "Invalid Edge Controller"} );
+						response.json( {error: "Invalid Edge Controller", errorObj: err} );
 					} else {
 						if (results.data.apiVersions.edge.v1 != null) {
 							log("Controller: "+url+" Returned: "+body);
@@ -443,12 +453,12 @@ app.post("/api/controllerSave", function(request, response) {
 							response.json(settings);
 						} else {
 							log("Controller: "+url+" Returned: "+JSON.stringify(results));
-							response.json( {error: "Invalid Edge Controller"} );
+							response.json( {error: "Invalid Edge Controller", errorObj: results} );
 						}
 					}
 				} catch (e) {
 					log("Controller: "+url+" Returned "+(typeof body)+": "+body);
-					response.json( {error: "Invalid Edge Controller"} );
+					response.json( {error: "Invalid Edge Controller", errorObj: body} );
 				}
 			}
 		});		
@@ -759,11 +769,12 @@ function GetFabricItems(type, response) {
 /**------------- Data Save Section -------------**/
 
 function HandleError(response, error) {
-	if (error.cause&&error.causeMessage&&error.causeMessage.length>0) response.json({ error: error.causeMessage });
-	else if (error.cause&&error.cause.message&&error.cause.message.length>0) response.json({ error: error.cause.message });
-	else if (error.cause&&error.cause.reason&&error.cause.reason.length>0) response.json({ error: error.cause.reason });
-	else if (error.message&&error.message.length>0) response.json({ error: error.message });
-	else response.json({ error: error });
+	log(error);
+	if (error.cause&&error.causeMessage&&error.causeMessage.length>0) response.json({ error: error.causeMessage, errorObj: error });
+	else if (error.cause&&error.cause.message&&error.cause.message.length>0) response.json({ error: error.cause.message, errorObj: error });
+	else if (error.cause&&error.cause.reason&&error.cause.reason.length>0) response.json({ error: error.cause.reason, errorObj: error });
+	else if (error.message&&error.message.length>0) response.json({ error: error.message, errorObj: error });
+	else response.json({ error: error, errorObj: error });
 }
 
 

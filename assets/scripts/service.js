@@ -23,8 +23,11 @@ var service = {
 			},
 			complete: function(e) {
 				// Set indication of operation Complete
+				if (e.responseJSON&&e.responseJSON.errorObj) {
+					console.log("Error", e.responseJSON.errorObj);
+				}
 				
-				if (e.responseJSON&&e.responseJSON.error&&e.responseJSON.error.code&&e.responseJSON.error.code=="ECONNREFUSED") {
+				if (e.responseJSON&&e.responseJSON.error&&((e.responseJSON.error.code&&e.responseJSON.error.code=="ECONNREFUSED")||(e.responseJSON.errorObj&&e.responseJSON.errorObj.code=="NOT_FOUND"))) {
 					window.location = "/login?logout=true";
 				} else {
 					if (e.responseJSON&&e.responseJSON.error&&e.responseJSON.error=="loggedout") {
