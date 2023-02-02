@@ -1,6 +1,6 @@
 # Release 2.5.7
 * Update how settings are inited and managed within /assets/data/settings.json
-* settings.json - edgeControllers list of controllers with propertoes name, url, default like { "name": "My Edge Controller", "url": "https://mycontroller.com:1208", "default": true}
+* settings.json - edgeControllers list of controllers with properties name, url, default like { "name": "My Edge Controller", "url": "https://mycontroller.com:1208", "default": true}
 * settings.json value "ediable" will turn off or on the ability to add controllers to ZAC
 * settings.json has value "update" which tells zac whether or not to overwrite last saved settings with this file
 * settings.json location value tells the system where to save local settings to
