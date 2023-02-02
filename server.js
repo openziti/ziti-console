@@ -42,13 +42,6 @@ try {
 }
 
 
-/**
- * Command line Launch Settings
- */
-const port = process.env.PORT||1408;
-const portTLS = process.env.PORTTLS||8443;
-const settingsPath = process.env.SETTINGS || '/../ziti/';
-
 if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'undefined')) {
 	await ziti.init( zitiIdentityFile ).catch(( err ) => { process.exit(); }); // Authenticate ourselves onto the Ziti network using the specified identity file
 }
@@ -64,12 +57,6 @@ var header = fs.readFileSync(headerFile, 'utf8');
 var footer = fs.readFileSync(footerFile, 'utf8');
 var onlyDeleteSelfController = true;
 var isDebugging = false;
-
-for (var i=0; i<process.argv.length; i++) {
-	if (process.argv[i]!=null && process.argv[i].toLowerCase()=="debug") {
-		isDebugging = true;
-	}
-}
 
 /**
  * Watch for header and footer file changes and load them
@@ -121,6 +108,35 @@ app.use(session({
 /**
  * Load configurable settings, or create the settings in place if they have never been defined
  */
+var initial = JSON.parse(fs.readFileSync(path.join(__dirname,"assets","data","settings.json")));
+
+var port = initial.port;
+var portTLS = initial.portTLS;
+var updateSettings = initial.update;
+var settingsPath = initial.location;
+
+/**
+ * Override Launch Settings
+ */
+if (process.env.SETTINGS) settingsPath = process.env.SETTINGS;
+if (process.env.UPDATESETTINGS) updateSettings = process.env.UPDATESETTINGS;
+
+for (var i=0; i<process.argv.length; i++) {
+	if (process.argv[i]!=null) {
+		if (process.argv[i].toLowerCase()=="debug") {
+			isDebugging = true;
+		} else {
+			var options = process.argv[i].split('=');
+			if (options.length==2) {
+				if (options[0].toLowerCase()=="update"&&options[1]=="true") updateSettings=true;
+				else if (options[0].toLowerCase()=="location") settingsPath=true;
+			}
+		}
+	} 
+}
+
+if (settingsPath.indexOf("/")!=0) settingsPath = "/"+settingsPath;
+if (!settingsPath.endsWith("/")) settingsPath = settingsPath+"/";
 if (!fs.existsSync(__dirname+settingsPath)) {
 	fs.mkdirSync(__dirname+settingsPath);
 }
@@ -129,6 +145,10 @@ if (!fs.existsSync(__dirname+settingsPath+'tags.json')) {
 }
 if (!fs.existsSync(__dirname+settingsPath+'templates.json')) {
 	fs.copyFileSync(__dirname+'/assets/data/templates.json', __dirname+settingsPath+'templates.json');
+}
+if (fs.existsSync(__dirname+settingsPath+'settings.json')&&updateSettings) {
+	console.log("Updating Settings File");
+	fs.unlinkSync(__dirname+settingsPath+'settings.json');
 }
 if (!fs.existsSync(__dirname+settingsPath+'settings.json')) {
 	fs.copyFileSync(__dirname+'/assets/data/settings.json', __dirname+settingsPath+'settings.json');
@@ -140,7 +160,31 @@ if (!fs.existsSync(__dirname+settingsPath+'/resources')) {
 var pages = JSON.parse(fs.readFileSync(__dirname+'/assets/data/site.json', 'utf8'));
 var tags = JSON.parse(fs.readFileSync(__dirname+settingsPath+'tags.json', 'utf8'));
 var templates = JSON.parse(fs.readFileSync(__dirname+settingsPath+'templates.json', 'utf8'));
+
+console.log("Loading Settings File From: "+__dirname+settingsPath+'settings.json');
 var settings = JSON.parse(fs.readFileSync(__dirname+settingsPath+'settings.json', 'utf8'));
+
+port = settings.port;
+portTLS = settings.portTLS;
+
+if (process.env.PORT) port = process.env.PORT;
+if (process.env.PORTTLS) portTLS = process.env.PORTTLS;
+
+for (var i=0; i<process.argv.length; i++) {
+	var options = process.argv[i].split('=');
+	if (options.length==2) {
+		if (options[0].toLowerCase()=="port"&&!isNaN(options[1])) port = options[1];
+		else if (options[0].toLowerCase()=="porttls"&&!isNaN(options[1])) portTLS = options[1];
+		
+		if (options[0].toLowerCase()=="editable") {
+			if (options[1]=="true") settings.editable = true;
+			else settings.editable = false;
+		}
+	}
+}
+
+console.log("Settings",settings);
+
 var components = {};
 var comFiles = fs.readdirSync(__dirname+"/assets/components");
 for (let i=0; i<comFiles.length; i++) {
@@ -151,13 +195,6 @@ for (let i=0; i<comFiles.length; i++) {
 for (var i=0; i<settings.edgeControllers.length; i++) {
 	if (settings.edgeControllers[i].default) {
 		serviceUrl = settings.edgeControllers[i].url;
-		break;
-	}
-}
-
-for (var i=0; i<settings.fabricControllers.length; i++) {
-	if (settings.fabricControllers[i].default) {
-		fabricUrl = settings.fabricControllers[i].url;
 		break;
 	}
 }
@@ -466,40 +503,6 @@ app.post("/api/controllerSave", function(request, response) {
 });
 
 /**
- * Save fabric controller information to the settings file if the server exists
- */
-app.post("/api/fabricSave", function(request, response) {
-	var name = request.body.name.trim();
-	var url = request.body.url.trim();
-	if (url.endsWith('/')) url = url.substr(0, url.length-1);
-	var errors = [];
-	if (name.length==0) errors[errors.length] = "name";
-	if (url.length==0) errors[errors.length] = "url";
-	if (errors.length>0) response.json({ errors: errors });
-	else {
-		var found = false;
-		for (var i=0; i<settings.fabricControllers.length; i++) {
-			if (settings.fabricControllers[i].url==url) {
-				found = true;
-				settings.fabricControllers[i] = {
-					name: name,
-					url: url
-				};
-				break;
-			}
-		}
-		if (!found) {
-			settings.fabricControllers[settings.fabricControllers.length] = {
-				name: name,
-				url: url
-			};
-		}
-		fs.writeFileSync(__dirname+settingsPath+'/settings.json', JSON.stringify(settings));
-		response.json(settings);
-	}
-});
-
-/**
  * Remove the server definition (fabric or edge controller) from the settings
  * based on the passed in url parameter
  */
@@ -517,13 +520,6 @@ app.delete("/api/server", function(request, response) {
 					edges[edges.length] = settings.edgeControllers[i];
 				}
 			}
-			for (var i=0; i<settings.fabricControllers.length; i++) {
-				log(settings.fabricControllers[i].url);
-				if (settings.fabricControllers[i].url!=url) {
-					fabrics[fabrics.length] = settings.fabricControllers[i];
-				}
-			}
-			settings.fabricControllers = fabrics;
 			settings.edgeControllers = edges;
 			// fs.writeFileSync(__dirname+settingsPath+'/settings.json', JSON.stringify(settings));
 
@@ -723,46 +719,6 @@ function GetSubs(url, type, id, parentType, request, response) {
 		});
 	});
 }
-
-/**
- * Get the data from a fabric controller based on the type of object
- */
-app.post("/api/dataFabric", function(request, response) {
-	var type = request.body.type;
-	fabricUrl = request.body.url;
-	GetFabricItems(type, response);
-});
-
-/**
- * Get the data from the fabric controller
- * 
- * @param {The type of data to get from the controller (e.g. links, routers, etc)} type 
- * @param {The server response object} response 
- */
-function GetFabricItems(type, response) {
-	var canCall = false; 
-	for (var i=0; i<settings.fabricControllers.length; i++) {
-		if (settings.fabricControllers[i].url==fabricUrl) {
-			canCall = true;
-			break;
-		}
-	}
-	if (canCall) {
-		log("Calling Fabric: "+type+" "+fabricUrl+"/ctrl/"+type);
-		external.get(fabricUrl+"/ctrl/"+type, { json: {}, rejectUnauthorized: false }, function(err, res, body) {
-			if (err) response.json({ error: "Unable to connect to fabric" });
-			else {
-				if (body.error) response.json( {error: body.error.message} );
-				else if (body.data) response.json( body );
-				else response.json( {error: "Unable to retrieve data"} );
-			}
-		});
-	} else {
-		fabricUrl = "";
-		response.json({ data: [] });
-	}
-}
-
 
 
 
@@ -1450,9 +1406,32 @@ function log(message) {
  * 		 we will be listening on the Ziti service name specified 
  * 		 by the ZITI_SERVICE_NAME env var.
  */
-app.listen(port, function() {
-	console.log("Ziti Server running on port "+port);
+StartServer(port);
+let maxAttempts = 100;
+app.use((err, request, response, next) => {
+	if (err) {
+		if (err.toString().indexOf("Error: EPERM: operation not permitted, rename")==0) {
+			// Ignoring chatty session-file warnings
+		} else console.err(err);
+	} else {  
+		next();
+	} 
 });
+
+function StartServer(startupPort) {
+	app.listen(startupPort, function() {
+		console.log("Ziti Server running on port "+startupPort);
+	}).on('error', function(err) {
+		if (err.code=="EADDRINUSE") {
+			maxAttempts--;
+			console.log("Port "+startupPort+" In Use, Attempting new port "+(startupPort+1));
+			startupPort++;
+			if (maxAttempts>0) StartServer(startupPort);
+		} else {
+			console.log("All Ports in use "+port+" to "+startupPort);
+		}
+	 });
+}
 
 /**
  * If certificates are defined, setup an https redirection service

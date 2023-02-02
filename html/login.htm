@@ -66,12 +66,28 @@
 					$(".open").removeClass("open");
 					$("#EdgeControllerList").html("");
 					if (settings.data.edgeControllers.length>0) {
+						$("#BackToLogin").show();
 						$(".userlogin").addClass("open");
+						var isSelected = false;
 						for (var i=0; i<settings.data.edgeControllers.length; i++) {
+							var controller = settings.data.edgeControllers[i];
 							page.isSetup = true;
-							$("#EdgeControllerList").append('<option value="'+settings.data.edgeControllers[i].url+'">'+settings.data.edgeControllers[i].name+' ('+settings.data.edgeControllers[i].url+')</option>');
+							if (controller.default) {
+								$("#EdgeControllerList").append('<option value="'+controller.url+'" selected>'+controller.name+' ('+controller.url+')</option>');
+								isSelected = true;
+							} else {
+								$("#EdgeControllerList").append('<option value="'+controller.url+'">'+controller.name+' ('+controller.url+')</option>');
+							}
+						}
+						if (settings.data.editable || settings.data.editable==null) {
+							$(".edge").show();
+						} else {
+							$(".edge").hide();
+							$(".defined").html($("#EdgeControllerList").val());
+							$(".defined").show();
 						}
 					} else {
+						$("#BackToLogin").hide();
 						$(".edgecreate").addClass("open");
 					}
 					$("#EdgeControllerList").append('<option value="">Connect to a new Edge Controller</option>');
@@ -93,7 +109,8 @@
 			<div class="subtitle">Welcome, please login to continue</div>
 
 			<label for="EdgeControllerList" class="userlogin">Edge Controller</label>
-			<select id="EdgeControllerList" class="userlogin"></select>
+			<select id="EdgeControllerList" class="userlogin edge" style="display: none;"></select>
+			<div id="SelectedEdgeController" class="defined" style="display: none;"></div>
 			<label for="EdgeName" class="edgecreate">Edge Controller Name</label>
 			<input id="EdgeName" type="text" max="100" placeholder="enter a name for your controller" data-enter="LoginButton" class="edgecreate" />
 			<label for="EdgeUrl" class="edgecreate">Url</label>

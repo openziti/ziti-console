@@ -1,1 +1,8 @@
-{"edgeControllers":[],"fabricControllers":[]}
+{
+    "edgeControllers":[], 
+    "editable": true, 
+    "update": false, 
+    "location": "../ziti", 
+    "port": 1408,
+    "portTLS": 8443
+}

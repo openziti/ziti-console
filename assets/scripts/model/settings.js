@@ -41,10 +41,6 @@ var settings = {
 			growler.error(e.error);
 		} else {
 			settings.data = e;
-			if (settings.data.fabricControllers.length==1) context.set("fabricUrl", settings.data.fabricControllers[0].url);
-			else if (settings.data.fabricControllers.length>1) {
-				if (context.get("fabricUrl").trim().length==0) context.set("fabricUrl", settings.data.fabricControllers[0].url);
-			}
 			context.set(settings.name, e);
 		}
 	},
@@ -59,12 +55,6 @@ var settings = {
 		if (name.trim().length==0||url.trim().length==0) growler.error("Invalid Form");
 		else {
 			service.call("controllerSave", {name:name, url: url}, settings.returned);
-		}
-	},
-	addFabric: function(name, url) {
-		if (name.trim().length==0||url.trim().length==0) growler.error("Invalid Form");
-		else {
-			service.call("fabricSave", {name:name, url: url}, settings.returned);
 		}
 	}
 }
