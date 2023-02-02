@@ -4,7 +4,7 @@
 * settings.json value "ediable" will turn off or on the ability to add controllers to ZAC
 * settings.json has value "update" which tells zac whether or not to overwrite last saved settings with this file
 * settings.json location value tells the system where to save local settings to
-* settings.json port and potyTLS can be defined here
+* settings.json port and portTLS can be defined here
 * Environmental Variables values added for settings overrides for UPDATESETTINGS, reminder PORT, PRTLTLS and SETTINGS where values in the system alread to override settings.json
 * Added command line options to override settings for editable, update, location, port & portTLS
 
