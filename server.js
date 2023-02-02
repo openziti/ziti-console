@@ -147,8 +147,8 @@ if (!fs.existsSync(__dirname+settingsPath+'templates.json')) {
 	fs.copyFileSync(__dirname+'/assets/data/templates.json', __dirname+settingsPath+'templates.json');
 }
 if (fs.existsSync(__dirname+settingsPath+'settings.json')&&updateSettings) {
-	console.log("Updating Settings File");
-	fs.unlinkSync(__dirname+settingsPath+'settings.json');
+	console.log("Updating Settings File - Backing Up Previous Settings");
+	fs.renameSync(__dirname+settingsPath+'settings.json', __dirname+settingsPath+'settings.'+moment().unix());
 }
 if (!fs.existsSync(__dirname+settingsPath+'settings.json')) {
 	fs.copyFileSync(__dirname+'/assets/data/settings.json', __dirname+settingsPath+'settings.json');
