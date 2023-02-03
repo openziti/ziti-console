@@ -1,3 +1,7 @@
+# Release 2.5.8
+* Release that does not rely on cdn scripts or fonts for any functional need
+* Note: Map & Gtag will not work in offline mode.
+
 # Release 2.5.7
 * Update how settings are inited and managed within /assets/data/settings.json
 * settings.json - edgeControllers list of controllers with properties name, url, default like { "name": "My Edge Controller", "url": "https://mycontroller.com:1208", "default": true}
