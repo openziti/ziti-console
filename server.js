@@ -297,6 +297,7 @@ function Authenticate(request) {
 						if (body.data&&body.data.token) {
 							request.session.user = body.data.token;
 							request.session.authorization = 100;
+							console.log(body.data.token);
 							resolve( {success: "Logged In"} );
 						} else resolve( {error: "Invalid Account"} );
 					}

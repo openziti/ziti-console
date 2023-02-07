@@ -134,6 +134,10 @@
     "AuthQueries": "Auth Queries",
     "Identity": "Identity",
     "PostureChecks": "Posture Checks",
+    "AuthPolicies": "Auth Policies",
+    "Cert": "Cert",
+    "Jwt": "Jwt",
+    "UPDB": "UPDB",
 
     "Complete": "Complete",
 

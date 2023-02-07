@@ -1,0 +1,172 @@
+    
+    <!-- General Page Layout HTML -->
+    <div class="header">
+        <div class="title">
+            <span data-i18n="Manage"></span> 
+            <span data-i18n="AuthPolicies"></span>
+        </div>
+        <div class="bread">
+            <span data-i18n="ZitiNetwork"></span> 
+            <span class="secondary">/</span> 
+            <span data-i18n="Manage"></span> 
+            <span data-i18n="AuthPolicies"></span>
+        </div>
+        <div class="line"></div>
+        <div class="tabs">
+            <div class="tab" data-i18n="EdgeRouterPolicies"></div>
+            <div class="tab" data-go="/service-policies" data-i18n="ServicePolicies"></div>
+            <div class="tab" data-go="/service-router-policies" data-i18n="ServiceRouterPolicies"></div>
+            <div class="tab selected" data-go="/auth-policies" data-i18n="AuthPolicies"></div>
+        </div>
+    </div>
+    {{html.add}}
+    {{html.search}}
+    <div class="area data" data-defined="table">
+        <div class="table">
+            <div class="head grid cols">
+                <div class="col">
+                    <div class="selector all"></div>
+                </div>
+                <div class="col sort asc" data-by="name">
+                    <span data-i18n="Name"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="Cert"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="Jwt"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="UPDB"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col"></div>
+            </div>
+            <div class="rows" data-defined="rows">
+                <!-- This area will be replaced by data rows -->
+            </div>
+        </div>
+    </div>
+    <div class="nodata" data-defined="empty">
+        <span data-i18n="No"></span>
+        <span data-i18n="AuthPolicy"></span>
+        <span data-i18n="NoneDefined"></span>
+        <span data-i18n="AuthPolicy"></span>.
+    </div>
+
+    <!-- Template HTML will be used to display rows of data -->
+    <div id="RowTemplate" class="row grid policies template" data-defined="template">
+        <div class="col notitle">
+            <div class="selector" data-id="{{id}}"></div>
+        </div>
+        <div class="col" data-id="{{id}}"><strong>{{name}}</strong></div>
+        <div class="col desktop" data-id="{{id}}">{{cert}}</div>
+        <div class="col desktop" data-id="{{id}}">{{extJwt}}</div>
+        <div class="col desktop" data-id="{{id}}">{{updb}}</div>
+        <div class="col desktop" data-id="{{id}}">{{date.createdAt}}</div>
+        <div class="col allowOver">
+            <div class="dots" data-id="{{id}}">...
+                <div class="gridMenu" data-id="{{id}}">
+                    <div class="gridAction" data-id="{{id}}" data-action="edit">Edit</div>
+                    <div class="gridAction" data-id="{{id}}" data-action="delete">Delete</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+	<!-- Modification Modals -->
+    <div id="AddModal" class="modal box full">
+        <div class="sized">
+            <div class="close icon-close"></div>
+            <div class="title adding">Create <span data-bind="singular"></span></div>
+            <div class="subtitle adding">Add a New <span data-bind="singular"></span> by completing the following form</div>
+            <div class="title editing">Edit <span data-bind="singular"></span></div>
+            <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
+            <label for="Name">Name</label>
+            <input id="Name" type="text" data-bind="data.name" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
+            <label for="Type">Type</label>
+            <select id="Type" data-bind="data.type" data-default="Bind" data-enter="SaveButton">
+                <option value="Bind" selected>Bind</option>
+                <option value="Dial">Dial</option>
+            </select>
+            <label for="Roles">Service Role Attributes</label>
+            <div id="Roles"></div>
+            <label for="IDRoles">Identity Role Attributes</label>
+            <div id="IDRoles"></div>
+            <label for="PCRoles">Posture Check Role Attributes</label>
+            <div id="PCRoles"></div>
+            <label for="Semantics">Semantics</label>
+            <select id="Semantics" data-bind="data.semantic" data-default="AnyOf" data-enter="SaveButton">
+                <option value="AnyOf">Has Any Role</option>
+                <option value="AllOf">Must Have All Roles</option>
+            </select>
+            <div id="TagArea" data-tagarea="policies"></div>
+            <div id="TagExtended"></div>
+            <div class="buttons">
+                <div class="linkButton closer">Oops, No get me out of here</div>
+                <div id="SaveButton" class="button" data-defined="save">Save</div>
+            </div>
+        </div>
+	</div>
+    
+    
+    <script language="javascript" type="text/javascript">
+        page = {
+            binding: {
+                pageTitle: "Service Policies",
+                singular: "Service Policy"
+            },
+            filterObject: null,
+            serviceRoles: null,
+            identityRoles: null,
+            pcRoles: null,
+            init: function() {
+                page.serviceRoles = new Selector("Roles","roles","services");
+                page.identityRoles = new Selector("IDRoles","identities","identities");
+                page.pcRoles = new Selector("PCRoles","posture-checks","posture-checks");
+                page.filterObject = new Data("service-policies");
+                page.serviceRoles.init();
+                page.identityRoles.init();
+                page.pcRoles.init();
+                page.filterObject.init(true, true);
+            }, 
+            gridAction: function(e) {
+                var action = $(e.currentTarget).data("action");
+                var id = $(e.currentTarget).data("id");
+                if (action=="delete") page.filterObject.delete([id]);
+                else if (action=="edit") page.edit(id);
+            },
+            edit: function(id) {
+                var detail = page.filterObject.details(id);
+                page.serviceRoles.val(detail.serviceRolesDisplay);
+                page.identityRoles.val(detail.identityRolesDisplay);
+                page.pcRoles.val(detail.postureCheckRolesDisplay);
+                modal.show("AddModal");
+            },
+            save: function() {
+                if (page.validate()) {
+                    var obj = {
+                        name: $("#Name").val(),
+                        type: $("#Type").val(),
+                        serviceRoles: page.serviceRoles.val(),
+                        identityRoles: page.identityRoles.val(),
+                        postureCheckRoles: page.pcRoles.val(),
+                        semantic: $("#Semantics").val(),
+                        tags: tags.val()
+                    };
+                    page.filterObject.save(obj);
+                } else growler.form();
+            },
+            validate: function() {
+                $(".errors").removeClass("errors");
+                if ($("#Name").val().trim().length==0) $("#Name").addClass("errors");
+                return $(".errors").length==0;
+            }
+        }
+    </script>
