@@ -84,34 +84,59 @@
     <div id="AddModal" class="modal box full">
         <div class="sized">
             <div class="close icon-close"></div>
-            <div class="title adding">Create <span data-bind="singular"></span></div>
-            <div class="subtitle adding">Add a New <span data-bind="singular"></span> by completing the following form</div>
-            <div class="title editing">Edit <span data-bind="singular"></span></div>
-            <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
-            <label for="Name">Name</label>
-            <input id="Name" type="text" data-bind="data.name" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
-            <label for="Type">Type</label>
-            <select id="Type" data-bind="data.type" data-default="Bind" data-enter="SaveButton">
-                <option value="Bind" selected>Bind</option>
-                <option value="Dial">Dial</option>
-            </select>
-            <label for="Roles">Service Role Attributes</label>
-            <div id="Roles"></div>
-            <label for="IDRoles">Identity Role Attributes</label>
-            <div id="IDRoles"></div>
-            <label for="PCRoles">Posture Check Role Attributes</label>
-            <div id="PCRoles"></div>
-            <label for="Semantics">Semantics</label>
-            <select id="Semantics" data-bind="data.semantic" data-default="AnyOf" data-enter="SaveButton">
-                <option value="AnyOf">Has Any Role</option>
-                <option value="AllOf">Must Have All Roles</option>
-            </select>
+            <div class="title adding">
+                <span i18n="Create"></span>
+                <span i18n="AuthPolicy"></span>
+            </div>
+            <div class="subtitle adding">
+                <span data-i18n="AddNew"></span>
+                <span data-i18n="AuthPolicy"></span>
+                <span data-i18n="ByComplete"></span>
+            </div>
+            <div class="title editing">
+                <span data-i18n="Edit"></span>
+                <span data-i18n="AuthPolicy"></span>
+            </div>
+            <div class="subtitle editing">
+                <span data-i18n="Change"></span>
+                <span data-i18n="AuthPolicy"></span>
+                <span data-i18n="Details"></span>
+            </div>
+
+            <label for="Name" data-i18n="Name"></label>
+            <input id="Name" data-bind="data.name" type="text" maxlength="500" data-i18n="EnterName" />
+
+            <label for="Type" data-i18n="AllowFollowing"></label>
+            <div class="grid three">
+                <div>
+                    <label i18n="Certificate"></label>
+                    <div id="Transitions" class="toggle">
+                        <div class="switch"></div>
+                        <div class="label"></div>
+                    </div>
+                </div>
+                <div>
+                    <label i18n="ExternalJwt"></label>
+                    <div id="Transitions" class="toggle">
+                        <div class="switch"></div>
+                        <div class="label"></div>
+                    </div>
+                </div>
+                <div>
+                    <label i18n="UPDB"></label>
+                    <div id="Transitions" class="toggle">
+                        <div class="switch"></div>
+                        <div class="label"></div>
+                    </div>
+                </div>
+            </div>
+
+            <label for="Secondary" i18n="Secondary"></label>
+
             <div id="TagArea" data-tagarea="policies"></div>
             <div id="TagExtended"></div>
-            <div class="buttons">
-                <div class="linkButton closer">Oops, No get me out of here</div>
-                <div id="SaveButton" class="button" data-defined="save">Save</div>
-            </div>
+
+            {{html.save}}
         </div>
 	</div>
     
