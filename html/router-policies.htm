@@ -3,11 +3,7 @@
         <div class="title">Manage <span data-bind="pageTitle"></span></div>
         <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
         <div class="line"></div>
-        <div class="tabs">
-            <div class="tab selected">Edge Router Policies</div>
-            <div class="tab" data-go="/service-policies">Service Policies</div>
-            <div class="tab" data-go="/service-router-policies">Service Edge Router Policies</div>
-        </div>
+        {{html.tabPolicies}}
     </div>
     <div class="action icon-plus" data-action="add"></div>
     <div class="filters">

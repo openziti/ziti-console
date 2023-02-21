@@ -177,6 +177,16 @@
                     <input id="UPDBName" data-bind="data.enrollment.updb" type="text" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
                 </div>
             </div>
+            <div class="grid split">
+                <div>
+                    <label for="AuthPolicy" data-i18n="AuthPolicy"></label>
+                    <select id="AuthPolicy" data-bind="data.authPolicyId"></select>
+                </div>
+                <div>
+                    <label for="ExternalId" data-i18n="ExternalId"></label>
+                    <input id="ExternalId" data-bind="data.externalId" type="text" maxlength="500" data-i18n="EnterExternal" />
+                </div>
+            </div>
             <div id="TagArea" data-tagarea="identity"></div>
             <div id="TagExtended"></div>
             <div class="buttons">           
@@ -211,6 +221,7 @@
             idServices: null,
             roles: null,
             identityRoles: null,
+            authPolicies: null,
             init: function() {
                 page.roles = new Selector("Roles","roles", null, "identity-role-attributes");
                 page.casObject = new Data("cas");
@@ -230,6 +241,10 @@
                 page.filterObject.init(true, true); 
                 page.idServices.init();
                 page.idServices.closeModals = false;
+
+                page.authPolicies = new Data("auth-policies");
+                page.authPolicies.init(false, false, true);
+                page.authPolicies.get();
                 
             }, 
             events: function() {
@@ -242,6 +257,13 @@
                 $("#EnrollmentType").change(page.toggleType);
                 $("#AssociateButton").click(page.addOveride);
                 $("#ToggleMFA").click(page.inlineMfa);
+                context.addListener("auth-policies", page.policiesLoaded);
+            },
+            policiesLoaded: function(e) {
+                $("#AuthPolicy").empty().append("<option value=\"\">"+locale.get("SelectAuthPolicy")+"</option>");
+                for (let i=0; i<e.data.length; i++) {
+                    $("#AuthPolicy").append('<option value="'+e.data[i].id+'">'+e.data[i].name+'</option>');
+                }
             },
             row: function(template, data) {
                 template = template.split("{{type}}").join(data.type.name);
@@ -468,6 +490,8 @@
                         type: $("#IdentityType").val(),
                         isAdmin: $("#IsAdmin").hasClass("on"),
                         roleAttributes: page.roles.val(),
+                        authPolicyId: $("#AuthPolicy").val(),
+                        externalId: $("#ExternalId").val(),
                         tags: tags.val()
                     };
                     if (!page.filterObject.isEditing()) {

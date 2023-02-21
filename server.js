@@ -13,6 +13,7 @@ import Influx from 'influx';
 import helmet from 'helmet';
 import https from 'https';
 import $RefParser from '@apidevtools/json-schema-ref-parser';
+import nodemailer from 'nodemailer';
 import {fileURLToPath} from 'url';
 
 
@@ -90,7 +91,7 @@ app.use('/assets', express.static('assets'));
 app.use(cors());
 app.use(helmet());
 app.use(function(req, res, next) {
-    res.setHeader("Content-Security-Policy", "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://cdn.jsdelivr.net http://maxcdn.bootstrapcdn.com https://cdn.jsdelivr.net http://cdnjs.cloudflare.com https://cdnjs.cloudflare.com https://cdnjs.com https://apis.google.com https://ajax.googleapis.com https://fonts.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com; object-src 'none'; form-action 'none'; frame-ancestors 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://maxcdn.bootstrapcdn.com http://maxcdn.bootstrapcdn.com http://cdn.jsdelivr.net https://cdnjs.com https://fonts.googleapis.com");
+    res.setHeader("Content-Security-Policy", "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://cdn.jsdelivr.net http://maxcdn.bootstrapcdn.com https://cdn.jsdelivr.net http://cdnjs.cloudflare.com https://cdnjs.cloudflare.com https://cdnjs.com https://apis.google.com https://ajax.googleapis.com https://fonts.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com http://www.googletagmanager.com; object-src 'none'; form-action 'none'; frame-ancestors 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://maxcdn.bootstrapcdn.com http://maxcdn.bootstrapcdn.com http://cdn.jsdelivr.net https://cdnjs.com https://fonts.googleapis.com");
     return next();
 });
 app.use(bodyParser.json());
@@ -183,8 +184,6 @@ for (var i=0; i<process.argv.length; i++) {
 	}
 }
 
-console.log("Settings",settings);
-
 var components = {};
 var comFiles = fs.readdirSync(__dirname+"/assets/components");
 for (let i=0; i<comFiles.length; i++) {
@@ -197,6 +196,12 @@ for (var i=0; i<settings.edgeControllers.length; i++) {
 		serviceUrl = settings.edgeControllers[i].url;
 		break;
 	}
+}
+
+var transporter;
+
+if (settings.mail && settings.mail.host && settings.mail.host.trim().length>0) {
+	transporter = nodemailer.createTransport(settings.mail);
 }
 
 /**
@@ -1378,6 +1383,34 @@ app.post("/api/message", function(request, response) {
  * Send a message to NetFoundry to report errors or request features
  */
 app.post("/api/send", function(request, response) {
+	/*
+	if (transporter) {
+		var mailOptions = request.body;
+		mailOptions.text =
+	} else {
+		response.json({ error: "Mail Server Not Defined"});
+	}
+	var mailOptions = {
+		from: siteData.name+' <noreply@'+domainToSend+'>',
+		to: to,
+		subject: subject,
+		text: message.replace(regex, ""), 
+		html: message,
+		list: {
+			help: siteData.sitesupport+'?subject=help',
+			unsubscribe: {
+				url: 'https://'+domainToSend,
+				comment: 'Notification'
+			}
+		}  
+	};
+	transporter.sendMail(mailOptions, function(error, info){
+		if (error) Log("notifications", "notifications.SendEMail", "Error: "+error); 
+		if (info) Log("notifications", "notifications.SendEMail", "Success: "+JSON.stringify(info));
+		resolve(info);
+	});
+	*/
+
 	external.post("https://sendmail.netfoundry.io/send", {json: request.body, rejectUnauthorized: false }, function(err, res, body) {
 		if (err) response.json({ errors: err });
 		else {

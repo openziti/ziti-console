@@ -261,7 +261,6 @@ var Selector = function(id, label, atType, hashType) {
             $(this.suggests.children()[index]).addClass("highlighted");
             this.suggests.data("index", index);
         } else {
-            console.log("Right /here");
             this.suggests.data("index", -1);
             var searchVal = $(e.currentTarget).val();
             if (this.atType) {

@@ -247,6 +247,10 @@ aside .icon {
 	display: none;
 }
 
+.mb15 {
+    margin-bottom: 15px;
+}
+
 .auth.loggedIn {
 	display: inline;
 }
@@ -608,12 +612,32 @@ aside .icon {
     border-color: #FFF !important;
 }
 
+.spread {
+    width: 100%;
+    position: relative;
+    clear: both;
+    display: inline-block;
+}
+
 .configBox label {
     margin-top: 5px;
     color: var(--black);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.configureBox {
+    background-color: var(--stroke);
+    border-radius: 7px;
+    padding: 20px;
+    margin-bottom: 10px;
+    position: relative;
+    margin-top: 25px;
+}
+
+.configureBox input, .configureBox select {
+    background-color: var(--white) !important;
 }
 
 .configBox {
@@ -1138,6 +1162,21 @@ aside .icon {
 
 .os.other {
     background-image: url(/assets/images/other.png);
+}
+
+.sectionTitle {
+    display: inline-block;
+    width: 100%;
+    position: relative;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 18px;
+    color: var(--primary);
+    margin-top: 15px;
+}
+
+.configureBox .sectionTitle {
+    margin-top: 0px;
 }
 
 .cert {

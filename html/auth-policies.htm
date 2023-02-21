@@ -12,18 +12,13 @@
             <span data-i18n="AuthPolicies"></span>
         </div>
         <div class="line"></div>
-        <div class="tabs">
-            <div class="tab" data-i18n="EdgeRouterPolicies"></div>
-            <div class="tab" data-go="/service-policies" data-i18n="ServicePolicies"></div>
-            <div class="tab" data-go="/service-router-policies" data-i18n="ServiceRouterPolicies"></div>
-            <div class="tab selected" data-go="/auth-policies" data-i18n="AuthPolicies"></div>
-        </div>
+        {{html.tabPolicies}}
     </div>
     {{html.add}}
     {{html.search}}
     <div class="area data" data-defined="table">
         <div class="table">
-            <div class="head grid cols">
+            <div class="head grid columns">
                 <div class="col">
                     <div class="selector all"></div>
                 </div>
@@ -58,7 +53,7 @@
     </div>
 
     <!-- Template HTML will be used to display rows of data -->
-    <div id="RowTemplate" class="row grid policies template" data-defined="template">
+    <div id="RowTemplate" class="row grid columns template" data-defined="template">
         <div class="col notitle">
             <div class="selector" data-id="{{id}}"></div>
         </div>
@@ -66,7 +61,7 @@
         <div class="col desktop" data-id="{{id}}">{{cert}}</div>
         <div class="col desktop" data-id="{{id}}">{{extJwt}}</div>
         <div class="col desktop" data-id="{{id}}">{{updb}}</div>
-        <div class="col desktop" data-id="{{id}}">{{date.createdAt}}</div>
+        <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
                 <div class="gridMenu" data-id="{{id}}">
@@ -85,8 +80,8 @@
         <div class="sized">
             <div class="close icon-close"></div>
             <div class="title adding">
-                <span i18n="Create"></span>
-                <span i18n="AuthPolicy"></span>
+                <span data-i18n="Create"></span>
+                <span data-i18n="AuthPolicy"></span>
             </div>
             <div class="subtitle adding">
                 <span data-i18n="AddNew"></span>
@@ -106,32 +101,106 @@
             <label for="Name" data-i18n="Name"></label>
             <input id="Name" data-bind="data.name" type="text" maxlength="500" data-i18n="EnterName" />
 
-            <label for="Type" data-i18n="AllowFollowing"></label>
-            <div class="grid three">
+            <div class="sectionTitle" data-i18n="AllowFollowing"></div>
+            <div class="grid ethree mb15">
                 <div>
-                    <label i18n="Certificate"></label>
-                    <div id="Transitions" class="toggle">
+                    <label data-i18n="Certificate"></label>
+                    <div id="Certificate" class="toggle">
                         <div class="switch"></div>
                         <div class="label"></div>
                     </div>
                 </div>
                 <div>
-                    <label i18n="ExternalJwt"></label>
-                    <div id="Transitions" class="toggle">
+                    <label data-i18n="ExternalJwt"></label>
+                    <div id="ExternalJwt" class="toggle">
                         <div class="switch"></div>
                         <div class="label"></div>
                     </div>
                 </div>
                 <div>
-                    <label i18n="UPDB"></label>
-                    <div id="Transitions" class="toggle">
+                    <label data-i18n="UPDB"></label>
+                    <div id="UPDB" class="toggle">
                         <div class="switch"></div>
                         <div class="label"></div>
                     </div>
                 </div>
             </div>
 
-            <label for="Secondary" i18n="Secondary"></label>
+            <div class="certs configureBox" style="display: none;">
+                <div class="sectionTitle" data-i18n="CertificateOptions"></div>
+                <label data-i18n="AllowExpired"></label>
+                <div class="spread">
+                    <div id="UseExternal" class="toggle">
+                        <div class="switch"></div>
+                        <div class="label"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="jwts configureBox" style="display: none;">
+                <div class="sectionTitle" data-i18n="SignersOptions"></div>
+                <label data-i18n="AllowSigners"></label>
+                <div id="Signers"></div>
+            </div>
+
+            <div class="updb configureBox" style="display: none;">
+                <div class="sectionTitle" data-i18n="UPDBOptions"></div>
+                <div class="grid ethree">
+                    <div>
+                        <label for="MinPasswordLength" data-i18n="MinPasswordLength"></label>
+                        <input id="MinPasswordLength" data-bind="data.updb.minPasswordLength" type="number" data-i18n="EnterNumeric" />
+                    </div>
+                    <div>
+                        <label for="MaxAttempts" data-i18n="MaxAttempts"></label>
+                        <input id="MaxAttempts" data-bind="data.updb.maxAttempts" type="number" data-i18n="EnterNumeric" />
+                    </div>
+                    <div>
+                        <label for="LockoutDuraction" data-i18n="LockoutDuraction"></label>
+                        <input id="LockoutDuraction" data-bind="data.updb.locoutDurationMinutes" type="number" data-i18n="EnterTime" />
+                    </div>
+                </div>
+                <div class="grid ethree">
+                    <div>
+                        <label data-i18n="RequireMixedCase"></label>
+                        <div id="RequireMixedCase" class="toggle">
+                            <div class="switch"></div>
+                            <div class="label"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <label data-i18n="RequireNumberChars"></label>
+                        <div id="RequireNumberChars" class="toggle">
+                            <div class="switch"></div>
+                            <div class="label"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <label data-i18n="RequireSpecialChars"></label>
+                        <div id="RequireSpecialChars" class="toggle">
+                            <div class="switch"></div>
+                            <div class="label"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Need To Finish these -->
+
+            <div class="sectionTitle" data-i18n="Secondary"></div>
+            <div class="grid split">
+                <div>
+                    <label data-i18n="JwtSigners"></label>
+                    <select id="JwtSigners"></select>
+                </div>
+                <div>
+                    <label data-i18n="RequireTotp"></label>
+                    <div id="RequireTotp" class="toggle">
+                        <div class="switch"></div>
+                        <div class="label"></div>
+                    </div>
+                </div>
+            </div>
 
             <div id="TagArea" data-tagarea="policies"></div>
             <div id="TagExtended"></div>
@@ -139,28 +208,53 @@
             {{html.save}}
         </div>
 	</div>
+
+    <style>
+        .grid.columns {
+	        grid-template-columns: 50px auto 150px 150px 150px 250px 50px
+        }
+    </style>
     
     
     <script language="javascript" type="text/javascript">
         page = {
-            binding: {
-                pageTitle: "Service Policies",
-                singular: "Service Policy"
-            },
             filterObject: null,
-            serviceRoles: null,
-            identityRoles: null,
-            pcRoles: null,
+            jwtsList: null,
+            jwts: null,
             init: function() {
-                page.serviceRoles = new Selector("Roles","roles","services");
-                page.identityRoles = new Selector("IDRoles","identities","identities");
-                page.pcRoles = new Selector("PCRoles","posture-checks","posture-checks");
-                page.filterObject = new Data("service-policies");
-                page.serviceRoles.init();
-                page.identityRoles.init();
-                page.pcRoles.init();
+                page.jwts = new Selector("Signers","external-jwt-signers","external-jwt-signers");
+                page.jwts.init();
+
+                page.filterObject = new Data("auth-policies");
                 page.filterObject.init(true, true);
+
+                page.events();
+
+                page.jwtsList = new Data("external-jwt-signers", "signers-list");
+                page.jwtsList.init(false, false, true);
+                page.jwtsList.get();
             }, 
+            events: function() {
+                context.addListener("signers-list", page.signersLoaded);
+            },
+            signersLoaded: function(e) {
+                $("#JwtSigners").empty().append("<option value=\"\">"+locale.get("SelectSigner")+"</option>");
+                for (let i=0; i<e.data.length; i++) {
+                    $("#JwtSigners").append('<option value="'+e.data[i].id+'">'+e.data[i].name+'</option>');
+                }
+            },
+            toggled: function(e) {
+                var isCert = $("#Certificate").hasClass("on");
+                var isJwt = $("#ExternalJwt").hasClass("on");
+                var isUpdb = $("#UPDB").hasClass("on");
+
+                if (isCert) $(".certs").show();
+                else $(".certs").hide();
+                if (isJwt) $(".jwts").show();
+                else $(".jwts").hide();
+                if (isUpdb) $(".updb").show();
+                else $(".updb").hide();
+            },
             gridAction: function(e) {
                 var action = $(e.currentTarget).data("action");
                 var id = $(e.currentTarget).data("id");
@@ -169,20 +263,48 @@
             },
             edit: function(id) {
                 var detail = page.filterObject.details(id);
-                page.serviceRoles.val(detail.serviceRolesDisplay);
-                page.identityRoles.val(detail.identityRolesDisplay);
-                page.pcRoles.val(detail.postureCheckRolesDisplay);
+                page.jwts.val(detail.extJwt.allowedSigners);
                 modal.show("AddModal");
+            },
+            row: function(template, data) {
+                var cert = "No";
+                var jwt = "No";
+                var updb = "No";
+                if (data.primary.cert.allowed) cert = "Yes";
+                if (data.primary.extJwt.allowed) jwt = "Yes";
+                if (data.primary.updb.allowed) updb = "Yes";
+                template = template.split("{{cert}}").join(cert);
+                template = template.split("{{extJwt}}").join(jwt);
+                template = template.split("{{updb}}").join(updb);
+                return template;
             },
             save: function() {
                 if (page.validate()) {
                     var obj = {
                         name: $("#Name").val(),
-                        type: $("#Type").val(),
-                        serviceRoles: page.serviceRoles.val(),
-                        identityRoles: page.identityRoles.val(),
-                        postureCheckRoles: page.pcRoles.val(),
-                        semantic: $("#Semantics").val(),
+                        primary: {
+                            cert: {
+                                allowExpiredCerts: $("#AllowExpired").hasClass("on"),
+                                allowed: $("#Certificate").hasClass("on")
+                            },
+                            extJwt: {
+                                allowed: $("#ExternalJwt").hasClass("on"),
+                                allowedSigners: page.jwts.val()
+                            },
+                            updb: {
+                                allowed: $("#UPDB").hasClass("on"),
+                                lockoutDurationMinutes: Number($("#LockoutDuraction").val()),
+                                maxAttempts: Number($("#MaxAttempts").val()),
+                                minPasswordLength: Number($("#MinPasswordLength").val()),
+                                requireMixedCase: $("#RequireMixedCase").hasClass("on"),
+                                requireNumberChar: $("#RequireNumberChars").hasClass("on"),
+                                requireSpecialChar: $("#RequireSpecialChars").hasClass("on")
+                            }
+                        },
+                        secondary: {
+                            requireExtJwtSigner: $("#JwtSigners").val(),
+                            requireTotp: $("#RequireTotp").hasClass("on")
+                        },
                         tags: tags.val()
                     };
                     page.filterObject.save(obj);
@@ -192,6 +314,13 @@
                 $(".errors").removeClass("errors");
                 if ($("#Name").val().trim().length==0) $("#Name").addClass("errors");
                 return $(".errors").length==0;
+            },
+            reset: function() {
+                $("#MaxAttempts").val("5");
+                $("#MinPasswordLength").val("5");
+                $("#LockoutDuraction").val("0");
+                $("#MaxAttempts").val("5");
+                $("#Enabled").addClass("on");
             }
         }
     </script>

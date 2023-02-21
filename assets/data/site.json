@@ -15,6 +15,8 @@
 	{ "page": "/sessions.htm", "url": "/sessions", "access": "100", "title": "Sessions" },
 	{ "page": "/api-sessions.htm", "url": "/api-sessions", "access": "100", "title": "Api Sessions" },
 
+	{ "page": "/auth-policies.htm", "url": "/auth-policies", "access": "100", "title": "Auth Policies" },
+	{ "page": "/jwt-signers.htm", "url": "/jwt-signers", "access": "100", "title": "Jwt Signers" },
 	{ "page": "/router-policies.htm", "url": "/router-policies", "access": "100", "title": "Router Policies" },
 	{ "page": "/service-policies.htm", "url": "/service-policies", "access": "100", "title": "Service Policies" },
 	{ "page": "/service-router-policies.htm", "url": "/service-router-policies", "access": "100", "title": "Service Router Policies" },
