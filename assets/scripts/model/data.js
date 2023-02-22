@@ -286,7 +286,7 @@ var Data = function(name, context) {
 			if (defaultVal) $(e).val(defaultVal);
 			else $(e).val("");
 		});
-		$("#AddModal").find(".suggests").html("");
+		// $("#AddModal").find(".suggests").html("");
 		$("#AddModal").find(".tagArea").html("");
 		$("#TagExtended").html("");
 		$(".toggle").removeClass("on");

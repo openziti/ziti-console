@@ -1868,12 +1868,12 @@ path.green {
     background-color: var(--secondary);
 }
 
-.searchSelector .tagButton {
+.tagButton {
     cursor: pointer;
     transition: var(--transition);
 }
 
-.searchSelector .tagButton:hover {
+.tagButton:hover {
     opacity: 0.5;
 }
 
@@ -1891,7 +1891,7 @@ path.green {
     top: 10px;
 }
 
-.searchSelector .hashtag {
+.tagButton {
     margin-top: unset;
     padding-left: 10px;
     padding-right: 10px;
@@ -1906,17 +1906,17 @@ path.green {
     transition: var(--transition);
 }
 
-.searchSelector .hashtag .label, .searchSelector .attag .label {
+.tagButton .label, .tagButton.attag .label {
     font-size: 16px;
     font-family: "Open Sans";
     margin-left: 5px;
 }
 
-.searchSelector .attag.error, .searchSelector .hashtag.error {
+.tagButton.attag.error, .tagButton.error {
     background-color: var(--red);
 }
 
-.searchSelector .attag {
+.tagButton.attag {
     margin-top: unset;
     padding-left: 10px;
     padding-right: 10px;
@@ -1940,6 +1940,7 @@ path.green {
     position: relative;
     overflow: auto;
     transition: var(--transition);
+    background-color: var(--white) !important;
 }
 
 .searchSelector input {
@@ -1960,8 +1961,18 @@ path.green {
 }
 
 .suggests.open {
+    padding: 20px;
+    border-radius: 0px;
+    margin-top: -7px;
     margin-bottom: 10px;
     opacity: 1.0;
+    border-bottom-left-radius: 7px;
+    border-bottom-right-radius: 7px;
+    background-color: rgba(0,0,0,0.6);
+    padding-top: 25px;
+    padding-left: 10px;
+    padding-bottom: 10px;
+    padding-right: 10px;
 }
 
 .suggests .suggest {

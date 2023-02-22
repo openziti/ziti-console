@@ -222,7 +222,8 @@
             jwtsList: null,
             jwts: null,
             init: function() {
-                page.jwts = new Selector("Signers","external-jwt-signers","external-jwt-signers");
+                page.jwts = new MultiSelect("Signers", locale.get(""));
+                page.jwts.addSource(new SelectSource("external-jwt-signers"));
                 page.jwts.init();
 
                 page.filterObject = new Data("auth-policies");

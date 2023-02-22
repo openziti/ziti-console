@@ -38,6 +38,7 @@ var MultiSelect = function(id, label, max=10) {
     this.isSingle = false;
     this.freeform = false; // Not implemented yet allow free form text values
     this.appendHash = false; // Not implemented add # to freeform entries
+    this.results = [];
 
     this.element = null;
     this.suggests = null;
@@ -47,61 +48,65 @@ var MultiSelect = function(id, label, max=10) {
 
 
     this.init = function() {
-        this.element = $("@"+this.id);
-        if (element) {
+        this.element = $("#"+this.id);
+        if (this.element) {
             var html = '<div class="searchSelector'+((this.isSingle)?" only":"")+'"><input id="'+this.id+'Search" type="text" maxlength="500" placeholder="'+this.label+'" />';
-            html += '<div id="'+this.id+'Suggest" data-index="0" class="suggests"></div>';
             html += '<div id="'+this.id+'Selected" class="tagArea"></div></div>';
-            element.html(html);
+            html += '<div id="'+this.id+'Suggest" data-index="0" class="suggests"></div>';
+            this.element.html(html);
             this.suggests = $("#"+this.id+"Suggest");
             this.selected = $("#"+this.id+"Selected");
+            this.filter = $("#"+this.id+"Search");
         }
         this.events();
     }
 
     this.events = function() {
         $("#"+this.id+"Search").keyup(this.keyup.bind(this));
-        $("#"+this.id+"Search").focus(this.focus.bind(this));       
+        $("#"+this.id+"Search").focus(this.focus.bind(this));        
     }
 
     this.addSource = function(source) {
-        source.onLoaded = this.onLoeded;
+        source.onLoaded = this.onLoaded.bind(this);
         source.get();
         this.datasources.push(source);
     }
 
     this.onLoaded = function(source) {
         var data = source.data;
+        this.results.push(data);
         let html = "";
         for (var i=0; i<data.length; i++) {
             var item = data[i];
-            var tagType = "";
             html += this.getHtml(item, source, false);
         }
         this.suggests.append(html);
         $(".tagButton").off("click");
-        $(".tagButton").on("click", this.clicked);
+        $(".tagButton").on("click", this.clicked.bind(this));
+        console.log(this.results.length);
+        if (this.results.length>0) this.suggests.addClass("open");
+        else this.suggests.removeClass("open");
     }
 
-    this.focused = function(e) {
+    this.focus = function(e) {
         this.keyup(e);
     }
 
-    this.blurred = function(e) {
+    this.blur = function(e) {
         this.suggests.hide();
     }
 
     this.keyup = function(e) {
         var search = this.filter.val().trim();
-        this.suggests.empty();
 
         if (this.lastSearch!=search) {
+            this.results = [];
+            this.suggests.empty();
             this.lastSearch = search;
             for (var i=0; i<this.datasources.length; i++) {
-                this.datasources.get(search);
+                this.datasources[i].get(search);
             }
         }
-        this.suggests.show();
     }
 
     this.getHtml = function(item, source, isSelected) {
@@ -111,23 +116,52 @@ var MultiSelect = function(id, label, max=10) {
         return '<div class="'+tagType+'tag tagButton" data-id="'+item[source.variables.id]+((isSelected)?' icon-close':'')+'"><span class="label">'+item[source.variables.name]+'</span></div>';
     }
 
-    this.val(values) {
+    this.val = function(values) {
         if (values) {
+            this.selected.empty();
             for (let i=0; i<values.length; i++) {
-
+                var item = data[i];
+                this.selected.append(this.getHtml(item, source, false));
             }
+            this.filter.val("");
+            $(".tagButton").off("click");
+            $(".tagButton").on("click", this.clicked.bind(this));
         } else {
-
+            values = [];
+            this.selected.children().each((i, e) => {
+                values.push({
+                    id: $(e).data("id"),
+                    name: $(e).html()
+                });
+            });
+            return values;
         }
     }
 
     this.clicked = function(e) {
-        if (e.hasClass("icon-close")) {
-            $(e).remove();
+        let elem = $(e.currentTarget);
+        if (elem.hasClass("icon-close")) {
+            elem.remove();
         } else {
-            this.search.val("");
-            e.addClass("icon-close");
-            this.selected.append(e);
+            let found = false;
+            let newName = elem.children("span").html();
+            this.selected.children().each((i, e) => {
+                var currentItem = $(e);
+                let name = currentItem.children("span").html();
+                if (name==newName) {
+                    found = true;
+                    currentItem.addClass("error");
+                    setTimeout(function() {
+                        currentItem.removeClass("error");
+                    }, 500);
+                }
+            });
+            if (!found) {
+                this.filter.val("");
+                elem.addClass("icon-close");
+                $(".suggests").removeClass("open");
+                this.selected.append(elem);
+            }
         }
     }
 
