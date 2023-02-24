@@ -14,6 +14,13 @@ run: node server.js debug
 
 Node JS Version >= 14.17
 
+## Server TLS
+
+The server will set up an HTTPS redirection service if the hard-coded certificate and private key files are present in the current working directory.
+
+* ./server.key
+* ./server.chain.pem
+
 ## Docker Build
 
 1. build the image: `docker build . -t openziti/zac`
