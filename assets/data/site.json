@@ -5,8 +5,8 @@
 	{ "page": "/terminators.htm", "url": "/terminators", "access": "100", "title": "Terminators" },
 	{ "page": "/posture-checks.htm", "url": "/posture-checks", "access": "100", "title": "Posture Checks" },
 
-	{ "page": "/edge-services.htm", "url": "/edge-services", "access": "100", "title": "Services" },
-	{ "page": "/edge-routers.htm", "url": "/edge-routers", "access": "100", "title": "Routers" },
+	{ "page": "/services.htm", "url": "/services", "access": "100", "title": "Services" },
+	{ "page": "/routers.htm", "url": "/routers", "access": "100", "title": "Routers" },
 	{ "page": "/transit-routers.htm", "url": "/transit-routers", "access": "100", "title": "Transit Routers" },
 	{ "page": "/edge-clusters.htm", "url": "/edge-clusters", "access": "100", "title": "Edge Clusters" },
 	{ "page": "/config-types.htm", "url": "/config-types", "access": "100", "title": "Config Types" },
@@ -15,14 +15,12 @@
 	{ "page": "/sessions.htm", "url": "/sessions", "access": "100", "title": "Sessions" },
 	{ "page": "/api-sessions.htm", "url": "/api-sessions", "access": "100", "title": "Api Sessions" },
 
+	{ "page": "/auth-policies.htm", "url": "/auth-policies", "access": "100", "title": "Auth Policies" },
+	{ "page": "/jwt-signers.htm", "url": "/jwt-signers", "access": "100", "title": "Jwt Signers" },
 	{ "page": "/router-policies.htm", "url": "/router-policies", "access": "100", "title": "Router Policies" },
 	{ "page": "/service-policies.htm", "url": "/service-policies", "access": "100", "title": "Service Policies" },
 	{ "page": "/service-router-policies.htm", "url": "/service-router-policies", "access": "100", "title": "Service Router Policies" },
 	{ "page": "/cas.htm", "url": "/cas", "access": "100", "title": "Edge Certificate Authorities" },
-
-	{ "page": "/fabric-services.htm", "url": "/fabric-services", "access": "100", "title": "Fabric Services" },
-	{ "page": "/fabric-routers.htm", "url": "/fabric-routers", "access": "100", "title": "Fabric Routers" },
-	{ "page": "/fabric-links.htm", "url": "/fabric-links", "access": "100", "title": "Fabric Links" },
 
 	{ "page": "/settings.htm", "url": "/settings", "access": "100", "title": "Personal Settings" },
 	{ "page": "/profile.htm", "url": "/profile", "access": "100", "title": "Profile" },

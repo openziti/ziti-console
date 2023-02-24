@@ -4,5 +4,14 @@
     "update": false, 
     "location": "../ziti", 
     "port": 1408,
-    "portTLS": 8443
+    "portTLS": 8443,
+    "mail": { 
+        "host": "",
+        "port": 25,
+        "secure": false,
+        "auth": {
+            "user": "", 
+            "pass": "" 
+        }
+    }
 }

@@ -112,10 +112,13 @@
                 <span data-i18n="CA"></span>
                 <span data-i18n="Details"></span>
             </div>
+
             <label for="Name" data-i18n="Name"></label>
             <input id="Name" data-bind="data.name" type="text" maxlength="500" data-i18n="EnterName" />
+
             <label for="IDRoles" data-i18n="Name"></label>
             <div id="IDRoles"></div>
+
             <div class="three">
                 <div>
                     <label data-i18n="IsAuto"></label>
@@ -139,8 +142,10 @@
                     </div>
                 </div>
             </div>
+
             <label for="Pem"><span data-i18n="PEM"></span> <span id="SelectFile" class="note" data-i18n="SelectFile"></span><input id="PemFile" type="file" accept=".pem"/></label>
             <textarea id="Pem" data-bind="data.certPem" style="height: 300px; font-size: 12px;" data-i18n="PastePEM"></textarea>
+            
             <div id="TagArea"></div>
             {{html.save}}
         </div>
@@ -178,8 +183,12 @@
             identityRoles: null,
             init: function() {
                 this.events();
-                page.identityRoles = new Selector("IDRoles","identities","identities");
-                page.identityRoles.init();
+
+                page.roles = new MultiSelect("IDRoles", 10, true);
+                page.roles.addSource(new SelectSource("identities", "@")); 
+                page.roles.addSource(new SelectSource("identity-role-attributes", "", "id")); 
+                page.roles.init();
+
                 page.filterObject = new Data("cas");
                 page.filterObject.init(true, true);
             }, 

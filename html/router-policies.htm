@@ -2,12 +2,8 @@
     <div class="header">
         <div class="title">Manage <span data-bind="pageTitle"></span></div>
         <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
-        <div class="line"></div>
-        <div class="tabs">
-            <div class="tab selected">Edge Router Policies</div>
-            <div class="tab" data-go="/service-policies">Service Policies</div>
-            <div class="tab" data-go="/service-router-policies">Service Edge Router Policies</div>
-        </div>
+        {{html.line}}
+        {{html.tabPolicies}}
     </div>
     <div class="action icon-plus" data-action="add"></div>
     <div class="filters">
@@ -99,11 +95,18 @@
             routerRoles: null,
             identityRoles: null,
             init: function() {
-                page.routerRoles = new Selector("RouterRoles","routers","edge-routers");
-                page.identityRoles = new Selector("IDRoles","identities","identities");
-                page.filterObject = new Data("edge-router-policies");
-                page.routerRoles.init();
+
+                page.identityRoles = new MultiSelect("IDRoles", 10, true);
+                page.identityRoles.addSource(new SelectSource("identities", "@")); 
+                page.identityRoles.addSource(new SelectSource("identity-role-attributes", "#", "id")); 
                 page.identityRoles.init();
+
+                page.routerRoles = new MultiSelect("RouterRoles",  10, true);
+                page.routerRoles.addSource(new SelectSource("routers", "@")); 
+                page.routerRoles.addSource(new SelectSource("edge-router-role-attributes", "#", "id")); 
+                page.routerRoles.init();
+
+                page.filterObject = new Data("edge-router-policies");
                 page.filterObject.init(true, true);
             }, 
             gridAction: function(e) {

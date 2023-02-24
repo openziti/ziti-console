@@ -10,11 +10,8 @@
             <span data-i18n="Manage"></span>
             <span data-i18n="ConfigTypes"></span>
         </div>
-        <div class="line"></div>
-        <div class="tabs">
-            <div class="tab" data-go="/configs" data-i18n="Configurations"></div>
-            <div class="tab selected" data-i18n="ConfigTypes"></div>
-        </div>
+        {{html.line}}
+        {{html.tabServices}}
     </div>
     {{html.add}}
     {{html.search}}
@@ -87,7 +84,7 @@
             </div>
             <label for="Name" data-i18n="Name"></label>
             <input id="Name" data-bind="data.name" type="text" maxlength="500" data-i18n="EnterName" data-restrict="empty" />
-            <label for="Schema" data-i18n="Schema">Schema</label>
+            <label for="Schema" data-i18n="Schema"></label>
             <textarea id="Schema"></textarea>
             <div>
             <div id="TagArea"></div>

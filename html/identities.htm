@@ -2,16 +2,8 @@
     <div class="header">
         <div class="title">Manage <span data-bind="pageTitle"></span></div>
         <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
-        <div class="line"></div>
-        <div class="tabs">
-            <div class="tab" data-go="/identities">Identities</div>
-            <div class="tab" data-go="/recipes">Recipes</div>
-            <div class="tab" data-go="/edge-services">Services</div>
-            <div class="tab" data-go="/edge-routers">Edge Routers</div>
-            <div class="tab" data-go="/transit-routers">Transit Routers</div>
-            <div class="tab" data-go="/terminators">Terminators</div>
-            <div class="tab" data-go="/posture-checks">Posture Checks</div>
-        </div>
+        {{html.line}}
+        {{html.tabIdentities}}
     </div>
     <div class="action icon-plus" data-action="add"></div>
     <div class="filters">
@@ -177,6 +169,16 @@
                     <input id="UPDBName" data-bind="data.enrollment.updb" type="text" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
                 </div>
             </div>
+            <div class="grid split">
+                <div>
+                    <label for="AuthPolicy" data-i18n="AuthPolicy"></label>
+                    <select id="AuthPolicy" data-bind="data.authPolicyId"></select>
+                </div>
+                <div>
+                    <label for="ExternalId" data-i18n="ExternalId"></label>
+                    <input id="ExternalId" data-bind="data.externalId" type="text" maxlength="500" data-i18n="EnterExternal" />
+                </div>
+            </div>
             <div id="TagArea" data-tagarea="identity"></div>
             <div id="TagExtended"></div>
             <div class="buttons">           
@@ -211,8 +213,13 @@
             idServices: null,
             roles: null,
             identityRoles: null,
+            authPolicies: null,
             init: function() {
-                page.roles = new Selector("Roles","roles", null, "identity-role-attributes");
+                page.roles = new MultiSelect("Roles", 10, true);
+                page.roles.addSource(new SelectSource("identity-role-attributes", "", "id")); 
+                page.roles.init();
+
+
                 page.casObject = new Data("cas");
                 page.servicesObject = new Data("services");
                 page.configsObject = new Data("configs");
@@ -221,15 +228,16 @@
 
                 page.events();
 
-                page.roles.isForceHash = false;
-                page.roles.isForceAt = false;
-                page.roles.init();
                 page.casObject.init(true);
                 page.servicesObject.init(true);
                 page.configsObject.init(true);
                 page.filterObject.init(true, true); 
                 page.idServices.init();
                 page.idServices.closeModals = false;
+
+                page.authPolicies = new Data("auth-policies");
+                page.authPolicies.init(false, false, true);
+                page.authPolicies.get();
                 
             }, 
             events: function() {
@@ -242,6 +250,13 @@
                 $("#EnrollmentType").change(page.toggleType);
                 $("#AssociateButton").click(page.addOveride);
                 $("#ToggleMFA").click(page.inlineMfa);
+                context.addListener("auth-policies", page.policiesLoaded);
+            },
+            policiesLoaded: function(e) {
+                $("#AuthPolicy").empty().append("<option value=\"\">"+locale.get("SelectAuthPolicy")+"</option>");
+                for (let i=0; i<e.data.length; i++) {
+                    $("#AuthPolicy").append('<option value="'+e.data[i].id+'">'+e.data[i].name+'</option>');
+                }
             },
             row: function(template, data) {
                 template = template.split("{{type}}").join(data.type.name);
@@ -468,6 +483,8 @@
                         type: $("#IdentityType").val(),
                         isAdmin: $("#IsAdmin").hasClass("on"),
                         roleAttributes: page.roles.val(),
+                        authPolicyId: $("#AuthPolicy").val(),
+                        externalId: $("#ExternalId").val(),
                         tags: tags.val()
                     };
                     if (!page.filterObject.isEditing()) {

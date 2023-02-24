@@ -149,6 +149,7 @@ var app = {
 		} else {
 			$(e.currentTarget).addClass("on");
 		}
+		if (page.toggled) page.toggled();
 	},
 	check: function(e) {
 		if ($(e.currentTarget).hasClass("checked")) {
