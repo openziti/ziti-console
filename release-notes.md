@@ -1,3 +1,13 @@
+# Release 2.6.0
+* Update Multi Select Component for Attributes
+* Update Localization
+* Add JWT-Signers Functionality
+* Add Auth Policy Features
+* Redesign Navigation to be more Usable
+* Organize Sub Menus
+* Create Html Components for reused features
+* Apply Auth Policy to Identity
+
 # Release 2.5.8
 * Release that does not rely on cdn scripts or fonts for any functional need
 * Note: Map & Gtag will not work in offline mode.
