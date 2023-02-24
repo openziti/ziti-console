@@ -96,6 +96,9 @@
     "JSONConfiguration": "JSON Configuration",
     "Schema": "Schema",
     "AttachService": "Attach to Service",
+    "ManageFields": "Manage Custom Fields",
+    "ManageServers": "Manage Servers",
+
 
     "Name": "Name",
     "Verified": "Verified",
@@ -207,6 +210,10 @@
     "SelectAuthPolicy": "Select an Auth Policy...",
     "MinPasswordLength": "Minimum Length",
     "SelectJwtSigners": "Search and Selact Associated JWT Signers",
+    "TypeToFilter": "Type to filter or enter to add value",
+    "Policies": "Policies",
+
+
 
 
 

@@ -222,7 +222,7 @@
             jwtsList: null,
             jwts: null,
             init: function() {
-                page.jwts = new MultiSelect("Signers", locale.get(""));
+                page.jwts = new MultiSelect("Signers");
                 page.jwts.addSource(new SelectSource("external-jwt-signers"));
                 page.jwts.init();
 

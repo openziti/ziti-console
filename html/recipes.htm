@@ -2,16 +2,8 @@
     <div class="header">
         <div class="title">Manage <span data-bind="pageTitle"></span></div>
         <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
-        <div class="line"></div>
-        <div class="tabs">
-            <div class="tab" data-go="/identities">Identities</div>
-            <div class="tab" data-go="/recipes">Recipes</div>
-            <div class="tab" data-go="/edge-services">Services</div>
-            <div class="tab" data-go="/edge-routers">Edge Routers</div>
-            <div class="tab" data-go="/transit-routers">Transit Routers</div>
-            <div class="tab" data-go="/terminators">Terminators</div>
-            <div class="tab" data-go="/posture-checks">Posture Checks</div>
-        </div>
+        {{html.line}}
+        {{html.tabIdentities}}
     </div>
     <div class="action icon-plus" data-action="add"></div>
     <div class="area data" data-defined="table">
@@ -132,24 +124,25 @@
             deleting: [],
             newids: [],
             init: function() {
-                page.roles = new Selector("Roles","roles");
-                page.profiles = new Selector("Profiles","profiles");
-                page.policies = new Selector("Policies","policies","service-policies");
-                page.services = new Selector("Services","services","services");
 
-                page.events();
-
-                page.roles.isForceHash = false;
+                page.roles = new MultiSelect("Roles", 10, true);
+                page.roles.addSource(new SelectSource("service-role-attributes", "", "id")); 
                 page.roles.init();
 
-                page.services.isForceHash = false;
-                page.services.init();
+                page.profiles = new MultiSelect("Profiles", 10, true);
+                page.profiles.init();
 
-                page.policies.isForceHash = false;
+                page.policies = new MultiSelect("Policies", 10, true);
+                page.policies.returnObject = true;
+                page.policies.addSource(new SelectSource("service-policies", "@")); 
                 page.policies.init();
 
-                page.profiles.isForceHash = false;
-                page.profiles.init();
+                page.services = new MultiSelect("Services", 10, true);
+                page.services.returnObject = true;
+                page.services.addSource(new SelectSource("services", "@")); 
+                page.services.init();
+
+                page.events();
 
                 templates.init();
             }, 
@@ -361,9 +354,9 @@
                 if (obj) {
                     $("#Name").val(obj.name);
                     page.roles.val(obj.roles);
-                    page.services.vals(obj.services);
+                    page.services.val(obj.services);
                     page.profiles.val(obj.profiles);
-                    page.policies.vals(obj.policies);
+                    page.policies.val(obj.policies);
                     modal.show("AddModal");
                 }
 
@@ -374,8 +367,8 @@
                         id: page.editId,
                         name: $("#Name").val(),
                         roles: page.roles.val(),
-                        services: page.services.vals(),
-                        policies: page.policies.vals(),
+                        services: page.services.val(),
+                        policies: page.policies.val(),
                         profiles: page.profiles.val(),
                     };
                     templates.save(obj);
@@ -391,10 +384,10 @@
                 $("#SendTo").removeClass("error");
                 page.editId = null;
                 $("#Name").val("");
-                page.services.vals([]);
-                page.roles.vals([]);
-                page.profiles.vals([]);
-                page.policies.vals([]);
+                page.services.val([]);
+                page.roles.val([]);
+                page.profiles.val([]);
+                page.policies.val([]);
             },
             send: function(e) {
                 $("#SendTo").removeClass("error");

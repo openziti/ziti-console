@@ -109,13 +109,23 @@
             identityRoles: null,
             pcRoles: null,
             init: function() {
-                page.serviceRoles = new Selector("Roles","roles","services");
-                page.identityRoles = new Selector("IDRoles","identities","identities");
-                page.pcRoles = new Selector("PCRoles","posture-checks","posture-checks");
-                page.filterObject = new Data("service-policies");
-                page.serviceRoles.init();
+
+                page.identityRoles = new MultiSelect("IDRoles", 10, true);
+                page.identityRoles.addSource(new SelectSource("identities", "@")); 
+                page.identityRoles.addSource(new SelectSource("identity-role-attributes", "#", "id")); 
                 page.identityRoles.init();
+
+                page.serviceRoles = new MultiSelect("Roles",  10, true);
+                page.serviceRoles.addSource(new SelectSource("services", "@")); 
+                page.serviceRoles.addSource(new SelectSource("service-role-attributes", "#", "id")); 
+                page.serviceRoles.init();
+
+                page.pcRoles = new MultiSelect("PCRoles",  10, true);
+                page.pcRoles.addSource(new SelectSource("posture-checks", "@")); 
+                page.pcRoles.appendHash = true;
                 page.pcRoles.init();
+
+                page.filterObject = new Data("service-policies");
                 page.filterObject.init(true, true);
             }, 
             gridAction: function(e) {

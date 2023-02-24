@@ -1,11 +1,11 @@
-var SelectSource = function(id, append="") {
+var SelectSource = function(id, append="", name="name") {
     this.id = id;
     this.data = [];
     this.append = append;
     this.onLoaded = null;
     this.variables = {
         id: "id",
-        name: "name"
+        name: name
     };
 
     this.get = function(filter="") {
@@ -14,10 +14,11 @@ var SelectSource = function(id, append="") {
             paging: {
                 page: 1,
                 total: 100,
-                sort: "name",
+                sort: this.variables.name,
                 order: "ASC",
                 filter: filter,
-                noSearch: false
+                noSearch: false,
+                searchOn: this.variables.name
             }
         };
 		service.call("data", params, this.loaded.bind(this));
@@ -29,28 +30,30 @@ var SelectSource = function(id, append="") {
     }
 }
 
-var MultiSelect = function(id, label, max=10) {
+var MultiSelect = function(id, max=10, freeform=false) {
     this.id = id;
-    this.label = label;
     this.max = max;
     this.datasources = [];
-    this.lastSearch = "";
     this.isSingle = false;
-    this.freeform = false; // Not implemented yet allow free form text values
-    this.appendHash = false; // Not implemented add # to freeform entries
+    this.freeform = freeform; 
+    this.appendHash = false;
+    this.returnObject = false;
     this.results = [];
 
     this.element = null;
     this.suggests = null;
     this.selected = null;
     this.filter = null;
+    this.isLoading = false;
+    this.filterId = null;
 
 
 
     this.init = function() {
         this.element = $("#"+this.id);
         if (this.element) {
-            var html = '<div class="searchSelector'+((this.isSingle)?" only":"")+'"><input id="'+this.id+'Search" type="text" maxlength="500" placeholder="'+this.label+'" />';
+            this.element.addClass("multiselector");
+            var html = '<div class="searchSelector'+((this.isSingle)?" only":"")+'"><input id="'+this.id+'Search" autocomplete="new-password" type="text" maxlength="500" data-i18n="TypeToFilter" />';
             html += '<div id="'+this.id+'Selected" class="tagArea"></div></div>';
             html += '<div id="'+this.id+'Suggest" data-index="0" class="suggests"></div>';
             this.element.html(html);
@@ -63,76 +66,159 @@ var MultiSelect = function(id, label, max=10) {
 
     this.events = function() {
         $("#"+this.id+"Search").keyup(this.keyup.bind(this));
-        $("#"+this.id+"Search").focus(this.focus.bind(this));        
+        $("#"+this.id+"Search").focus(this.focus.bind(this));  
+        $(document).click((e) => {
+            setTimeout(() => {
+                if (!this.filter.is(":focus")) this.suggests.removeClass("open");
+            }, 50);
+        });    
+    }
+
+    this.tagEvents = function() {
+        this.element.find(".tagButton").off("click");
+        this.element.find(".tagButton").on("click", this.clicked.bind(this));
     }
 
     this.addSource = function(source) {
         source.onLoaded = this.onLoaded.bind(this);
+        if (source.append=="#") this.appendHash = true;
         source.get();
         this.datasources.push(source);
     }
 
     this.onLoaded = function(source) {
+        if (this.isLoading) {
+            this.results = [];
+            this.isLoading = false;
+            this.suggests.empty();
+        }
         var data = source.data;
-        this.results.push(data);
+        for (let i=0; i<data.length; i++) {
+            this.results.push(data[i]);
+        }
         let html = "";
         for (var i=0; i<data.length; i++) {
             var item = data[i];
-            html += this.getHtml(item, source, false);
+            if (!this.isSelected(item, source)) html += this.getHtml(item, source, false);
         }
         this.suggests.append(html);
-        $(".tagButton").off("click");
-        $(".tagButton").on("click", this.clicked.bind(this));
-        console.log(this.results.length);
-        if (this.results.length>0) this.suggests.addClass("open");
-        else this.suggests.removeClass("open");
+        if (this.results.length>0) {
+            if (this.filter.is(":focus")) this.suggests.addClass("open");
+        } else this.suggests.removeClass("open");
+        if (html=="") this.suggests.removeClass("open");
+        this.tagEvents();
     }
 
     this.focus = function(e) {
-        this.keyup(e);
+        if (this.results.length>0) {
+            if (this.suggests.html()=="") this.suggests.removeClass("open");
+            else this.suggests.addClass("open");
+        }
     }
 
     this.blur = function(e) {
-        this.suggests.hide();
+        // this.suggests.hide();
     }
 
     this.keyup = function(e) {
-        var search = this.filter.val().trim();
-
-        if (this.lastSearch!=search) {
-            this.results = [];
-            this.suggests.empty();
-            this.lastSearch = search;
-            for (var i=0; i<this.datasources.length; i++) {
-                this.datasources[i].get(search);
+        if (e && e.keyCode==13 && this.freeform) {
+            let newVal = this.filter.val().trim();
+            if (newVal.length>0&&newVal.charAt(0)=="@") newVal = newVal.substr(1);
+            if (this.appendHash) newVal = "#"+newVal;
+            if (!this.isSelected(newVal)) {
+                var html = this.ItemHtml(newVal, newVal, "", true);
+                this.selected.append(html);
+                this.filter.val("");
+                this.keyup();
+                this.tagEvents();
             }
+        } else {
+            if (this.filterId) {
+                clearTimeout(this.filterId);
+                this.filterId = null;
+            } 
+            this.filterId = setTimeout(() => {
+                this.doFilter();
+            }, 1000);
+        }
+    }
+
+    this.doFilter = function() {
+        var search = this.filter.val().trim();
+        this.isLoading = true;
+        for (var i=0; i<this.datasources.length; i++) {
+            this.datasources[i].get(search);
         }
     }
 
     this.getHtml = function(item, source, isSelected) {
         var tagType = "";
         if (source.appennd=="#") tagType = "hash";
-        else if (source.append=="@") tagType = "att";
-        return '<div class="'+tagType+'tag tagButton" data-id="'+item[source.variables.id]+((isSelected)?' icon-close':'')+'"><span class="label">'+item[source.variables.name]+'</span></div>';
+        else if (source.append=="@") tagType = "at";
+        var id = "";
+        var name = "";
+        if (typeof item == "string") {
+            id = item;
+            name = item;
+        } else {
+            if (item.hasOwnProperty(source.variables.id)) id = item[source.variables.id];
+            if (item.hasOwnProperty(source.variables.name)) name = item[source.variables.name];
+        }
+        name = source.append+name;
+        return this.ItemHtml(id, name, tagType, isSelected);
+    }
+
+    this.ItemHtml = function(id, name, type, selected) {
+        return '<div class="'+type+'tag tagButton'+((selected)?' icon-close':'')+'" data-id="'+id+'"><span class="label">'+name+'</span></div>';
+    },
+
+    this.isSelected = function(item, source) {
+        var id = "";
+        let isSelect = false;
+        if (typeof item == "string") {
+            id = item;
+        } else {
+            if (source&&item.hasOwnProperty(source.variables.id)) id = item[source.variables.id];
+        }
+        this.selected.children().each((i, e) => {
+            if ($(e).data("id")==id) isSelect = true;
+        });
+        this.suggests.children().each((i, e) => {
+            if ($(e).data("id")==id) isSelect = true;
+        });
+        return isSelect;
     }
 
     this.val = function(values) {
         if (values) {
             this.selected.empty();
             for (let i=0; i<values.length; i++) {
-                var item = data[i];
-                this.selected.append(this.getHtml(item, source, false));
+                var item = values[i];
+                var id = "";
+                var name = "";
+                if (typeof item == "string") {
+                    id = item;
+                    name = item;
+                } else {
+                    if (item.hasOwnProperty(source.variables.id)) id = item[id];
+                    if (item.hasOwnProperty(source.variables.name)) name = item[name];
+                }
+                this.selected.append(this.ItemHtml(id, name, "", true));
             }
             this.filter.val("");
-            $(".tagButton").off("click");
-            $(".tagButton").on("click", this.clicked.bind(this));
+            this.tagEvents();
         } else {
             values = [];
             this.selected.children().each((i, e) => {
-                values.push({
-                    id: $(e).data("id"),
-                    name: $(e).html()
-                });
+                if (this.returnObject) {
+                    var value = {
+                        id: $(e).data("id"),
+                        name: $(e).find(".label").html()
+                    };
+                    values.push(value);
+                } else {
+                    values.push($(e).data("id"));
+                }
             });
             return values;
         }
@@ -142,6 +228,8 @@ var MultiSelect = function(id, label, max=10) {
         let elem = $(e.currentTarget);
         if (elem.hasClass("icon-close")) {
             elem.remove();
+            this.filter.focus();
+            this.doFilter();
         } else {
             let found = false;
             let newName = elem.children("span").html();
@@ -158,9 +246,12 @@ var MultiSelect = function(id, label, max=10) {
             });
             if (!found) {
                 this.filter.val("");
+                this.filter.focus();
+                elem.remove();
                 elem.addClass("icon-close");
-                $(".suggests").removeClass("open");
                 this.selected.append(elem);
+                this.tagEvents();
+                if (this.suggests.html()=="") this.suggests.removeClass("open");
             }
         }
     }

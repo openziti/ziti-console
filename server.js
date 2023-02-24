@@ -15,6 +15,7 @@ import https from 'https';
 import $RefParser from '@apidevtools/json-schema-ref-parser';
 import nodemailer from 'nodemailer';
 import {fileURLToPath} from 'url';
+import crypto from 'crypto';
 
 
 const __filename = fileURLToPath(import.meta.url);

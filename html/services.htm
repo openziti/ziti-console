@@ -11,7 +11,7 @@
             <span data-i18n="EdgeServices"></span>
         </div>
         {{html.line}}
-        {{html.submenu}}
+        {{html.tabServices}}
     </div>
     {{html.add}}
     {{html.search}}
@@ -50,7 +50,7 @@
             <div class="selector" data-id="{{id}}"></div>
         </div>
         <div class="col" data-id="{{id}}"><strong>{{name}}</strong></div>
-        <div class="col desktop" data-id="{{id}}">{{selector.roleAttributes}}</div>
+        <div class="col desktop" data-id="{{id}}">{{roles.roleAttributes}}</div>
         <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
@@ -195,7 +195,10 @@
             init: function() {                
                 schema.init("ConfigForm", "JSONView");
 
-                page.roles = new Selector("Roles","roles", null, "service-role-attributes");
+                page.roles = new MultiSelect("Roles", 10, true);
+                page.roles.addSource(new SelectSource("service-role-attributes", "", "id")); 
+                page.roles.init();
+
                 
                 page.configsObject = new Data("configs");
                 page.configsTypesObject = new Data("config-types");

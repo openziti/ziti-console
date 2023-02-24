@@ -183,8 +183,12 @@
             identityRoles: null,
             init: function() {
                 this.events();
-                page.identityRoles = new Selector("IDRoles","identities","identities");
-                page.identityRoles.init();
+
+                page.roles = new MultiSelect("IDRoles", 10, true);
+                page.roles.addSource(new SelectSource("identities", "@")); 
+                page.roles.addSource(new SelectSource("identity-role-attributes", "", "id")); 
+                page.roles.init();
+
                 page.filterObject = new Data("cas");
                 page.filterObject.init(true, true);
             }, 

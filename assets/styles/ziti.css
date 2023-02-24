@@ -1958,6 +1958,7 @@ path.green {
     border-bottom: solid #FFF 0px;
     opacity: 0;
     transition: var(--transition);
+    height: 0px;
 }
 
 .suggests.open {
@@ -1973,6 +1974,9 @@ path.green {
     padding-left: 10px;
     padding-bottom: 10px;
     padding-right: 10px;
+    height: auto;
+    max-height: 200px;
+    overflow-y: auto;
 }
 
 .suggests .suggest {

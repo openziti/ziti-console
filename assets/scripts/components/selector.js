@@ -136,7 +136,7 @@ var Selector = function(id, label, atType, hashType) {
                 $(e.currentTarget).remove();
             });
         } else {
-            var values = [];
+            var values = []; 
             selected.children().each(function(i, e) {
                 values[values.length] = $(e).data("id");
             });

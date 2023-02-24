@@ -11,7 +11,7 @@
             <span data-i18n="EdgeRouters"></span>
         </div>
         {{html.line}}
-        {{html.submenu}}
+        {{html.tabRouters}}
     </div>
     {{html.add}}
     {{html.search}}
@@ -132,9 +132,11 @@
             filterObject: null,
             roles: null,
             init: function() {
-                page.roles = new Selector("Roles","roles", null, "edge-router-role-attributes");
-                page.roles.isForceHash = false;
+
+                page.roles = new MultiSelect("Roles",  10, true);
+                page.roles.addSource(new SelectSource("edge-router-role-attributes", "", "id")); 
                 page.roles.init();
+
                 page.filterObject = new Data("edge-routers");
                 page.filterObject.init(true, true);
             }, 

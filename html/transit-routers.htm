@@ -2,16 +2,8 @@
     <div class="header">
         <div class="title">Manage <span data-bind="pageTitle"></span></div>
         <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
-        <div class="line"></div>
-        <div class="tabs">
-            <div class="tab" data-go="/identities">Identities</div>
-            <div class="tab" data-go="/recipes">Recipes</div>
-            <div class="tab" data-go="/edge-services">Services</div>
-            <div class="tab" data-go="/edge-routers">Edge Routers</div>
-            <div class="tab" data-go="/transit-routers">Transit Routers</div>
-            <div class="tab" data-go="/terminators">Terminators</div>
-            <div class="tab" data-go="/posture-checks">Posture Checks</div>
-        </div>
+        {{html.line}}
+        {{html.tabRouters}}
     </div>
     <div class="action icon-plus" data-action="add"></div>
     <div class="filters">
