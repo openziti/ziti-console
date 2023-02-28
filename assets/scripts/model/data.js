@@ -154,6 +154,7 @@ var Data = function(name, context) {
 				}
 			}
 			window.context.set(this.context, this.data);
+			if (page.loaded) page.loaded();
 			this.isFirstLoad = false;
 		}
 	};

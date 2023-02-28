@@ -34,10 +34,17 @@ var service = {
 						window.location = "/login?logout=true";
 					} else {
 						try {
-							if (e.responseJSON&&e.responseJSON.error!=null&&e.responseJSON.error.indexOf("credentials are invalid")>0) {
-								console.log("ERROR");
-								console.log(e.responseJSON);
-								window.location = "/login?logout=true";
+							if (e.responseJSON.errorObj && e.responseJSON.errorObj.code && e.responseJSON.errorObj.code=="SELF_SIGNED_CERT_IN_CHAIN") {
+								growler.error("Self Signed Certificate not allowed");
+								setTimeout(() => {
+									window.location = "/login";
+								}, 3000);
+							} else {
+								if (e.responseJSON&&e.responseJSON.error!=null&&e.responseJSON.error.indexOf("credentials are invalid")>0) {
+									console.log("ERROR");
+									console.log(e.responseJSON);
+									window.location = "/login?logout=true";
+								}
 							}
 						} catch (exc) {
 							console.log("ERROR CAUGHT");

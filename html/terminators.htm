@@ -1,30 +1,49 @@
     <!-- General Page Layout HTML -->  
     <div class="header">
-        <div class="title">Manage <span data-bind="pageTitle"></span></div>
-        <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
+        <div class="title">
+            <span data-i18n="Manage"></span> 
+            <span data-i18n="Terminators"></span>
+        </div>
+        <div class="bread">
+            <span data-i18n="ZitiNetwork"></span> 
+            <span class="secondary">/</span> 
+            <span data-i18n="Manage"></span> 
+            <span data-i18n="Terminators"></span>
+        </div>
+        <div class="line"></div>
+        <div class="tabs">
+            <div class="tab selected">
+                <span data-i18n="Manage"></span> 
+                <span data-i18n="Terminators"></span>
+            </div>
+        </div>
         {{html.line}}
         {{html.tabIdentities}}
-    </div>
-    <div class="action icon-plus" data-action="add"></div>
-    <div class="filters">
-        <input id="SearchFilter" data-defined="search" type="text" class="search" placeholder="Type to Filter" />
-        <div class="clear icon-clear" data-defined="clear"></div>
-        <div class="searchButton icon-search"></div>
-        <div class="counters"><span id="Start">-</span>-<span id="End">-</span> of <span id="Total">-</span></div>
-        <div class="navigate prev icon-prev disabled"></div>
-        <div class="navigate next icon-next disabled"></div>
-    </div>
+    </div>        
+    {{html.add}}
+    {{html.search}}
     <div class="area data" data-defined="table">
-        <div class="noitems"></div>
+        {{html.noitems}}
         <div class="table">
-            <div class="head grid six">
+            <div class="head grid columns">
                 <div class="col">
                     <div class="selector all"></div>
                 </div>
-                <div class="col">Router<div class="dragger"></div></div>
-                <div class="col">Service<div class="dragger"></div></div>
-                <div class="col" data-by="address">Address<div class="dragger"></div></div>
-                <div class="col desktop" data-by="createdAt">Created</div>
+                <div class="col">
+                    <span data-i18n="Router"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col">
+                    <span data-i18n="Service"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col" data-by="address">
+                    <span data-i18n="Address"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop" data-by="createdAt">
+                    <span data-i18n="Created"></span>
+                </div>
                 <div class="col"></div>
             </div>
             <div class="rows" data-defined="rows">
@@ -32,15 +51,20 @@
             </div>
         </div>
     </div>
-    <div class="nodata" data-defined="empty">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
+    <div class="nodata" data-defined="empty">
+        <span data-i18n="No"></span>
+        <span data-i18n="Terminators"></span>
+        <span data-i18n="NoneDefined"></span>
+        <span data-i18n="Terminator"></span>.
+    </div>
 
-    <div id="RowTemplate" class="row grid six template" data-defined="template">
+    <div id="RowTemplate" class="row grid columns template" data-defined="template">
         <div class="col">
             <div class="selector" data-id="{{id}}"></div>
         </div>
         <div class="col" data-id="{{id}}"><strong>{{router.name}}</strong></div>
-        <div class="col" data-id="{{id}}"><strong>{{service.name}}</strong></div>
-        <div class="col" data-id="{{id}}"><strong>{{address}}</strong></div>
+        <div class="col" data-id="{{id}}">{{service.name}}</div>
+        <div class="col" data-id="{{id}}">{{address}}</div>
         <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
@@ -56,26 +80,67 @@
     <div id="AddModal" class="modal box full">
         <div class="sized">
             <div class="close icon-close"></div>
-            <div class="title adding">Create <span data-bind="singular"></span></div>
-            <div class="subtitle adding">Add a New <span data-bind="singular"></span> by completing the following form</div>
-            <div class="title editing">Edit <span data-bind="singular"></span></div>
-            <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
-            <label for="Service">Service</label>
-            <select id="Services" data-bind="data.service"></select>
-            <label for="Routers">Router</label>
-            <select id="Routers" data-bind="data.router"></select>
-            <label for="Binding">Binding</label>
-            <input id="Binding" data-bind="data.binding" type="text" maxlength="500" placeholder="Enter a binding" />
-            <label for="Address">Address</label>
-            <input id="Address" data-bind="data.address" type="text" maxlength="500" placeholder="tcp://example:port" />
+            <div class="title adding">
+                <span data-i18n="Create"></span>
+                <span data-i18n="Terminator"></span>
+            </div>
+            <div class="subtitle adding">
+                <span data-i18n="AddNew"></span>
+                <span data-i18n="Terminator"></span>
+                <span data-i18n="ByComplete"></span>
+            </div>
+            <div class="title editing">
+                <span data-i18n="Edit"></span>
+                <span data-i18n="Terminator"></span>
+            </div>
+            <div class="subtitle editing">
+                <span data-i18n="Change"></span>
+                <span data-i18n="Terminator"></span>
+                <span data-i18n="Details"></span>
+            </div>
+
+            <label for="Service" data-i18n="Service"></label>
+            <div id="Service"></div>
+
+            <label for="Identity" data-i18n="Identity"></label>
+            <div id="Identity"></div>
+
+            <label for="Routers" data-i18n="Router"></label>
+            <div id="Routers"></div>
+
+            <label for="Binding" data-i18n="Binding"></label>
+            <input id="Binding" data-bind="data.binding" type="text" maxlength="500" data-i18n="EnterBinding"/>
+
+            <label for="Address" data-i18n="Address"></label>
+            <input id="Address" data-bind="data.address" type="text" maxlength="500" data-i18n="ExampleUrl" />
+
+            <div class="grid three">
+                <div>
+                    <label for="IdentitySecret" data-i18n="IdentitySecret"></label>
+                    <input id="IdentitySecret" data-bind="data.identitySecret" type="text" maxlength="500" data-i18n="EnterIdentitySecret" />
+                </div>
+                <div>
+                    <label for="Precedence" data-i18n="Precedence"></label>
+                    <input id="Precedence" data-bind="data.precedence" type="text" maxlength="500" data-i18n="EnterPrecedence" />
+                </div>
+                <div>
+                    <label for="Cost" data-i18n="Cost"></label>
+                    <input id="Cost" data-bind="data.cost" type="number" data-i18n="EnterCost" />
+                </div>
+            </div>
+
             <div id="TagArea" data-tagarea="service"></div>
             <div id="TagExtended"></div>
-            <div class="buttons">
-                <div class="linkButton closer">Oops, No get me out of here</div>
-                <div id="SaveButton" class="button" data-defined="save">Save</div>
-            </div>
+            
+            {{html.save}}
         </div>
 	</div>
+
+    <style>
+        .grid.columns {
+	        grid-template-columns: 50px auto 20% 20% 150px 50px;
+        }
+    </style>
     
     
     <script language="javascript" type="text/javascript">
@@ -85,57 +150,33 @@
                 singular: "Terminator"
             },
             filterObject: null,
-            edgeRoutersObject: null,
-            edgeServicesObject: null,
+            tags: null,
+            services: null,
+            identities: null,
+            routers: null,
             init: function() {
-                page.edgeRoutersObject = new Data("transit-routers");
-                page.edgeServicesObject = new Data("services");
+                page.services = new MultiSelect("Service");
+                page.services.isSingle = true;
+                page.services.addSource(new SelectSource("services"));
+                page.services.init();
+
+                page.identities = new MultiSelect("Identity");
+                page.identities.isSingle = true;
+                page.identities.addSource(new SelectSource("identities"));
+                page.identities.init();
+
+                page.routers = new MultiSelect("Routers");
+                page.routers.isSingle = true;
+                page.routers.addSource(new SelectSource("edge-routers"));
+                page.routers.init();
+
+
                 page.filterObject = new Data("terminators");
                 page.filterObject.paging.sort = "address";
                 page.filterObject.paging.searchOn = "address";
 
-                this.events();
-
-                page.edgeRoutersObject.init(true, false, true);
-                page.edgeServicesObject.init(true, false, true);
                 page.filterObject.init(true, true);
             }, 
-            events: function() {
-                context.addListener(page.edgeRoutersObject.name, page.edgeRoutersLoaded);
-                context.addListener(page.edgeServicesObject.name, page.edgeServicesLoaded);
-            },
-            edgeServicesLoaded: function(e) {
-                var select = document.getElementById("Services");
-                select.options = [];
-                var option = document.createElement("option");
-                option.value = "";
-                option.text = "Select A Service...";
-                select.add( option );
-                if (page.edgeServicesObject.data.length>0) {
-                    for (var i=0; i<page.edgeServicesObject.data.length; i++) {
-                        var option = document.createElement("option");
-                        option.value = page.edgeServicesObject.data[i].id;
-                        option.text = page.edgeServicesObject.data[i].name;
-                        select.add( option );
-                    }
-                }
-            },
-            edgeRoutersLoaded: function(e) {
-                var select = document.getElementById("Routers");
-                select.options = [];
-                var option = document.createElement("option");
-                option.value = "";
-                option.text = "Select A Router...";
-                select.add( option );
-                if (page.edgeRoutersObject.data.length>0) {
-                    for (var i=0; i<page.edgeRoutersObject.data.length; i++) {
-                        var option = document.createElement("option");
-                        option.value = page.edgeRoutersObject.data[i].id;
-                        option.text = page.edgeRoutersObject.data[i].name;
-                        select.add( option );
-                    }
-                }
-            },
             gridAction: function(e) {
                 var action = $(e.currentTarget).data("action");
                 var id = $(e.currentTarget).data("id");
@@ -145,12 +186,15 @@
             row: function(template, data) {
                 template = template.split("{{service.name}}").join(data.service.name);
                 template = template.split("{{router.name}}").join(data.router.name);
+                if (data.identity && data.identity.name) template = template.split("{{identity.name}}").join(data.identity.name);
                 return template;
             },
             edit: function(id) {
                 var detail = page.filterObject.details(id);
-                $("#Services").val(detail.service.id);
-                $("#Routers").val(detail.router.id);
+                page.services.val(detail.service);
+                page.routers.val(detail.router);
+                if (detail.identity && detail.identity) page.identities.val(detail.identity);
+                $("#Cost").val(detail.cost);
                 modal.show("AddModal");
             },
             save: function() {
@@ -159,8 +203,12 @@
                     if ($("#Routers").val().trim().length!==0) endpoint = $("#Protocol").val()+":"+$("#EndPointHost").val()+":"+$("#EndPointPort").val();
         
                     var obj = {
-                        service: $("#Services").val(),
-                        router: $("#Routers").val(),
+                        service: page.services.val(),
+                        router: page.routers.val(),
+                        identity: page.identities.val(),
+                        precedence: $("#Precedence").val(),
+                        identitySecret: $("#IdentitySecret").val(),
+                        cost: Number($("#Cost").val()),
                         binding: $("#Binding").val(),
                         address: $("#Address").val(),
                         tags: tags.val()

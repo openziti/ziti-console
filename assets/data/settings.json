@@ -5,6 +5,7 @@
     "location": "../ziti", 
     "port": 1408,
     "portTLS": 8443,
+    "rejectUnauthorized": false,
     "mail": { 
         "host": "",
         "port": 25,
@@ -13,5 +14,7 @@
             "user": "", 
             "pass": "" 
         }
-    }
+    },
+    "from": "",
+    "to": ""
 }

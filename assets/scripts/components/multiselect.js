@@ -192,6 +192,7 @@ var MultiSelect = function(id, max=10, freeform=false) {
     this.val = function(values) {
         if (values) {
             this.selected.empty();
+            if (this.isSingle) values = [values];
             for (let i=0; i<values.length; i++) {
                 var item = values[i];
                 var id = "";
@@ -200,8 +201,16 @@ var MultiSelect = function(id, max=10, freeform=false) {
                     id = item;
                     name = item;
                 } else {
-                    if (item.hasOwnProperty(source.variables.id)) id = item[id];
-                    if (item.hasOwnProperty(source.variables.name)) name = item[name];
+                    let source = null;
+                    if (this.datasources && this.datasources.length>0) {
+                        source = this.datasources[0];
+
+                        if (item.hasOwnProperty(source.variables.id)) id = item[source.variables.id];
+                        if (item.hasOwnProperty(source.variables.name)) name = item[source.variables.name];
+                    } else {
+                        id = item.id;
+                        name = item.name;
+                    }
                 }
                 this.selected.append(this.ItemHtml(id, name, "", true));
             }
@@ -220,7 +229,13 @@ var MultiSelect = function(id, max=10, freeform=false) {
                     values.push($(e).data("id"));
                 }
             });
-            return values;
+            if (values.length>0) {
+                if (this.isSingle) return values[0];
+                else return values;
+            } else {
+                if (this.isSingle) return null;
+                else return values;
+            }
         }
     }
 
@@ -231,6 +246,7 @@ var MultiSelect = function(id, max=10, freeform=false) {
             this.filter.focus();
             this.doFilter();
         } else {
+            if (this.isSingle) this.selected.empty();
             let found = false;
             let newName = elem.children("span").html();
             this.selected.children().each((i, e) => {
@@ -253,6 +269,7 @@ var MultiSelect = function(id, max=10, freeform=false) {
                 this.tagEvents();
                 if (this.suggests.html()=="") this.suggests.removeClass("open");
             }
+            if (this.isSingle) this.suggests.removeClass("open");
         }
     }
 

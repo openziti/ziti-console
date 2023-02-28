@@ -1,3 +1,11 @@
+# Release 2.6.1
+* Fix issue causing legacy settings to not load
+* Router creation defaults to Tunneler Enabled
+* Added Router Token and JWT
+* Added Reject Self Signed Certs options in settings.json
+* Added missing fields to terminators
+* Fix bug in new select control that made edits not work
+
 # Release 2.6.0
 * Update Multi Select Component for Attributes
 * Update Localization

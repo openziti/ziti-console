@@ -52,7 +52,6 @@ const zacVersion = "2.5.4";
 
 var serviceUrl = "";
 var baseUrl = "";
-var fabricUrl = "";
 var headerFile = __dirname+"/assets/templates/header.htm";
 var footerFile = __dirname+"/assets/templates/footer.htm";
 var header = fs.readFileSync(headerFile, 'utf8');
@@ -116,6 +115,8 @@ var port = initial.port;
 var portTLS = initial.portTLS;
 var updateSettings = initial.update;
 var settingsPath = initial.location;
+var rejectUnauthorized = false;
+var emailRegEx = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
 /**
  * Override Launch Settings
@@ -166,8 +167,9 @@ var templates = JSON.parse(fs.readFileSync(__dirname+settingsPath+'templates.jso
 console.log("Loading Settings File From: "+__dirname+settingsPath+'settings.json');
 var settings = JSON.parse(fs.readFileSync(__dirname+settingsPath+'settings.json', 'utf8'));
 
-port = settings.port;
-portTLS = settings.portTLS;
+if (settings.port && !isNaN(settings.port)) port = settings.port;
+if (settings.portTLS && !isNaN(settings.portTLS)) portTLS = settings.portTLS;
+if (settings.rejectUnauthorized && !isNaN(settings.rejectUnauthorized)) rejectUnauthorized = settings.rejectUnauthorized;
 
 if (process.env.PORT) port = process.env.PORT;
 if (process.env.PORTTLS) portTLS = process.env.PORTTLS;
@@ -202,6 +204,7 @@ for (var i=0; i<settings.edgeControllers.length; i++) {
 var transporter;
 
 if (settings.mail && settings.mail.host && settings.mail.host.trim().length>0) {
+	console.log("Setting up Mailer from "+settings.mail.host);
 	transporter = nodemailer.createTransport(settings.mail);
 }
 
@@ -291,7 +294,7 @@ function Authenticate(request) {
 		if (!serviceUrl||serviceUrl.trim().length==0&&request.session.serviceUrl) serviceUrl = request.session.serviceUrl;
 		log("Connecting to: "+serviceUrl+"/authenticate?method=password");
 		if (request.session.creds != null) {
-			external.post(serviceUrl+"/authenticate?method=password", {json: request.session.creds , rejectUnauthorized: false }, function(err, res, body) {
+			external.post(serviceUrl+"/authenticate?method=password", {json: request.session.creds , rejectUnauthorized: rejectUnauthorized }, function(err, res, body) {
 				if (err) {
 					log(err);
 					var error = "Server Not Accessible";
@@ -320,7 +323,7 @@ function Authenticate(request) {
  */
 function GetPath() {
 	return new Promise(function(resolve, reject) {
-		external.get(baseUrl+"/edge/management/v1/version", {rejectUnauthorized: false}, function(err, res, body) {
+		external.get(baseUrl+"/edge/management/v1/version", {rejectUnauthorized: rejectUnauthorized}, function(err, res, body) {
 			try {
 				var data = JSON.parse(body);
 				resolve(data.data.apiVersions["edge-management"].v1.path);
@@ -338,7 +341,7 @@ function GetPath() {
 app.post('/api/version', function(request, response) {
 	log("Checking Version: "+baseUrl+"/version");
 	if (baseUrl) {
-		external.get(baseUrl+"/version", {rejectUnauthorized: false}, function(err, res, body) {
+		external.get(baseUrl+"/version", {rejectUnauthorized: rejectUnauthorized}, function(err, res, body) {
 			if (err) log(err);
 			else {
 				try {
@@ -364,7 +367,7 @@ app.post("/api/reset", function(request, response) {
 		if (request.body.newpassword!=request.body.confirm) response.json({error: "Password does not match confirmation"});
 		else {
 			log("Connecting to: "+serviceUrl+"/current-identity/authenticators?filter=method=\"updb\"");
-			external.get(serviceUrl+"/current-identity/authenticators?filter=method=\"updb\"", {rejectUnauthorized: false, headers: { "zt-session": request.session.user }}, function(err, res, body) {
+			external.get(serviceUrl+"/current-identity/authenticators?filter=method=\"updb\"", {rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user }}, function(err, res, body) {
 				if (err) {
 					log(err);
 					var error = "Server Not Accessible";
@@ -384,7 +387,7 @@ app.post("/api/reset", function(request, response) {
 								username: data.data[0].username
 							}
 							log("Connecting to: "+serviceUrl+"/current-identity/authenticators/"+id);
-							external.put(serviceUrl+"/current-identity/authenticators/"+id, {json: params, rejectUnauthorized: false, headers: { "zt-session": request.session.user }}, function(err, res, body) {
+							external.put(serviceUrl+"/current-identity/authenticators/"+id, {json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user }}, function(err, res, body) {
 								if (err) {
 									log(err);
 									var error = "Server Not Accessible";
@@ -460,7 +463,7 @@ app.post("/api/controllerSave", function(request, response) {
 	} else {
 		var callUrl = url+ "/edge/management/v1/version";
 		log("Calling Controller: "+callUrl);
-		external.get(callUrl, {rejectUnauthorized: false, timeout: 5000}, function(err, res, body) {
+		external.get(callUrl, {rejectUnauthorized: rejectUnauthorized, timeout: 5000}, function(err, res, body) {
 			if (err) {
 				log("Add Controller Error");
 				log(err);
@@ -556,7 +559,7 @@ app.delete("/api/mfa", function(request, response) {
 	if (hasAccess(user)) {
 		var id = request.body.id;
 		Authenticate(request).then((result) => {
-			external.delete(serviceUrl+"/identities/"+id.trim()+"/mfa", {rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+			external.delete(serviceUrl+"/identities/"+id.trim()+"/mfa", {rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 				if (err) {
 					log("Error: "+JSON.stringify(body.err));
 					response.json({error: err});
@@ -580,7 +583,7 @@ app.delete("/api/mfa", function(request, response) {
 app.post("/api/call", function(request, response) {
 	log("Calling: "+serviceUrl+"/"+request.body.url);
 	Authenticate(request).then((results) => {
-		external.get(serviceUrl+"/"+request.body.url, {json: {}, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+		external.get(serviceUrl+"/"+request.body.url, {json: {}, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 			if (err) {
 				log("Error: "+JSON.stringify(err));
 				response.json({ error: err });
@@ -610,7 +613,7 @@ app.post("/api/data", function(request, response) {
 function DoCall(url, json, request, isFirst=true) {
 	return new Promise(function(resolve, reject) {
 		log("Calling: "+url+" "+isFirst+" "+request.session.user);
-		external.get(url, {json: json, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+		external.get(url, {json: json, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 			if (err) {
 				log("Server Error: "+JSON.stringify(err));
 				resolve({ error: err });
@@ -712,7 +715,7 @@ app.post("/api/subdata", function(request, response) {
 function GetSubs(url, type, id, parentType, request, response) {
 	log("Calling: "+serviceUrl+"/"+url);
 	Authenticate(request).then((results) => {
-		external.get(serviceUrl+"/"+url, {json: {}, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+		external.get(serviceUrl+"/"+url, {json: {}, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 			if (err) response.json({ error: err });
 			else {
 				log("Returned: "+JSON.stringify(body));
@@ -772,7 +775,7 @@ app.post("/api/dataSave", function(request, response) {
 								params.ids = objects[i][1];
 								log("Delete:"+serviceUrl+"/"+type+"/"+id.trim()+"/"+objects[i][0]);
 								log(JSON.stringify(params));
-								external.delete(serviceUrl+"/"+type+"/"+id.trim()+"/"+objects[i][0], {json: params, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {});
+								external.delete(serviceUrl+"/"+type+"/"+id.trim()+"/"+objects[i][0], {json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {});
 							}
 						}
 					}
@@ -787,7 +790,7 @@ app.post("/api/dataSave", function(request, response) {
 					}
 				}
 				console.log("Session: "+request.session.user);
-				external(url, {method: method, json: saveParams, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+				external(url, {method: method, json: saveParams, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 					if (err) HandleError(response, err);
 					else {
 						log(JSON.stringify(body));
@@ -802,7 +805,7 @@ app.post("/api/dataSave", function(request, response) {
 										log("Body: "+JSON.stringify(body.data));
 										log("Url: "+serviceUrl+"/"+type+"/"+id+"/"+objects[i][0]);
 										log("Objects: "+JSON.stringify({ ids: objects[i][1] }));
-										external.put(serviceUrl+"/"+type+"/"+id+"/"+objects[i][0], {json: { ids: objects[i][1] }, rejectUnauthorized: false, headers: { "zt-session": user } }, function(err, res, body) {
+										external.put(serviceUrl+"/"+type+"/"+id+"/"+objects[i][0], {json: { ids: objects[i][1] }, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": user } }, function(err, res, body) {
 											index++;
 											if (index==objects.length) {
 												if (chained) response.json(body.data);
@@ -844,7 +847,7 @@ app.post("/api/subSave", function(request, response) {
 			if (hasAccess(user)) {
 				log(url);
 				log("Sub Saving As: "+doing+" "+JSON.stringify(saveParams));
-				external(url, {method: doing, json: saveParams, rejectUnauthorized: false, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+				external(url, {method: doing, json: saveParams, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 					if (err) {
 						log(err);
 						response.json({ error: err });
@@ -866,7 +869,7 @@ app.post("/api/verify", function(request, response) {
 		var url = serviceUrl+"/cas/"+id+"/verify";
 		var user = request.session.user;
 		if (hasAccess(user)) {
-			external(url, {method: "POST", body: cert, rejectUnauthorized: false, headers: { "zt-session": request.session.user, "Content-Type": "text/plain" } }, function(err, res, body) {
+			external(url, {method: "POST", body: cert, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user, "Content-Type": "text/plain" } }, function(err, res, body) {
 				var result = JSON.parse(body);
 				if (err) {
 					log(err);
@@ -961,7 +964,7 @@ function DoDelete(type, ids, user, request, index) {
 function ProcessDelete(type, id, user, request, isFirst=true) {
 	return new Promise(function(resolve, reject) {
 		log("Delete: "+serviceUrl+"/"+type+"/"+id)
-		external.delete(serviceUrl+"/"+type+"/"+id, {json: {}, rejectUnauthorized: false, headers: { "zt-session": user } }, function(err, res, body) {
+		external.delete(serviceUrl+"/"+type+"/"+id, {json: {}, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": user } }, function(err, res, body) {
 			if (err) {
 				log("Err: "+err);
 				reject(err);
@@ -1205,7 +1208,7 @@ app.post("/api/execute", function(request, response) {
 
 function DoPatch(url, params, request) {
 	return new Promise(function(resolve, reject) {
-		external.put(url, { json: params, rejectUnauthorized: false, headers: { "zt-session": request.session.user }}, (err, results, body) => {
+		external.put(url, { json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user }}, (err, results, body) => {
 			resolve(body);
 		});
 	});
@@ -1213,7 +1216,7 @@ function DoPatch(url, params, request) {
 
 function DoPost(url, params, request) {
 	return new Promise(function(resolve, reject) {
-		external.post(url, { json: params, rejectUnauthorized: false, headers: { "zt-session": request.session.user }}, (err, results, body) => {
+		external.post(url, { json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user }}, (err, results, body) => {
 			resolve(body);
 		});
 	});
@@ -1369,14 +1372,41 @@ app.post("/api/message", function(request, response) {
 		body: "A "+type+" message was set to you by "+from+" at "+(new Date())+" with email "+email+": "+message,
 		subject: "NetFoundry Ziti - Message"
 	};
-
-	external.post("https://sendmail.netfoundry.io/message", {json: params, rejectUnauthorized: false }, function(err, res, body) {
-		if (err) response.json({ errors: err });
-		else {
-			if (body.error) response.json({ errors: body.error });
-			else response.json({ success: "Mail Sent" });
-		}
-	});
+	
+	if (transporter) {
+		var body = params.body;
+		var subject = params.subject;
+		var from = 'ziggy@zac.openziti.org';
+		var to = 'ziggy@zac.openziti.org';
+		if (settings.from && settings.from.match(emailRegEx)) from = settings.from;
+		if (settings.to && settings.to.match(emailRegEx)) to = settings.to;
+		var mailOptions = {
+			from: 'Ziggy <'+from+'>',
+			to: "jeremy.tellier@netfoundry.io",
+			subject: subject,
+			html: body
+		};
+		log(JSON.stringify(mailOptions));
+		transporter.sendMail(mailOptions, function(error, info){
+			if (error) {
+				log("Error: "+error);
+				response.json({ error: error });
+			} else {
+				if (info) {
+					log("Info: "+JSON.stringify(info));
+					response.json({ complete: info });
+				}
+			}
+		});
+	} else {
+		external.post("https://sendmail.netfoundry.io/message", {json: params, rejectUnauthorized: rejectUnauthorized }, function(err, res, body) {
+			if (err) response.json({ errors: err });
+			else {
+				if (body.error) response.json({ errors: body.error });
+				else response.json({ success: "Mail Sent" });
+			}
+		});
+	}
 });
 
 
@@ -1384,41 +1414,63 @@ app.post("/api/message", function(request, response) {
  * Send a message to NetFoundry to report errors or request features
  */
 app.post("/api/send", function(request, response) {
-	/*
 	if (transporter) {
-		var mailOptions = request.body;
-		mailOptions.text =
-	} else {
-		response.json({ error: "Mail Server Not Defined"});
-	}
-	var mailOptions = {
-		from: siteData.name+' <noreply@'+domainToSend+'>',
-		to: to,
-		subject: subject,
-		text: message.replace(regex, ""), 
-		html: message,
-		list: {
-			help: siteData.sitesupport+'?subject=help',
-			unsubscribe: {
-				url: 'https://'+domainToSend,
-				comment: 'Notification'
-			}
-		}  
-	};
-	transporter.sendMail(mailOptions, function(error, info){
-		if (error) Log("notifications", "notifications.SendEMail", "Error: "+error); 
-		if (info) Log("notifications", "notifications.SendEMail", "Success: "+JSON.stringify(info));
-		resolve(info);
-	});
-	*/
+		var codes = request.body.codes;
+		var attachements = request.body.attachments;
 
-	external.post("https://sendmail.netfoundry.io/send", {json: request.body, rejectUnauthorized: false }, function(err, res, body) {
-		if (err) response.json({ errors: err });
+		if (attachements.length!=codes.length) response.json({ complete: "Message Sent" });
 		else {
-			if (body.error) response.json({ errors: body.error });
-			else response.json({ success: "Mail Sent" });
+			var html = '';
+			for (var i=0; i<codes.length; i++) {
+				if (codes[i].indexOf("data:image/png;base64")==0) {
+					var name = attachements[i].filename.split('.jwt').join('');
+					html += '<h3>'+name+'</h3>';
+					html += '<img alt="QR '+name+'" src="'+codes[i]+'" style="display: block;"/>';
+				}
+			}
+			var body = '<html><body><center><h2>The Following Open Ziti Identities have been created for you</h2><div style="position:relative; display: inline-block">'+html+'</div></center></body></html>';
+			var subject = request.body.subject;
+			var to = request.body.to;
+			var from = 'ziggy@zac.openziti.org';
+			if (settings.from && settings.from.match(emailRegEx)) from = settings.from;
+			var mailOptions = {
+				from: 'Ziggy <'+from+'>',
+				to: [to],
+				subject: subject,
+				text: "Open Ziti Identities Attached",
+				html: body,
+				list: {
+					help: from+'?subject=help',
+					unsubscribe: {
+						comment: 'Account'
+					}
+				}
+			};
+			if (request.body.attachments) {
+				mailOptions.attachments = request.body.attachments;
+			}
+			log(JSON.stringify(mailOptions));
+			transporter.sendMail(mailOptions, function(error, info){
+				if (error) {
+					log("Error: "+error);
+					response.json({ error: error });
+				} else {
+					if (info) {
+						log("Info: "+JSON.stringify(info));
+						response.json({ complete: "Message Sent"  });
+					}
+				}
+			});
 		}
-	});
+	} else {
+		external.post("https://sendmail.netfoundry.io/send", {json: request.body, rejectUnauthorized: rejectUnauthorized }, function(err, res, body) {
+			if (err) response.json({ errors: err });
+			else {
+				if (body.error) response.json({ errors: body.error });
+				else response.json({ success: "Message Sent" });
+			}
+		});
+	}
 });
 
 /**
