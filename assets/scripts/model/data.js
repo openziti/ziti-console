@@ -180,7 +180,7 @@ var Data = function(name, context) {
 						row.html(row.html().split("{{"+prop+"}}").join(obj[prop]));
 						row.html(row.html().split("{{selector."+prop+"}}").join(SelectorStyles.format(obj[prop+"Display"])));
 						row.html(row.html().split("{{roles."+prop+"}}").join(SelectorStyles.format(obj[prop])));
-						if (row.html().indexOf("{{moment."+prop+"}}")>=0) row.html(row.html().split("{{moment."+prop+"}}").join(moment(obj[prop]).utc().fromNow()));
+						if (row.html().indexOf("{{moment."+prop+"}}")>=0) row.html(row.html().split("{{moment."+prop+"}}").join(moment(obj[prop]).utc().format("M/D/YYYY hh:mm A")));
 					}
 					row.attr("data-defined", "");
 					rows.append(row);

@@ -264,7 +264,7 @@
             },
             edit: function(id) {
                 var detail = page.filterObject.details(id);
-                page.jwts.val(detail.extJwt.allowedSigners);
+                if (detail.primary && detail.primary.extJwt) page.jwts.val(detail.primary.extJwt.allowedSigners);
                 modal.show("AddModal");
             },
             row: function(template, data) {

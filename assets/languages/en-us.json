@@ -25,6 +25,8 @@
     "EdgeRouter": "Edge Router",
     "Routers": "Routers",
     "TransitRouters": "Transit Routers",
+    "TransitRouter": "Transit Router",
+    "NoTraversal": "No Traversal",
     "ServiceRouterPolicies": "Service/Router Policies",
     "Terminators": "Terminators",
     "ConfigSchemas": "Config Schemas",

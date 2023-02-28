@@ -1,10 +1,10 @@
-var SelectSource = function(id, append="", name="name") {
+var SelectSource = function(id, append="", name="name", valId="id") {
     this.id = id;
     this.data = [];
     this.append = append;
     this.onLoaded = null;
     this.variables = {
-        id: "id",
+        valId: id,
         name: name
     };
 
@@ -87,11 +87,6 @@ var MultiSelect = function(id, max=10, freeform=false) {
     }
 
     this.onLoaded = function(source) {
-        if (this.isLoading) {
-            this.results = [];
-            this.isLoading = false;
-            this.suggests.empty();
-        }
         var data = source.data;
         for (let i=0; i<data.length; i++) {
             this.results.push(data[i]);
@@ -105,7 +100,7 @@ var MultiSelect = function(id, max=10, freeform=false) {
         if (this.results.length>0) {
             if (this.filter.is(":focus")) this.suggests.addClass("open");
         } else this.suggests.removeClass("open");
-        if (html=="") this.suggests.removeClass("open");
+        if (this.suggests.html()=="") this.suggests.removeClass("open");
         this.tagEvents();
     }
 
@@ -123,14 +118,18 @@ var MultiSelect = function(id, max=10, freeform=false) {
     this.keyup = function(e) {
         if (e && e.keyCode==13 && this.freeform) {
             let newVal = this.filter.val().trim();
-            if (newVal.length>0&&newVal.charAt(0)=="@") newVal = newVal.substr(1);
-            if (this.appendHash) newVal = "#"+newVal;
-            if (!this.isSelected(newVal)) {
-                var html = this.ItemHtml(newVal, newVal, "", true);
-                this.selected.append(html);
-                this.filter.val("");
-                this.keyup();
-                this.tagEvents();
+            if (newVal.length>0&&newVal.charAt(0)=="@") {
+                newVal = newVal.substr(1);
+                $("")
+            } else {
+                if (this.appendHash) newVal = "#"+newVal;
+                if (!this.isSelected(newVal)) {
+                    var html = this.ItemHtml(newVal, newVal, "", true);
+                    this.selected.append(html);
+                    this.filter.val("");
+                    this.keyup();
+                    this.tagEvents();
+                }
             }
         } else {
             if (this.filterId) {
@@ -144,8 +143,11 @@ var MultiSelect = function(id, max=10, freeform=false) {
     }
 
     this.doFilter = function() {
+        this.results = [];
+        this.suggests.empty();
         var search = this.filter.val().trim();
-        this.isLoading = true;
+        if (search.charAt(0)=="@") search = search.substr(1);
+        if (search.charAt(0)=="#") search = search.substr(1);
         for (var i=0; i<this.datasources.length; i++) {
             this.datasources[i].get(search);
         }
@@ -161,14 +163,19 @@ var MultiSelect = function(id, max=10, freeform=false) {
             id = item;
             name = item;
         } else {
-            if (item.hasOwnProperty(source.variables.id)) id = item[source.variables.id];
-            if (item.hasOwnProperty(source.variables.name)) name = item[source.variables.name];
+            if (item.role) id = item.role;
+            else if (item.id) id = item.id;
+            if (item.name) name = item.name;
         }
         name = source.append+name;
         return this.ItemHtml(id, name, tagType, isSelected);
     }
 
     this.ItemHtml = function(id, name, type, selected) {
+        if (name.charAt(0)=="@") type = "at";
+        else if (name.charAt(0)=="#") type = "hash";
+        if (type=="at" && id.charAt(0)!='@') id = "@"+id;
+        if (type=="#" && id.charAt(0)!='#') id = "#"+id;
         return '<div class="'+type+'tag tagButton'+((selected)?' icon-close':'')+'" data-id="'+id+'"><span class="label">'+name+'</span></div>';
     },
 
@@ -189,6 +196,18 @@ var MultiSelect = function(id, max=10, freeform=false) {
         return isSelect;
     }
 
+    this.getSource = function(name) {
+        var startChar = name.charAt(0);
+        let source = null;
+        if (startChar!="@" && startChar!="#")
+        for (var i=0; i<this.datasources.length; i++) {
+            let ds = this.datasources[i];
+            if (ds.append==startChar) return this.datasources[i];
+            else source = this.datasources[i];
+        }
+        return source;
+    }
+
     this.val = function(values) {
         if (values) {
             this.selected.empty();
@@ -202,14 +221,19 @@ var MultiSelect = function(id, max=10, freeform=false) {
                     name = item;
                 } else {
                     let source = null;
-                    if (this.datasources && this.datasources.length>0) {
-                        source = this.datasources[0];
-
-                        if (item.hasOwnProperty(source.variables.id)) id = item[source.variables.id];
-                        if (item.hasOwnProperty(source.variables.name)) name = item[source.variables.name];
-                    } else {
+                    if (item.id && item.name) {
                         id = item.id;
                         name = item.name;
+                    } else if (item.role && item.name) {
+                        id = item.role;
+                        name = item.name;
+                    } else {
+                        if (this.datasources && this.datasources.length>0) {
+                            source = this.getSource(item.name);
+    
+                            if (item.hasOwnProperty(source.variables.id)) id = item[source.variables.id];
+                            if (item.hasOwnProperty(source.variables.name)) name = item[source.variables.name];
+                        }
                     }
                 }
                 this.selected.append(this.ItemHtml(id, name, "", true));

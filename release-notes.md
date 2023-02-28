@@ -1,3 +1,8 @@
+# Release 2.6.2
+* Added missing fields to Transnit Router - Cost, noTraversal
+* Fix Broken Identity Selector
+* Fix Broken Default Auth Policy Loading
+
 # Release 2.6.1
 * Fix issue causing legacy settings to not load
 * Router creation defaults to Tunneler Enabled
