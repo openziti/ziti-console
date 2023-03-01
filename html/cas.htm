@@ -253,7 +253,7 @@
                 $("#SelectFile").hide();
                 if (detail.isOttCaEnrollmentEnabled) $("#IsEnrollmentEnabled").addClass("on");
                 if (detail.isAuthEnabled) $("#IsAuthEnabled").addClass("on");
-                page.identityRoles.val(detail.identityRoles);
+                if (detail.identityRoles) page.identityRoles.val(detail.identityRoles);
                 modal.show("AddModal");
             },
             save: function() {

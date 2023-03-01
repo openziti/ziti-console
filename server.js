@@ -48,7 +48,7 @@ if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'un
 	await ziti.init( zitiIdentityFile ).catch(( err ) => { process.exit(); }); // Authenticate ourselves onto the Ziti network using the specified identity file
 }
 
-const zacVersion = "2.5.4";
+const zacVersion = fs.readFileSync("./version.txt", 'utf8');
 
 var serviceUrl = "";
 var baseUrl = "";

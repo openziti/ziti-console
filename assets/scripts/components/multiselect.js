@@ -116,11 +116,18 @@ var MultiSelect = function(id, max=10, freeform=false) {
     }
 
     this.keyup = function(e) {
+        let newVal = this.filter.val().trim();
         if (e && e.keyCode==13 && this.freeform) {
-            let newVal = this.filter.val().trim();
             if (newVal.length>0&&newVal.charAt(0)=="@") {
-                newVal = newVal.substr(1);
-                $("")
+                this.suggests.children().each((i, e) => {
+                    if ($(e).find(".label").html()==newVal) {
+                        var html = this.ItemHtml($(e).data("id"), newVal, "", true);
+                        this.selected.append(html);
+                        this.filter.val("");
+                        this.keyup();
+                        this.tagEvents();
+                    }
+                });
             } else {
                 if (this.appendHash) newVal = "#"+newVal;
                 if (!this.isSelected(newVal)) {
@@ -132,13 +139,20 @@ var MultiSelect = function(id, max=10, freeform=false) {
                 }
             }
         } else {
+            this.suggests.children().each((i, e) => {
+                if ($(e).find(".label").html().indexOf(newVal)>=0) {
+                    $(e).show();
+                } else {
+                    $(e).hide();
+                }
+            });
             if (this.filterId) {
                 clearTimeout(this.filterId);
                 this.filterId = null;
             } 
             this.filterId = setTimeout(() => {
                 this.doFilter();
-            }, 1000);
+            }, 300);
         }
     }
 
