@@ -1,4 +1,4 @@
-# Release 2.6.2
+# Release 2.6.3
 * Fixed CAS Issue with identityRoles
 * Fixed Version Display
 * Fixed Search and Select on Multi Selector Control
