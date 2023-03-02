@@ -10,6 +10,7 @@
     "AppName": "Ziti Console",
     "Dashboard": "Dashboard",
     "Identities": "Identities",
+    "Recipe": "Recipe",
     "Recipes": "Recipes",
     "Services": "Services",
     "Service": "Service",
@@ -17,6 +18,7 @@
     "EdgeServices": "Edge Services",
     "Binding": "Binding",
     "Router": "Router",
+    "RecipeDefined": "The intent of recipes is to setup a template for creating multiple identities with access to various service policies and roles at one time.",
 
     "ServiceConfigurations": "Service Configurations",
     "ServicePolicies": "Service Policies",
@@ -119,6 +121,7 @@
     "Change": "Change the",
     "Details": "Details",
     "ToDo": "To Do",
+    "AppData": "App Data",
     "IdentityRoles": "Identity Roles",
     "PastePEM": "paste pem contents or select a file",
     "Save": "Save",

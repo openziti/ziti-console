@@ -103,6 +103,7 @@ var growler = {
 		growler.show("success", locale.get("GrowlerSuccess"), subtitle, message);
   },
   form: function() {
+    $('.modal.open').animate({scrollTop: "0px"}, 500);
     growler.error(locale.get("GrowlerInvalid"), locale.get("TryAgain"))
   }
 }

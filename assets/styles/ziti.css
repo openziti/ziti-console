@@ -409,6 +409,20 @@ aside .icon {
     background-color: var(--stroke);
 }
 
+.table {
+    margin-bottom: 60px;
+}
+
+.blurb {
+    padding: 10px;
+    background-color: #ffcc33;
+    border-radius: 7px;
+    border-color: #cc3300;
+    border-width: 2px;
+    border-style: solid;
+    margin-top: 8px;
+}
+
 .tabs {
     position: relative;
     display: inline-block;

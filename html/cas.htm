@@ -23,7 +23,7 @@
     <div class="area data" data-defined="table">
         {{html.noitems}}
         <div class="table">
-            <div class="head grid eight">
+            <div class="head grid columns">
                 <div class="col">
                     <div class="selector all"></div>
                 </div>
@@ -47,6 +47,10 @@
                     <span data-i18n="Auth"></span>
                     <div class="dragger"></div>
                 </div>
+                <div class="col desktop">
+                    <span data-i18n="JWT"></span>
+                    <div class="dragger"></div>
+                </div>
                 <div class="col desktop sort" data-by="dateCreated">
                     <span data-i18n="Created"></span>
                 </div>
@@ -67,7 +71,7 @@
 
 
     <!-- Template HTML will be used to display rows of data -->
-    <div id="RowTemplate" class="row grid eight template" data-defined="template">
+    <div id="RowTemplate" class="row grid columns template" data-defined="template">
         <div class="col">
             <div class="selector" data-id="{{id}}"></div>
         </div>
@@ -76,6 +80,7 @@
         <div class="col desktop" data-id="{{id}}">{{isAutoCaEnrollmentEnabled}}</div>
         <div class="col desktop" data-id="{{id}}">{{isOttCaEnrollmentEnabled}}</div>
         <div class="col desktop" data-id="{{id}}">{{isAuthEnabled}}</div>
+        <div class="col desktop" data-id=""{{id}}>{{token}}</div>
         <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
@@ -177,6 +182,12 @@
         </div>
     </div>
 
+    <style>
+        .columns {
+            grid-template-columns: 50px 200px auto 15% 15% 15% 100px 15% 50px;
+        }
+    </style>
+    
     <script language="javascript" type="text/javascript">
         page = {
             filterObject: null,
@@ -206,9 +217,32 @@
                 growler.info("Code: "+$("#VerificationCode").val()+" copied to clipboard");
             },
             row: function(template, data) {
-                if (data.isVerified) template = template.split("{{hiddenClass}}").join("hidden");
-                else template = template.split("{{hiddenClass}}").join("");
+                let token = "";
+                if (data.isVerified) {
+                    template = template.split("{{hiddenClass}}").join("hidden");
+                    token = '<span class="cert" data-id="'+data.id+'"></span>';
+                } else {
+                    template = template.split("{{hiddenClass}}").join("");
+                    token = "-";
+                }
+                template = template.split("{{token}}").join(token);
                 return template;
+            },
+            loaded: function() {
+                $(".cert").click(page.getCert);
+            },
+            getCert: function(e) {
+                var id = $(e.currentTarget).data("id");
+                service.call("jwt", { id: id, type: "cas"}, (e) => {
+                    console.log(e);
+                    var element = document.createElement('a');
+                    element.setAttribute('href', 'data:application/ziti-jwt;charset=utf-8,' + encodeURIComponent(e.jwt));
+                    element.setAttribute('download', e.id+".jwt");
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
+                });
             },
             gridAction: function(e) {
                 var action = $(e.currentTarget).data("action");
@@ -251,9 +285,10 @@
                 var detail = page.filterObject.details(id);
                 $("#Pem").attr("readonly",true);
                 $("#SelectFile").hide();
-                if (detail.isOttCaEnrollmentEnabled) $("#IsEnrollmentEnabled").addClass("on");
+                if (detail.isAutoCaEnrollmentEnabled) $("#IsAutoEnrollmentEnabled").addClass("on");
+                if (detail.isOttCaEnrollmentEnabled) $("#IsOTTEnrollmentEnabled").addClass("on");
                 if (detail.isAuthEnabled) $("#IsAuthEnabled").addClass("on");
-                if (detail.identityRoles) page.identityRoles.val(detail.identityRoles);
+                if (detail.identityRoles) page.identityRoles.val(detail.identityRoles); 
                 modal.show("AddModal");
             },
             save: function() {

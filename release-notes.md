@@ -1,3 +1,11 @@
+# Release 2.6.4
+* Give appData field to Identity object
+* Provide a means to push z zt-session and controller to auto login ZAC using /sso?controller=[http://yourcontroller:8441]&session=[zt-session]
+* Fix various style issues
+* Expose Certificate Authority JWT Download
+* Fix CAS Switch editing
+* Create "Notes" section for Recipe documentation (and others)
+
 # Release 2.6.3
 * Fixed CAS Issue with identityRoles
 * Fixed Version Display

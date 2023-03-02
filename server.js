@@ -252,7 +252,23 @@ for (var i=0; i<pages.length; i++) {
 
 /**------------- Authentication Section -------------**/
 
-
+app.get("/sso", (request, response) => {
+	var controller = request.query.controller;
+	var session = request.query.session;
+	baseUrl = controller;
+	request.session.baseUrl = baseUrl;
+	GetPath().then((prefix) => {
+		serviceUrl = baseUrl+prefix;
+		request.session.serviceUrl = serviceUrl;
+		request.session.user = session
+		request.session.authorization = 100;
+		console.log(baseUrl, request.session.user);
+		response.redirect("/");
+	}).catch((error) => {
+		console.log(error);
+		response.redirect("/login");
+	});
+});
 
 /**
  * Just tests if the user exists as a session or not, would add on to validate roles, etc if the system is expanded to 
@@ -306,7 +322,6 @@ function Authenticate(request) {
 						if (body.data&&body.data.token) {
 							request.session.user = body.data.token;
 							request.session.authorization = 100;
-							console.log(body.data.token);
 							resolve( {success: "Logged In"} );
 						} else resolve( {error: "Invalid Account"} );
 					}
@@ -628,7 +643,7 @@ function DoCall(url, json, request, isFirst=true) {
 						});
 					} else resolve(body);
 				} else if (body.data) {
-					log("Items: "+body.data.length);
+					log("Items Returned: "+body.data.length);
 					resolve(body);
 				} else {
 					log("No Items");
@@ -729,6 +744,18 @@ function GetSubs(url, type, id, parentType, request, response) {
 		});
 	});
 }
+
+app.post("/api/jwt", function(request, response) {
+	var id = request.body.id;
+	var type = request.body.type;
+	Authenticate(request).then((results) => {
+		var url = serviceUrl+"/"+type+"/"+id+"/jwt";
+		log("Calling: "+url);
+		external.get(url, {json: {}, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+			response.json({id: id, jwt: body});
+		});
+	});
+});
 
 
 
