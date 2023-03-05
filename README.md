@@ -39,5 +39,5 @@ The server will set up an HTTPS redirection service if the hard-coded certificat
             -v "path-to-server.chain.pem":/usr/src/app/server.chain.pem \
             openziti/zac 
 
-## [Install with Helm in Kubernetes](https://docs.openziti.io/docs/guides/kubernetes/stack/kubernetes-console)
+## [Install with Helm in Kubernetes](https://docs.openziti.io/docs/guides/kubernetes/hosting/kubernetes-console)
 
