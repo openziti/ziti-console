@@ -43,8 +43,11 @@ try {
 	}
 }
 
-
+var zitified = false;
 if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'undefined')) {
+	zitified = true;
+}
+if (zitified) {
 	await ziti.init( zitiIdentityFile ).catch(( err ) => { process.exit(); }); // Authenticate ourselves onto the Ziti network using the specified identity file
 }
 
@@ -79,12 +82,10 @@ var errors = {
 /**
  * Define Express Settings
  */
-var app = express();
+var app = express();								// using raw  networking
 
-if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'undefined')) {
+if (zitified) {
 	app = ziti.express( express, zitiServiceName );	// using Ziti networking
-} else {
-	app = express();								// using raw  networking
 }
 
 app.use('/assets', express.static('assets'));
@@ -1534,18 +1535,24 @@ app.use((err, request, response, next) => {
 });
 
 function StartServer(startupPort) {
-	app.listen(startupPort, function() {
-		console.log("Ziti Server running on port "+startupPort);
-	}).on('error', function(err) {
-		if (err.code=="EADDRINUSE") {
-			maxAttempts--;
-			console.log("Port "+startupPort+" In Use, Attempting new port "+(startupPort+1));
-			startupPort++;
-			if (maxAttempts>0) StartServer(startupPort);
-		} else {
-			console.log("All Ports in use "+port+" to "+startupPort);
-		}
-	 });
+	if (zitified) {
+		app.listen(undefined, function() {
+			console.log("Ziti Admin Console is now listening for incoming Ziti Connections");
+		});
+	} else {
+		app.listen(startupPort, function() {
+			console.log("Ziti Admin Console is now listening on port "+startupPort);
+		}).on('error', function(err) {
+			if (err.code=="EADDRINUSE") {
+				maxAttempts--;
+				console.log("Port "+startupPort+" In Use, Attempting new port "+(startupPort+1));
+				startupPort++;
+				if (maxAttempts>0) StartServer(startupPort);
+			} else {
+				console.log("All Ports in use "+port+" to "+startupPort);
+			}
+		});
+	}
 }
 
 /**
