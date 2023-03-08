@@ -1,6 +1,6 @@
 {
   "name": "io.netfoundry.zac",
-  "version": "2.6.6",
+  "version": "2.6.7",
   "description": "Ziti Administration Console",
   "main": "server.js",
   "type": "module",
@@ -46,7 +46,7 @@
   },
   "license": "Apache-2.0",
   "optionalDependencies": {
-    "@openziti/ziti-sdk-nodejs": "^0.9.0"
+    "@openziti/ziti-sdk-nodejs": "^0.13.3"
   },
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^10.0.1",
