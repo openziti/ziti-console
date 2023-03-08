@@ -1527,6 +1527,7 @@ app.use((err, request, response, next) => {
 		if (err.toString().indexOf("Error: EPERM: operation not permitted, rename")==0) {
 			// Ignoring chatty session-file warnings
 		} else console.err(err);
+		next();
 	} else {  
 		next();
 	} 

@@ -1,3 +1,6 @@
+# Release 2.6.5
+* Skip Error and Continue
+
 # Release 2.6.4
 * Give appData field to Identity object
 * Provide a means to push z zt-session and controller to auto login ZAC using /sso?controller=[http://yourcontroller:8441]&session=[zt-session]
