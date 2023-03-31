@@ -1,3 +1,6 @@
+# Release 2.6.8
+* Fix Time Zone Showing
+
 # Release 2.6.7
 * New Dashboard Stage 1
 * Fix Cors/Helmet Settings
