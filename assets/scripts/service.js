@@ -6,7 +6,6 @@ var service = {
 	call: function(name, params, returnTo, type) {
 		if (!type) type = "POST";
 		var paramString = JSON.stringify(params);
-		console.log(service.host+service.base+"/"+name);
 		$.ajax({
 			type: type,
 			contentType: "application/json",

@@ -82,7 +82,6 @@ var context = {
 				try {
 					calls[i]({ id: id, data: obj });
 				} catch (e) {
-					if (console) console.log("Call: "+obj+" is not a function");
 				}
 			}
 		}

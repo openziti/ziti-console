@@ -76,8 +76,7 @@
         </div>
     </div>
 
-    <div id="OverrideModal" class="modal box full">
-        <div class="sized">
+    <div id="OverrideModal" class="modal box full"> 
             <div class="close icon-close"></div>
             <div class="title">Identity Overrides</div>
             <div class="subtitle">Manage the Service Config Identity Overrides</div>
@@ -106,83 +105,90 @@
 
 	<!-- Modification Modals -->
 	<div id="AddModal" class="modal box full">
-        <div class="sized">
+        <div class="sized large">
             <div class="close icon-close"></div>
             <div class="title adding">Create <span data-bind="singular"></span></div>
             <div class="subtitle adding">Add a New <span data-bind="singular"></span></div>
             <div class="title editing">Edit <span data-bind="singular"></span></div>
             <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
-            <label for="Name">Name</label>
-            <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
-            <label for="Roles">Role Attributes</label>
-            <div id="Roles"></div>
-            <div id="MFAArea">
-                <label for="MFA">MFA Enabled</label>
-                <div id="ToggleMFA" class="toggle on"><div class="switch"></div><div class="label"></div></div> <span class="sidenote">Click To Remove</span>
-            </div>
             <div class="grid split">
                 <div>
-                    <label for="Environment" class="editing">Environment</label>
-                    <div id="Environment" class="editing"></div>
+                    <label for="Name">Name</label>
+                    <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
+                    <label for="Roles">Role Attributes</label>
+                    <div id="Roles"></div>
+                    <div id="MFAArea">
+                        <label for="MFA">MFA Enabled</label>
+                        <div id="ToggleMFA" class="toggle on"><div class="switch"></div><div class="label"></div></div> <span class="sidenote">Click To Remove</span>
+                    </div>
+                    <div class="split unsplit">
+                        <div>
+                            <label for="IdentityType">Identity Type</label>
+                            <select id="IdentityType" data-default="Device" data-enter="SaveButton">
+                                <option value="Device" selected>Device</option>
+                                <option value="Service">Service</option>
+                                <option value="User">User</option>
+                            </select>
+                        </div>
+                        <div id="UserArea" style="display:none;">
+                            <label>Is this User an Admin?</label>
+                            <div id="IsAdmin" class="toggle">
+                                <div class="switch"></div>
+                                <div class="label"></div>
+                            </div>
+                        </div>
+                    </div> 
+                    <div class="split unsplit">
+                        <div>
+                            <label for="Enrollment">Enrollment Type</label>
+                            <select id="EnrollmentType" data-bind="data.enrollmentType" data-default="ott" data-enter="SaveButton">
+                                <option value="ott" selected>One Time Token</option>
+                                <option value="CA">Certificate Authority</option>
+                                <option value="updb">UPDB</option>
+                            </select>
+                        </div>
+                        <div id="CertAuthoritiesArea" style="display:none">
+                            <label for="Authorities">Certificate Authority</label>
+                            <select id="Authorities" data-enter="SaveButton"></select>
+                        </div>
+                        <div id="UpDbArea" style="display:none">
+                            <label for="UPDBName">UPDB Username</label>
+                            <input id="UPDBName" data-bind="data.enrollment.updb" type="text" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
+                        </div>
+                    </div>
+                    <div class="grid split">
+                        <div>
+                            <label for="AuthPolicy" data-i18n="AuthPolicy"></label>
+                            <select id="AuthPolicy" data-bind="data.authPolicyId"></select>
+                        </div>
+                        <div>
+                            <label for="ExternalId" data-i18n="ExternalId"></label>
+                            <input id="ExternalId" data-bind="data.externalId" type="text" maxlength="500" data-i18n="EnterExternal" />
+                        </div>
+                    </div>
+                    <div id="TagArea" data-tagarea="identity"></div>
+                    <div id="TagExtended"></div>
                 </div>
                 <div>
-                    <label for="SdkInfo" class="editing">Sdk</label>
-                    <div id="SdkInfo" class="editing"></div>
-                </div>
-            </div>
-            <label for="AppData" class="editing" data-i18n="AppData"></label>
-            <textarea id="AppData"></textarea>
-            <label for="Services" class="editing">Services<div class="info">click a service to test connection</div></label>
-            <div id="Services" class="row editing"></div>
-            <label for="ServiceIssues" class="issues"><span id="ServiceClicked"></span> Connection Issues</label>
-            <div id="ServiceIssues" class="issues"></div>
-            <div class="split unsplit">
-                <div>
-                    <label for="IdentityType">Identity Type</label>
-                    <select id="IdentityType" data-default="Device" data-enter="SaveButton">
-                        <option value="Device" selected>Device</option>
-                        <option value="Service">Service</option>
-                        <option value="User">User</option>
-                    </select>
-                </div>
-                <div id="UserArea" style="display:none;">
-                    <label>Is this User an Admin?</label>
-                    <div id="IsAdmin" class="toggle">
-                        <div class="switch"></div>
-                        <div class="label"></div>
+                    <div class="darkened">
+                        <div>
+                            <label for="Environment" class="editing">Environment</label>
+                            <div id="Environment" class="editing configBox"></div>
+                        </div>
+                        <div>
+                            <label for="SdkInfo" class="editing">Sdk</label>
+                            <div id="SdkInfo" class="editing configBox"></div>
+                        </div>
+                        <label for="Services" class="editing">Services<div class="info">click a service to test connection</div></label>
+                        <div id="Services" class="row editing configBox"></div>
+                        <label for="ServiceIssues" class="issues"><span id="ServiceClicked"></span> Connection Issues</label>
+                        <div id="ServiceIssues" class="issues configBox"></div>
+                        <label for="AppData" data-i18n="AppData"></label>
+                        <textarea id="AppData"></textarea>
                     </div>
                 </div>
             </div>
-            <div class="split unsplit">
-                <div>
-                    <label for="Enrollment">Enrollment Type</label>
-                    <select id="EnrollmentType" data-bind="data.enrollmentType" data-default="ott" data-enter="SaveButton">
-                        <option value="ott" selected>One Time Token</option>
-                        <option value="CA">Certificate Authority</option>
-                        <option value="updb">UPDB</option>
-                    </select>
-                </div>
-                <div id="CertAuthoritiesArea" style="display:none">
-                    <label for="Authorities">Certificate Authority</label>
-                    <select id="Authorities" data-enter="SaveButton"></select>
-                </div>
-                <div id="UpDbArea" style="display:none">
-                    <label for="UPDBName">UPDB Username</label>
-                    <input id="UPDBName" data-bind="data.enrollment.updb" type="text" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
-                </div>
-            </div>
-            <div class="grid split">
-                <div>
-                    <label for="AuthPolicy" data-i18n="AuthPolicy"></label>
-                    <select id="AuthPolicy" data-bind="data.authPolicyId"></select>
-                </div>
-                <div>
-                    <label for="ExternalId" data-i18n="ExternalId"></label>
-                    <input id="ExternalId" data-bind="data.externalId" type="text" maxlength="500" data-i18n="EnterExternal" />
-                </div>
-            </div>
-            <div id="TagArea" data-tagarea="identity"></div>
-            <div id="TagExtended"></div>
+           
             <div class="buttons">           
                 <div class="linkButton closer">Oops, No get me out of here</div>
                 <div id="SaveButton" class="button" data-defined="save">Save</div>
@@ -231,7 +237,6 @@
                 page.servicesObject = new Data("services");
                 page.configsObject = new Data("configs");
                 page.filterObject = new Data("identities");
-                page.idServices = new Data("services","idservices");
 
                 page.events();
 
@@ -239,8 +244,6 @@
                 page.servicesObject.init(true);
                 page.configsObject.init(true);
                 page.filterObject.init(true, true); 
-                page.idServices.init();
-                page.idServices.closeModals = false;
 
                 page.authPolicies = new Data("auth-policies");
                 page.authPolicies.init(false, false, true);
@@ -253,7 +256,6 @@
                 context.addListener(page.casObject.name, page.casLoaded);
                 context.addListener(page.servicesObject.name, page.servicesLoaded);
                 context.addListener(page.configsObject.name, page.configsLoaded);
-                context.addListener("idservices", page.idServicesLoaded);
                 $("#IdentityType").change(page.toggleUserType);
                 $("#EnrollmentType").change(page.toggleType);
                 $("#AssociateButton").click(page.addOveride);
@@ -384,6 +386,7 @@
                 $("#EnrollmentType").attr("disabled", true);
                 $("#Authorities").attr("disabled", true);
                 $("#CertAuthoritiesArea").parent().addClass("unsplit");
+                page.filterObject.getSubs(detail, "services", page.idServicesLoaded);
                 if (detail.isMfaEnabled) {
                     $("#MFAArea").show();
                     $("#ToggleMFA").addClass("on");
@@ -436,8 +439,6 @@
                     $(area).hide();
                 }                 
                 $("#Services").html("Loading...");
-                page.idServices.params["asIdentity"] = id;
-                page.idServices.get();
                 var appData = JSON.stringify(detail.appData);
                 if (appData.length>0) {
                     page.appData.setValue(appData);

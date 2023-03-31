@@ -133,6 +133,12 @@
 	column-gap: 10px;
 }
 
+.grid.split.wide {
+	grid-template-columns: auto 49%;  
+	column-gap: 20px;
+    z-index: 10;
+}
+
 .grid.fived {
 	grid-template-columns: 50px 150px 150px auto 50px;
 }
@@ -156,6 +162,25 @@
 
 .grid.six {
 	grid-template-columns: 50px auto 20% 20% 150px 50px;
+}
+
+.grid.dashboard {
+	margin-top: 20px;
+	grid-template-columns: auto 20%;
+	column-gap: 20px;
+}
+
+.grid.numbers {
+    grid-template-columns: 50px 15% auto 15% 15% 15% 15%;
+    column-gap: 20px;
+    border-width: 3px;
+	border-style: solid;
+    border-color: var(--white);
+    background-color: rgba(255,255,255,0.6);
+    padding: 22px;
+    border-radius: 12px;
+    z-index: 10;
+    box-shadow: var(--shadowLarge);
 }
 
 .grid.seven {

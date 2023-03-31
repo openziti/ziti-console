@@ -39,7 +39,8 @@
     "RecentNotifications": "Recent Notifications",
     "ClearNotifications": "Clear Notifications",
     "Info": "Administer your NetFoundry Ziti Virtual Network with Ziti Admin console",
-    
+    "Docs": "Docs",
+    "Downloads": "Downloads",
     "AddTitle": "What would you like to add?",
     "AddIdentity": "Add a New<br/>Identity",
     "AddRouter": "Add a New<br/>Router",

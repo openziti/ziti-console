@@ -358,8 +358,9 @@ var Data = function(name, context) {
 		if (this.editId.trim().length>0) params.id = this.editId;
 		service.call("dataSave", params, this.loaded.bind(this));
 	};
-	this.getSubs = function(detail, type) {		
-		service.call("subdata", { url: detail._links[type].href, name: this.name, type: type }, this.subLoaded.bind(this));
+	this.getSubs = function(detail, type, callAfter) {
+		if (!callAfter) callAfter = this.subLoaded.bind(this);
+		service.call("subdata", { url: detail._links[type].href, name: this.name, type: type }, callAfter);
 	};
 	this.subLoaded = function(e) {
 		if (e.error) growler.error("Error", e.error);

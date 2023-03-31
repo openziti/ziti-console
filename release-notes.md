@@ -1,3 +1,8 @@
+# Release 2.6.7
+* New Dashboard Stage 1
+* Fix Cors/Helmet Settings
+* Split Organization of Identity Details
+
 # Release 2.6.5
 * Skip Error and Continue
 

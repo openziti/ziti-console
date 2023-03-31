@@ -87,12 +87,32 @@ var app = express();								// using raw  networking
 if (zitified) {
 	app = ziti.express( express, zitiServiceName );	// using Ziti networking
 }
+var corsOptions = {
+  origin: '*',
+  optionsSuccessStatus: 200
+}
+var helmetOptions = {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'", 'www.googletagmanager.com', 'openstreetmap.org'],
+        styleSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', "'unsafe-inline'"],
+        scriptSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', "'unsafe-inline'", "'unsafe-eval'"],
+        imgSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', 'b.tile.opernstreetmap.org', 'data:', 'blob:', 'https:'],
+        connectSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', 'ws:', 'wss:'],
+        frameSrc: ["'self'", 'www.googletagmanager.com', 'openstreetmap.org'],
+        frameAncestors: ["'self'", 'www.googletagmanager.com', 'openstreetmap.org'],
+        mediaSrc: ["'self'", 'www.googletagmanager.com', 'openstreetmap.org', 'data:', 'blob:', 'https:'],
+      },
+    },
+    frameguard: { action: 'SAMEORIGIN' },
+	crossOriginEmbedderPolicy: false
+};
 
 app.use('/assets', express.static('assets'));
-app.use(cors());
-app.use(helmet());
+app.use(cors(corsOptions));
+app.use(helmet(helmetOptions));
 app.use(function(req, res, next) {
-    res.setHeader("Content-Security-Policy", "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://cdn.jsdelivr.net http://maxcdn.bootstrapcdn.com https://cdn.jsdelivr.net http://cdnjs.cloudflare.com https://cdnjs.cloudflare.com https://cdnjs.com https://apis.google.com https://ajax.googleapis.com https://fonts.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com http://www.googletagmanager.com; object-src 'none'; form-action 'none'; frame-ancestors 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://maxcdn.bootstrapcdn.com http://maxcdn.bootstrapcdn.com http://cdn.jsdelivr.net https://cdnjs.com https://fonts.googleapis.com");
+    // res.setHeader("Content-Security-Policy", "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://cdn.jsdelivr.net http://maxcdn.bootstrapcdn.com https://cdn.jsdelivr.net http://cdnjs.cloudflare.com https://cdnjs.cloudflare.com https://cdnjs.com https://apis.google.com https://ajax.googleapis.com https://fonts.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com http://www.googletagmanager.com; object-src 'none'; form-action 'none'; frame-ancestors 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://maxcdn.bootstrapcdn.com http://maxcdn.bootstrapcdn.com http://cdn.jsdelivr.net https://cdnjs.com https://fonts.googleapis.com");
     return next();
 });
 app.use(bodyParser.json());
