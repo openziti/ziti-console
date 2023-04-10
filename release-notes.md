@@ -1,3 +1,6 @@
+# Release 2.7.0
+* Fix issues with identity/service overrides
+
 # Release 2.6.9
 * Fix Auth Policy Creation Value
 * Fix Edit Auth Policy Screen

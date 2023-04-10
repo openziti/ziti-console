@@ -77,6 +77,7 @@
     </div>
 
     <div id="OverrideModal" class="modal box full"> 
+        <div class="sized large">
             <div class="close icon-close"></div>
             <div class="title">Identity Overrides</div>
             <div class="subtitle">Manage the Service Config Identity Overrides</div>
@@ -671,8 +672,8 @@
                     id: page.filterObject.editId, 
                     doing: "POST", 
                     save: [{ 
-                        service: $("#ServiceList").val(), 
-                        config: $("#ConfigList").val() }] 
+                        serviceId: $("#ServiceList").val(), 
+                        configId: $("#ConfigList").val() }] 
                     }, 
                     page.overridesLoaded
                 );
@@ -691,10 +692,10 @@
                         for (var i=0; i<overrides.length; i++) {
                             var element = $("#OverrideTemplate").clone();
                             element.removeClass("template");
-                            element.html(element.html().split("{{service}}").join(overrides[i].service));
-                            element.html(element.html().split("{{config}}").join(overrides[i].config));
-                            element.html(element.html().split("{{serviceName}}").join(page.getServiceName(overrides[i].service)));
-                            element.html(element.html().split("{{configName}}").join(page.getConfigName(overrides[i].config)));
+                            element.html(element.html().split("{{service}}").join(overrides[i].service.id));
+                            element.html(element.html().split("{{config}}").join(overrides[i].config.id));
+                            element.html(element.html().split("{{serviceName}}").join(overrides[i].service.name));
+                            element.html(element.html().split("{{configName}}").join(overrides[i].config.name));
                             $("#OverrideList").append(element);
                         }
                         $(".overrides").show();
@@ -711,8 +712,8 @@
                     id: page.filterObject.editId, 
                     doing: "DELETE", 
                     save: [{ 
-                        service: $(e.currentTarget).data("service"), 
-                        config: $(e.currentTarget).data("config") 
+                        serviceId: $(e.currentTarget).data("service"), 
+                        configId: $(e.currentTarget).data("config") 
                     }] 
                 }, page.overridesLoaded);
             }
