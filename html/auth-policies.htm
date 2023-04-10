@@ -130,7 +130,7 @@
                 <div class="sectionTitle" data-i18n="CertificateOptions"></div>
                 <label data-i18n="AllowExpired"></label>
                 <div class="spread">
-                    <div id="UseExternal" class="toggle">
+                    <div id="AllowExpired" class="toggle">
                         <div class="switch"></div>
                         <div class="label"></div>
                     </div>
@@ -155,8 +155,8 @@
                         <input id="MaxAttempts" data-bind="data.updb.maxAttempts" type="number" data-i18n="EnterNumeric" />
                     </div>
                     <div>
-                        <label for="LockoutDuraction" data-i18n="LockoutDuraction"></label>
-                        <input id="LockoutDuraction" data-bind="data.updb.locoutDurationMinutes" type="number" data-i18n="EnterTime" />
+                        <label for="LockoutDuration" data-i18n="LockoutDuration"></label>
+                        <input id="LockoutDuration" data-bind="data.updb.locoutDurationMinutes" type="number" data-i18n="EnterMinutes" />
                     </div>
                 </div>
                 <div class="grid ethree">
@@ -263,8 +263,36 @@
                 else if (action=="edit") page.edit(id);
             },
             edit: function(id) {
+                page.reset();
                 var detail = page.filterObject.details(id);
-                if (detail.primary && detail.primary.extJwt) page.jwts.val(detail.primary.extJwt.allowedSigners);
+                if  (detail.primary) {
+                    if (detail.primary.extJwt) {
+                        if (detail.primary.extJwt.allowed) $("#ExternalJwt").addClass("on");
+                        page.jwts.val(detail.primary.extJwt.allowedSigners);
+                    }
+                    if (detail.primary.cert) {
+                        if (detail.primary.cert.allowed) $("#Certificate").addClass("on");
+                        if (detail.primary.cert.allowExpiredCerts) $("#AllowExpired").addClass("on");
+                    }
+                    if (detail.primary.updb) {
+
+                        
+                        if (detail.primary.updb.allowed) $("#UPDB").addClass("on");
+                        if (detail.primary.updb.requireMixedCase) $("#RequireMixedCase").addClass("on");
+                        if (detail.primary.updb.requireNumberChar) $("#RequireNumberChars").addClass("on");
+                        if (detail.primary.updb.requireSpecialChar) $("#RequireSpecialChars").addClass("on");
+
+                        $("#MinPasswordLength").val(detail.primary.updb.minPasswordLength);
+                        $("#MaxAttempts").val(detail.primary.updb.minPasswordLength);
+                        $("#LockoutDuration").val(detail.primary.updb.lockoutDurationMinutes);
+                    }
+                }
+                if (detail.secondary) {
+                    if (detail.secondary.requireTotp) $("#RequireTotp").addClass("on");
+                    if (detail.secondary.requiredExtJwtSigner) $("#JwtSigners").val(detail.secondary.requiredExtJwtSigner);
+                }
+                page.toggled();
+
                 modal.show("AddModal");
             },
             row: function(template, data) {
@@ -294,7 +322,7 @@
                             },
                             updb: {
                                 allowed: $("#UPDB").hasClass("on"),
-                                lockoutDurationMinutes: Number($("#LockoutDuraction").val()),
+                                lockoutDurationMinutes: Number($("#LockoutDuration").val()),
                                 maxAttempts: Number($("#MaxAttempts").val()),
                                 minPasswordLength: Number($("#MinPasswordLength").val()),
                                 requireMixedCase: $("#RequireMixedCase").hasClass("on"),
@@ -317,6 +345,7 @@
                 return $(".errors").length==0;
             },
             reset: function() {
+                $(".toggle").removeClass("on");
                 $("#MaxAttempts").val("5");
                 $("#MinPasswordLength").val("5");
                 $("#LockoutDuraction").val("0");

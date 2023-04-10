@@ -671,8 +671,16 @@ function DoCall(url, json, request, isFirst=true) {
 					resolve(body);
 				} else {
 					log("No Items");
-					body.data = [];
-					resolve(body);
+					if (typeof body === 'string' || body instanceof String) {
+						let toReturn = {
+							error: body,
+							data: []
+						}
+						resolve(toReturn);
+					} else {
+						body.data = [];
+						resolve(body);
+					}
 				}
 			}
 		});
