@@ -1,3 +1,6 @@
+# Release 2.6.9
+* Fix Auth Policy Creation Value
+
 # Release 2.6.8
 * Fix Time Zone Showing
 

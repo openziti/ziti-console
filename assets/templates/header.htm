@@ -1,16 +1,8 @@
 <!doctype html>
-<html>
+<html lang="en">
 	<head>
-		<script async crossorigin="anonymous" src="//www.googletagmanager.com/gtag/js?id=UA-91801335-7"></script>
-		<script>
-		window.dataLayer = window.dataLayer || [];
-		function gtag(){dataLayer.push(arguments);}
-		gtag('js', new Date());
-
-		gtag('config', 'UA-91801335-7');
-		</script>
 		<meta charset="utf-8">
-		<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, initial-scale=1" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta http-equiv="cache-control" CONTENT="no-cache">
 		<title>{{title}}</title>
 		<!-- Icons -->
@@ -42,32 +34,32 @@
 		<link href="/assets/styles/spectrum.css" rel="stylesheet" type="text/css"/>
 		<link href="/assets/scripts/components/leaflet/leaflet.css" rel="stylesheet" type="text/css"/>
 		<link href="/assets/styles/chart.min.css" rel="stylesheet" type="text/css"/>
+		<link href="/assets/scripts/components/column.css" rel="stylesheet" type="text/css"/>
+		<link href="/assets/scripts/components/codemirror/codemirror.css" rel="stylesheet" type="text/css"/>	
+	
 		<!-- 3rd Party Includes -->
 		<script src="/assets/scripts/jquery-3.6.3.min.js"></script>
 		<script src="/assets/scripts/components/moment.js"></script>
 		<script src="/assets/scripts/components/timezone.js"></script>
 		<script src="/assets/scripts/components/spectrum.js"></script>
 		<script crossorigin="anonymous" src="/assets/scripts/components/leaflet/leaflet.js"></script>	
-		<script src="/assets/scripts/components/network/vis-network.js"></script>
-		<script src="/assets/scripts/chart.min.js"></script>
-
+		<script async crossorigin="anonymous" src="//www.googletagmanager.com/gtag/js?id=UA-91801335-7"></script>
+	
 		<!-- NetFoundry Components -->
-		<link href="/assets/scripts/components/column.css" rel="stylesheet" type="text/css"/>
 		<script src="/assets/scripts/components/column.js"></script>
 		<script src="/assets/scripts/forms/schema.js"></script>
-		<link href="/assets/scripts/components/codemirror/codemirror.css" rel="stylesheet" type="text/css"/>
-        <script src="/assets/scripts/components/codemirror/codemirror.js"></script>
-        <script src="/assets/scripts/components/codemirror/modes/xml.js"></script>
-        <script src="/assets/scripts/components/codemirror/modes/javascript.js"></script>
-        <script src="/assets/scripts/components/codemirror/modes/css.js"></script>
-        <script src="/assets/scripts/components/codemirror/modes/htmlmixed.js"></script>
-        <script src="/assets/scripts/components/codemirror/modes/addons/closetags.js"></script>
-        <script src="/assets/scripts/components/codemirror/modes/addons/colorize.js"></script>
-        <script src="/assets/scripts/components/codemirror/modes/addons/css-hint.js"></script>
-        <script src="/assets/scripts/components/codemirror/modes/addons/html-hint.js"></script>
-        <script src="/assets/scripts/components/codemirror/modes/addons/javascript-hint.js"></script>
-        <script src="/assets/scripts/components/codemirror/modes/addons/show-hint.js"></script>
-        <script src="/assets/scripts/components/codemirror/modes/addons/formatting.js"></script>
+		<script src="/assets/scripts/components/codemirror/codemirror.js"></script>
+		<script src="/assets/scripts/components/codemirror/modes/xml.js"></script>
+		<script src="/assets/scripts/components/codemirror/modes/javascript.js"></script>
+		<script src="/assets/scripts/components/codemirror/modes/css.js"></script>
+		<script src="/assets/scripts/components/codemirror/modes/htmlmixed.js"></script>
+		<script src="/assets/scripts/components/codemirror/modes/addons/closetags.js"></script>
+		<script src="/assets/scripts/components/codemirror/modes/addons/colorize.js"></script>
+		<script src="/assets/scripts/components/codemirror/modes/addons/css-hint.js"></script>
+		<script src="/assets/scripts/components/codemirror/modes/addons/html-hint.js"></script>
+		<script src="/assets/scripts/components/codemirror/modes/addons/javascript-hint.js"></script>
+		<script src="/assets/scripts/components/codemirror/modes/addons/show-hint.js"></script>
+		<script src="/assets/scripts/components/codemirror/modes/addons/formatting.js"></script>
 		<script src="/assets/scripts/components/flows.js"></script>
 		<script src="/assets/scripts/components/qrcode.min.js"></script>
 		<!-- Application Utilities -->
@@ -87,10 +79,8 @@
 		<script src="/assets/scripts/model/user.js"></script>
 		<script src="/assets/scripts/model/summary.js"></script>
 		<script src="/assets/scripts/model/tags.js"></script>
-		<script src="/assets/scripts/model/fabric.js"></script>
 		<script src="/assets/scripts/model/known.js"></script>
 		<script src="/assets/scripts/model/templates.js"></script>
-		<script src="/assets/scripts/model/fabricServices.js"></script>
 		<script src="/assets/scripts/model/routers.js"></script>
 		<script src="/assets/scripts/model/links.js"></script>
 		<script src="/assets/scripts/model/series.js"></script>
@@ -99,29 +89,35 @@
 		<!-- Application -->
 		<script src="/assets/scripts/header.js"></script>
 		<script src="/assets/scripts/ziti.js"></script>
-
+	
 		<script type="text/javascript">
-		if (localStorage.getItem("mode")!=null&&localStorage.getItem("mode")=="dark") {
-			var link = document.createElement( "link" );
-			link.href = "/assets/styles/dark.css";
-			link.type = "text/css";
-			link.rel = "stylesheet";
-			link.media = "screen";
-			document.getElementsByTagName("head")[0].appendChild(link);
-		}
-		if (localStorage.getItem("primaryColor")!=null) {
-			document.documentElement.style.setProperty("--primary", localStorage.getItem("primaryColor"));
-		}
-		if (localStorage.getItem("secondaryColor")!=null) {
-			document.documentElement.style.setProperty("--secondary", localStorage.getItem("secondaryColor"));
-		}
-        var mode = localStorage.getItem("Transitions");
-        if (mode=="off") {
-            document.documentElement.style.setProperty("--transition", "0s");
-        } else {
-            document.documentElement.style.setProperty("--transition", "0.5s");
-        }
-		</script>		
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+	
+			gtag('config', 'UA-91801335-7');
+	
+			if (localStorage.getItem("mode")!=null&&localStorage.getItem("mode")=="dark") {
+				var link = document.createElement( "link" );
+				link.href = "/assets/styles/dark.css";
+				link.type = "text/css";
+				link.rel = "stylesheet";
+				link.media = "screen";
+				document.getElementsByTagName("head")[0].appendChild(link);
+			}
+			if (localStorage.getItem("primaryColor")!=null) {
+				document.documentElement.style.setProperty("--primary", localStorage.getItem("primaryColor"));
+			}
+			if (localStorage.getItem("secondaryColor")!=null) {
+				document.documentElement.style.setProperty("--secondary", localStorage.getItem("secondaryColor"));
+			}
+			var mode = localStorage.getItem("Transitions");
+			if (mode=="off") {
+				document.documentElement.style.setProperty("--transition", "0s");
+			} else {
+				document.documentElement.style.setProperty("--transition", "0.5s");
+			}
+		</script>	
 	</head>
 	<body>
 		<header class="auth{{auth}}">

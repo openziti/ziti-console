@@ -16,6 +16,7 @@ import $RefParser from '@apidevtools/json-schema-ref-parser';
 import nodemailer from 'nodemailer';
 import {fileURLToPath} from 'url';
 import crypto from 'crypto';
+import compression from 'compression';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -108,11 +109,13 @@ var helmetOptions = {
 	crossOriginEmbedderPolicy: false
 };
 
-app.use('/assets', express.static('assets'));
+app.use('/assets', express.static('assets', {
+	maxAge: '31536000000' 
+}));
 app.use(cors(corsOptions));
 app.use(helmet(helmetOptions));
+app.use(compression());
 app.use(function(req, res, next) {
-    // res.setHeader("Content-Security-Policy", "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://cdn.jsdelivr.net http://maxcdn.bootstrapcdn.com https://cdn.jsdelivr.net http://cdnjs.cloudflare.com https://cdnjs.cloudflare.com https://cdnjs.com https://apis.google.com https://ajax.googleapis.com https://fonts.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com http://www.googletagmanager.com; object-src 'none'; form-action 'none'; frame-ancestors 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://maxcdn.bootstrapcdn.com http://maxcdn.bootstrapcdn.com http://cdn.jsdelivr.net https://cdnjs.com https://fonts.googleapis.com");
     return next();
 });
 app.use(bodyParser.json());

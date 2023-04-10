@@ -200,7 +200,7 @@
 }
 
 .grid.tenOS {
-	grid-template-columns: 50px auto 50px 120px 20% 150px 150px 100px 100px 50px;
+	grid-template-columns: 50px auto 50px 120px 100px 150px 150px 100px 100px 50px;
 }
 
 .grid.eight {
