@@ -1,3 +1,6 @@
+# Release 2.7.1
+* Fix bug where suggested hash vales did not perpend the hash on selection
+
 # Release 2.7.0
 * Fix issues with identity/service overrides
 

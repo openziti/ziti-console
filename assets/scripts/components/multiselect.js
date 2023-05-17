@@ -186,10 +186,12 @@ var MultiSelect = function(id, max=10, freeform=false) {
     }
 
     this.ItemHtml = function(id, name, type, selected) {
+        console.log(id, name, type, selected);
         if (name.charAt(0)=="@") type = "at";
         else if (name.charAt(0)=="#") type = "hash";
         if (type=="at" && id.charAt(0)!='@') id = "@"+id;
-        if (type=="#" && id.charAt(0)!='#') id = "#"+id;
+        if ((type=="#" && id.charAt(0)!='#') || (name.charAt(0)=='#' && this.appendHash && id.charAt(0)!='#')) id = "#"+id;
+        console.log('<div class="'+type+'tag tagButton'+((selected)?' icon-close':'')+'" data-id="'+id+'"><span class="label">'+name+'</span></div>');
         return '<div class="'+type+'tag tagButton'+((selected)?' icon-close':'')+'" data-id="'+id+'"><span class="label">'+name+'</span></div>';
     },
 

@@ -111,16 +111,19 @@
             init: function() {
 
                 page.identityRoles = new MultiSelect("IDRoles", 10, true);
+                page.identityRoles.appendHash = true;
                 page.identityRoles.addSource(new SelectSource("identities", "@", "name", "role")); 
                 page.identityRoles.addSource(new SelectSource("identity-role-attributes", "#", "id")); 
                 page.identityRoles.init();
 
                 page.serviceRoles = new MultiSelect("Roles",  10, true);
+                page.serviceRoles.appendHash = true;
                 page.serviceRoles.addSource(new SelectSource("services", "@", "name", "role")); 
                 page.serviceRoles.addSource(new SelectSource("service-role-attributes", "#", "id")); 
                 page.serviceRoles.init();
 
                 page.pcRoles = new MultiSelect("PCRoles",  10, true);
+                page.pcRoles.appendHash = true;
                 page.pcRoles.addSource(new SelectSource("posture-checks", "@")); 
                 page.pcRoles.appendHash = true;
                 page.pcRoles.init();
