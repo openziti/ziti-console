@@ -121,17 +121,36 @@
                 <span data-i18n="Details"></span>
             </div>
 
-            <label for="Name" data-i18n="Name"></label>
-            <input id="Name" data-bind="data.name" type="text" maxlength="500" data-i18n="EnterName" data-enter="SaveButton" />
-            <div class="grid checkLabel">
-                <div id="IsTunnelerEnabled" class="toggle">
-                    <div class="switch"></div>
-                    <div class="label"></div>
+            <div class="grid aside">
+                <div>
+                    <label for="Name" data-i18n="Name"></label>
+                    <input id="Name" data-bind="data.name" type="text" maxlength="500" data-i18n="EnterName" data-enter="SaveButton" />
                 </div>
-                <div class="toggleLabel" data-i18n="TunnellerEnabled"></div>
+                <div>
+                    <label for="Cost" data-i18n="Cost"></label>
+                    <input id="Cost" data-bind="data.cost" type="number" />
+                </div>
+            </div>
+            <div class="grid split">
+                <div class="grid checkLabel">
+                    <div id="IsTunnelerEnabled" class="toggle">
+                        <div class="switch"></div>
+                        <div class="label"></div>
+                    </div>
+                    <div class="toggleLabel" data-i18n="TunnellerEnabled"></div>
+                </div>
+                <div class="grid checkLabel">
+                    <div id="IsNoTraversal" class="toggle">
+                        <div class="switch"></div>
+                        <div class="label"></div>
+                    </div>
+                    <div class="toggleLabel" data-i18n="NoTraversal"></div>
+                </div>
             </div>
             <label for="Roles" data-i18n="RouterRoleAttributes"></label>
             <div id="Roles"></div>
+            <label for="AppData" data-i18n="AppData"></label>
+            <textarea id="AppData"></textarea>
             <div id="TagArea" data-tagarea="router"></div>
             <div id="TagExtended"></div>
             {{html.save}}
@@ -139,6 +158,9 @@
 	</div>
 
     <style>
+        .CodeMirror {
+            height: 211px;
+        }
         .grid.columns {
 	        grid-template-columns: 50px 200px 50px auto 100px 100px 15% 15% 60px 50px;
         }
@@ -149,6 +171,7 @@
         page = {
             filterObject: null,
             roles: null,
+            appData: null,
             init: function() {
 
                 page.roles = new MultiSelect("Roles",  10, true);
@@ -157,6 +180,8 @@
 
                 page.filterObject = new Data("edge-routers");
                 page.filterObject.init(true, true);
+
+                page.appData = CodeMirror.fromTextArea(document.getElementById("AppData"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"} });
             }, 
             row: function(template, data) {
                 var os = "other";
@@ -205,6 +230,13 @@
                 page.roles.val(detail.roleAttributes);
                 if (detail.isTunnelerEnabled) $("#IsTunnelerEnabled").addClass("on");
                 else $("#IsTunnelerEnabled").removeClass("on");
+                if (detail.noTraversal) $("#IsNoTraversal").addClass("on");
+                else $("#IsNoTraversal").removeClass("on");
+                var appData = JSON.stringify(detail.appData);
+                if (appData.length>0) {
+                    page.appData.setValue(appData);
+                    page.appData.autoFormatRange({line:0, ch:0}, {line:page.appData.lineCount()});
+                }
                 modal.show("AddModal");
             },
             save: function() {
@@ -212,7 +244,10 @@
                     var obj = {
                         name: $("#Name").val(),
                         roleAttributes: page.roles.val(),
+                        appData: JSON.parse(page.appData.getValue()),
                         isTunnelerEnabled: $("#IsTunnelerEnabled").hasClass("on"),
+                        noTraversal: $("#IsNoTraversal").hasClass("on"),
+                        cost: Number($("#Cost").val()),
                         tags: tags.val()
                     };
                     page.filterObject.save(obj);
@@ -224,7 +259,11 @@
                 return $(".errors").length==0;
             },
             reset: function() {
+                var appData = {};
+                page.appData.setValue(JSON.stringify(appData));
+                page.appData.autoFormatRange({line:0, ch:0}, {line:page.appData.lineCount()});
                 $("#IsTunnelerEnabled").addClass("on");
+                $("#Cost").val("");
             }, 
             loaded: function() {
                 $(".cert").click(page.getCert);

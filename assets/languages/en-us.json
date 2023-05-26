@@ -17,6 +17,7 @@
     "EdgeService": "Edge Service",
     "EdgeServices": "Edge Services",
     "Binding": "Binding",
+    "Device": "Device",
     "Router": "Router",
     "RecipeDefined": "The intent of recipes is to setup a template for creating multiple identities with access to various service policies and roles at one time.",
 
@@ -60,7 +61,7 @@
     "RoleAttributes": "Role Attributes",
     "JSON": "JSON",
     "Type": "Type",
-    "Types": "Types",
+    "Types": "Types", 
     "ByComplete": "by completing this form",
     "SelectBinding": "Select Binding...",
     "Transport": "Transport",
@@ -75,6 +76,8 @@
     "Port": "Port",
     "PortExample": "80. 443, etc",
     "Add": "Add",
+    "HostingPrecedence": "Precedence",
+    "HostingCost": "Hosting Cost",
 
     "MessageTitle": "Send a Message To The Team",
     "MessageSubTitle": "Fill out the following form to send a message",
@@ -103,6 +106,15 @@
     "AttachService": "Attach to Service",
     "ManageFields": "Manage Custom Fields",
     "ManageServers": "Manage Servers",
+    "AddOverrideConfig": "Add Override Config",
+    "CurrentOverrides": "Current Overrides",
+    "ManageServiceOverride": "Manage the Service Config Identity Overrides",
+    "IdentityOverrides": "Identity Overrides",
+    "ConnectionIssues": "Connection Issues",
+    "ClickToTest": "click a service to test connection",
+    "Environment": "Environment",
+    "UPDBUsername": "UPDB Username",
+    "User": "User",
 
 
     "Name": "Name",
@@ -202,7 +214,7 @@
     "Cert": "Cert",
     "Jwt": "Jwt",
     "UPDB": "UPDB",
-    "CertDefined": "Cerificate Definned",
+    "CertDefined": "Cerificate Defined",
     "JWKSDefined": "JWKS Definned",
     "Optional": "Optional",
     "CertificateOptions": "Certificate Options",
@@ -232,13 +244,36 @@
     "SelectJwtSigners": "Search and Selact Associated JWT Signers",
     "TypeToFilter": "Type to filter or enter to add value",
     "Policies": "Policies",
+    "OneTimeToken": "One Time Token",
+    "EnrollmentType": "Enrollment Type",
+    "IsAdmin": "Is this User an Admin?",
+    "IdentityType": "Identity Type",
+    "MFAEnabled": "MFA Enabled",
 
 
 
-
-
+    "RemoveMFA": "Remove MFA", 
+    "SDK": "SDK",
+    "DownloadJWT": "Download JWT",
+    "ViewQR": "View QR",
+    "Overrides": "Overrides",
+    "Admin": "Admin",
+    "MFA": "MFA",
     "Complete": "Complete",
     "OS": "O/S",
+    "ScanQRCode": "Scan QR Code",
+    "UseTunneler": "Use your tunneler app to scan this code",
+    "Default": "Default",
+    "Required": "Required",
+    "Failed": "Failed",
+    "Location": "Location",
+    "Matcher": "Matcher",
+    "Parser": "Parser",
+    "MatcherCriteria": "Matcher Criteria",
+    "ParserCriteria": "Parser Criteria",
+    "Index": "Index",
+    "SelectOption": "Select an Option...",
+
     "TerminatorStrategy": "Terminator Strategy",
     "SelectStrategy": "Select a Strategy....",
     "SmartRouting": "Smart Routing",
@@ -246,6 +281,9 @@
     "Random": "Random",
     "HighAvailability": "High Availability",
     "RequireEncryption": "Require Encryption",
+    "IdentityNameFormat": "Identity Name Format",
+    "EnterIdentityNameFormat": "Enter a format for the identity name or leave blank for any",
+
 
     "ErrorInvalidFile": "Unable to read file, try opening in a text editor and pasting into the text field.",
     "ConfirmClose": "The form has unsaved data, are you sure you want to close?"

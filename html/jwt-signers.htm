@@ -132,16 +132,19 @@
                 </div>
             </div>
 
-            <div class="sectionTitle" data-i18n="CertDefined"></div>
-            <label for="Pem"><span data-i18n="PEM"></span> <span id="SelectFile" class="note" data-i18n="SelectFile"></span><input id="PemFile" type="file" accept=".pem"/></label>
-            <textarea id="Pem" data-bind="data.certPem" spellcheck="false" style="height: 300px; font-size: 12px;" data-i18n="PastePEM"></textarea>
-            <label for="Kid" data-i18n="Kid"></label>
-            <input id="Kid" data-bind="data.kid" type="text" maxlength="500" data-i18n="EnterKid" />
+            <div class="configBox" style="margin-top: 20px;">
+                <div class="sectionTitle" data-i18n="CertDefined"></div>
+                <label for="Pem"><span data-i18n="PEM"></span> <span id="SelectFile" class="note" data-i18n="SelectFile"></span><input id="PemFile" type="file" accept=".pem"/></label>
+                <textarea id="Pem" data-bind="data.certPem" spellcheck="false" style="height: 300px; font-size: 12px;" data-i18n="PastePEM"></textarea>
+                <label for="Kid" data-i18n="Kid"></label>
+                <input id="Kid" data-bind="data.kid" type="text" maxlength="500" data-i18n="EnterKid" />
+            </div>
 
-            <div class="sectionTitle" data-i18n="JWKSDefined"></div>
-            <label for="JWKSEndpoint" data-i18n="JWKSEndpoint"></label>
-            <input id="JWKSEndpoint" data-bind="data.jwksEndpoint" type="text" maxlength="500" data-i18n="EnterUrl" />
-            
+            <div class="configBox" style="margin-top: 20px;">
+                <div class="sectionTitle" data-i18n="JWKSDefined"></div>
+                <label for="JWKSEndpoint" data-i18n="JWKSEndpoint"></label>
+                <input id="JWKSEndpoint" data-bind="data.jwksEndpoint" type="text" maxlength="500" data-i18n="EnterUrl" />
+            </div>
 
             <!-- Need To Finish these -->
 

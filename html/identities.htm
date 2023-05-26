@@ -1,33 +1,64 @@
     <!-- General Page Layout HTML -->
     <div class="header">
-        <div class="title">Manage <span data-bind="pageTitle"></span></div>
-        <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
+        <div class="title">
+            <span data-i18n="Manage"></span> 
+            <span data-i18n="Identities"></span>
+        </div>
+        <div class="bread">
+            <span data-i18n="ZitiNetwork"></span> 
+            <span class="secondary">/</span> 
+            <span data-i18n="Manage"></span> 
+            <span data-i18n="Identities"></span>
+        </div>
         {{html.line}}
         {{html.tabIdentities}}
     </div>
     <div class="action icon-plus" data-action="add"></div>
     <div class="filters">
-        <input id="SearchFilter" data-defined="search" type="text" class="search" placeholder="Type to Filter" />
+        <input id="SearchFilter" data-defined="search" type="text" class="search" data-i18n="EnterFilter" />
         <div class="clear icon-clear" data-defined="clear"></div>
         <div class="searchButton icon-search"></div>
-        <div class="counters"><span id="Start">-</span>-<span id="End">-</span> of <span id="Total">-</span></div>
+        <div class="counters"><span id="Start">-</span>-<span id="End">-</span> <span data-i18n="Of"></span> <span id="Total">-</span></div>
         <div class="navigate prev icon-prev disabled"></div>
         <div class="navigate next icon-next disabled"></div>
     </div>
     <div class="area data" data-defined="table">
         <div class="table">
-            <div class="head grid tenOS">
+            <div class="head grid columns">
                 <div class="col">
                     <div class="selector all"></div>
                 </div>
-                <div class="col sort asc" data-by="name">Name<div class="dragger"></div></div>
-                <div class="col desktop">O/S<div class="dragger"></div></div>
-                <div class="col desktop">SDK<div class="dragger"></div></div>
-                <div class="col sort desktop" data-by="type">Type<div class="dragger"></div></div>
-                <div class="col sort desktop" data-by="isAdmin">Admin<div class="dragger"></div></div>
-                <div class="col sort desktop" data-by="createdAt">Created<div class="dragger"></div></div>
-                <div class="col desktop">Token<div class="dragger"></div></div>
-                <div class="col desktop">MFA</div>
+                <div class="col sort asc" data-by="name">
+                    <span data-i18n="Name"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="OS"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="SDK"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col sort desktop" data-by="type">
+                    <span data-i18n="Type"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col sort desktop" data-by="isAdmin">
+                    <span data-i18n="Admin"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col sort desktop" data-by="createdAt">
+                    <span data-i18n="Created"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="Token"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="MFA"></span>
+                </div>
                 <div class="col"></div>
             </div>
             <div class="rows" data-defined="rows">
@@ -35,10 +66,15 @@
             </div>
         </div>
     </div>
-    <div class="nodata" data-defined="empty">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
+    <div class="nodata" data-defined="empty">
+        <span data-i18n="No"></span> 
+        <span data-i18n="Session"></span> 
+        <span data-i18n="NoneDefined"></span> 
+        <span data-i18n="APISession"></span>.
+    </div>
 
     <!-- Data Table Template -->
-    <div id="RowTemplate" class="row grid tenOS template" data-defined="template">
+    <div id="RowTemplate" class="row grid columns template" data-defined="template">
         <div class="col">
             <div class="selector" data-id="{{id}}"></div>
         </div>
@@ -57,12 +93,12 @@
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
                 <div class="gridMenu" data-id="{{id}}">
-                    <div class="gridAction" data-id="{{id}}" data-action="edit">Edit</div>
-                    <div class="gridAction {{hiddenMFAClass}}" data-id="{{id}}" data-action="mfa">Remove MFA</div>
-                    <div class="gridAction {{hiddenClass}}" data-id="{{id}}" data-action="download">Download JWT</div>
-                    <div class="gridAction {{hiddenClass}}" data-id="{{id}}" data-action="qr">View QR</div>
-                    <div class="gridAction" data-id="{{id}}" data-action="override">Overrides</div>
-                    <div class="gridAction" data-id="{{id}}" data-action="delete">Delete</div>
+                    <div class="gridAction" data-id="{{id}}" data-action="edit" data-i18n="Edit"></div>
+                    <div class="gridAction {{hiddenMFAClass}}" data-id="{{id}}" data-action="mfa" data-i18n="RemoveMFA"></div>
+                    <div class="gridAction {{hiddenClass}}" data-id="{{id}}" data-action="download" data-i18n="DownloadJWT"></div>
+                    <div class="gridAction {{hiddenClass}}" data-id="{{id}}" data-action="qr" data-i18n="ViewQR"></div>
+                    <div class="gridAction" data-id="{{id}}" data-action="override" data-i18n="Overrides"></div>
+                    <div class="gridAction" data-id="{{id}}" data-action="delete" data-i18n="Delete"></div>
                 </div>
             </div>
         </div>
@@ -79,25 +115,25 @@
     <div id="OverrideModal" class="modal box full"> 
         <div class="sized large">
             <div class="close icon-close"></div>
-            <div class="title">Identity Overrides</div>
-            <div class="subtitle">Manage the Service Config Identity Overrides</div>
-            <div class="darkened overrides" style="display: none;">Current Overrides</div>
+            <div class="title" data-i18n="IdentityOverrides"></div>
+            <div class="subtitle" data-i18n="ManageServiceOverride"></div>
+            <div class="darkened overrides" style="display: none;" data-i18n="CurrentOverrides"></div>
             <div id="OverrideList" class="grid splitRemove overrides" style="display: none;">
 
             </div>
-            <div class="darkened">Add Override Config</div>
+            <div class="darkened" data-i18n="AddOverrideConfig"></div>
             <div class="grid split">
                 <div>
-                    <label for="ServiceList">Service</label>
+                    <label for="ServiceList" data-i18n="Service"></label>
                     <select id="ServiceList"></select>
                 </div>
                 <div>
-                    <label for="ConfigList">Configuration</label>
+                    <label for="ConfigList" data-i18n="Configuration"></label>
                     <select id="ConfigList"></select>
                 </div>
             </div>
             <div class="buttons">
-                <div id="AssociateButton" class="button">Add</div>
+                <div id="AssociateButton" class="button" data-i18n="Add"></div>
             </div>
         </div>
     </div>
@@ -108,31 +144,46 @@
 	<div id="AddModal" class="modal box full">
         <div class="sized large">
             <div class="close icon-close"></div>
-            <div class="title adding">Create <span data-bind="singular"></span></div>
-            <div class="subtitle adding">Add a New <span data-bind="singular"></span></div>
-            <div class="title editing">Edit <span data-bind="singular"></span></div>
-            <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
+            <div class="title adding">
+                <span data-i18n="Create"></span>
+                <span data-i18n="Identity"></span>
+            </div>
+            <div class="subtitle adding">
+                <span data-i18n="AddNew"></span>
+                <span data-i18n="Identity"></span>
+                <span data-i18n="ByComplete"></span>
+            </div>
+            <div class="title editing">
+                <span data-i18n="Edit"></span>
+                <span data-i18n="Identity"></span>
+            </div>
+            <div class="subtitle editing">
+                <span data-i18n="Change"></span>
+                <span data-i18n="Identity"></span>
+                <span data-i18n="Details"></span>
+            </div>
+
             <div class="grid split">
                 <div>
-                    <label for="Name">Name</label>
+                    <label for="Name" data-i18n="Name"></label>
                     <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
-                    <label for="Roles">Role Attributes</label>
+                    <label for="Roles" data-i18n="RoleAttributes"></label>
                     <div id="Roles"></div>
                     <div id="MFAArea">
-                        <label for="MFA">MFA Enabled</label>
-                        <div id="ToggleMFA" class="toggle on"><div class="switch"></div><div class="label"></div></div> <span class="sidenote">Click To Remove</span>
+                        <label for="MFA" data-i18n="MFAEnabled"></label>
+                        <div id="ToggleMFA" class="toggle on"><div class="switch"></div><div class="label"></div></div> <span class="sidenote" data-i18n="Name">Click To Remove</span>
                     </div>
                     <div class="split unsplit">
                         <div>
-                            <label for="IdentityType">Identity Type</label>
+                            <label for="IdentityType" data-i18n="IdentityType"></label>
                             <select id="IdentityType" data-default="Device" data-enter="SaveButton">
-                                <option value="Device" selected>Device</option>
-                                <option value="Service">Service</option>
-                                <option value="User">User</option>
+                                <option value="Device" selected data-i18n="Device"></option>
+                                <option value="Service" data-i18n="Service"></option>
+                                <option value="User" data-i18n="User"></option>
                             </select>
                         </div>
                         <div id="UserArea" style="display:none;">
-                            <label>Is this User an Admin?</label>
+                            <label data-i18n="IsAdmin"></label>
                             <div id="IsAdmin" class="toggle">
                                 <div class="switch"></div>
                                 <div class="label"></div>
@@ -141,19 +192,19 @@
                     </div> 
                     <div class="split unsplit">
                         <div>
-                            <label for="Enrollment">Enrollment Type</label>
+                            <label for="Enrollment" data-i18n="EnrollmentType"></label>
                             <select id="EnrollmentType" data-bind="data.enrollmentType" data-default="ott" data-enter="SaveButton">
-                                <option value="ott" selected>One Time Token</option>
-                                <option value="CA">Certificate Authority</option>
-                                <option value="updb">UPDB</option>
+                                <option value="ott" data-i18n="OneTimeToken" selected></option>
+                                <option value="CA" data-i18n="CA"></option>
+                                <option value="updb" data-i18n="UPDB"></option>
                             </select>
                         </div>
                         <div id="CertAuthoritiesArea" style="display:none">
-                            <label for="Authorities">Certificate Authority</label>
+                            <label for="Authorities" data-i18n="CA"></label>
                             <select id="Authorities" data-enter="SaveButton"></select>
                         </div>
                         <div id="UpDbArea" style="display:none">
-                            <label for="UPDBName">UPDB Username</label>
+                            <label for="UPDBName" data-i18n="UPDBUsername"></label>
                             <input id="UPDBName" data-bind="data.enrollment.updb" type="text" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
                         </div>
                     </div>
@@ -173,26 +224,46 @@
                 <div>
                     <div class="darkened">
                         <div>
-                            <label for="Environment" class="editing">Environment</label>
+                            <label for="Environment" class="editing" data-i18n="Environment"></label>
                             <div id="Environment" class="editing configBox"></div>
                         </div>
                         <div>
-                            <label for="SdkInfo" class="editing">Sdk</label>
+                            <label for="SdkInfo" class="editing" data-i18n="SDK"></label>
                             <div id="SdkInfo" class="editing configBox"></div>
                         </div>
-                        <label for="Services" class="editing">Services<div class="info">click a service to test connection</div></label>
+                        <label for="Services" class="editing">
+                            <span data-i18n="Services"></span>
+                            <div class="info" data-i18n="ClickToTest"></div>
+                        </label>
                         <div id="Services" class="row editing configBox"></div>
-                        <label for="ServiceIssues" class="issues"><span id="ServiceClicked"></span> Connection Issues</label>
+                        <label for="ServiceIssues" class="issues">
+                            <span id="ServiceClicked"></span> 
+                            <span data-i18n="ConnectionIssues"></span>
+                        </label>
                         <div id="ServiceIssues" class="issues configBox"></div>
                         <label for="AppData" data-i18n="AppData"></label>
                         <textarea id="AppData"></textarea>
+                        <div class="grid split">
+                            <div>
+                                <label for="HostingCost" data-i18n="HostingCost"></label>
+                                <input id="HostingCost" data-bind="data.defaultHostingCost" type="number" />
+                            </div>
+                            <div>
+                                <label for="HostingPrecedence" data-i18n="HostingPrecedence"></label>
+                                <select id="HostingPrecedence" data-bind="data.defaultHostingPrecedence">
+                                    <option value="default" data-i18n="Default"></option>
+                                    <option value="required" data-i18n="Required"></option>
+                                    <option value="failed" data-i18n="Failed"></option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
            
             <div class="buttons">           
-                <div class="linkButton closer">Oops, No get me out of here</div>
-                <div id="SaveButton" class="button" data-defined="save">Save</div>
+                <div class="linkButton closer" data-i18n="Oops"></div>
+                <div id="SaveButton" class="button" data-defined="save" data-i18n="Save"></div>
             </div>   
         </div>
     </div>         
@@ -200,15 +271,18 @@
 	<div id="QRModal" class="modal box full">
         <div class="sized center">
             <div class="close icon-close"></div>
-            <div class="title">Scan QR Code</div>
-            <div class="subtitle">Use your tunneler app to scan this code</div>
+            <div class="title" data-i18n="ScanQRCode"></div>
+            <div class="subtitle" data-i18n="UseTunneler"></div>
             <div id="QRCode"></div>
         </div>
     </div>
 
     <style>
         .CodeMirror {
-            height: 200px;
+            height: 211px;
+        }
+        .columns {
+	        grid-template-columns: 50px minmax(150px, auto) 50px 120px 100px 150px 150px 100px 100px 50px;
         }
     </style>
     
@@ -232,7 +306,6 @@
                 page.roles = new MultiSelect("Roles", 10, true);
                 page.roles.addSource(new SelectSource("identity-role-attributes", "", "id")); 
                 page.roles.init();
-
 
                 page.casObject = new Data("cas");
                 page.servicesObject = new Data("services");
@@ -504,6 +577,8 @@
                         roleAttributes: page.roles.val(),
                         authPolicyId: $("#AuthPolicy").val(),
                         externalId: $("#ExternalId").val(),
+                        defaultHostingCost: Number($("#HostingCost").val()),
+                        defaultHostingPrecedence: $("#HostingPrecedence").val(),
                         tags: tags.val()
                     };
                     if (!page.filterObject.isEditing()) {
@@ -522,7 +597,9 @@
                 } else growler.form();
             }, 
             loaded: function() {
-                $(".cert").click(page.getCert);
+                $(".cert").off("click", page.getCert);
+                $(".qr").off("click", page.getCert);
+                $(".cert").on("click", page.getCert);
                 $(".qr").click(page.genQR);
             },
             genQR: function(e) {
@@ -654,6 +731,8 @@
                 $("#EnrollmentType").attr("disabled", false);
                 page.toggleType();
                 $(".issues").hide();
+                $("#HostingCost").val("0");
+                $("#HostingPrecedence").val("default");
             },
             validate: function() {
                 $(".errors").removeClass("errors");

@@ -1,3 +1,15 @@
+# Release 2.7.2
+* Fix duplicate files downloading for identity jwts
+* Make tables maintain a width for names if things fall off
+* Localize Identities Screen
+* Fix Dragging on Api Sessions & Sessions
+* Remove Animation on Dragging Tables
+* Fix Sorting session by creation
+* Add Color settings to settings file
+* Add Custom logo to settings file
+* Add External Claims Info to CA
+* Visibily Seperate Kid & Jwks on Jwt Signers
+
 # Release 2.7.1
 * Fix bug where suggested hash vales did not perpend the hash on selection
 

@@ -29,10 +29,21 @@
                 <div class="col">
                     <div class="selector all"></div>
                 </div>
-                <div class="col sort asc" data-by="id" data-i18n="Id"><div class="dragger"></div></div>
-                <div class="col desktop" data-i18n="IPAddress"><div class="dragger"></div></div>
-                <div class="col desktop" data-i18n="Identity"><div class="dragger"></div></div>
-                <div class="col desktop" data-by="dateCreated" data-i18n="Created"></div>
+                <div class="col sort asc" data-by="id">
+                    <span data-i18n="Id"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="IPAddress"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="Identity"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col sort desktop" data-by="createdAt">
+                    <span data-i18n="Created"></span>
+                </div>
                 <div class="col"></div>
             </div>
             <div class="rows" data-defined="rows">
@@ -55,8 +66,8 @@
             <div class="selector" data-id="{{id}}"></div>
         </div>
         <div class="col" data-id="{{id}}"><strong>{{id}}</strong></div>
-        <div class="col">{{ipAddress}}</div>
-        <div class="col">{{identity}}</div>
+        <div class="col desktop">{{ipAddress}}</div>
+        <div class="col desktop">{{identity}}</div>
         <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
         <div class="col allowOver">
             <div class="dots" data-id="{{id}}">...
@@ -98,7 +109,7 @@
 
     <style>
         .columns {
-	  	    grid-template-columns: 50px 300px auto 300px 200px 40px !important;
+	  	    grid-template-columns: 50px minmax(150px, auto) 25% 300px 200px 40px;
         }
     </style>
 

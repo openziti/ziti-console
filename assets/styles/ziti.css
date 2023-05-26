@@ -2,8 +2,6 @@
  ** Main Application Styles
 ***/
 :root {
-	--primary: #0027ab;
-    --secondary: #fe0029;
     --highlighted: #f5a93d;;
     --red: #ff104b;
     --white: #FFF;
@@ -208,7 +206,9 @@ aside .icon {
 .version {
     position: absolute;
     bottom: 20px;
-    left: 80px;
+    right: 20px;
+    width: 75%;
+    text-align: center;
     color: var(--text);
     opacity: 0.7;
     font-size: 14px;
@@ -839,8 +839,12 @@ aside .icon {
     left: 2px;
 }
 
-.configBox input, .configBox select {
+.configBox input, .configBox select, .configBox textarea {
     background-color: var(--white) !important;
+}
+
+.configBox .sectionTitle {
+    margin-top: 0px;
 }
 
 .configBox .newConfig {
@@ -2156,6 +2160,18 @@ path.green {
     display: block;
 }
 
+#CustomLogo {
+    width: 75%;
+    height: 100px;
+    position: absolute;
+    bottom: 49px;
+    right: 20px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center center;
+    display: none;
+}
+
 canvas { outline: none !important; }
 
 div:focus {
@@ -2182,6 +2198,9 @@ div:focus {
 }
 
 @media (max-width:1024px) {
+    #CustomLogo {
+        display: none !important;
+    }
     .dragger {
         display: none;
     }
@@ -2551,6 +2570,10 @@ div:focus {
     height: 20vh;
     display: inline-block;
     text-align: center;
+}
+
+.personal {
+    display: none;
 }
 
 .circle {

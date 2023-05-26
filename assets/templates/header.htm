@@ -92,7 +92,11 @@
 		<script src="/assets/scripts/header.js"></script>
 		<script src="/assets/scripts/ziti.js"></script>
 	
+		<style>
+	{{html.style}}
+		</style>
 		<script type="text/javascript">
+			let canStyle = {{html.canStyle}};
 			window.dataLayer = window.dataLayer || [];
 			function gtag(){dataLayer.push(arguments);}
 			gtag('js', new Date());
@@ -107,11 +111,13 @@
 				link.media = "screen";
 				document.getElementsByTagName("head")[0].appendChild(link);
 			}
-			if (localStorage.getItem("primaryColor")!=null) {
-				document.documentElement.style.setProperty("--primary", localStorage.getItem("primaryColor"));
-			}
-			if (localStorage.getItem("secondaryColor")!=null) {
-				document.documentElement.style.setProperty("--secondary", localStorage.getItem("secondaryColor"));
+			if (canStyle) {
+				if (localStorage.getItem("primaryColor")!=null) {
+					document.documentElement.style.setProperty("--primary", localStorage.getItem("primaryColor"));
+				}
+				if (localStorage.getItem("secondaryColor")!=null) {
+					document.documentElement.style.setProperty("--secondary", localStorage.getItem("secondaryColor"));
+				}
 			}
 			var mode = localStorage.getItem("Transitions");
 			if (mode=="off") {
@@ -119,6 +125,9 @@
 			} else {
 				document.documentElement.style.setProperty("--transition", "0.5s");
 			}
+			$(document).ready((e) => {
+				if (canStyle) $(".personal").show();
+			});
 		</script>	
 	</head>
 	<body>
@@ -182,6 +191,7 @@
 		<nav class="auth{{auth}}">
 			<div class="title" data-i18n="AppName"></div>
 			<div id="Version" class="version"></div>
+			<div id="CustomLogo"></div>
 			<div id="AreaNavigation" class="navArea">
 				<div class="navList">
 					<a href="/">

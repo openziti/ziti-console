@@ -5,6 +5,10 @@
     "location": "../ziti", 
     "port": 1408,
     "portTLS": 8443,
+    "logo": "",
+    "primary": "",
+    "secondary": "",
+    "allowPersonal":  true,
     "rejectUnauthorized": false,
     "mail": { 
         "host": "",

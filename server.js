@@ -195,6 +195,7 @@ if (settings.port && !isNaN(settings.port)) port = settings.port;
 if (settings.portTLS && !isNaN(settings.portTLS)) portTLS = settings.portTLS;
 if (settings.rejectUnauthorized && !isNaN(settings.rejectUnauthorized)) rejectUnauthorized = settings.rejectUnauthorized;
 
+
 if (process.env.PORT) port = process.env.PORT;
 if (process.env.PORTTLS) portTLS = process.env.PORTTLS;
 
@@ -217,6 +218,18 @@ for (let i=0; i<comFiles.length; i++) {
 	var name = path.parse(comFiles[i]).name;
 	components[name] = fs.readFileSync(__dirname+"/assets/components/"+comFiles[i], 'utf8');
 }
+components["canStyle"] = true;
+if (settings.allowPersonal != null) components["canStyle"] = settings.allowPersonal;
+components["style"] = ":root {\n";
+if (settings.primary && settings.primary!="") components["style"] += "\t\t--primary: "+settings.primary+";\n";
+else components["style"] += "\t\t--primary: #0027ab;\n";
+if (settings.secondary && settings.secondary!="") components["style"] += "\t\t--secondary: "+settings.secondary+";\n";
+else components["style"] += "\t\t--secondary: #fe0029;\n";
+components["style"] += "\n\t}";
+if (settings.logo && settings.logo!="") {
+	components["style"] += "\n\n\t#CustomLogo {\n\t\tbackground-image: url("+settings.logo+");\n\t\tdisplay: inline-block;\n\t}";
+}
+console.log(settings);
 
 for (var i=0; i<settings.edgeControllers.length; i++) {
 	if (settings.edgeControllers[i].default) {

@@ -17,7 +17,7 @@
     </div>
     <div class="area data" data-defined="table">
         <div class="table">
-            <div class="head grid policies">
+            <div class="head grid columns">
                 <div class="col">
                     <div class="selector all"></div>
                 </div>
@@ -39,7 +39,7 @@
 
 
     <!-- Template HTML will be used to display rows of data -->
-    <div id="RowTemplate" class="row grid policies template" data-defined="template">
+    <div id="RowTemplate" class="row grid columns template" data-defined="template">
         <div class="col notitle">
             <div class="selector" data-id="{{id}}"></div>
         </div>
@@ -96,7 +96,12 @@
             </div>
         </div>
 	</div>
-    
+
+    <style>
+        .columns {
+	        grid-template-columns: 50px minmax(150px, auto) 25% 25% 10% 100px 100px 50px !important;
+        }
+    </style>
     
     <script language="javascript" type="text/javascript">
         page = {
