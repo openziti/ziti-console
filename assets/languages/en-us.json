@@ -249,6 +249,16 @@
     "IsAdmin": "Is this User an Admin?",
     "IdentityType": "Identity Type",
     "MFAEnabled": "MFA Enabled",
+    "WhereHosted": "Where is this hosted?",
+    "WhoAccesses": "Who has access to this service?",
+    "AddSimpleService": "Add Simple Service",
+    "AddSimpleIdentity": "Add Simple Identity",
+    "HowShare": "How to access?",
+    "WhatShare": "How is the hosted?",
+    "ServiceHappen": "The following settings were created",
+    "Cancel": "Cancel",
+    "Done": "Done",
+    "EgHost": "e.g. myservice.ziti",
 
 
 

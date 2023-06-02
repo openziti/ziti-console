@@ -30,25 +30,25 @@
                 <div class="label" data-i18n="Services"></div>
             </div>
         </a>
-        <a href="/configs">
+        <a href="/configs" class="desktop">
             <div class="totalPod">
                 <div id="TotalConfigurations" class="total"></div>
                 <div class="label" data-i18n="Configurations"></div>
             </div>
         </a>
-        <a href="/routers">
+        <a href="/routers" class="desktop">
             <div class="totalPod">
                 <div id="TotalEdgeRouters" class="total"></div>
                 <div class="label" data-i18n="EdgeRouters"></div>
             </div>
         </a>
-        <a href="/sessions">
+        <a href="/sessions" class="desktop">
             <div class="totalPod">
                 <div id="TotalSessions" class="total"></div>
                 <div class="label" data-i18n="Sessions"></div>
             </div>
         </a>
-        <a href="/service-policies">
+        <a href="/service-policies" class="desktop">
             <div class="totalPod">
                 <div id="TotalServicePolicies" class="total"></div>
                 <div class="label" data-i18n="ServicePolicies"></div>
@@ -81,6 +81,7 @@
             roles: null,
             services: null,
             identities: null,
+            lastId: null,
             binding: {
                 pageTitle: "Dashboard",
                 singular: "Dashboard"
@@ -151,6 +152,11 @@
                 setTimeout(function() {
                     page.map.invalidateSize();
                 }, 1000);   
+            },
+            reset: function(e) {
+                $("#Host").val("localhost");
+                $("#Port").val("80");
+                $("#HowToPort").val("80");
             }
         }
     </script>

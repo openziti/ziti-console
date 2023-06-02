@@ -180,6 +180,7 @@
 	margin-top: 20px;
 	grid-template-columns: auto 20%;
 	column-gap: 20px;
+	row-gap: 20px;
 }
 
 .grid.numbers {
@@ -188,11 +189,17 @@
     border-width: 3px;
 	border-style: solid;
     border-color: var(--white);
-    background-color: rgba(255,255,255,0.6);
+    background-color: rgba(255,255,255,0.5);
     padding: 22px;
     border-radius: 12px;
     z-index: 10;
     box-shadow: var(--shadowLarge);
+}
+
+.grid.cells {
+	grid-template-columns: 100%;
+	grid-template-rows: 60% auto;
+    row-gap: 20px;
 }
 
 .grid.seven {

@@ -1,27 +1,96 @@
 			
 			<!-- Add Any Modal UI -->
-			<div id="AddAnyModal" class="modal box" style="height: 310px; width: 900px">
-				<div class="underlay"></div>
+			<div id="AddAnyModal" class="modal box" style="height: fit-content; width: 600px; transition: var(--transition);">
 				<div class="close icon-close"></div>
-				<div class="title" data-i18n="AddTitle"></div>
-				<div class="grid singular">
-					<div></div>
-					<div class="launcher" data-add="/identities">
-						<div class="image icon-ids"></div>
-						<div class="label" data-i18n="AddIdentity"></div>
-					</div>
-					<div></div>
-				</div>
-				<div class="grid dual">
-					<div class="launcher" data-add="/edge-routers">
-						<div class="image icon-router"></div>
-						<div class="label" data-i18n="AddRouter"></div>
-					</div>
-					<div class="launcher" data-add="/edge-services">
-						<div class="image icon-services"></div>
-						<div class="label" data-i18n="AddService"></div>
+				<div id="Select1">
+					<div class="title" data-i18n="AddTitle"></div>
+					<div id="Selector" class="grid dual">
+						<div id="InlineAddIdentityButton" class="iconButton">
+							<div class="image icon-identity"></div>
+							<div class="label" data-i18n="AddIdentity"></div>
+						</div>
+						<div id="InlineAddServiceButton" class="iconButton">
+							<div class="image icon-services"></div>
+							<div class="label" data-i18n="AddService"></div>
+						</div>
 					</div>
 				</div>
+
+				<div id="InlineIdentityArea" style="display: none;" class="anyadd">
+					<div class="title" data-i18n="AddSimpleIdentity"></div>
+					<div id="IdentityLoader" class="center" style="display: none;">
+						<div class="lds-ripple"><div></div><div></div></div>
+					</div>
+					<div id="Identity1" class="anyid">
+						<label for="IdName" data-i18n="Name"></label>
+						<input id="IdName" type="text" maxlength="50" data-i18n="EnterName" />
+						<label for="IdRoles" data-i18n="RoleAttributes"></label>
+						<div id="IdRoles"></div>
+						<div class="buttons">           
+							<div></div>
+							<div id="CreateIdButton" class="button" data-i18n="Create"></div>
+						</div>  
+					</div>
+					<div id="Identity2" style="display: none;" class="anyid">
+						<div class="center">
+							<div id="IdentityQrCode"></div>
+						</div>
+						<div id="IdentityDownload" class="linkButton" data-i18n="DownloadJWT"></div>
+						<div class="center">     
+							<div id="DoneIdButton" class="button" data-i18n="Done"></div>
+						</div>  
+					</div>
+				</div>
+	
+				<div id="InlineServiceArea" style="display: none;" class="anyadd">
+					<div class="title" data-i18n="AddSimpleService"></div>
+					<div id="SServiceLoader" class="center" style="display: none;">
+						<div class="lds-ripple"><div></div><div></div></div>
+					</div>
+					<div id="Service1" class="anyservice">
+						<label for="WhereHosted" data-i18n="WhereHosted"></label>
+						<div id="WhereHosted"></div>
+						<label for="WhatIsIt" data-i18n="WhatShare"></label>
+						<div class="grid addressFull">
+							<select id="HostedProtocol">
+								<option value="tcp">tcp</option>
+								<option value="udp">udp</option>
+							</select>
+							<input id="HostedHost" type="text" maxlength="100" value="localhost" data-i18n="EgHost" />
+							<input id="HostedPort" type="number" maxlength="10" value="80" />
+						</div>
+						<label for="WhoAccesses" data-i18n="WhoAccesses"></label>
+						<div id="WhoAccesses"></div>
+						<label for="SServiceName" data-i18n="ServiceName"></label>
+						<input id="SServiceName" type="text" maxlength="50" data-i18n="EnterName" />
+						<div id="IsEncryptionRequired" class="forminfo" style="display: none"></div>
+						<div class="grid checkLabel">
+							<div id="SimpleEncryptionRequired" class="toggle">
+								<div class="switch"></div>
+								<div class="label"></div>
+							</div>
+							<div class="toggleLabel" data-i18n="RequireEncryption"></div>
+						</div>
+						<label for="HowTo" data-i18n="HowShare"></label>
+						<div class="grid addressPort">
+							<input id="HowTo" type="text" maxlength="100" data-i18n="EgHost" />
+							<input id="HowToPort" type="number" maxlength="10" value="80" />
+						</div>
+						<div class="buttons">     
+							<div class="linkButton closer" data-i18n="Cancel"></div>      
+							<div id="CreateButton" class="button" data-i18n="Create"></div>
+						</div> 
+					</div> 
+					<div id="Service2" class="anyservice" style="display: none;">
+						<label for="ServiceHappen" data-i18n="ServiceHappen"></label>
+						<div id="ServiceHappen"></div>
+						<div class="buttons">  
+							<div></div>    
+							<div id="DoneServiceButton" class="button" data-i18n="Done"></div>
+						</div> 
+					</div>
+				</div>
+
 			</div>
 
 			<!-- Operational Wizard UI -->

@@ -1,3 +1,7 @@
+# Release 2.7.3
+* Quick add Simple Identity feature
+* Quick add Simple Tunnel Service Feature
+
 # Release 2.7.2
 * Fix duplicate files downloading for identity jwts
 * Make tables maintain a width for names if things fall off

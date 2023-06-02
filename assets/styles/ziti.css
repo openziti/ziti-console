@@ -911,11 +911,19 @@ aside .icon {
     display: none;
 }
 
+#IdentityQrCode {
+    display: inline-block;
+}
+ 
 .linkButton {
     color: var(--menu);
     line-height: 40px;
     cursor: pointer;
     transition: var(--transition);
+}
+
+#IdentityDownload {
+    text-align: center;
 }
 
 .linkButton:hover {
@@ -1547,9 +1555,39 @@ aside .icon {
     color: var(--primary);
 }
 
+.iconButton {
+    width: 100%;
+    height: 150px;
+    position: relative;
+    background-color: var(--white);
+    border-radius: 7px;
+    box-sizing: var(--shadow);
+    cursor: pointer;
+}
+
+.iconButton:hover .image, .iconButton:hover .label {
+    color: var(--primary);
+}
+
+.iconButton .image {
+    font-size: 85px;
+    text-align: center;
+    transition: var(--transition);
+}
+
+.iconButton .label {
+    font-size: 16px;
+    text-transform: uppercase;
+    text-align: center;
+    font-weight: bold;
+    transition: var(--transition);
+}
+
+
+
+
 #AddAnyModal {
     background-color: var(--background);
-    background-image: url(/assets/images/anywhere.png);
     background-size: contain;
     background-position: center center;
 }
@@ -2225,9 +2263,18 @@ div:focus {
     .hidetablet {
         display:inline-block;
     }
+    .grid.dashboard {
+        grid-template-columns: 100%;
+    }
+    #MainMap {
+        height: 30vh !important;
+    }
     .grid.triple {
         grid-template-columns: 100px auto 100px;
     }  
+    .grid.numbers {
+        grid-template-columns: 50px auto 40%;
+    }
 	.grid.four, .grid.templates, .grid.five, .grid.fives, .grid.six, .grid.seven, .grid.sleven, .grid.ten, .grid.nine, .grid.eight, .grid.eightOS, .grid.nineOS, .grid.tenOS, .grid.policies, .grid.columns {
 		display: grid;
 	  	grid-template-columns: 50px auto 40px !important;
@@ -2398,6 +2445,28 @@ div:focus {
     color: unset;
 }
 
+.boxed .title {
+    font-size: 14px;
+}
+
+.boxed input, .boxed select {
+    border-color: var(--white);
+    background-color: var(--white) !important;
+}
+
+.boxed {
+    border-width: 3px;
+    border-style: solid;
+    border-color: var(--white);
+    background-color: rgba(255,255,255,0.5);
+    padding: 13px;
+    border-radius: 12px;
+    z-index: 10;
+    box-shadow: var(--shadowLarge);
+    transition: var(--transition);
+    overflow-y: auto;
+}
+
 .pod .button {    
     margin-top: 10px;
     width: 100%;
@@ -2497,10 +2566,10 @@ div:focus {
     position: relative;
     width: 100%;
     height: calc(100vh - 220px);
-    margin-top: 20px;
     z-index: 10;
     border-radius: 12px;
     box-shadow: var(--shadowLarge);
+    margin-top: 20px;
 }
 
 .vert {
@@ -2884,4 +2953,50 @@ svg {
 }
     
     
-    
+.lds-ripple {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+  }
+  .lds-ripple div {
+    position: absolute;
+    border: 4px solid var(--primary);
+    opacity: 1;
+    border-radius: 50%;
+    animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+  }
+  .lds-ripple div:nth-child(2) {
+    animation-delay: -0.5s;
+  }
+  @keyframes lds-ripple {
+    0% {
+      top: 36px;
+      left: 36px;
+      width: 0;
+      height: 0;
+      opacity: 0;
+    }
+    4.9% {
+      top: 36px;
+      left: 36px;
+      width: 0;
+      height: 0;
+      opacity: 0;
+    }
+    5% {
+      top: 36px;
+      left: 36px;
+      width: 0;
+      height: 0;
+      opacity: 1;
+    }
+    100% {
+      top: 0px;
+      left: 0px;
+      width: 72px;
+      height: 72px;
+      opacity: 0;
+    }
+  }
+  

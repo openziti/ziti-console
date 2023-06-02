@@ -44,6 +44,18 @@ var header = {
         $("main").css("transition", "var(--transition)");
     },
     showAdd: function() {
+		app.typedIn = false;
+        $(".anyadd").hide();
+        $("#Select1").show();
+        $("#HostedHost").val("localhost");
+        $("#HostedPort").val("80");
+        $("#HowToPort").val("80");
+		$("#Service1").show();
+		$("#Service2").hide();
+        $("#ServiceHappen").html("");
+        $("#SServiceName").val("");
+        app.hostedRoles.val([]);
+        app.idRoles.val([]);
         modal.show("AddAnyModal");
     },
     checkOption: function(e) {

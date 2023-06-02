@@ -815,6 +815,203 @@ function HandleError(response, error) {
 	else response.json({ error: error, errorObj: error });
 }
 
+/**
+ * Quick create a simple service and return what occurred
+ */
+app.post("/api/service", async function(request, response) {
+	if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
+	else {
+		var name = request.body.name;
+		var protocol = request.body.protocol;
+		var host = request.body.host;
+		var port = Number(request.body.port);
+		var encrypt = request.body.encrypt;
+		var zitiHost = request.body.zitiHost;
+		var zitiPort = Number(request.body.zitiPort);
+		var hosted = request.body.hosted;
+		var access = request.body.access;
+
+		var user = request.session.user;
+
+		var rootName = name.trim().replace(/[^a-z0-9 ]/gi, '').split(' ').join('-');
+		var clientName = rootName+"-Client";
+		var serverName = rootName+"-Server";
+		var dialPolicyName = rootName+"-DialPolicy";
+		var bindPolicyName = rootName+"-BindPolicy";
+
+		var serverConfig = {
+			hostname: host,
+			port: port,
+			protocol: protocol
+		};
+		var clientConfig = {
+			hostname: zitiHost,
+			port: zitiPort
+		};
+
+		var clientConfigId = await GetConfigId(request, response, serviceUrl, user, "ziti-tunneler-client.v1");
+		var serverConfigId = await GetConfigId(request, response, serviceUrl, user, "ziti-tunneler-server.v1");
+		var serverId = await CreateConfig(request, response, user, serviceUrl, serverConfigId, serverName, serverConfig);
+		var clientId = await CreateConfig(request, response, user, serviceUrl, clientConfigId, clientName, clientConfig);
+		var serviceId = await CreateService(request, response, serviceUrl, user, name, encrypt, serverId, clientId);
+		var bindId = await CreateServerPolicy(request, response, serviceUrl, user, bindPolicyName, "@"+serviceId, hosted);
+		var dialId = await CreateClientPolicy(request, response, serviceUrl, user, dialPolicyName, "@"+serviceId, access);
+		console.log(clientId+" "+serverId+" "+serverConfigId+" "+clientConfigId+" "+bindId+" "+dialId);
+	
+		var logs = [];
+		logs.push({name: serverName, id: serverId, type: "Config"});
+		logs.push({name: clientName, id: clientId, type: "Config"});
+		logs.push({name: name, id: serviceId, type: "Service"});
+		logs.push({name: bindPolicyName, id: bindId, type: "Policy"});
+		logs.push({name: dialPolicyName, id: dialId, type: "Policy"});
+		response.json({ data: logs });
+	}
+});
+
+async function CreateClientPolicy(request, respone, url, user, name, serviceId, access) {
+	return new Promise(function(resolve, reject) {
+		if (hasAccess(user)) {
+			Authenticate(request).then((results) => {
+				if (hasAccess(user)) {
+					var params = {
+						name: name,
+						type: "Bind",
+						semantic: "AnyOf",
+						serviceRoles: [serviceId],
+						identityRoles: access
+					};
+					log("Saving As: POST "+JSON.stringify(params));
+					external(url+"/service-policies", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+						log(JSON.stringify(body));
+						if (body.error) resolve("");
+						else if (body.data) resolve(body.data.id);
+						else resolve("");
+					});
+				}
+			});
+		}
+	});
+}
+
+async function CreateServerPolicy(request, respone, url, user, name, serviceId, hosted) {
+	return new Promise(function(resolve, reject) {
+		if (hasAccess(user)) {
+			Authenticate(request).then((results) => {
+				if (hasAccess(user)) {
+					var params = {
+						name: name,
+						type: "Bind",
+						semantic: "AnyOf",
+						serviceRoles: [serviceId],
+						identityRoles: hosted
+					};
+					log("Saving As: POST "+JSON.stringify(params));
+					external(url+"/service-policies", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+						log(JSON.stringify(body));
+						if (body.error) resolve("");
+						else if (body.data) resolve(body.data.id);
+						else resolve("");
+					});
+				}
+			});
+		}
+	});
+}
+
+async function CreateService(request, respone, url, user, name, encrypt, serverId, clientId) {
+	return new Promise(function(resolve, reject) {
+		Authenticate(request).then((results) => {
+			if (hasAccess(user)) {
+				var params = {
+					name: name,
+					configs: [serverId, clientId],
+					encryptionRequired: encrypt
+				};
+				log("Saving As: POST "+JSON.stringify(params));
+				external(url+"/services", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+					log(JSON.stringify(body));
+					if (body.error) resolve("");
+					else if (body.data) resolve(body.data.id);
+					else resolve("");
+				});
+			}
+		});
+	});
+}
+
+async function GetConfigId(request, response, url, user, type) {
+	return new Promise(function(resolve, reject) {
+		Authenticate(request).then((results) => {
+			if (hasAccess(user)) {
+				DoCall(url+"/config-types?filter=(name = \""+type+"\")&limit=1", {}, request, true).then((results) => {
+					console.log("Config Returned");
+					console.log(JSON.stringify(results));
+					resolve(results.data[0].id);
+				});
+			}
+		});
+	});
+}
+
+async function CreateConfig(request, response, user, url, configId, name, data, index) {
+	return new Promise(function(resolve, reject) {
+		if (!index) index = 0;
+		Authenticate(request).then((results) => {
+			if (hasAccess(user)) {
+				var params = {
+					name: name+((index>0)?"-"+index:""),
+					configTypeId: configId,
+					data: data
+				};
+				log("Saving As: POST "+JSON.stringify(params));
+				external(serviceUrl+"/configs", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+					log(JSON.stringify(body));
+					index++;
+					if (body.error) resolve(CreateConfig(request, response, user, url, configId, name, data, index));
+					else if (body.data) resolve(body.data.id);
+					else resolve(CreateConfig(request, response, user, url, configId, name, data, index));
+				});
+			}
+		});
+	});
+}
+
+/**
+ * Quick create a simple identity and return the new identity
+ */
+app.post("/api/identity", function(request, response) {
+	if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
+	else {
+		log("Simple Identity Creation");
+		var params = {
+			enrollment: {
+				ott: true
+			},
+			isAdmin: false,
+			name: request.body.name,
+			type: "Device"
+		}
+		var user = request.session.user;
+		if (request.body.roles) params.roleAttributes = request.body.roles
+		Authenticate(request).then((results) => {
+			if (hasAccess(user)) {
+				log("Saving As: POST "+JSON.stringify(params));
+				external(serviceUrl+"/identities", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+					log(JSON.stringify(body));
+					if (body.error) HandleError(response, body.error);
+					else if (body.data) {
+						var id = body.data.id;
+						DoCall(serviceUrl+"/identities/"+id, {}, request, true).then((results) => {
+							if (results.error) HandleError(response, results.error);
+							else response.json(results);
+						});
+					} else response.json( {error: "Unable to save data"} );
+				});
+			}
+		});
+	}
+});
+
 
 /**
  * Save the object to the edge controller based on the provided type and passed in JSON 
@@ -1571,7 +1768,7 @@ app.use((err, request, response, next) => {
 	if (err) {
 		if (err.toString().indexOf("Error: EPERM: operation not permitted, rename")==0) {
 			// Ignoring chatty session-file warnings
-		} else console.err(err);
+		} else console.log(err);
 		next();
 	} else {  
 		next();
