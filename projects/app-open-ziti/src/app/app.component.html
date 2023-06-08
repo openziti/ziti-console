@@ -1,0 +1,259 @@
+<header class="auth{{auth}}">
+  <div class="topButtons">
+    <div id="NavigationButton" class="clickable main AreaNavigation" data-open="AreaNavigation" data-hover="NetworkHover">
+      <div class="circle"></div>
+      <div class="icon icon-globe"></div>
+      <div id="NetworkHover" class="hover" data-i18n="NetworkSettings"></div>
+    </div>
+    <!--x
+    <div id="AddButton" class="clickable" data-hover="AddHover">
+      <div class="circle"></div>
+      <div class="icon"></div>
+      <div id="AddHover" class="hover">Add New</div>
+    </div>
+    //-->
+    <a href="/attributes">
+      <div id="AttributesButton" class="clickable" data-hover="AttributeHover">
+        <div class="circle"></div>
+        <div class="icon icon-hash"></div>
+        <div id="AttributeHover" class="hover">Attribute Explorer</div>
+      </div>
+    </a>
+    <div id="SearchButton" class="clickable" data-hover="SearchHover" style="display: none;">
+      <div class="clicked"></div>
+      <div class="circle"></div>
+      <div class="icon"></div>
+      <div id="SearchHover" class="hover" data-i18n="Search"></div>
+    </div>
+  </div>
+  <div class="bottomButtons">
+    <div id="AlertButton" class="clickable">
+      <div class="circle"></div>
+      <div class="icon"></div>
+      <div id="AlarmCount" class="count"></div>
+    </div>
+    <div id="HelpButton" class="clickable AreaSupport" data-modal="AddMessageModal">
+      <div class="clicked"></div>
+      <div class="circle"></div>
+      <div class="icon"></div>
+    </div>
+    <div id="OrgButton" class="clickable AreaOrganization" data-open="AreaOrganization">
+      <div class="clicked"></div>
+      <div class="circle"></div>
+      <div class="icon"></div>
+    </div>
+    <div id="ProfileButton" class="clickable main" data-show="ProfileMenu">
+      <div class="main"></div>
+      <div class="circle"></div>
+      <div class="icon"></div>
+      <div id="ProfileMenu" class="menu">
+        <div class="menutitle"></div>
+        <div id="ProfileButton" class="link" data-go="/profile" data-i18n="EditProfile"></div>
+        <div id="SettingsButton" class="link" data-go="/settings" data-i18n="PersonalSettings"></div>
+        <div id="LogoutButton" class="link" data-go="/login" data-i18n="Logout"></div>
+      </div>
+    </div>
+  </div>
+</header>
+<nav class="auth{{auth}}">
+  <div class="title" data-i18n="AppName"></div>
+  <div id="Version" class="version"></div>
+  <div id="AreaNavigation" class="navArea">
+    <div class="navList">
+      <a href="/">
+        <div class="navButton">
+          <div class="iconArea rippler"><div class="image icon-dashboard"></div></div>
+          <div class="label" data-i18n="Dashboard"></div>
+        </div>
+      </a>
+      <a href="/identities">
+        <div class="navButton">
+          <div class="iconArea rippler"><div class="image icon-identity"></div></div>
+          <div class="label" data-i18n="Identities"></div>
+        </div>
+      </a>
+      <a href="/recipes">
+        <div class="navButton">
+          <div class="iconArea rippler"><div class="image icon-template"></div></div>
+          <div class="label" data-i18n="Recipes"></div>
+        </div>
+      </a>
+
+      <a href="/services">
+        <div class="navButton">
+          <div class="iconArea rippler"><div class="image icon-services"></div></div>
+          <div class="label" data-i18n="Services"></div>
+        </div>
+      </a>
+      <a href="/configs">
+        <div class="navButton">
+          <div class="iconArea rippler"><div class="image icon-change"></div></div>
+          <div class="label" data-i18n="Configurations"></div>
+        </div>
+      </a>
+      <a href="/service-policies">
+        <div class="navButton">
+          <div class="iconArea rippler"><div class="image icon-servicepolicy"></div></div>
+          <div class="label" data-i18n="Policies"></div>
+        </div>
+      </a>
+
+      <a href="/routers">
+        <div class="navButton">
+          <div class="iconArea rippler"><div class="image icon-network-hub"></div></div>
+          <div class="label" data-i18n="Routers"></div>
+        </div>
+      </a>
+
+      <a href="/cas">
+        <div class="navButton">
+          <div class="iconArea rippler"><div class="image icon-certificates"></div></div>
+          <div class="label" data-i18n="CertificateAuthorities"></div>
+        </div>
+      </a>
+      <a href="/sessions">
+        <div class="navButton">
+          <div class="iconArea rippler"><div class="image icon-time"></div></div>
+          <div class="label" data-i18n="Sessions"></div>
+        </div>
+      </a>
+    </div>
+  </div>
+  <div id="AreaOrganization" class="navArea">
+    <div class="navList">
+      <a href="/servers">
+        <div class="navButton">
+          <div class="iconArea rippler"><div class="image icon-server-1"></div></div>
+          <div class="label" data-i18n="ServerSettings"></div>
+        </div>
+      </a>
+      <a href="/organization">
+        <div class="navButton">
+          <div class="iconArea rippler"><div class="image icon-configuration"></div></div>
+          <div class="label" data-i18n="CustomFields"></div>
+        </div>
+      </a>
+
+      <div class="navButton" data-go="/known" style="display: none;">
+        <div class="iconArea rippler"><div class="image icon-known"></div></div>
+        <div class="label" data-i18n="WellKnownServices"></div>
+      </div>
+    </div>
+  </div>
+</nav>
+<div id="NotificationsMenu">
+  <div id="NotificationMenuClose" class="close icon-close"></div>
+  <div class="row">
+    <div class="header title" data-i18n="RecentNotifications"></div>
+    <div id="ClearNotificationsButton" class="subLink" data-i18n="ClearNotifications"></div>
+  </div>
+  <div class="hr"></div>
+  <div id="NotificationsList"></div>
+</div>
+<aside class="unauth{{auth}}">
+  <div class="overlay"></div>
+  <div class="icon"></div>
+  <div class="title" data-i18n="Info"></div>
+  <div class="title" id="LoginVersion"></div>
+</aside>
+<main>
+
+  <div id="NotificationTemplate" class="growler row template">
+    <div class="title">{{level}}</div>
+    <div class="subtitle">{{subtitle}}</div>
+    <div class="time">{{time}}</div>
+    <div class="content">{{message}}</div>
+    <div class="icon" style="background-image: url(/assets/images/{{type}}.png)"></div>
+  </div>
+
+  <router-outlet></router-outlet>
+
+  <!-- Add Any Modal UI -->
+  <div id="AddAnyModal" class="modal box" style="height: 310px; width: 900px">
+    <div class="underlay"></div>
+    <div class="close icon-close"></div>
+    <div class="title" data-i18n="AddTitle"></div>
+    <div class="grid singular">
+      <div></div>
+      <div class="launcher" data-add="/identities">
+        <div class="image icon-ids"></div>
+        <div class="label" data-i18n="AddIdentity"></div>
+      </div>
+      <div></div>
+    </div>
+    <div class="grid dual">
+      <div class="launcher" data-add="/edge-routers">
+        <div class="image icon-router"></div>
+        <div class="label" data-i18n="AddRouter"></div>
+      </div>
+      <div class="launcher" data-add="/edge-services">
+        <div class="image icon-services"></div>
+        <div class="label" data-i18n="AddService"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Operational Wizard UI -->
+  <div id="WizardModal" class="modal box">
+    <div class="close icon-close"></div>
+    <div class="title" data-i18n="ZitiWizard"></div>
+    <div class="subtitle" data-i18n="WizardService"></div>
+    <div class="wizard area open">
+      <label for="WServiceName" data-i18n="ServiceName"></label>
+      <input id="WServiceName" type="text" maxlength="100" />
+      <label for="WServiceRoles"></label>
+    </div>
+    <div></div>
+  </div>
+
+  <!-- Submit Bug UI -->
+  <div id="AddMessageModal" class="modal box full">
+    <div class="sized">
+      <div class="close icon-close"></div>
+      <div class="title" data-i18n="MessageTitle"></div>
+      <div class="subtitle" data-i18n="MessageSubTitle"></div>
+      <div class="split unsplit">
+        <div>
+          <label for="SendName" data-i18n="MessageName"></label>
+          <input id="SendName" type="text" maxlength="500" data-i18n="EnterName"/>
+        </div>
+        <div>
+          <label for="SendEMail" data-i18n="MessageEMail"></label>
+          <input id="SendEMail" type="text" maxlength="500" data-i18n="EnterEMail" />
+        </div>
+      </div>
+      <label data-i18n="Message"></label>
+      <div>
+        <textarea id="SendMessage" data-i18n="MessagePlaceholder"></textarea>
+      </div>
+      <label id="MessageType" data-i18n="MessageType"></label>
+      <div class="grid quad">
+        <div class="card option" data-type="bug">
+          <div class="icon icon-bug"></div>
+          <div class="contents" data-i18n="Bug"></div>
+          <div class="checkbox icon-check"></div>
+        </div>
+        <div class="card option" data-type="feature">
+          <div class="icon icon-bulb"></div>
+          <div class="contents" data-i18n="FeatureRequest"></div>
+          <div class="checkbox icon-check"></div>
+        </div>
+        <div class="card option" data-type="love">
+          <div class="icon icon-hearts"></div>
+          <div class="contents" data-i18n="LoveLetter"></div>
+          <div class="checkbox icon-check"></div>
+        </div>
+        <div class="card option" data-type="message">
+          <div class="icon icon-question-sign"></div>
+          <div class="contents" data-i18n="Message"></div>
+          <div class="checkbox icon-check"></div>
+        </div>
+      </div>
+      <div class="loved"></div>
+      <div class="buttons">
+        <div class="linkButton closer" data-i18n="Oops"></div>
+        <div id="SendMessageButton" class="button" data-i18n="Send"></div>
+      </div>
+    </div>
+  </div>
+</main>

@@ -22,6 +22,8 @@ import compression from 'compression';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const sessionStore = sessionStoreFactory(session);
+const __assets = '/../consoleLib/src/lib/assets';
+const __html= '/../consoleLib/src/lib/html';
 
 const loadModule = async (modulePath) => {
 	try {
@@ -56,8 +58,8 @@ const zacVersion = fs.readFileSync("./version.txt", 'utf8');
 
 var serviceUrl = "";
 var baseUrl = "";
-var headerFile = __dirname+"/assets/templates/header.htm";
-var footerFile = __dirname+"/assets/templates/footer.htm";
+var headerFile = __dirname+__assets + "/templates/header.htm";
+var footerFile = __dirname+__assets + "/templates/footer.htm";
 var header = fs.readFileSync(headerFile, 'utf8');
 var footer = fs.readFileSync(footerFile, 'utf8');
 var onlyDeleteSelfController = true;
@@ -109,8 +111,8 @@ var helmetOptions = {
 	crossOriginEmbedderPolicy: false
 };
 
-app.use('/assets', express.static('assets', {
-	maxAge: '31536000000' 
+app.use("/assets", express.static('../consoleLib/src/lib/assets', {
+  maxAge: '31536000000'
 }));
 app.use(cors(corsOptions));
 app.use(helmet(helmetOptions));
@@ -120,20 +122,20 @@ app.use(function(req, res, next) {
 });
 app.use(bodyParser.json());
 app.use(fileUpload());
-app.use(session({ 
-	store: new sessionStore({}), 
-	secret: 'NetFoundryZiti', 
-	retries: 0, 
-	resave: true, 
-	saveUninitialized: true, 
-	ttl: 60000, 
+app.use(session({
+	store: new sessionStore({}),
+	secret: 'NetFoundryZiti',
+	retries: 0,
+	resave: true,
+	saveUninitialized: true,
+	ttl: 60000,
 	logFn: () => {}
 }));
 
 /**
  * Load configurable settings, or create the settings in place if they have never been defined
  */
-var initial = JSON.parse(fs.readFileSync(path.join(__dirname,"assets","data","settings.json")));
+var initial = JSON.parse(fs.readFileSync(path.join(__dirname,__assets,"data","settings.json")));
 
 var port = initial.port;
 var portTLS = initial.portTLS;
@@ -159,7 +161,7 @@ for (var i=0; i<process.argv.length; i++) {
 				else if (options[0].toLowerCase()=="location") settingsPath=true;
 			}
 		}
-	} 
+	}
 }
 
 if (settingsPath.indexOf("/")!=0) settingsPath = "/"+settingsPath;
@@ -168,23 +170,24 @@ if (!fs.existsSync(__dirname+settingsPath)) {
 	fs.mkdirSync(__dirname+settingsPath);
 }
 if (!fs.existsSync(__dirname+settingsPath+'tags.json')) {
-	fs.copyFileSync(__dirname+'/assets/data/tags.json', __dirname+settingsPath+'tags.json');
+  console.log(__dirname+__assets + '/data/tags.json', __dirname+settingsPath+'tags.json');
+	fs.copyFileSync(__dirname+__assets + '/data/tags.json', __dirname+settingsPath+'tags.json');
 }
 if (!fs.existsSync(__dirname+settingsPath+'templates.json')) {
-	fs.copyFileSync(__dirname+'/assets/data/templates.json', __dirname+settingsPath+'templates.json');
+	fs.copyFileSync(__dirname+__assets + '/data/templates.json', __dirname+settingsPath+'templates.json');
 }
 if (fs.existsSync(__dirname+settingsPath+'settings.json')&&updateSettings) {
 	console.log("Updating Settings File - Backing Up Previous Settings");
 	fs.renameSync(__dirname+settingsPath+'settings.json', __dirname+settingsPath+'settings.'+moment().unix());
 }
 if (!fs.existsSync(__dirname+settingsPath+'settings.json')) {
-	fs.copyFileSync(__dirname+'/assets/data/settings.json', __dirname+settingsPath+'settings.json');
+	fs.copyFileSync(__dirname+__assets + '/data/settings.json', __dirname+settingsPath+'settings.json');
 }
 if (!fs.existsSync(__dirname+settingsPath+'/resources')) {
 	fs.mkdirSync(__dirname+settingsPath+'/resources');
-	fse.copySync(__dirname+'/assets/resources/',__dirname+settingsPath+'/resources/');
+	fse.copySync(__dirname+__assets + '/resources/',__dirname+settingsPath+'/resources/');
 }
-var pages = JSON.parse(fs.readFileSync(__dirname+'/assets/data/site.json', 'utf8'));
+var pages = JSON.parse(fs.readFileSync(__dirname+__assets + '/data/site.json', 'utf8'));
 var tags = JSON.parse(fs.readFileSync(__dirname+settingsPath+'tags.json', 'utf8'));
 var templates = JSON.parse(fs.readFileSync(__dirname+settingsPath+'templates.json', 'utf8'));
 
@@ -203,7 +206,7 @@ for (var i=0; i<process.argv.length; i++) {
 	if (options.length==2) {
 		if (options[0].toLowerCase()=="port"&&!isNaN(options[1])) port = options[1];
 		else if (options[0].toLowerCase()=="porttls"&&!isNaN(options[1])) portTLS = options[1];
-		
+
 		if (options[0].toLowerCase()=="editable") {
 			if (options[1]=="true") settings.editable = true;
 			else settings.editable = false;
@@ -212,10 +215,10 @@ for (var i=0; i<process.argv.length; i++) {
 }
 
 var components = {};
-var comFiles = fs.readdirSync(__dirname+"/assets/components");
+var comFiles = fs.readdirSync(__dirname+__assets + "/components");
 for (let i=0; i<comFiles.length; i++) {
 	var name = path.parse(comFiles[i]).name;
-	components[name] = fs.readFileSync(__dirname+"/assets/components/"+comFiles[i], 'utf8');
+	components[name] = fs.readFileSync(__dirname+__assets + "/components/"+comFiles[i], 'utf8');
 }
 
 for (var i=0; i<settings.edgeControllers.length; i++) {
@@ -250,7 +253,7 @@ for (var i=0; i<pages.length; i++) {
 			if (page.url=="/login") request.session.user = null;
 			var headerNow = header.split("{{title}}").join(page.title);
 			headerNow = headerNow.split("{{auth}}").join("");
-			fs.readFile(__dirname+"/html"+page.page, 'utf8', function(err, data) {
+			fs.readFile(__dirname+__html+page.page, 'utf8', function(err, data) {
 				var html = headerNow+data+footer;
 				for (let prop in components) html = html.split('{{html.'+prop+'}}').join(components[prop]);
 				response.send(html);
@@ -261,7 +264,7 @@ for (var i=0; i<pages.length; i++) {
 				if (Number(page.access)<=Number(request.session.authorization)) {
 					var headerNow = header.split("{{title}}").join(page.title);
 					headerNow = headerNow.split("{{auth}}").join(" loggedIn");
-					fs.readFile(__dirname+"/html"+page.page, 'utf8', function(err, data) {
+					fs.readFile(__dirname+__html+page.page, 'utf8', function(err, data) {
 						var html = headerNow+data+footer;
 						for (let prop in components) html = html.split('{{html.'+prop+'}}').join(components[prop]);
 						response.send(html);
@@ -295,9 +298,9 @@ app.get("/sso", (request, response) => {
 });
 
 /**
- * Just tests if the user exists as a session or not, would add on to validate roles, etc if the system is expanded to 
+ * Just tests if the user exists as a session or not, would add on to validate roles, etc if the system is expanded to
  * include more well defined authentication structures
- * @param {The current user session} user 
+ * @param {The current user session} user
  */
 function hasAccess(user) {
 	return (user!=null);
@@ -349,7 +352,7 @@ function Authenticate(request) {
 							resolve( {success: "Logged In"} );
 						} else resolve( {error: "Invalid Account"} );
 					}
-				}				
+				}
 			});
 		}
 	});
@@ -357,7 +360,7 @@ function Authenticate(request) {
 
 /**
  * Return the server path to the services
- * 
+ *
  * @returns The path to the services
  */
 function GetPath() {
@@ -457,8 +460,8 @@ app.post("/api/reset", function(request, response) {
 
 /**
  * Tests whether the service url exists in the system to prevent hitting unknown server sources
- * 
- * @param {The Url to check if it exists in the configuration} url 
+ *
+ * @param {The Url to check if it exists in the configuration} url
  */
 function IsServerDefined(url) {
 	for (var i=0; i<settings.edgeControllers.length; i++) {
@@ -472,10 +475,10 @@ function IsServerDefined(url) {
  */
 app.post("/api/language", (request, response) => {
 	var locale = request.body.locale;
-	if (fs.existsSync('assets/languages/'+locale+'.json')) {
-		response.sendFile(path.resolve(__dirname+'/assets/languages/'+locale+'.json'));
+	if (fs.existsSync(__assets + '/languages/'+locale+'.json')) {
+		response.sendFile(path.resolve(__dirname+__assets + '/languages/'+locale+'.json'));
 	} else {
-		response.sendFile(path.resolve(__dirname+'/assets/languages/en-us.json'));
+		response.sendFile(path.resolve(__dirname+__assets + '/languages/en-us.json'));
 	}
 });
 
@@ -547,7 +550,7 @@ app.post("/api/controllerSave", function(request, response) {
 					response.json( {error: "Invalid Edge Controller", errorObj: body} );
 				}
 			}
-		});		
+		});
 	}
 });
 
@@ -640,7 +643,7 @@ app.post("/api/call", function(request, response) {
 });
 
 /**
- * Get the data from the edge controller based on the type of object and the 
+ * Get the data from the edge controller based on the type of object and the
  * defined search parameters
  */
 app.post("/api/data", function(request, response) {
@@ -689,11 +692,11 @@ function DoCall(url, json, request, isFirst=true) {
 
 /**
  * Get the data from the edge controller
- * 
- * @param {The type of object to search for (identity, router, gateway, etc)} type 
- * @param {Paging request parameters (see edge controller API docs)} paging 
- * @param {The server request object} request 
- * @param {The server response object} response 
+ *
+ * @param {The type of object to search for (identity, router, gateway, etc)} type
+ * @param {Paging request parameters (see edge controller API docs)} paging
+ * @param {The server request object} request
+ * @param {The server response object} response
  */
 function GetItems(type, paging, request, response) {
 	if (request.body.url) {
@@ -766,7 +769,7 @@ function GetSubs(url, type, id, parentType, request, response) {
 			if (err) response.json({ error: err });
 			else {
 				log("Returned: "+JSON.stringify(body));
-				response.json({ 
+				response.json({
 					id: id,
 					parent: parentType,
 					type: type,
@@ -804,7 +807,7 @@ function HandleError(response, error) {
 
 
 /**
- * Save the object to the edge controller based on the provided type and passed in JSON 
+ * Save the object to the edge controller based on the provided type and passed in JSON
  * parameters. If it exists, do an update, if not do a create operation.
  */
 app.post("/api/dataSave", function(request, response) {
@@ -881,7 +884,7 @@ app.post("/api/dataSave", function(request, response) {
 								else GetItems(type, paging, request, response);
 							}
 						} else response.json( {error: "Unable to save data"} );
-					}	
+					}
 				});
 			}
 		});
@@ -948,13 +951,13 @@ app.post("/api/verify", function(request, response) {
 
 /*
  * Schema Dereference Tool
- */ 
+ */
 app.post("/api/schema", function(request, response) {
 	var data = request.body.schema;
 	$RefParser.dereference(data, (err, schema) => {
 		if (err) response.json({error:err});
 		else response.json({data:schema});
-	})	
+	})
 });
 
 
@@ -964,7 +967,7 @@ app.post("/api/schema", function(request, response) {
 
 
 /**
- * Delete the specified list of objects from edge controller, and return the remaining 
+ * Delete the specified list of objects from edge controller, and return the remaining
  * list while retaining the last search filter properties.
  */
 app.post("/api/delete", function(request, response) {
@@ -987,8 +990,8 @@ app.post("/api/delete", function(request, response) {
 	ids.forEach(function(id) {
 		promises.push(ProcessDelete(type, id, user, request));
 	});
-	
-	Promise.all(promises).catch((error) => { 
+
+	Promise.all(promises).catch((error) => {
 		log("Catch: "+JSON.stringify(error));
 		response.json({error: error.causeMessage});
 	}).then(function(e) {
@@ -1015,10 +1018,10 @@ function DoDelete(type, ids, user, request, index) {
 
 /**
  * Create the promise required to delete a specific object from the edge controller
- * 
- * @param {The type of object being deleted} type 
- * @param {The id of the object to delete} id 
- * @param {The specified user token deleting the object} user 
+ *
+ * @param {The type of object being deleted} type
+ * @param {The id of the object to delete} id
+ * @param {The specified user token deleting the object} user
  */
 function ProcessDelete(type, id, user, request, isFirst=true) {
 	return new Promise(function(resolve, reject) {
@@ -1079,7 +1082,7 @@ app.post('/api/upload', function(request, response) {
 	var resource = request.body.resource;
 	var saveTo = __dirname+settingsPath+'/resources/'+resource+'/'+image.name;
 	var fullUrl = '/resource/'+resource+'/'+image.name;
-	
+
 	image.mv(saveTo, function(error) {
 		if (error) return response.status(500).send(error);
 		else return response.send(fullUrl);
@@ -1096,9 +1099,9 @@ app.post("/api/resources", function(request, response) {
 
 /**
  * Returns the list of all resources defined for a specific type
- * 
- * @param {The Type of Resource (e.g. image, icon, etc)} type 
- * @param {*} response 
+ *
+ * @param {The Type of Resource (e.g. image, icon, etc)} type
+ * @param {*} response
  */
 function GetResources(type, response) {
 	var toReturn = [];
@@ -1110,7 +1113,7 @@ function GetResources(type, response) {
 			});
 			response.json({ type: type, data: toReturn });
 		}
-	});	
+	});
 }
 
 
@@ -1134,7 +1137,7 @@ app.post("/api/tagSave", function(request, response) {
 	var user = request.session.user;
 	tags = request.body.tags;
 	if (hasAccess(user)) {
-		let data = JSON.stringify(tags);  
+		let data = JSON.stringify(tags);
 		fs.writeFileSync(__dirname+settingsPath+'/tags.json', data);
 	}
 	response.json(tags);
@@ -1170,8 +1173,8 @@ app.delete("/api/templates", function(request, response) {
 			}
 
 			templates = newTemplates;
-			
-			let data = JSON.stringify(templates);  
+
+			let data = JSON.stringify(templates);
 			fs.writeFileSync(__dirname+settingsPath+'/templates.json', data);
 
 			response.json(templates);
@@ -1200,7 +1203,7 @@ app.post("/api/template", function(request, response) {
 						}
 					}
 					if (!found) templates.push(template);
-					let data = JSON.stringify(templates);  
+					let data = JSON.stringify(templates);
 					fs.writeFileSync(__dirname+settingsPath+'/templates.json', data);
 				} else {
 					growler.error("Please update your version of Node JS.")
@@ -1245,7 +1248,7 @@ app.post("/api/execute", function(request, response) {
 							semantic: "AnyOf",
 							tags: {}
 						};
-	
+
 						for (var i=0; i<identities.length; i++) param.identityRoles.push("@"+identities[i].id);
 						for (var i=0; i<template.services.length; i++) param.serviceRoles.push(template.services[i].id);
 
@@ -1322,7 +1325,7 @@ function CreateProfile(template, name, index, request) {
 				name: name+"-"+profile,
 				type: "Device",
 				isAdmin: false,
-				enrollment: { 
+				enrollment: {
 					"ott": true
 				}
 			};
@@ -1331,7 +1334,7 @@ function CreateProfile(template, name, index, request) {
 				resolve(CreateProfile(template, name, index, request));
 
 			});
-			
+
 		} else resolve(true);
 	});
 }
@@ -1355,7 +1358,7 @@ app.post("/api/average", function(request, response) {
 	source +="."+type;
 	var url = new URL(request.body.url);
 	domain = url.hostname;
-	
+
 	const influx = new Influx.InfluxDB({
 		host: domain,
 		port: 8086,
@@ -1391,7 +1394,7 @@ app.post("/api/series", function(request, response) {
 	source +="."+type;
 	var url = new URL(request.body.url);
 	domain = url.hostname;
-	
+
 	const influx = new Influx.InfluxDB({
 		host: domain,
 		port: 8086,
@@ -1431,7 +1434,7 @@ app.post("/api/message", function(request, response) {
 		body: "A "+type+" message was set to you by "+from+" at "+(new Date())+" with email "+email+": "+message,
 		subject: "NetFoundry Ziti - Message"
 	};
-	
+
 	if (transporter) {
 		var body = params.body;
 		var subject = params.subject;
@@ -1534,7 +1537,7 @@ app.post("/api/send", function(request, response) {
 
 /**
  * If debugging is turned on show the log on the console.
- * @param {The text of the message} message 
+ * @param {The text of the message} message
  */
 function log(message) {
 	if (isDebugging) console.log(message);
@@ -1547,9 +1550,9 @@ function log(message) {
 
 /**
  * Serve the current app on the defined port
- * 
+ *
  * NOTE: if running Zitified, the 'port' is ignored. Instead, we
- * 		 we will be listening on the Ziti service name specified 
+ * 		 we will be listening on the Ziti service name specified
  * 		 by the ZITI_SERVICE_NAME env var.
  */
 StartServer(port);
@@ -1560,9 +1563,9 @@ app.use((err, request, response, next) => {
 			// Ignoring chatty session-file warnings
 		} else console.err(err);
 		next();
-	} else {  
+	} else {
 		next();
-	} 
+	}
 });
 
 function StartServer(startupPort) {

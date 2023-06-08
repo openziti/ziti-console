@@ -37,16 +37,16 @@
 		<link href="/assets/scripts/components/leaflet/leaflet.css" rel="stylesheet" type="text/css"/>
 		<link href="/assets/styles/chart.min.css" rel="stylesheet" type="text/css"/>
 		<link href="/assets/scripts/components/column.css" rel="stylesheet" type="text/css"/>
-		<link href="/assets/scripts/components/codemirror/codemirror.css" rel="stylesheet" type="text/css"/>	
-	
+		<link href="/assets/scripts/components/codemirror/codemirror.css" rel="stylesheet" type="text/css"/>
+
 		<!-- 3rd Party Includes -->
 		<script src="/assets/scripts/jquery-3.6.3.min.js"></script>
 		<script src="/assets/scripts/components/moment.js"></script>
 		<script src="/assets/scripts/components/timezone.js"></script>
 		<script src="/assets/scripts/components/spectrum.js"></script>
-		<script crossorigin="anonymous" src="/assets/scripts/components/leaflet/leaflet.js"></script>	
+		<script crossorigin="anonymous" src="/assets/scripts/components/leaflet/leaflet.js"></script>
 		<script async crossorigin="anonymous" src="//www.googletagmanager.com/gtag/js?id=UA-91801335-7"></script>
-	
+
 		<!-- NetFoundry Components -->
 		<script src="/assets/scripts/components/column.js"></script>
 		<script src="/assets/scripts/forms/schema.js"></script>
@@ -91,14 +91,14 @@
 		<!-- Application -->
 		<script src="/assets/scripts/header.js"></script>
 		<script src="/assets/scripts/ziti.js"></script>
-	
+
 		<script type="text/javascript">
 			window.dataLayer = window.dataLayer || [];
 			function gtag(){dataLayer.push(arguments);}
 			gtag('js', new Date());
-	
+
 			gtag('config', 'UA-91801335-7');
-	
+
 			if (localStorage.getItem("mode")!=null&&localStorage.getItem("mode")=="dark") {
 				var link = document.createElement( "link" );
 				link.href = "/assets/styles/dark.css";
@@ -119,7 +119,7 @@
 			} else {
 				document.documentElement.style.setProperty("--transition", "0.5s");
 			}
-		</script>	
+		</script>
 	</head>
 	<body>
 		<header class="auth{{auth}}">
@@ -128,7 +128,7 @@
 					<div class="circle"></div>
 					<div class="icon icon-globe"></div>
 					<div id="NetworkHover" class="hover" data-i18n="NetworkSettings"></div>
-			  </div> 
+			  </div>
 			  <!--x
 			  <div id="AddButton" class="clickable" data-hover="AddHover">
 					<div class="circle"></div>
@@ -273,7 +273,7 @@
 			</div>
 			<div class="hr"></div>
 			<div id="NotificationsList"></div>
-	  	</div>	  
+	  	</div>
 		<aside class="unauth{{auth}}">
 			<div class="overlay"></div>
 			<div class="icon"></div>
@@ -281,7 +281,7 @@
 			<div class="title" id="LoginVersion"></div>
 		</aside>
 		<main>
-			
+
 		<div id="NotificationTemplate" class="growler row template">
 			<div class="title">{{level}}</div>
 			<div class="subtitle">{{subtitle}}</div>

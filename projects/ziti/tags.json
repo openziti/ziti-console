@@ -1,0 +1,7 @@
+[
+    {"type":"system","objects":"all","id":"tags","label":"Tag Cloud","value":"array","default":"","description":"Enter descriptive tags seperated by a comma"},
+    {"type":"system","objects":"router,service","id":"icon","label":"Icon","value":"icon","default":"/assets/resources/icon/gateway.svg","description":"Select an Icon"},
+    {"type":"system","objects":"router,identity","id":"geolocation","label":"GeoLocation","value":"map","default":"","description":"Latitude and Longitude, e.g. 43.0425372,-77.4590074,20.79"},
+    {"type":"system","objects":"identity","id":"avatar","label":"Profile Image","value":"avatar","default":"/assets/resources/avatar/man.svg","description":"Select or upload an Avatar"},
+    {"type":"custom","id":"fullname","label":"Full Name","description":"first and last name","default":"","value":"string","objects":"identity"}
+]
