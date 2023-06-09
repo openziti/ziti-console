@@ -1,3 +1,8 @@
+# Release 2.7.4
+* Fix drag issue on service policies
+* Initial implementation of viewing operations in simple identity creation
+* Remove GTag it should not be in the open source project
+
 # Release 2.7.3
 * Quick add Simple Identity feature
 * Quick add Simple Tunnel Service Feature

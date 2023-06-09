@@ -36,6 +36,7 @@ var modal = {
 		modal.id = "";
 		$("body").removeClass("noscroll");
 		$(".modal.open").removeClass("open");
+        $(".commands").removeClass("open");
 	},
 	confirm: function(message, onConfirmed) {
 		modal.show("ConfirmModal");

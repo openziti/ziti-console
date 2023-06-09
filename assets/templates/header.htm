@@ -45,7 +45,6 @@
 		<script src="/assets/scripts/components/timezone.js"></script>
 		<script src="/assets/scripts/components/spectrum.js"></script>
 		<script crossorigin="anonymous" src="/assets/scripts/components/leaflet/leaflet.js"></script>	
-		<script async crossorigin="anonymous" src="//www.googletagmanager.com/gtag/js?id=UA-91801335-7"></script>
 	
 		<!-- NetFoundry Components -->
 		<script src="/assets/scripts/components/column.js"></script>
@@ -73,6 +72,7 @@
 		<script src="/assets/scripts/dragging.js"></script>
 		<script src="/assets/scripts/components/resources.js"></script>
 		<script src="/assets/scripts/components/uploader.js"></script>
+		<script src="/assets/scripts/commands.js"></script>
 		<!-- Application Objects -->
 		<script src="/assets/scripts/model/data.js"></script>
 		<script src="/assets/scripts/components/selector.js"></script>
@@ -98,10 +98,6 @@
 		<script type="text/javascript">
 			let canStyle = {{html.canStyle}};
 			window.dataLayer = window.dataLayer || [];
-			function gtag(){dataLayer.push(arguments);}
-			gtag('js', new Date());
-	
-			gtag('config', 'UA-91801335-7');
 	
 			if (localStorage.getItem("mode")!=null&&localStorage.getItem("mode")=="dark") {
 				var link = document.createElement( "link" );

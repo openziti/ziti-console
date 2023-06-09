@@ -983,27 +983,35 @@ app.post("/api/identity", function(request, response) {
 	if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
 	else {
 		log("Simple Identity Creation");
+		var name = request.body.name;
+		var user = request.session.user;
+		var url = serviceUrl+"/identities";
 		var params = {
 			enrollment: {
 				ott: true
 			},
 			isAdmin: false,
-			name: request.body.name,
+			name: name,
 			type: "Device"
 		}
-		var user = request.session.user;
 		if (request.body.roles) params.roleAttributes = request.body.roles
 		Authenticate(request).then((results) => {
 			if (hasAccess(user)) {
 				log("Saving As: POST "+JSON.stringify(params));
-				external(serviceUrl+"/identities", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+				external(url, {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 					log(JSON.stringify(body));
 					if (body.error) HandleError(response, body.error);
 					else if (body.data) {
 						var id = body.data.id;
 						DoCall(serviceUrl+"/identities/"+id, {}, request, true).then((results) => {
 							if (results.error) HandleError(response, results.error);
-							else response.json(results);
+							else {
+								results.params = params;
+								results.url = url;
+								results.cli = "ziti edge create identity device \""+name+"\"";
+								if (request.body.roles) results.cli += " -a \""+request.body.roles.toString()+"\"";
+								response.json(results);
+							}
 						});
 					} else response.json( {error: "Unable to save data"} );
 				});

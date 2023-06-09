@@ -26,6 +26,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-download:before {
+  content: "\e92c";
+}
+.icon-copy:before {
+  content: "\e92b";
+}
 .icon-time:before {
   content: "\e92a";
 }

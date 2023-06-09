@@ -885,6 +885,12 @@ aside .icon {
     position: fixed;
 }
 
+.modal.box .close {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+}
+
 .close {
     position: absolute;
     z-index: 10;
@@ -2406,6 +2412,10 @@ div:focus {
     
 }
 
+.related {
+    position: relative;
+}
+
 #VisualTitle {
     margin-right: auto;
     margin-left: auto;
@@ -2950,6 +2960,65 @@ svg {
     font-weight: normal;
     font-style: normal;
     font-display: swap;
+}
+
+.copy {
+    position: absolute;
+    right: 14px;
+    top: 16px;
+    font-size: 20px;
+    cursor: pointer; 
+    transition: var(--transition);
+    z-index: 150;
+}
+
+.copy.swap {
+    color: var(--dark);
+}
+
+.copy:hover {
+    color: var(--primary);
+}
+
+.commands.open {
+    height: fit-content;
+    opacity: 1.0;
+    display: inline-block;
+}
+
+.commands {
+    position: relative;
+    display: none;
+    width: 100%;
+    height: 0px;
+    opacity: 0;
+    background-color: var(--black);
+    color: var(--white);
+    border-radius: 7px;
+    padding: 20px;
+    transition: var(--transition);
+    margin-top: 15px;
+}
+
+.commands input {
+    background-color: var(--dark) !important;
+    border-color: var(--dark) !important;
+    color: var(--placeholder);
+    padding: 16px;
+}
+
+.commands label {
+    color: var(--primary);
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.modal .CodeMirror {
+    height: 150px;
+    border-radius: 7px;
+    border-top-left-radius: 7px;
+    border-bottom-left-radius: 7px;
+    margin-top: 10px;
 }
     
     

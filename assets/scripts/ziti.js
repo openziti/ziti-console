@@ -37,6 +37,7 @@ var app = {
 		if (tags) tags.init();
 		if (settings) settings.init();
 		if (restrictions) restrictions.init();
+		if (commands) commands.init();
 		$('*[data-go="'+window.location.pathname+'"]').addClass("selected");
 
 		app.identityRoles = new MultiSelect("IdRoles", 10, true);
@@ -66,6 +67,7 @@ var app = {
 		$("input").blur(app.trim);
 		$("#ClearNotificationsButton").click(app.clearNotifications);
 		$(".modal").find("input").change((e) => { app.isDirty = true; });
+		$(".copy").click(app.copy);
 		context.addListener(settings.name, app.settingsReturned);
 		context.addListener("version", app.versionReturned);
 		$("#SServiceName").keyup(app.name);
@@ -78,11 +80,30 @@ var app = {
 		$("#InlineAddIdentityButton").click(app.showInlineId);
 		$("#InlineAddServiceButton").click(app.showInlineService);
 	},
+	copy: function(e) {
+		var copyField = $("#"+$(e.currentTarget).data("copy"));
+		if (copyField.is("input")) {
+			var copied = copyField.val();
+			navigator.clipboard.writeText(copied);
+			growler.info(copied+" - copied to clipboard")
+		} else {
+			if (copyField.attr("id")=="ApiJson") {
+				var copied = commands.params.getValue();
+				navigator.clipboard.writeText(copied);
+				growler.info("JSON copied to clipboard");
+			}
+
+		}
+	},
 	showInlineService: function() {
 		$("#Select1").hide();
 		$("#InlineServiceArea").show();
 	},
 	showInlineId: function() {
+		app.identityRoles.val([]);
+		$("#IdName").val("");
+		$("#Identity2").hide();
+		$("#Identity1").show();
 		$("#Select1").hide();
 		$("#InlineIdentityArea").show();
 	},
@@ -146,6 +167,7 @@ var app = {
 				app.lastId = e.data;
 				$("#Identity2").show();
 				app.genQR();
+				commands.set(e.url, e.cli, e.params);
 			}
 		});
 	},
