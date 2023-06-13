@@ -11,7 +11,7 @@
 				}, 
 				events: function() {
 					$("#LoginButton").click(page.login);
-					$("#CreateButton").click(page.create);
+					$("#SetControllerButton").click(page.create);
 					$("#BackToLogin").click(page.back);
 					$("#EdgeControllerList").change(page.edgeChanged);
 					context.addListener(user.name,page.loggedIn);
@@ -126,6 +126,6 @@
 			</div>
 			<div id="CreateArea" class="edgecreate buttons">
 				<div id="BackToLogin" class="linkButton">Back To Login</div>
-				<div id="CreateButton" class="button ">Set Controller</div>
+				<div id="SetControllerButton" class="button ">Set Controller</div>
 			</div>
 		</div>

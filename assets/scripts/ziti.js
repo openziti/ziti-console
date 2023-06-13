@@ -40,21 +40,23 @@ var app = {
 		if (commands) commands.init();
 		$('*[data-go="'+window.location.pathname+'"]').addClass("selected");
 
-		app.identityRoles = new MultiSelect("IdRoles", 10, true);
-		app.identityRoles.addSource(new SelectSource("identity-role-attributes", "", "id")); 
-		app.identityRoles.init();
-
-		app.hostedRoles = new MultiSelect("WhereHosted", 10, true);
-		app.hostedRoles.appendHash = true;
-		app.hostedRoles.addSource(new SelectSource("identities", "@", "name", "role")); 
-		app.hostedRoles.addSource(new SelectSource("identity-role-attributes", "#", "id")); 
-		app.hostedRoles.init();
-
-		app.idRoles = new MultiSelect("WhoAccesses", 10, true);
-		app.idRoles.appendHash = true;
-		app.idRoles.addSource(new SelectSource("identities", "@", "name", "role")); 
-		app.idRoles.addSource(new SelectSource("identity-role-attributes", "#", "id")); 
-		app.idRoles.init();
+		if (window.location.pathname!="/login") {
+			app.identityRoles = new MultiSelect("IdRoles", 10, true);
+			app.identityRoles.addSource(new SelectSource("identity-role-attributes", "", "id")); 
+			app.identityRoles.init();
+	
+			app.hostedRoles = new MultiSelect("WhereHosted", 10, true);
+			app.hostedRoles.appendHash = true;
+			app.hostedRoles.addSource(new SelectSource("identities", "@", "name", "role")); 
+			app.hostedRoles.addSource(new SelectSource("identity-role-attributes", "#", "id")); 
+			app.hostedRoles.init();
+	
+			app.idRoles = new MultiSelect("WhoAccesses", 10, true);
+			app.idRoles.appendHash = true;
+			app.idRoles.addSource(new SelectSource("identities", "@", "name", "role")); 
+			app.idRoles.addSource(new SelectSource("identity-role-attributes", "#", "id")); 
+			app.idRoles.init();
+		}
  	},
 	events: function() {
 		if (localStorage.getItem("hideTags")=="yes") $("#TagArea").addClass("hidden");

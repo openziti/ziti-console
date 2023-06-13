@@ -496,7 +496,17 @@ app.post("/api/language", (request, response) => {
  * Returns the current system settings
  */
 app.post("/api/settings", function(rewwquest, response) {
-	response.json(settings);
+	var toReturn = settings;
+	delete toReturn.mail;
+	delete toReturn.to;
+	delete toReturn.from;
+	delete toReturn.location;
+	delete toReturn.editable;
+	delete toReturn.update;
+	delete toReturn.rejectUnauthorized;
+	delete toReturn.port;
+	delete toReturn.portTLS;
+	response.json(toReturn);
 });
 
 /**
@@ -513,7 +523,7 @@ app.post("/api/controllerSave", function(request, response) {
 	if (errors.length>0) {
 		response.json({ errors: errors });
 	} else {
-		var callUrl = url+ "/edge/management/v1/version";
+		var callUrl = url+"/edge/management/v1/version";
 		log("Calling Controller: "+callUrl);
 		external.get(callUrl, {rejectUnauthorized: rejectUnauthorized, timeout: 5000}, function(err, res, body) {
 			if (err) {
@@ -525,7 +535,7 @@ app.post("/api/controllerSave", function(request, response) {
 					var results = JSON.parse(body);
 					if (body.error) {
 						log("Add Controller Error");
-						log(body.error);
+						log(JSON.stringify(body.error));
 						response.json( {error: "Invalid Edge Controller", errorObj: err} );
 					} else {
 						if (results.data.apiVersions.edge.v1 != null) {
@@ -549,7 +559,7 @@ app.post("/api/controllerSave", function(request, response) {
 								};
 							}
 							fs.writeFileSync(__dirname+settingsPath+'/settings.json', JSON.stringify(settings));
-							response.json(settings);
+							response.json({edgeControllers: settings.edgeControllers});
 						} else {
 							log("Controller: "+url+" Returned: "+JSON.stringify(results));
 							response.json( {error: "Invalid Edge Controller", errorObj: results} );

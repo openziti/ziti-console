@@ -1,3 +1,7 @@
+# Release 2.7.5
+* Fix issue with server exposing settings
+* Fix issues with setting controller data after login to another controller
+
 # Release 2.7.4
 * Fix drag issue on service policies
 * Initial implementation of viewing operations in simple identity creation
