@@ -32,7 +32,7 @@
 }
 
 ::-webkit-scrollbar-track {
-    background: transparent url('/assets/images/scrollbar.png') repeat-y !important;
+    
 }
 
 ::-webkit-scrollbar-thumb {
@@ -57,11 +57,11 @@
 }
 
 ::-webkit-scrollbar-track-piece:start {
-    background: transparent url('/assets/images/scrollbar.png') repeat-y !important;
+    
 }
 
 ::-webkit-scrollbar-track-piece:end {
-    background: transparent url('/assets/images/scrollbar.png') repeat-y !important;
+    
 }
 
 ::-webkit-scrollbar * {

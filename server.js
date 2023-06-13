@@ -132,6 +132,10 @@ app.use(session({
 	},
 	logFn: () => {}
 }));
+app.use(function (req, res, next) {
+	res.setHeader('X-XSS-Protection', '1; mode=block');
+	next();
+});
 
 /**
  * Load configurable settings, or create the settings in place if they have never been defined
@@ -1786,7 +1790,6 @@ function log(message) {
 StartServer(port);
 let maxAttempts = 100;
 app.use((err, request, response, next) => {
-	response.setHeader("X-XSS-Protection", "1; mode=block");
 	if (err) {
 		if (err.toString().indexOf("Error: EPERM: operation not permitted, rename")==0) {
 			// Ignoring chatty session-file warnings
