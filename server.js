@@ -1783,7 +1783,7 @@ function log(message) {
 StartServer(port);
 let maxAttempts = 100;
 app.use((err, request, response, next) => {
-	res.setHeader("X-XSS-Protection", "1; mode=block");
+	response.setHeader("X-XSS-Protection", "1; mode=block");
 	if (err) {
 		if (err.toString().indexOf("Error: EPERM: operation not permitted, rename")==0) {
 			// Ignoring chatty session-file warnings
