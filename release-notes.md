@@ -1,3 +1,6 @@
+# Release 2.7.6
+* Fix a group of basic security concerns
+
 # Release 2.7.5
 * Fix issue with server exposing settings
 * Fix issues with setting controller data after login to another controller
