@@ -127,9 +127,6 @@ app.use(session({
 	resave: true, 
 	saveUninitialized: true, 
 	ttl: 60000, 
-	cookie: {
-		secure: true
-	},
 	logFn: () => {}
 }));
 app.use(function (req, res, next) {
