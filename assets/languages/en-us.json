@@ -167,6 +167,9 @@
     "EnterIdentitySecret": "Enter a value for the secret",
     "Cost": "Cost",
     "EnterCost": "Entar a value for cost",
+    "ExecutionOperations": "Execution Operations",
+    "CLICommands": "CLI Commands",
+    "APICalls": "API Calls",
 
     "GrowlerError": "An Error Occurred",
     "GrowlerInfo": "Information",

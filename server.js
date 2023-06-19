@@ -676,6 +676,15 @@ app.post("/api/data", function(request, response) {
 	GetItems(type, paging, request, response);
 });
 
+/**
+ * Call a service if expired, try to reauthenticate and try again.
+ * 
+ * @param {The url of the service to call} url 
+ * @param {The Json object to send} json 
+ * @param {The Server Request Object} request 
+ * @param {True if this is the first callattempt} isFirst 
+ * @returns 
+ */
 function DoCall(url, json, request, isFirst=true) {
 	return new Promise(function(resolve, reject) {
 		log("Calling: "+url+" "+isFirst+" "+request.session.user);
@@ -865,11 +874,26 @@ app.post("/api/service", async function(request, response) {
 
 		var clientConfigId = await GetConfigId(request, response, serviceUrl, user, "ziti-tunneler-client.v1");
 		var serverConfigId = await GetConfigId(request, response, serviceUrl, user, "ziti-tunneler-server.v1");
-		var serverId = await CreateConfig(request, response, user, serviceUrl, serverConfigId, serverName, serverConfig);
-		var clientId = await CreateConfig(request, response, user, serviceUrl, clientConfigId, clientName, clientConfig);
-		var serviceId = await CreateService(request, response, serviceUrl, user, name, encrypt, serverId, clientId);
-		var bindId = await CreateServerPolicy(request, response, serviceUrl, user, bindPolicyName, "@"+serviceId, hosted);
-		var dialId = await CreateClientPolicy(request, response, serviceUrl, user, dialPolicyName, "@"+serviceId, access);
+		
+		var serverData = await CreateConfig(request, response, user, serviceUrl, serverConfigId, serverName, serverConfig);
+		var clientData = await CreateConfig(request, response, user, serviceUrl, clientConfigId, clientName, clientConfig);
+		var serverId = serverData.id;
+		var clientId = clientData.id;
+
+		var serviceData = await CreateService(request, response, serviceUrl, user, name, encrypt, serverId, clientId);		
+		var serviceId = serviceData.id;
+		
+		var bindData = await CreateServerPolicy(request, response, serviceUrl, user, bindPolicyName, "@"+serviceId, hosted);
+		var dialData = await CreateClientPolicy(request, response, serviceUrl, user, dialPolicyName, "@"+serviceId, access);
+		
+		var bindId = bindData.id;
+		var dialId = dialData.id;
+
+		var toReturn = {
+			data: [],
+			cli: [],
+			services: []
+		};
 		console.log(clientId+" "+serverId+" "+serverConfigId+" "+clientConfigId+" "+bindId+" "+dialId);
 	
 		var logs = [];
@@ -878,7 +902,19 @@ app.post("/api/service", async function(request, response) {
 		logs.push({name: name, id: serviceId, type: "Service"});
 		logs.push({name: bindPolicyName, id: bindId, type: "Policy"});
 		logs.push({name: dialPolicyName, id: dialId, type: "Policy"});
-		response.json({ data: logs });
+		toReturn.data = logs;
+		toReturn.cli.push(serverData.cli);
+		toReturn.cli.push(clientData.cli);
+		toReturn.cli.push(serviceData.cli);
+		toReturn.cli.push(bindData.cli);
+		toReturn.cli.push(dialData.cli);
+
+		toReturn.services.push(serverData.service);
+		toReturn.services.push(clientData.service);
+		toReturn.services.push(serviceData.service);
+		toReturn.services.push(bindData.service);
+		toReturn.services.push(dialData.service);
+		response.json(toReturn);
 	}
 });
 
@@ -889,7 +925,7 @@ async function CreateClientPolicy(request, respone, url, user, name, serviceId, 
 				if (hasAccess(user)) {
 					var params = {
 						name: name,
-						type: "Bind",
+						type: "Dial",
 						semantic: "AnyOf",
 						serviceRoles: [serviceId],
 						identityRoles: access
@@ -897,9 +933,18 @@ async function CreateClientPolicy(request, respone, url, user, name, serviceId, 
 					log("Saving As: POST "+JSON.stringify(params));
 					external(url+"/service-policies", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 						log(JSON.stringify(body));
-						if (body.error) resolve("");
-						else if (body.data) resolve(body.data.id);
-						else resolve("");
+						let cli = "ziti edge create service-policy \""+name+"\" Dial --semantic AnyOf --serviceRoles ["+serviceId+"] --identityRoles ["+access.toString()+"]";
+						let serviceCall = {
+							url: url+"/service-policies",
+							params: params
+						};
+						var item = {
+							id: "",
+							cli: cli,
+							service: serviceCall
+						}
+						if (body.data) item.id = body.data.id;
+						resolve(item);
 					});
 				}
 			});
@@ -922,9 +967,18 @@ async function CreateServerPolicy(request, respone, url, user, name, serviceId, 
 					log("Saving As: POST "+JSON.stringify(params));
 					external(url+"/service-policies", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 						log(JSON.stringify(body));
-						if (body.error) resolve("");
-						else if (body.data) resolve(body.data.id);
-						else resolve("");
+						let cli = "ziti edge create service-policy \""+name+"\" Bind --semantic AnyOf --serviceRoles ["+serviceId+"] --identityRoles ["+hosted.toString()+"]";
+						let serviceCall = {
+							url: url+"/service-policies",
+							params: params
+						};
+						var item = {
+							id: "",
+							cli: cli,
+							service: serviceCall
+						}
+						if (body.data) item.id = body.data.id;
+						resolve(item);
 					});
 				}
 			});
@@ -944,9 +998,18 @@ async function CreateService(request, respone, url, user, name, encrypt, serverI
 				log("Saving As: POST "+JSON.stringify(params));
 				external(url+"/services", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 					log(JSON.stringify(body));
-					if (body.error) resolve("");
-					else if (body.data) resolve(body.data.id);
-					else resolve("");
+					let cli = "ziti edge create service \""+name+"\" --configs ["+serverId+", "+clientId+"]";
+					let serviceCall = {
+						url: url+"/services",
+						params: params
+					};
+					var item = {
+						id: "",
+						cli: cli,
+						service: serviceCall
+					}
+					if (body.data) item.id = body.data.id;
+					resolve(item);
 				});
 			}
 		});
@@ -978,12 +1041,24 @@ async function CreateConfig(request, response, user, url, configId, name, data, 
 					data: data
 				};
 				log("Saving As: POST "+JSON.stringify(params));
-				external(serviceUrl+"/configs", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+				external(url+"/configs", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 					log(JSON.stringify(body));
 					index++;
 					if (body.error) resolve(CreateConfig(request, response, user, url, configId, name, data, index));
-					else if (body.data) resolve(body.data.id);
-					else resolve(CreateConfig(request, response, user, url, configId, name, data, index));
+					else if (body.data) {
+						let cli = "ziti edge create config \""+params.name+"\" \""+configId+"\" "+JSON.stringify(data);
+						let serviceCall = {
+							url: url+"/configs",
+							params: params
+						};
+						var item = {
+							id: "",
+							cli: cli,
+							service: serviceCall
+						}
+						if (body.data) item.id = body.data.id;
+						resolve(item);						
+					} else resolve(CreateConfig(request, response, user, url, configId, name, data, index));
 				});
 			}
 		});
@@ -1020,10 +1095,19 @@ app.post("/api/identity", function(request, response) {
 						DoCall(serviceUrl+"/identities/"+id, {}, request, true).then((results) => {
 							if (results.error) HandleError(response, results.error);
 							else {
-								results.params = params;
-								results.url = url;
-								results.cli = "ziti edge create identity device \""+name+"\"";
-								if (request.body.roles) results.cli += " -a \""+request.body.roles.toString()+"\"";
+								results.cli = [];
+								results.services = [];
+								
+								let cli = "ziti edge create identity device \""+name+"\"";
+								if (request.body.roles) cli += " -a \""+request.body.roles.toString()+"\"";
+								results.cli.push(cli);
+
+								let serviceCall = {
+									url: url,
+									params: params
+								};
+								results.services.push(serviceCall);
+
 								response.json(results);
 							}
 						});

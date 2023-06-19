@@ -2538,11 +2538,63 @@ div:focus {
     position: absolute;
 }
 
+#OperationCommands .title {
+    text-align: left;
+    font-size: 21px;
+    color: var(--white);
+    margin-bottom: 0px;
+}
+
+#IconDownload {
+    position: absolute;
+    right: 23px;
+    top: 24px;
+    width: 25px;
+    height: 25px;
+    font-size: 25px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+#IconDownload {
+    color: var(--primary);
+}
+
+.step {
+    background-color: var(--primary);
+    width: 25px;
+    height: 25px;
+    border-radius: 100%;
+    text-align: center;
+    line-height: 25px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-block;
+    margin-right: 10px;
+    position: relative;
+    opacity: 0.6;
+}
+
+.step:hover {
+    opacity: 0.9;
+}
+
+.step.selected {
+    opacity: 1.0;
+}
+
 .views {
     position: absolute;
     right: 20px;
     top: 50px;
     height: 45px;
+}
+
+#ExecutionSteps {
+    position: absolute;
+    right: 48px;
+    top: 23px;
 }
 
 .views .imageButton {
@@ -3004,7 +3056,8 @@ svg {
     background-color: var(--dark) !important;
     border-color: var(--dark) !important;
     color: var(--placeholder);
-    padding: 16px;
+    padding: 16px;    
+    padding-right: 43px;
 }
 
 .commands label {

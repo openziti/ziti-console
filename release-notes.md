@@ -1,3 +1,8 @@
+# Release 2.7.8
+* Show cli command list and web service call list for quick service creation
+* Change the command list to have an array of operations
+* Create a csh/bat download for cli commands
+
 # Release 2.7.7
 * Differentiate the enter key on login vs adding controller
 

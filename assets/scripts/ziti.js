@@ -149,6 +149,7 @@ var app = {
 				}
 				$("#ServiceHappen").html(html);
 				$("#Service2").show();
+				commands.set(e.services, e.cli);
 			}
 		});
 
@@ -169,7 +170,7 @@ var app = {
 				app.lastId = e.data;
 				$("#Identity2").show();
 				app.genQR();
-				commands.set(e.url, e.cli, e.params);
+				commands.set(e.services, e.cli);
 			}
 		});
 	},
