@@ -1,3 +1,6 @@
+# Release 2.7.7
+* Differentiate the enter key on login vs adding controller
+
 # Release 2.7.6
 * Fix a group of basic security concerns
 
