@@ -2241,6 +2241,22 @@ div:focus {
     display: none;
 }
 
+.totalPod .total {
+    line-height: 40px;
+}
+
+@media (max-width:1700px) {
+    .grid.numbers {
+        column-gap: 5px;
+    }
+    .totalPod .total {
+        font-size: 20px;
+    }
+    .totalPod .label, .iconLink .label {
+        font-size: 10px;
+    }
+}
+
 @media (max-width:1024px) {
     #CustomLogo {
         display: none !important;
@@ -2273,7 +2289,7 @@ div:focus {
         grid-template-columns: 100%;
     }
     #MainMap {
-        height: 30vh !important;
+        height: calc(100vh - 320px) !important;
     }
     .grid.triple {
         grid-template-columns: 100px auto 100px;
