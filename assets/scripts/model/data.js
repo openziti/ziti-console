@@ -29,6 +29,7 @@ var Data = function(name, context) {
 	this.isFirstLoad = true;
 	this.isSortable = false;
 	this.params = {};
+	this.lastSelected = null;
 	this.paging = {
 		page: 1,
 		total: 50,
@@ -310,6 +311,24 @@ var Data = function(name, context) {
 			selector.removeClass("selected");
 			if (selector.hasClass("all")) $(".selector").removeClass("selected");
 			else {
+				
+				if (this.lastSelected) {
+					if (e.ctrlKey) {
+						var isIn = false;
+						var startId = this.lastSelected.data("id");
+						var endId = selector.data("id");
+						$(".selector").each((i,e) => {
+							var elem = $(e);
+							if (elem.data("id")==startId || elem.data("id")==endId) {
+								isIn = !isIn;
+							} 
+							if (isIn) {
+								if (elem.hasClass("selected")) elem.removeClass("selected");
+							}
+						});
+					}
+				}
+
 				if ($(".rows").find(".selector.selected").length==0) {
 					if ($(".head").find(".selector.selected").hasClass("all")) $(".head").find(".selector.selected").removeClass("selected");
 				}
@@ -317,8 +336,27 @@ var Data = function(name, context) {
 		} else {
 			selector.addClass("selected");
 			if (selector.hasClass("all")) $(".selector").addClass("selected");
+			else {
+				if (this.lastSelected) {
+					if (e.ctrlKey) {
+						var isIn = false;
+						var startId = this.lastSelected.data("id");
+						var endId = selector.data("id");
+						$(".selector").each((i,e) => {
+							var elem = $(e);
+							if (elem.data("id")==startId || elem.data("id")==endId) {
+								isIn = !isIn;
+							} 
+							if (isIn) {
+								if (!elem.hasClass("selected")) elem.addClass("selected");
+							}
+						});
+					}
+				}
+			}
 			if ($(".rows").find(".selector.selected").length==this.data.length) $(".head").find(".selector").addClass("selected");
 		}
+		this.lastSelected = selector;
 		app.setAction();		
 	};
 	this.dots = function(e) {

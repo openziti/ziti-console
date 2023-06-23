@@ -48,7 +48,7 @@ var commands = {
     download: function(e) {
         var element = document.createElement('a');
         let filename = $("#SServiceName").val().trim().split(' ').join('').replace(/[^a-z0-9]/gi, '').toLowerCase();
-        if (window.navigator.platform.indexOf("Win")>=0) filename+=".bat";
+        if (window.navigator.platform.indexOf("Win")>=0) filename+=".ps1";
         else filename+=".sh";
         let text = "";
         for (let i=0; i<commands.cli.length; i++) {

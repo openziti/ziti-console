@@ -933,7 +933,7 @@ async function CreateClientPolicy(request, respone, url, user, name, serviceId, 
 					log("Saving As: POST "+JSON.stringify(params));
 					external(url+"/service-policies", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 						log(JSON.stringify(body));
-						let cli = "ziti edge create service-policy '"+name+"' Dial --serviceRoles '"+serviceId+"' --identityRoles '"+access.toString()+"'";
+						let cli = "ziti edge create service-policy '"+name+"' Dial --service-roles '"+serviceId+"' --identity-roles '"+access.toString()+"'";
 						let serviceCall = {
 							url: url+"/service-policies",
 							params: params
@@ -967,7 +967,7 @@ async function CreateServerPolicy(request, respone, url, user, name, serviceId, 
 					log("Saving As: POST "+JSON.stringify(params));
 					external(url+"/service-policies", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 						log(JSON.stringify(body));
-						let cli = "ziti edge create service-policy '"+name+"' Bind --semantic AnyOf --serviceRoles '"+serviceId+"' --identityRoles '"+hosted.toString()+"'";
+						let cli = "ziti edge create service-policy '"+name+"' Bind --semantic AnyOf --service-roles '"+serviceId+"' --identity-roles '"+hosted.toString()+"'";
 						let serviceCall = {
 							url: url+"/service-policies",
 							params: params
