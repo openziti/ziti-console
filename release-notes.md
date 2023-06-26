@@ -1,3 +1,6 @@
+# Release 2.8.1
+* Add Enrollment Reset to identity list
+
 # Release 2.7.8
 * Show cli command list and web service call list for quick service creation
 * Change the command list to have an array of operations

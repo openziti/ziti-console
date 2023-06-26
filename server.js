@@ -638,6 +638,28 @@ app.delete("/api/mfa", function(request, response) {
 	}
 });
 
+/**
+ * Reset the identity bound authenticators enrollment status
+ */
+app.post("/api/resetEnroll", function(request, response) {
+	var user = request.session.user;
+	if (hasAccess(user)) {
+		var id = request.body.id;
+		var date = moment(request.body.date).utc().toISOString();
+		var url = serviceUrl+"/authenticators/"+id.trim()+"/re-enroll";
+		var params = { expiresAt: date };
+		log("Calling "+url);
+		log(JSON.stringify(params));
+		external.post(url, { json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+			if (body.error) HandleError(response, body.error);
+			else {
+				log("Success: "+JSON.stringify(body));
+				response.json({success: "Enrollment Reset"});
+			}
+		});
+	}
+});
+
 
 
 /**------------- Server Search Section -------------**/
@@ -731,7 +753,7 @@ function DoCall(url, json, request, isFirst=true) {
  * @param {The server request object} request 
  * @param {The server response object} response 
  */
-function GetItems(type, paging, request, response) {
+function GetItems(type, paging, request, response, cli, serviceCall) {
 	if (request.body.url) {
 		GetSubs(request.body.url.split("./").join(""), request.body.type, "", "", request, response);
 	} else {
@@ -1030,6 +1052,20 @@ async function GetConfigId(request, response, url, user, type) {
 	});
 }
 
+/**
+ * 
+ * Create a new config given a config type and variables necaassary, iterate an index and append if the name already exists
+ * 
+ * @param {The Server Request object} request 
+ * @param {The Server Response object} response 
+ * @param {The user creating the config} user 
+ * @param {The url to the edge controller} url 
+ * @param {The config identifier} configId 
+ * @param {The name to create} name 
+ * @param {The data associated with the config} data 
+ * @param {The index of attempts that the call is on} index 
+ * @returns The new id, cli command, and service vall info
+ */
 async function CreateConfig(request, response, user, url, configId, name, data, index) {
 	return new Promise(function(resolve, reject) {
 		if (!index) index = 0;

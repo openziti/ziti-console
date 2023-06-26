@@ -94,6 +94,7 @@
             <div class="dots" data-id="{{id}}">...
                 <div class="gridMenu" data-id="{{id}}">
                     <div class="gridAction" data-id="{{id}}" data-action="edit" data-i18n="Edit"></div>
+                    <div class="gridAction {{hiddenResetClass}}" data-id="{{id}}" data-action="reset" data-i18n="ResetEnrollment"></div>
                     <div class="gridAction {{hiddenMFAClass}}" data-id="{{id}}" data-action="mfa" data-i18n="RemoveMFA"></div>
                     <div class="gridAction {{hiddenClass}}" data-id="{{id}}" data-action="download" data-i18n="DownloadJWT"></div>
                     <div class="gridAction {{hiddenClass}}" data-id="{{id}}" data-action="qr" data-i18n="ViewQR"></div>
@@ -109,6 +110,19 @@
         <div>{{configName}}</div>
         <div class="relative">
             <div class="remove icon-minus removeAssoc" data-config="{{config}}" data-service="{{service}}"></div>
+        </div>
+    </div>
+
+    <div id="ResetModal" class="modal box" style="height: fit-content;"> 
+        <div class="sized large">
+            <div class="close icon-close"></div>
+            <div class="title" data-i18n="ResetEnrollment"></div>
+            <div class="subtitle" data-i18n="ResetEnrollmentSubTitle"></div>
+            <label for="ResetDate" data-i18n="ExpireDate"></label>
+            <input id="ResetDate" type="text" placeholder="Select a Date" data-enter="ResetEnrollButton"/>
+            <div class="buttons">
+                <div id="ResetEnrollButton" class="button" data-i18n="Reset"></div>
+            </div>
         </div>
     </div>
 
@@ -323,6 +337,15 @@
                 page.authPolicies.init(false, false, true);
                 page.authPolicies.get();
                 
+                $("#ResetDate").datetimepicker({
+                    validateOnBlur: false,
+                    minDate: moment().add("h", 1).toDate(),
+                    startDate: moment().add("d", 2).toDate(),
+                    format: "m/d/Y h:i A",
+                    formatTime: "h:i A"
+                });
+				$("#ResetDate").val(moment().add("d", 2).format("MM/DD/YYYY h:mm A"));
+                
                 page.appData = CodeMirror.fromTextArea(document.getElementById("AppData"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"} });
             }, 
             events: function() {
@@ -334,6 +357,7 @@
                 $("#EnrollmentType").change(page.toggleType);
                 $("#AssociateButton").click(page.addOveride);
                 $("#ToggleMFA").click(page.inlineMfa);
+                $("#ResetEnrollButton").click(page.doReset);
                 context.addListener("auth-policies", page.policiesLoaded);
             },
             policiesLoaded: function(e) {
@@ -362,8 +386,13 @@
                         }
                     }
                 }
-                if (enrollment=="N/A") template = template.split("{{hiddenClass}}").join("hidden");
-                else template = template.split("{{hiddenClass}}").join("");
+                if (enrollment=="N/A") {
+                    template = template.split("{{hiddenResetClass}}").join("");
+                    template = template.split("{{hiddenClass}}").join("hidden");
+                } else {
+                    template = template.split("{{hiddenResetClass}}").join("hidden");
+                    template = template.split("{{hiddenClass}}").join("");
+                }
                 
                 if (!data.isMfaEnabled) {
                     template = template.split("{{hiddenMFAClass}}").join("hidden");
@@ -419,10 +448,30 @@
                 else if (action=="download") page.getCert(e);
                 else if (action=="qr") page.genQR(e);
                 else if (action=="mfa") page.mfa(id);
+                else if (action=="reset") page.resetEnroll(id);
                 else if (action=="override") page.getOverrides(id);
             },
             inlineMfa: function(e) {
                 service.call("mfa", {id: page.editId}, page.imfaRemoved, "DELETE");
+            },
+            doReset: function(e) {
+                var detail = page.filterObject.details(page.editId);
+                var date = $("#ResetDate").val();
+                var id = "";
+                if (detail.authenticators.cert) id = detail.authenticators.cert.id;
+                else if (detail.authenticators.updb) id = detail.authenticators.updb.id;
+                service.call("resetEnroll", {id: id, date: date}, (e) => {
+                    if (e.error) growler.error(e.error);
+                    else {
+                        growler.success("Identity Reset");
+                        page.filterObject.get();
+                        modal.close();
+                    }
+                });
+            },
+            resetEnroll: function(id) {
+                this.editId = id;
+                modal.show("ResetModal");
             },
             mfa: function(id) {
                 this.editId = id;
