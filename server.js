@@ -505,7 +505,6 @@ app.post("/api/settings", function(rewwquest, response) {
 	delete toReturn.to;
 	delete toReturn.from;
 	delete toReturn.location;
-	delete toReturn.editable;
 	delete toReturn.update;
 	delete toReturn.rejectUnauthorized;
 	delete toReturn.port;
