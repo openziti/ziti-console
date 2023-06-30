@@ -1,3 +1,7 @@
+# Release 2.8.2
+* Fill session credential leak in files
+* Fix editable not being exposed to ui
+
 # Release 2.8.1
 * Add Enrollment Reset to identity list
 

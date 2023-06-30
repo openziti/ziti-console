@@ -332,10 +332,10 @@ app.post("/api/login", function(request, response) {
 		GetPath().then((prefix) => {
 			serviceUrl = urlToSet+prefix;
 			request.session.serviceUrl = serviceUrl;
-			request.session.creds = {
-				username: request.body.username,
-				password: request.body.password
-			};
+			//request.session.creds = {
+			//	username: request.body.username,
+			//	password: request.body.password
+			//};
 			Authenticate(request).then((results) => {
 				response.json(results);
 			});
@@ -349,9 +349,13 @@ function Authenticate(request) {
 	return new Promise(function(resolve, reject) {
 		if (!baseUrl||baseUrl.trim().length==0&&request.session.baseUrl) baseUrl = request.session.baseUrl;
 		if (!serviceUrl||serviceUrl.trim().length==0&&request.session.serviceUrl) serviceUrl = request.session.serviceUrl;
+		let params = {
+			username: request.body.username,
+			password: request.body.password
+		};
 		log("Connecting to: "+serviceUrl+"/authenticate?method=password");
-		if (request.session.creds != null) {
-			external.post(serviceUrl+"/authenticate?method=password", {json: request.session.creds , rejectUnauthorized: rejectUnauthorized }, function(err, res, body) {
+		//if (request.session.creds != null) {
+			external.post(serviceUrl+"/authenticate?method=password", {json: params , rejectUnauthorized: rejectUnauthorized }, function(err, res, body) {
 				if (err) {
 					log(err);
 					var error = "Server Not Accessible";
@@ -368,7 +372,7 @@ function Authenticate(request) {
 					}
 				}				
 			});
-		}
+		//}
 	});
 }
 
@@ -623,7 +627,7 @@ app.delete("/api/mfa", function(request, response) {
 	var user = request.session.user;
 	if (hasAccess(user)) {
 		var id = request.body.id;
-		Authenticate(request).then((result) => {
+		///Authenticate(request).then((result) => {
 			external.delete(serviceUrl+"/identities/"+id.trim()+"/mfa", {rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 				if (err) {
 					log("Error: "+JSON.stringify(body.err));
@@ -633,7 +637,7 @@ app.delete("/api/mfa", function(request, response) {
 					response.json({success: "MFA Removed"});
 				}
 			});
-		});
+		//});
 	}
 });
 
@@ -669,7 +673,7 @@ app.post("/api/resetEnroll", function(request, response) {
  */
 app.post("/api/call", function(request, response) {
 	log("Calling: "+serviceUrl+"/"+request.body.url);
-	Authenticate(request).then((results) => {
+	//Authenticate(request).then((results) => {
 		external.get(serviceUrl+"/"+request.body.url, {json: {}, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 			if (err) {
 				log("Error: "+JSON.stringify(err));
@@ -684,7 +688,7 @@ app.post("/api/call", function(request, response) {
 				}
 			}
 		});
-	});
+	//});
 });
 
 /**
@@ -717,11 +721,11 @@ function DoCall(url, json, request, isFirst=true) {
 				if (body.error) {
 					if (isFirst) {
 						log("Re-authenticate User");
-						Authenticate(request).then((results) => {
+						//Authenticate(request).then((results) => {
 							DoCall(url, json, request, false).then((results) => {
 								resolve(results);
 							});
-						});
+						//});
 					} else resolve(body);
 				} else if (body.data) {
 					log("Items Returned: "+body.data.length);
@@ -818,7 +822,7 @@ app.post("/api/subdata", function(request, response) {
 
 function GetSubs(url, type, id, parentType, request, response) {
 	log("Calling: "+serviceUrl+"/"+url);
-	Authenticate(request).then((results) => {
+	//Authenticate(request).then((results) => {
 		external.get(serviceUrl+"/"+url, {json: {}, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 			if (err) response.json({ error: err });
 			else {
@@ -831,19 +835,19 @@ function GetSubs(url, type, id, parentType, request, response) {
 				});
 			}
 		});
-	});
+	//});
 }
 
 app.post("/api/jwt", function(request, response) {
 	var id = request.body.id;
 	var type = request.body.type;
-	Authenticate(request).then((results) => {
+	//Authenticate(request).then((results) => {
 		var url = serviceUrl+"/"+type+"/"+id+"/jwt";
 		log("Calling: "+url);
 		external.get(url, {json: {}, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 			response.json({id: id, jwt: body});
 		});
-	});
+	//});
 });
 
 
@@ -942,7 +946,7 @@ app.post("/api/service", async function(request, response) {
 async function CreateClientPolicy(request, respone, url, user, name, serviceId, access) {
 	return new Promise(function(resolve, reject) {
 		if (hasAccess(user)) {
-			Authenticate(request).then((results) => {
+			//Authenticate(request).then((results) => {
 				if (hasAccess(user)) {
 					var params = {
 						name: name,
@@ -968,7 +972,7 @@ async function CreateClientPolicy(request, respone, url, user, name, serviceId, 
 						resolve(item);
 					});
 				}
-			});
+			//});
 		}
 	});
 }
@@ -976,7 +980,7 @@ async function CreateClientPolicy(request, respone, url, user, name, serviceId, 
 async function CreateServerPolicy(request, respone, url, user, name, serviceId, hosted) {
 	return new Promise(function(resolve, reject) {
 		if (hasAccess(user)) {
-			Authenticate(request).then((results) => {
+			//Authenticate(request).then((results) => {
 				if (hasAccess(user)) {
 					var params = {
 						name: name,
@@ -1002,14 +1006,14 @@ async function CreateServerPolicy(request, respone, url, user, name, serviceId, 
 						resolve(item);
 					});
 				}
-			});
+			//});
 		}
 	});
 }
 
 async function CreateService(request, respone, url, user, name, encrypt, serverId, clientId) {
 	return new Promise(function(resolve, reject) {
-		Authenticate(request).then((results) => {
+		//Authenticate(request).then((results) => {
 			if (hasAccess(user)) {
 				var params = {
 					name: name,
@@ -1033,13 +1037,13 @@ async function CreateService(request, respone, url, user, name, encrypt, serverI
 					resolve(item);
 				});
 			}
-		});
+		//});
 	});
 }
 
 async function GetConfigId(request, response, url, user, type) {
 	return new Promise(function(resolve, reject) {
-		Authenticate(request).then((results) => {
+		//Authenticate(request).then((results) => {
 			if (hasAccess(user)) {
 				DoCall(url+"/config-types?filter=(name = \""+type+"\")&limit=1", {}, request, true).then((results) => {
 					console.log("Config Returned");
@@ -1047,7 +1051,7 @@ async function GetConfigId(request, response, url, user, type) {
 					resolve(results.data[0].id);
 				});
 			}
-		});
+		//});
 	});
 }
 
@@ -1068,7 +1072,7 @@ async function GetConfigId(request, response, url, user, type) {
 async function CreateConfig(request, response, user, url, configId, name, data, index) {
 	return new Promise(function(resolve, reject) {
 		if (!index) index = 0;
-		Authenticate(request).then((results) => {
+		//Authenticate(request).then((results) => {
 			if (hasAccess(user)) {
 				var params = {
 					name: name+((index>0)?"-"+index:""),
@@ -1096,7 +1100,7 @@ async function CreateConfig(request, response, user, url, configId, name, data, 
 					} else resolve(CreateConfig(request, response, user, url, configId, name, data, index));
 				});
 			}
-		});
+		//});
 	});
 }
 
@@ -1119,7 +1123,7 @@ app.post("/api/identity", function(request, response) {
 			type: "Device"
 		}
 		if (request.body.roles) params.roleAttributes = request.body.roles
-		Authenticate(request).then((results) => {
+		//Authenticate(request).then((results) => {
 			if (hasAccess(user)) {
 				log("Saving As: POST "+JSON.stringify(params));
 				external(url, {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
@@ -1149,7 +1153,7 @@ app.post("/api/identity", function(request, response) {
 					} else response.json( {error: "Unable to save data"} );
 				});
 			}
-		});
+		//});
 	}
 });
 
@@ -1172,7 +1176,7 @@ app.post("/api/dataSave", function(request, response) {
 		var user = request.session.user;
 		var chained = false;
 		if (request.body.chained) chained = request.body.chained;
-		Authenticate(request).then((results) => {
+		//Authenticate(request).then((results) => {
 			if (hasAccess(user)) {
 				if (id&&id.trim().length>0) {
 					method = "PATCH";
@@ -1235,7 +1239,7 @@ app.post("/api/dataSave", function(request, response) {
 					}	
 				});
 			}
-		});
+		//});
 	}
 });
 
@@ -1253,7 +1257,7 @@ app.post("/api/subSave", function(request, response) {
 		var url = serviceUrl+"/"+fullType;
 		var saveParams = request.body.save;
 		var user = request.session.user;
-		Authenticate(request).then((results) => {
+		//Authenticate(request).then((results) => {
 			if (hasAccess(user)) {
 				log(url);
 				log("Sub Saving As: "+doing+" "+JSON.stringify(saveParams));
@@ -1267,7 +1271,7 @@ app.post("/api/subSave", function(request, response) {
 					}
 				});
 			} else response.json({error:"loggedout"});
-		});
+		//});
 	}
 });
 
@@ -1384,14 +1388,14 @@ function ProcessDelete(type, id, user, request, isFirst=true) {
 					if (body.error) {
 						if (isFirst) {
 							log("Re-authenticate User");
-							Authenticate(request).then((results) => {
+							//Authenticate(request).then((results) => {
 								ProcessDelete(type, id, user, request, false).then((results) => {
 									resolve(results);
 								}).catch((error) => {
 									log("Reject After Auth: "+JSON.stringify(error));
 									reject(error);
 								});
-							});
+							//});
 						} else reject(body.error);
 					} else resolve(body.data);
 				} else {
@@ -1511,7 +1515,7 @@ app.delete("/api/templates", function(request, response) {
 	var ids = request.body.ids;
 
 	var user = request.session.user;
-	Authenticate(request).then((results) => {
+	//Authenticate(request).then((results) => {
 		if (hasAccess(user)) {
 
 			var newTemplates = [];
@@ -1527,7 +1531,7 @@ app.delete("/api/templates", function(request, response) {
 
 			response.json(templates);
 		} else response.json(templates);
-	});
+	//});
 });
 
 /**
@@ -1535,7 +1539,7 @@ app.delete("/api/templates", function(request, response) {
  */
 app.post("/api/template", function(request, response) {
 	var user = request.session.user;
-	Authenticate(request).then((results) => {
+	//Authenticate(request).then((results) => {
 		if (hasAccess(user)) {
 			if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
 			else {
@@ -1559,7 +1563,7 @@ app.post("/api/template", function(request, response) {
 			}
 			response.json(templates);
 		}
-	});
+	//});
 });
 
 function GetTemplate(id) {
@@ -1572,7 +1576,7 @@ function GetTemplate(id) {
 }
 
 app.post("/api/execute", function(request, response) {
-	Authenticate(request).then((results) => {
+	//Authenticate(request).then((results) => {
 		var template = GetTemplate(request.body.id);
 		if (template) {
 			var name = request.body.name.trim();
@@ -1613,7 +1617,7 @@ app.post("/api/execute", function(request, response) {
 				});
 			});
 		} else response.json({ error: "Template Not Found" });
-	});
+	//});
 });
 
 function DoPatch(url, params, request) {
