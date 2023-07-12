@@ -153,6 +153,7 @@
             <textarea id="AppData"></textarea>
             <div id="TagArea" data-tagarea="router"></div>
             <div id="TagExtended"></div>
+            {{html.api}}
             {{html.save}}
         </div>
 	</div>
@@ -172,6 +173,7 @@
             filterObject: null,
             roles: null,
             appData: null,
+            apiParams: null,
             init: function() {
 
                 page.roles = new MultiSelect("Roles",  10, true);
@@ -181,7 +183,12 @@
                 page.filterObject = new Data("edge-routers");
                 page.filterObject.init(true, true);
 
-                page.appData = CodeMirror.fromTextArea(document.getElementById("AppData"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"} });
+                page.appData = CodeMirror.fromTextArea(document.getElementById("AppData"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"} });                
+                page.appData.on('change', (args) => { 
+                    page.params(); 
+                });
+
+                page.apiParams = CodeMirror.fromTextArea(document.getElementById("ApiParams"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
             }, 
             row: function(template, data) {
                 var os = "other";
@@ -237,10 +244,20 @@
                     page.appData.setValue(appData);
                     page.appData.autoFormatRange({line:0, ch:0}, {line:page.appData.lineCount()});
                 }
+                page.params();
                 modal.show("AddModal");
+            },
+            formReset: function() {
+                page.params();
             },
             save: function() {
                 if (page.validate()) {
+                    var obj = page.params();
+                    page.filterObject.save(obj);
+                } else growler.form();
+            },
+            params: function() {
+                try {  
                     var obj = {
                         name: $("#Name").val(),
                         roleAttributes: page.roles.val(),
@@ -250,8 +267,18 @@
                         cost: Number($("#Cost").val()),
                         tags: tags.val()
                     };
-                    page.filterObject.save(obj);
-                } else growler.form();
+
+                    var url = settings.versionData.baseUrl+settings.versionData.serviceUrl+"/"+page.filterObject.name;
+                    if (page.filterObject.isEditing()) url += "/"+page.filterObject.editId;
+                    $("#ApiUrl").val(url);  
+                    page.apiParams.setValue(JSON.stringify(obj));
+                    page.apiParams.autoFormatRange({line:0, ch:0}, {line:page.apiParams.lineCount()});
+                    page.apiParams.scrollTo(null, 0);
+
+                    return obj
+                } catch (e) {
+                    console.log(e);
+                }
             },
             validate: function() {
                 $(".errors").removeClass("errors");

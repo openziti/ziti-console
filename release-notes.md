@@ -1,3 +1,8 @@
+# Release 2.8.3
+* Fix selectors on Posture Checks
+* Add Script Api Call Reference Fields
+* Fix Tag Add Icon Button
+
 # Release 2.8.2
 * Fill session credential leak in files
 * Fix editable not being exposed to ui

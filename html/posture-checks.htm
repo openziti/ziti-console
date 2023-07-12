@@ -111,6 +111,7 @@
                 <input id="Fingerprint" data-bind="data.process.signerFingerprint" type="text" maxlength="500" placeholder="Enter the fingerprint" />
             </div>
             <div id="TagExtended"></div>
+            {{html.api}}
             <div class="buttons">
                 <div class="linkButton closer">Oops, No get me out of here</div>
                 <div id="SaveButton" class="button" data-defined="save">Save</div>
@@ -121,10 +122,6 @@
     
     <script language="javascript" type="text/javascript">
         page = {
-            binding: {
-                pageTitle: "Posture Checks",
-                singular: "Posture Check"
-            },
             filterObject: null,
             filterTypesObject: null,
             roles: null,
@@ -133,21 +130,19 @@
             isOSSetup: false,
             hashes: null,
             oss: [],
+            apiParams: null,
             init: function() {
-                page.roles = new Selector("Roles","roles", null, "service-role-attributes");
-                page.roles.isForceHash = false;
+                page.roles = new MultiSelect("Roles", 10, true);
+                page.roles.addSource(new SelectSource("identity-role-attributes", "", "id")); 
                 page.roles.init();
 
-                page.hashes = new Selector("Hashes","hashes");
-                page.hashes.isForceHash = false;
+                page.hashes = new MultiSelect("Hashes", 10, true);
                 page.hashes.init();
 
-                page.domains = new Selector("Domains","domains");
-                page.domains.isForceHash = false;
+                page.domains = new MultiSelect("Domains", 10, true);
                 page.domains.init();
 
-                page.macs = new Selector("Macs","macs");
-                page.macs.isForceHash = false;
+                page.macs = new MultiSelect("Macs", 10, true);
                 page.macs.init();
                 
                 page.filterObject = new Data("posture-checks");
@@ -155,6 +150,8 @@
 
                 page.filterTypesObject = new Data("posture-check-types");
                 page.filterTypesObject.init(true);
+
+                page.apiParams = CodeMirror.fromTextArea(document.getElementById("ApiParams"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
 
                 page.events();
             }, 
@@ -247,6 +244,8 @@
                     select.add( option );
                 }
                 $("#OSs").html(html);
+                $(".modal").find(".toggle").off("click",commands.formChangedWait);
+                $(".modal").find(".toggle").click(commands.formChangedWait);
                 $(".toggle").off("click");
                 $(".toggle").click(page.toggle);
                 page.isOSSetup = true;
@@ -274,6 +273,7 @@
             },
             formReset: function() {
                 $(".ossversion").prop('selectedIndex',0);
+                page.params();
             },
             edit: function(id) {
                 var detail = page.filterObject.details(id);
@@ -319,10 +319,19 @@
                     if (detail.promptOnWake) $("#OnWake").addClass("on");
                     else $("#OnWake").removeClass("on");
                 }
+                page.params();
                 modal.show("AddModal");
             },
             save: function() {
                 if (page.validate()) {
+                    var params = page.params();
+                    page.filterObject.save(params);
+                } else growler.form();
+            },
+            params: function() {
+                try {
+                    var url = settings.versionData.baseUrl+settings.versionData.serviceUrl+"/"+page.filterObject.name;
+
                     var obj = {
                         name: $("#Name").val(),
                         typeId: $("#PostureType").val(),
@@ -361,8 +370,16 @@
                     } else {
 
                     }
-                    page.filterObject.save(obj);
-                } else growler.form();
+                    if (page.filterObject.isEditing()) url += "/"+page.filterObject.editId;
+                    $("#ApiUrl").val(url);
+
+                    page.apiParams.setValue(JSON.stringify(obj));
+                    page.apiParams.autoFormatRange({line:0, ch:0}, {line:page.apiParams.lineCount()});
+                    page.apiParams.scrollTo(null, 0);
+                    return obj;
+                } catch (e) {
+                    console.log(e);
+                }
             },
             validate: function() {
                 $(".errors").removeClass("errors");

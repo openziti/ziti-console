@@ -27,7 +27,7 @@ var app = {
 		app.events();
 		app.setupLock();
 		app.binding();
-		if(locale) locale.init();
+		if (locale) locale.init();
 		if (page) page.init();
 		if (header) header.init();
 		if (user) user.init();
@@ -89,7 +89,7 @@ var app = {
 			navigator.clipboard.writeText(copied);
 			growler.info(copied+" - copied to clipboard")
 		} else {
-			if (copyField.attr("id")=="ApiJson") {
+			if (copyField.attr("id")=="ApiJson" || copyField.attr("id")=="ApiParams") {
 				var copied = commands.params.getValue();
 				navigator.clipboard.writeText(copied);
 				growler.info("JSON copied to clipboard");
@@ -98,6 +98,7 @@ var app = {
 		}
 	},
 	showInlineService: function() {
+		if (!$("#SimpleEncryptionRequired").hasClass("on")) $("#SimpleEncryptionRequired").addClass("on");
 		$("#Select1").hide();
 		$("#InlineServiceArea").show();
 	},
@@ -241,12 +242,6 @@ var app = {
 	},
 	settingsReturned: function() {
 		var edges = settings.data.edgeControllers;
-		var fabrics = settings.data.fabricControllers;
-		if (fabrics.length>0) {
-			$(".iffabric").removeClass("disabled");
-		} else {
-			$(".iffabric").addClass("disabled");
-		}
 	},
 	versionReturned: function(e) {
 		if (settings.versionData&&settings.versionData.data&&settings.versionData.data.version) {

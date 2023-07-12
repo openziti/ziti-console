@@ -111,6 +111,7 @@
                     </div>
                     <div id="TagArea" data-tagarea="service"></div>
                     <div id="TagExtended"></div>
+                    {{html.api}}
                 </div>
                 <div>
                     <div class="darkened" data-i18n="Configurations"></div>
@@ -124,8 +125,10 @@
                             <label for="ConfigName" class="configsForm" style="display:none" data-i18n="Name"></label>
                             <input id="ConfigName" class="configsForm" type="text" data-i18n="EnterNameConfig" maxlength="100" style="display:none"/>
                             <div id="ConfigForm" style="display:none"></div>
-                            <label for="JSONView" class="jsonV" data-i18n="JSONConfiguration"></label>
-                            <textarea id="JSONView"></textarea>
+                            <div id="JSONViewArea">
+                                <label for="JSONView" class="jsonV" data-i18n="JSONConfiguration"></label>
+                                <textarea id="JSONView"></textarea>
+                            </div>
                             <div id="ButtonArea" class="buttons" style="display: none;">
                                 <div></div>
                                 <div id="AddConfigButton" class="minibutton" data-i18n="AttachService"></div>
@@ -192,6 +195,7 @@
             configsSelected: [],
             terminators: [],
             details: {},
+            apiParams: null,
             init: function() {                
                 schema.init("ConfigForm", "JSONView");
 
@@ -218,6 +222,8 @@
                 page.filterObject.init(true, true);
                 
                 routers.init();
+
+                page.apiParams = CodeMirror.fromTextArea(document.getElementById("ApiParams"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
             }, 
             loadChanges: function() {
                 for (var prop in page.editData) {
@@ -321,7 +327,7 @@
                 }
             },
             configTypeSelected: function(e) {
-                $(".CodeMirror").hide();
+                $("#JSONViewArea").find(".CodeMirror").hide(); 
                 $(".jsonV").hide();
                 $("#ConfigForm").hide();
                 $("#ButtonArea").hide();
@@ -353,7 +359,7 @@
             configSelected: function(e) {
                 var configId = $(e.currentTarget).val();
                 $(".jsonV").hide();
-                $(".CodeMirror").hide();
+                $("#JSONViewArea").find(".CodeMirror").hide(); 
                 if (configId=="0") {
                     var id = $("#ConfigType").val();
                     if (id!='') {
@@ -494,6 +500,7 @@
             },
             formReset: function() {
                 $(".configrow").removeClass("on");
+                page.params();
             },
             getPropString: function(obj) { 
                 var data = "";
@@ -555,10 +562,18 @@
                     }
                 }
                 $("#ConfigSelected").html($(".configrow.on").length);
+                page.params();
                 modal.show("AddModal");
             },
             save: function() {
                 if (page.validate()) {
+                    var obj = page.params();
+                    if (page.filterObject.editId=="") page.filterObject.saveChain(obj);
+                    else page.filterObject.save(obj);
+                } else growler.form();
+            },
+            params: function() {
+                try {  
                     var obj = {
                         name: $("#Name").val(),
                         configs: page.getConfigs(),
@@ -567,9 +582,18 @@
                         encryptionRequired: $("#EncryptionRequired").hasClass("on"),
                         roleAttributes: page.roles.val()
                     };
-                    if (page.filterObject.editId=="") page.filterObject.saveChain(obj);
-                    else page.filterObject.save(obj);
-                } else growler.form();
+
+                    var url = settings.versionData.baseUrl+settings.versionData.serviceUrl+"/"+page.filterObject.name;
+                    if (page.filterObject.isEditing()) url += "/"+page.filterObject.editId;
+                    $("#ApiUrl").val(url);  
+                    page.apiParams.setValue(JSON.stringify(obj));
+                    page.apiParams.autoFormatRange({line:0, ch:0}, {line:page.apiParams.lineCount()});
+                    page.apiParams.scrollTo(null, 0);
+
+                    return obj
+                } catch (e) {
+                    console.log(e);
+                }
             },
             saved: function(e) {
                 if (e&&e.id&&e.id.trim().length>0) {

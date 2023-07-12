@@ -407,8 +407,10 @@ app.post('/api/version', function(request, response) {
 				try {
 					var data = JSON.parse(body);
 					log("Version: "+body);
-					if (data&&data.data) response.json( {data: data.data, zac: zacVersion, requireAuth: onlyDeleteSelfController, baseUrl: baseUrl} );
-					else response.json({});
+					GetPath().then((fullPath) => {
+						if (data&&data.data) response.json( {data: data.data, serviceUrl: fullPath, zac: zacVersion, requireAuth: onlyDeleteSelfController, baseUrl: baseUrl} );
+						else response.json({});
+					});
 				} catch (e) {
 					log("Invalid Json Result on Version: "+e);
 					response.json({});

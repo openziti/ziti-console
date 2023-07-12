@@ -206,6 +206,7 @@
             <textarea id="Pem" data-bind="data.certPem" style="height: 300px; font-size: 12px;" data-i18n="PastePEM"></textarea>
             
             <div id="TagArea"></div>
+            {{html.api}}
             {{html.save}}
         </div>
     </div>
@@ -246,6 +247,7 @@
         page = {
             filterObject: null,
             roles: null,
+            apiParams: null,
             init: function() {
                 this.events();
 
@@ -256,6 +258,8 @@
 
                 page.filterObject = new Data("cas");
                 page.filterObject.init(true, true);
+
+                page.apiParams = CodeMirror.fromTextArea(document.getElementById("ApiParams"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
             }, 
             events: function() {
                 $("#PemFile").change(page.loadFile);
@@ -361,10 +365,21 @@
                     if (detail.externalIdClaims.matcherCriteria != null) $("#MatcherCriteria").val(detail.externalIdClaims.matcherCriteria);
                     if (detail.externalIdClaims.parserCriteria != null) $("#ParserCriteria").val(detail.externalIdClaims.parserCriteria);
                 }
+                page.params();
                 modal.show("AddModal");
+            },
+            formReset: function() {
+                page.params();
             },
             save: function() {
                 if (page.validate()) {
+                    var obj = page.params();
+
+                    page.filterObject.save(obj);
+                } else growler.form();
+            },
+            params: function() {
+                try {  
                     var obj = {
                         name: $("#Name").val(),
                         isAutoCaEnrollmentEnabled: $("#IsAutoEnrollmentEnabled").hasClass("on"),
@@ -385,10 +400,19 @@
                             parserCriteria: $("#ParserCriteria").val(),
                         }
                     }
+                    if (page.filterObject.isEditing()) url += "/"+page.filterObject.editId;
 
-                    if (page.filterObject.editId=="") obj.certPem = $("#Pem").val();
-                    page.filterObject.save(obj);
-                } else growler.form();
+                    var url = settings.versionData.baseUrl+settings.versionData.serviceUrl+"/"+page.filterObject.name;
+                    if (page.filterObject.isEditing()) url += "/"+page.editId;
+                    $("#ApiUrl").val(url);  
+                    page.apiParams.setValue(JSON.stringify(obj));
+                    page.apiParams.autoFormatRange({line:0, ch:0}, {line:page.apiParams.lineCount()});
+                    page.apiParams.scrollTo(null, 0);
+
+                    return obj
+                } catch (e) {
+                    console.log(e);
+                }
             },
             validate: function() {
                 $(".errors").removeClass("errors");

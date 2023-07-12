@@ -88,6 +88,7 @@
             <textarea id="Schema"></textarea>
             <div>
             <div id="TagArea"></div>
+            {{html.api}}
             {{html.save}}
         </div>
 	</div>
@@ -97,10 +98,15 @@
         page = {
             filterObject: null,
             schema: null,
+            apiParams: null,
             init: function() {
                 page.filterObject = new Data("config-types");
                 page.filterObject.init(true, true);
+                page.apiParams = CodeMirror.fromTextArea(document.getElementById("ApiParams"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
                 page.schema = CodeMirror.fromTextArea(document.getElementById("Schema"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"} });
+                page.schema.on('change', (args) => { 
+                    page.params(); 
+                });
             }, 
             gridAction: function(e) {
                 var action = $(e.currentTarget).data("action");
@@ -112,17 +118,35 @@
                 var detail = page.filterObject.details(id);
                 page.schema.setValue(JSON.stringify(detail.schema));
                 page.schema.autoFormatRange({line:0, ch:0}, {line:page.schema.lineCount()});
+                page.params();
                 modal.show("AddModal");
             },
             save: function() {
                 if (page.validate()) {
-                    var obj = {
-                        name: $("#Name").val(),
-                        schema: JSON.parse(page.schema.getValue()),
-                        tags: tags.val()
-                    };
+                    var obj = page.params();
                     page.filterObject.save(obj);
                 } else growler.form();
+            },
+            formReset: function(e) {
+                page.schema.setValue(JSON.stringify({}));
+                page.params();
+            },
+            params: function() {
+                try {
+                    var obj = {
+                        name: $("#Name").val(),
+                        schema: JSON.parse(page.schema.getValue())
+                    };
+
+                    var url = settings.versionData.baseUrl+settings.versionData.serviceUrl+"/"+page.filterObject.name;
+                    if (page.filterObject.isEditing()) url += "/"+page.filterObject.editId;
+                    $("#ApiUrl").val(url);  
+                    page.apiParams.setValue(JSON.stringify(obj));
+                    page.apiParams.autoFormatRange({line:0, ch:0}, {line:page.apiParams.lineCount()});
+                    page.apiParams.scrollTo(null, 0);
+                } catch (e) {
+                    console.log(e);
+                }
             },
             validate: function() {
                 $(".errors").removeClass("errors");
@@ -131,6 +155,7 @@
             },
             reset: function() {
                 app.isDirty = false;
+                page.params();
             }
         }
     </script>

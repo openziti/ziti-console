@@ -77,23 +77,18 @@
             </select>
             <div id="TagArea" data-tagarea="policies"></div>
             <div id="TagExtended"></div>
-            <div class="buttons">
-                <div class="linkButton closer">Oops, No get me out of here</div>
-                <div id="SaveButton" class="button" data-defined="save">Save</div>
-            </div>
+            {{html.api}}
+            {{html.save}}
         </div>
 	</div>
     
     
     <script language="javascript" type="text/javascript">
         page = {
-            binding: {
-                pageTitle: "Router Policies",
-                singular: "Router Policy"
-            },
             filterObject: null,
             routerRoles: null,
             identityRoles: null,
+            apiParams: null,
             init: function() {
 
                 page.identityRoles = new MultiSelect("IDRoles", 10, true);
@@ -108,6 +103,8 @@
 
                 page.filterObject = new Data("edge-router-policies");
                 page.filterObject.init(true, true);
+
+                page.apiParams = CodeMirror.fromTextArea(document.getElementById("ApiParams"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
             }, 
             gridAction: function(e) {
                 var action = $(e.currentTarget).data("action");
@@ -119,10 +116,20 @@
                 var detail = page.filterObject.details(id);
                 page.routerRoles.val(detail.edgeRouterRolesDisplay);
                 page.identityRoles.val(detail.identityRolesDisplay);
+                page.params();
                 modal.show("AddModal");
             },
             save: function() {
                 if (page.validate()) {
+                    var obj = page.params();
+                    page.filterObject.save(obj);
+                } else growler.form();
+            },
+            formReset: function() {
+                page.params();
+            },
+            params: function() {
+                try {  
                     var obj = {
                         name: $("#Name").val(),
                         type: $("#Type").val(),
@@ -131,8 +138,18 @@
                         semantic: $("#Semantics").val(),
                         tags: tags.val()
                     };
-                    page.filterObject.save(obj);
-                } else growler.form();
+
+                    var url = settings.versionData.baseUrl+settings.versionData.serviceUrl+"/"+page.filterObject.name;
+                    if (page.filterObject.isEditing()) url += "/"+page.filterObject.editId;
+                    $("#ApiUrl").val(url);  
+                    page.apiParams.setValue(JSON.stringify(obj));
+                    page.apiParams.autoFormatRange({line:0, ch:0}, {line:page.apiParams.lineCount()});
+                    page.apiParams.scrollTo(null, 0);
+
+                    return obj
+                } catch (e) {
+                    console.log(e);
+                }
             },
             validate: function() {
                 $(".errors").removeClass("errors");

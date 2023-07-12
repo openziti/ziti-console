@@ -204,6 +204,7 @@
 
             <div id="TagArea" data-tagarea="policies"></div>
             <div id="TagExtended"></div>
+            {{html.api}}
 
             {{html.save}}
         </div>
@@ -221,6 +222,7 @@
             filterObject: null,
             jwtsList: null,
             jwts: null,
+            apiParams: null,
             init: function() {
                 page.jwts = new MultiSelect("Signers");
                 page.jwts.addSource(new SelectSource("external-jwt-signers"));
@@ -234,6 +236,8 @@
                 page.jwtsList = new Data("external-jwt-signers", "signers-list");
                 page.jwtsList.init(false, false, true);
                 page.jwtsList.get();
+                
+                page.apiParams = CodeMirror.fromTextArea(document.getElementById("ApiParams"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
             }, 
             events: function() {
                 context.addListener("signers-list", page.signersLoaded);
@@ -292,6 +296,7 @@
                     if (detail.secondary.requiredExtJwtSigner) $("#JwtSigners").val(detail.secondary.requiredExtJwtSigner);
                 }
                 page.toggled();
+                page.params();
 
                 modal.show("AddModal");
             },
@@ -309,6 +314,15 @@
             },
             save: function() {
                 if (page.validate()) {
+                    var obj = page.params();
+                    page.filterObject.save(obj);
+                } else growler.form();
+            },
+            formReset: function() {
+                page.params();
+            },
+            params: function() {
+                try {  
                     var obj = {
                         name: $("#Name").val(),
                         primary: {
@@ -336,8 +350,18 @@
                         },
                         tags: tags.val()
                     };
-                    page.filterObject.save(obj);
-                } else growler.form();
+
+                    var url = settings.versionData.baseUrl+settings.versionData.serviceUrl+"/"+page.filterObject.name;
+                    if (page.filterObject.isEditing()) url += "/"+page.filterObject.editId;
+                    $("#ApiUrl").val(url);  
+                    page.apiParams.setValue(JSON.stringify(obj));
+                    page.apiParams.autoFormatRange({line:0, ch:0}, {line:page.apiParams.lineCount()});
+                    page.apiParams.scrollTo(null, 0);
+
+                    return obj
+                } catch (e) {
+                    console.log(e);
+                }
             },
             validate: function() {
                 $(".errors").removeClass("errors");

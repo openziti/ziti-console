@@ -30,12 +30,12 @@ var schema = {
                 schema.codeView.autoFormatRange({line:0, ch:0}, {line:schema.codeView.lineCount()});
                 $("#"+schema.formId).hide();
             } else {
-                $(".CodeMirror").hide();
+                $("#JSONViewArea").find(".CodeMirror").hide();
                 $(".jsonV").hide();
                 $("#"+schema.formId).show();
             }
         } else {
-            $(".CodeMirror").hide();
+            $("#JSONViewArea").find(".CodeMirror").hide();
             $(".jsonV").hide();
             $("#"+schema.formId).show();
         }

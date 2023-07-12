@@ -11,12 +11,6 @@
             <span data-i18n="Terminators"></span>
         </div>
         <div class="line"></div>
-        <div class="tabs">
-            <div class="tab selected">
-                <span data-i18n="Manage"></span> 
-                <span data-i18n="Terminators"></span>
-            </div>
-        </div>
         {{html.line}}
         {{html.tabIdentities}}
     </div>        
@@ -78,7 +72,7 @@
 
 	<!-- Modification Modals -->
     <div id="AddModal" class="modal box full">
-        <div class="sized">
+        <div class="sized large">
             <div class="close icon-close"></div>
             <div class="title adding">
                 <span data-i18n="Create"></span>
@@ -98,41 +92,48 @@
                 <span data-i18n="Terminator"></span>
                 <span data-i18n="Details"></span>
             </div>
-
-            <label for="Service" data-i18n="Service"></label>
-            <div id="Service"></div>
-
-            <label for="Identity" data-i18n="Identity"></label>
-            <div id="Identity"></div>
-
-            <label for="Routers" data-i18n="Router"></label>
-            <div id="Routers"></div>
-
-            <label for="Binding" data-i18n="Binding"></label>
-            <input id="Binding" data-bind="data.binding" type="text" maxlength="500" data-i18n="EnterBinding" data-enter="SaveButton"/>
-
-            <label for="Address" data-i18n="Address"></label>
-            <input id="Address" data-bind="data.address" type="text" maxlength="500" data-i18n="ExampleUrl" data-enter="SaveButton" />
-
-            <div class="grid three">
+            <div class="grid split">
                 <div>
-                    <label for="IdentitySecret" data-i18n="IdentitySecret"></label>
-                    <input id="IdentitySecret" data-bind="data.identitySecret" type="text" maxlength="500" data-i18n="EnterIdentitySecret" data-enter="SaveButton" />
+    
+                    <label for="Service" data-i18n="Service"></label>
+                    <div id="Service"></div>
+    
+                    <label for="Identity" data-i18n="Identity"></label>
+                    <div id="Identity"></div>
+    
+                    <label for="Routers" data-i18n="Router"></label>
+                    <div id="Routers"></div>
+    
+                    <label for="Binding" data-i18n="Binding"></label>
+                    <input id="Binding" data-bind="data.binding" type="text" maxlength="500" data-i18n="EnterBinding" data-enter="SaveButton"/>
+    
+                    <label for="Address" data-i18n="Address"></label>
+                    <input id="Address" data-bind="data.address" type="text" maxlength="500" data-i18n="ExampleUrl" data-enter="SaveButton" />
+    
+                    <div class="grid three">
+                        <div>
+                            <label for="IdentitySecret" data-i18n="IdentitySecret"></label>
+                            <input id="IdentitySecret" data-bind="data.identitySecret" type="text" maxlength="500" data-i18n="EnterIdentitySecret" data-enter="SaveButton" />
+                        </div>
+                        <div>
+                            <label for="Precedence" data-i18n="Precedence"></label>
+                            <input id="Precedence" data-bind="data.precedence" type="text" maxlength="500" data-i18n="EnterPrecedence" data-enter="SaveButton" />
+                        </div>
+                        <div>
+                            <label for="Cost" data-i18n="Cost"></label>
+                            <input id="Cost" data-bind="data.cost" type="number" data-i18n="EnterCost" data-enter="SaveButton" />
+                        </div>
+                    </div>
+    
+                    <div id="TagArea" data-tagarea="service"></div>
+                    <div id="TagExtended"></div>
+                
+                    {{html.save}}
                 </div>
                 <div>
-                    <label for="Precedence" data-i18n="Precedence"></label>
-                    <input id="Precedence" data-bind="data.precedence" type="text" maxlength="500" data-i18n="EnterPrecedence" data-enter="SaveButton" />
-                </div>
-                <div>
-                    <label for="Cost" data-i18n="Cost"></label>
-                    <input id="Cost" data-bind="data.cost" type="number" data-i18n="EnterCost" data-enter="SaveButton" />
+                    {{html.api}}
                 </div>
             </div>
-
-            <div id="TagArea" data-tagarea="service"></div>
-            <div id="TagExtended"></div>
-            
-            {{html.save}}
         </div>
 	</div>
 
@@ -145,15 +146,12 @@
     
     <script language="javascript" type="text/javascript">
         page = {
-            binding: {
-                pageTitle: "Terminators",
-                singular: "Terminator"
-            },
             filterObject: null,
             tags: null,
             services: null,
             identities: null,
             routers: null,
+            apiParams: null,
             init: function() {
                 page.services = new MultiSelect("Service");
                 page.services.isSingle = true;
@@ -176,6 +174,8 @@
                 page.filterObject.paging.searchOn = "address";
 
                 page.filterObject.init(true, true);
+
+                page.apiParams = CodeMirror.fromTextArea(document.getElementById("ApiParams"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
             }, 
             gridAction: function(e) {
                 var action = $(e.currentTarget).data("action");
@@ -195,13 +195,21 @@
                 page.routers.val(detail.router);
                 if (detail.identity && detail.identity) page.identities.val(detail.identity);
                 $("#Cost").val(detail.cost);
+                page.params();
                 modal.show("AddModal");
             },
             save: function() {
                 if (page.validate()) {
-                    var endpoint = '';
-                    if ($("#Routers").val().trim().length!==0) endpoint = $("#Protocol").val()+":"+$("#EndPointHost").val()+":"+$("#EndPointPort").val();
-        
+                    var obj = page.params();
+                    page.filterObject.save(obj);
+                } else growler.form();
+            },
+            formReset: function(e) {
+                page.params();
+            },
+            params: function() {
+                try {  
+                    
                     var obj = {
                         service: page.services.val(),
                         router: page.routers.val(),
@@ -214,8 +222,17 @@
                         tags: tags.val()
                     };
 
-                    page.filterObject.save(obj);
-                } else growler.form();
+                    var url = settings.versionData.baseUrl+settings.versionData.serviceUrl+"/"+page.filterObject.name;
+                    if (page.filterObject.isEditing()) url += "/"+page.filterObject.editId;
+                    $("#ApiUrl").val(url);  
+                    page.apiParams.setValue(JSON.stringify(obj));
+                    page.apiParams.autoFormatRange({line:0, ch:0}, {line:page.apiParams.lineCount()});
+                    page.apiParams.scrollTo(null, 0);
+
+                    return obj
+                } catch (e) {
+                    console.log(e);
+                }
             },
             validate: function() {
                 $(".errors").removeClass("errors");

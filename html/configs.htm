@@ -94,9 +94,12 @@
             <label for="Types" data-i18n="Types"></label>
             <select id="Types" data-bind="data.configTypeId" data-default=""></select>
             <div id="SchemaList"></div>
-            <label for="JSONView" class="jsonV" data-i18n="JSON"></label> 
-            <textarea id="JSONView" style="height: 75px;"></textarea>
+            <div id="JSONViewArea">
+                <label for="JSONView" class="jsonV" data-i18n="JSON"></label> 
+                <textarea id="JSONView" style="height: 75px;"></textarea>
+            </div>
             <div id="TagArea"></div>
+            {{html.api}}
             {{html.save}}
         </div>
     </div>
@@ -106,6 +109,7 @@
             filterObject: null,
             editData: null,
             configTypes: null,
+            apiParams: null,
             init: function() {
                 this.events();
 
@@ -115,6 +119,8 @@
                 page.configTypes.init(true, false, true);   
                 
                 schema.init("SchemaList", "JSONView");
+
+                page.apiParams = CodeMirror.fromTextArea(document.getElementById("ApiParams"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
             }, 
             events: function() {
                 context.addListener("config-types", page.typesLoaded);
@@ -140,15 +146,16 @@
                 if (schemaType) {
                     service.call("schema", {schema: schemaType.schema}, page.schemaReturned);
                 } else {
-                    $(".jsonV").hide();
-                    $(".CodeMirror").hide();
-                }
+                    $(".jsonV").hide(); 
+                    $("#JSONViewArea").find(".CodeMirror").hide(); 
+                } 
             },
             schemaReturned: function(e) {
                 schema.data = e.data;
                 schema.render();
                 schema.val(page.editData);
                 schema.setView($(".jsonButton").hasClass("on"));
+                commands.reset();
             },
             typesLoaded: function(e) {
                 var types = context.get(page.configTypes.name);
@@ -167,28 +174,45 @@
                 page.typechanged();
             },
             gridAction: function(e) {
-                    var action = $(e.currentTarget).data("action");
-                    var id = $(e.currentTarget).data("id");
-                    if (action=="delete") page.filterObject.delete([id]);
-                    else if (action=="edit") page.edit(id);
+                var action = $(e.currentTarget).data("action");
+                var id = $(e.currentTarget).data("id");
+                if (action=="delete") page.filterObject.delete([id]);
+                else if (action=="edit") page.edit(id);
             },
             edit: function(id) {
                 var detail = page.filterObject.details(id);
                 page.editData = detail.data;
                 $("#Types").attr("disabled",true);
                 page.typechanged();
+                page.params();
                 modal.show("AddModal");
             },
             save: function() {
                 if (page.validate()) {
-                    var obj = {
-                        name: $("#Name").val(),
-                        data: schema.val(),
-                        tags: tags.val()
-                    };
-                    if (page.filterObject.editId=="") obj.configTypeId = $("#Types").val();
+                    var obj = page.params();
+                    
                     page.filterObject.save(obj);
                 } else growler.form();
+            },
+            params: function() {
+                try {  
+                    var obj = {
+                        name: $("#Name").val(),
+                        data: schema.val()
+                    };
+                    if (page.filterObject.editId=="") obj.configTypeId = $("#Types").val();
+
+                    var url = settings.versionData.baseUrl+settings.versionData.serviceUrl+"/"+page.filterObject.name;
+                    if (page.filterObject.isEditing()) url += "/"+page.filterObject.editId;
+                    $("#ApiUrl").val(url);  
+                    page.apiParams.setValue(JSON.stringify(obj));
+                    page.apiParams.autoFormatRange({line:0, ch:0}, {line:page.apiParams.lineCount()});
+                    page.apiParams.scrollTo(null, 0);
+                    
+                    return obj
+                } catch (e) {
+                    console.log(e);
+                }
             },
             validate: function() {
                 $(".errors").removeClass("errors");
@@ -197,6 +221,9 @@
                 var type = $("#Types").val();
                 schema.validate();
                 return $(".errors").length==0;
+            },
+            formReset: function(e) {
+                page.params();
             },
             reset: function() {
                 app.isDirty = false;

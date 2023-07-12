@@ -185,7 +185,11 @@
                     <div id="Roles"></div>
                     <div id="MFAArea">
                         <label for="MFA" data-i18n="MFAEnabled"></label>
-                        <div id="ToggleMFA" class="toggle on"><div class="switch"></div><div class="label"></div></div> <span class="sidenote" data-i18n="Name">Click To Remove</span>
+                        <div id="ToggleMFA" class="toggle on">
+                            <div class="switch"></div>
+                            <div class="label"></div>
+                        </div> 
+                        <span class="sidenote" data-i18n="Name">Click To Remove</span>
                     </div>
                     <div class="split unsplit">
                         <div>
@@ -271,14 +275,12 @@
                                 </select>
                             </div>
                         </div>
+                        {{html.api}}
                     </div>
                 </div>
             </div>
            
-            <div class="buttons">           
-                <div class="linkButton closer" data-i18n="Oops"></div>
-                <div id="SaveButton" class="button" data-defined="save" data-i18n="Save"></div>
-            </div>   
+            {{html.save}}
         </div>
     </div>         
     
@@ -302,10 +304,6 @@
     
     <script language="javascript" type="text/javascript">
         page = {
-            binding: {
-                pageTitle: "Identities",
-                singular: "Identity"
-            },
             editId: -1,
             filterObject: null,
             casObject: null,
@@ -316,6 +314,7 @@
             identityRoles: null,
             authPolicies: null,
             appData: null,
+            apiParams: null,
             init: function() {
                 page.roles = new MultiSelect("Roles", 10, true);
                 page.roles.addSource(new SelectSource("identity-role-attributes", "", "id")); 
@@ -336,6 +335,7 @@
                 page.authPolicies = new Data("auth-policies");
                 page.authPolicies.init(false, false, true);
                 page.authPolicies.get();
+
                 
                 $("#ResetDate").datetimepicker({
                     validateOnBlur: false,
@@ -347,18 +347,22 @@
 				$("#ResetDate").val(moment().add("d", 2).format("MM/DD/YYYY h:mm A"));
                 
                 page.appData = CodeMirror.fromTextArea(document.getElementById("AppData"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"} });
+                page.apiParams = CodeMirror.fromTextArea(document.getElementById("ApiParams"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
+                page.appData.on('change', (args) => { 
+                    page.params(); 
+                });
             }, 
             events: function() {
                 context.addListener(page.filterObject.name, page.loaded);
                 context.addListener(page.casObject.name, page.casLoaded);
                 context.addListener(page.servicesObject.name, page.servicesLoaded);
                 context.addListener(page.configsObject.name, page.configsLoaded);
+                context.addListener("auth-policies", page.policiesLoaded);
                 $("#IdentityType").change(page.toggleUserType);
                 $("#EnrollmentType").change(page.toggleType);
                 $("#AssociateButton").click(page.addOveride);
                 $("#ToggleMFA").click(page.inlineMfa);
                 $("#ResetEnrollButton").click(page.doReset);
-                context.addListener("auth-policies", page.policiesLoaded);
             },
             policiesLoaded: function(e) {
                 $("#AuthPolicy").empty().append("<option value=\"\">"+locale.get("SelectAuthPolicy")+"</option>");
@@ -497,6 +501,7 @@
                 }
             },
             formReset: function() {
+                page.params();
                 $("#MFAArea").hide();
             },
             edit: function(id) {
@@ -618,6 +623,13 @@
             },
             save: function() {
                 if (page.validate()) {
+                    var params = page.params();
+                    page.filterObject.save(params);
+                } else growler.form();
+            }, 
+            params: function() {
+                try {
+                    var url = settings.versionData.baseUrl+settings.versionData.serviceUrl+"/"+page.filterObject.name;
                     var obj = {
                         name: $("#Name").val(),
                         type: $("#IdentityType").val(),
@@ -633,8 +645,8 @@
                     if (!page.filterObject.isEditing()) {
                         obj.enrollment = {};
                         if ($("#EnrollmentType").val()=="ott") obj.enrollment.ott = true;
-                        else{
-                            if ($("#EnrollmentType").val()=="ott") {
+                        else {
+                            if ($("#EnrollmentType").val()=="CA") {
                                 obj.enrollment.ca = $("#Authorities").val();
                             } else {
                                 obj.enrollment.updb = $("#UPDBName").val();
@@ -642,9 +654,17 @@
                         } 
                     }
                     if (obj.type=="User") obj.isAdmin = $("#IsAdmin").hasClass("on");
-                    page.filterObject.save(obj);
-                } else growler.form();
-            }, 
+                    if (page.filterObject.isEditing()) url += "/"+page.filterObject.editId;
+                    $("#ApiUrl").val(url);
+
+                    page.apiParams.setValue(JSON.stringify(obj));
+                    page.apiParams.autoFormatRange({line:0, ch:0}, {line:page.apiParams.lineCount()});
+                    page.apiParams.scrollTo(null, 0);
+                    return obj;
+                } catch (e) {
+                    console.log(e);
+                }
+            },
             loaded: function() {
                 $(".cert").off("click", page.getCert);
                 $(".qr").off("click", page.getCert);
@@ -782,6 +802,7 @@
                 $(".issues").hide();
                 $("#HostingCost").val("0");
                 $("#HostingPrecedence").val("default");
+                commands.reset();
             },
             validate: function() {
                 $(".errors").removeClass("errors");

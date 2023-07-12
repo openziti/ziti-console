@@ -4,11 +4,43 @@ var commands = {
     services: [],
     cli: [],
     init: function() {
-        commands.params =  CodeMirror.fromTextArea(document.getElementById("ApiJson"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
+        commands.params = CodeMirror.fromTextArea(document.getElementById("ApiJson"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
         commands.events();
     },
     events: function(e) {
         $("#IconDownload").click(commands.download);
+        $(".modal").find("input").keyup(commands.formChanged);
+        $(".modal").find("input").change(commands.formChanged);
+        $(".modal").find("input").blur(commands.formChanged);
+        $(".modal").find("textarea").keyup(commands.formChanged);
+        $(".modal").find("textarea").change(commands.formChanged);
+        $(".modal").find("textarea").blur(commands.formChanged);
+        $(".modal").find("select").keyup(commands.formChanged);
+        $(".modal").find("select").change(commands.formChanged);
+        $(".modal").find("select").blur(commands.formChanged);
+        $(".modal").find(".toggle").click(commands.formChangedWait);
+        $(".configBox").mouseenter(commands.formChanged);
+    },
+    reset: function() {
+        $(".modal").find("input[data-tag]").off("keyup", commands.formChanged);
+        $(".modal").find("input[data-tag]").off("change", commands.formChanged);
+        $(".modal").find("input[data-tag]").off("blur", commands.formChanged);
+        $(".modal").find(".jsonEntry").off("change", commands.formChanged);
+        $(".modal").find(".jsonEntry").off("blur", commands.formChanged);
+
+        $(".modal").find("input[data-tag]").keyup(commands.formChanged);
+        $(".modal").find("input[data-tag]").change(commands.formChanged);
+        $(".modal").find("input[data-tag]").blur(commands.formChanged);
+        $(".modal").find(".jsonEntry").blur(commands.formChanged);
+        $(".modal").find(".jsonEntry").change(commands.formChanged);
+    },
+    formChangedWait: () => {
+        setTimeout(() => {
+            commands.formChanged();
+        }, 1000);
+    },
+    formChanged: function() {
+        if (page.params) page.params();
     },
     set: (services, cli) => {
         $("#OperationCommands").removeClass("open");
