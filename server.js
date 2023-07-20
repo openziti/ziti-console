@@ -1911,6 +1911,7 @@ function log(message) {
  */
 StartServer(port);
 let maxAttempts = 100;
+var server;
 app.use((err, request, response, next) => {
 	if (err) {
 		if (err.toString().indexOf("Error: EPERM: operation not permitted, rename")==0) {
@@ -1924,11 +1925,11 @@ app.use((err, request, response, next) => {
 
 function StartServer(startupPort) {
 	if (zitified) {
-		app.listen(undefined, function() {
+		server = app.listen(undefined, function() {
 			console.log("Ziti Admin Console is now listening for incoming Ziti Connections");
 		});
 	} else {
-		app.listen(startupPort, function() {
+		server = app.listen(startupPort, function() {
 			console.log("Ziti Admin Console is now listening on port "+startupPort);
 		}).on('error', function(err) {
 			if (err.code=="EADDRINUSE") {
@@ -1941,6 +1942,27 @@ function StartServer(startupPort) {
 			}
 		});
 	}
+
+	var signals = {
+		'SIGHUP': 1,
+		'SIGINT': 2,
+		'SIGTERM': 15
+	};
+	
+	const shutdown = (signal, value) => {
+		console.log("shutdown!");
+		server.close(() => {
+			console.log(`server stopped by ${signal} with value ${value}`);
+			process.exit(128 + value);
+		});
+	};
+	
+	Object.keys(signals).forEach((signal) => {
+		process.on(signal, () => {
+			console.log(`process received a ${signal} signal`);
+			shutdown(signal, signals[signal]);
+		});
+	});
 }
 
 /**

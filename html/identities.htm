@@ -373,9 +373,9 @@
             row: function(template, data) {
                 template = template.split("{{type}}").join(data.type.name);
                 var enrollment = "N/A";
-                if (data.enrollment&&data.enrollment.ott&&data.enrollment.ott.jwt) {
-                    if (data.enrollment.ott.expiresAt!=null) {
-                        var difference = moment(data.enrollment.ott.expiresAt).diff(moment(new Date()));
+                if (data.enrollment&&data.enrollment.ottca&&data.enrollment.ottca.jwt) {
+                    if (data.enrollment.ottca.expiresAt!=null) {
+                        var difference = moment(data.enrollment.ottca.expiresAt).diff(moment(new Date()));
                         if (difference>0) enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
                     } else {
                         enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
@@ -647,7 +647,7 @@
                         if ($("#EnrollmentType").val()=="ott") obj.enrollment.ott = true;
                         else {
                             if ($("#EnrollmentType").val()=="CA") {
-                                obj.enrollment.ca = $("#Authorities").val();
+                                obj.enrollment.ottca = $("#Authorities").val();
                             } else {
                                 obj.enrollment.updb = $("#UPDBName").val();
                             }
@@ -674,10 +674,10 @@
             genQR: function(e) {
                 var id = $(e.currentTarget).data("id");
                 var identity = page.filterObject.details(id);
-                if (identity&&identity.enrollment&&identity.enrollment.ott&&identity.enrollment.ott.jwt) {
+                if (identity&&identity.enrollment&&identity.enrollment.ottca&&identity.enrollment.ottca.jwt) {
                     $("#QRCode").html("");
                     var qrcode = new QRCode("QRCode", {
-                        text: encodeURIComponent(identity.enrollment.ott.jwt),
+                        text: encodeURIComponent(identity.enrollment.ottca.jwt),
                         width: 300,
                         height: 300,
                         colorDark : "#000000",
@@ -701,10 +701,10 @@
             getCert: function(e) {
                 var id = $(e.currentTarget).data("id");
                 var identity = page.filterObject.details(id);
-                if (identity&&identity.enrollment&&identity.enrollment.ott&&identity.enrollment.ott.jwt) {
+                if (identity&&identity.enrollment&&identity.enrollment.ottca&&identity.enrollment.ottca.jwt) {
                     var name = identity.name.split(" ").join("");
                     var element = document.createElement('a');
-                    element.setAttribute('href', 'data:application/ziti-jwt;charset=utf-8,' + encodeURIComponent(identity.enrollment.ott.jwt));
+                    element.setAttribute('href', 'data:application/ziti-jwt;charset=utf-8,' + encodeURIComponent(identity.enrollment.ottca.jwt));
                     element.setAttribute('download', name+".jwt");
                     element.style.display = 'none';
                     document.body.appendChild(element);

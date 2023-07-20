@@ -189,15 +189,15 @@
                     </div>
                     <div>
                         <label for="Index" data-i18n="Index"></label>
-                        <input id="Index" data-bind="data.externalIdClaims.index" type="number" />
+                        <input id="Index" data-bind="data.externalIdClaim.index" type="number" />
                     </div>
                     <div>
                         <label for="MatcherCriteria" data-i18n="MatcherCriteria"></label>
-                        <input id="MatcherCriteria" data-bind="data.externalIdClaims.matcherCriteria" type="text" />
+                        <input id="MatcherCriteria" data-bind="data.externalIdClaim.matcherCriteria" type="text" />
                     </div>
                     <div>
                         <label for="ParserCriteria" data-i18n="ParserCriteria"></label>
-                        <input id="ParserCriteria" data-bind="data.externalIdClaims.parserCriteria" type="text" />
+                        <input id="ParserCriteria" data-bind="data.externalIdClaim.parserCriteria" type="text" />
                     </div>
                 </div>
             </div>
@@ -355,15 +355,15 @@
                 if (detail.isOttCaEnrollmentEnabled) $("#IsOTTEnrollmentEnabled").addClass("on");
                 if (detail.isAuthEnabled) $("#IsAuthEnabled").addClass("on");
                 if (detail.roles) page.roles.val(detail.roles); 
-                if (detail.externalIdClaims!=null) {
+                if (detail.externalIdClaim!=null) {
                     $("#IsExternalId").addClass("on");
                     $("#ExternalIdArea").show();
-                    if (detail.externalIdClaims.location != null) $("#Location").val(detail.externalIdClaims.location);
-                    if (detail.externalIdClaims.matcher != null) $("#Matcher").val(detail.externalIdClaims.matcher);
-                    if (detail.externalIdClaims.parser != null) $("#Parser").val(detail.externalIdClaims.parser);
-                    if (detail.externalIdClaims.index != null) $("#Index").val(detail.externalIdClaims.index);
-                    if (detail.externalIdClaims.matcherCriteria != null) $("#MatcherCriteria").val(detail.externalIdClaims.matcherCriteria);
-                    if (detail.externalIdClaims.parserCriteria != null) $("#ParserCriteria").val(detail.externalIdClaims.parserCriteria);
+                    if (detail.externalIdClaim.location != null) $("#Location").val(detail.externalIdClaim.location);
+                    if (detail.externalIdClaim.matcher != null) $("#Matcher").val(detail.externalIdClaim.matcher);
+                    if (detail.externalIdClaim.parser != null) $("#Parser").val(detail.externalIdClaim.parser);
+                    if (detail.externalIdClaim.index != null) $("#Index").val(detail.externalIdClaim.index);
+                    if (detail.externalIdClaim.matcherCriteria != null) $("#MatcherCriteria").val(detail.externalIdClaim.matcherCriteria);
+                    if (detail.externalIdClaim.parserCriteria != null) $("#ParserCriteria").val(detail.externalIdClaim.parserCriteria);
                 }
                 page.params();
                 modal.show("AddModal");
@@ -391,11 +391,11 @@
                     };
 
                     if ($("#IsExternalId").hasClass("on")) {
-                        obj.externalIdClaims = {
+                        obj.externalIdClaim = {
                             location: $("#Location").val(),
                             matcher: $("#Matcher").val(),
                             parser: $("#Parser").val(),
-                            index: $("#Index").val(),
+                            index: Number($("#Index").val()),
                             matcherCriteria: $("#MatcherCriteria").val(),
                             parserCriteria: $("#ParserCriteria").val(),
                         }

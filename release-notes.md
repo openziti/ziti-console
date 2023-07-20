@@ -1,3 +1,9 @@
+# Release 2.8.4
+* Issue #119 - Handle generic kill signals
+* Issue #151 - Update UI to fix Service Changing OTT property
+* Issue #152 - Change property for ott ca jwt
+* Issue #150 - Fix External Clim property
+
 # Release 2.8.3
 * Fix selectors on Posture Checks
 * Add Script Api Call Reference Fields
