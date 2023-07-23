@@ -77,7 +77,7 @@
 
 	<!-- Modification Modals -->
     <div id="AddModal" class="modal box full">
-        <div class="sized">
+        <div class="sized large">
             <div class="close icon-close"></div>
             <div class="title adding">
                 <span data-i18n="Create"></span>
@@ -97,116 +97,122 @@
                 <span data-i18n="AuthPolicy"></span>
                 <span data-i18n="Details"></span>
             </div>
-
-            <label for="Name" data-i18n="Name"></label>
-            <input id="Name" data-bind="data.name" type="text" maxlength="500" data-i18n="EnterName" />
-
-            <div class="sectionTitle" data-i18n="AllowFollowing"></div>
-            <div class="grid ethree mb15">
-                <div>
-                    <label data-i18n="Certificate"></label>
-                    <div id="Certificate" class="toggle">
-                        <div class="switch"></div>
-                        <div class="label"></div>
-                    </div>
-                </div>
-                <div>
-                    <label data-i18n="ExternalJwt"></label>
-                    <div id="ExternalJwt" class="toggle">
-                        <div class="switch"></div>
-                        <div class="label"></div>
-                    </div>
-                </div>
-                <div>
-                    <label data-i18n="UPDB"></label>
-                    <div id="UPDB" class="toggle">
-                        <div class="switch"></div>
-                        <div class="label"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="certs configureBox" style="display: none;">
-                <div class="sectionTitle" data-i18n="CertificateOptions"></div>
-                <label data-i18n="AllowExpired"></label>
-                <div class="spread">
-                    <div id="AllowExpired" class="toggle">
-                        <div class="switch"></div>
-                        <div class="label"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="jwts configureBox" style="display: none;">
-                <div class="sectionTitle" data-i18n="SignersOptions"></div>
-                <label data-i18n="AllowSigners"></label>
-                <div id="Signers"></div>
-            </div>
-
-            <div class="updb configureBox" style="display: none;">
-                <div class="sectionTitle" data-i18n="UPDBOptions"></div>
-                <div class="grid ethree">
-                    <div>
-                        <label for="MinPasswordLength" data-i18n="MinPasswordLength"></label>
-                        <input id="MinPasswordLength" data-bind="data.updb.minPasswordLength" type="number" data-i18n="EnterNumeric" />
-                    </div>
-                    <div>
-                        <label for="MaxAttempts" data-i18n="MaxAttempts"></label>
-                        <input id="MaxAttempts" data-bind="data.updb.maxAttempts" type="number" data-i18n="EnterNumeric" />
-                    </div>
-                    <div>
-                        <label for="LockoutDuration" data-i18n="LockoutDuration"></label>
-                        <input id="LockoutDuration" data-bind="data.updb.locoutDurationMinutes" type="number" data-i18n="EnterMinutes" />
-                    </div>
-                </div>
-                <div class="grid ethree">
-                    <div>
-                        <label data-i18n="RequireMixedCase"></label>
-                        <div id="RequireMixedCase" class="toggle">
-                            <div class="switch"></div>
-                            <div class="label"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <label data-i18n="RequireNumberChars"></label>
-                        <div id="RequireNumberChars" class="toggle">
-                            <div class="switch"></div>
-                            <div class="label"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <label data-i18n="RequireSpecialChars"></label>
-                        <div id="RequireSpecialChars" class="toggle">
-                            <div class="switch"></div>
-                            <div class="label"></div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Need To Finish these -->
-
-            <div class="sectionTitle" data-i18n="Secondary"></div>
             <div class="grid split">
                 <div>
-                    <label data-i18n="JwtSigners"></label>
-                    <select id="JwtSigners"></select>
+
+                    <label for="Name" data-i18n="Name"></label>
+                    <input id="Name" data-bind="data.name" type="text" maxlength="500" data-i18n="EnterName" />
+
+                    <div class="sectionTitle" data-i18n="AllowFollowing"></div>
+                    <div class="grid ethree mb15">
+                        <div>
+                            <label data-i18n="Certificate"></label>
+                            <div id="Certificate" class="toggle">
+                                <div class="switch"></div>
+                                <div class="label"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <label data-i18n="ExternalJwt"></label>
+                            <div id="ExternalJwt" class="toggle">
+                                <div class="switch"></div>
+                                <div class="label"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <label data-i18n="UPDB"></label>
+                            <div id="UPDB" class="toggle">
+                                <div class="switch"></div>
+                                <div class="label"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="certs configureBox" style="display: none;">
+                        <div class="sectionTitle" data-i18n="CertificateOptions"></div>
+                        <label data-i18n="AllowExpired"></label>
+                        <div class="spread">
+                            <div id="AllowExpired" class="toggle">
+                                <div class="switch"></div>
+                                <div class="label"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="jwts configureBox" style="display: none;">
+                        <div class="sectionTitle" data-i18n="SignersOptions"></div>
+                        <label data-i18n="AllowSigners"></label>
+                        <div id="Signers"></div>
+                    </div>
+
+                    <div class="updb configureBox" style="display: none;">
+                        <div class="sectionTitle" data-i18n="UPDBOptions"></div>
+                        <div class="grid ethree">
+                            <div>
+                                <label for="MinPasswordLength" data-i18n="MinPasswordLength"></label>
+                                <input id="MinPasswordLength" data-bind="data.updb.minPasswordLength" type="number" data-i18n="EnterNumeric" />
+                            </div>
+                            <div>
+                                <label for="MaxAttempts" data-i18n="MaxAttempts"></label>
+                                <input id="MaxAttempts" data-bind="data.updb.maxAttempts" type="number" data-i18n="EnterNumeric" />
+                            </div>
+                            <div>
+                                <label for="LockoutDuration" data-i18n="LockoutDuration"></label>
+                                <input id="LockoutDuration" data-bind="data.updb.locoutDurationMinutes" type="number" data-i18n="EnterMinutes" />
+                            </div>
+                        </div>
+                        <div class="grid ethree">
+                            <div>
+                                <label data-i18n="RequireMixedCase"></label>
+                                <div id="RequireMixedCase" class="toggle">
+                                    <div class="switch"></div>
+                                    <div class="label"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <label data-i18n="RequireNumberChars"></label>
+                                <div id="RequireNumberChars" class="toggle">
+                                    <div class="switch"></div>
+                                    <div class="label"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <label data-i18n="RequireSpecialChars"></label>
+                                <div id="RequireSpecialChars" class="toggle">
+                                    <div class="switch"></div>
+                                    <div class="label"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Need To Finish these -->
+
+                    <div class="sectionTitle" data-i18n="Secondary"></div>
+                    <div class="grid split">
+                        <div>
+                            <label data-i18n="JwtSigners"></label>
+                            <select id="JwtSigners"></select>
+                        </div>
+                        <div>
+                            <label data-i18n="RequireTotp"></label>
+                            <div id="RequireTotp" class="toggle">
+                                <div class="switch"></div>
+                                <div class="label"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div>
-                    <label data-i18n="RequireTotp"></label>
-                    <div id="RequireTotp" class="toggle">
-                        <div class="switch"></div>
-                        <div class="label"></div>
-                    </div>
+                    <div id="TagArea" data-tagarea="policies"></div>
+                    <div id="TagExtended"></div>
+                    {{html.api}}
+        
+                    {{html.save}}
                 </div>
             </div>
 
-            <div id="TagArea" data-tagarea="policies"></div>
-            <div id="TagExtended"></div>
-            {{html.api}}
-
-            {{html.save}}
         </div>
 	</div>
 
