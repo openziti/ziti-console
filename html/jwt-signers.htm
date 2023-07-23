@@ -104,54 +104,59 @@
                 <span data-i18n="JwtSigner"></span>
                 <span data-i18n="Details"></span>
             </div>
-
-            <label for="Name" data-i18n="Name"></label>
-            <input id="Name" data-bind="data.name" type="text" maxlength="500" data-i18n="EnterName" />
-            <label for="Issuer" data-i18n="Issuer"></label>
-            <input id="Issuer" data-bind="data.issuer" type="text" maxlength="500" data-i18n="EnterIssuer" />
-            <label for="Audience" data-i18n="Audience"></label>
-            <input id="Audience" data-bind="data.audience" type="text" maxlength="500" data-i18n="EnterAudience" />
-            <label for="ClaimsProperty" data-i18n="ClaimsProperty"></label>
-            <input id="ClaimsProperty" data-bind="data.claimsProperty" type="text" maxlength="500" data-i18n="EnterClainms" value="sub" />
-            <label for="ExternalAuthUrl" data-i18n="ExternalAuthUrl"></label>
-            <input id="ExternalAuthUrl" data-bind="data.issuer" type="text" maxlength="500" data-i18n="EnterUrl" />
             <div class="grid split">
                 <div>
-                    <label data-i18n="Enabled"></label>
-                    <div id="Enabled" class="toggle">
-                        <div class="switch"></div>
-                        <div class="label"></div>
+
+                    <label for="Name" data-i18n="Name"></label>
+                    <input id="Name" data-bind="data.name" type="text" maxlength="500" data-i18n="EnterName" />
+                    <label for="Issuer" data-i18n="Issuer"></label>
+                    <input id="Issuer" data-bind="data.issuer" type="text" maxlength="500" data-i18n="EnterIssuer" />
+                    <label for="Audience" data-i18n="Audience"></label>
+                    <input id="Audience" data-bind="data.audience" type="text" maxlength="500" data-i18n="EnterAudience" />
+                    <label for="ClaimsProperty" data-i18n="ClaimsProperty"></label>
+                    <input id="ClaimsProperty" data-bind="data.claimsProperty" type="text" maxlength="500" data-i18n="EnterClainms" value="sub" />
+                    <label for="ExternalAuthUrl" data-i18n="ExternalAuthUrl"></label>
+                    <input id="ExternalAuthUrl" data-bind="data.issuer" type="text" maxlength="500" data-i18n="EnterUrl" />
+                    <div class="grid split">
+                        <div>
+                            <label data-i18n="Enabled"></label>
+                            <div id="Enabled" class="toggle">
+                                <div class="switch"></div>
+                                <div class="label"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <label data-i18n="UseExternal"></label>
+                            <div id="UseExternal" class="toggle">
+                                <div class="switch"></div>
+                                <div class="label"></div>
+                            </div>
+                        </div>
+                    </div>
+        
+                    <div class="configBox" style="margin-top: 20px;">
+                        <div class="sectionTitle" data-i18n="CertDefined"></div>
+                        <label for="Pem"><span data-i18n="PEM"></span> <span id="SelectFile" class="note" data-i18n="SelectFile"></span><input id="PemFile" type="file" accept=".pem"/></label>
+                        <textarea id="Pem" data-bind="data.certPem" spellcheck="false" style="height: 300px; font-size: 12px;" data-i18n="PastePEM"></textarea>
+                        <label for="Kid" data-i18n="Kid"></label>
+                        <input id="Kid" data-bind="data.kid" type="text" maxlength="500" data-i18n="EnterKid" />
+                    </div>
+        
+                    <div class="configBox" style="margin-top: 20px;">
+                        <div class="sectionTitle" data-i18n="JWKSDefined"></div>
+                        <label for="JWKSEndpoint" data-i18n="JWKSEndpoint"></label>
+                        <input id="JWKSEndpoint" data-bind="data.jwksEndpoint" type="text" maxlength="500" data-i18n="EnterUrl" />
                     </div>
                 </div>
                 <div>
-                    <label data-i18n="UseExternal"></label>
-                    <div id="UseExternal" class="toggle">
-                        <div class="switch"></div>
-                        <div class="label"></div>
-                    </div>
+
+                    <div id="TagArea" data-tagarea="policies"></div>
+                    <div id="TagExtended"></div>
+                    {{html.api}}
+                    {{html.save}}
+
                 </div>
-            </div>
 
-            <div class="configBox" style="margin-top: 20px;">
-                <div class="sectionTitle" data-i18n="CertDefined"></div>
-                <label for="Pem"><span data-i18n="PEM"></span> <span id="SelectFile" class="note" data-i18n="SelectFile"></span><input id="PemFile" type="file" accept=".pem"/></label>
-                <textarea id="Pem" data-bind="data.certPem" spellcheck="false" style="height: 300px; font-size: 12px;" data-i18n="PastePEM"></textarea>
-                <label for="Kid" data-i18n="Kid"></label>
-                <input id="Kid" data-bind="data.kid" type="text" maxlength="500" data-i18n="EnterKid" />
-            </div>
-
-            <div class="configBox" style="margin-top: 20px;">
-                <div class="sectionTitle" data-i18n="JWKSDefined"></div>
-                <label for="JWKSEndpoint" data-i18n="JWKSEndpoint"></label>
-                <input id="JWKSEndpoint" data-bind="data.jwksEndpoint" type="text" maxlength="500" data-i18n="EnterUrl" />
-            </div>
-
-            <!-- Need To Finish these -->
-
-            <div id="TagArea" data-tagarea="policies"></div>
-            <div id="TagExtended"></div>
-            {{html.api}}
-            {{html.save}}
         </div>
 	</div>
     

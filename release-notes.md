@@ -1,3 +1,6 @@
+# Release 2.8.5
+* Fix Scroll position for Jwt Signer on Change
+
 # Release 2.8.4
 * Issue #119 - Handle generic kill signals
 * Issue #151 - Update UI to fix Service Changing OTT property
