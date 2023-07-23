@@ -683,19 +683,17 @@
             genQR: function(e) {
                 var id = $(e.currentTarget).data("id");
                 var identity = page.filterObject.details(id);
-                if (data.enrollment&&data.enrollment.ott&&data.enrollment.ott.jwt) {
-                    if (identity&&identity.enrollment&&identity.enrollment.ott&&identity.enrollment.ott.jwt) {
-                        $("#QRCode").html("");
-                        var qrcode = new QRCode("QRCode", {
-                            text: encodeURIComponent(identity.enrollment.ott.jwt),
-                            width: 300,
-                            height: 300,
-                            colorDark : "#000000",
-                            colorLight : "#ffffff",
-                            correctLevel : QRCode.CorrectLevel.M
-                        });
-                        modal.show("QRModal");
-                    }
+                if (identity&&identity.enrollment&&identity.enrollment.ott&&identity.enrollment.ott.jwt) {
+                    $("#QRCode").html("");
+                    var qrcode = new QRCode("QRCode", {
+                        text: encodeURIComponent(identity.enrollment.ott.jwt),
+                        width: 300,
+                        height: 300,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.M
+                    });
+                    modal.show("QRModal");
                 } else {
                     if (identity&&identity.enrollment&&identity.enrollment.ottca&&identity.enrollment.ottca.jwt) {
                         $("#QRCode").html("");
