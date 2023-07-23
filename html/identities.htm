@@ -676,7 +676,7 @@
             },
             loaded: function() {
                 $(".cert").off("click", page.getCert);
-                $(".qr").off("click", page.getCert);
+                $(".qr").off("click", page.genQR);
                 $(".cert").on("click", page.getCert);
                 $(".qr").click(page.genQR);
             },
@@ -726,16 +726,14 @@
                 var id = $(e.currentTarget).data("id");
                 var identity = page.filterObject.details(id);
                 if (identity&&identity.enrollment&&identity.enrollment.ott&&identity.enrollment.ott.jwt) {
-                    $("#QRCode").html("");
-                    var qrcode = new QRCode("QRCode", {
-                        text: encodeURIComponent(identity.enrollment.ott.jwt),
-                        width: 300,
-                        height: 300,
-                        colorDark : "#000000",
-                        colorLight : "#ffffff",
-                        correctLevel : QRCode.CorrectLevel.M
-                    });
-                    modal.show("QRModal");
+                    var name = identity.name.split(" ").join("");
+                    var element = document.createElement('a');
+                    element.setAttribute('href', 'data:application/ziti-jwt;charset=utf-8,' + encodeURIComponent(identity.enrollment.ott.jwt));
+                    element.setAttribute('download', name+".jwt");
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
                 } else {
                     if (identity&&identity.enrollment&&identity.enrollment.ottca&&identity.enrollment.ottca.jwt) {
                         var name = identity.name.split(" ").join("");
