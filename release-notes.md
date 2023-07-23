@@ -1,6 +1,7 @@
 # Release 2.8.5
 * Fix Scroll position for Jwt Signer on Change
 * Fix ott download issue
+* Fix Issue where code mirror pulls you from selecting attribute
 
 # Release 2.8.4
 * Issue #119 - Handle generic kill signals

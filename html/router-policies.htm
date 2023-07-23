@@ -58,27 +58,33 @@
 
 	<!-- Modification Modals -->
     <div id="AddModal" class="modal box full">
-        <div class="sized">
+        <div class="sized large">
             <div class="close icon-close"></div>
             <div class="title adding">Create <span data-bind="singular"></span></div>
             <div class="subtitle adding">Add a New <span data-bind="singular"></span> by completing the following form</div>
             <div class="title editing">Edit <span data-bind="singular"></span></div>
             <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
-            <label for="Name">Name</label>
-            <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" />
-            <label for="RouterRoles">Router Roles</label>
-            <div id="RouterRoles"></div>
-            <label for="IDRoles">Identity Roles</label>
-            <div id="IDRoles"></div>
-            <label for="Semantics">Semantics</label>
-            <select id="Semantics" data-bind="data.semantic" data-default="AnyOf">
-                <option value="AnyOf">Has Any Role</option>
-                <option value="AllOf">Must Have All Roles</option>
-            </select>
-            <div id="TagArea" data-tagarea="policies"></div>
-            <div id="TagExtended"></div>
-            {{html.api}}
-            {{html.save}}
+            <div class="grid split">
+                <div>
+                    <label for="Name">Name</label>
+                    <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" />
+                    <label for="RouterRoles">Router Roles</label>
+                    <div id="RouterRoles"></div>
+                    <label for="IDRoles">Identity Roles</label>
+                    <div id="IDRoles"></div>
+                    <label for="Semantics">Semantics</label>
+                    <select id="Semantics" data-bind="data.semantic" data-default="AnyOf">
+                        <option value="AnyOf">Has Any Role</option>
+                        <option value="AllOf">Must Have All Roles</option>
+                    </select>
+                </div>
+                <div>
+                    <div id="TagArea" data-tagarea="policies"></div>
+                    <div id="TagExtended"></div>
+                    {{html.api}}
+                    {{html.save}}
+                </div>
+            </div>
         </div>
 	</div>
     

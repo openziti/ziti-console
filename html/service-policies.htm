@@ -64,34 +64,40 @@
 
 	<!-- Modification Modals -->
     <div id="AddModal" class="modal box full">
-        <div class="sized">
+        <div class="sized large">
             <div class="close icon-close"></div>
             <div class="title adding">Create <span data-bind="singular"></span></div>
             <div class="subtitle adding">Add a New <span data-bind="singular"></span> by completing the following form</div>
             <div class="title editing">Edit <span data-bind="singular"></span></div>
             <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
-            <label for="Name">Name</label>
-            <input id="Name" type="text" data-bind="data.name" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
-            <label for="Type">Type</label>
-            <select id="Type" data-bind="data.type" data-default="Bind" data-enter="SaveButton">
-                <option value="Bind" selected>Bind</option>
-                <option value="Dial">Dial</option>
-            </select>
-            <label for="Roles">Service Role Attributes</label>
-            <div id="Roles"></div>
-            <label for="IDRoles">Identity Role Attributes</label>
-            <div id="IDRoles"></div>
-            <label for="PCRoles">Posture Check Role Attributes</label>
-            <div id="PCRoles"></div>
-            <label for="Semantics">Semantics</label>
-            <select id="Semantics" data-bind="data.semantic" data-default="AnyOf" data-enter="SaveButton">
-                <option value="AnyOf">Has Any Role</option>
-                <option value="AllOf">Must Have All Roles</option>
-            </select>
-            <div id="TagArea" data-tagarea="policies"></div>
-            <div id="TagExtended"></div>
-            {{html.api}}
-            {{html.save}}
+            <div class="grid split">
+                <div>
+                    <label for="Name">Name</label>
+                    <input id="Name" type="text" data-bind="data.name" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
+                    <label for="Type">Type</label>
+                    <select id="Type" data-bind="data.type" data-default="Bind" data-enter="SaveButton">
+                        <option value="Bind" selected>Bind</option>
+                        <option value="Dial">Dial</option>
+                    </select>
+                    <label for="Roles">Service Role Attributes</label>
+                    <div id="Roles"></div>
+                    <label for="IDRoles">Identity Role Attributes</label>
+                    <div id="IDRoles"></div>
+                    <label for="PCRoles">Posture Check Role Attributes</label>
+                    <div id="PCRoles"></div>
+                    <label for="Semantics">Semantics</label>
+                    <select id="Semantics" data-bind="data.semantic" data-default="AnyOf" data-enter="SaveButton">
+                        <option value="AnyOf">Has Any Role</option>
+                        <option value="AllOf">Must Have All Roles</option>
+                    </select>
+                </div>
+                <div>
+                    <div id="TagArea" data-tagarea="policies"></div>
+                    <div id="TagExtended"></div>
+                    {{html.api}}
+                    {{html.save}}
+                </div>
+            </div>
         </div>
 	</div>
 
