@@ -1,5 +1,6 @@
 # Release 2.8.5
 * Fix Scroll position for Jwt Signer on Change
+* Fix ott download issue
 
 # Release 2.8.4
 * Issue #119 - Handle generic kill signals

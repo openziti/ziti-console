@@ -373,20 +373,29 @@
             row: function(template, data) {
                 template = template.split("{{type}}").join(data.type.name);
                 var enrollment = "N/A";
-                if (data.enrollment&&data.enrollment.ottca&&data.enrollment.ottca.jwt) {
-                    if (data.enrollment.ottca.expiresAt!=null) {
-                        var difference = moment(data.enrollment.ottca.expiresAt).diff(moment(new Date()));
+                if (data.enrollment&&data.enrollment.ott&&data.enrollment.ott.jwt) {
+                    if (data.enrollment.ott.expiresAt!=null) {
+                        var difference = moment(data.enrollment.ott.expiresAt).diff(moment(new Date()));
                         if (difference>0) enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
                     } else {
                         enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
                     }
-                } else { 
-                    if (data.enrollment.updb) {
-                        if (data.enrollment.updb.expiresAt!=null) {
-                            var difference = moment(data.enrollment.updb.expiresAt).diff(moment(new Date()));
+                } else {
+                    if (data.enrollment&&data.enrollment.ottca&&data.enrollment.ottca.jwt) {
+                        if (data.enrollment.ottca.expiresAt!=null) {
+                            var difference = moment(data.enrollment.ottca.expiresAt).diff(moment(new Date()));
                             if (difference>0) enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
                         } else {
                             enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
+                        }
+                    } else { 
+                        if (data.enrollment.updb) {
+                            if (data.enrollment.updb.expiresAt!=null) {
+                                var difference = moment(data.enrollment.updb.expiresAt).diff(moment(new Date()));
+                                if (difference>0) enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
+                            } else {
+                                enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
+                            }
                         }
                     }
                 }
@@ -674,51 +683,79 @@
             genQR: function(e) {
                 var id = $(e.currentTarget).data("id");
                 var identity = page.filterObject.details(id);
-                if (identity&&identity.enrollment&&identity.enrollment.ottca&&identity.enrollment.ottca.jwt) {
-                    $("#QRCode").html("");
-                    var qrcode = new QRCode("QRCode", {
-                        text: encodeURIComponent(identity.enrollment.ottca.jwt),
-                        width: 300,
-                        height: 300,
-                        colorDark : "#000000",
-                        colorLight : "#ffffff",
-                        correctLevel : QRCode.CorrectLevel.M
-                    });
-                    modal.show("QRModal");
-                } else if (identity&&identity.enrollment&&identity.enrollment.updb&&identity.enrollment.updb.jwt) {
-                    $("#QRCode").html("");
-                    var qrcode = new QRCode("QRCode", {
-                        text: encodeURIComponent(identity.enrollment.updb.jwt),
-                        width: 300,
-                        height: 300,
-                        colorDark : "#000000",
-                        colorLight : "#ffffff",
-                        correctLevel : QRCode.CorrectLevel.M
-                    });
-                    modal.show("QRModal");
+                if (data.enrollment&&data.enrollment.ott&&data.enrollment.ott.jwt) {
+                    if (identity&&identity.enrollment&&identity.enrollment.ott&&identity.enrollment.ott.jwt) {
+                        $("#QRCode").html("");
+                        var qrcode = new QRCode("QRCode", {
+                            text: encodeURIComponent(identity.enrollment.ott.jwt),
+                            width: 300,
+                            height: 300,
+                            colorDark : "#000000",
+                            colorLight : "#ffffff",
+                            correctLevel : QRCode.CorrectLevel.M
+                        });
+                        modal.show("QRModal");
+                    }
+                } else {
+                    if (identity&&identity.enrollment&&identity.enrollment.ottca&&identity.enrollment.ottca.jwt) {
+                        $("#QRCode").html("");
+                        var qrcode = new QRCode("QRCode", {
+                            text: encodeURIComponent(identity.enrollment.ottca.jwt),
+                            width: 300,
+                            height: 300,
+                            colorDark : "#000000",
+                            colorLight : "#ffffff",
+                            correctLevel : QRCode.CorrectLevel.M
+                        });
+                        modal.show("QRModal");
+                    } else if (identity&&identity.enrollment&&identity.enrollment.updb&&identity.enrollment.updb.jwt) {
+                        $("#QRCode").html("");
+                        var qrcode = new QRCode("QRCode", {
+                            text: encodeURIComponent(identity.enrollment.updb.jwt),
+                            width: 300,
+                            height: 300,
+                            colorDark : "#000000",
+                            colorLight : "#ffffff",
+                            correctLevel : QRCode.CorrectLevel.M
+                        });
+                        modal.show("QRModal");
+                    }
                 }
             },
             getCert: function(e) {
                 var id = $(e.currentTarget).data("id");
                 var identity = page.filterObject.details(id);
-                if (identity&&identity.enrollment&&identity.enrollment.ottca&&identity.enrollment.ottca.jwt) {
-                    var name = identity.name.split(" ").join("");
-                    var element = document.createElement('a');
-                    element.setAttribute('href', 'data:application/ziti-jwt;charset=utf-8,' + encodeURIComponent(identity.enrollment.ottca.jwt));
-                    element.setAttribute('download', name+".jwt");
-                    element.style.display = 'none';
-                    document.body.appendChild(element);
-                    element.click();
-                    document.body.removeChild(element);
-                } else if (identity&&identity.enrollment&&identity.enrollment.updb&&identity.enrollment.updb.jwt) {
-                    var name = identity.name.split(" ").join("");
-                    var element = document.createElement('a');
-                    element.setAttribute('href', 'data:application/ziti-jwt;charset=utf-8,' + encodeURIComponent(identity.enrollment.updb.jwt));
-                    element.setAttribute('download', name+".jwt");
-                    element.style.display = 'none';
-                    document.body.appendChild(element);
-                    element.click();
-                    document.body.removeChild(element);
+                if (identity&&identity.enrollment&&identity.enrollment.ott&&identity.enrollment.ott.jwt) {
+                    $("#QRCode").html("");
+                    var qrcode = new QRCode("QRCode", {
+                        text: encodeURIComponent(identity.enrollment.ott.jwt),
+                        width: 300,
+                        height: 300,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.M
+                    });
+                    modal.show("QRModal");
+                } else {
+                    if (identity&&identity.enrollment&&identity.enrollment.ottca&&identity.enrollment.ottca.jwt) {
+                        var name = identity.name.split(" ").join("");
+                        var element = document.createElement('a');
+                        element.setAttribute('href', 'data:application/ziti-jwt;charset=utf-8,' + encodeURIComponent(identity.enrollment.ottca.jwt));
+                        element.setAttribute('download', name+".jwt");
+                        element.style.display = 'none';
+                        document.body.appendChild(element);
+                        element.click();
+                        document.body.removeChild(element);
+                    } else if (identity&&identity.enrollment&&identity.enrollment.updb&&identity.enrollment.updb.jwt) {
+                        var name = identity.name.split(" ").join("");
+                        var element = document.createElement('a');
+                        element.setAttribute('href', 'data:application/ziti-jwt;charset=utf-8,' + encodeURIComponent(identity.enrollment.updb.jwt));
+                        element.setAttribute('download', name+".jwt");
+                        element.style.display = 'none';
+                        document.body.appendChild(element);
+                        element.click();
+                        document.body.removeChild(element);
+                    }
                 }
             },
             getPropString: function(obj) {
