@@ -90,6 +90,16 @@
    color: var(--placeholder);
 }
 
+a {
+    color: var(--menu);
+    font-weight: bold;
+    transition: var(--transition);
+}
+
+a:hover {
+    color: var(--primary);
+}
+
 html {
 	height: 100%;
 	box-sizing: border-box;
@@ -132,7 +142,7 @@ main {
     right: 0px;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
-    min-height: calc(100%);
+    height: 100vh;
 	background-color: var(--background);
 }
 
@@ -416,7 +426,8 @@ aside .icon {
 }
 
 .table {
-    margin-bottom: 60px;
+    height: 86vh;
+    overflow: scroll;
 }
 
 .blurb {

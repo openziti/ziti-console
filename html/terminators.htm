@@ -56,7 +56,7 @@
         <div class="col">
             <div class="selector" data-id="{{id}}"></div>
         </div>
-        <div class="col" data-id="{{id}}"><strong>{{router.name}}</strong></div>
+        <div class="col" data-id="{{id}}"><a href="javascript:page.edit('{{id}}');">{{router.name}}</a></div>
         <div class="col" data-id="{{id}}">{{service.name}}</div>
         <div class="col" data-id="{{id}}">{{address}}</div>
         <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
@@ -126,7 +126,7 @@
                     </div>
     
                     <div id="TagArea" data-tagarea="service"></div>
-                    <div id="TagExtended"></div>
+                    {{html.customtags}}
                 
                     {{html.save}}
                 </div>

@@ -43,7 +43,7 @@
         <div class="col notitle">
             <div class="selector" data-id="{{id}}"></div>
         </div>
-        <div class="col" data-id="{{id}}"><strong>{{name}}</strong></div>
+        <div class="col" data-id="{{id}}"><a href="javascript:page.edit('{{id}}');">{{name}}</a></div>
         <div class="col desktop" data-id="{{id}}">{{selector.serviceRoles}}</div>
         <div class="col desktop" data-id="{{id}}">{{selector.identityRoles}}</div>
         <div class="col desktop" data-id="{{id}}">{{selector.postureCheckRoles}}</div>
@@ -93,7 +93,7 @@
                 </div>
                 <div>
                     <div id="TagArea" data-tagarea="policies"></div>
-                    <div id="TagExtended"></div>
+                    {{html.customtags}}
                     {{html.api}}
                     {{html.save}}
                 </div>

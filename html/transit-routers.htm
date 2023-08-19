@@ -63,7 +63,7 @@
         <div class="col" data-id="{{id}}">
             <span class="circle {{isOnline}}" title="Online"></span>
             <span class="circle {{isVerified}}" title="Verified"></span>
-            <strong>{{name}}</strong>
+            <a href="javascript:page.edit('{{id}}');">{{name}}</a>
         </div>
         <div class="col desktop" data-id="{{id}}">{{isVerified}}</div>
         <div class="col desktop" data-id="{{id}}">{{isOnline}}</div>
@@ -119,7 +119,7 @@
             </div>
             
             <div id="TagArea" data-tagarea="router"></div>
-            <div id="TagExtended"></div>
+            {{html.customtags}}
             {{html.save}}
         </div>
 	</div>

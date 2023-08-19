@@ -140,6 +140,7 @@ app.use(function (req, res, next) {
 var initial = JSON.parse(fs.readFileSync(path.join(__dirname,"assets","data","settings.json")));
 
 var port = initial.port;
+var bindIP = initial.bindIP;
 var portTLS = initial.portTLS;
 var updateSettings = initial.update;
 var settingsPath = initial.location;
@@ -1924,23 +1925,44 @@ app.use((err, request, response, next) => {
 });
 
 function StartServer(startupPort) {
-	if (zitified) {
-		server = app.listen(undefined, function() {
-			console.log("Ziti Admin Console is now listening for incoming Ziti Connections");
-		});
+	if (bindIP=="" || bindIP==null) {
+		if (zitified) {
+			server = app.listen(undefined, function() {
+				console.log("Ziti Admin Console is now listening for incoming Ziti Connections");
+			});
+		} else {
+			server = app.listen(startupPort, function() {
+				console.log("Ziti Admin Console is now listening on port "+startupPort);
+			}).on('error', function(err) {
+				if (err.code=="EADDRINUSE") {
+					maxAttempts--;
+					console.log("Port "+startupPort+" In Use, Attempting new port "+(startupPort+1));
+					startupPort++;
+					if (maxAttempts>0) StartServer(startupPort);
+				} else {
+					console.log("All Ports in use "+port+" to "+startupPort);
+				}
+			});
+		}
 	} else {
-		server = app.listen(startupPort, function() {
-			console.log("Ziti Admin Console is now listening on port "+startupPort);
-		}).on('error', function(err) {
-			if (err.code=="EADDRINUSE") {
-				maxAttempts--;
-				console.log("Port "+startupPort+" In Use, Attempting new port "+(startupPort+1));
-				startupPort++;
-				if (maxAttempts>0) StartServer(startupPort);
-			} else {
-				console.log("All Ports in use "+port+" to "+startupPort);
-			}
-		});
+		if (zitified) {
+			server = app.listen(undefined, bindIP, function() {
+				console.log("Ziti Admin Console is now listening for incoming Ziti Connections");
+			});
+		} else {
+			server = app.listen(startupPort, bindIP, function() {
+				console.log("Ziti Admin Console is now listening on port "+startupPort);
+			}).on('error', function(err) {
+				if (err.code=="EADDRINUSE") {
+					maxAttempts--;
+					console.log("Port "+startupPort+" In Use, Attempting new port "+(startupPort+1));
+					startupPort++;
+					if (maxAttempts>0) StartServer(startupPort);
+				} else {
+					console.log("All Ports in use "+port+" to "+startupPort);
+				}
+			});
+		}
 	}
 
 	var signals = {

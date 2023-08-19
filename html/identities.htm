@@ -32,6 +32,10 @@
                     <span data-i18n="Name"></span>
                     <div class="dragger"></div>
                 </div>
+                <div class="col">
+                    <span data-i18n="Roles"></span>
+                    <div class="dragger"></div>
+                </div>
                 <div class="col desktop">
                     <span data-i18n="OS"></span>
                     <div class="dragger"></div>
@@ -81,8 +85,9 @@
         <div class="col" data-id="{{id}}">
             <span class="circle {{hasApiSession}}" title="Api Session"></span>
             <span class="circle {{hasEdgeRouterConnection}}" title="Edge Router Connected"></span>
-            <strong>{{name}}</strong>
+            <strong><a href="javascript:page.edit('{{id}}');">{{name}}</a></strong>
         </div>
+        <div class="col desktop" data-id="{{id}}" style="overflow: unset;">{{roles}}</div>
         <div class="col desktop" data-id="{{id}}" style="overflow: unset;"><span class="os {{os}}" data-balloon-pos="up" aria-label="{{osDetails}}"></span></div>
         <div class="col desktop" data-id="{{id}}" style="overflow: unset;" data-balloon-pos="up" aria-label="{{sdk}}"><span class="oneline">{{version}}</span></div>
         <div class="col desktop" data-id="{{id}}">{{type}}</div>
@@ -191,16 +196,17 @@
                         </div> 
                         <span class="sidenote" data-i18n="Name">Click To Remove</span>
                     </div>
-                    <div class="split unsplit">
+                    <div class="split">
                         <div>
                             <label for="IdentityType" data-i18n="IdentityType"></label>
                             <select id="IdentityType" data-default="Device" data-enter="SaveButton">
+                                <!-- <option value="Default" selected data-i18n="Default"></option> -->
                                 <option value="Device" selected data-i18n="Device"></option>
                                 <option value="Service" data-i18n="Service"></option>
                                 <option value="User" data-i18n="User"></option>
                             </select>
                         </div>
-                        <div id="UserArea" style="display:none;">
+                        <div id="UserArea">
                             <label data-i18n="IsAdmin"></label>
                             <div id="IsAdmin" class="toggle">
                                 <div class="switch"></div>
@@ -237,7 +243,7 @@
                         </div>
                     </div>
                     <div id="TagArea" data-tagarea="identity"></div>
-                    <div id="TagExtended"></div>
+                    {{html.customtags}}
                 </div>
                 <div>
                     <div class="darkened">
@@ -298,7 +304,7 @@
             height: 211px;
         }
         .columns {
-	        grid-template-columns: 50px minmax(150px, auto) 50px 120px 100px 150px 150px 100px 100px 50px;
+	        grid-template-columns: 50px minmax(200px, auto) 300px 50px 120px 100px 150px 150px 100px 100px 50px;
         }
     </style>
     
@@ -414,6 +420,15 @@
                     template = template.split("{{hiddenMFAClass}}").join("");
                     template = template.split("{{mfaEnabled}}").join("yes");
                 }
+
+                var roles = "";
+                if (data.roleAttributes && data.roleAttributes.length>0) {
+                    for (let i=0; i<data.roleAttributes.length; i++) {
+                        roles += ((i>0)?",":"")+'<div class="hashtag">'+data.roleAttributes[i]+'</div>';
+                    }
+                } else roles = "-";
+                template = template.split("{{roles}}").join(roles);
+
 
                 template = template.split("{{tokenLink}}").join(enrollment);
 
@@ -567,6 +582,7 @@
                 $("#SdkInfo").html(sdk);
 
                 if (detail.isAdmin) $("#IsAdmin").addClass("on");
+                /*
                 var area = "#UserArea";
                 if (detail.type.name=="User") {
                     $(area).parent().removeClass("unsplit");
@@ -574,7 +590,8 @@
                 } else {
                     $(area).parent().addClass("unsplit");
                     $(area).hide();
-                }                 
+                }   
+                */              
                 $("#Services").html("Loading...");
                 var appData = JSON.stringify(detail.appData);
                 if (appData.length>0) {
@@ -815,6 +832,7 @@
                 }
             },
             toggleUserType: function(e) {
+                /*
                 var area = "#UserArea";
                 var type = $("#IdentityType").val();
                 if (type=="User") {
@@ -824,6 +842,7 @@
                     $(area).parent().addClass("unsplit");
                     $(area).hide();
                 } 
+                */
             },
             reset: function() {
                 app.isDirty = false;

@@ -76,7 +76,7 @@
         <div class="col" data-id="{{id}}">
             <span class="circle {{isOnline}}" title="Online"></span>
             <span class="circle {{isVerified}}" title="Verified"></span>
-            <strong>{{name}}</strong>
+            <a href="javascript:page.edit('{{id}}');">{{name}}</a>
         </div>
         <div class="col desktop" data-id="{{id}}" style="overflow: unset;"><span class="os {{os}}" data-balloon-pos="up" aria-label="{{osDetails}}"></span></div>
         <div class="col desktop" data-id="{{id}}">{{selector.roleAttributes}}</div>
@@ -152,7 +152,7 @@
             <label for="AppData" data-i18n="AppData"></label>
             <textarea id="AppData"></textarea>
             <div id="TagArea" data-tagarea="router"></div>
-            <div id="TagExtended"></div>
+            {{html.customtags}}
             {{html.api}}
             {{html.save}}
         </div>

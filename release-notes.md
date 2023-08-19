@@ -1,3 +1,14 @@
+# Release 2.8.6
+* Click name to edit
+* Add Roles to Identity Table
+* Minor Style fixes
+* Overflow table scrolling
+* Issue #161 - Fix UI inconsistancy
+* Issue #160 - Add setting to bind to specific IP
+* Issue #158 - Make Tags more visible
+* Issue #163 - Fixed Ccode copy on json field in forms
+* Issue #164 - Leave IsAdmin visible regardless of identity type
+
 # Release 2.8.5
 * Fix Scroll position for Jwt Signer on Change
 * Fix ott download issue

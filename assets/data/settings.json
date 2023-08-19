@@ -1,5 +1,6 @@
 {
     "edgeControllers":[], 
+    "bindIP": "",
     "editable": true, 
     "update": false, 
     "location": "../ziti", 
