@@ -1,3 +1,6 @@
+# Release 2.8.7
+* Add Bing IP to Https Server Declaration
+
 # Release 2.8.6
 * Click name to edit
 * Add Roles to Identity Table

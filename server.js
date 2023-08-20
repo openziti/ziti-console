@@ -1998,7 +1998,11 @@ if (fs.existsSync("./server.key")&&fs.existsSync("./server.chain.pem")) {
 			cert: fs.readFileSync("./server.chain.pem")
 		};
 		console.log("TLS initialized on port: " + portTLS);
-		https.createServer(options, app).listen(portTLS);
+		if (bindIP=="" || bindIP==null) {
+			https.createServer(options, app).listen(portTLS);
+		} else {
+			https.createServer(options, app).listen(portTLS, bindIP);
+		}
 	} catch(err) {
 		log("ERROR: Could not initialize TLS!");
 		throw err;
