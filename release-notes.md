@@ -1,3 +1,6 @@
+# Release 2.9.0
+* Fix the Docker Script Execution
+
 # Release 2.8.8
 * Add https to Signal Shutdown reponse
 

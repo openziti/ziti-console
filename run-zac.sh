@@ -63,4 +63,4 @@ else
 fi
 fi
 
-node /usr/src/app/server.js
+exec node /usr/src/app/server.js
