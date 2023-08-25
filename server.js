@@ -1966,6 +1966,30 @@ function StartServer(startupPort) {
 		}
 	}
 
+	/**
+	 * If certificates are defined, setup an https redirection service
+	 */
+	if (fs.existsSync("./server.key")&&fs.existsSync("./server.chain.pem")) {
+		log("Initializing TLS");
+		try {
+			const options = {
+				key: fs.readFileSync("./server.key"),
+				cert: fs.readFileSync("./server.chain.pem")
+			};
+			console.log("TLS initialized on port: " + portTLS);
+			if (bindIP=="" || bindIP==null) {
+				tlsServer = https.createServer(options, app);
+				tlsServer.listen(portTLS);
+			} else {
+				tlsServer = https.createServer(options, app);
+				tlsServer.listen(portTLS, bindIP);
+			}
+		} catch(err) {
+			log("ERROR: Could not initialize TLS!");
+			throw err;
+		}
+	}
+
 	var signals = {
 		'SIGHUP': 1,
 		'SIGINT': 2,
@@ -1994,26 +2018,7 @@ function StartServer(startupPort) {
 	});
 }
 
-/**
- * If certificates are defined, setup an https redirection service
- */
-if (fs.existsSync("./server.key")&&fs.existsSync("./server.chain.pem")) {
-    log("Initializing TLS");
-	try {
-		const options = {
-			key: fs.readFileSync("./server.key"),
-			cert: fs.readFileSync("./server.chain.pem")
-		};
-		console.log("TLS initialized on port: " + portTLS);
-		if (bindIP=="" || bindIP==null) {
-			tlsServer = https.createServer(options, app);
-			tlsServer.listen(portTLS);
-		} else {
-			tlsServer = https.createServer(options, app);
-			tlsServer.listen(portTLS, bindIP);
-		}
-	} catch(err) {
-		log("ERROR: Could not initialize TLS!");
-		throw err;
-	}
-}
+process.on('SIGINT', () => {
+	console.log(`process received a SIGINT signal`);
+	process.exit();
+});
