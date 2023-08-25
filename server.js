@@ -1977,6 +1977,11 @@ function StartServer(startupPort) {
 			console.log(`server stopped by ${signal} with value ${value}`);
 			process.exit(128 + value);
 		});
+		try {
+			https.shutdown();
+		} catch(e) {
+			console.log("Https Not Started to Shut Down");
+		}
 	};
 	
 	Object.keys(signals).forEach((signal) => {

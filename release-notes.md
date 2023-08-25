@@ -1,3 +1,6 @@
+# Release 2.8.8
+* Add https to Signal Shutdown reponse
+
 # Release 2.8.7
 * Add Bing IP to Https Server Declaration
 
