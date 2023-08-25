@@ -62,6 +62,7 @@ var header = fs.readFileSync(headerFile, 'utf8');
 var footer = fs.readFileSync(footerFile, 'utf8');
 var onlyDeleteSelfController = true;
 var isDebugging = false;
+var tlsServer;
 
 /**
  * Watch for header and footer file changes and load them
@@ -1975,13 +1976,14 @@ function StartServer(startupPort) {
 		console.log("shutdown!");
 		server.close(() => {
 			console.log(`server stopped by ${signal} with value ${value}`);
-			process.exit(128 + value);
+			if (tlsServer) {
+				tlsServer.close(() => {
+					process.exit(128 + value);
+				});
+			} else {
+				process.exit(128 + value);
+			}
 		});
-		try {
-			https.shutdown();
-		} catch(e) {
-			console.log("Https Not Started to Shut Down");
-		}
 	};
 	
 	Object.keys(signals).forEach((signal) => {
@@ -2004,9 +2006,11 @@ if (fs.existsSync("./server.key")&&fs.existsSync("./server.chain.pem")) {
 		};
 		console.log("TLS initialized on port: " + portTLS);
 		if (bindIP=="" || bindIP==null) {
-			https.createServer(options, app).listen(portTLS);
+			tlsServer = https.createServer(options, app);
+			tlsServer.listen(portTLS);
 		} else {
-			https.createServer(options, app).listen(portTLS, bindIP);
+			tlsServer = https.createServer(options, app);
+			tlsServer.listen(portTLS, bindIP);
 		}
 	} catch(err) {
 		log("ERROR: Could not initialize TLS!");
