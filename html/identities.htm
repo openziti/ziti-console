@@ -406,10 +406,8 @@
                     }
                 }
                 if (enrollment=="N/A") {
-                    template = template.split("{{hiddenResetClass}}").join("");
                     template = template.split("{{hiddenClass}}").join("hidden");
                 } else {
-                    template = template.split("{{hiddenResetClass}}").join("hidden");
                     template = template.split("{{hiddenClass}}").join("");
                 }
                 
@@ -419,6 +417,12 @@
                 } else {
                     template = template.split("{{hiddenMFAClass}}").join("");
                     template = template.split("{{mfaEnabled}}").join("yes");
+                }
+
+                if ((data.authenticators.cert!=null&&data.authenticators.cert.id!=null) || (data.authenticators.updb!=null&&data.authenticators.updb.id!=null)) {
+                    template = template.split("{{hiddenResetClass}}").join("");
+                } else {
+                    template = template.split("{{hiddenResetClass}}").join("hidden");
                 }
 
                 var roles = "";
@@ -488,14 +492,18 @@
                 var id = "";
                 if (detail.authenticators.cert) id = detail.authenticators.cert.id;
                 else if (detail.authenticators.updb) id = detail.authenticators.updb.id;
-                service.call("resetEnroll", {id: id, date: date}, (e) => {
-                    if (e.error) growler.error(e.error);
-                    else {
-                        growler.success("Identity Reset");
-                        page.filterObject.get();
-                        modal.close();
-                    }
-                });
+                if (id==null || id=="") {
+                    growler.error("This Identity Enrollment cannot be reset");
+                } else {
+                    service.call("resetEnroll", {id: id, date: date}, (e) => {
+                        if (e.error) growler.error(e.error);
+                        else {
+                            growler.success("Identity Reset");
+                            page.filterObject.get();
+                            modal.close();
+                        }
+                    });
+                }
             },
             resetEnroll: function(id) {
                 this.editId = id;

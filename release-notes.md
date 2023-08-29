@@ -1,3 +1,6 @@
+# Release 2.9.1
+* Do not show re-enrollment for identities without initial enrollment
+
 # Release 2.9.0
 * Fix the Docker Script Execution
 
