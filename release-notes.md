@@ -1,3 +1,6 @@
+# Release 2.9.2
+* Bug #157 Code Fields Scroll to position on change
+
 # Release 2.9.1
 * Do not show re-enrollment for identities without initial enrollment
 

@@ -422,7 +422,8 @@
                 if ((data.authenticators.cert!=null&&data.authenticators.cert.id!=null) || (data.authenticators.updb!=null&&data.authenticators.updb.id!=null)) {
                     template = template.split("{{hiddenResetClass}}").join("");
                 } else {
-                    template = template.split("{{hiddenResetClass}}").join("hidden");
+                    template = template.split("{{hiddenResetClass}}").join("");
+                    //template = template.split("{{hiddenResetClass}}").join("hidden");
                 }
 
                 var roles = "";
@@ -492,9 +493,10 @@
                 var id = "";
                 if (detail.authenticators.cert) id = detail.authenticators.cert.id;
                 else if (detail.authenticators.updb) id = detail.authenticators.updb.id;
-                if (id==null || id=="") {
-                    growler.error("This Identity Enrollment cannot be reset");
-                } else {
+                else if (detail.enrollment.ott) id = detail.enrollment.ott.id;
+                //if (id==null || id=="") {
+                //    growler.error("This Identity Enrollment cannot be reset");
+               // } else {
                     service.call("resetEnroll", {id: id, date: date}, (e) => {
                         if (e.error) growler.error(e.error);
                         else {
@@ -503,7 +505,7 @@
                             modal.close();
                         }
                     });
-                }
+               // }
             },
             resetEnroll: function(id) {
                 this.editId = id;
@@ -691,9 +693,11 @@
                     if (page.filterObject.isEditing()) url += "/"+page.filterObject.editId;
                     $("#ApiUrl").val(url);
 
+                    var stayAt = $("#AddModal").scrollTop();
                     page.apiParams.setValue(JSON.stringify(obj));
                     page.apiParams.autoFormatRange({line:0, ch:0}, {line:page.apiParams.lineCount()});
                     page.apiParams.scrollTo(null, 0);
+                    $("#AddModal").scrollTop(stayAt);
                     return obj;
                 } catch (e) {
                     console.log(e);
