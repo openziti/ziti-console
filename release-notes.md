@@ -1,3 +1,10 @@
+# Release 2.9.3
+* Bug #169 Fix Spelling Issue
+* Bug #170 Fix Saving External Auth Url on JWT Signer
+* Feature #156 Add Roll over descriptions to toggle switches
+* Bug #171 Remove Add Option to Sessions
+* Feature #141 Tab Index set when form opens
+
 # Release 2.9.2
 * Bug #157 Code Fields Scroll to position on change
 

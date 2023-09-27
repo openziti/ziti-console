@@ -28,6 +28,7 @@ var modal = {
 		modal.id = id;
 		$("#"+id).addClass("open");
 		$("body").addClass("noscroll");
+		$("#"+id).find("input").first().focus();
 	},
 	showing: function(id) {
 		return id.trim().length>0&&modal.id==id;

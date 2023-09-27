@@ -227,7 +227,7 @@
                 for (var i=0; i<oss.length; i++) {
                     var os = oss[i];
                     html += '<div class="grid oss">';
-                    html += '<div id="OS'+os.type+'" class="toggle on '+os.type+'"><div class="switch"></div><div class="label"></div></div>';
+                    html += '<div id="OS'+os.type+'" class="toggle on '+os.type+'" aria-label="'+locale.get("CheckOS")+" "+os.type+'" data-balloon-pos="right" data-balloon-length="large"><div class="switch"></div><div class="label"></div></div>';
                     html += '<div class="toggleLabel">'+os.type+'</div><div id="OS'+os.type+'Version" class="grid versionArea disabled">';
                     html += '<label for="OS'+os.type+'VersionLow">Minimum</label><input id="OS'+os.type+'VersionLow" type="text" placeholder="#.#.#" />';
                     html += '<label for="OS'+os.type+'VersionHigh">Maximum</label><input id="OS'+os.type+'VersionHigh" type="text" placeholder="#.#.#" />';

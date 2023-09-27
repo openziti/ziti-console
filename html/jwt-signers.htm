@@ -116,18 +116,18 @@
                     <label for="ClaimsProperty" data-i18n="ClaimsProperty"></label>
                     <input id="ClaimsProperty" data-bind="data.claimsProperty" type="text" maxlength="500" data-i18n="EnterClainms" value="sub" />
                     <label for="ExternalAuthUrl" data-i18n="ExternalAuthUrl"></label>
-                    <input id="ExternalAuthUrl" data-bind="data.issuer" type="text" maxlength="500" data-i18n="EnterUrl" />
+                    <input id="ExternalAuthUrl" data-bind="data.externalAuthUrl" type="text" maxlength="500" data-i18n="EnterUrl" />
                     <div class="grid split">
                         <div>
                             <label data-i18n="Enabled"></label>
-                            <div id="Enabled" class="toggle">
+                            <div id="Enabled" class="toggle" aria-label="Turn on to enable this jwt signer" data-balloon-pos="right" data-balloon-length="large">
                                 <div class="switch"></div>
                                 <div class="label"></div>
                             </div>
                         </div>
                         <div>
                             <label data-i18n="UseExternal"></label>
-                            <div id="UseExternal" class="toggle">
+                            <div id="UseExternal" class="toggle" aria-label="Turn on to use an external JWT Signer" data-balloon-pos="right" data-balloon-length="large">
                                 <div class="switch"></div>
                                 <div class="label"></div>
                             </div>
@@ -214,6 +214,7 @@
                         claimsProperty: $("#ClaimsProperty").val().trim(),
                         enabled: $("#Enabled").hasClass("on"),
                         useExternalId: $("#UseExternal").hasClass("on"),
+                        externalAuthUrl: $("#ExternalAuthUrl").val().trim(),
                         kid: $("#Kid").val().trim(),
                         jwksEndpoint: $("#JWKSEndpoint").val().trim(),
                         tags: tags.val()
