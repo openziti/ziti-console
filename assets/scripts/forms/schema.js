@@ -267,6 +267,9 @@ var schema = {
             html = '<div>'+html;
             if (property.enum&&property.enum.length>0) {
                 html += '<select id="'+((parentKey!=null)?parentKey+'_':'')+'schema_'+key+'" class="jsonSelect">';
+                if (key=="type") {
+                    html += '<option value="">Select Type...</option>';
+                }
                 for (var i=0; i<property.enum.length; i++) {
                     html += '<option value="'+property.enum[i]+'">'+property.enum[i]+'</option>';
                 }

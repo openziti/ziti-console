@@ -79,7 +79,7 @@
             <a href="javascript:page.edit('{{id}}');">{{name}}</a>
         </div>
         <div class="col desktop" data-id="{{id}}" style="overflow: unset;"><span class="os {{os}}" data-balloon-pos="up" aria-label="{{osDetails}}"></span></div>
-        <div class="col desktop" data-id="{{id}}">{{selector.roleAttributes}}</div>
+        <div class="col desktop" data-id="{{id}}">{{roles}}</div>
         <div class="col desktop" data-id="{{id}}">{{isVerified}}</div>
         <div class="col desktop" data-id="{{id}}">{{isOnline}}</div>
         <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
@@ -208,6 +208,14 @@
                 if (osDetails.length==0) osDetails = "No Info Available";
                 template = template.split("{{os}}").join(os);
                 template = template.split("{{osDetails}}").join(osDetails);
+
+                var roles = "";
+                if (data.roleAttributes && data.roleAttributes.length>0) {
+                    for (let i=0; i<data.roleAttributes.length; i++) {
+                        roles += ((i>0)?",":"")+'<div class="hashtag">'+data.roleAttributes[i]+'</div>';
+                    }
+                } else roles = "-";
+                template = template.split("{{roles}}").join(roles);
 
                 var enrollment = "N/A";
                 var token = "-";

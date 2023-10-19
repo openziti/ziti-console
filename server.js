@@ -1162,6 +1162,26 @@ app.post("/api/identity", function(request, response) {
 });
 
 
+function RedefineObject(obj) {
+	for (let prop in obj) {
+		if (Array.isArray(obj[prop]) && obj[prop].length==0) {
+			delete obj[prop];
+		} else {
+			if (typeof obj[prop] === "string" && obj[prop].trim().length==0) {
+				delete obj[prop];
+			} else {
+				if (typeof obj[prop] === "object") {
+					obj[prop] = RedefineObject(obj[prop]);
+					if (Object.keys(obj[prop]).length==0) {
+						delete obj[prop];
+					}
+				}
+			}
+		}
+	}
+	return obj;
+}
+
 /**
  * Save the object to the edge controller based on the provided type and passed in JSON 
  * parameters. If it exists, do an update, if not do a create operation.
@@ -1199,14 +1219,8 @@ app.post("/api/dataSave", function(request, response) {
 					}
 				}
 				log("Calling: "+url);
+				saveParams.data = RedefineObject(saveParams.data);
 				log("Saving As: "+method+" "+JSON.stringify(saveParams));
-				for (let prop in saveParams.data) {
-					if (Array.isArray(saveParams.data[prop]) && saveParams.data[prop].length==0) {
-						delete saveParams.data[prop];
-					} else {
-						//console.log("Not Array: "+prop+" "+saveParams.data[prop].length);
-					}
-				}
 				console.log("Session: "+request.session.user);
 				external(url, {method: method, json: saveParams, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 					if (err) HandleError(response, err);

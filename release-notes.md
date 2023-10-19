@@ -1,3 +1,7 @@
+# Release 2.9.4
+* Fix role attribute view in router list
+* Change the UI to work with the new controller requirements for POST content Issue #173
+
 # Release 2.9.3
 * Bug #169 Fix Spelling Issue
 * Bug #170 Fix Saving External Auth Url on JWT Signer
