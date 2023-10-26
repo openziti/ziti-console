@@ -62,6 +62,7 @@ npm install -g @angular/cli@16.0.0-next.0
 ```
 
 * You'll also need to be running Node JS version >= 16.13.x
+
 From the project root: 
 
 1) install project dependencies:
