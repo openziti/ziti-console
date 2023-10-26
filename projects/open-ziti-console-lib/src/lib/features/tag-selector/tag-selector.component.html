@@ -1,0 +1,126 @@
+<span (clickOutside)="hide()" [ngClass]="{ readOnly: disableField }" class="clickOutside fullWidth tagsSelector">
+    <span
+            class="select2 select2-container select2-container--default select2-container--below select2-container--focus"
+            dir="ltr"
+    >
+        <span class="selection">
+            <span
+                    [ngClass]="{ 'select2-selection-focus': !hideSelect, tagError: _hasError }"
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    class="select2-selection select2-selection--multiple"
+                    role="combobox"
+                    tabindex="-1"
+            >
+                <input
+                        (focus)="inputFocus()"
+                        (keydown)="handleKeyDown($event);"
+                        (keyup)="handleKeyUp($event, filterString);"
+                        (mouseup)="applyFilterMouseUp()"
+                        [(ngModel)]="filterString"
+                        [disabled]="disableField"
+                        [ngClass]="{ empty: isNothingSelected, tagError: _hasError }"
+                        aria-autocomplete="list"
+                        autocapitalize="off"
+                        autocomplete="off"
+                        autocorrect="off"
+                        class="select2-search__field"
+                        placeholder="{{disableField ? (isNothingSelected ? 'Nothing selected' : '') : placeholder}}"
+                        role="textbox"
+                        spellcheck="false"
+                        tabindex="0"
+                        type="search"
+                />
+                <span *ngIf="isLoading" class="spinner"></span>
+
+                <ul
+                        (click)="openSelect()"
+                        [ngClass]="{ error: _hasError, readOnly: disableField, empty: isNothingSelected }"
+                        class="select2-selection__rendered"
+                >
+                    <li
+                        (click)="$event.stopPropagation()"
+                        *ngFor="let item of _selectedRoleAttributes"
+                        [hidden]="item === this.hideOption"
+                        class="hashtag select2-selection__choice"
+                        title="#{{ item }}"
+                    >
+                        <span
+                            (click)="removeRoleAttribute(item); $event.stopPropagation()"
+                            class="select2-selection__choice__remove"
+                            role="presentation"
+                        >×</span
+                        >#{{ item }}
+                    </li>
+                    <li
+                        (click)="$event.stopPropagation()"
+                        *ngFor="let item of _selectedNamedAttributes"
+                        [hidden]="item === this.hideOption"
+                        class="hashtag select2-selection__choice"
+                        title="@{{ item }}"
+                    >
+                        <span
+                            (click)="removeNamedAttribute(item); $event.stopPropagation()"
+                            class="attag select2-selection__choice__remove"
+                            role="presentation"
+                        >×</span
+                        >@{{ item }}
+                    </li>
+                </ul>
+            </span>
+        </span>
+        <span aria-hidden="true" class="dropdown-wrapper"></span>
+    </span>
+    <span *ngIf="_hasError" class="err">
+        {{ errorMessage }}
+    </span>
+
+    <span
+            *ngIf="!hideSelect"
+            [ngClass]="{ withBorder: !hideSelect }"
+            class="nf-select2-dropdown select2-dropdown--below"
+            dir="ltr"
+            style="width: calc(100% - 40px);"
+    >
+        <span class="select2-results">
+            <ul
+                    aria-expanded="true"
+                    aria-hidden="false"
+                    aria-multiselectable="true"
+                    class="select2-results__options"
+                    role="tree"
+            >
+                <li
+                    (click)="addNewAttribute(filterString)"
+                    [hidden]="filterString === '' || isAttributeSelected(filterString)"
+                    aria-selected="false"
+                    class="select2-results__option hashtag"
+                    role="treeitem"
+                    title="{{ filterString }} (New Attribute)"
+                >
+                    {{ filterString }} (New Attribute)
+                </li>
+                <li
+                    (click)="addSelectedRoleAttribute(option)"
+                    *ngFor="let option of displayedRoleOptions"
+                    [hidden]="option === this.hideOption || isSelected(option)"
+                    aria-selected="false"
+                    class="hashtag select2-results__option"
+                    role="treeitem"
+                >
+                    #{{ option }}
+                </li>
+                <li
+                    (click)="addSelectedNamedAttribute(option)"
+                    *ngFor="let option of displayedNamedOptions"
+                    [hidden]="option === this.hideOption || isSelected(option)"
+                    aria-selected="false"
+                    class="attag select2-results__option"
+                    role="treeitem"
+                >
+                    @{{ option }}
+                </li>
+            </ul>
+        </span>
+    </span>
+</span>

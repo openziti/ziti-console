@@ -1,0 +1,108 @@
+::ng-deep .p-element {
+
+  .p-chips.p-component {
+    width: 100%;
+    font-weight: 400;
+    font-family: 'Open Sans', Arial, sans-serif;
+    height: 50px;
+    border-color: var(--stroke);
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 7px;
+    padding-left: 10px;
+    padding-right: 10px;
+    outline: none;
+    box-sizing: border-box;
+    font-size: 15px;
+    background-color: var(--navigation) !important;
+    color: var(--text);
+    -webkit-appearance: none;
+
+    .p-inputtext.p-chips-multiple-container {
+      width: 100%;
+      padding-top: 0;
+      padding-bottom: 0;
+      border-width: 2px;
+
+      &.p-focus {
+        border-color: var(--primaryColor) !important;
+        box-shadow: 0 0 7px 0 var(--primaryColorOpaque) !important;
+
+        &.error {
+          border-color: var(--red) !important;
+        }
+      }
+    }
+  }
+
+  .p-chips .p-chips-multiple-container .p-chips-input-token input {
+    height: 25px;
+    font-size: 1rem;
+    color: #495057;
+    padding: 0;
+    margin: 0;
+    border: 0 none;
+    outline: 0 none;
+    background-color: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    width: 100%
+  }
+
+  .p-chips .p-chips-multiple-container .p-chips-token {
+    padding: .55rem .5rem;
+    margin-right: .5rem;
+    font-family: Open Sans, sans-serif;
+    font-weight: 600;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    background: #E3F2FD;
+    color: #495057;
+    border-radius: 7px;
+    cursor: default;
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    max-width: 100%
+  }
+
+  .p-chips-token-icon {
+    margin-left: 0.5rem;
+    cursor: pointer;
+    color:blue;
+    fill: red;
+  }
+
+  .p-chips {
+    display: inline-flex
+  }
+
+  .p-chips-token-label {
+    min-width: 0;
+    overflow: auto
+  }
+
+  .p-chips-token-label::-webkit-scrollbar {
+    display: none
+  }
+
+  .p-fluid .p-chips {
+    display: flex
+  }
+
+  .p-chips-clear-icon {
+    position: absolute;
+    top: 50%;
+    margin-top: -.5rem;
+    cursor: pointer;
+  }
+
+  .p-chips-clearable .p-inputtext {
+    position: relative
+  }
+
+  .p-inputtext {
+    border:none;
+  }
+}
+

@@ -1,0 +1,10 @@
+<div class="listBox row">
+    <input (keyup)="onKeydownEvent()" [(ngModel)]="filterFor" placeholder="Type to Filter"/>
+    <span *ngIf="isLoading" class="spinner"></span>
+
+    <div class="text row">
+        <div (click)="selected(name)" *ngFor="let name of names" [ngClass]="{ clickable: clickable }" class="listText">
+            {{ name }}
+        </div>
+    </div>
+</div>

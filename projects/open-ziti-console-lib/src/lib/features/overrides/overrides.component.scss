@@ -1,0 +1,35 @@
+.overrides-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+
+  .overrides-container {
+    max-width: 1024px;
+    flex: 1 1 auto;
+
+    .form-title-container {
+      margin-left: -10px;
+    }
+
+    .title {
+      display: flex;
+      margin-left: 5px;
+    }
+
+    .button {
+      &.confirm {
+        &.disabled {
+          pointer-events: none;
+          filter: grayscale(1);
+          opacity: .5;
+        }
+        &:hover {
+          outline: 0;
+          filter: brightness(90%);
+          background-color: var(--primaryColor);
+          box-shadow: 0 2px 3px 0 var(--primaryColorOpaque);
+        }
+      }
+    }
+  }
+}

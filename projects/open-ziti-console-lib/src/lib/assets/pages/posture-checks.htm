@@ -1,0 +1,393 @@
+    <!-- General Page Layout HTML -->    
+    <div class="header">
+        <div class="title">Manage <span data-bind="pageTitle"></span></div>
+        <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
+        {{html.line}}
+        {{html.tabIdentities}}
+    </div>
+    <div class="action icon-plus" data-action="add"></div>
+    <div class="filters">
+        <input id="SearchFilter" data-defined="search" type="text" class="search" placeholder="Type to Filter" />
+        <div class="clear icon-clear" data-defined="clear"></div>
+        <div class="searchButton icon-search"></div>
+        <div class="counters"><span id="Start">-</span>-<span id="End">-</span> of <span id="Total">-</span></div>
+        <div class="navigate prev icon-prev disabled"></div>
+        <div class="navigate next icon-next disabled"></div>
+    </div>
+    <div class="area data" data-defined="table">
+        <div class="table">
+            <div class="head grid fived">
+                <div class="col">
+                    <div class="selector all"></div>
+                </div>
+                <div class="col sort asc" data-by="name">Name<div class="dragger"></div></div>
+                <div class="col desktop">Type<div class="dragger"></div></div>
+                <div class="col desktop">Details</div>
+                <div class="col"></div>
+            </div>
+            <div class="rows" data-defined="rows">
+                <!-- This area will be replaced by data rows -->
+            </div>
+        </div>
+    </div>
+    <div class="nodata" data-defined="empty">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
+
+
+
+    <!-- Template HTML will be used to display rows of data -->
+    <div id="RowTemplate" class="row grid fived template" data-defined="template">
+        <div class="col">
+            <div class="selector" data-id="{{id}}"></div>
+        </div>
+        <div class="col" data-id="{{id}}"><a href="javascript:page.edit('{{id}}');">{{name}}</a></div>
+        <div class="col desktop" data-id="{{id}}">{{typeId}}</div>
+        <div class="col desktop" data-id="{{id}}">{{details}}</div>
+        <div class="col allowOver">
+            <div class="dots" data-id="{{id}}">...
+                <div class="gridMenu" data-id="{{id}}">
+                    <div class="gridAction" data-id="{{id}}" data-action="edit">Edit</div>
+                    <div class="gridAction" data-id="{{id}}" data-action="delete">Delete</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+	<!-- Modification Modals -->
+    <div id="AddModal" class="modal box full">
+        <div class="sized">
+            <div class="close icon-close"></div>
+            <div class="title adding">Create <span data-bind="singular"></span></div>
+            <div class="subtitle adding">Add a New <span data-bind="singular"></span> by completing the following form</div>
+            <div class="title editing">Edit <span data-bind="singular"></span></div>
+            <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
+            <label for="Name">Name</label>
+            <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" />
+            <label for="Roles">Roles</label>
+            <div id="Roles"></div>
+            <label for="PostureType">Posture Check Type</label>
+            <select id="PostureType" data-bind="data.typeId"></select>
+            <div id="DOMAINArea" class="subarea" style="display: none;">
+                <label for="Domains">Domains</label>
+                <div id="Domains"></div>
+            </div>
+            <div id="MACArea" class="subarea" style="display: none;">
+                <label for="Macs">Mac Addresses</label>
+                <div id="Macs"></div>
+            </div>
+            <div id="OSArea" class="subarea" style="display: none;">
+                <label for="OSs">Operating Systems <div class="note">select versions</div></label>
+                <div id="OSs"></div>
+            </div>
+            <div id="MFAArea" class="subarea" style="display: none;">
+                <label for="Timeout">Timeout</label>
+                <input id="Timeout" type="number" placeholder="# in seconds" />
+                <div class="grid split">
+                    <div style="display: block;">
+                        <div id="OnWake" class="toggle">
+                            <div class="switch"></div>
+                            <div class="label"></div>
+                        </div>
+                        <div class="toggleLabel">Require On Wake</div>
+                    </div>
+                    <div style="display: block;">
+                        <div id="OnUnlock" class="toggle">
+                            <div class="switch"></div>
+                            <div class="label"></div>
+                        </div>
+                        <div class="toggleLabel">Require On Unlock</div>
+                    </div>
+                </div>
+            </div>
+            <div id="PROCESSArea" class="subarea" style="display: none;">
+                <label for="OsForProcess">Operating System</label>
+                <select id="OsForProcess"></select>
+                <label for="Hashes">Hashes</label>
+                <div id="Hashes"></div>
+                <label for="Path">Path</label>
+                <input id="Path" data-bind="data.process.path" type="text" maxlength="500" placeholder="/path/to/process" />
+                <label for="Fingerprint">Fingerprint</label>
+                <input id="Fingerprint" data-bind="data.process.signerFingerprint" type="text" maxlength="500" placeholder="Enter the fingerprint" />
+            </div>
+            {{html.customtags}}
+            {{html.api}}
+            <div class="buttons">
+                <div class="linkButton closer">Oops, No get me out of here</div>
+                <div id="SaveButton" class="button" data-defined="save">Save</div>
+            </div>
+        </div>
+	</div>
+    
+    
+    <script language="javascript" type="text/javascript">
+        page = {
+            filterObject: null,
+            filterTypesObject: null,
+            roles: null,
+            domains: null,
+            macs: null,
+            isOSSetup: false,
+            hashes: null,
+            oss: [],
+            apiParams: null,
+            init: function() {
+                page.roles = new MultiSelect("Roles", 10, true);
+                page.roles.addSource(new SelectSource("identity-role-attributes", "", "id")); 
+                page.roles.init();
+
+                page.hashes = new MultiSelect("Hashes", 10, true);
+                page.hashes.init();
+
+                page.domains = new MultiSelect("Domains", 10, true);
+                page.domains.init();
+
+                page.macs = new MultiSelect("Macs", 10, true);
+                page.macs.init();
+                
+                page.filterObject = new Data("posture-checks");
+                page.filterObject.init(true, true);
+
+                page.filterTypesObject = new Data("posture-check-types");
+                page.filterTypesObject.init(true);
+
+                page.apiParams = CodeMirror.fromTextArea(document.getElementById("ApiParams"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
+
+                page.events();
+            }, 
+            events: function(e) {
+                context.addListener("posture-check-types", page.typesLoaded);
+                $("#PostureType").change(page.selected);
+            },
+            row: function(template, obj) {
+                var details = '';
+
+                if (obj.typeId=="DOMAIN") {
+                    details = obj.domains.join(',');
+                } else if (obj.typeId=="MAC") {
+                    for (var i=0; i<obj.macAddresses.length; i++) {
+                        details += obj.macAddresses[i].match( /.{1,2}/g).reverse().join(':').toUpperCase();
+                    }
+                } else if (obj.typeId=="OS") {
+                    for (var i=0; i<obj.operatingSystems.length; i++) {
+                        var os = obj.operatingSystems[i];
+                        details += os.type+" ("+os.versions.join(',')+") ";
+                    }
+                } else if (obj.typeId=="PROCESS") {
+                    details = obj.process.path;
+                } else {
+                    details = "Requires MFA";
+                }
+                template = template.split("{{details}}").join(details);
+                return template;
+            },
+            reset: function() {
+                app.isDirty = false;
+                $(".subarea").hide();
+                $(".toggle.on").removeClass("on");
+                $(".versionArea").addClass("disabled");
+            },
+            selected: function(e) {
+                var type = $("#PostureType").val();
+                $(".subarea").hide();
+                $("#"+type+"Area").show();
+            },
+            typesLoaded: function(e) {
+                var select = document.getElementById("PostureType");
+                select.options = [];
+                var option = document.createElement("option");
+                option.value = "";
+                option.text = "Select A Type...";
+                select.add( option );
+                if (page.filterTypesObject.data.length>0) {
+                    for (var i=0; i<page.filterTypesObject.data.length; i++) {
+                        var option = document.createElement("option");
+                        option.value = page.filterTypesObject.data[i].id;
+                        option.text = page.filterTypesObject.data[i].name;
+                        select.add( option );
+                        if (!page.isOSSetup) page.osSetup(page.filterTypesObject.data[i].operatingSystems);
+                    }
+                }
+                var mfa = document.createElement("option");
+                mfa.value = "MFA";
+                mfa.text = "Multi Factor";
+                select.add( mfa );
+            },
+            osSetup: function(oss) {
+                page.oss = oss;
+                var select = document.getElementById("OsForProcess");
+                select.options = [];
+                var option = document.createElement("option");
+                option.value = "";
+                option.text = "Select An Operating System...";
+                select.add( option );
+                
+                $("#OSs").html("");
+                var html = '';
+                for (var i=0; i<oss.length; i++) {
+                    var os = oss[i];
+                    html += '<div class="grid oss">';
+                    html += '<div id="OS'+os.type+'" class="toggle on '+os.type+'" aria-label="'+locale.get("CheckOS")+" "+os.type+'" data-balloon-pos="right" data-balloon-length="large"><div class="switch"></div><div class="label"></div></div>';
+                    html += '<div class="toggleLabel">'+os.type+'</div><div id="OS'+os.type+'Version" class="grid versionArea disabled">';
+                    html += '<label for="OS'+os.type+'VersionLow">Minimum</label><input id="OS'+os.type+'VersionLow" type="text" placeholder="#.#.#" />';
+                    html += '<label for="OS'+os.type+'VersionHigh">Maximum</label><input id="OS'+os.type+'VersionHigh" type="text" placeholder="#.#.#" />';
+                    /*
+                    for (var j=0; j<os.versions.length; j++) {
+                        var version = os.versions[j];
+                        html += '<div class="tag" data-os="'+os.type+'" data-version="'+version+'">'+version+'</div>';
+                    }
+                    */
+                    html += '</div></div></div>';
+                    var option = document.createElement("option");
+                    option.value = os.type;
+                    option.text = os.type;
+                    select.add( option );
+                }
+                $("#OSs").html(html);
+                $(".modal").find(".toggle").off("click",commands.formChangedWait);
+                $(".modal").find(".toggle").click(commands.formChangedWait);
+                $(".toggle").off("click");
+                $(".toggle").click(page.toggle);
+                page.isOSSetup = true;
+            },
+            toggleTag: function(e) {
+                var tag = $(e.currentTarget);
+                if (tag.hasClass("selected")) tag.removeClass("selected");
+                else tag.addClass("selected");
+            },
+            toggle: function(e) {
+                var element = $(e.currentTarget);
+                if (element.hasClass("on")) {
+                    element.removeClass("on");
+                    $("#"+element.attr("id")+"Version").addClass("disabled");
+                } else {
+                    element.addClass("on");
+                    $("#"+element.attr("id")+"Version").removeClass("disabled");
+                }
+            },
+            gridAction: function(e) {
+                var action = $(e.currentTarget).data("action");
+                var id = $(e.currentTarget).data("id");
+                if (action=="delete") page.filterObject.delete([id]);
+                else if (action=="edit") page.edit(id);
+            },
+            formReset: function() {
+                $(".ossversion").prop('selectedIndex',0);
+                page.params();
+            },
+            edit: function(id) {
+                var detail = page.filterObject.details(id);
+                page.roles.val(detail.roleAttributes);
+                $(".subarea").hide();
+                $("#"+detail.typeId+"Area").show();
+                if (detail.typeId=="OS") {
+                    $(".toggle.on").removeClass("on");
+                    $(".versionArea").addClass("disabled");
+
+                    for (var i=0; i<detail.operatingSystems.length; i++) {
+                        $("#OS"+detail.operatingSystems[i].type+"Version").removeClass("disabled");
+                        var low = "";
+                        var high = "";
+
+                        $("#OS"+detail.operatingSystems[i].type).addClass("on");
+                        $("#OS"+detail.operatingSystems[i].type+"Version").removeClass("disabled");
+
+                        if (detail.operatingSystems[i].versions) {
+                            if (detail.operatingSystems[i].versions.length>=1) low = detail.operatingSystems[i].versions[0];
+                            if (detail.operatingSystems[i].versions.length>=2) high = detail.operatingSystems[i].versions[1];
+                        }
+
+                        $("#OS"+detail.operatingSystems[i].type+"VersionLow").val(low);
+                        $("#OS"+detail.operatingSystems[i].type+"VersionHigh").val(high);
+                    }
+                    
+                } else if (detail.typeId=="PROCESS") {
+                    $("#OsForProcess").val(detail.process.osType);
+                    $("#Path").val(detail.process.path);
+                    $("#OsForProcess").val(detail.process.osType);
+                    if (detail.process.signerFingerprint) $("#Fingerprint").val(detail.process.signerFingerprint);
+                    if (detail.process.hashes) page.hashes.val(detail.process.hashes);
+                } else if (detail.typeId=="MAC") {
+                    page.macs.val(detail.macAddresses);
+                } else if (detail.typeId=="DOMAIN") {
+                    page.domains.val(detail.domains);
+                } else if (detail.typeId=="MFA") {
+                    if (detail.timeoutSeconds) $("#Timeout").val(detail.timeoutSeconds);
+                    else $("#Timeout").val("");
+                    if (detail.promptOnUnlock) $("#OnUnlock").addClass("on");
+                    else $("#OnUnlock").removeClass("on");
+                    if (detail.promptOnWake) $("#OnWake").addClass("on");
+                    else $("#OnWake").removeClass("on");
+                }
+                page.params();
+                modal.show("AddModal");
+            },
+            save: function() {
+                if (page.validate()) {
+                    var params = page.params();
+                    page.filterObject.save(params);
+                } else growler.form();
+            },
+            params: function() {
+                try {
+                    var url = settings.versionData.baseUrl+settings.versionData.serviceUrl+"/"+page.filterObject.name;
+
+                    var obj = {
+                        name: $("#Name").val(),
+                        typeId: $("#PostureType").val(),
+                        roleAttributes: page.roles.val(),
+                        tags: tags.val()
+                    };
+                    if (obj.typeId=="DOMAIN") {
+                        obj.domains = page.domains.val();
+                    } else if (obj.typeId=="MAC") {
+                        obj.macAddresses = page.macs.val();
+                    } else if (obj.typeId=="OS") {
+                        obj.operatingSystems = [];
+                        for (var i=0; i<page.oss.length; i++) {
+                            var os = page.oss[i];
+                            if ($("#OS"+os.type).hasClass("on")) {
+                                var versions = [];
+                                versions.push($('#OS'+os.type+'VersionLow').val());
+                                if ($('#OS'+os.type+'VersionHigh').val().trim()!="") versions.push($('#OS'+os.type+'VersionHigh').val());
+                                obj.operatingSystems.push({
+                                    type: os.type,
+                                    versions: versions
+                                });
+                            }
+                        }
+                    } else if (obj.typeId=="PROCESS") {
+                        obj.process = {
+                            hashes: page.hashes.val(),
+                            osType: $("#OsForProcess").val(),
+                            path: $("#Path").val(),
+                            signerFingerprint: $("#Fingerprint").val()
+                        };
+                    } else if (obj.typeId=="MFA") {
+                        obj.timeoutSeconds = Number($("#Timeout").val());
+                        obj.promptOnWake = $("#OnWake").hasClass("on");
+                        obj.promptOnUnlock = $("#OnUnlock").hasClass("on");
+                    } else {
+
+                    }
+                    if (page.filterObject.isEditing()) url += "/"+page.filterObject.editId;
+                    $("#ApiUrl").val(url);
+
+                    var stayAt = $("#AddModal").scrollTop();
+                    page.apiParams.setValue(JSON.stringify(obj));
+                    page.apiParams.autoFormatRange({line:0, ch:0}, {line:page.apiParams.lineCount()});
+                    page.apiParams.scrollTo(null, 0);
+                    $("#AddModal").scrollTop(stayAt);
+                    return obj;
+                } catch (e) {
+                    console.log(e);
+                }
+            },
+            validate: function() {
+                $(".errors").removeClass("errors");
+                if ($("#Name").val().trim().length==0) $("#Name").addClass("errors");
+                if ($("#PostureType").val().trim().length==0) $("#PostureType").addClass("errors");
+                return $(".errors").length==0;
+            }
+        }
+    </script>

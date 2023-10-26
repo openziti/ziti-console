@@ -1,0 +1,21 @@
+
+image: node:10.3
+
+pipelines:
+  default:
+    - step:
+        caches:
+          - node
+        script: # 
+          # Do a clean build
+          - yarn clean
+          - yarn
+          # Run the tests
+          # - yarn test
+          # Authenticate to Docker Hub
+          - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
+          # Build/publish the Docker image
+          - sh pipeline-docker-publish.sh $BITBUCKET_BRANCH
+
+options:
+  docker: true

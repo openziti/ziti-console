@@ -1,0 +1,315 @@
+    <!-- General Page Layout HTML -->    
+    <div class="header">
+        <div class="title">
+            <span data-i18n="Manage"></span>
+            <span data-i18n="EdgeRouters"></span>
+        </div>
+        <div class="bread">
+            <span data-i18n="ZitiNetwork"></span>
+            <span class="secondary">/</span>
+            <span data-i18n="Manage"></span>
+            <span data-i18n="EdgeRouters"></span>
+        </div>
+        {{html.line}}
+        {{html.tabRouters}}
+    </div>
+    {{html.add}}
+    {{html.search}}
+    <div class="area data" data-defined="table">
+        <div class="table">
+            <div class="head grid columns">
+                <div class="col">
+                    <div class="selector all"></div>
+                </div>
+                <div class="col sort asc" data-by="name">
+                    <span data-i18n="Name"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="OS"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="RoleAttributes"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop sort" data-by="isVerified">
+                    <span data-i18n="Verified"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="Online"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop sort" data-by="createdAt">
+                    <span data-i18n="Created"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop sort">
+                    <span data-i18n="Token"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="JWT"></span>
+                </div>
+                <div class="col"></div>
+            </div>
+            <div class="rows" data-defined="rows">
+                <!-- This area will be replaced by data rows -->
+            </div>
+        </div>
+    </div>
+    <div class="nodata" data-defined="empty">
+        <span data-i18n="No"></span>
+        <span data-i18n="EdgeRouter"></span>
+        <span data-i18n="NoneDefined"></span>
+        <span data-i18n="EdgeRouter"></span>.
+    </div>
+
+
+
+    <!-- Template HTML will be used to display rows of data -->
+    <div id="RowTemplate" class="row grid columns template" data-defined="template">
+        <div class="col">
+            <div class="selector" data-id="{{id}}"></div>
+        </div>
+        <div class="col" data-id="{{id}}">
+            <span class="circle {{isOnline}}" title="Online"></span>
+            <span class="circle {{isVerified}}" title="Verified"></span>
+            <a href="javascript:page.edit('{{id}}');">{{name}}</a>
+        </div>
+        <div class="col desktop" data-id="{{id}}" style="overflow: unset;"><span class="os {{os}}" data-balloon-pos="up" aria-label="{{osDetails}}"></span></div>
+        <div class="col desktop" data-id="{{id}}">{{selector.roleAttributes}}</div>
+        <div class="col desktop" data-id="{{id}}">{{isVerified}}</div>
+        <div class="col desktop" data-id="{{id}}">{{isOnline}}</div>
+        <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
+        <div class="col desktop notitle">{{token}}</div>
+        <div class="col desktop notitle">{{tokenLink}}</div>
+        <div class="col allowOver">
+            <div class="dots" data-id="{{id}}">...
+                <div class="gridMenu" data-id="{{id}}">
+                    <div class="gridAction" data-id="{{id}}" data-action="edit" data-i18n="Edit"></div>
+                    <div class="gridAction" data-id="{{id}}" data-action="delete" data-i18n="Delete"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+	<!-- Modification Modals -->
+    <div id="AddModal" class="modal box full">
+        <div class="sized">
+            <div class="close icon-close"></div>
+
+            <div class="title adding">
+                <span data-i18n="Create"></span>
+                <span data-i18n="EdgeRouter"></span>
+            </div>
+            <div class="subtitle adding">
+                <span data-i18n="AddNew"></span>
+                <span data-i18n="EdgeRouter"></span>
+                <span data-i18n="ByComplete"></span>
+            </div>
+            <div class="title editing">
+                <span data-i18n="Edit"></span>
+                <span data-i18n="EdgeRouter"></span>
+            </div>
+            <div class="subtitle editing">
+                <span data-i18n="Change"></span>
+                <span data-i18n="EdgeRouter"></span>
+                <span data-i18n="Details"></span>
+            </div>
+
+            <div class="grid aside">
+                <div>
+                    <label for="Name" data-i18n="Name"></label>
+                    <input id="Name" data-bind="data.name" type="text" maxlength="500" data-i18n="EnterName" data-enter="SaveButton" />
+                </div>
+                <div>
+                    <label for="Cost" data-i18n="Cost"></label>
+                    <input id="Cost" data-bind="data.cost" type="number" />
+                </div>
+            </div>
+            <div class="grid split">
+                <div class="grid checkLabel">
+                    <div id="IsTunnelerEnabled" class="toggle" aria-label="Turn on to enable tunneler access" data-balloon-pos="right" data-balloon-length="large">
+                        <div class="switch"></div>
+                        <div class="label"></div>
+                    </div>
+                    <div class="toggleLabel" data-i18n="TunnellerEnabled"></div>
+                </div>
+                <div class="grid checkLabel">
+                    <div id="IsNoTraversal" class="toggle" aria-label="Turn on to prevent traversal" data-balloon-pos="right" data-balloon-length="large">
+                        <div class="switch"></div>
+                        <div class="label"></div>
+                    </div>
+                    <div class="toggleLabel" data-i18n="NoTraversal"></div>
+                </div>
+            </div>
+            <label for="Roles" data-i18n="RouterRoleAttributes"></label>
+            <div id="Roles"></div>
+            <label for="AppData" data-i18n="AppData"></label>
+            <textarea id="AppData"></textarea>
+            <div id="TagArea" data-tagarea="router"></div>
+            {{html.customtags}}
+            {{html.api}}
+            {{html.save}}
+        </div>
+	</div>
+
+    <style>
+        .CodeMirror {
+            height: 211px;
+        }
+        .grid.columns {
+	        grid-template-columns: 50px 200px 50px auto 100px 100px 15% 15% 60px 50px;
+        }
+    </style>
+     
+    
+    <script language="javascript" type="text/javascript">
+        page = {
+            filterObject: null,
+            roles: null,
+            appData: null,
+            apiParams: null,
+            init: function() {
+
+                page.roles = new MultiSelect("Roles",  10, true);
+                page.roles.addSource(new SelectSource("edge-router-role-attributes", "", "id")); 
+                page.roles.init();
+
+                page.filterObject = new Data("edge-routers");
+                page.filterObject.init(true, true);
+
+                page.appData = CodeMirror.fromTextArea(document.getElementById("AppData"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"} });                
+                page.appData.on('change', (args) => { 
+                    page.params(); 
+                });
+
+                page.apiParams = CodeMirror.fromTextArea(document.getElementById("ApiParams"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
+            }, 
+            row: function(template, data) {
+                var os = "other";
+                var osDetails = "";
+                if (data.versionInfo) {
+                    if (data.versionInfo.os&&data.versionInfo.os.toLowerCase().indexOf("darwin")>=0) os = "apple";
+                    else if (data.versionInfo.os&&data.versionInfo.os.toLowerCase().indexOf("linux")>=0) os = "linux";
+                    else if (data.versionInfo.os&&data.versionInfo.os.toLowerCase().indexOf("android")>=0) os = "android";
+                    else if (data.versionInfo.os&&data.versionInfo.os.toLowerCase().indexOf("windows")>=0) os = "windows";
+                    
+                    if (data.versionInfo.os) osDetails += "OS: "+data.versionInfo.os;
+                    if (data.versionInfo.arch) osDetails += "&#10;Arch: "+data.versionInfo.arch;
+                    if (data.versionInfo.buildDate) osDetails += "&#10;Build: "+moment(data.versionInfo.buildDate).format("MM/DD/YYYY");
+                    if (data.versionInfo.version) osDetails += "&#10;Version: "+data.versionInfo.version;
+                    if (data.versionInfo.revision) osDetails += "&#10;Release: "+data.versionInfo.revision;
+                }
+                if (osDetails.length==0) osDetails = "No Info Available";
+                template = template.split("{{os}}").join(os);
+                template = template.split("{{osDetails}}").join(osDetails);
+
+                var enrollment = "N/A";
+                var token = "-";
+                if (data.enrollmentJwt) {
+                    if (data.enrollmentExpiresAt!=null) {
+                        var difference = moment(data.enrollmentExpiresAt).diff(moment());
+                        if (difference>0) enrollment = '<span class="cert" data-id="'+data.id+'"></span>';
+                        token = data.enrollmentToken;
+                    } else {
+                        enrollment = '<span class="cert" data-id="'+data.id+'"></span>';
+                        token = data.enrollmentToken;
+                    }
+                } 
+
+                template = template.split("{{token}}").join(token);
+                template = template.split("{{tokenLink}}").join(enrollment);
+                return template;
+            },
+            gridAction: function(e) {
+                var action = $(e.currentTarget).data("action");
+                var id = $(e.currentTarget).data("id");
+                if (action=="delete") page.filterObject.delete([id]);
+                else if (action=="edit") page.edit(id);
+            },
+            edit: function(id) {
+                var detail = page.filterObject.details(id);
+                page.roles.val(detail.roleAttributes);
+                if (detail.isTunnelerEnabled) $("#IsTunnelerEnabled").addClass("on");
+                else $("#IsTunnelerEnabled").removeClass("on");
+                if (detail.noTraversal) $("#IsNoTraversal").addClass("on");
+                else $("#IsNoTraversal").removeClass("on");
+                var appData = JSON.stringify(detail.appData);
+                if (appData.length>0) {
+                    page.appData.setValue(appData);
+                    page.appData.autoFormatRange({line:0, ch:0}, {line:page.appData.lineCount()});
+                }
+                page.params();
+                modal.show("AddModal");
+            },
+            formReset: function() {
+                page.params();
+            },
+            save: function() {
+                if (page.validate()) {
+                    var obj = page.params();
+                    page.filterObject.save(obj);
+                } else growler.form();
+            },
+            params: function() {
+                try {  
+                    var obj = {
+                        name: $("#Name").val(),
+                        roleAttributes: page.roles.val(),
+                        appData: JSON.parse(page.appData.getValue()),
+                        isTunnelerEnabled: $("#IsTunnelerEnabled").hasClass("on"),
+                        noTraversal: $("#IsNoTraversal").hasClass("on"),
+                        cost: Number($("#Cost").val()),
+                        tags: tags.val()
+                    };
+
+                    var url = settings.versionData.baseUrl+settings.versionData.serviceUrl+"/"+page.filterObject.name;
+                    if (page.filterObject.isEditing()) url += "/"+page.filterObject.editId;
+                    $("#ApiUrl").val(url);  
+                    var stayAt = $("#AddModal").scrollTop();
+                    page.apiParams.setValue(JSON.stringify(obj));
+                    page.apiParams.autoFormatRange({line:0, ch:0}, {line:page.apiParams.lineCount()});
+                    page.apiParams.scrollTo(null, 0);
+                    $("#AddModal").scrollTop(stayAt);
+
+                    return obj
+                } catch (e) {
+                    console.log(e);
+                }
+            },
+            validate: function() {
+                $(".errors").removeClass("errors");
+                if ($("#Name").val().trim().length==0) $("#Name").addClass("errors");
+                return $(".errors").length==0;
+            },
+            reset: function() {
+                var appData = {};
+                page.appData.setValue(JSON.stringify(appData));
+                page.appData.autoFormatRange({line:0, ch:0}, {line:page.appData.lineCount()});
+                $("#IsTunnelerEnabled").addClass("on");
+                $("#Cost").val("");
+            }, 
+            loaded: function() {
+                $(".cert").click(page.getCert);
+            },
+            getCert: function(e) {
+                var id = $(e.currentTarget).data("id");
+                var data = page.filterObject.details(id);
+                if (data && data.enrollmentJwt) {
+                    var name = data.name.split(" ").join("");
+                    var element = document.createElement('a');
+                    element.setAttribute('href', 'data:application/ziti-jwt;charset=utf-8,' + encodeURIComponent(data.enrollmentJwt));
+                    element.setAttribute('download', name+".jwt");
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
+                }
+            }
+        }
+    </script>

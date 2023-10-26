@@ -1,0 +1,140 @@
+<div class="data-table-container" *ngIf="filterApplied || rowData?.length > 0;else nodata">
+    <lib-table-filter-bar
+            [startCount]="startCount"
+            [endCount]="endCount"
+            [totalCount]="totalCount"
+    ></lib-table-filter-bar>
+    <lib-table-hidden-columns-bar
+            *ngIf="gridRendered && showFilterBar"
+            [hiddenColumns]="hiddenColumns"
+            (columnVisibilityChanged)="columnVisibilityChanged($event)"
+    ></lib-table-hidden-columns-bar>
+    <div (resize)="resizeGridColumnsDebounced($event)" class="ziti-ag-grid" id="ItemTable">
+        <ag-grid-angular
+            #nfAgGrid
+            [columnDefs]="mergedColumnDefinitions"
+            [components]="frameworkComponents"
+            [getDataPath]="svc.getDataPath"
+            [getRowId]="svc.getRowNodeId"
+            [gridOptions]="gridOptions"
+            [modules]="gridModules"
+            [rowData]="rowData"
+            [tooltipHideDelay]="20000"
+            [tooltipShowDelay]="0"
+            class="ziti-ag-grid-table ag-theme-alpine rows"
+            id="ItemGrid"
+        >
+        </ag-grid-angular>
+    </div>
+    <div
+            [ngClass]="{ open: openHeaderMenu }"
+            [ngStyle]="{ left: menuLeft + 'px', top: menuTop + 'px' }"
+            class="tMenu action-menu header-menu"
+            id="HeaderActionMenu"
+    >
+        <div (click)="resetTableColumns()" class="tActionRow" id="ResetTableButton">Restore Default Table</div>
+        <div
+            *ngFor="let headerAction of headerActions"
+            (click)="actionRequested.emit({ action: headerAction.action })"
+            class="tActionRow"
+            id="ResetTableButton"
+        >
+            {{headerAction.name}}
+        </div>
+    </div>
+    <div
+            [ngClass]="{ open: openMenu }"
+            [ngStyle]="{ left: menuLeft + 'px', top: menuTop + 'px' }"
+            class="tMenu action-menu item-menu"
+            id="RowActionMenu"
+    >
+        <div
+
+                *ngFor="let menuItem of menuItems"
+                (click)="actionRequested.emit({ action: menuItem.action, item: selectedItem })"
+                [ngClass]="{'menu-item-hidden': !selectedItem.actionList.includes(menuItem.action)}"
+                class="tActionRow"
+                id="TableActionButton_{{menuItem.action}}"
+        >
+            {{menuItem.name}}
+        </div>
+    </div>
+    <div
+            (clickOutside)="closeHeaderFilter($event)"
+            [ngClass]="{ open: showFilterOptions }"
+            [ngStyle]="{ left: menuLeft + 'px', top: menuTop + 'px' }"
+            class="tMenu action-menu header-menu"
+            id="HeaderFilterOptions"
+    >
+        <div (click)="applyFilter($event, filter)" *ngFor="let filter of filterOptions" class="tActionRow" [ngClass]="{'has-icon': filter.icon}" [id]="filter.columnId">
+            <span *ngIf="filter.bubbleClass" [ngClass]="filter.bubbleClass" class="bubble">
+                <svg *ngIf="filter.showLoader" class="circular" viewBox="25 25 50 50">
+                    <circle
+                            class="path"
+                            cx="50"
+                            cy="50"
+                            fill="none"
+                            r="20"
+                            stroke-miterlimit="10"
+                            stroke-width="3"
+                    ></circle>
+                </svg>
+            </span>
+            <span *ngIf="filter.icon" class="os-icon {{filter.icon}}"></span>
+            {{ filter.label }}
+        </div>
+    </div>
+</div>
+
+<div *ngIf="showDateTimePicker" class="date-time-container" [ngStyle]="{ left: menuLeft + 'px', top: menuTop + 'px' }" (clickOutside)="closeHeaderFilter($event)">
+    <p-calendar
+            [(ngModel)]="dateValue"
+            (onSelect)="setDateRangeFilter('custom')"
+            dateFormat="mm/dd/yy"
+            selectionMode="range"
+            placeholder="Select Time Range"
+            #calendar
+    >
+        <ng-template pTemplate="header">
+            <div class="filter-button-container">
+                <div
+                        class="toggleButton"
+                        [ngClass]="{selected: selectedRange === 'hour'}"
+                        (click)="setDateRangeFilter('hour')"
+                >
+                    Last Hour
+                </div>
+                <div
+                        class="toggleButton"
+                        (click)="setDateRangeFilter('day')"
+                        [ngClass]="{selected: selectedRange === 'day'}"
+                >
+                    Last Day
+                </div>
+                <div
+                        class="toggleButton"
+                        (click)="setDateRangeFilter('week')"
+                        [ngClass]="{selected: selectedRange === 'week'}"
+                >
+                    Last Week
+                </div>
+                <div
+                        class="toggleButton"
+                        (click)="setDateRangeFilter('month')"
+                        [ngClass]="{selected: selectedRange === 'month'}"
+                >
+                    Last Month
+                </div>
+            </div>
+        </ng-template>
+    </p-calendar>
+</div>
+
+<ng-template #nodata>
+    <lib-no-items
+        (clickEmit)="openCreate()"
+        [image]="'No_Clients'"
+        [isEmpty]="rowData.length === 0"
+        [typeName]="'Identities'"
+    ></lib-no-items>
+</ng-template>

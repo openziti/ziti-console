@@ -1,0 +1,146 @@
+<div class="header">
+    <div class="title">Manage <span data-bind="pageTitle"></span></div>
+    <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
+    <div class="line"></div>
+    <div class="tabs">
+      <div class="tab selected">Manage <span data-bind="pageTitle"></span></div>
+      <div class="tab" data-go="/profile">Manage Profile</div>
+    </div>
+    <div class="constrained">
+        <div class="grid split">
+            <div>
+                <label>Filter after Save</label>
+                <div id="IsFilterAfterSave" class="toggle">
+                    <div class="switch"></div>
+                    <div class="label"></div>
+                </div>
+            </div>
+            <div>
+                <label>Dark mode</label>
+                <div id="IsDark" class="toggle">
+                    <div class="switch"></div>
+                    <div class="label"></div>
+                </div>
+            </div>
+            <div>
+                <label>Hide Tags</label>
+                <div id="HideTags" class="toggle">
+                    <div class="switch"></div>
+                    <div class="label"></div>
+                </div>
+            </div>
+            <div>
+                <label>Transitions</label>
+                <div id="Transitions" class="toggle">
+                    <div class="switch"></div>
+                    <div class="label"></div>
+                </div>
+            </div>
+
+            <div class="personal">
+                <label>Primary Color</label>
+                <input id="PrimaryColor" type="text" class="colors"/>
+            </div>
+
+            <div class="personal">
+                <label>Secondary Color</label>
+                <input id="SecondaryColor" type="text" class="colors"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script language="javascript" type="text/javascript">
+    page = {
+        binding: {
+            pageTitle: "Settings",
+            singular: "Settings"
+        },
+        data: [],
+        init: function() {
+            this.events();
+            if (localStorage.getItem("mode")=="dark") $("#IsDark").addClass("on");
+            if (localStorage.getItem("hideTags")=="yes") $("#HideTags").addClass("on");
+            if (localStorage.getItem("filterAfterSave")=="on") $("#IsFilterAfterSave").addClass("on");
+            var mode = localStorage.getItem("Transitions");
+            if (mode!="off") $("#Transitions").addClass("on");
+            if (mode=="off") {
+                $("body").get(0).style.setProperty("--transition", "0s");
+            } else {
+                $("body").get(0).style.setProperty("--transition", "0.5s");
+            }
+            $("#PrimaryColor").spectrum({
+                color: getComputedStyle(document.documentElement).getPropertyValue('--primary'),
+                showInput: true,
+                className: "full-spectrum",
+                showInitial: true,
+                showPalette: false,
+                showSelectionPalette: false,
+                maxSelectionSize: 10,
+                preferredFormat: "hex",
+                localStorageKey: "spectrum.primary",
+                move: function (color) {},
+                show: function () {},
+                beforeShow: function () {},
+                hide: function () {},
+                change: function() {
+                    localStorage.setItem("primaryColor",$("#PrimaryColor").val());
+                    document.getElementsByTagName('html')[0].style.setProperty("--primary", $("#PrimaryColor").val());
+                },
+                palette: []
+            });	
+            $("#SecondaryColor").spectrum({
+                color: getComputedStyle(document.documentElement).getPropertyValue('--secondary'),
+                showInput: true,
+                className: "full-spectrum",
+                showInitial: true,
+                showPalette: false,
+                showSelectionPalette: false,
+                maxSelectionSize: 10,
+                preferredFormat: "hex",
+                localStorageKey: "spectrum.secondary",
+                move: function (color) {},
+                show: function () {},
+                beforeShow: function () {},
+                hide: function () {},
+                change: function() {
+                    localStorage.setItem("secondaryColor",$("#SecondaryColor").val());
+                    document.getElementsByTagName('html')[0].style.setProperty("--secondary", $("#SecondaryColor").val());
+                },
+                palette: []
+            });	                          
+        },
+        events: function() {
+            $("#IsDark").click(page.swap);
+            $("#HideTags").click(page.hide);
+            $("#Transitions").click(page.transitions);
+            $("#IsFilterAfterSave").click(page.filterAfter);
+        },
+        swap: function() {
+            var mode = "light";
+            if ($("#IsDark").hasClass("on")) mode = "dark";
+            localStorage.setItem("mode", mode);
+            window.location.reload();
+        },
+        hide: function() {
+            var mode = "no";
+            if ($("#HideTags").hasClass("on")) mode = "yes";
+            localStorage.setItem("hideTags", mode);
+        },
+        filterAfter: function() {
+            var mode = "off";
+            if ($("#IsFilterAfterSave").hasClass("on")) mode = "on";
+            localStorage.setItem("filterAfterSave", mode);
+        },
+        transitions: function() {
+            var mode = "off";
+            if ($("#Transitions").hasClass("on")) mode = "on";
+            localStorage.setItem("Transitions", mode);
+            if (mode=="off") {
+                $("body").get(0).style.setProperty("--transition", "0s");
+            } else {
+                $("body").get(0).style.setProperty("--transition", "0.5s");
+            }
+        }
+    }
+</script>

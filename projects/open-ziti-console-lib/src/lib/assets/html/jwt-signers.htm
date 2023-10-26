@@ -1,0 +1,260 @@
+    
+    <!-- General Page Layout HTML -->
+    <div class="header">
+        <div class="title">
+            <span data-i18n="Manage"></span> 
+            <span data-i18n="JwtSigners"></span>
+        </div>
+        <div class="bread">
+            <span data-i18n="ZitiNetwork"></span> 
+            <span class="secondary">/</span> 
+            <span data-i18n="Manage"></span> 
+            <span data-i18n="JwtSigners"></span>
+        </div>
+        {{html.line}}
+        {{html.tabPolicies}}
+    </div>
+    {{html.add}}
+    {{html.search}}
+    <div class="area data" data-defined="table">
+        <div class="table">
+            <div class="head grid columns">
+                <div class="col">
+                    <div class="selector all"></div>
+                </div>
+                <div class="col sort asc" data-by="name">
+                    <span data-i18n="Name"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="Issuer"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="Audience"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="Enabled"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="Created"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col"></div>
+            </div>
+            <div class="rows" data-defined="rows">
+                <!-- This area will be replaced by data rows -->
+            </div>
+        </div>
+    </div>
+    <div class="nodata" data-defined="empty">
+        <span data-i18n="No"></span>
+        <span data-i18n="JwtSigner"></span>
+        <span data-i18n="NoneDefined"></span>
+        <span data-i18n="JwtSigner"></span>.
+    </div>
+
+    <!-- Template HTML will be used to display rows of data -->
+    <div id="RowTemplate" class="row grid columns template" data-defined="template">
+        <div class="col notitle">
+            <div class="selector" data-id="{{id}}"></div>
+        </div>
+        <div class="col" data-id="{{id}}"><a href="javascript:page.edit('{{id}}');">{{name}}</a></div>
+        <div class="col desktop" data-id="{{id}}">{{issuer}}</div>
+        <div class="col desktop" data-id="{{id}}">{{audience}}</div>
+        <div class="col desktop" data-id="{{id}}">{{enabled}}</div>
+        <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
+        <div class="col allowOver">
+            <div class="dots" data-id="{{id}}">...
+                <div class="gridMenu" data-id="{{id}}">
+                    <div class="gridAction" data-id="{{id}}" data-action="edit" data-i18n="Edit"></div>
+                    <div class="gridAction" data-id="{{id}}" data-action="delete" data-i18n="Delete"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .grid.columns {
+	        grid-template-columns: 50px auto 20% 20% 150px 250px 50px
+        }
+    </style>
+
+	<!-- Modification Modals -->
+    <div id="AddModal" class="modal box full">
+        <div class="sized large">
+            <div class="close icon-close"></div>
+            <div class="title adding">
+                <span data-i18n="Create"></span>
+                <span data-i18n="JwtSigner"></span>
+            </div>
+            <div class="subtitle adding">
+                <span data-i18n="AddNew"></span>
+                <span data-i18n="JwtSigner"></span>
+                <span data-i18n="ByComplete"></span>
+            </div>
+            <div class="title editing">
+                <span data-i18n="Edit"></span>
+                <span data-i18n="JwtSigner"></span>
+            </div>
+            <div class="subtitle editing">
+                <span data-i18n="Change"></span>
+                <span data-i18n="JwtSigner"></span>
+                <span data-i18n="Details"></span>
+            </div>
+            <div class="grid split">
+                <div>
+
+                    <label for="Name" data-i18n="Name"></label>
+                    <input id="Name" data-bind="data.name" type="text" maxlength="500" data-i18n="EnterName" />
+                    <label for="Issuer" data-i18n="Issuer"></label>
+                    <input id="Issuer" data-bind="data.issuer" type="text" maxlength="500" data-i18n="EnterIssuer" />
+                    <label for="Audience" data-i18n="Audience"></label>
+                    <input id="Audience" data-bind="data.audience" type="text" maxlength="500" data-i18n="EnterAudience" />
+                    <label for="ClaimsProperty" data-i18n="ClaimsProperty"></label>
+                    <input id="ClaimsProperty" data-bind="data.claimsProperty" type="text" maxlength="500" data-i18n="EnterClainms" value="sub" />
+                    <label for="ExternalAuthUrl" data-i18n="ExternalAuthUrl"></label>
+                    <input id="ExternalAuthUrl" data-bind="data.externalAuthUrl" type="text" maxlength="500" data-i18n="EnterUrl" />
+                    <div class="grid split">
+                        <div>
+                            <label data-i18n="Enabled"></label>
+                            <div id="Enabled" class="toggle" aria-label="Turn on to enable this jwt signer" data-balloon-pos="right" data-balloon-length="large">
+                                <div class="switch"></div>
+                                <div class="label"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <label data-i18n="UseExternal"></label>
+                            <div id="UseExternal" class="toggle" aria-label="Turn on to use an external JWT Signer" data-balloon-pos="right" data-balloon-length="large">
+                                <div class="switch"></div>
+                                <div class="label"></div>
+                            </div>
+                        </div>
+                    </div>
+        
+                    <div class="configBox" style="margin-top: 20px;">
+                        <div class="sectionTitle" data-i18n="CertDefined"></div>
+                        <label for="Pem"><span data-i18n="PEM"></span> <span id="SelectFile" class="note" data-i18n="SelectFile"></span><input id="PemFile" type="file" accept=".pem"/></label>
+                        <textarea id="Pem" data-bind="data.certPem" spellcheck="false" style="height: 300px; font-size: 12px;" data-i18n="PastePEM"></textarea>
+                        <label for="Kid" data-i18n="Kid"></label>
+                        <input id="Kid" data-bind="data.kid" type="text" maxlength="500" data-i18n="EnterKid" />
+                    </div>
+        
+                    <div class="configBox" style="margin-top: 20px;">
+                        <div class="sectionTitle" data-i18n="JWKSDefined"></div>
+                        <label for="JWKSEndpoint" data-i18n="JWKSEndpoint"></label>
+                        <input id="JWKSEndpoint" data-bind="data.jwksEndpoint" type="text" maxlength="500" data-i18n="EnterUrl" />
+                    </div>
+                </div>
+                <div>
+
+                    <div id="TagArea" data-tagarea="policies"></div>
+                    {{html.customtags}}
+                    {{html.api}}
+                    {{html.save}}
+
+                </div>
+
+        </div>
+	</div>
+    
+    
+    <script language="javascript" type="text/javascript">
+        page = {
+            filterObject: null,
+            apiParams: null,
+            init: function() {
+                page.filterObject = new Data("external-jwt-signers");
+                page.filterObject.init(true, true);
+                page.events();
+
+                page.apiParams = CodeMirror.fromTextArea(document.getElementById("ApiParams"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
+            }, 
+            events: function() {
+                $("#PemFile").change(page.loadFile);
+                $("#SelectFile").click(function() { 
+                    $("#PemFile").click(); 
+                });
+            },
+            gridAction: function(e) {
+                var action = $(e.currentTarget).data("action");
+                var id = $(e.currentTarget).data("id");
+                if (action=="delete") page.filterObject.delete([id]);
+                else if (action=="edit") page.edit(id);
+            },
+            edit: function(id) {
+                var detail = page.filterObject.details(id);
+                $(".toggle").removeClass("on");
+                if (detail.enabled) $("#Enabled").addClass("on");
+                if (detail.useExternalId) $("#UseExternal").addClass("on");
+                page.params();
+                modal.show("AddModal");
+            },
+            save: function() {
+                if (page.validate()) {
+                    var obj = page.params();
+                    for (let prop in obj) {
+                        if (obj[prop]=='') delete obj[prop];
+                    }
+                    page.filterObject.save(obj);
+                } else growler.form();
+            },
+            formReset: function() {
+                page.params();
+            },
+            params: function() {
+                try {  
+                    var obj = {
+                        name: $("#Name").val().trim(),
+                        audience: $("#Audience").val().trim(),
+                        issuer: $("#Issuer").val().trim(),
+                        certPem: $("#Pem").val().trim(),
+                        claimsProperty: $("#ClaimsProperty").val().trim(),
+                        enabled: $("#Enabled").hasClass("on"),
+                        useExternalId: $("#UseExternal").hasClass("on"),
+                        externalAuthUrl: $("#ExternalAuthUrl").val().trim(),
+                        kid: $("#Kid").val().trim(),
+                        jwksEndpoint: $("#JWKSEndpoint").val().trim(),
+                        tags: tags.val()
+                    };
+
+                    var url = settings.versionData.baseUrl+settings.versionData.serviceUrl+"/"+page.filterObject.name;
+                    if (page.filterObject.isEditing()) url += "/"+page.filterObject.editId;
+                    $("#ApiUrl").val(url);  
+                    var stayAt = $("#AddModal").scrollTop();
+                    page.apiParams.setValue(JSON.stringify(obj));
+                    page.apiParams.autoFormatRange({line:0, ch:0}, {line:page.apiParams.lineCount()});
+                    page.apiParams.scrollTo(null, 0);
+                    $("#AddModal").scrollTop(stayAt);
+
+                    return obj
+                } catch (e) {
+                    console.log(e);
+                }
+            },
+            validate: function() {
+                $(".errors").removeClass("errors");
+                if ($("#Name").val().trim().length==0) $("#Name").addClass("errors");
+                return $(".errors").length==0;
+            },
+            loadFile: function(e) {
+                try {
+                    var fileToLoad = document.getElementById("PemFile").files[0];
+                    var fileReader = new FileReader();
+                    fileReader.onload = function(fileLoadedEvent) {
+                        var textFromFileLoaded = fileLoadedEvent.target.result;
+                        $("#Pem").val(textFromFileLoaded);
+                    };
+                    fileReader.readAsText(fileToLoad, "UTF-8");
+                } catch (e) {
+                    growler.error("Invalid File", locale.get("ErrorInvalidFile"));
+                } 
+            },
+            reset: function() {
+                $("#ClaimsProperty").val("sub");
+                $("#Enabled").addClass("on");
+            }
+        }
+    </script>

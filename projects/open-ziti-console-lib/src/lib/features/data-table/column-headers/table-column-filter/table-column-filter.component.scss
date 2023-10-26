@@ -1,0 +1,78 @@
+.header-filter-container {
+  .search {
+    height: 40px;
+    border-width: 0;
+    font-size: 14px;
+    box-shadow: none;
+    padding-left: 0px;
+    margin-top: 15px;
+  }
+}
+
+#TimeSearch {
+  position: relative;
+  float: left;
+  display: inline-block;
+  margin-left: 10px;
+  width: 50px;
+  height: 40px;
+  background-color: var(--primary);
+}
+
+#TimeSearch #TimeSearchList {
+  width: 44px;
+  height: 0px;
+  position: absolute;
+  top: 0px;
+  left: -2px;
+  overflow: hidden;
+  transition: var(--transition);
+  background-color: var(--menu);
+  border-radius: 8px;
+  z-index: 30;
+}
+
+#TimeSearch #TimeSearchList .time {
+  width: 40px;
+  background-color: var(--navigation);
+  padding-left: 8px;
+  padding-right: 8px;
+  border-radius: 8px;
+  line-height: 26px;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 2px;
+  margin-left: 2px;
+  left: -2px;
+  top: -51px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+#TimeSearch #TimeSearchList.open {
+  top: -51px;
+  width: 44px;
+  height: 226px;
+}
+
+#TimeSearch #TimeSelectButton {
+  width: 40px;
+  background-color: var(--navigation);
+  padding-left: 8px;
+  padding-right: 8px;
+  border-radius: 8px;
+  line-height: 26px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+  margin-top: 7px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+#TimeSearch #TimeSelectButton:hover,
+#TimeSearch #TimeSearchList .time:hover {
+  background-color: var(--primaryColor);
+  color: var(--white);
+}

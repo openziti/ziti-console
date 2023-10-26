@@ -1,0 +1,70 @@
+{
+  "name": "io.netfoundry.zac",
+  "version": "2.6.9",
+  "description": "Ziti Administration Console",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "clean": "rm -rf node_modules;",
+    "start": "node server.js",
+    "zitified": "ZITI_IDENTITY_FILE=zac-identity.json ZITI_SERVICE_NAME=test-service node server.js",
+    "test": "exec",
+    "docker:build": "cross-conf-env docker image build . -t $npm_package_config_imageRepo:$npm_package_version",
+    "docker-branch:build": "cross-conf-env docker image build . -t $npm_package_config_imageRepo:$npm_package_version-$BITBUCKET_BRANCH-$BITBUCKET_BUILD_NUMBER",
+    "postdocker:build": "npm run docker:tag",
+    "docker:tag": " cross-conf-env docker image tag $npm_package_config_imageRepo:$npm_package_version $npm_package_config_imageRepo:latest",
+    "docker:run": "run-s -c docker:clean docker:runHelper",
+    "docker:runHelper": "cross-conf-env docker run -e NODE_ENV=local --name $npm_package_config_imageName -d -p $npm_package_config_imagePort:3000 $npm_package_config_imageRepo",
+    "predocker:publish": "echo Attention! Ensure `docker login` is correct.",
+    "docker:publish": "cross-conf-env docker image push $npm_package_config_imageRepo:$npm_package_version",
+    "docker-branch:publish": "cross-conf-env docker image push $npm_package_config_imageRepo:$npm_package_version-$BITBUCKET_BRANCH-$BITBUCKET_BUILD_NUMBER",
+    "postdocker:publish": "cross-conf-env docker image push $npm_package_config_imageRepo:latest",
+    "docker:clean": "cross-conf-env docker rm -f $npm_package_config_imageName",
+    "predocker:taillogs": "echo Web Server Logs:",
+    "docker:taillogs": "cross-conf-env docker logs -f $npm_package_config_imageName",
+    "docker:open:win": "echo Trying to launch on Windows && timeout 2 && start http://localhost:%npm_package_config_imagePort%",
+    "docker:open:mac": "echo Trying to launch on MacOS && sleep 2 && URL=http://localhost:$npm_package_config_imagePort && open $URL",
+    "docker:debugmessage": "echo Docker Debug Completed Successfully! Hit Ctrl+C to terminate log tailing.",
+    "predocker:debug": "run-s docker:build docker:run",
+    "docker:debug": "run-s -cs docker:open:win docker:open:mac docker:debugmessage docker:taillogs"
+  },
+  "config": {
+    "imageRepo": "netfoundry/ziti-console",
+    "imageName": "zac",
+    "imagePort": "1480"
+  },
+  "keywords": [
+    "ziti"
+  ],
+  "engines": {
+    "node": ">=18.13.0"
+  },
+  "author": {
+    "name": "NetFoundry",
+    "url": "http://openziti.io",
+    "email": "openziti@netfoundry.io"
+  },
+  "license": "Apache-2.0",
+  "optionalDependencies": {
+    "@openziti/ziti-sdk-nodejs": "^0.13.3"
+  },
+  "dependencies": {
+    "@apidevtools/json-schema-ref-parser": "^10.0.1",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-fileupload": "^1.4.0",
+    "express-session": "^1.17.3",
+    "fse": "^4.0.1",
+    "helmet": "^6.0.1",
+    "influx": "^5.9.3",
+    "md5": "^2.3.0",
+    "moment": "^2.29.4",
+    "node": "^18.13.0",
+    "nodemailer": "^6.9.1",
+    "npm": "^9.4.0",
+    "request": "^2.88.2",
+    "session-file-store": "^1.5.0",
+    "ws": "^8.12.0"
+  }
+}

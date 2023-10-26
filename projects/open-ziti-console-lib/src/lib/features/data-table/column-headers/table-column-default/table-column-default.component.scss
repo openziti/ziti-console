@@ -1,0 +1,76 @@
+.ag-header-sort-click-space {
+  display: flex;
+  height: 100%;
+  position: relative;
+  width: 100%;
+}
+
+.ag-header-col-filter-button {
+  &.ag-filter-applied {
+    opacity: 1 !important;
+  }
+}
+
+.Online,
+.v7Online,
+.v7Offline {
+  margin-right: 8px !important;
+  height: 14px !important;
+  width: 14px !important;
+
+  &:hover {
+    border-color: var(--primaryColor) !important;
+    border-style: solid;
+    border-width: 2px;
+    height: 10px !important;
+    width: 10px !important;
+  }
+}
+
+.header-text-container {
+  white-space: nowrap;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+}
+
+.text-input-filter {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .bubble {
+    margin-top: 8px;
+    margin-left: 1px;
+    margin-right: 8px;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+}
+
+.ag-header-col-filter-button {
+  margin-top: 8px;
+}
+
+.ag-header-cell-text {
+  margin-top: 2px;
+  width: 100%;
+}
+
+.ag-header-cell-label {
+  .ag-sort-descending-icon {
+    margin-top: 20px !important;
+  }
+}
+
+.show-input-filter {
+  width: 100%;
+}
+
+.filterButton {
+  background-image: none;
+
+  .options {
+    position: fixed;
+  }
+}

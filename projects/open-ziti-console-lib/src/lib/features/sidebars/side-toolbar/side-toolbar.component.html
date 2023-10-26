@@ -1,0 +1,238 @@
+<div class="sideToolbar">
+    <div class="topButtons">
+        <div id="NavigationButton" class="clickable main AreaNavigation selected" (click)="toggleNav();">
+            <div class="circle"></div>
+            <div class="icon icon-globe"></div>
+            <div id="NetworkHover" class="hover" data-i18n="NetworkSettings">Network Settings</div>
+        </div>
+        <div id="AddButton" class="clickable" data-hover="AddHover" (click)="showAdd()">
+            <div class="circle"></div>
+            <div class="icon"></div>
+            <div id="AddHover" class="hover">Add New</div>
+        </div>
+        <a [routerLink]="'/attributes'">
+            <div id="AttributesButton" class="clickable" data-hover="AttributeHover">
+                <div class="circle"></div>
+                <div class="icon icon-hash"></div>
+                <div id="AttributeHover" class="hover">Attribute Explorer</div>
+            </div>
+        </a>
+        <div id="SearchButton" class="clickable" data-hover="SearchHover" style="display: none;">
+            <div class="clicked"></div>
+            <div class="circle"></div>
+            <div class="icon"></div>
+            <div id="SearchHover" class="hover" data-i18n="Search">Search</div>
+        </div>
+    </div>
+    <div class="bottomButtons">
+        <div id="AlertButton" class="clickable">
+            <div class="circle"></div>
+            <div class="icon"></div>
+            <div id="AlarmCount" class="count"></div>
+        </div>
+        <div id="HelpButton" class="clickable AreaSupport" data-modal="AddMessageModal">
+            <div class="clicked"></div>
+            <div class="circle"></div>
+            <div class="icon"></div>
+        </div>
+        <div id="OrgButton" class="clickable AreaOrganization" data-open="AreaOrganization" [routerLink]="'/servers'">
+            <div class="clicked"></div>
+            <div class="circle"></div>
+            <div class="icon"></div>
+        </div>
+        <div id="ProfileButton" class="clickable main" (click)="toggleMenu()" (clickOutside)="closeMenu()">
+            <div class="main"></div>
+            <div class="circle"></div>
+            <div class="icon"></div>
+            <div id="ProfileMenu" class="menu" [ngClass]="{open: menuOpen}">
+                <div class="menutitle"></div>
+                <div id="ProfileButton" class="link" data-go="/profile" data-i18n="EditProfile">Edit Profile</div>
+                <div id="SettingsButton" class="link" data-go="/settings" data-i18n="PersonalSettings">Personal
+                    Settings
+                </div>
+                <div id="LogoutButton" class="link" (click)="doLogout()">Logout</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submit Bug UI -->
+<div id="AddMessageModal" class="modal box full">
+    <div class="sized">
+        <div class="close icon-close"></div>
+        <div class="title" data-i18n="MessageTitle"></div>
+        <div class="subtitle" data-i18n="MessageSubTitle"></div>
+        <div class="split unsplit">
+            <div>
+                <label for="SendName" data-i18n="MessageName"></label>
+                <input id="SendName" type="text" maxlength="500" data-i18n="EnterName"/>
+            </div>
+            <div>
+                <label for="SendEMail" data-i18n="MessageEMail"></label>
+                <input id="SendEMail" type="text" maxlength="500" data-i18n="EnterEMail" />
+            </div>
+        </div>
+        <label data-i18n="Message"></label>
+        <div>
+            <textarea id="SendMessage" data-i18n="MessagePlaceholder"></textarea>
+        </div>
+        <label id="MessageType" data-i18n="MessageType"></label>
+        <div class="grid quad">
+            <div class="card option" data-type="bug">
+                <div class="icon icon-bug"></div>
+                <div class="contents" data-i18n="Bug"></div>
+                <div class="checkbox icon-check"></div>
+            </div>
+            <div class="card option" data-type="feature">
+                <div class="icon icon-bulb"></div>
+                <div class="contents" data-i18n="FeatureRequest"></div>
+                <div class="checkbox icon-check"></div>
+            </div>
+            <div class="card option" data-type="love">
+                <div class="icon icon-hearts"></div>
+                <div class="contents" data-i18n="LoveLetter"></div>
+                <div class="checkbox icon-check"></div>
+            </div>
+            <div class="card option" data-type="message">
+                <div class="icon icon-question-sign"></div>
+                <div class="contents" data-i18n="Message"></div>
+                <div class="checkbox icon-check"></div>
+            </div>
+        </div>
+        <div class="loved"></div>
+        <div class="buttons">
+            <div class="linkButton closer" data-i18n="Oops"></div>
+            <div id="SendMessageButton" class="button" data-i18n="Send"></div>
+        </div>
+    </div>
+</div>
+<div id="NotificationsMenu">
+    <div id="NotificationMenuClose" class="close icon-close"></div>
+    <div class="row">
+        <div class="header title" data-i18n="RecentNotifications"></div>
+        <div id="ClearNotificationsButton" class="subLink" data-i18n="ClearNotifications"></div>
+    </div>
+    <div class="hr"></div>
+    <div id="NotificationsList"></div>
+</div>
+<div id="NotificationTemplate" class="growler row template">
+    <div class="title" >{{'{{level}}'}}</div>
+    <div class="subtitle">{{'{{subtitle}}'}}</div>
+    <div class="time">{{'{{time}}'}}</div>
+    <div class="content">{{'{{message}}'}}</div>
+    <div class="icon" style="background-image: url(/assets/images/{{'{{type}}'}}.png)"></div>
+</div>
+<div id="AddAnyModal" class="modal box" style="height: fit-content; width: 600px; transition: var(--transition);">
+    <div class="close icon-close"></div>
+    <div id="Select1">
+        <div class="title" data-i18n="AddTitle"></div>
+        <div id="Selector" class="grid dual">
+            <div id="InlineAddIdentityButton" class="iconButton">
+                <div class="image icon-identity"></div>
+                <div class="label" data-i18n="AddIdentity"></div>
+            </div>
+            <div id="InlineAddServiceButton" class="iconButton">
+                <div class="image icon-services"></div>
+                <div class="label" data-i18n="AddService"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="InlineIdentityArea" style="display: none;" class="anyadd">
+        <div class="title" data-i18n="AddSimpleIdentity"></div>
+        <div id="IdentityLoader" class="center" style="display: none;">
+            <div class="lds-ripple"><div></div><div></div></div>
+        </div>
+        <div id="Identity1" class="anyid">
+            <label for="IdName" data-i18n="Name"></label>
+            <input id="IdName" type="text" maxlength="50" data-i18n="EnterName" />
+            <label for="IdRoles" data-i18n="RoleAttributes"></label>
+            <div id="IdRoles"></div>
+            <div class="buttons">
+                <div></div>
+                <div id="CreateIdButton" class="button" data-i18n="Create"></div>
+            </div>
+        </div>
+        <div id="Identity2" style="display: none;" class="anyid">
+            <div class="center">
+                <div id="IdentityQrCode"></div>
+            </div>
+            <div id="IdentityDownload" class="linkButton" data-i18n="DownloadJWT"></div>
+            <div class="center">
+                <div id="DoneIdButton" class="button" data-i18n="Done"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="InlineServiceArea" style="display: none;" class="anyadd">
+        <div class="title" data-i18n="AddSimpleService"></div>
+        <div id="SServiceLoader" class="center" style="display: none;">
+            <div class="lds-ripple"><div></div><div></div></div>
+        </div>
+        <div id="Service1" class="anyservice">
+            <label for="SServiceName" data-i18n="ServiceName"></label>
+            <input id="SServiceName" type="text" maxlength="50" data-i18n="EnterName" />
+            <label for="WhereHosted" data-i18n="WhereHosted"></label>
+            <div id="WhereHosted"></div>
+            <label for="WhatIsIt" data-i18n="WhatShare"></label>
+            <div class="grid addressFull">
+                <select id="HostedProtocol">
+                    <option value="tcp">tcp</option>
+                    <option value="udp">udp</option>
+                </select>
+                <input id="HostedHost" type="text" maxlength="100" value="localhost" data-i18n="EgHost" />
+                <input id="HostedPort" type="number" maxlength="10" value="80" />
+            </div>
+            <label for="WhoAccesses" data-i18n="WhoAccesses"></label>
+            <div id="WhoAccesses"></div>
+            <div id="IsEncryptionRequired" class="forminfo" style="display: none"></div>
+            <div class="grid checkLabel">
+                <div id="SimpleEncryptionRequired" class="toggle">
+                    <div class="switch"></div>
+                    <div class="label"></div>
+                </div>
+                <div class="toggleLabel" data-i18n="RequireEncryption"></div>
+            </div>
+            <label for="HowTo" data-i18n="HowShare"></label>
+            <div class="grid addressPort">
+                <input id="HowTo" type="text" maxlength="100" data-i18n="EgHost" />
+                <input id="HowToPort" type="number" maxlength="10" value="80" />
+            </div>
+            <div class="buttons">
+                <div>
+                    <div class="linkButton closer" data-i18n="Cancel" style="width: fit-content;"></div>
+                </div>
+                <div id="CreateButton" class="button" data-i18n="Create"></div>
+            </div>
+        </div>
+        <div id="Service2" class="anyservice" style="display: none;">
+            <label for="ServiceHappen" data-i18n="ServiceHappen"></label>
+            <div id="ServiceHappen"></div>
+            <div class="buttons">
+                <div></div>
+                <div id="DoneServiceButton" class="button" data-i18n="Done"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="OperationCommands" class="commands" style="display: none">
+        <div class="title" data-i18n="ExecutionOperations"></div>
+        <div id="ExecutionSteps"></div>
+        <div id="IconDownload" class="icon icon-download"></div>
+        <label data-i18n="CLICommands"></label>
+        <div class="related">
+            <input id="CLICommands" type="text" readonly/>
+            <div class="icon-copy copy" data-copy="CLICommands"></div>
+        </div>
+        <label data-i18n="APICalls"></label>
+        <div class="related">
+            <input id="ApiCall" type="text" readonly />
+            <div class="icon-copy copy" data-copy="ApiCall"></div>
+        </div>
+        <div class="related">
+            <textarea id="ApiJson"></textarea>
+            <div class="icon-copy copy swap" data-copy="ApiJson"></div>
+        </div>
+    </div>
+
+</div>

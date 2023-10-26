@@ -1,0 +1,10 @@
+<div [hidden]="!isEmpty" class="noarea" id="NoArea">
+    <div (click)="iconClick()">
+        <div [ngStyle]="background" class="icon"></div>
+        <div class="title">
+            This network currently has no {{ typeName }} to display.<br/><span [hidden]="!hasAdd"
+        >Tap on the <span class="addExample"></span> to add one.</span
+        >
+        </div>
+    </div>
+</div>

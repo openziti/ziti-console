@@ -1,0 +1,115 @@
+    <!-- General Page Layout HTML -->  
+    <div class="header">
+        <div class="title">Manage <span data-bind="pageTitle"></span></div>
+        <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
+        <div class="line"></div>
+        <div class="tabs">
+            <div class="tab" data-go="/configs">Configurations</div>
+            <div class="tab selected">Config Types</div>
+        </div>
+    </div>
+    <div class="action icon-plus" data-action="add"></div>
+    <div class="filters">
+        <input id="SearchFilter" data-defined="search" type="text" class="search" placeholder="Type to Filter" />
+        <div class="clear icon-clear" data-defined="clear"></div>
+        <div class="searchButton icon-search"></div>
+        <div class="counters"><span id="Start">-</span>-<span id="End">-</span> of <span id="Total">-</span></div>
+        <div class="navigate prev icon-prev disabled"></div>
+        <div class="navigate next icon-next disabled"></div>
+    </div>
+    <div class="area data" data-defined="table">
+        <div class="noitems"></div>
+        <div class="table">
+            <div class="head grid four">
+                <div class="col">
+                    <div class="selector all"></div>
+                </div>
+                <div class="col sort asc" data-by="name">Name<div class="dragger"></div></div>
+                <div class="col desktop sort" data-by="createdAt">Created</div>
+                <div class="col"></div>
+            </div>
+            <div class="rows" data-defined="rows">
+                <!-- This area will be replaced by data rows -->
+            </div>
+        </div>
+    </div>
+    <div class="nodata" data-defined="empty">No <span data-bind="pageTitle"></span> Defined, Click the plus to add A <span data-bind="singular"></span>.</div>
+
+
+
+    <!-- Template HTML will be used to display rows of data -->
+    <div id="RowTemplate" class="row grid four template" data-defined="template">
+        <div class="col">
+            <div class="selector" data-id="{{id}}"></div>
+        </div>
+        <div class="col" data-id="{{id}}"><a href="javascript:page.edit('{{id}}');">{{name}}</a></div>
+        <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
+        <div class="col allowOver">
+            <div class="dots" data-id="{{id}}">...
+                <div class="gridMenu" data-id="{{id}}">
+                    <div class="gridAction" data-id="{{id}}" data-action="edit">Edit</div>
+                    <div class="gridAction" data-id="{{id}}" data-action="delete">Delete</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	<!-- Modification Modals -->
+    <div id="AddModal" class="modal box full">
+        <div class="sized">
+            <div class="close icon-close"></div>
+            <div class="title adding">Create <span data-bind="singular"></span></div>
+            <div class="subtitle adding">Add a New <span data-bind="singular"></span> by completing the following form</div>
+            <div class="title editing">Edit <span data-bind="singular"></span></div>
+            <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
+            <label for="Name">Name</label>
+            <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" data-restrict="empty" />
+            <label for="Schema">Schema</label>
+            <textarea id="Schema"></textarea>
+            <div>
+            <div id="TagArea"></div>
+            <div class="buttons">
+                <div class="linkButton closer">Oops, No get me out of here</div>
+                <div id="SaveButton" class="button" data-defined="save">Save</div>
+            </div>
+        </div>
+	</div>
+    
+    
+    <script language="javascript" type="text/javascript">
+        page = {
+            binding: {
+                pageTitle: "Well Known Systems",
+                singular: "Well Known System"
+            },
+            init: function() {
+            }, 
+            gridAction: function(e) {
+                var action = $(e.currentTarget).data("action");
+                var id = $(e.currentTarget).data("id");
+                if (action=="delete") page.filterObject.delete([id]);
+                else if (action=="edit") page.edit(id);
+            },
+            edit: function(id) {
+                // var detail = page.filterObject.details(id);
+
+                modal.show("AddModal");
+            },
+            save: function() {
+                if (page.validate()) {
+                    var obj = {
+                        name: $("#Name").val()
+                    };
+                } else growler.form();
+            },
+            validate: function() {
+                $(".errors").removeClass("errors");
+                if ($("#Name").val().trim().length==0) $("#Name").addClass("errors");
+                return $(".errors").length==0;
+            },
+            reset: function() {
+                app.isDirty = false;
+                //page.schema.setValue("");
+            }
+        }
+    </script>

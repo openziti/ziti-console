@@ -1,0 +1,270 @@
+/* Growler Alert Styling */
+
+#Growler {
+  position: fixed;
+  right: 20px;
+  bottom: -100px;
+  min-width: 300px;
+  z-index: 9999999;
+  max-width: 500px;
+}
+
+#NotificationsMenu .growler {
+  position: relative;
+  width: 100%;
+  margin-bottom: 20px;
+  opacity: 1;
+}
+
+.growler {
+  background-color: var(--navigation);
+  min-height: 105px;
+  min-width: 334px;
+  font-size: 16px;
+  color: #000;
+  text-align: left;
+  border-radius: 6px;
+  -webkit-box-shadow: 0 12px 23px 0 rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 12px 23px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 23px 0 rgba(0, 0, 0, 0.1);
+  -webkit-transition: 0.5s;
+  -moz-transition: 0.5s;
+  -ms-transition: 0.5s;
+  -o-transition: 0.5s;
+  transition: 0.5s;
+  opacity: 0;
+}
+
+#Growler.open {
+  bottom: 20px;
+}
+
+.growler.open {
+  opacity: 1;
+}
+
+.growler .time {
+  font-size: 13px;
+  color: #fff;
+  position: absolute;
+  top: 7px;
+  right: 10px;
+  font-weight: 600;
+  font-family: 'Open Sans', serif;
+}
+
+.growler.error .title {
+  background-color: #ff104b;
+}
+
+.growler.success .title {
+  background-color: #03db5c;
+}
+
+.growler.warning .title {
+  background-color: #ffc103;
+}
+
+.growler.info .title {
+  background-color: #0971ff;
+}
+
+.growler.bug .title {
+  background-color: #ff104b;
+}
+
+.growler .title {
+  padding-left: 10px;
+  padding-right: 10px;
+  font-size: 14px;
+  color: #fff;
+  line-height: 30px;
+  text-transform: uppercase;
+  background-color: #03db5c;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  font-weight: 600;
+  font-family: 'Open Sans', serif;
+}
+
+.growler .subtitle {
+  padding-top: 10px;
+  font-size: 15px;
+  font-weight: bold;
+  padding-left: 75px;
+  padding-right: 10px;
+}
+
+.growler .content {
+  font-size: 13px;
+  padding-left: 75px;
+  padding-right: 10px;
+  margin-top: 2px;
+  line-height: 14px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-weight: 400;
+  font-family: 'Open Sans', serif;
+  color: var(--tableText);
+  padding-bottom: 10px;
+}
+
+.growler .icon {
+  width: 55px;
+  height: 55px;
+  background-position: center center;
+  background-size: 80%;
+  position: absolute;
+  left: 10px;
+  top: 40px;
+}
+
+.growler.error .icon {
+  background-image: url(/assets/svgs/Growl_Error.svg);
+}
+
+.growler.success .icon {
+  background-image: url(/assets/svgs/Growl_Success.svg);
+}
+
+.growler.info .icon {
+  background-image: url(/assets/svgs/Growl_Info.svg);
+}
+
+.growler.warning .icon {
+  background-image: url(/assets/svgs/Growl_Warning.svg);
+}
+
+.growler.bug .icon {
+  background-image: url(/assets/svgs/Growl_Bug.svg);
+}
+
+#NotificationsMenu {
+  z-index: 9999;
+  width: 0;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: -80px;
+  background-color: var(--background);
+  border-right: 3px solid var(--inputBorder);
+  transition: 0.3s;
+  opacity: 0;
+  overflow: hidden;
+}
+
+#NotificationsList {
+  overflow-x: visible;
+  overflow-y: auto;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 70px;
+  clear: both;
+
+  padding: 22px;
+  padding-top: 0;
+}
+
+#NotificationsMenu.open {
+  width: 380px;
+  left: 0;
+  opacity: 1;
+}
+
+#NotificationsList.open {
+  width: 380px;
+  left: 0;
+  opacity: 1;
+}
+
+#NotificationsMenu .header.icon {
+  background-image: unset;
+  text-align: center;
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--icon);
+  line-height: 30px;
+  position: relative;
+  float: left;
+  width: 30px;
+  height: 30px;
+  margin: 20px 33px 20px 20px;
+  background-size: 75%;
+  left: 10px;
+  top: 0;
+}
+
+#NotificationsMenu .header.title {
+  font-weight: 300;
+  font-family: 'Russo One', serif;
+  font-size: 24px;
+  line-height: 78px;
+  color: var(--primaryColor);
+  filter: brightness(50%);
+  padding-left: 20px;
+  text-transform: uppercase;
+}
+
+.NoNotificationsText {
+  margin: 0;
+  color: var(--tableText);
+  font-weight: 600;
+  font-family: 'Open Sans', Arial, sans-serif;
+  font-size: 14px;
+}
+
+#NotificationMenuClose {
+  color: var(--icon);
+  font-size: 35px;
+  text-align: center;
+  font-weight: 600;
+  line-height: 40px;
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  right: 16px;
+  top: 17px;
+  cursor: pointer;
+  z-index: 20;
+  transition: 0.3s;
+}
+
+#NotificationMenuClose:hover {
+  filter: brightness(50%);
+  transition: 0.3s;
+}
+
+#NotificationMenuClose:active {
+  filter: none;
+  transform: scale(0.95);
+  transition: 0.3s;
+}
+
+.sev {
+  height: 64px;
+  background-size: 40%;
+  background-position: center center;
+  position: relative;
+  float: left;
+}
+
+.sevError,
+.sevMajor,
+.sevCritical {
+  background-image: url(/assets/svgs/Growl_Error.svg);
+}
+
+.sevWarning,
+.sevMinor {
+  background-image: url(/assets/svgs/Growl_Warning.svg);
+}
+
+.sevInfo {
+  background-image: url(/assets/svgs/Growl_Info.svg);
+}
+
+.sevSuccess {
+  background-image: url(/assets/svgs/Growl_Success.svg);
+}

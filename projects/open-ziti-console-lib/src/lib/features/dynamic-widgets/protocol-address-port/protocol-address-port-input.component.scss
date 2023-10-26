@@ -1,0 +1,10 @@
+
+.grid {
+    display: grid;
+    grid-template-columns: auto;
+    grid-gap: 3px;
+}
+
+.grid.addressFull {
+    grid-template-columns: 75px auto 75px;
+}

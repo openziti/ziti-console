@@ -1,0 +1,238 @@
+    <!-- General Page Layout HTML -->  
+    <div class="header">
+        <div class="title">
+            <span data-i18n="Manage"></span>
+            <span data-i18n="Configurations"></span>
+        </div>
+        <div class="bread">
+            <span data-i18n="ZitiNetwork"></span>
+            <span class="secondary">/</span>
+            <span data-i18n="Manage"></span>
+            <span data-i18n="Configurations"></span>
+        </div>
+        {{html.line}}
+        {{html.tabServices}}
+    </div>
+    {{html.add}}
+    {{html.search}}
+    <div class="area data" data-defined="table">
+        {{html.noitems}}
+        <div class="table">
+            <div class="head grid fives">
+                <div class="col">
+                    <div class="selector all"></div>
+                </div>
+                <div class="col sort asc" data-by="name">
+                    <span data-i18n="Name"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="Type"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop sort" data-by="createdAt">
+                    <span data-i18n="Created"></span>
+                </div>
+                <div class="col"></div>
+            </div>
+            <div class="rows" data-defined="rows">
+                <!-- This area will be replaced by data rows -->
+            </div>
+        </div>
+    </div>
+    <div class="nodata" data-defined="empty">
+        <span data-i18n="No"></span>
+        <span data-i18n="Configuration"></span>
+        <span data-i18n="NoneDefined"></span>
+        <span data-i18n="Configuration"></span>.
+    </div>
+
+    <!-- Template HTML will be used to display rows of data -->
+    <div id="RowTemplate" class="row grid fives template" data-defined="template">
+        <div class="col">
+            <div class="selector" data-id="{{id}}"></div>
+        </div>
+        <div class="col" data-id="{{id}}"><a href="javascript:page.edit('{{id}}');">{{name}}</a></div>
+        <div class="col desktop" data-id="{{id}}">{{configType.name}}</div>
+        <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
+        <div class="col allowOver">
+            <div class="dots" data-id="{{id}}">...
+                <div class="gridMenu" data-id="{{id}}">
+                    <div class="gridAction" data-id="{{id}}" data-action="edit">Edit</div>
+                    <div class="gridAction" data-id="{{id}}" data-action="delete">Delete</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modification Modals -->
+    <div id="AddModal" class="modal box full">
+        <div class="sized">
+            <div class="close icon-close"></div>
+            <div class="title adding">
+                <span data-i18n="Create"></span>
+                <span data-i18n="Configuration"></span>
+                <div class="jsonButton">{ <span data-i18n="JSON"></span> }</div>
+            </div>
+            <div class="subtitle adding">
+                <span data-i18n="AddNew"></span>
+                <span data-i18n="Configuration"></span>
+                <span data-i18n="ByComplete"></span>
+            </div>
+            <div class="title editing">
+                <span data-i18n="Edit"></span>
+                <span data-i18n="Configuration"></span>
+                <div class="jsonButton">{ <span data-i18n="JSON"></span> }</div>
+            </div>
+            <div class="subtitle editing">
+                <span data-i18n="Change"></span>
+                <span data-i18n="Configuration"></span>
+                <span data-i18n="Details"></span>
+            </div>
+            <label for="Name" data-i18n="Name"></label>
+            <input id="Name" data-bind="data.name" type="text" maxlength="500" data-i18n="EnterName" data-restrict="empty" />
+            <label for="Types" data-i18n="Types"></label>
+            <select id="Types" data-bind="data.configTypeId" data-default=""></select>
+            <div id="SchemaList"></div>
+            <div id="JSONViewArea">
+                <label for="JSONView" class="jsonV" data-i18n="JSON"></label> 
+                <textarea id="JSONView" style="height: 75px;"></textarea>
+            </div>
+            <div id="TagArea"></div>
+            {{html.api}}
+            {{html.save}}
+        </div>
+    </div>
+
+    <script language="javascript" type="text/javascript">
+        page = {
+            filterObject: null,
+            editData: null,
+            configTypes: null,
+            apiParams: null,
+            init: function() {
+                this.events();
+
+                page.filterObject = new Data("configs");
+                page.filterObject.init(true, true);
+                page.configTypes = new Data("config-types");
+                page.configTypes.init(true, false, true);   
+                
+                schema.init("SchemaList", "JSONView");
+
+                page.apiParams = CodeMirror.fromTextArea(document.getElementById("ApiParams"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
+            }, 
+            events: function() {
+                context.addListener("config-types", page.typesLoaded);
+                $("#Types").change(page.typechanged);
+                $(".jsonButton").click(function(e) {
+                    if ($(e.currentTarget).hasClass("on")) $(e.currentTarget).removeClass("on");
+                    else $(e.currentTarget).addClass("on");
+                    var type = $("#Types").val();
+                    if (type!='') {
+                        schema.setView($(".jsonButton").hasClass("on"));
+                    }
+                });
+            },
+            row: function(template, data) {
+                template = template.split("{{configType.name}}").join(data.configType.name);
+                return template;
+            },
+            typechanged: function(e) {
+                var type = $("#Types").val();
+                var schemaType = page.configTypes.details(type);
+                var html = '';
+                $("#SchemaList").html(html);
+                if (schemaType) {
+                    service.call("schema", {schema: schemaType.schema}, page.schemaReturned);
+                } else {
+                    $(".jsonV").hide(); 
+                    $("#JSONViewArea").find(".CodeMirror").hide(); 
+                } 
+            },
+            schemaReturned: function(e) {
+                schema.data = e.data;
+                schema.render();
+                schema.val(page.editData);
+                schema.setView($(".jsonButton").hasClass("on"));
+                commands.reset();
+            },
+            typesLoaded: function(e) {
+                var types = context.get(page.configTypes.name);
+                var select = document.getElementById("Types");
+                select.options = [];
+                var option = document.createElement("option");
+                option.value = "";
+                option.text = "Select A Type...";
+                select.add( option );
+                for (var i=0; i<types.length; i++) {
+                    var option = document.createElement("option");
+                    option.value = types[i].id;
+                    option.text = types[i].name;
+                    select.add( option );
+                }
+                page.typechanged();
+            },
+            gridAction: function(e) {
+                var action = $(e.currentTarget).data("action");
+                var id = $(e.currentTarget).data("id");
+                if (action=="delete") page.filterObject.delete([id]);
+                else if (action=="edit") page.edit(id);
+            },
+            edit: function(id) {
+                var detail = page.filterObject.details(id);
+                page.editData = detail.data;
+                $("#Types").attr("disabled",true);
+                page.typechanged();
+                page.params();
+                modal.show("AddModal");
+            },
+            save: function() {
+                if (page.validate()) {
+                    var obj = page.params();
+                    
+                    page.filterObject.save(obj);
+                } else growler.form();
+            },
+            params: function() {
+                try {  
+                    var obj = {
+                        name: $("#Name").val(),
+                        data: schema.val()
+                    };
+                    if (page.filterObject.editId=="") obj.configTypeId = $("#Types").val();
+
+                    var url = settings.versionData.baseUrl+settings.versionData.serviceUrl+"/"+page.filterObject.name;
+                    if (page.filterObject.isEditing()) url += "/"+page.filterObject.editId;
+                    $("#ApiUrl").val(url);  
+                    var stayAt = $("#AddModal").scrollTop();
+                    page.apiParams.setValue(JSON.stringify(obj));
+                    page.apiParams.autoFormatRange({line:0, ch:0}, {line:page.apiParams.lineCount()});
+                    page.apiParams.scrollTo(null, 0);
+                    $("#AddModal").scrollTop(stayAt);
+                    
+                    return obj
+                } catch (e) {
+                    console.log(e);
+                }
+            },
+            validate: function() {
+                $(".errors").removeClass("errors");
+                if ($("#Name").val().trim().length==0) $("#Name").addClass("errors");
+                if ($("#Types").val().trim().length==0) $("#Types").addClass("errors");
+                var type = $("#Types").val();
+                schema.validate();
+                return $(".errors").length==0;
+            },
+            formReset: function(e) {
+                page.params();
+            },
+            reset: function() {
+                app.isDirty = false;
+                $("#Types").attr("disabled",false);
+                $(".jsonButton").removeClass("on");
+                page.editData = {};
+                page.typechanged();
+            }
+        }
+    </script>

@@ -1,0 +1,49 @@
+<div id="OverrideModal" class="overrides-wrapper">
+    <div class="overrides-container sized large">
+        <div class="form-title-container">
+            <div class="form-title-back-button" (click)="close.emit()">
+                <div class="form-title-back-button-image"></div>
+                <div class="form-title-back-button-line"></div>
+            </div>
+            <span class="title">IDENTITY OVERRIDES</span>
+        </div>
+        <div class="subtitle">Manage the Service Config Identity Overrides</div>
+        <div class="darkened overrides" *ngIf="overrides.length > 0">Current Overrides</div>
+        <div id="OverrideList" class="grid splitRemove overrides">
+            <div id="OverrideTemplate" class="row grid threedelete" *ngFor="let override of overrides">
+                <div>{{override.service.name}}</div>
+                <div>{{override.config.name}}</div>
+                <div class="relative">
+                    <div class="remove icon-minus removeAssoc" (click)="removeOverride(override)"></div>
+                </div>
+            </div>
+        </div>
+        <div class="darkened">ADD OVERRIDE CONFIG</div>
+        <div class="grid split">
+            <div>
+                <label for="ServiceList">Service</label>
+                <select id="ServiceList" [(ngModel)]="selectedServiceId">
+                    <option [value]="undefined">Select a service</option>
+                    <option *ngFor="let svc of services" [value]="svc.id">{{svc.name}}</option>
+                </select>
+            </div>
+            <div>
+                <label for="ConfigList">Configuration</label>
+                <select id="ConfigList" [(ngModel)]="selectedConfigId">
+                    <option [value]="undefined">Select a config</option>
+                    <option *ngFor="let cfg of configs" [value]="cfg.id">{{cfg.name}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="buttons">
+            <div
+                id="AssociateButton"
+                class="button confirm"
+                [ngClass]="{disabled: disableAddButton}"
+                (click)="addOverride()"
+            >
+                Add
+            </div>
+        </div>
+    </div>
+</div>

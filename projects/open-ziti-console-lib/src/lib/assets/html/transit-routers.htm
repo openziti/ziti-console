@@ -1,0 +1,173 @@
+    <!-- General Page Layout HTML -->    
+    <div class="header">
+        <div class="title">
+            <span data-i18n="Manage"></span> 
+            <span data-i18n="TransitRouters"></span>
+        </div>
+        <div class="bread">
+            <span data-i18n="ZitiNetwork"></span> 
+            <span class="secondary">/</span> 
+            <span data-i18n="Manage"></span> 
+            <span data-i18n="TransitRouters"></span>
+        </div>
+        {{html.line}}
+        {{html.tabRouters}}
+    </div>
+    {{html.add}}
+    {{html.search}}
+    <div class="area data" data-defined="table">
+        <div class="table">
+            <div class="head grid columns">
+                <div class="col">
+                    <div class="selector all"></div>
+                </div>
+                <div class="col sort asc" data-by="name">
+                    <span data-i18n="Name"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop sort" data-by="isVerified">
+                    <span data-i18n="Verified"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="Online"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop sort">
+                    <span data-i18n="Cost"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop sort" data-by="createdAt">
+                    <span data-i18n="Created"></span>
+                    <div class="dragger"></div>
+                </div>
+            </div>
+            <div class="rows" data-defined="rows">
+                <!-- This area will be replaced by data rows -->
+            </div>
+        </div>
+    </div>
+    <div class="nodata" data-defined="empty">
+        <span data-i18n="No"></span>
+        <span data-i18n="TransitRouters"></span>
+        <span data-i18n="NoneDefined"></span>
+        <span data-i18n="TransitRouter"></span>.
+    </div>
+
+
+    <!-- Template HTML will be used to display rows of data -->
+    <div id="RowTemplate" class="row grid columns template" data-defined="template">
+        <div class="col">
+            <div class="selector" data-id="{{id}}"></div>
+        </div>
+        <div class="col" data-id="{{id}}">
+            <span class="circle {{isOnline}}" title="Online"></span>
+            <span class="circle {{isVerified}}" title="Verified"></span>
+            <a href="javascript:page.edit('{{id}}');">{{name}}</a>
+        </div>
+        <div class="col desktop" data-id="{{id}}">{{isVerified}}</div>
+        <div class="col desktop" data-id="{{id}}">{{isOnline}}</div>
+        <div class="col desktop" data-id="{{id}}">{{cost}}</div>
+        <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
+        <div class="col allowOver">
+            <div class="dots" data-id="{{id}}">...
+                <div class="gridMenu" data-id="{{id}}">
+                    <div class="gridAction" data-id="{{id}}" data-action="edit" data-i18n="Edit"></div>
+                    <div class="gridAction" data-id="{{id}}" data-action="delete" data-i18n="Delete"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+	<!-- Modification Modals -->
+    <div id="AddModal" class="modal box full">
+        <div class="sized">
+            <div class="close icon-close"></div>
+            <div class="title adding">
+                <span data-i18n="Create"></span>
+                <span data-i18n="TransitRouter"></span>
+            </div>
+            <div class="subtitle adding">
+                <span data-i18n="AddNew"></span>
+                <span data-i18n="TransitRouter"></span>
+                <span data-i18n="ByComplete"></span>
+            </div>
+            <div class="title editing">
+                <span data-i18n="Edit"></span>
+                <span data-i18n="TransitRouter"></span>
+            </div>
+            <div class="subtitle editing">
+                <span data-i18n="Change"></span>
+                <span data-i18n="TransitRouter"></span>
+                <span data-i18n="Details"></span>
+            </div>
+
+            <label for="Name" data-i18n="Name"></label>
+            <input id="Name" data-bind="data.name" type="text" maxlength="500" data-i18n="EnterName" data-enter="SaveButton" />
+
+            <label for="Cost" data-i18n="Cost"></label>
+            <input id="Cost" data-bind="data.cost" type="number" data-i18n="EnterCost" data-enter="SaveButton" />
+
+            <div class="grid checkLabel adding">
+                <div id="NoTraversal" class="toggle" aria-label="Turn on to prevent traversal" data-balloon-pos="right" data-balloon-length="large">
+                    <div class="switch"></div>
+                    <div class="label"></div>
+                </div>
+                <div class="toggleLabel" data-i18n="NoTraversal"></div>
+            </div>
+            
+            <div id="TagArea" data-tagarea="router"></div>
+            {{html.customtags}}
+            {{html.save}}
+        </div>
+	</div>
+
+    <style>
+        .grid.columns {
+	        grid-template-columns: 50px auto 100px 100px 100px 15% 50px;
+        }
+    </style>
+    
+    
+    <script language="javascript" type="text/javascript">
+        page = {
+            binding: {
+                pageTitle: "Routers",
+                singular: "Router"
+            },
+            filterObject: null,
+            init: function() {
+                page.filterObject = new Data("transit-routers");
+                page.filterObject.init(true, true);
+            }, 
+            gridAction: function(e) {
+                var action = $(e.currentTarget).data("action");
+                var id = $(e.currentTarget).data("id");
+                if (action=="delete") page.filterObject.delete([id]);
+                else if (action=="edit") page.edit(id);
+            },
+            edit: function(id) {
+                var detail = page.filterObject.details(id);
+                $("#Cost").val(detail.cost);
+                modal.show("AddModal");
+            },
+            save: function() {
+                if (page.validate()) {
+                    var obj = {
+                        name: $("#Name").val(),
+                        cost: Number($("#Cost").val()),
+                        noTraversal: $("#NoTraversal").hasClass("on"),
+                        tags: tags.val()
+                    };
+                    page.filterObject.save(obj);
+                } else growler.form();
+            },
+            validate: function() {
+                $(".errors").removeClass("errors");
+                if ($("#Name").val().trim().length==0) $("#Name").addClass("errors");
+                return $(".errors").length==0;
+            }
+        }
+    </script>

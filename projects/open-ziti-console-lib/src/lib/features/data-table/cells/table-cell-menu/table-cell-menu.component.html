@@ -1,0 +1,11 @@
+<div (clickOutside)="closeActionMenu($event)" class="cell-menu-container">
+  <div
+    (click)="toggleMenu($event)"
+    *ngIf="enableCellMenu"
+    attr.name="RowDots_{{ item.name }}"
+    class="dots"
+    id="RowDots_{{ item.id }}"
+  >
+    ...
+  </div>
+</div>

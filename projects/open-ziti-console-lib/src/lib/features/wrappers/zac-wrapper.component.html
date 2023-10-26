@@ -1,0 +1,132 @@
+<div class="zac-wrapper-container" [innerHTML]="pageHtml | safe" #zacContainer></div>
+<!-- Operational Wizard UI -->
+<div id="WizardModal" class="modal box">
+    <div class="close icon-close"></div>
+    <div class="title" data-i18n="ZitiWizard"></div>
+    <div class="subtitle" data-i18n="WizardService"></div>
+    <div class="wizard area open">
+        <label for="WServiceName" data-i18n="ServiceName"></label>
+        <input id="WServiceName" type="text" maxlength="100" />
+        <label for="WServiceRoles"></label>
+    </div>
+    <div></div>
+</div>
+
+
+<!-- Add Any Modal UI -->
+<div id="AddAnyModal" class="modal box" style="height: fit-content; width: 600px; transition: var(--transition);">
+    <div class="close icon-close"></div>
+    <div id="Select1">
+        <div class="title" data-i18n="AddTitle"></div>
+        <div id="Selector" class="grid dual">
+            <div id="InlineAddIdentityButton" class="iconButton">
+                <div class="image icon-identity"></div>
+                <div class="label" data-i18n="AddIdentity"></div>
+            </div>
+            <div id="InlineAddServiceButton" class="iconButton">
+                <div class="image icon-services"></div>
+                <div class="label" data-i18n="AddService"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="InlineIdentityArea" style="display: none;" class="anyadd">
+        <div class="title" data-i18n="AddSimpleIdentity"></div>
+        <div id="IdentityLoader" class="center" style="display: none;">
+            <div class="lds-ripple"><div></div><div></div></div>
+        </div>
+        <div id="Identity1" class="anyid">
+            <label for="IdName" data-i18n="Name"></label>
+            <input id="IdName" type="text" maxlength="50" data-i18n="EnterName" />
+            <label for="IdRoles" data-i18n="RoleAttributes"></label>
+            <div id="IdRoles"></div>
+            <div class="buttons">
+                <div></div>
+                <div id="CreateIdButton" class="button" data-i18n="Create"></div>
+            </div>
+        </div>
+        <div id="Identity2" style="display: none;" class="anyid">
+            <div class="center">
+                <div id="IdentityQrCode"></div>
+            </div>
+            <div id="IdentityDownload" class="linkButton" data-i18n="DownloadJWT"></div>
+            <div class="center">
+                <div id="DoneIdButton" class="button" data-i18n="Done"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="InlineServiceArea" style="display: none;" class="anyadd">
+        <div class="title" data-i18n="AddSimpleService"></div>
+        <div id="SServiceLoader" class="center" style="display: none;">
+            <div class="lds-ripple"><div></div><div></div></div>
+        </div>
+        <div id="Service1" class="anyservice">
+            <label for="SServiceName" data-i18n="ServiceName"></label>
+            <input id="SServiceName" type="text" maxlength="50" data-i18n="EnterName" />
+            <label for="WhereHosted" data-i18n="WhereHosted"></label>
+            <div id="WhereHosted"></div>
+            <label for="WhatIsIt" data-i18n="WhatShare"></label>
+            <div class="grid addressFull">
+                <select id="HostedProtocol">
+                    <option value="tcp">tcp</option>
+                    <option value="udp">udp</option>
+                </select>
+                <input id="HostedHost" type="text" maxlength="100" value="localhost" data-i18n="EgHost" />
+                <input id="HostedPort" type="number" maxlength="10" value="80" />
+            </div>
+            <label for="WhoAccesses" data-i18n="WhoAccesses"></label>
+            <div id="WhoAccesses"></div>
+            <div id="IsEncryptionRequired" class="forminfo" style="display: none"></div>
+            <div class="grid checkLabel">
+                <div id="SimpleEncryptionRequired" class="toggle">
+                    <div class="switch"></div>
+                    <div class="label"></div>
+                </div>
+                <div class="toggleLabel" data-i18n="RequireEncryption"></div>
+            </div>
+            <label for="HowTo" data-i18n="HowShare"></label>
+            <div class="grid addressPort">
+                <input id="HowTo" type="text" maxlength="100" data-i18n="EgHost" />
+                <input id="HowToPort" type="number" maxlength="10" value="80" />
+            </div>
+            <div class="buttons">
+                <div>
+                    <div class="linkButton closer" data-i18n="Cancel" style="width: fit-content;"></div>
+                </div>
+                <div id="CreateButton" class="button" data-i18n="Create"></div>
+            </div>
+        </div>
+        <div id="Service2" class="anyservice" style="display: none;">
+            <label for="ServiceHappen" data-i18n="ServiceHappen"></label>
+            <div id="ServiceHappen"></div>
+            <div class="buttons">
+                <div></div>
+                <div id="DoneServiceButton" class="button" data-i18n="Done"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="OperationCommands" class="commands" style="display: none">
+        <div class="title" data-i18n="ExecutionOperations"></div>
+        <div id="ExecutionSteps"></div>
+        <div id="IconDownload" class="icon icon-download"></div>
+        <label data-i18n="CLICommands"></label>
+        <div class="related">
+            <input id="CLICommands" type="text" readonly/>
+            <div class="icon-copy copy" data-copy="CLICommands"></div>
+        </div>
+        <label data-i18n="APICalls"></label>
+        <div class="related">
+            <input id="ApiCall" type="text" readonly />
+            <div class="icon-copy copy" data-copy="ApiCall"></div>
+        </div>
+        <div class="related">
+            <textarea id="ApiJson"></textarea>
+            <div class="icon-copy copy swap" data-copy="ApiJson"></div>
+        </div>
+    </div>
+
+</div>
+
+<lib-loading-indicator *ngIf="loading" [isLoading]="loading"></lib-loading-indicator>

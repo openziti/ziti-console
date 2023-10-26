@@ -1,0 +1,131 @@
+		<script language="javascript" type="text/javascript">
+			page = {
+				isSetup: false,
+				init: function() {
+					this.events();
+					settings.init();
+					service.call("version", {}, (e) => {
+						$("#LoginVersion").html("V"+e.zac);
+					});
+					$("main").addClass("login");
+				}, 
+				events: function() {
+					$("#LoginButton").click(page.login);
+					$("#SetControllerButton").click(page.create);
+					$("#BackToLogin").click(page.back);
+					$("#EdgeControllerList").change(page.edgeChanged);
+					context.addListener(user.name,page.loggedIn);
+					context.addListener(settings.name, page.settingsReturned);
+					if ((new URLSearchParams(window.location.search)).has("logout")) {
+						setTimeout(() => {
+							growler.error("Cannot Reach Server", "Your session has expired");
+						}, 500);
+					}
+				},
+				login: function() {
+					context.set("serviceUrl", $("#EdgeControllerList").val());
+					user.login(
+						$("#EdgeControllerList").val(),
+						$("#Username").val().trim(), 
+						$("#Password").val()
+					);
+				},
+				loggedIn: function() {
+					
+				},
+				back: function() {
+					$(".edgecreate").removeClass("open");
+					$(".userlogin").addClass("open");
+					$("#EdgeControllerList").prop('selectedIndex', 0);
+				},
+				create: function() {
+					if (page.validate()) {
+						settings.addContoller($("#EdgeName").val(), $("#EdgeUrl").val());
+						context.set("serviceUrl", $("#EdgeUrl").val());
+					} else growler.form();
+				},
+				validate: function() {
+					$(".errors").removeClass("errors");
+					if ($("#EdgeName").val().trim().length==0) $("#EdgeName").addClass("errors");
+					if ($("#EdgeUrl").val().trim().length==0) $("#EdgeUrl").addClass("errors");
+					return $(".errors").length==0;
+				},
+				edgeChanged: function(e) {
+					var val = $("#EdgeControllerList").val();
+					if (val.length==0) {
+						$("#EdgeName").val("");
+						$("#EdgeUrl").val("");
+						$(".edgecreate").addClass("open");
+						$(".userlogin").removeClass("open");
+					} else {
+						$(".edgecreate").removeClass("open");
+						$(".userlogin").addClass("open");
+					}
+				},
+				settingsReturned: function(e) {
+					$(".open").removeClass("open");
+					$("#EdgeControllerList").html("");
+					if (settings.data.edgeControllers.length>0) {
+						$("#BackToLogin").show();
+						$(".userlogin").addClass("open");
+						var isSelected = false;
+						for (var i=0; i<settings.data.edgeControllers.length; i++) {
+							var controller = settings.data.edgeControllers[i];
+							page.isSetup = true;
+							if (controller.default) {
+								$("#EdgeControllerList").append('<option value="'+controller.url+'" selected>'+controller.name+' ('+controller.url+')</option>');
+								isSelected = true;
+							} else {
+								$("#EdgeControllerList").append('<option value="'+controller.url+'">'+controller.name+' ('+controller.url+')</option>');
+							}
+						}
+						if (settings.data.editable || settings.data.editable==null) {
+							$(".edge").show();
+						} else {
+							$(".edge").hide();
+							$(".defined").html($("#EdgeControllerList").val());
+							$(".defined").show();
+						}
+					} else {
+						$("#BackToLogin").hide();
+						$(".edgecreate").addClass("open");
+					}
+					$("#EdgeControllerList").append('<option value="">Connect to a new Edge Controller</option>');
+					var lastUrl = context.get("serviceUrl");
+					if (lastUrl&&lastUrl.trim().length>0) $("#EdgeControllerList").val(lastUrl);
+				}
+			}
+		</script>
+		<style>
+			.edgecreate, .userlogin {
+				display: none;
+			}
+			.edgecreate.open, .userlogin.open {
+				display: inline-block;
+			}
+		</style>
+		<div id="LoginForm" class="form mini">
+			<div class="title">Ziti Admin Console</div>
+			<div class="subtitle">Welcome, please login to continue</div>
+
+			<label for="EdgeControllerList" class="userlogin">Edge Controller</label>
+			<select id="EdgeControllerList" class="userlogin edge" style="display: none;"></select>
+			<div id="SelectedEdgeController" class="defined" style="display: none;"></div>
+			<label for="EdgeName" class="edgecreate">Edge Controller Name</label>
+			<input id="EdgeName" type="text" max="100" placeholder="enter a name for your controller" data-enter="SetControllerButton" class="edgecreate" />
+			<label for="EdgeUrl" class="edgecreate">Url</label>
+			<input id="EdgeUrl" type="text" max="500" placeholder="e.g. http://10.0.0.1:1280" data-enter="SetControllerButton" class="edgecreate" />
+
+			<label for="Username" class="userlogin">Username</label> 
+			<input id="Username" class="userlogin" type="text" max="500" placeholder="enter your login username" data-enter="LoginButton" autocomplete="on" />
+			<label for="Password" class="userlogin">Password</label>
+			<input id="Password" class="userlogin" type="password" max="500" placeholder="enter the password for your account" data-enter="LoginButton" autocomplete="on" />
+
+			<div class="buttons userlogin">
+				<div id="LoginButton" class="button">Login</div>
+			</div>
+			<div id="CreateArea" class="edgecreate buttons">
+				<div id="BackToLogin" class="linkButton">Back To Login</div>
+				<div id="SetControllerButton" class="button ">Set Controller</div>
+			</div>
+		</div>

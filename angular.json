@@ -1,0 +1,321 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+
+  "projects": {
+    "open-ziti": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "projects/app-open-ziti",
+      "sourceRoot": "projects/app-open-ziti/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/app-open-ziti",
+            "index": "projects/app-open-ziti/src/index.html",
+            "main": "projects/app-open-ziti/src/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "projects/app-open-ziti/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              "projects/app-open-ziti/src/favicon.ico",
+              "projects/app-open-ziti/src/assets",
+              {
+                "glob": "**/*",
+                "input": "./node_modules/open-ziti-console-lib/assets/",
+                "output": "/assets"
+              },
+              {
+                "glob": "**/*",
+                "input": "./node_modules/open-ziti-console-lib/html/",
+                "output": "/assets/pages"
+              }
+            ],
+            "styles": [
+              "projects/open-ziti-console-lib/src/lib/shared-assets/styles/global.scss",
+              "projects/app-open-ziti/src/styles.scss",
+              "node_modules/primeng/resources/themes/saga-blue/theme.css",
+              "node_modules/primeng/resources/primeng.min.css",
+              "node_modules/primeicons/primeicons.css"
+            ],
+            "scripts": [],
+            "preserveSymlinks": true
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "10mb",
+                  "maximumError": "16mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all",
+              "sourceMap": {
+                "scripts": true,
+                "styles": true,
+                "vendor": true
+              }
+            },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": {
+                "scripts": true,
+                "styles": true,
+                "vendor": true
+              },
+              "namedChunks": true
+            },
+            "nodeIntegration": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/app-open-ziti/src/app/environments/environment.ts",
+                  "with": "projects/app-open-ziti/src/app/environments/environment.node.ts"
+                }
+              ],
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "10mb",
+                  "maximumError": "16mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all",
+              "sourceMap": {
+                "scripts": true,
+                "styles": true,
+                "vendor": true
+              }
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "browserTarget": "open-ziti:build:production"
+            },
+            "development": {
+              "browserTarget": "open-ziti:build:development"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "open-ziti:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "tsConfig": "projects/app-open-ziti/tsconfig.spec.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              "projects/app-open-ziti/src/favicon.ico",
+              "projects/app-open-ziti/src/assets"
+            ],
+            "styles": [
+              "projects/app-open-ziti/src/styles.scss"
+            ],
+            "scripts": []
+          }
+        }
+      }
+    },
+    "open-ziti-node": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "projects/app-open-ziti",
+      "sourceRoot": "projects/app-open-ziti/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/app-open-ziti-node",
+            "index": "projects/app-open-ziti/src/index.html",
+            "main": "projects/app-open-ziti/src/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "projects/app-open-ziti/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              "projects/app-open-ziti/src/favicon.ico",
+              "projects/app-open-ziti/src/assets",
+              {
+                "glob": "**/*",
+                "input": "./node_modules/open-ziti-console-lib/assets/",
+                "output": "/assets"
+              },
+              {
+                "glob": "**/*",
+                "input": "./node_modules/open-ziti-console-lib/html/",
+                "output": "/assets/pages"
+              }
+            ],
+            "styles": [
+              "projects/open-ziti-console-lib/src/lib/shared-assets/styles/global.scss",
+              "projects/app-open-ziti/src/styles.scss",
+              "node_modules/primeng/resources/themes/saga-blue/theme.css",
+              "node_modules/primeng/resources/primeng.min.css",
+              "node_modules/primeicons/primeicons.css"
+            ],
+            "scripts": [],
+            "preserveSymlinks": true
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "10mb",
+                  "maximumError": "16mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all",
+              "sourceMap": {
+                "scripts": true,
+                "styles": true,
+                "vendor": true
+              },
+              "fileReplacements": [
+                {
+                  "replace": "projects/app-open-ziti/src/app/environments/environment.ts",
+                  "with": "projects/app-open-ziti/src/app/environments/environment.node.ts"
+                }
+              ]
+            },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": {
+                "scripts": true,
+                "styles": true,
+                "vendor": true
+              },
+              "namedChunks": true,
+              "fileReplacements": [
+                {
+                  "replace": "projects/app-open-ziti/src/app/environments/environment.ts",
+                  "with": "projects/app-open-ziti/src/app/environments/environment.node.ts"
+                }
+              ]
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "browserTarget": "open-ziti:build:production"
+            },
+            "development": {
+              "browserTarget": "open-ziti:build:development"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "open-ziti:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "tsConfig": "projects/app-open-ziti/tsconfig.spec.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              "projects/app-open-ziti/src/favicon.ico",
+              "projects/app-open-ziti/src/assets"
+            ],
+            "styles": [
+              "projects/app-open-ziti/src/styles.scss"
+            ],
+            "scripts": []
+          }
+        }
+      }
+    },
+    "open-ziti-console-lib": {
+      "projectType": "library",
+      "root": "projects/open-ziti-console-lib",
+      "sourceRoot": "projects/open-ziti-console-lib/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/open-ziti-console-lib/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/open-ziti-console-lib/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/open-ziti-console-lib/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "tsConfig": "projects/open-ziti-console-lib/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

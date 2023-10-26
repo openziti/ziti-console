@@ -1,0 +1,47 @@
+.aside {
+  max-width: 380px;
+  position: relative;
+  display:inline-block;
+  height:100vh;
+  background-image: url(/assets/images/Login.jpg);
+  background-size: cover;
+  background-position: center center;
+
+  .title {
+    font-family: "Open Sans", serif;
+    color: var(--white);
+    font-size: 24px;
+    line-height: 38px;
+    padding-left: 30px;
+    padding-right: 30px;
+    z-index: 30;
+    position: relative;
+    clear: both;
+    text-align: center;
+    font-weight: 200;
+    top: calc(50% - 75px);
+    filter: unset;
+    text-transform: uppercase;
+  }
+  .icon {
+    width: 100px;
+    height: 100px;
+    background-image: url(/assets/icons/android-icon-192x192.png);
+    position: absolute;
+    background-size: contain;
+    top: calc(50% - 200px);
+    left: calc( 50% - 50px);
+    z-index: 20;
+    box-sizing: var(--shadow);
+  }
+  .overlay {
+    position: absolute;
+    z-index: 10;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    opacity: 0.78;
+    background: linear-gradient(to right, var(--primary) 0%, var(--secondary) 100%);
+  }
+}

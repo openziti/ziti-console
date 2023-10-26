@@ -1,0 +1,60 @@
+
+.main {
+  display: flex;
+  background-color: var(--navigation);
+
+  .modals {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    z-index: 999999;
+  }
+}
+
+.side {
+  position: relative;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  max-width: 23.75rem;
+  background-color: var(--shaded);
+  box-shadow: inset 0px 4px 16px 0px rgba(0, 0, 0, 0.08);
+}
+
+.page {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  flex-wrap: wrap;
+  flex:auto;
+  position: relative;
+  margin: 0;
+  padding: 1.5rem;
+  transition: var(--transition);
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  font-family: 'zac', serif !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+.global-zac-container {
+  position: absolute;
+  bottom: -5000px;
+}
+
+@media (max-width: 1024px) {
+  .aside {
+    display: none !important;
+  }
+}
+

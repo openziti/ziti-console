@@ -1,0 +1,35 @@
+<div class="ziti-page-container ziti-identities-container">
+    <lib-list-page-header [title]="title"
+                          [tabs]="tabs"
+                          [showAdd]="!itemsSelected"
+                          (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
+
+    <lib-data-table [tableId]="'identities'"
+                    [rowData]="rowData"
+                    [columnDefinitions]="columnDefs"
+                    (actionRequested)="tableAction($event)"
+                    [startCount]="startCount"
+                    [endCount]="endCount"
+                    [totalCount]="totalCount"
+                    [emptyMsg]="'No Identities defined, Click the plus to add an Identity.'"
+                    [filterApplied]="filterApplied"
+                    [menuItems]="svc.menuItems"
+                    [headerActions]="svc.tableHeaderActions"
+    >
+    </lib-data-table>
+</div>
+<lib-side-modal [(open)]="svc.sideModalOpen" [showClose]="false">
+    <lib-identity-form
+        *ngIf="svc.modalType === 'identity' && svc.sideModalOpen"
+        [formData]="svc.selectedIdentity"
+        [identityRoleAttributes]="identityRoleAttributes"
+        (close)="closeModal($event)"
+        (dataChange)="dataChanged($event)"
+    ></lib-identity-form>
+    <lib-overrides
+            *ngIf="svc.modalType === 'overrides' && svc.sideModalOpen"
+            [identity]="svc.selectedIdentity"
+            (close)="closeModal($event)"
+    ></lib-overrides>
+</lib-side-modal>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

@@ -1,0 +1,20 @@
+<div class="grid addressFull">
+    <div>
+        <lib-selector-input *ngIf="showProtocol" [fieldName]="protocolFieldName"
+                      [fieldValue]="protocolValue"
+                      [labelColor]="labelColor"
+                      (fieldValueChange)="protocolChange($event)"></lib-selector-input>
+    </div>
+    <div>
+        <lib-string-input *ngIf="showAddress" [fieldName]="addressFieldName"
+                    [fieldValue]="addressValue"
+                    [labelColor]="labelColor"
+                    (fieldValueChange)="addressChange($event)"></lib-string-input>
+    </div>
+    <div>
+        <lib-number-input *ngIf="showPort" [fieldName]="portFieldName"
+                    [fieldValue]="portValue"
+                    [labelColor]="labelColor"
+                    (fieldValueChange)="portChange($event)"></lib-number-input>
+    </div>
+</div>
