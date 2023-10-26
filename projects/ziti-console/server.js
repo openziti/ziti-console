@@ -208,8 +208,6 @@ if (settings.port && !isNaN(settings.port)) port = settings.port;
 if (settings.portTLS && !isNaN(settings.portTLS)) portTLS = settings.portTLS;
 if (settings.rejectUnauthorized && !isNaN(settings.rejectUnauthorized)) rejectUnauthorized = settings.rejectUnauthorized;
 
-console.log('************ PROCESS PORT: ' + process.env.PORT);
-
 if (process.env.PORT) port = process.env.PORT;
 if (process.env.PORTTLS) portTLS = process.env.PORTTLS;
 
