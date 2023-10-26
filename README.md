@@ -10,7 +10,8 @@ You will also need the following tools installed and available on your command l
 * Node JS v16.3.x+
 
 Optional:
-	* To run via Docker container you can find the docker engine here: https://docs.docker.com/engine/install/
+
+* To run via Docker container you can find the docker engine here: https://docs.docker.com/engine/install/
 
 ## Docker Build
 From project root:
