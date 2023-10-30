@@ -296,7 +296,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
     }
 
     public getIdentitiesRoleAttributes() {
-        return this.zitiService.get('identity-role-attributes', this.DEFAULT_PAGING, []);
+        return this.zitiService.get('identity-role-attributes', {}, []);
     }
 
     getJWT(identity: any) {

@@ -3,12 +3,14 @@ import {HttpClient} from "@angular/common/http";
 import {Subject, Subscription} from "rxjs";
 import {NavigationEnd, Router} from "@angular/router";
 import {Resolver} from "@stoplight/json-ref-resolver";
-import {get, isEmpty, set} from 'lodash';
+import {get, isEmpty, set, unset} from 'lodash';
 import $ from 'jquery';
 import {ZITI_DOMAIN_CONTROLLER, ZitiDomainControllerService} from "../../services/ziti-domain-controller.service";
 import {ZITI_URLS} from "../../open-ziti.constants";
 import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service";
 import {ZacWrapperServiceClass} from "./zac-wrapper-service.class";
+import {GrowlerService} from "../messaging/growler.service";
+import {GrowlerModel} from "../messaging/growler.model";
 
 // @ts-ignore
 const {modal} = window;
@@ -90,8 +92,9 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
         @Inject(SETTINGS_SERVICE) override settingsService: SettingsService,
         override http: HttpClient,
         override router: Router,
+        override growlerService: GrowlerService,
     ) {
-        super(zitiDomainController, URLS, settingsService, http, router);
+        super(zitiDomainController, URLS, settingsService, http, router, growlerService);
         this.getCurrentPage(this.router.url);
         this.initRouteListener();
     }
@@ -612,6 +615,18 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                 break;
         }
         return prom.catch((result) => {
+            if (result?.error?.error?.code === 'UNAUTHORIZED') {
+                unset(this.settingsService.settings, 'session');
+                this.settingsService.set(this.settingsService.settings);
+                this.router.navigate(['/login']);
+                const model = new GrowlerModel(
+                    'error',
+                    'Error',
+                    `Unauthorized`,
+                    `Your current session is invalid. Returning to the login page.`,
+                );
+                this.growlerService.show(model);
+            }
             return result?.error;
         });
     }
