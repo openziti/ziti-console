@@ -1,4 +1,4 @@
-<div class="form-field-container" [ngClass]="{'form-field-row': layout === 'row'}">
+<div class="form-field-container" class="{{class}}" [ngClass]="{'form-field-row': layout === 'row'}">
     <div class="form-field-header" *ngIf="showHeader">
         <div class="form-field-title-container">
             <span class="form-field-title">{{title}}</span>

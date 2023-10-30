@@ -378,6 +378,16 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                     this.zitiUpdated.emit();
                 });
                 break;
+            case 'identity':
+                this.createSimpleIdentity(params).then((result) => {
+                    returnTo(result);
+                });
+                break;
+            case 'service':
+                this.createSimpleService(params).then((result) => {
+                    returnTo(result);
+                });
+                break;
             case 'subSave':
                 this.saveZitiSubData(params, returnTo);
                 break;
@@ -423,6 +433,196 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                 });
                 break;
         }
+    }
+
+    async createSimpleIdentity(params) {
+        params = {
+            name: params.name,
+            roleAttributes: params.roles,
+            enrollment: { ott: true },
+            isAdmin: false,
+            type: "Device"
+        }
+        const controllerDomain = this.settingsService?.settings?.selectedEdgeController || '';
+        const url = `${controllerDomain}/edge/management/v1/identities`;
+        const id = await this.callZitiEdge(url, params, 'POST').then((result) => {
+            return result?.data?.id;
+        });
+        const entityParams = {
+            name: 'identities',
+            type: '',
+            url: './identities/' + id
+        }
+        return this.getZitiEntity(entityParams).then((results: any) => {
+            results.cli = [];
+            results.services = [];
+
+            let cli = "ziti edge create identity device \'"+params.name+"\'";
+            if (params.roleAttributes) cli += " -a \'"+params.roleAttributes.toString()+"\'";
+            results.cli.push(cli);
+
+            let serviceCall = {
+                url: url,
+                params: params
+            };
+            results.services.push(serviceCall);
+            return results;
+        })
+    }
+
+    async createSimpleService(params) {
+        const name = params.name;
+        const protocol = params.protocol;
+        const host = params.host;
+        const port = Number(params.port);
+        const useEncrypt = params.encrypt;
+        const zitiHost = params.zitiHost;
+        const zitiPort = Number(params.zitiPort);
+        const hosted = params.hosted;
+        const access = params.access;
+
+        const rootName = name.trim().replace(/[^a-z0-9 ]/gi, '').split(' ').join('-');
+        const clientName = rootName+"-Client";
+        const serverName = rootName+"-Server";
+        const dialPolicyName = rootName+"-DialPolicy";
+        const bindPolicyName = rootName+"-BindPolicy";
+
+        const serverConfig = {
+            hostname: host,
+            port: port,
+            protocol: protocol
+        };
+        const clientConfig = {
+            hostname: zitiHost,
+            port: zitiPort
+        };
+
+        const paging = {
+            filter: "ziti-tunneler-client.v1",
+            noSearch: false,
+            order: "asc",
+            page: 1,
+            searchOn: "name",
+            sort: "name",
+            total: 50
+        }
+        let configTypeResult = await this.getZitiEntities('config-types', paging);
+        const clientConfigId = configTypeResult.data[0]?.id;
+        paging.filter = 'ziti-tunneler-server.v1';
+        configTypeResult = await this.getZitiEntities('config-types', paging);
+        const serverConfigId = configTypeResult.data[0]?.id;
+
+        const serverData = await this.createConfig(serverConfigId, serverName, serverConfig);
+        const clientData = await this.createConfig(clientConfigId, clientName, clientConfig);
+        const serverId = serverData.id;
+        const clientId = clientData.id;
+
+        const serviceData = await this.createService(name, serverId, clientId, useEncrypt);
+        const serviceId = serviceData.id;
+
+        const bindData = await this.createServicePolicy(bindPolicyName, "@"+serviceId, hosted);
+        const dialData = await this.createServicePolicy(dialPolicyName, "@"+serviceId, access);
+
+        const bindId = bindData.id;
+        const dialId = dialData.id;
+
+        const toReturn = {
+            data: [],
+            cli: [],
+            services: []
+        };
+
+        const logs = [];
+        logs.push({name: serverName, id: serverId, type: "Config"});
+        logs.push({name: clientName, id: clientId, type: "Config"});
+        logs.push({name: name, id: serviceId, type: "Service"});
+        logs.push({name: bindPolicyName, id: bindId, type: "Policy"});
+        logs.push({name: dialPolicyName, id: dialId, type: "Policy"});
+        toReturn.data = logs;
+        toReturn.cli.push(serverData.cli);
+        toReturn.cli.push(clientData.cli);
+        toReturn.cli.push(serviceData.cli);
+        toReturn.cli.push(bindData.cli);
+        toReturn.cli.push(dialData.cli);
+
+        toReturn.services.push(serverData.service);
+        toReturn.services.push(clientData.service);
+        toReturn.services.push(serviceData.service);
+        toReturn.services.push(bindData.service);
+        toReturn.services.push(dialData.service);
+
+        return toReturn;
+    }
+
+    async createService(name, serverId, clientId, encrypt) {
+        const params = {
+            name: name,
+            configs: [serverId, clientId],
+            encryptionRequired: encrypt,
+        };
+        const controllerDomain = this.settingsService?.settings?.selectedEdgeController || '';
+        const url = `${controllerDomain}/edge/management/v1/services`;
+        return this.callZitiEdge(url, params, 'POST').then((result) => {
+            let cli = "ziti edge create service '"+name+"' --configs '"+serverId+","+clientId+"'";
+            let serviceCall = {
+                url: url+"/services",
+                params: params
+            };
+            var item = {
+                id: result?.data?.id || '',
+                cli: cli,
+                service: serviceCall
+            }
+            return item;
+        });
+    }
+
+    async createServicePolicy(name, serviceId, hosted) {
+        const params = {
+            name: name,
+            type: "Bind",
+            semantic: "AnyOf",
+            serviceRoles: [serviceId],
+            identityRoles: hosted,
+        }
+        const controllerDomain = this.settingsService?.settings?.selectedEdgeController || '';
+        const url = `${controllerDomain}/edge/management/v1/service-policies`;
+        return this.callZitiEdge(url, params, 'POST').then((result) => {
+            let cli = "ziti edge create service-policy '"+name+"' Bind --semantic AnyOf --service-roles '"+serviceId+"' --identity-roles '"+hosted.toString()+"'";
+            let serviceCall = {
+                url: url+"/service-policies",
+                params: params
+            };
+            var item = {
+                id: result?.data?.id || '',
+                cli: cli,
+                service: serviceCall
+            }
+            return item;
+        });
+    }
+
+    async createConfig(configId, name, data, index = 0) {
+        const params = {
+            name: name+((index>0)?"-"+index:""),
+            configTypeId: configId,
+            data: data
+        };
+        const controllerDomain = this.settingsService?.settings?.selectedEdgeController || '';
+        const url = `${controllerDomain}/edge/management/v1/configs`;
+        return this.callZitiEdge(url, params, 'POST').then((result) => {
+            const cli = "ziti edge create config '"+params.name+"' '"+configId+"' '"+JSON.stringify(data).split('"').join('\\"')+"'";
+            const serviceCall = {
+                url: url+"/configs",
+                params: params
+            }
+            const item = {
+                id: result?.data?.id || '',
+                cli: cli,
+                service: serviceCall
+            }
+            return item;
+        });
     }
 
     async dereferenceJSONSchema(data: any) {

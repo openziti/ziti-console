@@ -16,6 +16,12 @@
     height: 100%;
     position: relative;
 
+    &.hide-overflow {
+        .form-field-content {
+            overflow: hidden;
+        }
+    }
+
     .form-field-content {
         display: flex;
         flex-direction: column;

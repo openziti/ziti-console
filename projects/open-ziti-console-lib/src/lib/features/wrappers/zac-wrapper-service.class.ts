@@ -41,5 +41,14 @@ export abstract class ZacWrapperServiceClass {
         window['$'](".toggle").off("click");
         window['$']("body").off("keyup");
         window['tags'].tagData = [];
+        window['$']("#SServiceName").off('keyup');
+        window['$']("#SServiceHost").off('keyup');
+        window['$']("#CreateButton").off('click');
+        window['$']("#CreateIdButton").off('click');
+        window['$']("#IdentityDownload").off('click');
+        window['$']("#DoneIdButton").off('click');
+        window['$']("#DoneServiceButton").off('click');
+        window['$']("#InlineAddIdentityButton").off('click');
+        window['$']("#InlineAddServiceButton").off('click');
     }
 }

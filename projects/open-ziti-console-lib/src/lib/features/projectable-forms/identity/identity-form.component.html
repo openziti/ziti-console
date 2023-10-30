@@ -100,10 +100,14 @@
                             [layout]="'row'"
                             class="form-field-advanced is-admin-container"
                     >
-                        <select id="IdentityType" style="padding-right: 0px; margin-right: 10px;">
-                            <option value="Device" selected="" data-i18n="Device">Device</option>
-                            <option value="Service" data-i18n="Service">Service</option>
-                            <option value="User" data-i18n="User">User</option>
+                        <select id="IdentityType"
+                                style="padding-right: 0px; margin-right: 10px;"
+                                [ngClass]="{disabled: isEditing}"
+                                [(ngModel)]="formData.type"
+                        >
+                            <option value="Device">Device</option>
+                            <option value="Service">Service</option>
+                            <option value="User">User</option>
                         </select>
                         <lib-form-field-toggle
                                 [(toggleOn)]="formData.isAdmin"
@@ -161,6 +165,7 @@
                         *ngIf="formData.id"
                         [title]="'Associated Services'"
                         [count]="associatedServices.length"
+                        [class]="'hide-overflow'"
                         [helpText]="'Preview list of all services that this Identity is associated with.'"
                 >
                     <lib-preview-list

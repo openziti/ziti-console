@@ -198,7 +198,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   get apiData() {
     const data: any = {
           name: this.formData?.name || '',
-          type: this.formData?.type?.name || '',
+          type: this.formData?.type?.name || this.formData?.type || '',
           appData: this.formData?.appData || '',
           isAdmin: this.formData?.isAdmin || '',
           roleAttributes: this.formData.roleAttributes || '',

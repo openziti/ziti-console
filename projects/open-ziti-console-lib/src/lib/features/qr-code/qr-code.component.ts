@@ -43,7 +43,7 @@ export class QrCodeComponent implements OnChanges {
   }
 
   getExpirationDate() {
-    return moment(this.expiration).format('M/D/YY h:mm a');
+    return moment(this.expiration).local().format('M/D/YY h:mm a');
   }
 
   ngOnChanges() {

@@ -59,7 +59,7 @@
 <!-- Submit Bug UI -->
 <div id="AddMessageModal" class="modal box full">
     <div class="sized">
-        <div class="close icon-close"></div>
+        <div class="close icon-close" (click)="closeAdd()"></div>
         <div class="title" data-i18n="MessageTitle"></div>
         <div class="subtitle" data-i18n="MessageSubTitle"></div>
         <div class="split unsplit">
@@ -155,7 +155,7 @@
         </div>
         <div id="Identity2" style="display: none;" class="anyid">
             <div class="center">
-                <div id="IdentityQrCode"></div>
+                <div id="IdentityQrCode" #identityqr></div>
             </div>
             <div id="IdentityDownload" class="linkButton" data-i18n="DownloadJWT"></div>
             <div class="center">
@@ -215,7 +215,7 @@
         </div>
     </div>
 
-    <div id="OperationCommands" class="commands" style="display: none">
+    <div id="OperationCommands" class="commands">
         <div class="title" data-i18n="ExecutionOperations"></div>
         <div id="ExecutionSteps"></div>
         <div id="IconDownload" class="icon icon-download"></div>
@@ -230,7 +230,7 @@
             <div class="icon-copy copy" data-copy="ApiCall"></div>
         </div>
         <div class="related">
-            <textarea id="ApiJson"></textarea>
+            <div #apijson><textarea id="ApiJson"></textarea></div>
             <div class="icon-copy copy swap" data-copy="ApiJson"></div>
         </div>
     </div>
