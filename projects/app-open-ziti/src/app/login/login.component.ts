@@ -1,4 +1,5 @@
 import {Inject, Component, OnDestroy, OnInit} from '@angular/core';
+import { Router } from '@angular/router';
 import {SettingsServiceClass, LoginServiceClass, SETTINGS_SERVICE, LOGIN_SERVICE} from "open-ziti-console-lib";
 import {Subscription} from "rxjs";
 
@@ -25,9 +26,16 @@ export class LoginComponent implements OnInit, OnDestroy {
     showEdge = false;
     private subscription = new Subscription();
 
-    constructor(@Inject(LOGIN_SERVICE) private svc: LoginServiceClass, @Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass) { }
+    constructor(
+        @Inject(LOGIN_SERVICE) private svc: LoginServiceClass,
+        @Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
+        private router: Router,
+        ) { }
 
     ngOnInit() {
+        if (this.svc.hasSession()) {
+            this.router.navigate(['/dashboard']);
+        }
         this.subscription.add(
         this.settingsService.settingsChange.subscribe((results: any) => {
             if (results) this.settingsReturned(results);
