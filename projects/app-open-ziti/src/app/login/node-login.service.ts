@@ -116,12 +116,12 @@ export class NodeLoginService extends LoginServiceClass {
 
     clearSession(): Promise<any>  {
         const serverUrl = this.settingsService.settings.protocol + '://' + this.settingsService.settings.host + ':' +this.settingsService.settings.port;
-        const apiUrl = serverUrl + '/login?logout=true';
+        const apiUrl = serverUrl + '/api/logout?logout=true&t=' + new Date().getTime();
         const options = this.getHttpOptions();
-        return this.httpClient.get(apiUrl, options).toPromise().then((resp: any) => {
+        return this.httpClient.post(apiUrl, {}, options).toPromise().then((resp: any) => {
             if(isEmpty(resp?.error)) {
                 defer(() => {
-                    window.location.href = window.location.origin + '/ziti-console/login';
+                    window.location.href = window.location.origin + '/login';
                 });
             } else {
                 this.growlerService.show(

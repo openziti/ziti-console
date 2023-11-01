@@ -42,9 +42,14 @@
   ::ng-deep #ItemTable.ziti-ag-grid .ag-root-wrapper {
     border: none;
 
+    .ag-body-vertical-scroll-viewport {
+      background-color: var(--background);
+    }
+
     .ag-row {
       border: none;
-      background-color: var(--n);
+      background-color: var(--background);
+      color: var(--text);
 
       &.row-invalid {
         background-color: var(--invalid) !important;
@@ -59,7 +64,7 @@
       }
 
       &.ag-row-selected {
-        background-color: var(--navigation);
+        background-color: var(--background);
 
         &.ag-row-hover {
           background-color: rgba(33, 150, 243, 0.1);
@@ -67,7 +72,7 @@
       }
 
       &.ag-row-odd {
-        background-color: var(--shaded);
+        background-color: var(--navigation);
 
         &.ag-row-selected {
           background-color: var(--shaded);
@@ -291,6 +296,7 @@
     .ag-header-cell-text {
       height: 48px;
       cursor: move;
+      color: var(--text);
     }
 
     .ag-icon-menu {
@@ -324,7 +330,7 @@
     .ag-header-viewport {
       box-sizing: border-box;
       border-bottom: 4px solid var(--primary);
-      background-color: var(--navigation);
+      background-color: var(--background);
       padding-left: 4px;
       line-height: 55px;
       position: -webkit-sticky !important;
@@ -768,7 +774,7 @@
     .ag-header-row {
       box-sizing: border-box;
       border-bottom: 4px solid var(--primary);
-      background-color: var(--navigation);
+      background-color: var(--background);
       padding-left: 4px;
       line-height: 55px;
       position: -webkit-sticky !important;
@@ -777,6 +783,7 @@
       z-index: 10;
       transition: all 0.15s linear;
       opacity: 0.97;
+      color: var(--text);
     }
 
     .ag-header-cell-text {
@@ -789,6 +796,7 @@
       height: 55px;
       transition: 0.5s;
       white-space: nowrap;
+      color: var(--text);
     }
 
     .ag-header-cell-resize:after {

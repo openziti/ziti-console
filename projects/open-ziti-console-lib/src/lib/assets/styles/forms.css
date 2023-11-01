@@ -32,7 +32,7 @@ input, select, textarea {
     outline: none;
     box-sizing: border-box;
     font-size: 15px;
-    background-color: var(--navigation) !important;
+    background-color: var(--background) !important;
     color: var(--text);
     -webkit-appearance: none;
 }
@@ -114,7 +114,7 @@ select {
     border-width: 2px;
     border-style: solid;
     border-color: var(--primary);
-    background-color: var(--navigation) !important;
+    background-color: var(--background) !important;
     background-position: center center;
 	background-size: 8px 8px;
 	cursor: pointer;

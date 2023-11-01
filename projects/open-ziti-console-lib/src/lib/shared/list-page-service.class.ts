@@ -76,7 +76,7 @@ export abstract class ListPageServiceClass {
     removeItems(resourceType: string, ids: string[]) {
         const promises = [];
         ids.forEach((id) => {
-            const prom = this.dataService.delete('identities', id);
+            const prom = this.dataService.delete(resourceType, id);
             promises.push(prom);
         });
         return Promise.all(promises);

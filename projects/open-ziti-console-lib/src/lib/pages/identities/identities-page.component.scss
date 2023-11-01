@@ -129,11 +129,11 @@
 
   .hidden-column-item {
     align-items: center;
-    background-color: var(--navigation);
-    border: 2px solid var(--navigation);
+    background-color: var(--background);
+    border: 2px solid var(--background);
     border-radius: 12px;
     cursor: pointer;
-    color: var(--inputBorder);
+    color: var(----stroke);
     font-weight: 600;
     font-family: 'Open Sans', sans-serif;
     display: flex;
@@ -320,7 +320,7 @@
 
 #TimeSearch #TimeSearchList .time {
   width: 40px;
-  background-color: var(--navigation);
+  background-color: var(--background);
   padding-left: 8px;
   padding-right: 8px;
   border-radius: 8px;
@@ -344,7 +344,7 @@
 
 #TimeSearch #TimeSelectButton {
   width: 40px;
-  background-color: var(--navigation);
+  background-color: var(--background);
   padding-left: 8px;
   padding-right: 8px;
   border-radius: 8px;
@@ -484,12 +484,12 @@
 }
 
 ::ng-deep .p-datepicker .p-timepicker {
-  border-top: 1px solid var(--navigation);
+  border-top: 1px solid var(--background);
   padding: 0.5rem;
 }
 
 ::ng-deep .p-togglebutton.p-button {
-  background: var(--navigation);
+  background: var(--background);
   border: 1px solid var(--inputBorder);
   color: var(--tableText);
   transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
@@ -513,13 +513,13 @@
 ::ng-deep .p-togglebutton.p-button.p-highlight {
   background: var(--primaryColor);
   border: 1px solid var(--primaryColor);
-  color: var(--navigation);
+  color: var(--background);
 }
 
 ::ng-deep .p-togglebutton.p-button.p-highlight:hover {
   background: var(--primaryColor);
   border: 1px solid var(--primaryColor);
-  color: var(--navigation);
+  color: var(--background);
 }
 
 app-zac-wrapper {

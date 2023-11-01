@@ -29,6 +29,7 @@ export class DataTableComponent implements OnChanges, OnInit {
   @Input() isLoading: any;
   @Input() set tableId( id: string) {
     this.svc.tableId = id;
+    this.updateEntityTypeLabel()
   }
   @Input() options = {noSelect: false, noMenu: false};
   @Input() validateService: any;
@@ -81,7 +82,7 @@ export class DataTableComponent implements OnChanges, OnInit {
   selectedItem: any = {
     actionList: [],
   };
-
+  entityTypeLabel = ''
   columnFilters:any = {};
 
   // appliedFilters = [];
@@ -614,6 +615,17 @@ export class DataTableComponent implements OnChanges, OnInit {
     }
     this._updateHiddenColumns();
     this.svc.resizeGridColumns();
+  }
+
+  updateEntityTypeLabel() {
+    switch(this.svc.tableId) {
+      case 'identities':
+        this.entityTypeLabel = 'Identities';
+        break;
+      case 'edge-routers':
+        this.entityTypeLabel = 'Edge Routers';
+        break;
+    }
   }
 
   setColumnVisibilityColumn(column, visible) {

@@ -13,7 +13,7 @@ import {
 import {ProjectableForm} from "../projectable-form.class";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 
-import {isEmpty, forEach, delay, unset, keys, cloneDeep, isEqual} from 'lodash';
+import {isEmpty, forEach, delay, unset, keys, forOwn, cloneDeep, isEqual} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
@@ -38,6 +38,8 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   @Input() identityRoleAttributes: any[] = [];
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
   @Output() dataChange: EventEmitter<any> = new EventEmitter<any>();
+
+  override entityType = 'identity';
 
   initData: any = {};
   isEditing = false;
@@ -87,11 +89,13 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     this.getAuthPolicies();
     this.initData = cloneDeep(this.formData);
     this.watchData();
+    this.loadTags();
   }
 
   override ngAfterViewInit() {
     super.ngAfterViewInit();
     this.nameFieldInput.nativeElement.focus();
+    this.resetTags();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -149,6 +153,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
         break;
       case 'toggle-view':
         this.formView = action.data;
+        this.resetTags();
         break;
     }
   }
@@ -174,6 +179,12 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     console.log(event);
     if(!this.validate()) {
       return;
+    }
+    const tagVals = this.getTagValues();
+    if (!isEmpty(tagVals)) {
+      forOwn(tagVals, (value, key) => {
+        this.formData.tags[key] = value;
+      });
     }
     this.isLoading = true;
     this.svc.save(this.formData).then((result) => {

@@ -1,6 +1,6 @@
 import {CanActivateFn, Router} from '@angular/router';
 import {Inject, Injectable, InjectionToken} from "@angular/core";
-import {SettingsService, LoginServiceClass, SETTINGS_SERVICE, LOGIN_SERVICE} from "open-ziti-console-lib";
+import {SettingsService, LoginServiceClass, SETTINGS_SERVICE, ZAC_LOGIN_SERVICE} from "open-ziti-console-lib";
 // @ts-ignore
 const {growler} = window;
 
@@ -9,7 +9,7 @@ export const AUTHENTICATION_GUARD = new InjectionToken<any>('AUTHENTICATION_GUAR
 @Injectable({providedIn: 'root'})
 export class AuthenticationGuard {
   constructor(
-      @Inject(LOGIN_SERVICE) private loginService: LoginServiceClass,
+      @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass,
       @Inject(SETTINGS_SERVICE) private settingsSvc: SettingsService,
       private router: Router
   ) {

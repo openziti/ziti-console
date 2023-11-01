@@ -1,5 +1,5 @@
 import {Component, OnInit, Inject} from '@angular/core';
-import {SettingsServiceClass, LoginServiceClass, SETTINGS_SERVICE, ZITI_DOMAIN_CONTROLLER, LOGIN_SERVICE} from "open-ziti-console-lib";
+import {SettingsServiceClass, LoginServiceClass, SETTINGS_SERVICE, ZITI_DOMAIN_CONTROLLER, ZAC_LOGIN_SERVICE} from "open-ziti-console-lib";
 import { SimpleZitiDomainControllerService} from './services/simple-ziti-domain-controller.service';
 import { Router } from '@angular/router';
 
@@ -16,15 +16,17 @@ export class AppComponent implements OnInit {
     displayTool = true;
     showModal = false;
     loading = true;
+    darkmodeEnabled = false;
 
     constructor(
         @Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
         @Inject(ZITI_DOMAIN_CONTROLLER) private zitiControllerService: SimpleZitiDomainControllerService,
-        @Inject(LOGIN_SERVICE) private loginService: LoginServiceClass,
+        @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass,
         private router: Router
     ) {}
 
     ngOnInit() {
+        this.handleUserSettings();
         this.loading = true;
         this.settingsService.settingsChange.subscribe((results:any) => {
             this.version = results.version;
@@ -44,5 +46,17 @@ export class AppComponent implements OnInit {
             this.router.navigate(['/login']);
             return Promise.resolve();
         }
+    }
+ 
+    handleUserSettings() {
+        if (localStorage.getItem("mode")!=null&&localStorage.getItem("mode")=="dark") {
+            this.darkmodeEnabled = true;
+          }
+          if (localStorage.getItem("primaryColor")!=null) {
+            document.documentElement.style.setProperty("--primary", localStorage.getItem("primaryColor"));
+          }
+          if (localStorage.getItem("secondaryColor")!=null) {
+            document.documentElement.style.setProperty("--secondary", localStorage.getItem("secondaryColor"));
+          }
     }
 }

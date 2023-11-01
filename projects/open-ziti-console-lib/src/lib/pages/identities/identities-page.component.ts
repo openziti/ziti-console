@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, OnInit, OnDestroy} from '@angular/core';
 import {IdentitiesPageService} from "./identities-page.service";
 import {DataTableFilterService} from "../../features/data-table/data-table-filter.service";
 import {ListPageComponent} from "../../shared/list-page-component.class";
@@ -21,7 +21,7 @@ import {ResetEnrollmentComponent} from "../../features/reset-enrollment/reset-en
   templateUrl: './identities-page.component.html',
   styleUrls: ['./identities-page.component.scss']
 })
-export class IdentitiesPageComponent extends ListPageComponent implements OnInit {
+export class IdentitiesPageComponent extends ListPageComponent implements OnInit, OnDestroy {
 
   title = 'Identity Management'
   tabs: { url: string, label: string }[] ;
@@ -44,9 +44,11 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   override ngOnInit() {
     this.tabs = this.tabNames.getTabs('identities');
     this.svc.refreshData = this.refreshData;
-    this.zacWrapperService.zitiUpdated.subscribe(() => {
-      this.refreshData();
-    });
+    this.subscription.add(
+      this.zacWrapperService.zitiUpdated.subscribe(() => {
+        this.refreshData();
+      })
+    );
     this.zacWrapperService.resetZacEvents();
     this.getIdentityRoleAttributes();
     super.ngOnInit();
@@ -182,6 +184,10 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
         this.refreshData();
       }
     })
+  }
+
+  override ngOnDestroy() {
+    super.ngOnDestroy();
   }
 
   canDeactivate() {

@@ -3,7 +3,7 @@ import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest}
 import {map} from 'rxjs/operators';
 
 import {BehaviorSubject, filter, finalize, Observable, of, switchMap, take} from 'rxjs';
-import {SettingsServiceClass, LoginServiceClass, SETTINGS_SERVICE, LOGIN_SERVICE} from "open-ziti-console-lib";
+import {SettingsServiceClass, LoginServiceClass, SETTINGS_SERVICE, ZAC_LOGIN_SERVICE} from "open-ziti-console-lib";
 import moment from "moment/moment";
 import {Router} from "@angular/router";
 
@@ -16,7 +16,7 @@ export class ZitiApiInterceptor implements HttpInterceptor {
     private refreshTokenSubject = new BehaviorSubject(null);
 
     constructor(@Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
-                @Inject(LOGIN_SERVICE) private loginService: LoginServiceClass,
+                @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass,
                 private router: Router) {
 
     }

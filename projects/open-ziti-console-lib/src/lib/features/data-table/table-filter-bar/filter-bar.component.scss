@@ -95,8 +95,8 @@
 
   .filtered-column-item {
     align-items: center;
-    background-color: var(--navigation);
-    border: 2px solid var(--navigation);
+    background-color: var(--background);
+    border: 2px solid var(--background);
     border-radius: 12px;
     cursor: pointer;
     color: var(--inputBorder);
@@ -114,7 +114,7 @@
     transform: translateY(0);
 
     .ag-dnd-ghost-label {
-      color: var(--tableText);
+      color: var(--text);
     }
   }
 
@@ -154,6 +154,7 @@
 
   .ag-dnd-ghost-label {
     line-height: initial;
+    color: var(--text);
   }
 
   .p-button .p-togglebutton .p-component {

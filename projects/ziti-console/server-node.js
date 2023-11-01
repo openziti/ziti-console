@@ -302,6 +302,14 @@ if (settings.mail && settings.mail.host && settings.mail.host.trim().length>0) {
 	transporter = nodemailer.createTransport(settings.mail);
 }
 
+app.post("/api/logout", function(request, response) {
+	request.session.user = null;
+	response.send({
+		success: true,
+		message: 'Logout Successful'
+	});
+});
+
 /**
  * Setup static pages from configuration files defined in /data/site.json
 

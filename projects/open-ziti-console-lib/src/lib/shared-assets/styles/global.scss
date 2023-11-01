@@ -11,6 +11,10 @@
   }
 }
 
+.cell-name-renderer strong {
+  color: var(--menu);
+}
+
 .mat-mdc-dialog-surface {
   &.mdc-dialog__surface {
     box-shadow: none !important;
@@ -216,7 +220,7 @@ lib-form-field-container {
   justify-content: flex-end;
   align-items: center;
   height: 40px;
-  background-image: linear-gradient(to right,var(--navigationTransparent0) 0 20%,var(--navigationTransparent1) 20% 100%);
+  background-image: linear-gradient(to right,var(--backgroundTransparent0) 0 20%,var(--backgroundTransparent1) 20% 100%);
 
   &:hover {
     filter: brightness(1.2);
@@ -235,7 +239,7 @@ lib-form-field-container {
   justify-content: space-between;
   width: 100%;
   background-color: var(--primaryColor);
-  color: var(--navigation);
+  color: var(--background);
   text-transform: uppercase;
   font-size: 14px;
   font-weight: 600;

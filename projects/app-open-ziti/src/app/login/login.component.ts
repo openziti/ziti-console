@@ -1,6 +1,6 @@
 import {Inject, Component, OnDestroy, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
-import {SettingsServiceClass, LoginServiceClass, SETTINGS_SERVICE, LOGIN_SERVICE} from "open-ziti-console-lib";
+import {SettingsServiceClass, LoginServiceClass, SETTINGS_SERVICE, ZAC_LOGIN_SERVICE} from "open-ziti-console-lib";
 import {Subscription} from "rxjs";
 
 // @ts-ignore
@@ -27,7 +27,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private subscription = new Subscription();
 
     constructor(
-        @Inject(LOGIN_SERVICE) private svc: LoginServiceClass,
+        @Inject(ZAC_LOGIN_SERVICE) private svc: LoginServiceClass,
         @Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
         private router: Router,
         ) { }

@@ -11,6 +11,7 @@ export * from './lib/features/wrappers/node-wrapper.service';
 export * from './lib/pages/identities/identities-page.component';
 export * from './lib/pages/identities/identities-page.service';
 export * from './lib/services/login-service.class';
+export * from './lib/services/noop-login.service';
 export * from './lib/services/settings-service.class';
 export * from './lib/services/settings.service';
 export * from './lib/services/tab-name.service';

@@ -55,7 +55,7 @@
                     </select>
                     <input class="form-field-input" placeholder="Optional External ID" [(ngModel)]="formData.externalId"/>
                 </lib-form-field-container>
-                <lib-form-field-toggle [(toggleOn)]="showMore" style="margin: 0px 10px"></lib-form-field-toggle>
+                <lib-form-field-toggle [(toggleOn)]="showMore" (toggleOnChange)="showMoreChanged($event)" style="margin: 0px 10px"></lib-form-field-toggle>
                 <div *ngIf="showMore" class="form-group-column">
                     <lib-form-field-container
                         [title]="'Enrollment Type'"
@@ -134,10 +134,18 @@
                             <option value="failed">Failed</option>
                         </select>
                     </lib-form-field-container>
+                    <lib-form-field-container *ngFor="let tagElement of tagElements"
+                            [title]="tagElement.label"
+                            [label]="'OPTIONAL'"
+                            class="form-field-advanced"
+                    >
+                        <div [innerHTML]="tagElement.content | safe"></div>
+                    </lib-form-field-container>
                     <lib-form-field-container
                             [title]="'Custom Tags'"
                             [label]="'OPTIONAL'"
                             class="form-field-advanced"
+                            *ngIf="!hideTags"
                     >
                         <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
                     </lib-form-field-container>

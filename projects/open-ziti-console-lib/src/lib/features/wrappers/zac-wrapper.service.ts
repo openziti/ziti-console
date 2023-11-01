@@ -432,6 +432,9 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                     returnTo(result);
                 });
                 break;
+            case 'tags':
+                // For no this is a no-op. Not relevant to cloud ziti
+                break;
         }
     }
 

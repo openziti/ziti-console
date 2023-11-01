@@ -1,6 +1,7 @@
 import {DataTableFilterService} from "../features/data-table/data-table-filter.service";
 import {ListPageServiceClass} from "./list-page-service.class";
 import {Injectable} from "@angular/core";
+import {Subscription} from "rxjs";
 
 @Injectable()
 export abstract class ListPageComponent {
@@ -21,6 +22,8 @@ export abstract class ListPageComponent {
 
     modalOpen = false;
 
+    subscription: Subscription = new Subscription();
+
     constructor(
         protected filterService: DataTableFilterService,
         public svc: ListPageServiceClass
@@ -30,10 +33,16 @@ export abstract class ListPageComponent {
         this.svc.refreshData = this.refreshData.bind(this);
         this.columnDefs = this.svc.initTableColumns();
         this.filterService.clearFilters();
-        this.filterService.filtersChanged.subscribe(filters => {
-            this.filterApplied = filters && filters.length > 0;
-            this.refreshData();
-        });
+        this.subscription.add(
+            this.filterService.filtersChanged.subscribe(filters => {
+                this.filterApplied = filters && filters.length > 0;
+                this.refreshData();
+            })
+        );
+    }
+
+    ngOnDestroy() {
+        this.subscription.unsubscribe();
     }
 
     itemToggled(item: any): void {

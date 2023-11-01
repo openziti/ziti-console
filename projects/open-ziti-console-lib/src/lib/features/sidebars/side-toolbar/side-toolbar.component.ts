@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { ZacWrapperServiceClass } from '../../wrappers/zac-wrapper-service.class';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {ZAC_WRAPPER_SERVICE} from "../../wrappers/zac-wrapper-service.class";
-import { LOGIN_SERVICE, LoginServiceClass } from '../../../services/login-service.class';
+import { ZAC_LOGIN_SERVICE, LoginServiceClass } from '../../../services/login-service.class';
 
 import {defer} from "lodash";
 
@@ -29,7 +29,7 @@ export class SideToolbarComponent {
       @Inject(SETTINGS_SERVICE) private settingsService: SettingsService,
       private router: Router,
       @Inject(ZAC_WRAPPER_SERVICE) private zacService: ZacWrapperServiceClass,
-      @Inject(LOGIN_SERVICE) private loginService: LoginServiceClass
+      @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass
   ) {}
 
   ngOnInit() {

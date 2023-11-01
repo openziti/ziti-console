@@ -17,7 +17,7 @@ import {isEmpty} from "lodash";
         `
             .os-tooltip {
                 padding: 5px;
-                background-color: var(--navigation);
+                background-color: var(--background);
                 border-color: var(--primary);
                 border-size: 1px;
                 border-style: solid;

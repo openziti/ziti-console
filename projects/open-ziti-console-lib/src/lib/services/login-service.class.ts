@@ -6,7 +6,7 @@ import { SETTINGS_SERVICE } from "./settings.service";
 import { SettingsServiceClass } from "./settings-service.class";
 import {GrowlerService} from "../features/messaging/growler.service";
 
-export const LOGIN_SERVICE = new InjectionToken<any>('LOGIN_SERVICE');
+export const ZAC_LOGIN_SERVICE = new InjectionToken<any>('ZAC_LOGIN_SERVICE');
 
 
 export abstract class LoginServiceClass {

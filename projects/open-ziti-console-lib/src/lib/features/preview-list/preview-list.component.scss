@@ -13,7 +13,7 @@
 }
 
 .listBox {
-    background-color: var(--inputBorder);
+    background-color: var(--stroke);
     padding: 10px;
     border-radius: 7px;
     height: 100%;
@@ -51,7 +51,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: var(--navigation) !important;
+    background-color: var(--background) !important;
 }
 
 .clickable {

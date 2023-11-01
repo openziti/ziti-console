@@ -28,7 +28,7 @@ import {
     ZITI_TAB_OVERRIDES,
     ZITI_URLS,
     DEACTIVATE_GUARD,
-    LOGIN_SERVICE
+    ZAC_LOGIN_SERVICE
 } from "open-ziti-console-lib";
 
 import {AppRoutingModule} from "./app-routing.module";
@@ -90,7 +90,7 @@ if (environment.nodeIntegration) {
         {provide: HTTP_INTERCEPTORS, useClass: LoggingInterceptor, multi: true},
         {provide: DEACTIVATE_GUARD, useClass: DeactivateGuardService},
         {provide: ZITI_DATA_SERVICE, useClass: zitiDataService},
-        {provide: LOGIN_SERVICE, useClass: loginService},
+        {provide: ZAC_LOGIN_SERVICE, useClass: loginService},
         {provide: SETTINGS_SERVICE, useClass: settingsService},
     ],
     bootstrap: [AppComponent]
