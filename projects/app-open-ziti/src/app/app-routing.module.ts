@@ -6,8 +6,7 @@ import {
   ConfigurationsPageComponent,
   ZacWrapperComponent,
   IdentitiesPageComponent,
-  DeactivateGuardService,
-  EdgeRoutersPageComponent
+  DeactivateGuardService
 } from "open-ziti-console-lib";
 import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
@@ -56,7 +55,7 @@ const routes: Routes = [
   },
   {
     path: 'routers',
-    component: EdgeRoutersPageComponent,
+    component: ZacWrapperComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
   },
   {
