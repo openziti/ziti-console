@@ -43,8 +43,8 @@ sudo docker run -d --name zac -p 1408:1408 openziti/zac node-api
 ```
 
 ### Running The Angular ZAC application with edge API integration
-* If your Edge Controller does use a trusted SSL/TLS certificate, you can access it form the console with the Edge API integration
-* To do this via **docker** run with the container with the `edge-api` argument:
+* If your Edge Controller does use a trusted SSL/TLS certificate, you can access it from the console with the Edge API integration
+* To do this via **docker** run the container with the `edge-api` argument:
 ```
 sudo docker run -d --name zac -p 1408:1408 openziti/zac edge-api
 ```
@@ -67,7 +67,7 @@ From the project root:
 
 1) install project dependencies:
 ```
-npm install -npm install --legacy-peer-deps
+npm install --legacy-peer-deps
 ```
 
 2) build core project library
@@ -77,7 +77,7 @@ ng build open-ziti-console-lib
 
 3) build & run the ziti-console app project
 
-	  a) If you plan to connect to an Edge Controller via HTTPS with a trusted TLS/SSL certificate run with the edge integration:
+	  a) If you plan to connect to an Edge Controller via HTTPS with a trusted TLS/SSL certificate use the edge integration by running:
 	  ```
 	  ng build open-ziti
 	  node server.js
@@ -104,10 +104,17 @@ node server.js
 
 ## Developing Angular App
 There are two elements to the Angular app - 
-1) the NPM library referenced in package.json as
+
+From project Root:
+
+1) Install dependencies
+```
+npm install --legacy-peer-deps
+```
+2) the NPM library referenced in package.json as
 "open-ziti-console-lib": "file:dist/open-ziti-console-lib". The NPM library includes vanilla javascript code it shared with ziti-console, and 
 generic Angular code it shares with other apps.
-2) A sample angular application in app-open-ziti.
+3) A sample angular application in app-open-ziti.
 ```
 cd projects/open-ziti-console-lib
 ng build --watch
