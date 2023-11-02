@@ -19,7 +19,7 @@ From project root:
 
 ## Run via Docker
 
-### Running The Legacy ZAC application
+### Running The Classic ZAC application
 1. run: (sudo may/may not be necessary) 
 	```
 	sudo docker run -d --name zac -p 1408:1408 openziti/zac
@@ -86,17 +86,19 @@ ng build open-ziti-console-lib
 	  b) otherwise run with the node integration via:
 	  ```
 	  ng build open-ziti-node
-	  node /projects/ziti-console/server-node.js
+	  node ./projects/ziti-console/server-ng.js
 	  ```
 
 4) Access the app @ http://localhost:1408
 
 
-### Running Legacy App (vanilla html/javascript)
+### Running Classic App (pure html/javascript)
 1)
 ```
 npm install --legacy-peer-deps
-node server.js
+```
+```
+node ./projects/ziti-console/server.js
 ```
 2) Access the app @ http://localhost:1408
 
@@ -111,9 +113,11 @@ From project Root:
 ```
 npm install --legacy-peer-deps
 ```
+
 2) the NPM library referenced in package.json as
-"open-ziti-console-lib": "file:dist/open-ziti-console-lib". The NPM library includes vanilla javascript code it shared with ziti-console, and 
+"open-ziti-console-lib": "file:dist/open-ziti-console-lib". The NPM library includes the pure javascript code it shared with ziti-console, and 
 generic Angular code it shares with other apps.
+
 3) A sample angular application in app-open-ziti.
 ```
 cd projects/open-ziti-console-lib
@@ -125,8 +129,8 @@ ng serve open-ziti --ssl
 This ensures changes made to the NPM library get pulled into the Angular app you are developing
 
 ### Hybrid App
-In the interim, the open-ziti is a hybrid app, in that it runs the old ZAC code and tranisitoned angular components.
-This requires some duplication - for instance in running both the legacy settings and the open-ziti settings.
+In the interim, the ziti-console project is a hybrid app, in that it runs the classic ZAC code (pure HTML/JS) together with tranisitoned angular components.
+This requires some duplication - for instance in running both the classic settings and the open-ziti settings.
 
 
 
