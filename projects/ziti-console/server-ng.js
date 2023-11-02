@@ -25,9 +25,6 @@ const sessionStore = sessionStoreFactory(session);
 const __assets = '/../open-ziti-console-lib/src/lib/assets';
 const __html= '/../open-ziti-console-lib/src/lib/html';
 
-console.log("File Name:  " + __filename);
-console.log("Dir Name:  " + __dirname);
-
 const loadModule = async (modulePath) => {
 	try {
 	  return await import(modulePath)
@@ -183,9 +180,6 @@ app.get('/:resource/:name', function(request, response) {
 /**
  * Load configurable settings, or create the settings in place if they have never been defined
  */
-console.log('LOADING SETTINGS: ');
-console.log(__dirname);
-console.log(__assets);
 var initial = JSON.parse(fs.readFileSync(path.join(__dirname,__assets,"data","settings.json")));
 
 var port = initial.port;
@@ -222,7 +216,6 @@ if (!fs.existsSync(__dirname+settingsPath)) {
 	fs.mkdirSync(__dirname+settingsPath);
 }
 if (!fs.existsSync(__dirname+settingsPath+'tags.json')) {
-  console.log(__dirname+__assets + '/data/tags.json', __dirname+settingsPath+'tags.json');
 	fs.copyFileSync(__dirname+__assets + '/data/tags.json', __dirname+settingsPath+'tags.json');
 }
 if (!fs.existsSync(__dirname+settingsPath+'templates.json')) {
@@ -243,7 +236,6 @@ var pages = JSON.parse(fs.readFileSync(__dirname+__assets + '/data/site.json', '
 var tags = JSON.parse(fs.readFileSync(__dirname+settingsPath+'tags.json', 'utf8'));
 var templates = JSON.parse(fs.readFileSync(__dirname+settingsPath+'templates.json', 'utf8'));
 
-console.log("Loading Settings File From: "+__dirname+settingsPath+'settings.json');
 var settings = JSON.parse(fs.readFileSync(__dirname+settingsPath+'settings.json', 'utf8'));
 
 if (settings.port && !isNaN(settings.port)) port = settings.port;
@@ -253,8 +245,6 @@ if (settings.rejectUnauthorized && !isNaN(settings.rejectUnauthorized)) rejectUn
 
 if (process.env.PORT) port = process.env.PORT;
 if (process.env.PORTTLS) portTLS = process.env.PORTTLS;
-
-console.log('************ PROCESS PORT: ' + process.env.PORT);
 
 for (var i=0; i<process.argv.length; i++) {
 	var options = process.argv[i].split('=');
@@ -982,7 +972,6 @@ app.post("/api/service", async function(request, response) {
 			cli: [],
 			services: []
 		};
-		console.log(clientId+" "+serverId+" "+serverConfigId+" "+clientConfigId+" "+bindId+" "+dialId);
 	
 		var logs = [];
 		logs.push({name: serverName, id: serverId, type: "Config"});
@@ -1109,8 +1098,6 @@ async function GetConfigId(request, response, url, user, type) {
 		//Authenticate(request).then((results) => {
 			if (hasAccess(user)) {
 				DoCall(url+"/config-types?filter=(name = \""+type+"\")&limit=1", {}, request, true).then((results) => {
-					console.log("Config Returned");
-					console.log(JSON.stringify(results));
 					resolve(results.data[0].id);
 				});
 			}
@@ -1266,7 +1253,7 @@ app.post("/api/dataSave", function(request, response) {
 						//console.log("Not Array: "+prop+" "+saveParams.data[prop].length);
 					}
 				}
-				console.log("Session: "+request.session.user);
+
 				external(url, {method: method, json: saveParams, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 					if (err) HandleError(response, err);
 					else {

@@ -68,7 +68,7 @@ if [[ "$1" == "edge-api" ]]; then
   exec node /usr/src/app/server.js
 elif [[ "$1" == "node-api" ]]; then
   echo "Running ZAC server with Node API integration"
-  exec node /usr/src/app/projects/ziti-console/server-node.js
+  exec node /usr/src/app/projects/ziti-console/server-ng.js
 else
   echo "Running legacy ZAC application"
   exec node /usr/src/app/projects/ziti-console/server.js
