@@ -23,22 +23,11 @@ The server will set up an HTTPS redirection service if the hard-coded certificat
 
 ## Docker Build
 
-## Building the Legacy ZAC applicaiton
-1. Set the ZAC_API_SERVER property in the Dockerfile = LEGACY
-
-## Building the Node API ZAC applicaiton
-1. Set the ZAC_API_SERVER property in the Dockerfile = NODE
-
-## Building the Edge API ZAC applicaiton
-1. Set the ZAC_API_SERVER property in the Dockerfile = EDGE
-
-
 1. build the image: `docker build . -t openziti/zac`
 1. push the image: `docker push openziti/zac`
 
 ## Run via Docker
 
-### Running The Legacy ZAC application
 1. run: (sudo may/may not be necessary) `sudo docker run -d --name zac -p 1408:1408 openziti/zac`
 1. optional - add TLS: 
  
@@ -51,4 +40,3 @@ The server will set up an HTTPS redirection service if the hard-coded certificat
             openziti/zac 
 
 ## [Install with Helm in Kubernetes](https://docs.openziti.io/docs/guides/kubernetes/hosting/kubernetes-console)
-

@@ -64,12 +64,12 @@ fi
 fi
 
 if [[ "$1" == "edge-api" ]]; then
-  echo "Running ZAC server with Edge API integration"
-  exec node /usr/src/app/server.js
-elif [[ "$1" == "node-api" ]]; then
   echo "Running ZAC server with Node API integration"
-  exec node /usr/src/app/projects/ziti-console/server-ng.js
+  exec node /usr/src/app/server.js node-api
+elif [[ "$1" == "node-api" ]]; then
+  echo "Running ZAC server with Edge API integration"
+  exec node /usr/src/app/server.js edge-api
 else
-  echo "Running legacy ZAC application"
-  exec node /usr/src/app/projects/ziti-console/server.js
+  echo "Running classic ZAC application"
+  eexec node /usr/src/app/server.js
 fi
