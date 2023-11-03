@@ -1,0 +1,157 @@
+    <!-- General Page Layout HTML -->
+    <div class="header">
+        <div class="title">
+            <span data-i18n="Manage"></span> 
+            <span data-i18n="Sessions"></span>
+        </div>
+        <div class="bread">
+            <span data-i18n="ZitiNetwork"></span> 
+            <span class="secondary">/</span> 
+            <span data-i18n="Manage"></span> 
+            <span data-i18n="Sessions"></span>
+        </div>
+        {{html.line}}
+        {{html.tabSessions}}
+    </div>
+    <div class="filters">
+        <input id="SearchFilter" data-defined="search" type="text" class="search" data-i18n="EnterFilter" />
+        <div class="clear icon-clear" data-defined="clear"></div>
+        <div class="searchButton icon-search"></div>
+        <div class="counters"><span id="Start">-</span>-<span id="End">-</span> <span data-i18n="Of"></span> <span id="Total">-</span></div>
+        <div class="navigate prev icon-prev disabled"></div>
+        <div class="navigate next icon-next disabled"></div>
+    </div>
+    <div class="area data" data-defined="table">
+        <div class="noitems"></div>
+        <div class="table">
+            <div class="head grid columns">
+                <div class="col">
+                    <div class="selector all"></div>
+                </div>
+                <div class="col sort asc" data-by="id">
+                    <span data-i18n="Id"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="EdgeRouters"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="Service"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col sort desktop" data-by="createdAt">
+                    <span data-i18n="Created"></span>
+                </div>
+                <div class="col"></div>
+            </div>
+            <div class="rows" data-defined="rows">
+                <!-- This area will be replaced by data rows -->
+            </div>
+        </div>
+    </div>
+    <div class="nodata" data-defined="empty">
+        <span data-i18n="No"></span> 
+        <span data-i18n="Session"></span> 
+        <span data-i18n="NoneDefined"></span> 
+        <span data-i18n="Session"></span>.
+    </div>
+
+
+
+    <!-- Template HTML will be used to display rows of data -->
+    <div id="RowTemplate" class="row grid columns template" data-defined="template">
+        <div class="col">
+            <div class="selector" data-id="{{id}}"></div>
+        </div>
+        <div class="col" data-id="{{id}}"><strong>{{id}}</strong></div>
+        <div class="col desktop">{{routers}}</div>
+        <div class="col desktop">{{service}}</div>
+        <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
+        <div class="col allowOver">
+            <div class="dots" data-id="{{id}}">...
+                <div class="gridMenu" data-id="{{id}}">
+                    <div class="gridAction" data-id="{{id}}" data-action="edit" data-i18n="View"></div>
+                    <div class="gridAction" data-id="{{id}}" data-action="delete" data-i18n="Delete"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="DetailModal" class="modal box full">
+        <div class="sized">
+            <div class="close icon-close"></div>
+            <div class="title">
+                <span data-i18n="View"></span>
+                <span data-i18n="Session"></span>
+            </div>
+            <div class="subtitle" data-i18n="ViewSessionSubTitle"></div>
+            <label for="Id" data-i18n="Id"></label>
+            <div id="Id" data-bind="data.id"></div>
+            <label for="APIId" data-i18n="APISessionId"></label>
+            <div id="APIId" data-bind="data.apiSessionId"></div>
+            <label for="Service" data-i18n="Service"></label>
+            <div id="Service"></div>
+            <label for="Routers" data-i18n="Routers"></label>
+            <div id="Routers"></div>
+            <label for="ServicePolicies" data-i18n="ServicePolicies"></label>
+            <div id="ServicePolicies"></div>
+            <label for="Created" data-i18n="Created"></label>
+            <div id="Created"></div>
+            <label for="Updated" data-i18n="Updated"></label>
+            <div id="Updated"></div>
+        </div>
+    </div>
+
+    <style>
+        .columns {
+	  	    grid-template-columns: 50px minmax(150px, auto) 25% 300px 200px 40px;
+        }
+    </style>
+
+
+    <script language="javascript" type="text/javascript">
+        page = {
+            filterObject: null,
+            init: function() {
+                this.events();
+                page.filterObject = new Data("sessions");
+                page.filterObject.paging.searchOn = "id";
+                page.filterObject.paging.sort = "id";
+                page.filterObject.init(true, true);
+            }, 
+            events: function() {
+                context.addListener("session", page.detailLoaded);
+            },
+            row: function(template, data) {
+
+                let routers = "";
+
+                for (let i=0; i<data.edgeRouters.length; i++) {
+                    let item = data.edgeRouters[i];
+                    routers += ((i>0)?",":"")+item.name;
+                }
+
+                template = template.split("{{routers}}").join(routers);
+                template = template.split("{{service}}").join(data.service.name);
+                return template;
+            },
+            gridAction: function(e) {
+                var action = $(e.currentTarget).data("action");
+                var id = $(e.currentTarget).data("id");
+                if (action=="delete") page.filterObject.delete([id]);
+                else if (action=="edit") page.edit(id);
+            },
+            edit: function(id) {
+                page.filterObject.getDetails(page.filterObject.details(id), "session");
+            },
+            detailLoaded: function(obj) {
+                $("#Created").html(moment(obj.data.createdAt).format("M/D/YYYY h:mm A"));
+                $("#Updated").html(moment(obj.data.updatedAt).format("M/D/YYYY h:mm A"));
+                $("#Service").html(obj.data.service.name);
+                $("#Routers").html(page.filterObject.applyTemplate(obj.data.edgeRouters, "<strong>{{hostname}}</strong> - {{name}}", locale.get("Dash")));
+                $("#ServicePolicies").html(page.filterObject.applyTemplate(obj.data.servicePolicies, "<strong>{{id}}</strong> - {{name}}", locale.get("Dash")));
+            }
+        }
+    </script>

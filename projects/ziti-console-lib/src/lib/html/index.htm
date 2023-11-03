@@ -1,0 +1,161 @@
+<style>
+    .overlay {
+        left: 0px;
+        top: 0px;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(52deg, var(--primary) 0%,var(--secondary) 80%,var(--secondary) 100%);
+        opacity: 0.2;
+    }
+</style>
+<div class="overlay"></div>
+<div class="header">
+    <div class="title">
+        <span data-i18n="Dashboard"></span> 
+    </div>
+</div>
+<div class="grid dashboard">
+    <div class="grid numbers">
+        <div class="dial"></div>
+        <a href="/identities">
+            <div class="totalPod">
+                <div id="TotalIdentities" class="total"></div>
+                <div class="label" data-i18n="Identities"></div>
+            </div>
+        </a>
+        <a href="/services">
+            <div class="totalPod">
+                <div id="TotalServices" class="total"></div>
+                <div class="label" data-i18n="Services"></div>
+            </div>
+        </a>
+        <a href="/configs" class="desktop">
+            <div class="totalPod">
+                <div id="TotalConfigurations" class="total"></div>
+                <div class="label" data-i18n="Configurations"></div>
+            </div>
+        </a>
+        <a href="/routers" class="desktop">
+            <div class="totalPod">
+                <div id="TotalEdgeRouters" class="total"></div>
+                <div class="label" data-i18n="EdgeRouters"></div>
+            </div>
+        </a>
+        <a href="/sessions" class="desktop">
+            <div class="totalPod">
+                <div id="TotalSessions" class="total"></div>
+                <div class="label" data-i18n="Sessions"></div>
+            </div>
+        </a>
+        <a href="/service-policies" class="desktop">
+            <div class="totalPod">
+                <div id="TotalServicePolicies" class="total"></div>
+                <div class="label" data-i18n="ServicePolicies"></div>
+            </div>
+        </a>
+    </div>
+    <div class="grid split wide">
+        <a href="https://docs.openziti.io/docs/downloads" target="_blank">
+            <div class="iconLink">
+                <div class="downloads"></div>
+                <div class="label" data-i18n="Downloads"></div>
+            </div>
+        </a>
+        <a href="https://docs.openziti.io/" target="_blank">
+            <div class="iconLink">
+                <div class="docs"></div>
+                <div class="label" data-i18n="Docs"></div>
+            </div>
+        </a>
+    </div>
+</div>
+<div id="MainMap"></div>
+
+
+
+    <script language="javascript" type="text/javascript">
+        var tempGroup;
+        page = {
+            map: null,
+            roles: null,
+            services: null,
+            identities: null,
+            lastId: null,
+            binding: {
+                pageTitle: "Dashboard",
+                singular: "Dashboard"
+            },
+            data: [],
+            idsObject: null,
+            init: function() {
+                page.map = L.map("MainMap", {zoomControl: false});
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '&copy; NetFoundry Inc.'}).addTo(page.map);
+                page.map.setView(new L.LatLng(41.850033, -87.6500523), 4);
+
+                page.idsObject = new Data("identities");
+
+                page.services = new Selector("Services","services","services");
+                page.identities = new Selector("Identities","identities","identities");
+
+                page.services.isDropOver = true;
+                page.services.isSingleSelect = true;
+                page.services.isForceAt = true;
+                page.services.init();
+
+                page.identities.isDropOver = true;
+                page.identities.isSingleSelect = true;
+                page.identities.isForceAt = true;
+                page.identities.init();
+
+                page.roles = new Selector("Roles","roles");
+                page.roles.isForceHash = false;
+                page.roles.init();
+
+                page.events();
+
+                page.idsObject.init(true);
+                summary.get();
+            }, 
+            events: function() {
+                context.addListener(page.idsObject.name, page.idsLoaded);
+                context.addListener(summary.name, page.getLoaded);
+            },
+            getLoaded: function(e) {
+                page.data = context.get(summary.name);
+                $("#TotalIdentities").html(page.data.identities);
+                $("#TotalServices").html(page.data.services);
+                $("#TotalConfigurations").html(page.data.configs);
+                $("#TotalEdgeRouters").html(page.data.edgeRouterPolicies);
+                $("#TotalServicePolicies").html(page.data.servicePolicies);
+                $("#TotalSessions").html(page.data.sessions);
+            },
+            idsLoaded: function(e) {
+                var markers = [];
+                for (var i=0; i<page.idsObject.data.length; i++) {
+                    if (page.idsObject.data[i].tags&&page.idsObject.data[i].tags.geolocation&&page.idsObject.data[i].tags.geolocation.split(',').length==2) {
+                        var items = page.idsObject.data[i].tags.geolocation.split(',');
+                        if (!isNaN(items[0])&&!isNaN(items[1])) {
+                            var marker = L.marker([items[0], items[1]]);
+                            marker.addTo(page.map).bindPopup(page.idsObject.data[i].name);
+                            markers.push(marker);
+                        }
+                    }
+                }
+                if (markers.length>0) {
+                    var group = new L.featureGroup(markers);
+                    tempGroup = group;
+                    console.log(group);
+                    page.map.fitBounds(group.getBounds());
+                }
+                setTimeout(function() {
+                    page.map.invalidateSize();
+                }, 1000);   
+            },
+            reset: function(e) {
+                $("#Host").val("localhost");
+                $("#Port").val("80");
+                $("#HowToPort").val("80");
+            }
+        }
+    </script>

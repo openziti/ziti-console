@@ -1,0 +1,52 @@
+<div class="header">
+    <div class="title">Manage <span data-bind="pageTitle"></span></div>
+    <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
+    <div class="line"></div>
+    <div class="tabs">
+      <div class="tab" data-go="/settings">Manage Settings</div>
+      <div class="tab selected">Manage <span data-bind="pageTitle"></span></div>
+    </div>
+    <div class="constrained">
+        <div class="grid split">
+            <div>
+                <label>Current Password</label>
+                <input id="CurrentPassword" type="password" autocomplete="new-password"/>
+            </div>
+            <div></div>
+            <div>
+                <label>New Password</label>
+                <input id="NewPassword" type="password" autocomplete="new-password"/>
+            </div>
+            <div>
+                <label>Confirm Password</label>
+                <input id="Confirm" type="password" autocomplete="new-password"/>
+            </div>
+            <div></div>
+            <div>
+                <div id="SaveButton" class="button">Save</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script language="javascript" type="text/javascript">
+    page = {
+        binding: {
+            pageTitle: "Profile",
+            singular: "Profile"
+        },
+        data: [],
+        init: function() {
+            this.events();
+            $("#CurrentPassword").val("");
+            $("#NewPassword").val("");
+            $("#Confirm").val("");
+        },
+        events: function() {
+            $("#SaveButton").click(page.resetPassword);
+        },
+        resetPassword: function(e) {
+            user.reset($("#CurrentPassword").val(), $("#NewPassword").val(), $("#Confirm").val());
+        }
+    }
+</script>

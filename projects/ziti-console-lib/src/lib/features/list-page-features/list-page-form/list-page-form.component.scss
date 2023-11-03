@@ -1,0 +1,64 @@
+.fullModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 30;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-content: center;
+  flex-wrap: wrap;
+  flex: auto;
+  display: flex;
+  margin: 0;
+  padding: 1.5rem;
+  padding-bottom: 2.5rem;
+  transition: var(--transition);
+  background-color: var(--background);
+
+
+  .innerblock {
+    max-width: 38rem;
+    width: 38rem;
+    max-height: 100%;
+    overflow:auto;
+    padding-right: 2rem;
+  }
+
+  .buttonBall {
+    font-style: normal;
+    font-weight: 600;
+    font-variant: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    cursor: pointer;
+    position: absolute;
+    width: 63px;
+    height: 63px;
+    border-radius: 33px;
+    font-size: 30px;
+    top: 1.25rem;
+    left:1.25rem;;
+    z-index: 31;
+    color: var(--stroke);
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 40px;
+    transition: .3s;
+  }
+
+  .buttonLabel {
+    font-weight: 600;
+    font-family: Open Sans, Arial, sans-serif;
+    position: absolute;
+    bottom: -2px;
+    width: 100%;
+    text-align: center;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+  }
+  .buttonBall.close {
+    right: 1.25rem;
+    left: unset;
+  }
+}

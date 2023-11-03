@@ -1,0 +1,414 @@
+{
+  "properties": {
+    "address": {
+      "description": "Dial the specified ip address or hostname when a ziti client connects to the service.",
+      "oneOf": [
+        {
+          "type": "string",
+          "oneOf": [
+            {
+              "format": "ipv4"
+            },
+            {
+              "format": "ipv6"
+            }
+          ]
+        },
+        {
+          "format": "idn-hostname",
+          "not": {
+            "oneOf": [
+              {
+                "format": "ipv4"
+              },
+              {
+                "format": "ipv6"
+              }
+            ]
+          },
+          "type": "string"
+        }
+      ]
+    },
+    "allowedAddresses": {
+      "allOf": [
+        {
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        {
+          "items": {
+            "oneOf": [
+              {
+                "type": "string",
+                "oneOf": [
+                  {
+                    "format": "ipv4"
+                  },
+                  {
+                    "format": "ipv6"
+                  }
+                ]
+              },
+              {
+                "format": "idn-hostname",
+                "not": {
+                  "oneOf": [
+                    {
+                      "format": "ipv4"
+                    },
+                    {
+                      "format": "ipv6"
+                    }
+                  ]
+                },
+                "type": "string"
+              },
+              {
+                "pattern": "^\\*\\.(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$",
+                "type": "string"
+              },
+              {
+                "oneOf": [
+                  {
+                    "pattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(3[0-2]|[1-2][0-9]|[0-9]))$"
+                  },
+                  {
+                    "pattern": "^s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:)))(%.+)?s*(\\/(12[0-8]|1[0-1][0-9]|[1-9][0-9]|[0-9]))$"
+                  }
+                ],
+                "type": "string"
+              }
+            ]
+          }
+        }
+      ],
+      "description": "Only allow addresses from this set to be dialed"
+    },
+    "allowedPortRanges": {
+      "allOf": [
+        {
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "high": {
+                "maximum": 65535,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "low": {
+                "maximum": 65535,
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "low",
+              "high"
+            ],
+            "type": "object"
+          }
+        }
+      ],
+      "description": "Only allow ports from this set to be dialed"
+    },
+    "allowedProtocols": {
+      "allOf": [
+        {
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        {
+          "items": {
+            "enum": [
+              "tcp",
+              "udp"
+            ],
+            "type": "string"
+          }
+        }
+      ],
+      "description": "Only allow protocols from this set to be dialed"
+    },
+    "allowedSourceAddresses": {
+      "allOf": [
+        {
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        {
+          "items": {
+            "oneOf": [
+              {
+                "type": "string",
+                "oneOf": [
+                  {
+                    "format": "ipv4"
+                  },
+                  {
+                    "format": "ipv6"
+                  }
+                ]
+              },
+              {
+                "format": "idn-hostname",
+                "not": {
+                  "oneOf": [
+                    {
+                      "format": "ipv4"
+                    },
+                    {
+                      "format": "ipv6"
+                    }
+                  ]
+                },
+                "type": "string"
+              },
+              {
+                "pattern": "^\\*\\.(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$",
+                "type": "string"
+              },
+              {
+                "oneOf": [
+                  {
+                    "pattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(3[0-2]|[1-2][0-9]|[0-9]))$"
+                  },
+                  {
+                    "pattern": "^s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:)))(%.+)?s*(\\/(12[0-8]|1[0-1][0-9]|[1-9][0-9]|[0-9]))$"
+                  }
+                ],
+                "type": "string"
+              }
+            ]
+          }
+        }
+      ],
+      "description": "hosting tunnelers establish local routes for the specified source addresses so binding will succeed"
+    },
+    "forwardAddress": {
+      "description": "Dial the same ip address that was intercepted at the client tunneler. 'address' and 'forwardAddress' are mutually exclusive.",
+      "enum": [
+        true
+      ],
+      "type": "boolean"
+    },
+    "forwardPort": {
+      "description": "Dial the same port that was intercepted at the client tunneler. 'port' and 'forwardPort' are mutually exclusive.",
+      "enum": [
+        true
+      ],
+      "type": "boolean"
+    },
+    "forwardProtocol": {
+      "description": "Dial the same protocol that was intercepted at the client tunneler. 'protocol' and 'forwardProtocol' are mutually exclusive.",
+      "enum": [
+        true
+      ],
+      "type": "boolean"
+    },
+    "httpChecks": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "actions": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "action": {
+                  "pattern": "(mark (un)?healthy|increase cost [0-9]+|decrease cost [0-9]+|send event)",
+                  "type": "string"
+                },
+                "consecutiveEvents": {
+                  "maximum": 65535,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "duration": {
+                  "pattern": "[0-9]+(h|m|s|ms)",
+                  "type": "string"
+                },
+                "trigger": {
+                  "enum": [
+                    "fail",
+                    "pass",
+                    "change"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "trigger",
+                "action"
+              ],
+              "type": "object"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "type": "array"
+          },
+          "body": {
+            "type": "string"
+          },
+          "expectInBody": {
+            "type": "string"
+          },
+          "expectStatus": {
+            "maximum": 599,
+            "minimum": 100,
+            "type": "integer"
+          },
+          "interval": {
+            "pattern": "[0-9]+(h|m|s|ms)",
+            "type": "string"
+          },
+          "method": {
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "PATCH"
+            ],
+            "type": "string"
+          },
+          "timeout": {
+            "pattern": "[0-9]+(h|m|s|ms)",
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "interval",
+          "timeout",
+          "url"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "listenOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "bindUsingEdgeIdentity": {
+          "description": "Associate the hosting terminator with the name of the hosting tunneler's identity. Setting this to 'true' is equivalent to setting 'identiy=$tunneler_id.name'",
+          "type": "boolean"
+        },
+        "connectTimeoutSeconds": {
+          "description": "defaults to 5",
+          "maximum": 2147483647,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "cost": {
+          "description": "defaults to 0",
+          "maximum": 65535,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "identity": {
+          "description": "Associate the hosting terminator with the specified identity. '$tunneler_id.name' resolves to the name of the hosting tunneler's identity. '$tunneler_id.tag[tagName]' resolves to the value of the 'tagName' tag on the hosting tunneler's identity.",
+          "type": "string"
+        },
+        "maxConnections": {
+          "description": "defaults to 3",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "precedence": {
+          "description": "defaults to 'default'",
+          "enum": [
+            "default",
+            "required",
+            "failed"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "port": {
+      "maximum": 65535,
+      "minimum": 0,
+      "type": "integer",
+      "description": "Dial the specified port when a ziti client connects to the service."
+    },
+    "portChecks": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "actions": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "action": {
+                  "pattern": "(mark (un)?healthy|increase cost [0-9]+|decrease cost [0-9]+|send event)",
+                  "type": "string"
+                },
+                "consecutiveEvents": {
+                  "maximum": 65535,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "duration": {
+                  "pattern": "[0-9]+(h|m|s|ms)",
+                  "type": "string"
+                },
+                "trigger": {
+                  "enum": [
+                    "fail",
+                    "pass",
+                    "change"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "trigger",
+                "action"
+              ],
+              "type": "object"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "type": "array"
+          },
+          "address": {
+            "type": "string"
+          },
+          "interval": {
+            "pattern": "[0-9]+(h|m|s|ms)",
+            "type": "string"
+          },
+          "timeout": {
+            "pattern": "[0-9]+(h|m|s|ms)",
+            "type": "string"
+          }
+        },
+        "required": [
+          "interval",
+          "timeout",
+          "address"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "protocol": {
+      "enum": [
+        "tcp",
+        "udp"
+      ],
+      "type": "string",
+      "description": "Dial the specified protocol when a ziti client connects to the service."
+    }
+  }
+}

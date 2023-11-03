@@ -1,0 +1,444 @@
+    <!-- General Page Layout HTML -->
+    <div class="header">
+        <div class="title">
+            <span data-i18n="Manage"></span> 
+            <span data-i18n="CAs"></span>
+        </div>
+        <div class="bread">
+            <span data-i18n="ZitiNetwork"></span> 
+            <span class="secondary">/</span> 
+            <span data-i18n="Manage"></span> 
+            <span data-i18n="CAs"></span>
+        </div>
+        <div class="line"></div>
+        <div class="tabs">
+            <div class="tab selected">
+                <span data-i18n="Manage"></span> 
+                <span data-i18n="CAs"></span>
+            </div>
+        </div>
+    </div>
+    {{html.add}}
+    {{html.search}}
+    <div class="area data" data-defined="table">
+        {{html.noitems}}
+        <div class="table">
+            <div class="head grid columns">
+                <div class="col">
+                    <div class="selector all"></div>
+                </div>
+                <div class="col sort asc" data-by="name">
+                    <span data-i18n="Name"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop sort" data-by="isVerified">
+                    <span data-i18n="Verified"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop sort" data-by="isAutoCaEnrollmentEnabled">
+                    <span data-i18n="AutoEnroll"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop sort" data-by="isOttCaEnrollmentEnabled">
+                    <span data-i18n="OTTAuto"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop sort" data-by="isAuthEnabled">
+                    <span data-i18n="Auth"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="JWT"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop sort" data-by="dateCreated">
+                    <span data-i18n="Created"></span>
+                </div>
+                <div class="col"></div>
+            </div>
+            <div class="rows" data-defined="rows">
+                <!-- This area will be replaced by data rows -->
+            </div>
+        </div>
+    </div>
+    <div class="nodata" data-defined="empty">
+        <span data-i18n="No"></span>
+        <span data-i18n="CA"></span>
+        <span data-i18n="NoneDefined"></span>
+        <span data-i18n="CA"></span>.
+    </div>
+
+
+
+    <!-- Template HTML will be used to display rows of data -->
+    <div id="RowTemplate" class="row grid columns template" data-defined="template">
+        <div class="col">
+            <div class="selector" data-id="{{id}}"></div>
+        </div>
+        <div class="col" data-id="{{id}}"><a href="javascript:page.edit('{{id}}');">{{name}}</a></div>
+        <div class="col desktop" data-id="{{id}}">{{isVerified}}</div>
+        <div class="col desktop" data-id="{{id}}">{{isAutoCaEnrollmentEnabled}}</div>
+        <div class="col desktop" data-id="{{id}}">{{isOttCaEnrollmentEnabled}}</div>
+        <div class="col desktop" data-id="{{id}}">{{isAuthEnabled}}</div>
+        <div class="col desktop" data-id=""{{id}}>{{token}}</div>
+        <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
+        <div class="col allowOver">
+            <div class="dots" data-id="{{id}}">...
+                <div class="gridMenu" data-id="{{id}}">
+                    <div class="gridAction" data-id="{{id}}" data-action="edit" data-i18n="Edit"></div>
+                    <div class="gridAction {{hiddenClass}}" data-id="{{id}}" data-action="verify" data-i18n="Verify"></div>
+                    <div class="gridAction" data-id="{{id}}" data-action="delete" data-i18n="Delete"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Modification Modals -->
+    <div id="AddModal" class="modal box full">
+        <div class="sized large">
+            <div class="close icon-close"></div>
+            <div class="title adding">
+                <span data-i18n="Create"></span>
+                <span data-i18n="CA"></span>
+            </div>
+            <div class="subtitle adding">
+                <span data-i18n="AddNew"></span>
+                <span data-i18n="CA"></span>
+                <span data-i18n="ByComplete"></span>
+            </div>
+            <div class="title editing">
+                <span data-i18n="Edit"></span>
+                <span data-i18n="CA"></span>
+            </div>
+            <div class="subtitle editing">
+                <span data-i18n="Change"></span>
+                <span data-i18n="CA"></span>
+                <span data-i18n="Details"></span>
+            </div>
+
+            <label for="Name" data-i18n="Name"></label>
+            <input id="Name" data-bind="data.name" type="text" maxlength="500" data-i18n="EnterName" />
+
+            <label for="IdentityNameFormat" data-i18n="IdentityNameFormat"></label>
+            <input id="IdentityNameFormat" data-bind="data.identityNameFormat" type="text" maxlength="500" data-i18n="EnterIdentityNameFormat" />
+
+            <label for="IDRoles" data-i18n="IdentityRoles"></label>
+            <div id="IDRoles"></div>
+
+            <div class="four">
+                <div>
+                    <label data-i18n="IsAuto"></label>
+                    <div id="IsAutoEnrollmentEnabled" class="toggle" aria-label="Turn on to allow auto enrollment" data-balloon-pos="right" data-balloon-length="large">
+                        <div class="switch"></div>
+                        <div class="label"></div>
+                    </div>
+                </div>
+                <div>
+                    <label data-i18n="OTTEnabled"></label>
+                    <div id="IsOTTEnrollmentEnabled" class="toggle" aria-label="Turn on to allow one time token enrollment" data-balloon-pos="right" data-balloon-length="large">
+                        <div class="switch"></div>
+                        <div class="label"></div>
+                    </div>
+                </div>
+                <div id="UserArea">
+                    <label data-i18n="AuthEnabled"></label>
+                    <div id="IsAuthEnabled" class="toggle" aria-label="Turn on to enable authentication" data-balloon-pos="right" data-balloon-length="large">
+                        <div class="switch"></div>
+                        <div class="label"></div>
+                    </div>
+                </div>
+                <div>
+                    <label data-i18n="ExternalId"></label>
+                    <div id="IsExternalId" class="toggle" aria-label="Turn on to use an external ID" data-balloon-pos="right" data-balloon-length="large">
+                        <div class="switch"></div>
+                        <div class="label"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ExternalIdArea" class="configBox" style="display: none; margin-top: 20px;">
+                <div class="three">
+                    <div>
+                        <label for="Location" data-i18n="Location"></label>
+                        <select id="Location">
+                            <option value="" data-i18n="SelectOption"></option>
+                            <option value="COMMON_NAME">COMMON_NAME</option>
+                            <option value="SAN_URI">SAN_URI</option>
+                            <option value="SAN_EMAIL">SAN_EMAIL</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="Matcher" data-i18n="Matcher"></label>
+                        <select id="Matcher">
+                            <option value="" data-i18n="SelectOption"></option>
+                            <option value="ALL">ALL</option>
+                            <option value="PREFIX">PREFIX</option>
+                            <option value="SUFFIX">SUFFIX</option>
+                            <option value="SCHEME">SCHEME</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="Parser" data-i18n="Parser"></label>
+                        <select id="Parser">
+                            <option value="" data-i18n="SelectOption"></option>
+                            <option value="NONE">NONE</option>
+                            <option value="SPLIT">SPLIT</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="Index" data-i18n="Index"></label>
+                        <input id="Index" data-bind="data.externalIdClaim.index" type="number" />
+                    </div>
+                    <div>
+                        <label for="MatcherCriteria" data-i18n="MatcherCriteria"></label>
+                        <input id="MatcherCriteria" data-bind="data.externalIdClaim.matcherCriteria" type="text" />
+                    </div>
+                    <div>
+                        <label for="ParserCriteria" data-i18n="ParserCriteria"></label>
+                        <input id="ParserCriteria" data-bind="data.externalIdClaim.parserCriteria" type="text" />
+                    </div>
+                </div>
+            </div>
+
+            <label for="Pem"><span data-i18n="PEM"></span> <span id="SelectFile" class="note" data-i18n="SelectFile"></span><input id="PemFile" type="file" accept=".pem"/></label>
+            <textarea id="Pem" data-bind="data.certPem" style="height: 300px; font-size: 12px;" data-i18n="PastePEM"></textarea>
+            
+            <div id="TagArea"></div>
+            {{html.api}}
+            {{html.save}}
+        </div>
+    </div>
+
+    <div id="VerifyModal" class="modal box full">
+        <div class="sized large">
+            <div class="close icon-close"></div>
+            <div class="title" data-i18n="VerifyCertificate"></div>
+            <div class="subtitle" data-i18n="SendCertificate"></div>
+            <div>
+                <h3 data-i18n="ToDo"></h3>
+                <span data-i18n="VerifyDirectionStart"></span>
+                <strong><span data-bind="data.verificationToken"></span></strong> 
+                <span data-i18n="VerifyDirectionEnd"></span>
+            </div>
+            <label for="VerificationCode" data-i18n="VerificationToken"></label>
+            <input id="VerificationCode" data-bind="data.verificationToken" type="text" maxlength="500" readonly="true" />
+            <label for="Certificate">
+                <span data-i18n="Certificate"></span>
+                <span id="SelectCertificateFile" class="note" data-i18n="SelectCertificate"></span>
+                <input id="CertificateFile" type="file" accept=".pem"/>
+            </label>
+            <textarea id="Certificate" style="height: 300px; font-size: 12px;" data-i18n="EnterCert"></textarea>
+            <div class="buttons">
+                <div class="linkButton closer" data-i18n="Oops"></div>
+                <div id="VerifyButton" class="button" data-i18n="Verify"></div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .columns {
+            grid-template-columns: 50px 200px auto 15% 15% 15% 100px 15% 50px;
+        }
+    </style>
+    
+    <script language="javascript" type="text/javascript">
+        page = {
+            filterObject: null,
+            roles: null,
+            apiParams: null,
+            init: function() {
+                this.events();
+
+                page.roles = new MultiSelect("IDRoles", 10, true);
+                page.roles.addSource(new SelectSource("identities", "@")); 
+                page.roles.addSource(new SelectSource("identity-role-attributes", "", "id")); 
+                page.roles.init();
+
+                page.filterObject = new Data("cas");
+                page.filterObject.init(true, true);
+
+                page.apiParams = CodeMirror.fromTextArea(document.getElementById("ApiParams"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
+            }, 
+            events: function() {
+                $("#PemFile").change(page.loadFile);
+                $("#CertificateFile").change(page.loadCertFile);
+                $("#SelectFile").click(function() { $("#PemFile").click(); });
+                $("#SelectCertificateFile").click(function() { $("#CertificateFile").click(); });
+                $("#VerifyButton").click(page.verify); 
+                $("#VerificationCode").click(page.copy);
+                $("#IsExternalId").click(page.externalToggled);
+            },
+            externalToggled: function() {
+                if ($("#IsExternalId").hasClass("on")) {
+                    $("#ExternalIdArea").show();
+                } else {
+                    $("#ExternalIdArea").hide();
+                }
+            },
+            copy: function() {
+                document.querySelector("#VerificationCode").select();
+                document.execCommand("copy");
+                growler.info("Code: "+$("#VerificationCode").val()+" copied to clipboard");
+            },
+            row: function(template, data) {
+                let token = "";
+                if (data.isVerified) {
+                    template = template.split("{{hiddenClass}}").join("hidden");
+                    token = '<span class="cert" data-id="'+data.id+'"></span>';
+                } else {
+                    template = template.split("{{hiddenClass}}").join("");
+                    token = "-";
+                }
+                template = template.split("{{token}}").join(token);
+                return template;
+            },
+            loaded: function() {
+                $(".cert").click(page.getCert);
+            },
+            getCert: function(e) {
+                var id = $(e.currentTarget).data("id");
+                service.call("jwt", { id: id, type: "cas"}, (e) => {
+                    console.log(e);
+                    var element = document.createElement('a');
+                    element.setAttribute('href', 'data:application/ziti-jwt;charset=utf-8,' + encodeURIComponent(e.jwt));
+                    element.setAttribute('download', e.id+".jwt");
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
+                });
+            },
+            gridAction: function(e) {
+                var action = $(e.currentTarget).data("action");
+                var id = $(e.currentTarget).data("id");
+                if (action=="delete") page.filterObject.delete([id]);
+                else if (action=="edit") page.edit(id);
+                else if (action=="verify") page.showVerify(id);
+            },    
+            loadFile: function(e) {
+                try {
+                    var fileToLoad = document.getElementById("PemFile").files[0];
+                    var fileReader = new FileReader();
+                    fileReader.onload = function(fileLoadedEvent) {
+                        var textFromFileLoaded = fileLoadedEvent.target.result;
+                        $("#Pem").val(textFromFileLoaded);
+                    };
+                    fileReader.readAsText(fileToLoad, "UTF-8");
+                } catch (e) {
+                    growler.error("Invalid File", locale.get("ErrorInvalidFile"));
+                } 
+            },
+            loadCertFile: function(e) {
+                try {
+                    var fileToLoad = document.getElementById("CertificateFile").files[0];
+                    var fileReader = new FileReader();
+                    fileReader.onload = function(fileLoadedEvent){
+                        var textFromFileLoaded = fileLoadedEvent.target.result;
+                        $("#Certificate").val(textFromFileLoaded);
+                    };
+                    fileReader.readAsText(fileToLoad, "UTF-8");
+                } catch (e) {
+                    growler.error("Invalid File", locale.get("ErrorInvalidFile"));
+                } 
+            },
+            showVerify: function(id) {
+                var detail = page.filterObject.details(id);
+                modal.show("VerifyModal");
+            },
+            edit: function(id) {
+                var detail = page.filterObject.details(id);
+                $("#Pem").attr("readonly",true);
+                $("#SelectFile").hide();
+                if (detail.isAutoCaEnrollmentEnabled) $("#IsAutoEnrollmentEnabled").addClass("on");
+                if (detail.isOttCaEnrollmentEnabled) $("#IsOTTEnrollmentEnabled").addClass("on");
+                if (detail.isAuthEnabled) $("#IsAuthEnabled").addClass("on");
+                if (detail.roles) page.roles.val(detail.roles); 
+                if (detail.externalIdClaim!=null) {
+                    $("#IsExternalId").addClass("on");
+                    $("#ExternalIdArea").show();
+                    if (detail.externalIdClaim.location != null) $("#Location").val(detail.externalIdClaim.location);
+                    if (detail.externalIdClaim.matcher != null) $("#Matcher").val(detail.externalIdClaim.matcher);
+                    if (detail.externalIdClaim.parser != null) $("#Parser").val(detail.externalIdClaim.parser);
+                    if (detail.externalIdClaim.index != null) $("#Index").val(detail.externalIdClaim.index);
+                    if (detail.externalIdClaim.matcherCriteria != null) $("#MatcherCriteria").val(detail.externalIdClaim.matcherCriteria);
+                    if (detail.externalIdClaim.parserCriteria != null) $("#ParserCriteria").val(detail.externalIdClaim.parserCriteria);
+                }
+                page.params();
+                modal.show("AddModal");
+            },
+            formReset: function() {
+                page.params();
+            },
+            save: function() {
+                if (page.validate()) {
+                    var obj = page.params();
+
+                    page.filterObject.save(obj);
+                } else growler.form();
+            },
+            params: function() {
+                try {  
+                    var obj = {
+                        name: $("#Name").val(),
+                        isAutoCaEnrollmentEnabled: $("#IsAutoEnrollmentEnabled").hasClass("on"),
+                        isOttCaEnrollmentEnabled: $("#IsOTTEnrollmentEnabled").hasClass("on"),
+                        identityRoles: page.roles.val(),
+                        identityNameFormat: $("#IdentityNameFormat").val(),
+                        isAuthEnabled: $("#IsAuthEnabled").hasClass("on"),
+                        tags: tags.val()
+                    };
+
+                    if ($("#IsExternalId").hasClass("on")) {
+                        obj.externalIdClaim = {
+                            location: $("#Location").val(),
+                            matcher: $("#Matcher").val(),
+                            parser: $("#Parser").val(),
+                            index: Number($("#Index").val()),
+                            matcherCriteria: $("#MatcherCriteria").val(),
+                            parserCriteria: $("#ParserCriteria").val(),
+                        }
+                    }
+                    if (page.filterObject.isEditing()) url += "/"+page.filterObject.editId;
+
+                    var url = settings.versionData.baseUrl+settings.versionData.serviceUrl+"/"+page.filterObject.name;
+                    if (page.filterObject.isEditing()) url += "/"+page.editId;
+                    $("#ApiUrl").val(url);
+                    var stayAt = $("#AddModal").scrollTop();  
+                    page.apiParams.setValue(JSON.stringify(obj));
+                    page.apiParams.autoFormatRange({line:0, ch:0}, {line:page.apiParams.lineCount()});
+                    page.apiParams.scrollTo(null, 0);
+                    $("#AddModal").scrollTop(stayAt);
+
+                    return obj
+                } catch (e) {
+                    console.log(e);
+                }
+            },
+            validate: function() {
+                $(".errors").removeClass("errors");
+                if ($("#Name").val().trim().length==0) $("#Name").addClass("errors");
+                if ($("#Pem").val().trim().length==0) $("#Pem").addClass("errors");
+                return $(".errors").length==0;
+            },
+            reset: function() {
+                app.isDirty = false;
+                $("#IsExternalId").removeClass("on");
+                $("#SelectFile").show();
+                $("#Pem").attr("readonly",false);
+            },
+            verify: function(e) {
+                service.call("verify", { id: page.filterObject.editId, cert: $("#Certificate").val() }, page.verified);
+            },
+            verified: function(e) {
+                if (e.error) growler.error(e.error);
+                else {
+                    growler.success(locale.get("CertVerified"));
+                    modal.close();
+                    page.filterObject.editId = "";
+                    page.filterObject.get();
+                }
+            }
+        }
+    </script>

@@ -1,0 +1,336 @@
+<div class="header">
+        <div class="title">Manage <span data-bind="pageTitle"></span></div>
+        <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
+        <div class="line"></div>
+        <div class="tabs">
+            <div class="tab" data-go="/fabric-services">Fabric Services</div>
+            <div class="tab" data-go="/fabric-routers">Routers</div>
+            <div class="tab selected">Links</div>
+        </div>
+        <div class="views">
+            <div class="imageButton" data-area="Network">
+                <div class="icon icon-network"></div>
+                network
+            </div>
+            <div class="imageButton selected" data-area="List">
+                <div class="icon icon-listview"></div>
+                list
+            </div>
+        </div>
+    </div>
+    <div id="ListArea" class="area data">
+        <div class="noitems"></div>
+        <div class="table">
+            <div class="head grid links">
+                <div class="col">Status</div>
+                <div class="col">Name</div>
+                <div class="col">Path (Src-Dest)</div>
+                <div class="col"></div>
+            </div>
+            <div class="rows">
+                <!-- This area will be replaced by data rows -->
+            </div>
+        </div>
+    </div>
+    <div id="NetworkArea" class="area" style="display: none; height: 80vh;">
+        
+    </div>
+    
+    <!-- Row Template -->
+    <div id="RowTemplate" class="row grid links template">
+        <div class="col" data-id="{{id}}"><div class="ball {{state}}"></div></div>
+        <div class="col" data-id="{{id}}">{{id}}</div>
+        <div class="col" data-id="{{id}}">
+            <div class="grid path">
+                <div class="relative">
+                    <div class="latency">{{srcLatencyMS}}ms</div>
+                    <div class="spot">{{src}}</div>
+                </div>
+                <div class="relative">
+                    <div class="connector"></div>
+                </div>
+                <div class="relative">
+                    <div class="latency">{{dstLatencyMS}}ms</div>
+                    <div class="spot">{{dst}}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col allowOver">
+            <div class="dots" data-id="{{id}}">...
+                <div class="gridMenu" data-id="{{id}}">
+                    <div class="gridAction" data-id="{{id}}" data-action="visual">Metrics</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modification Modals -->
+    <div id="VisualModal" class="modal box full">
+        <div class="sized not">
+            <div class="close icon-close"></div>
+            <div class="title"><span data-bind="singular"></span></div>
+            <div class="subtitle">Metrics</div>
+            <div id="FlowArea" class="duplex">
+                <div class="relative">
+                    <div id="SourceName" class="bubbleTitle"></div>
+                    <div class="inside">
+                        <div><span id="SourceLatency"></span> ms</div>
+                        <div><span id="SourceSize"></span> mb</div>
+                    </div> 
+                    <div class="charts">
+                        <canvas id="LatencyOut"></canvas>
+                    </div>
+                    <div class="charts">
+                        <canvas id="ByteRate"></canvas>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div id="DestinationName" class="bubbleTitle"></div>
+                    <div class="inside">
+                        <div><span id="DestinationLatency"></span> ms</div>
+                        <div><span id="DestinationSize"></span> mb</div>
+                    </div>
+                    <div class="charts">
+                        <canvas id="MessageSize"></canvas>
+                    </div>
+                    <div class="charts">
+                        <canvas id="MessageRate"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script language="javascript" type="text/javascript">
+        page = {
+            binding: {
+                pageTitle: "Fabric Links",
+                singular: "Fabric Link"
+            },
+            data: [],
+            series: {},
+            editId: -1,
+            viewArea: "List",
+            init: function() {
+                this.events();
+                links.init();
+            },
+            events: function() {
+                context.addListener(links.name, page.getLoaded);
+                $(".imageButton").click(page.area);
+            },
+            area: function(e) {
+                $(".imageButton.selected").removeClass("selected");
+                $(e.currentTarget).addClass("selected");
+                page.viewArea = $(e.currentTarget).data("area");
+                $(".area").hide();
+                $("#"+page.viewArea+"Area").fadeIn();
+                if (page.viewArea=="Network") page.setupNetwork();
+            },
+            getLoaded: function(e) {
+                $(".selector.selected").removeClass("selected");
+                app.setAction();
+                page.data = links.data;
+                page.data.sort((a,b) => (a.src > b.src) ? 1 : ((b.src > a.src) ? -1 : 0));
+                $(".rows").html("");
+                if (page.data.length>0) {
+                    for (var i=0; i<page.data.length; i++) {
+                        var element = $("#RowTemplate").clone();
+                        element.removeClass("template");
+                        element.attr("id","Row"+i);
+                        var srcLat = (page.data[i].srcLatency*100000).toFixed(0);
+                        var dstLat = (page.data[i].dstLatency*100000).toFixed(0);
+                        element.html(element.html().split("{{srcLatencyMS}}").join(srcLat));
+                        element.html(element.html().split("{{dstLatencyMS}}").join(dstLat));
+                        for (var prop in page.data[i]) element.html(element.html().split("{{"+prop+"}}").join(page.data[i][prop]));
+                        $(".rows").append(element);
+                    }
+                    page.pageLoaded();     
+                    $(".data").show();
+                    $(".nodata").hide();       
+                } else {
+                    $(".data").hide();
+                    $(".nodata").show();
+                }       
+            },
+            clickEdit: function(e) {
+                var id = $(e.currentTarget).data("id");
+                if (id) page.edit(id);
+            },
+            reset: function() {
+                app.isDirty = false;
+
+            },
+            edit: function(id) {
+                page.reset();
+                var detail = links.details(id);
+
+                page.series.latencyOut = new Series("link", detail.id, "", "latency", detail.src);
+                page.series.latencyIn = new Series("link", detail.id, "", "latency", detail.dst);
+                page.series.messageSize = new Series("link", detail.id, "tx", "msgsize", detail.src);
+                page.series.byteRate = new Series("link", detail.id, "tx", "bytesrate", detail.src);
+                page.series.messageRate = new Series("link", detail.id, "tx", "msgrate", detail.src);
+
+                page.series.sizeOut = new Series("link", detail.id, "tx", "msgsize", detail.src);
+                page.series.sizeIn = new Series("link", detail.id, "rx", "msgsize", detail.dst);
+
+                context.addListener(page.series.latencyOut.getSource(), page.seriesOutLoaded);
+                context.addListener(page.series.messageSize.getSource(), page.messageSizeLoaded);
+                context.addListener(page.series.byteRate.getSource(), page.byteRateLoaded);
+                context.addListener(page.series.messageRate.getSource(), page.messageRateLoaded);
+                $("#SourceLatency").addClass(page.series.latencyOut.getSource().split('.').join('')+"average");
+                $("#DestinationLatency").addClass(page.series.latencyIn.getSource().split('.').join('')+"average");
+                $("#SourceSize").addClass(page.series.sizeOut.getSource().split('.').join('')+"average");
+                $("#DestinationSize").addClass(page.series.sizeIn.getSource().split('.').join('')+"average");
+
+                page.series.latencyOut.get();
+                page.series.messageSize.get();
+                page.series.byteRate.get();
+                page.series.messageRate.get();
+                page.series.latencyOut.getLatency();
+                page.series.latencyIn.getLatency();
+                page.series.sizeOut.getAverage();
+                page.series.sizeIn.getAverage();
+
+                $("#SourceName").html(detail.src);
+                $("#DestinationName").html(detail.dst);
+                page.editId = id;
+                modal.show("VisualModal");
+            },
+            convertHex: function(hex,opacity){
+                hex = hex.replace('#','');
+                r = parseInt(hex.substring(0,2), 16);
+                g = parseInt(hex.substring(2,4), 16);
+                b = parseInt(hex.substring(4,6), 16);
+
+                result = 'rgba('+r+','+g+','+b+','+opacity+')';
+                return result;
+            },
+            seriesLoaded: function(e, chart, append) {
+                var series = [];
+                var data = [];
+                var labels = [];
+                for (var i=0; i<e.length; i++) {
+                    labels[labels.length] = moment(e[i].time).fromNow();
+                    data[data.length] = e[i].mean;
+                }
+                var ctx = document.getElementById(chart.split(' ').join(''));
+                var primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary');
+                var color = page.convertHex(primaryColor, 1);
+                var colorOpaque = page.convertHex(primaryColor, 0.2);
+                var myChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: 
+                                colorOpaque
+                            ,
+                            borderColor: 
+                                color
+                            ,
+                            borderWidth: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: false
+                                }
+                            }]
+                        }
+                    },
+                    options: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                });             
+            },
+            messageSizeLoaded: function(e) {
+                page.seriesLoaded(e.data, "Message Size", "mb");
+            },
+            seriesOutLoaded: function(e) {
+                for (var i=0; i<e.data.length; i++) {
+                    e.data[i].mean = Number((e.data[i].mean*.0001).toFixed(0));
+                }
+                page.seriesLoaded(e.data, "Latency Out", "ms");
+            },
+            byteRateLoaded: function(e) {
+                page.seriesLoaded(e.data, "Byte Rate", "bytes");
+            },
+            messageRateLoaded: function(e) {
+                page.seriesLoaded(e.data, "Message Rate", "messages");
+            },
+            pageLoaded: function() {
+                $(".gridAction").click(page.gridAction);
+                $(".clickEdit").click(page.clickEdit);
+                app.postLoad();
+            },
+            gridAction: function(e) {
+                var action = $(e.currentTarget).data("action");
+                var id = $(e.currentTarget).data("id");
+                if (action=="visual") {
+                    if (id) page.edit(id);
+                }
+            },
+            setupNetwork: function() {
+                var primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary');
+                var color = page.convertHex(primaryColor, 1);
+                var colorOpaque = page.convertHex(primaryColor, 0.2);
+                var secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--secondary');
+                var secondary = page.convertHex(secondaryColor, 1);
+                var secondaryOpaque = page.convertHex(secondaryColor, 0.2);
+                var nodes = [];
+                var connectors = [];
+                for (var i=0; i<links.data.length; i++) {
+                    if (!page.exists(nodes, links.data[i].src)) nodes[nodes.length] = {id: links.data[i].src, label: links.data[i].src};
+                    if (!page.exists(nodes, links.data[i].dst)) nodes[nodes.length] = {id: links.data[i].dst, label: links.data[i].dst};
+                    connectors[connectors.length] = {from: links.data[i].src, to: links.data[i].dst};
+                }
+
+                var definition = new vis.DataSet(nodes);
+                var edges = new vis.DataSet(connectors);
+
+                var container = document.getElementById('NetworkArea');
+                var data = {
+                    nodes: definition,
+                    edges: edges
+                };
+                var options = {
+                    nodes: {
+                        physics: true,
+                        borderWidth: 2,
+                        borderWidthSelected: 10,
+                        color: {
+                            border: color,
+                            background: color,
+                            highlight: {
+                                border: secondary,
+                                background: color
+                            },
+                            hover: {
+                                border: secondary,
+                                background: color
+                            },
+                        },
+                        shape: 'circle'
+                    }
+                };
+                var network = new vis.Network(container, data, options);
+                network.startSimulation();
+            },
+            exists: function(array, id) {
+                for (var i=0; i<array.length; i++) {
+                    if (array[i].id==id) return true;
+                }
+                return false;
+            }
+        }
+
+
+    </script>    

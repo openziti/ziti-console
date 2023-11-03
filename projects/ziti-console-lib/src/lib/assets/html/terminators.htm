@@ -1,0 +1,244 @@
+    <!-- General Page Layout HTML -->  
+    <div class="header">
+        <div class="title">
+            <span data-i18n="Manage"></span> 
+            <span data-i18n="Terminators"></span>
+        </div>
+        <div class="bread">
+            <span data-i18n="ZitiNetwork"></span> 
+            <span class="secondary">/</span> 
+            <span data-i18n="Manage"></span> 
+            <span data-i18n="Terminators"></span>
+        </div>
+        <div class="line"></div>
+        {{html.line}}
+        {{html.tabIdentities}}
+    </div>        
+    {{html.add}}
+    {{html.search}}
+    <div class="area data" data-defined="table">
+        {{html.noitems}}
+        <div class="table">
+            <div class="head grid columns">
+                <div class="col">
+                    <div class="selector all"></div>
+                </div>
+                <div class="col">
+                    <span data-i18n="Router"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col">
+                    <span data-i18n="Service"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col" data-by="address">
+                    <span data-i18n="Address"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop" data-by="createdAt">
+                    <span data-i18n="Created"></span>
+                </div>
+                <div class="col"></div>
+            </div>
+            <div class="rows" data-defined="rows">
+                <!-- This area will be replaced by data rows -->
+            </div>
+        </div>
+    </div>
+    <div class="nodata" data-defined="empty">
+        <span data-i18n="No"></span>
+        <span data-i18n="Terminators"></span>
+        <span data-i18n="NoneDefined"></span>
+        <span data-i18n="Terminator"></span>.
+    </div>
+
+    <div id="RowTemplate" class="row grid columns template" data-defined="template">
+        <div class="col">
+            <div class="selector" data-id="{{id}}"></div>
+        </div>
+        <div class="col" data-id="{{id}}"><a href="javascript:page.edit('{{id}}');">{{router.name}}</a></div>
+        <div class="col" data-id="{{id}}">{{service.name}}</div>
+        <div class="col" data-id="{{id}}">{{address}}</div>
+        <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
+        <div class="col allowOver">
+            <div class="dots" data-id="{{id}}">...
+                <div class="gridMenu" data-id="{{id}}">
+                    <div class="gridAction" data-id="{{id}}" data-action="edit">Edit</div>
+                    <div class="gridAction" data-id="{{id}}" data-action="delete">Delete</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	<!-- Modification Modals -->
+    <div id="AddModal" class="modal box full">
+        <div class="sized large">
+            <div class="close icon-close"></div>
+            <div class="title adding">
+                <span data-i18n="Create"></span>
+                <span data-i18n="Terminator"></span>
+            </div>
+            <div class="subtitle adding">
+                <span data-i18n="AddNew"></span>
+                <span data-i18n="Terminator"></span>
+                <span data-i18n="ByComplete"></span>
+            </div>
+            <div class="title editing">
+                <span data-i18n="Edit"></span>
+                <span data-i18n="Terminator"></span>
+            </div>
+            <div class="subtitle editing">
+                <span data-i18n="Change"></span>
+                <span data-i18n="Terminator"></span>
+                <span data-i18n="Details"></span>
+            </div>
+            <div class="grid split">
+                <div>
+    
+                    <label for="Service" data-i18n="Service"></label>
+                    <div id="Service"></div>
+    
+                    <label for="Identity" data-i18n="Identity"></label>
+                    <div id="Identity"></div>
+    
+                    <label for="Routers" data-i18n="Router"></label>
+                    <div id="Routers"></div>
+    
+                    <label for="Binding" data-i18n="Binding"></label>
+                    <input id="Binding" data-bind="data.binding" type="text" maxlength="500" data-i18n="EnterBinding" data-enter="SaveButton"/>
+    
+                    <label for="Address" data-i18n="Address"></label>
+                    <input id="Address" data-bind="data.address" type="text" maxlength="500" data-i18n="ExampleUrl" data-enter="SaveButton" />
+    
+                    <div class="grid three">
+                        <div>
+                            <label for="IdentitySecret" data-i18n="IdentitySecret"></label>
+                            <input id="IdentitySecret" data-bind="data.identitySecret" type="text" maxlength="500" data-i18n="EnterIdentitySecret" data-enter="SaveButton" />
+                        </div>
+                        <div>
+                            <label for="Precedence" data-i18n="Precedence"></label>
+                            <input id="Precedence" data-bind="data.precedence" type="text" maxlength="500" data-i18n="EnterPrecedence" data-enter="SaveButton" />
+                        </div>
+                        <div>
+                            <label for="Cost" data-i18n="Cost"></label>
+                            <input id="Cost" data-bind="data.cost" type="number" data-i18n="EnterCost" data-enter="SaveButton" />
+                        </div>
+                    </div>
+    
+                    <div id="TagArea" data-tagarea="service"></div>
+                    {{html.customtags}}
+                
+                    {{html.save}}
+                </div>
+                <div>
+                    {{html.api}}
+                </div>
+            </div>
+        </div>
+	</div>
+
+    <style>
+        .grid.columns {
+	        grid-template-columns: 50px auto 20% 20% 150px 50px;
+        }
+    </style>
+    
+    
+    <script language="javascript" type="text/javascript">
+        page = {
+            filterObject: null,
+            tags: null,
+            services: null,
+            identities: null,
+            routers: null,
+            apiParams: null,
+            init: function() {
+                page.services = new MultiSelect("Service");
+                page.services.isSingle = true;
+                page.services.addSource(new SelectSource("services"));
+                page.services.init();
+
+                page.identities = new MultiSelect("Identity");
+                page.identities.isSingle = true;
+                page.identities.addSource(new SelectSource("identities"));
+                page.identities.init();
+
+                page.routers = new MultiSelect("Routers");
+                page.routers.isSingle = true;
+                page.routers.addSource(new SelectSource("edge-routers"));
+                page.routers.init();
+
+
+                page.filterObject = new Data("terminators");
+                page.filterObject.paging.sort = "address";
+                page.filterObject.paging.searchOn = "address";
+
+                page.filterObject.init(true, true);
+
+                page.apiParams = CodeMirror.fromTextArea(document.getElementById("ApiParams"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
+            }, 
+            gridAction: function(e) {
+                var action = $(e.currentTarget).data("action");
+                var id = $(e.currentTarget).data("id");
+                if (action=="delete") page.filterObject.delete([id]);
+                else if (action=="edit") page.edit(id);
+            },
+            row: function(template, data) {
+                template = template.split("{{service.name}}").join(data.service.name);
+                template = template.split("{{router.name}}").join(data.router.name);
+                if (data.identity && data.identity.name) template = template.split("{{identity.name}}").join(data.identity.name);
+                return template;
+            },
+            edit: function(id) {
+                var detail = page.filterObject.details(id);
+                page.services.val(detail.service);
+                page.routers.val(detail.router);
+                if (detail.identity && detail.identity) page.identities.val(detail.identity);
+                $("#Cost").val(detail.cost);
+                page.params();
+                modal.show("AddModal");
+            },
+            save: function() {
+                if (page.validate()) {
+                    var obj = page.params();
+                    page.filterObject.save(obj);
+                } else growler.form();
+            },
+            formReset: function(e) {
+                page.params();
+            },
+            params: function() {
+                try {  
+                    
+                    var obj = {
+                        service: page.services.val(),
+                        router: page.routers.val(),
+                        identity: page.identities.val(),
+                        precedence: $("#Precedence").val(),
+                        identitySecret: $("#IdentitySecret").val(),
+                        cost: Number($("#Cost").val()),
+                        binding: $("#Binding").val(),
+                        address: $("#Address").val(),
+                        tags: tags.val()
+                    };
+
+                    var url = settings.versionData.baseUrl+settings.versionData.serviceUrl+"/"+page.filterObject.name;
+                    if (page.filterObject.isEditing()) url += "/"+page.filterObject.editId;
+                    $("#ApiUrl").val(url);  
+                    var stayAt = $("#AddModal").scrollTop();
+                    page.apiParams.setValue(JSON.stringify(obj));
+                    page.apiParams.autoFormatRange({line:0, ch:0}, {line:page.apiParams.lineCount()});
+                    page.apiParams.scrollTo(null, 0);
+                    $("#AddModal").scrollTop(stayAt);
+
+                    return obj
+                } catch (e) {
+                    console.log(e);
+                }
+            },
+            validate: function() {
+                $(".errors").removeClass("errors");
+                return $(".errors").length==0;
+            }
+        }
+    </script>

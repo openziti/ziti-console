@@ -1,0 +1,504 @@
+label {
+    color: var(--dark);
+    text-transform: uppercase;
+    margin-top: 10px;
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 3px;
+    font-size: 14px;
+    white-space: nowrap;
+    font-weight: 600;
+    font-family: 'Open Sans';
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+textarea::placeholder {
+    font-size: 15px !important;
+}
+
+input, select, textarea {
+    font-weight: 400;
+    font-family: 'Open Sans', Arial, sans-serif;
+    height: 50px;
+    width: 100%;
+    border-color: var(--stroke);
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 7px;
+    padding-left: 10px;
+    padding-right: 10px;
+    outline: none;
+    box-sizing: border-box;
+    font-size: 15px;
+    background-color: var(--background) !important;
+    color: var(--text);
+    -webkit-appearance: none;
+}
+
+input[type="checkbox"] {
+	width: 40px;
+	height: 40px;
+}
+
+input[type="file"] {
+	display: none;
+}
+
+input.filter {
+	color: var(--white) !important;
+    position: absolute;
+    right: 0px;
+    top: -3px;
+    width: 225px;
+    height: 30px;
+    line-height: 30px;
+    border-width: 1px;
+    font-size: 12px;
+    border-color: var(--menu);
+    background-color: var(--menu) !important;
+}
+
+textarea.mini {
+	font-size: 12px;
+}
+
+textarea {
+	height: 150px;
+	resize: none;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none !important;
+    border-color: var(--primary);
+}
+
+.searchSelector input:focus {
+    border-color: rgba(0,0,0,0) !important;
+}
+
+.searchSelector:focus-within {
+    border-color: var(--primary);
+}
+
+input:disabled, select:disabled, textarea:disabled {
+	opacity: 0.2 !important;
+}
+
+div.errors {
+	border-width: 2px;
+	border-style: solid;
+	border-color: var(--red);
+}
+
+input.errors, select.errors, textarea.errors, div.errors .selectable {
+	border-color: var(--red);
+}
+
+select {
+    background-image: url(/assets/images/select.png);
+    background-position: center right 10px;
+    background-repeat: no-repeat;
+    background-size: 14px 7px;
+    padding-right: 28px;
+}
+
+.check {
+    width: 20px;
+    height: 20px;
+    border-radius: 7px;
+    position: relative;
+    margin-right: 10px;
+    float: left;
+    border-width: 2px;
+    border-style: solid;
+    border-color: var(--primary);
+    background-color: var(--background) !important;
+    background-position: center center;
+	background-size: 8px 8px;
+	cursor: pointer;
+}
+
+.check.checked {
+	background-image: url(/assets/images/check.png);
+	background-color: var(--primary) !important;
+}
+
+.subform {
+	background-color: var(--primary);
+	padding: 20px;
+	border-radius: 7px;
+	display: grid;
+	column-gap: 20px;
+	padding-top: 10px;
+}
+
+.suggestions {
+	width: 100%;
+	height: 0px;
+	opacity: 0;
+	transition: 0.5s;
+	padding-left: 10px;
+}
+
+.suggestions.open {
+	height: auto;
+	max-height: 200px;
+	opacity: 1;
+	overflow-y: scroll;
+}
+
+.suggestItem {
+	height: 25px;
+	line-height: 25px;
+	font-size: 14px;
+	width: 100%;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	cursor: pointer;
+}
+
+.subform input, .subform select {
+	background-color: var(--background);
+}
+
+.subform .subform {
+    padding: 10px;
+    border-width: 3px;
+    border-style: solid;
+    border-color: var(--secondary);
+    background-color: var(--secondary);
+    border-radius: 15px;
+}
+
+.subform .subform .subform {
+    background-color: var(--primary);
+}
+
+.subform .button {    
+	background-color: var(--stroke);
+    color: #000;
+    margin-top: 36px;
+    width: 75px;
+    padding-left: 5px;
+    padding-right: 5px;
+    min-width: unset;
+    height: 50px;
+    line-height: 40px;
+}
+
+.subform .suggestItem {
+	color: #fff;
+}
+
+.subform.three {
+	grid-template-columns: 40% auto 80px;
+}
+
+.issues {
+	display: none;
+}
+
+label .info {
+	position: absolute;
+	right: 0px;
+	text-transform: lowercase;
+	color: var(--menu);
+	transition: var(--transition);
+	top: 0px;
+}
+
+label .note {
+	position: absolute;
+	right: 0px;
+	text-transform: lowercase;
+	color: var(--primary);
+	transition: var(--transition);
+	cursor: pointer;
+}
+
+label .note:hover {
+	color: var(--secondary);
+	text-decoration: underline;
+}
+
+.toggle {
+    width: 60px;
+    height: 30px;
+    background-color: var(--black);
+    color: var(--white);
+    cursor: pointer;
+    border-radius: 100px;
+    position: relative;
+    display: inline-block;
+	margin-top: 10px;
+	transition: var(--transition);
+    float: left;
+    margin-right: 20px;
+}
+
+.toggle.on {
+	background-color: var(--green);
+}
+
+.toggle.on .switch {
+    left: 35px;
+}
+
+.toggle.on .label {
+	left: 10px;
+	content: "YES";
+}
+
+.toggle.on .label::before {
+	content: "YES";
+}
+
+.toggle .switch {
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    background-color: var(--white);
+    transition: var(--transition);
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    z-index: 10;
+}
+
+.toggle .label {
+	right: 10px;
+	line-height: 30px;
+	font-size: 12px;
+	color: var(--white);
+	position: absolute;
+	z-index: 8;
+    transition: var(--transition);
+	text-transform: uppercase;
+}
+
+.toggleLabel {
+	line-height: 50px;
+}
+
+.toggle .label::before {
+	content: "NO";
+}
+
+.form.mini {
+    width: 540px;
+    left: calc(50% - 270px);
+    top: calc(50% - 187px);
+    position: absolute;
+    display: inline-block;
+}
+
+.buttons {
+    position: relative;
+    width: 100%;
+	display: grid;
+	grid-template-columns: auto 150px;
+    margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+.modal .buttons {
+    padding-bottom: 50px;
+}
+
+.modal.box .buttons {
+	padding-bottom: 0px;;
+}
+
+.button {
+	font-size: 11px;
+	font-weight: 400;
+	font-family: 'Open Sans';
+	font-weight: 600;
+	display: inline-block;
+	min-width: 150px;
+	padding-left: 20px;
+	padding-right: 20px;
+    clear: both;
+    overflow: hidden;
+    padding-right: 20px;
+    height: 40px;
+    padding: 7px;
+	width: fit-content;
+	text-transform: uppercase;
+	text-align: center;
+	border-radius: 7px;
+	line-height: 25px;
+	position: relative;
+	border: 0;
+	background: var(--secondary);
+	color: white;
+	white-space: nowrap;
+	transition: all 150ms ease;
+	cursor: pointer;
+	box-shadow: var(--shadow);
+}
+
+.button.confirm {
+	background: var(--primary);
+}
+
+.minibutton {
+	font-size: 11px;
+	font-weight: 400;
+	font-family: 'Open Sans';
+	font-weight: 600;
+	display: inline-block;
+	min-width: 150px;
+	padding-left: 20px;
+	padding-right: 20px;
+    clear: both;
+    overflow: hidden;
+    height: 40px;
+    padding: 14px;
+	width: fit-content;
+	text-transform: uppercase;
+	text-align: center;
+	border-radius: 30px;
+	line-height: 12px;
+	position: relative;
+	border: 0;
+	background: var(--black);
+	color: var(--white);
+	white-space: nowrap;
+	cursor: pointer;
+	transition: .5s;
+}
+
+.minibutton:hover {
+	opacity: 0.4;
+}
+
+.button:hover, .button:focus {
+	outline: 0;
+	background-color: var(--secondary);
+}
+
+.button:active {
+	background: var(--secondary);
+}
+
+.button:disabled {
+	cursor: auto;
+	pointer-events: none;
+}
+
+.button:disabled:hover {
+	box-shadow: 0 30px 30px -20px rgba(0, 0, 0, 0.4);
+}
+
+.button.done {
+	background: #00dc5a;
+	box-shadow: 0 30px 30px -20px rgba(0, 220, 90, 0.4);
+	-webkit-animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+	animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+	-webkit-transform: translate3d(0, 0, 0);
+	transform: translate3d(0, 0, 0);
+	-webkit-backface-visibility: hidden;
+	backface-visibility: hidden;
+	-webkit-perspective: 1000px;
+	perspective: 1000px;
+}
+
+.button .spinner {
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: transparent;
+	border-top: 2px solid white;
+	border-right: 2px solid white;
+	border-bottom: 2px solid transparent;
+	border-left: 2px solid transparent;
+	-webkit-animation: loading 0.5s infinite linear;
+	animation: loading 0.5s infinite linear;
+}
+
+.button.clear {
+    color: var(--stroke);
+    background-color: var(--white);
+	border-width: 1.5px;
+	border-style:  solid;
+	border-color: var(--stroke);
+	font-weight: bold;
+	box-shadow: none;
+}
+
+.button.clear:hover, .button.clear:focus {
+	color: var(--white);
+	border-color: var(--secondary);
+	background-color: var(--secondary);
+	filter: brightness(80%);
+	outline: 0;
+	box-shadow: 0 20px 30px -16px #000;
+	-webkit-transform: translateY(3px);
+	transform: translateY(3px);
+}
+
+.button.alert.confirm {
+	background-color: var(--red);
+	box-shadow: 0 3px 9px -2px var(--red);
+}
+
+.button.alert.confirm:hover, .button.alert.confirm:focus {
+	color: var(--white);
+	border-color: var(--red);
+	background-color: var(--red);
+	filter: brightness(80%);
+	outline: 0;
+	box-shadow: 0 20px 30px -16px #000;
+	-webkit-transform: translateY(3px);
+	transform: translateY(3px);
+}
+
+.button.alert.confirm:active {
+	background: #648293;
+	-webkit-box-shadow: 0 20px 30px -16px #000;
+	box-shadow: 0 20px 30px -16px #000;
+	-webkit-transform: translateY(5px);
+	transform: translateY(5px);
+}
+
+.button.clear:active {
+	background: #648293;
+	border-color: #648293;
+	color: #FFF;
+	box-shadow: 0 20px 30px -16px #000;
+	-webkit-transform: translateY(5px);
+	transform: translateY(5px);
+}
+
+.selector {
+    width: 25px;
+    height: 25px;
+    border: 1.5px var(--stroke) solid;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background-color 0.5s;
+    position: absolute;
+    top: 13px;
+    left: 10px;
+    background-color: var(--offWhite);
+    transition: var(--transition);
+}
+
+.selector:hover {
+    border: 1.5px var(--primary) solid;
+    cursor: pointer;
+    background-color: var(--white);
+}
+
+.selector.selected {
+	background-color: var(--green);
+	background-image: url(/assets/images/check.png); 
+	background-size: 45%;
+	background-position: center center;
+    border: none;
+}
+

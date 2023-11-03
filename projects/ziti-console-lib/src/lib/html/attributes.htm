@@ -1,0 +1,261 @@
+    <!-- General Page Layout HTML -->
+    <div class="header">
+        <div class="title"><span data-i18n="Manage"></span> <span data-i18n="Attributes"></span></div>
+        <div class="bread"><span data-i18n="ZitiNetwork"></span> <span class="secondary">/</span> <span data-i18n="Manage"></span> <span data-i18n="Attributes"></span></div>
+        <div class="line"></div>
+        <div class="tabs">
+            <div class="tab selected"><span data-i18n="Manage"></span> <span data-i18n="Attributes"></span></div>
+        </div>
+    </div>
+    <div class="filters" style="display: none;">
+        <input id="SearchFilter" data-defined="search" type="text" class="search" data-i18n="EnterFilter" />
+        <div class="clear icon-clear" data-defined="clear"></div>
+        <div class="searchButton icon-search"></div>
+        <div class="counters"><span id="Start">-</span>-<span id="End">-</span> <span data-i18n="Of"></span> <span id="Total">-</span></div>
+        <div class="navigate prev icon-prev disabled"></div>
+        <div class="navigate next icon-next disabled"></div>
+    </div>
+    <div class="area data" data-defined="table">
+        <div class="noitems"></div>
+        <div class="table">
+            <div class="head grid columns">
+                <div class="col" data-i18n="Name"><div class="dragger"></div></div>
+                <div class="col" data-i18n="Identities"><div class="dragger"></div></div>
+                <div class="col" data-i18n="Services"><div class="dragger"></div></div>
+                <div class="col" data-i18n="Routers"><div class="dragger"></div></div>
+                <div class="col" data-i18n="PostureChecks"><div class="dragger"></div></div>
+                <div class="col"></div>
+            </div>
+            <div class="rows" data-defined="rows">
+                <!-- This area will be replaced by data rows -->
+            </div>
+        </div>
+    </div>
+    <div class="nodata" data-defined="empty">
+        <span data-i18n="No"></span> 
+        <span data-i18n="Attributes"></span> 
+        <span data-i18n="NoneDefined"></span> 
+        <span data-i18n="Attributes"></span>.
+    </div>
+
+
+
+    <!-- Template HTML will be used to display rows of data -->
+    <div id="RowTemplate" class="row grid columns template" data-defined="template">
+        <div class="col" style="padding-left: 10px;" data-id="{{name}}"><a href="javascript:page.edit('{{name}}');">{{name}}</a></div>
+        <div class="col desktop">{{identities}}</div>
+        <div class="col desktop">{{services}}</div>
+        <div class="col desktop">{{routers}}</div>
+        <div class="col desktop">{{postureChecks}}</div>
+        <div class="col allowOver">
+            <div class="dots" data-id="{{name}}">...
+                <div class="gridMenu" data-id="{{name}}">
+                    <div class="gridAction" data-id="{{name}}" data-action="edit" data-i18n="View"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="DetailModal" class="modal box full">
+        <div class="sized">
+            <div class="close icon-close"></div>
+            <div class="title">
+                <span data-i18n="View"></span>
+                <span data-i18n="Attribute"></span>
+            </div>
+            <div class="subtitle" data-i18n="AttributeSubTotal"></div>
+            <label for="Name" data-i18n="Name"></label>
+            <div id="Name"></div>
+            <label for="Identities" data-i18n="Identities"></label>
+            <div id="Identities"></div>
+            <label for="Services" data-i18n="Services"></label>
+            <div id="Services"></div>
+            <label for="Routers" data-i18n="Routers"></label>
+            <div id="Routers"></div>
+            <label for="PostureChecks" data-i18n="PostureChecks"></label>
+            <div id="PostureChecks"></div>
+        </div>
+    </div>
+
+    <style>
+        .grid.columns {
+	        grid-template-columns: auto 150px 150px 150px 150px 50px;
+        }
+    </style>
+
+    <script language="javascript" type="text/javascript">
+        page = {
+            loading: 2,
+            attributes: [],
+            idRolesObj: null,
+            serviceRolesObj: null,
+            routerRolesObj: null,
+            identitiesObject: null,
+            serviceObject: null,
+            postureObject: null,
+            routerObject: null,
+            dataObj: null,
+            attributes: [],
+            init: function() {
+                this.events();
+                page.dataObj = new Data("attributes");
+                page.dataObj.init(false, true, false);
+
+                page.identitiesObject = new Data("identities");
+                page.serviceObject = new Data("services");
+                page.postureObject = new Data("posture-checks");
+                page.routerObject = new Data("edge-routers");
+
+                page.identitiesObject.init(true, false, true);
+                page.serviceObject.init(false, false, true);
+                page.postureObject.init(false, false, true);
+                page.routerObject.init(false, false, true);
+
+                page.idRolesObj = new Data("identity-role-attributes");
+                page.idRolesObj.init(false, false, true);
+                page.idRolesObj.paging.searchOn = "id";
+                page.idRolesObj.paging.sort = "id";
+
+                page.routerRolesObj = new Data("edge-router-role-attributes");
+                page.routerRolesObj.init(false, false, true);
+                page.routerRolesObj.paging.searchOn = "id";
+                page.routerRolesObj.paging.sort = "id";
+
+                page.serviceRolesObj = new Data("service-role-attributes");
+                page.serviceRolesObj.init(false, false, true);
+                page.serviceRolesObj.paging.searchOn = "id";
+                page.serviceRolesObj.paging.sort = "id";
+            }, 
+            events: function() {
+                context.addListener("identity-role-attributes", page.attributesLoaded);
+                context.addListener("edge-router-role-attributes", page.attributesLoaded);
+                context.addListener("service-role-attributes", page.attributesLoaded);
+                context.addListener("identities", page.identitiesLoaded);
+                context.addListener("services", page.servicesLoaded);
+                context.addListener("posture-checks", page.postureLoaded);
+                context.addListener("edge-routers", page.routerLoaded);
+            },
+            identitiesLoaded: function(e) {
+                page.serviceObject.get();
+            },
+            servicesLoaded: function(e) {
+                page.postureObject.get();
+            },
+            postureLoaded: function(e) {
+                let items = e.data;
+                for (let i=0; i<items.length; i++) {
+                    let item = items[i];
+                    if (item.roleAttributes) {
+                        for (let j=0; j<item.roleAttributes.length; j++) {
+                            let tag = item.roleAttributes[j];
+
+                            let index = page.attributeIndex(tag);
+                            if (index==-1) {
+                                page.attributes.push({
+                                    name: tag,
+                                    identities: page.attrTotal(tag, page.identitiesObject.data),
+                                    services: page.attrTotal(tag, page.serviceObject.data),
+                                    postureChecks: 1,
+                                    routers: page.attrTotal(tag, page.routerObject.data)
+                                })
+                            } else {
+                                page.attributes[index].postureChecks++;
+                            }
+
+                        }
+                    }
+                }
+                page.routerObject.get();
+            },
+            routerLoaded: function(e) {
+                page.idRolesObj.get();
+                page.serviceRolesObj.get();
+                page.routerRolesObj.get();
+            },
+            attributesLoaded: function(e) {
+                let items = e.data;
+                for (let i=0; i<items.length; i++) {
+                    let tag = items[i];
+                    let index = page.attributeIndex(tag);
+                    if (index==-1) {
+                        page.attributes.push({
+                            name: tag,
+                            identities: page.attrTotal(tag, page.identitiesObject.data),
+                            services: page.attrTotal(tag, page.serviceObject.data),
+                            postureChecks: page.attrTotal(tag, page.postureObject.data),
+                            routers: page.attrTotal(tag, page.routerObject.data)
+                        })
+                    } 
+                }
+                page.loading--;
+                if (page.loading==0) {
+                    page.attributes.sort( page.sort );
+                    page.dataObj.doBind(page.attributes);
+                }
+            },
+            attributeIndex: function(name) {
+                for (let i=0; i<page.attributes.length; i++) {
+                    if (page.attributes[i].name == name) return i;
+                }
+                return -1;
+            },
+            sort: function(a, b) {
+                if ( a.name < b.name ){
+                    return -1;
+                }
+                if ( a.name > b.name ){
+                    return 1;
+                }
+                return 0;
+            },
+            attrTotal: function(tag, items, showIt) {
+                let total = 0;
+                for (let i=0; i<items.length; i++) {
+                    let item = items[i];
+                    if (item.roleAttributes && item.roleAttributes.includes(tag)) total++;
+                    if (showIt) console.log(tag+" "+total+" "+item.roleAttributes);
+                }
+                return total;
+            },
+            gridAction: function(e) {
+                var action = $(e.currentTarget).data("action");
+                var id = $(e.currentTarget).data("id");
+                if (action=="edit") page.edit(id);
+            },
+            edit: function(id) {
+                debugger;
+                var item;
+                for (let i=0; i<page.attributes.length; i++) {
+                    if (page.attributes[i].name==id) {
+                        item = page.attributes[i];
+                        break;
+                    }
+                }
+
+                if (item) {
+                    if (item.identities==0) $("#Identities").html("-");
+                    else page.associated(page.identitiesObject.data, id, "Identities");
+
+                    if (item.services==0) $("#Services").html("-");
+                    else page.associated(page.serviceObject.data, id, "Services");
+
+                    if (item.postureChecks==0) $("#PostureChecks").html("-");
+                    else page.associated(page.postureObject.data, id, "PostureChecks");
+
+                    if (item.routers==0) $("#Routers").html("-");
+                    else page.associated(page.routerObject.data, id, "Routers");
+
+                    modal.show("DetailModal");
+                }
+            },
+            associated: function(data, tag, id) {
+                var names = "";
+                for (let i=0; i<data.length; i++) {
+                    var item = data[i];
+                    if (item.roleAttributes && item.roleAttributes.includes(tag)) names += "<li>"+item.name + "</li>";
+                }
+                $("#"+id).html(names);
+            }
+        }
+    </script>

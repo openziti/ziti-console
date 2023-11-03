@@ -1,0 +1,26 @@
+<div class="ziti-page-container ziti-identities-container">
+    <lib-list-page-header [title]="title"
+                          [tabs]="tabs"
+                          (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
+
+    <lib-data-table [tableId]="'configurations'"
+                    [rowData]="rowData"
+                    [columnDefinitions]="columnDefs"
+                    (actionRequested)="tableAction($event)"
+                    [startCount]="startCount"
+                    [endCount]="endCount"
+                    [totalCount]="totalCount"
+                    [emptyMsg]="'No Configurations defined, Click the plus to add a Configuration.'"
+                    [filterApplied]="filterApplied"
+    >
+    </lib-data-table>
+
+    <lib-list-page-form [(show)]="showEditForm"
+                        [showButtons]="showButtons"
+                        [title]="formTitle"
+                        [subTitle]="formSubtitle"
+                        [validator]="validate"
+                        (update)="itemUpdate()">
+        <lib-configuration #projectable (showButtons)="viewButtons($event)" (currentSchema)="onSchemaChange($event)"></lib-configuration>
+    </lib-list-page-form>
+</div>

@@ -1,0 +1,236 @@
+<div class="header">
+        <div class="title">Manage <span data-bind="pageTitle"></span></div>
+        <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span data-bind="pageTitle"></span></div>
+        {{html.line}}
+        {{html.tabServers}}
+    </div>
+    <div class="action icon-plus" data-action="add"></div>
+    <div class="area data">
+        <div class="noitems"></div>
+        <div class="table">
+            <div class="head grid floor">
+                <div class="col padCol asc">Name<div class="dragger"></div></div>
+                <div class="col">Url<div class="dragger"></div></div>
+                <div class="col desktop">Type<div class="dragger"></div></div>
+                <div class="col"></div>
+            </div>
+            <div class="rows">
+                <!-- This area will be replaced by data rows -->
+            </div>
+        </div>
+    </div>
+    <div class="pod hasFabrics">
+        <div class="title">Fabric Server</div>
+        <div class="subtitle">Select the fabric server to use with the current session</div>
+        <select id="FabricServicesList"></select>
+    </div>
+
+    <!-- Row Template -->
+    <div id="RowTemplate" class="row grid floor template">
+        <div class="col padCol" data-id="{{id}}"><a href="javascript:page.edit('{{id}}');">{{name}}</a></div>
+        <div class="col" data-id="{{id}}">{{url}}</div>
+        <div class="col desktop" data-id="{{id}}">{{type}}</div>
+        <div class="col allowOver">
+            <div class="dots {{isMe}}" data-id="{{id}}">...
+                <div class="gridMenu" data-id="{{id}}">
+                    <div class="gridAction" data-id="{{id}}" data-action="edit">Edit</div>
+                    <div class="gridAction" data-id="{{id}}" data-action="delete">Delete</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modification Modals -->
+    <div id="AddModal" class="modal box full">
+        <div class="sized">
+            <div class="close icon-close"></div>
+            <div class="title adding">Create <span data-bind="singular"></span></div>
+            <div class="subtitle adding">Add a New <span data-bind="singular"></span> by completing the following form</div>
+            <div class="title editing">Edit <span data-bind="singular"></span></div>
+            <div class="subtitle editing">Change the <span data-bind="singular"></span> Details</div>
+            <label for="ServerName">Name</label>
+            <input id="ServerName" type="text" maxlength="500" placeholder="Enter a name to display" />
+            <label for="ServerUrl">Url</label>
+            <input id="ServerUrl" type="text" maxlength="500" placeholder="e.g. http://10.0.0.1:1280" />
+            <label for="ServerType">Type</label>
+            <select id="ServerType">
+                <option value="edge">Edge Controller</option>
+            </select>
+            <div class="buttons">
+                <div class="linkButton closer">Oops, No get me out of here</div>
+                <div id="SaveButton" class="button">Save</div>
+            </div>
+        </div>
+    </div>
+    <style>
+    .hasFabrics {
+        display: none;
+    }
+    .hasFabrics.has {
+        display: inline-block;
+    }
+    </style>
+    <script language="javascript" type="text/javascript">
+        page = {
+            binding: {
+                pageTitle: "Servers",
+                singular: "Server"
+            },
+            editId: "",
+            data: [],
+            deleting: "",
+            init: function() {
+                this.events();
+                settings.init();
+            },
+            events: function() {
+                context.addListener(settings.name, page.getLoaded);
+                $(".action").click(page.handleAction);
+                $("#SaveButton").click(page.save);
+                $("#FabricServicesList").change(page.setFabric);
+            },
+            setFabric: function(e) {
+                context.set("fabricUrl", $("#FabricServicesList").val());
+            },
+            getLoaded: function(e) {
+                $(".selector.selected").removeClass("selected");
+                app.setAction();
+                page.data = settings.data;
+                $(".rows").html("");
+                if (settings.data.edgeControllers.length>0||settings.data.fabricControllers.length>0) {
+                    var index = 0;
+                    for (var i=0; i<settings.data.edgeControllers.length; i++) {
+                        var element = $("#RowTemplate").clone();
+                        element.removeClass("template");
+                        element.attr("id","Row"+index);
+                        element.html(element.html().split("{{id}}").join(settings.data.edgeControllers[i].url));
+                        element.html(element.html().split("{{name}}").join(settings.data.edgeControllers[i].name));
+                        element.html(element.html().split("{{url}}").join(settings.data.edgeControllers[i].url));
+                        element.html(element.html().split("{{type}}").join("Edge"));
+                        $(".rows").append(element);
+                        index++;
+                    }
+                    $("#FabricServicesList").html("");
+                    page.pageLoaded();
+                    $(".data").show();
+                    $(".nodata").hide();
+                } else {
+                    $(".data").hide();
+                    $(".nodata").show();
+                }
+            },
+            pageLoaded: function() {
+                $(".gridAction").click(page.gridAction);
+                $(".clickEdit").click(page.clickEdit);
+                app.postLoad();
+            },
+            toggleList: function() {
+                if ($("#Objects").val()=="all") {
+                    $("#ObjectsList").hide();
+                } else {
+                    $("#ObjectsList").show();
+                }
+            },
+            gridAction: function(e) {
+                var action = $(e.currentTarget).data("action");
+                var id = $(e.currentTarget).data("id");
+
+                var canProceed = true;
+			    if (settings.versionData.requireAuth) canProceed = settings.versionData.baseUrl==id;
+
+                if (canProceed) {
+                    if (action=="edit") page.edit(id);
+                    else if (action=="delete")  {
+                        page.deleting = id;
+                        modal.confirm("you want to delete this "+page.binding.singular, page.confirmedDelete);
+                    }
+                } else growler.error("You can only change edge controllers you have authenticated against.")
+            },
+            save: function() {
+                if (page.validate()) {
+                    if ($("#ServerType").val()=="edge") {
+                        settings.addContoller($("#ServerName").val(), $("#ServerUrl").val());
+                    } else {
+                        settings.addFabric($("#ServerName").val(), $("#ServerUrl").val());
+                    }
+                    modal.close();
+                } else growler.form();
+            },
+            edit: function(id) {
+                page.reset();
+
+                var name = "";
+                var url = "";
+                var type = "";
+
+                var found = false;
+
+                for (var i=0; i<settings.data.edgeControllers.length; i++) {
+                    if (settings.data.edgeControllers[i].url==id) {
+                        name = settings.data.edgeControllers[i].name;
+                        url = settings.data.edgeControllers[i].url;
+                        type = "edge";
+                        found = true;
+                    }
+                }
+                if (!found) {
+                    for (var i=0; i<settings.data.fabricControllers.length; i++) {
+                        if (settings.data.fabricControllers[i].url==id) {
+                            name = settings.data.fabricControllers[i].name;
+                            url = settings.data.fabricControllers[i].url;
+                            type = "fabric";
+                            found = true;
+                        }
+                    }
+                }
+
+                if (found) {
+                    $("#ServerName").val(name);
+                    $("#ServerUrl").val(url);
+                    $("#ServerType").val(type);
+                    $("#ServerUrl").prop("readonly", true);
+
+                    $(".adding").hide();
+                    $(".editing").show();
+
+                    page.editId = url;
+                    modal.show("AddModal");
+                }
+            },
+            validate: function() {
+                $(".errors").removeClass("errors");
+                if ($("#ServerName").val().trim().length==0) $("#ServerName").addClass("errors");
+                if ($("#ServerUrl").val().trim().length==0) $("#ServerUrl").addClass("errors");
+                return $(".errors").length==0;
+            },
+            reset: function() {
+                app.isDirty = false;
+                page.editId = "";
+                $("#ServerName").val("");
+                $("#ServerUrl").val("");
+                $("#ServerType").val("edge");
+                $("#ServerUrl").prop("readonly", false);
+            },
+            handleAction: function(e) {
+                var action = $(e.currentTarget).data("action");
+                if (action=="add") {
+                    page.reset();
+                    page.add();
+                } else if (action=="remove") page.deleteMulti();
+            },
+            confirmedDelete: function() {
+                settings.delete(page.deleting);
+                app.reset();
+            },
+            clickEdit: function(e) {
+                var id = $(e.currentTarget).data("id");
+                if (id) page.edit(id);
+            },
+            add: function() {
+                $(".adding").show();
+                $(".editing").hide();
+                modal.show("AddModal");
+            }
+        }
+    </script>

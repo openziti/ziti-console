@@ -1,0 +1,934 @@
+    <!-- General Page Layout HTML -->
+    <div class="header">
+        <div class="title">
+            <span data-i18n="Manage"></span> 
+            <span data-i18n="Identities"></span>
+        </div>
+        <div class="bread">
+            <span data-i18n="ZitiNetwork"></span> 
+            <span class="secondary">/</span> 
+            <span data-i18n="Manage"></span> 
+            <span data-i18n="Identities"></span>
+        </div>
+        {{html.line}}
+        {{html.tabIdentities}}
+    </div>
+    <div class="action icon-plus" data-action="add"></div>
+    <div class="filters">
+        <input id="SearchFilter" data-defined="search" type="text" class="search" data-i18n="EnterFilter" />
+        <div class="clear icon-clear" data-defined="clear"></div>
+        <div class="searchButton icon-search"></div>
+        <div class="counters"><span id="Start">-</span>-<span id="End">-</span> <span data-i18n="Of"></span> <span id="Total">-</span></div>
+        <div class="navigate prev icon-prev disabled"></div>
+        <div class="navigate next icon-next disabled"></div>
+    </div>
+    <div class="area data" data-defined="table">
+        <div class="table">
+            <div class="head grid columns">
+                <div class="col">
+                    <div class="selector all"></div>
+                </div>
+                <div class="col sort asc" data-by="name">
+                    <span data-i18n="Name"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col">
+                    <span data-i18n="Roles"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="OS"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="SDK"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col sort desktop" data-by="type">
+                    <span data-i18n="Type"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col sort desktop" data-by="isAdmin">
+                    <span data-i18n="Admin"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col sort desktop" data-by="createdAt">
+                    <span data-i18n="Created"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="Token"></span>
+                    <div class="dragger"></div>
+                </div>
+                <div class="col desktop">
+                    <span data-i18n="MFA"></span>
+                </div>
+                <div class="col"></div>
+            </div>
+            <div class="rows" data-defined="rows">
+                <!-- This area will be replaced by data rows -->
+            </div>
+        </div>
+    </div>
+    <div class="nodata" data-defined="empty">
+        <span data-i18n="No"></span> 
+        <span data-i18n="Session"></span> 
+        <span data-i18n="NoneDefined"></span> 
+        <span data-i18n="APISession"></span>.
+    </div>
+
+    <!-- Data Table Template -->
+    <div id="RowTemplate" class="row grid columns template" data-defined="template">
+        <div class="col">
+            <div class="selector" data-id="{{id}}"></div>
+        </div>
+        <div class="col" data-id="{{id}}">
+            <span class="circle {{hasApiSession}}" title="Api Session"></span>
+            <span class="circle {{hasEdgeRouterConnection}}" title="Edge Router Connected"></span>
+            <strong><a href="javascript:page.edit('{{id}}');">{{name}}</a></strong>
+        </div>
+        <div class="col desktop" data-id="{{id}}" style="overflow: unset;">{{roles}}</div>
+        <div class="col desktop" data-id="{{id}}" style="overflow: unset;"><span class="os {{os}}" data-balloon-pos="up" aria-label="{{osDetails}}"></span></div>
+        <div class="col desktop" data-id="{{id}}" style="overflow: unset;" data-balloon-pos="up" aria-label="{{sdk}}"><span class="oneline">{{version}}</span></div>
+        <div class="col desktop" data-id="{{id}}">{{type}}</div>
+        <div class="col desktop" data-id="{{id}}">{{isAdmin}}</div>
+        <div class="col desktop" data-id="{{id}}">{{moment.createdAt}}</div>
+        <div class="col desktop notitle">{{tokenLink}}</div>
+        <div class="col desktop notitle">{{mfaEnabled}}</div>
+        <div class="col allowOver">
+            <div class="dots" data-id="{{id}}">...
+                <div class="gridMenu" data-id="{{id}}">
+                    <div class="gridAction" data-id="{{id}}" data-action="edit" data-i18n="Edit"></div>
+                    <div class="gridAction {{hiddenResetClass}}" data-id="{{id}}" data-action="reset" data-i18n="ResetEnrollment"></div>
+                    <div class="gridAction {{hiddenMFAClass}}" data-id="{{id}}" data-action="mfa" data-i18n="RemoveMFA"></div>
+                    <div class="gridAction {{hiddenClass}}" data-id="{{id}}" data-action="download" data-i18n="DownloadJWT"></div>
+                    <div class="gridAction {{hiddenClass}}" data-id="{{id}}" data-action="qr" data-i18n="ViewQR"></div>
+                    <div class="gridAction" data-id="{{id}}" data-action="override" data-i18n="Overrides"></div>
+                    <div class="gridAction" data-id="{{id}}" data-action="delete" data-i18n="Delete"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="OverrideTemplate" class="row grid threedelete template">
+        <div>{{serviceName}}</div>
+        <div>{{configName}}</div>
+        <div class="relative">
+            <div class="remove icon-minus removeAssoc" data-config="{{config}}" data-service="{{service}}"></div>
+        </div>
+    </div>
+
+    <div id="ResetModal" class="modal box" style="height: fit-content;"> 
+        <div class="sized large">
+            <div class="close icon-close"></div>
+            <div class="title" data-i18n="ResetEnrollment"></div>
+            <div class="subtitle" data-i18n="ResetEnrollmentSubTitle"></div>
+            <label for="ResetDate" data-i18n="ExpireDate"></label>
+            <input id="ResetDate" type="text" placeholder="Select a Date" data-enter="ResetEnrollButton"/>
+            <div class="buttons">
+                <div id="ResetEnrollButton" class="button" data-i18n="Reset"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="OverrideModal" class="modal box full"> 
+        <div class="sized large">
+            <div class="close icon-close"></div>
+            <div class="title" data-i18n="IdentityOverrides"></div>
+            <div class="subtitle" data-i18n="ManageServiceOverride"></div>
+            <div class="darkened overrides" style="display: none;" data-i18n="CurrentOverrides"></div>
+            <div id="OverrideList" class="grid splitRemove overrides" style="display: none;">
+
+            </div>
+            <div class="darkened" data-i18n="AddOverrideConfig"></div>
+            <div class="grid split">
+                <div>
+                    <label for="ServiceList" data-i18n="Service"></label>
+                    <select id="ServiceList"></select>
+                </div>
+                <div>
+                    <label for="ConfigList" data-i18n="Configuration"></label>
+                    <select id="ConfigList"></select>
+                </div>
+            </div>
+            <div class="buttons">
+                <div id="AssociateButton" class="button" data-i18n="Add"></div>
+            </div>
+        </div>
+    </div>
+
+
+
+	<!-- Modification Modals -->
+	<div id="AddModal" class="modal box full">
+        <div class="sized large">
+            <div class="close icon-close"></div>
+            <div class="title adding">
+                <span data-i18n="Create"></span>
+                <span data-i18n="Identity"></span>
+            </div>
+            <div class="subtitle adding">
+                <span data-i18n="AddNew"></span>
+                <span data-i18n="Identity"></span>
+                <span data-i18n="ByComplete"></span>
+            </div>
+            <div class="title editing">
+                <span data-i18n="Edit"></span>
+                <span data-i18n="Identity"></span>
+            </div>
+            <div class="subtitle editing">
+                <span data-i18n="Change"></span>
+                <span data-i18n="Identity"></span>
+                <span data-i18n="Details"></span>
+            </div>
+
+            <div class="grid split">
+                <div>
+                    <label for="Name" data-i18n="Name"></label>
+                    <input id="Name" data-bind="data.name" type="text" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
+                    <label for="Roles" data-i18n="RoleAttributes"></label>
+                    <div id="Roles"></div>
+                    <div id="MFAArea">
+                        <label for="MFA" data-i18n="MFAEnabled"></label>
+                        <div id="ToggleMFA" class="toggle on">
+                            <div class="switch"></div>
+                            <div class="label"></div>
+                        </div> 
+                        <span class="sidenote" data-i18n="Name">Click To Remove</span>
+                    </div>
+                    <div class="split">
+                        <div>
+                            <label for="IdentityType" data-i18n="IdentityType"></label>
+                            <select id="IdentityType" data-default="Device" data-enter="SaveButton">
+                                <!-- <option value="Default" selected data-i18n="Default"></option> -->
+                                <option value="Device" selected data-i18n="Device"></option>
+                                <option value="Service" data-i18n="Service"></option>
+                                <option value="User" data-i18n="User"></option>
+                            </select>
+                        </div>
+                        <div id="UserArea">
+                            <label data-i18n="IsAdmin"></label>
+                            <div id="IsAdmin" class="toggle">
+                                <div class="switch"></div>
+                                <div class="label"></div>
+                            </div>
+                        </div>
+                    </div> 
+                    <div class="split unsplit">
+                        <div>
+                            <label for="Enrollment" data-i18n="EnrollmentType"></label>
+                            <select id="EnrollmentType" data-bind="data.enrollmentType" data-default="ott" data-enter="SaveButton">
+                                <option value="ott" data-i18n="OneTimeToken" selected></option>
+                                <option value="CA" data-i18n="CA"></option>
+                                <option value="updb" data-i18n="UPDB"></option>
+                            </select>
+                        </div>
+                        <div id="CertAuthoritiesArea" style="display:none">
+                            <label for="Authorities" data-i18n="CA"></label>
+                            <select id="Authorities" data-enter="SaveButton"></select>
+                        </div>
+                        <div id="UpDbArea" style="display:none">
+                            <label for="UPDBName" data-i18n="UPDBUsername"></label>
+                            <input id="UPDBName" data-bind="data.enrollment.updb" type="text" maxlength="500" placeholder="Enter a name" data-enter="SaveButton" />
+                        </div>
+                    </div>
+                    <div class="grid split">
+                        <div>
+                            <label for="AuthPolicy" data-i18n="AuthPolicy"></label>
+                            <select id="AuthPolicy" data-bind="data.authPolicyId"></select>
+                        </div>
+                        <div>
+                            <label for="ExternalId" data-i18n="ExternalId"></label>
+                            <input id="ExternalId" data-bind="data.externalId" type="text" maxlength="500" data-i18n="EnterExternal" />
+                        </div>
+                    </div>
+                    <div id="TagArea" data-tagarea="identity"></div>
+                    {{html.customtags}}
+                </div>
+                <div>
+                    <div class="darkened">
+                        <div>
+                            <label for="Environment" class="editing" data-i18n="Environment"></label>
+                            <div id="Environment" class="editing configBox"></div>
+                        </div>
+                        <div>
+                            <label for="SdkInfo" class="editing" data-i18n="SDK"></label>
+                            <div id="SdkInfo" class="editing configBox"></div>
+                        </div>
+                        <label for="Services" class="editing">
+                            <span data-i18n="Services"></span>
+                            <div class="info" data-i18n="ClickToTest"></div>
+                        </label>
+                        <div id="Services" class="row editing configBox"></div>
+                        <label for="ServiceIssues" class="issues">
+                            <span id="ServiceClicked"></span> 
+                            <span data-i18n="ConnectionIssues"></span>
+                        </label>
+                        <div id="ServiceIssues" class="issues configBox"></div>
+                        <label for="AppData" data-i18n="AppData"></label>
+                        <textarea id="AppData"></textarea>
+                        <div class="grid split">
+                            <div>
+                                <label for="HostingCost" data-i18n="HostingCost"></label>
+                                <input id="HostingCost" data-bind="data.defaultHostingCost" type="number" />
+                            </div>
+                            <div>
+                                <label for="HostingPrecedence" data-i18n="HostingPrecedence"></label>
+                                <select id="HostingPrecedence" data-bind="data.defaultHostingPrecedence">
+                                    <option value="default" data-i18n="Default"></option>
+                                    <option value="required" data-i18n="Required"></option>
+                                    <option value="failed" data-i18n="Failed"></option>
+                                </select>
+                            </div>
+                        </div>
+                        {{html.api}}
+                    </div>
+                </div>
+            </div>
+           
+            {{html.save}}
+        </div>
+    </div>         
+    
+	<div id="QRModal" class="modal box full">
+        <div class="sized center">
+            <div class="close icon-close"></div>
+            <div class="title" data-i18n="ScanQRCode"></div>
+            <div class="subtitle" data-i18n="UseTunneler"></div>
+            <div id="QRCode"></div>
+        </div>
+    </div>
+
+    <style>
+        .CodeMirror {
+            height: 211px;
+        }
+        .columns {
+	        grid-template-columns: 50px minmax(200px, auto) 300px 50px 120px 100px 150px 150px 100px 100px 50px;
+        }
+    </style>
+    
+    <script language="javascript" type="text/javascript">
+        page = {
+            editId: -1,
+            filterObject: null,
+            casObject: null,
+            configs: null,
+            servicesObject: null,
+            idServices: null,
+            roles: null,
+            identityRoles: null,
+            authPolicies: null,
+            appData: null,
+            apiParams: null,
+            init: function() {
+                page.roles = new MultiSelect("Roles", 10, true);
+                page.roles.addSource(new SelectSource("identity-role-attributes", "", "id")); 
+                page.roles.init();
+
+                page.casObject = new Data("cas");
+                page.servicesObject = new Data("services");
+                page.configsObject = new Data("configs");
+                page.filterObject = new Data("identities");
+
+                page.events();
+
+                page.casObject.init(true);
+                page.servicesObject.init(true);
+                page.configsObject.init(true);
+                page.filterObject.init(true, true); 
+
+                page.authPolicies = new Data("auth-policies");
+                page.authPolicies.init(false, false, true);
+                page.authPolicies.get();
+
+                
+                $("#ResetDate").datetimepicker({
+                    validateOnBlur: false,
+                    minDate: moment().add("h", 1).toDate(),
+                    startDate: moment().add("d", 2).toDate(),
+                    format: "m/d/Y h:i A",
+                    formatTime: "h:i A"
+                });
+				$("#ResetDate").val(moment().add("d", 2).format("MM/DD/YYYY h:mm A"));
+                
+                page.appData = CodeMirror.fromTextArea(document.getElementById("AppData"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"} });
+                page.apiParams = CodeMirror.fromTextArea(document.getElementById("ApiParams"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
+                page.appData.on('change', (args) => { 
+                    page.params(); 
+                });
+            }, 
+            events: function() {
+                context.addListener(page.filterObject.name, page.loaded);
+                context.addListener(page.casObject.name, page.casLoaded);
+                context.addListener(page.servicesObject.name, page.servicesLoaded);
+                context.addListener(page.configsObject.name, page.configsLoaded);
+                context.addListener("auth-policies", page.policiesLoaded);
+                $("#IdentityType").change(page.toggleUserType);
+                $("#EnrollmentType").change(page.toggleType);
+                $("#AssociateButton").click(page.addOveride);
+                $("#ToggleMFA").click(page.inlineMfa);
+                $("#ResetEnrollButton").click(page.doReset);
+            },
+            policiesLoaded: function(e) {
+                $("#AuthPolicy").empty().append("<option value=\"\">"+locale.get("SelectAuthPolicy")+"</option>");
+                for (let i=0; i<e.data.length; i++) {
+                    $("#AuthPolicy").append('<option value="'+e.data[i].id+'">'+e.data[i].name+'</option>');
+                }
+            },
+            row: function(template, data) {
+                template = template.split("{{type}}").join(data.type.name);
+                var enrollment = "N/A";
+                if (data.enrollment&&data.enrollment.ott&&data.enrollment.ott.jwt) {
+                    if (data.enrollment.ott.expiresAt!=null) {
+                        var difference = moment(data.enrollment.ott.expiresAt).diff(moment(new Date()));
+                        if (difference>0) enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
+                    } else {
+                        enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
+                    }
+                } else {
+                    if (data.enrollment&&data.enrollment.ottca&&data.enrollment.ottca.jwt) {
+                        if (data.enrollment.ottca.expiresAt!=null) {
+                            var difference = moment(data.enrollment.ottca.expiresAt).diff(moment(new Date()));
+                            if (difference>0) enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
+                        } else {
+                            enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
+                        }
+                    } else { 
+                        if (data.enrollment.updb) {
+                            if (data.enrollment.updb.expiresAt!=null) {
+                                var difference = moment(data.enrollment.updb.expiresAt).diff(moment(new Date()));
+                                if (difference>0) enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
+                            } else {
+                                enrollment = '<span class="cert" data-id="'+data.id+'"></span><span class="qr icon-qr" data-id="'+data.id+'"></span>';
+                            }
+                        }
+                    }
+                }
+                if (enrollment=="N/A") {
+                    template = template.split("{{hiddenClass}}").join("hidden");
+                } else {
+                    template = template.split("{{hiddenClass}}").join("");
+                }
+                
+                if (!data.isMfaEnabled) {
+                    template = template.split("{{hiddenMFAClass}}").join("hidden");
+                    template = template.split("{{mfaEnabled}}").join("no");
+                } else {
+                    template = template.split("{{hiddenMFAClass}}").join("");
+                    template = template.split("{{mfaEnabled}}").join("yes");
+                }
+
+                if ((data.authenticators.cert!=null&&data.authenticators.cert.id!=null) || (data.authenticators.updb!=null&&data.authenticators.updb.id!=null)) {
+                    template = template.split("{{hiddenResetClass}}").join("");
+                } else {
+                    template = template.split("{{hiddenResetClass}}").join("");
+                    //template = template.split("{{hiddenResetClass}}").join("hidden");
+                }
+
+                var roles = "";
+                if (data.roleAttributes && data.roleAttributes.length>0) {
+                    for (let i=0; i<data.roleAttributes.length; i++) {
+                        roles += ((i>0)?",":"")+'<div class="hashtag">'+data.roleAttributes[i]+'</div>';
+                    }
+                } else roles = "-";
+                template = template.split("{{roles}}").join(roles);
+
+
+                template = template.split("{{tokenLink}}").join(enrollment);
+
+                var os = "other";
+                var osDetails = "";
+                if (data.envInfo) {
+                    if (data.envInfo.osVersion&&data.envInfo.osVersion.toLowerCase().indexOf("windows")>=0) os = "windows";
+                    else {
+                        if (data.envInfo.os&&data.envInfo.os.toLowerCase().indexOf("darwin")>=0) os = "apple";
+                        else if (data.envInfo.os&&data.envInfo.os.toLowerCase().indexOf("linux")>=0) os = "linux";
+                        else if (data.envInfo.os&&data.envInfo.os.toLowerCase().indexOf("android")>=0) os = "android";
+                        else if (data.envInfo.os&&data.envInfo.os.toLowerCase().indexOf("windows")>=0) os = "windows";
+                    }
+                    if (data.envInfo.os) osDetails += "OS: "+data.envInfo.os;
+                    if (data.envInfo.arch) osDetails += "&#10;Arch: "+data.envInfo.arch;
+                    if (data.envInfo.osRelease) osDetails += "&#10;Release: "+data.envInfo.osRelease;
+                    if (data.envInfo.osVersion) osDetails += "&#10;Version: "+data.envInfo.osVersion;
+                }
+                if (osDetails.length==0) osDetails = "No Info Available";
+                template = template.split("{{os}}").join(os);
+                template = template.split("{{osDetails}}").join(osDetails);
+
+                var sdk = "";
+                var version = "-";
+                if (data.sdkInfo) {
+                    version = "";
+                    if (data.sdkInfo.version) version += data.sdkInfo.version; 
+                    if (data.sdkInfo.appId) sdk += data.sdkInfo.appId; 
+                    if (data.sdkInfo.appVersion) sdk += data.sdkInfo.appVersion; 
+                    if (data.sdkInfo.type) sdk += data.sdkInfo.type;
+                    if (data.sdkInfo.type) sdk += "&#10;"+data.sdkInfo.branch;
+                    if (data.sdkInfo.revision) sdk += " - "+data.sdkInfo.revision;
+                }
+                if (sdk.length==0) sdk = "No Info Available";
+                template = template.split("{{version}}").join(version);
+                template = template.split("{{sdk}}").join(sdk);
+
+                return template;
+            },
+            gridAction: function(e) {
+                var action = $(e.currentTarget).data("action");
+                var id = $(e.currentTarget).data("id");
+                if (action=="delete") page.filterObject.delete([id]);
+                else if (action=="edit") page.edit(id);
+                else if (action=="download") page.getCert(e);
+                else if (action=="qr") page.genQR(e);
+                else if (action=="mfa") page.mfa(id);
+                else if (action=="reset") page.resetEnroll(id);
+                else if (action=="override") page.getOverrides(id);
+            },
+            inlineMfa: function(e) {
+                service.call("mfa", {id: page.editId}, page.imfaRemoved, "DELETE");
+            },
+            doReset: function(e) {
+                var detail = page.filterObject.details(page.editId);
+                var date = $("#ResetDate").val();
+                var id = "";
+                if (detail.authenticators.cert) id = detail.authenticators.cert.id;
+                else if (detail.authenticators.updb) id = detail.authenticators.updb.id;
+                else if (detail.enrollment.ott) id = detail.enrollment.ott.id;
+                //if (id==null || id=="") {
+                //    growler.error("This Identity Enrollment cannot be reset");
+               // } else {
+                    service.call("resetEnroll", {id: id, date: date}, (e) => {
+                        if (e.error) growler.error(e.error);
+                        else {
+                            growler.success("Identity Reset");
+                            page.filterObject.get();
+                            modal.close();
+                        }
+                    });
+               // }
+            },
+            resetEnroll: function(id) {
+                this.editId = id;
+                modal.show("ResetModal");
+            },
+            mfa: function(id) {
+                this.editId = id;
+                modal.confirm("you want to remove mfa for this identity?", this.doMfa.bind(this));
+            },
+            doMfa: function(e) {
+                service.call("mfa", {id: page.editId}, page.mfaRemoved, "DELETE");
+            },
+            imfaRemoved: function(e) {
+                if (e.error) growler.error(e.error);
+                else {
+                    growler.success("MFA Removed");
+                    page.filterObject.closeModals = false;
+                    page.filterObject.get();
+                    $("#MFAArea").hide();
+                }
+            },
+            mfaRemoved: function(e) {
+                if (e.error) growler.error(e.error);
+                else {
+                    growler.success("MFA Removed");
+                    page.filterObject.get();
+                }
+            },
+            formReset: function() {
+                page.params();
+                $("#MFAArea").hide();
+            },
+            edit: function(id) {
+                var detail = page.filterObject.details(id);
+                page.editId = id;
+                page.roles.val(detail.roleAttributes);
+                $("#IdentityType").val(detail.type.name);
+                $("#IsAdmin").removeClass("on");
+                $("#EnrollmentType").val("ott");
+                $("#EnrollmentType").attr("disabled", true);
+                $("#Authorities").attr("disabled", true);
+                $("#CertAuthoritiesArea").parent().addClass("unsplit");
+                page.filterObject.getSubs(detail, "services", page.idServicesLoaded);
+                if (detail.isMfaEnabled) {
+                    $("#MFAArea").show();
+                    $("#ToggleMFA").addClass("on");
+                } else {
+                    $("#MFAArea").hide();
+                    $("#ToggleMFA").removeClass("on");
+                }
+                if (detail.enrollment&&detail.enrollment.ca) {
+                    $("#EnrollmentType").val("CA");
+                    if (detail.enrollment&&detail.enrollment.ca.caId) {
+                        $("#Authorities").val(detail.enrollment.ca.caId);
+                        $("#CertAuthoritiesArea").show();
+                        $("#CertAuthoritiesArea").parent().removeClass("unsplit");
+                    }
+                } else {
+                    if (detail.enrollment.updb) {
+                        $("#EnrollmentType").val("updb");
+                    }
+                }
+
+                var osDetails = "";
+                if (detail.envInfo.os) osDetails += "<b>OS:</b> "+detail.envInfo.os;
+                if (detail.envInfo.arch) osDetails += "<br/><b>Arch:</b> "+detail.envInfo.arch;
+                if (detail.envInfo.osRelease) osDetails += "<br/><b>Release:</b> "+detail.envInfo.osRelease;
+                if (detail.envInfo.osVersion) osDetails += "<br/><b>Version:</b> "+detail.envInfo.osVersion;
+                if (osDetails.length==0) osDetails = "No Info Available";
+                $("#Environment").html(osDetails);
+
+                var sdk = "";
+                var version = "-";
+                if (detail.sdkInfo) {
+                    version = "";
+                    if (detail.sdkInfo.version) sdk = "<b>Version:</b> "+detail.sdkInfo.version; 
+                    if (detail.sdkInfo.appId) sdk += "<br/><b>Id:</b> "+detail.sdkInfo.appId; 
+                    if (detail.sdkInfo.appVersion) sdk += "<br/><b>App Version:</b> "+detail.sdkInfo.appVersion; 
+                    if (detail.sdkInfo.type) sdk += "<br/><b>Type:</b> "+detail.sdkInfo.type;
+                    if (detail.sdkInfo.type) sdk += "<br/><b>Branch:</b> "+detail.sdkInfo.branch;
+                    if (detail.sdkInfo.revision) sdk += "<br/><b>Revision:</b> "+detail.sdkInfo.revision;
+                }
+                if (sdk.length==0) sdk = "No Info Available";
+                $("#SdkInfo").html(sdk);
+
+                if (detail.isAdmin) $("#IsAdmin").addClass("on");
+                /*
+                var area = "#UserArea";
+                if (detail.type.name=="User") {
+                    $(area).parent().removeClass("unsplit");
+                    $(area).show();
+                } else {
+                    $(area).parent().addClass("unsplit");
+                    $(area).hide();
+                }   
+                */              
+                $("#Services").html("Loading...");
+                var appData = JSON.stringify(detail.appData);
+                if (appData.length>0) {
+                    page.appData.setValue(appData);
+                    page.appData.autoFormatRange({line:0, ch:0}, {line:page.appData.lineCount()});
+                    $("#AppDataArea").show();
+                } else {
+                    $("#AppDataArea").hide();
+                }
+                modal.show("AddModal");
+            },
+            idServicesLoaded: function(e) {
+                var services = e.data;
+                var html = "No Services Assigned";
+                if (services&&services.length>0) {
+                    html = "";
+                    for (var i=0; i<services.length; i++) {
+                        html += '<div class="hashtag hashtager clickable" data-id="'+services[i].id+'">'+services[i].name+'</div>';
+                    }
+                }
+                $("#Services").html(html);
+                $(".hashtager").click(page.status);
+            },
+            status: function(e) {
+                var serviceId = $(e.currentTarget).data("id");
+                $(".clicked").removeClass("clicked");
+                $(e.currentTarget).addClass("clicked");
+                $("#ServiceClicked").text($(e.currentTarget).text());
+                service.call("call", {url: "/identities/"+page.editId+"/policy-advice/"+serviceId}, page.statusReturned);
+            },
+            statusReturned: function(e) {
+                var errors = [];
+                var info = e.data;
+                if (!info.isDialAllowed&&!info.isBindAllowed) errors.push("No access to service. Adjust service policies.");
+                if (info.identityRouterCount<1) errors.push("Identity has no edge routers assigned. Adjust edge router policies.");
+                if (info.serviceRouterCount<1) errors.push("Service has no edge routers assigned. Adjust edge router policies.");
+                if (info.identityRouterCount>0&&info.serviceRouterCount>0) {
+                    if (info.commonCount<1) errors.push("Identity and services have no edge routers in common. Adjust edge router policies and/or service edge router policies.");
+                    else if (info.onlineCount<1) errors.push("Common edge routers are all off-line. Bring routers back on-line or adjust edge router policies and/or service edge router policies.");
+                }
+                var status = "";
+                if (info.isDialAllowed) {
+                    if (info.isBindAllowed) status = "(Dial,Bind)";
+                    else status = "(Dial)";
+                } else {
+                    if (info.isBindAllowed) status = "(Bind)";
+                }
+                if (errors.length>0) {
+                    for (var i=0; i<errors.length; i++) {
+                        status += "<br/>"+errors[i];
+                    }
+                } else status += "<br/>Everything is configured properly";
+                $("#ServiceIssues").html(status);
+                $(".issues").show();
+            },
+            save: function() {
+                if (page.validate()) {
+                    var params = page.params();
+                    page.filterObject.save(params);
+                } else growler.form();
+            }, 
+            params: function() {
+                try {
+                    var url = settings.versionData.baseUrl+settings.versionData.serviceUrl+"/"+page.filterObject.name;
+                    var obj = {
+                        name: $("#Name").val(),
+                        type: $("#IdentityType").val(),
+                        appData: JSON.parse(page.appData.getValue()),
+                        isAdmin: $("#IsAdmin").hasClass("on"),
+                        roleAttributes: page.roles.val(),
+                        authPolicyId: $("#AuthPolicy").val(),
+                        externalId: $("#ExternalId").val(),
+                        defaultHostingCost: Number($("#HostingCost").val()),
+                        defaultHostingPrecedence: $("#HostingPrecedence").val(),
+                        tags: tags.val()
+                    };
+                    if (!page.filterObject.isEditing()) {
+                        obj.enrollment = {};
+                        if ($("#EnrollmentType").val()=="ott") obj.enrollment.ott = true;
+                        else {
+                            if ($("#EnrollmentType").val()=="CA") {
+                                obj.enrollment.ottca = $("#Authorities").val();
+                            } else {
+                                obj.enrollment.updb = $("#UPDBName").val();
+                            }
+                        } 
+                    }
+                    if (obj.type=="User") obj.isAdmin = $("#IsAdmin").hasClass("on");
+                    if (page.filterObject.isEditing()) url += "/"+page.filterObject.editId;
+                    $("#ApiUrl").val(url);
+
+                    var stayAt = $("#AddModal").scrollTop();
+                    page.apiParams.setValue(JSON.stringify(obj));
+                    page.apiParams.autoFormatRange({line:0, ch:0}, {line:page.apiParams.lineCount()});
+                    page.apiParams.scrollTo(null, 0);
+                    $("#AddModal").scrollTop(stayAt);
+                    return obj;
+                } catch (e) {
+                    console.log(e);
+                }
+            },
+            loaded: function() {
+                $(".cert").off("click", page.getCert);
+                $(".qr").off("click", page.genQR);
+                $(".cert").on("click", page.getCert);
+                $(".qr").click(page.genQR);
+            },
+            genQR: function(e) {
+                var id = $(e.currentTarget).data("id");
+                var identity = page.filterObject.details(id);
+                if (identity&&identity.enrollment&&identity.enrollment.ott&&identity.enrollment.ott.jwt) {
+                    $("#QRCode").html("");
+                    var qrcode = new QRCode("QRCode", {
+                        text: encodeURIComponent(identity.enrollment.ott.jwt),
+                        width: 300,
+                        height: 300,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.M
+                    });
+                    modal.show("QRModal");
+                } else {
+                    if (identity&&identity.enrollment&&identity.enrollment.ottca&&identity.enrollment.ottca.jwt) {
+                        $("#QRCode").html("");
+                        var qrcode = new QRCode("QRCode", {
+                            text: encodeURIComponent(identity.enrollment.ottca.jwt),
+                            width: 300,
+                            height: 300,
+                            colorDark : "#000000",
+                            colorLight : "#ffffff",
+                            correctLevel : QRCode.CorrectLevel.M
+                        });
+                        modal.show("QRModal");
+                    } else if (identity&&identity.enrollment&&identity.enrollment.updb&&identity.enrollment.updb.jwt) {
+                        $("#QRCode").html("");
+                        var qrcode = new QRCode("QRCode", {
+                            text: encodeURIComponent(identity.enrollment.updb.jwt),
+                            width: 300,
+                            height: 300,
+                            colorDark : "#000000",
+                            colorLight : "#ffffff",
+                            correctLevel : QRCode.CorrectLevel.M
+                        });
+                        modal.show("QRModal");
+                    }
+                }
+            },
+            getCert: function(e) {
+                var id = $(e.currentTarget).data("id");
+                var identity = page.filterObject.details(id);
+                if (identity&&identity.enrollment&&identity.enrollment.ott&&identity.enrollment.ott.jwt) {
+                    var name = identity.name.split(" ").join("");
+                    var element = document.createElement('a');
+                    element.setAttribute('href', 'data:application/ziti-jwt;charset=utf-8,' + encodeURIComponent(identity.enrollment.ott.jwt));
+                    element.setAttribute('download', name+".jwt");
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
+                } else {
+                    if (identity&&identity.enrollment&&identity.enrollment.ottca&&identity.enrollment.ottca.jwt) {
+                        var name = identity.name.split(" ").join("");
+                        var element = document.createElement('a');
+                        element.setAttribute('href', 'data:application/ziti-jwt;charset=utf-8,' + encodeURIComponent(identity.enrollment.ottca.jwt));
+                        element.setAttribute('download', name+".jwt");
+                        element.style.display = 'none';
+                        document.body.appendChild(element);
+                        element.click();
+                        document.body.removeChild(element);
+                    } else if (identity&&identity.enrollment&&identity.enrollment.updb&&identity.enrollment.updb.jwt) {
+                        var name = identity.name.split(" ").join("");
+                        var element = document.createElement('a');
+                        element.setAttribute('href', 'data:application/ziti-jwt;charset=utf-8,' + encodeURIComponent(identity.enrollment.updb.jwt));
+                        element.setAttribute('download', name+".jwt");
+                        element.style.display = 'none';
+                        document.body.appendChild(element);
+                        element.click();
+                        document.body.removeChild(element);
+                    }
+                }
+            },
+            getPropString: function(obj) {
+                var data = "";
+                for (var key in obj) data += " "+obj[key];
+                return data;
+            },
+            configsLoaded: function(e) {
+                var cons = context.get(page.configsObject.name);
+                $("#ConfigList").html("");
+                for (var i=0; i<cons.length; i++) {
+                    $("#ConfigList").append('<option value="'+cons[i].id+'">'+cons[i].name+' - '+page.getPropString(cons[i].data)+'</option>');
+                }
+            },
+            getConfigName: function(id) {
+                for (var i=0; i<page.configsObject.data.length; i++) {
+                    if (page.configsObject.data[i].id==id) return page.configsObject.data[i].name;
+                }
+                return "";
+            },
+            servicesLoaded: function(e) {
+                var items = context.get(page.servicesObject.name);
+                $("#ServiceList").html("");
+                for (var i=0; i<items.length; i++) {
+                    $("#ServiceList").append('<option value="'+items[i].id+'">'+items[i].name+'</option>');
+                }
+            },
+            getServiceName: function(id) {
+                for (var i=0; i<page.servicesObject.data.length; i++) {
+                    if (page.servicesObject.data[i].id==id) return page.servicesObject.data[i].name;
+                }
+                return "";
+            },
+            casLoaded: function(e) {
+                var select = document.getElementById("Authorities");
+                select.options = [];
+                if (page.casObject.data.length>0) {
+                    for (var i=0; i<page.casObject.data.length; i++) {
+                        if (i==0) $("#Authorities").data("default",page.casObject.data[i].id);
+                        var option = document.createElement("option");
+                        option.value = page.casObject.data[i].id;
+                        option.text = page.casObject.data[i].name;
+                        select.add( option );
+                    }
+                }
+            },
+            toggleType: function(e) {
+                $("#CertAuthoritiesArea").hide();
+                $("#UpDbArea").hide();
+                var area = "#CertAuthoritiesArea";
+                var type = $("#EnrollmentType").val();
+                if (type=="CA") {
+                    $(area).parent().removeClass("unsplit");
+                    $(area).show();
+                } else if (type=="ott") {
+                    $(area).parent().addClass("unsplit");
+                } else {
+                    area = "#UpDbArea";
+                    $(area).parent().removeClass("unsplit");
+                    $(area).show();
+                }
+            },
+            toggleUserType: function(e) {
+                /*
+                var area = "#UserArea";
+                var type = $("#IdentityType").val();
+                if (type=="User") {
+                    $(area).parent().removeClass("unsplit");
+                    $(area).show();
+                } else {
+                    $(area).parent().addClass("unsplit");
+                    $(area).hide();
+                } 
+                */
+            },
+            reset: function() {
+                app.isDirty = false;
+                var appData = {};
+                page.appData.setValue(JSON.stringify(appData));
+                page.appData.autoFormatRange({line:0, ch:0}, {line:page.appData.lineCount()});
+                $("#EnrollmentType").attr("disabled", false);
+                page.toggleType();
+                $(".issues").hide();
+                $("#HostingCost").val("0");
+                $("#HostingPrecedence").val("default");
+                commands.reset();
+            },
+            validate: function() {
+                $(".errors").removeClass("errors");
+                if ($("#Name").val().trim().length==0) $("#Name").addClass("errors");
+                try {
+                    let test = JSON.parse(page.appData.getValue());
+                } catch (e) {
+                    $(".CodeMirror").addClass("errors");
+                }
+                return $(".errors").length==0;
+            },
+            addOveride: function(e) {
+                service.call("subSave" , { 
+                    type: "service-configs", 
+                    parentType: page.filterObject.name, 
+                    id: page.filterObject.editId, 
+                    doing: "POST", 
+                    save: [{ 
+                        serviceId: $("#ServiceList").val(), 
+                        configId: $("#ConfigList").val() }] 
+                    }, 
+                    page.overridesLoaded
+                );
+            },
+            getOverrides: function(id) {
+                var detail = page.filterObject.details(id);
+                service.call("data" , { type: page.filterObject.name+"/"+page.filterObject.editId+"/service-configs" }, page.overridesLoaded);
+                modal.show("OverrideModal");
+            },
+            overridesLoaded: function(e) {
+                if (e.error) growler.error("Error assigning config override ", e.error);
+                else {
+                    var overrides = e.data;
+                    $("#OverrideList").html("");
+                    if (overrides.length>0) {
+                        for (var i=0; i<overrides.length; i++) {
+                            var element = $("#OverrideTemplate").clone();
+                            element.removeClass("template");
+                            element.html(element.html().split("{{service}}").join(overrides[i].service.id));
+                            element.html(element.html().split("{{config}}").join(overrides[i].config.id));
+                            element.html(element.html().split("{{serviceName}}").join(overrides[i].service.name));
+                            element.html(element.html().split("{{configName}}").join(overrides[i].config.name));
+                            $("#OverrideList").append(element);
+                        }
+                        $(".overrides").show();
+                        $(".removeAssoc").click(page.removeOveride);
+                    } else {
+                        $(".overrides").hide();
+                    }
+                }
+            },
+            removeOveride: function(e) {
+                service.call("subSave" , { 
+                    type: "service-configs", 
+                    parentType: page.filterObject.name, 
+                    id: page.filterObject.editId, 
+                    doing: "DELETE", 
+                    save: [{ 
+                        serviceId: $(e.currentTarget).data("service"), 
+                        configId: $(e.currentTarget).data("config") 
+                    }] 
+                }, page.overridesLoaded);
+            }
+        }
+    </script>
