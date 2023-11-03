@@ -95,21 +95,25 @@ From the project root:
 	ng build ziti-console-lib
 	```
 
-3) build & run the ziti-console app project
+3) build & run the ziti-console app 
 
-	  a) If you plan to connect to an Edge Controller via HTTPS with a trusted TLS/SSL certificate use the edge integration by building & running:
-	  ```
-	  ng build ziti-console
-	  node server.js edge-api
-	  ```
-
-	  b) otherwise build & run the angular app with the node integration via:
-	  ```
+	  a) In most cases, ff you plan on running the application in a local environment, you'll want to build & run the angular app with the node-api integration via:
+   	  ```
 	  ng build ziti-console-node
+	  ```
+	  ```
 	  node server.js node-api
 	  ```
 
-4) Access the app @ http://localhost:1408
+	  b) If you plan to connect directly to an Edge Controller via HTTPS with a trusted TLS/SSL certificate, you can use the edge-api integration by building & running
+	  ```
+	  ng build ziti-console
+   	  ```
+   	  ```
+	  node server.js edge-api
+	  ```
+
+5) Access the app @ http://localhost:1408
 
 
 ## Developing Angular App
