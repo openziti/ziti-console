@@ -5,19 +5,23 @@ Before you start, make sure you are able to connect to a Ziti Edge Controller. T
 
 To build and run the application from source, you'll also need the following developer tools installed and available on your command line:
 
-* Angular CLI v16.x+
-* npm v8.1.x+
-* Node JS v16.3.x+
+| Tool        | Version |
+| :---:       | :---:   |
+| Angular CLI | 16.x   |
+| Node.js     | 16.3.x | 
+| npm         | 8.1.x   |
 
-Optional:
 
-* To run via a **Docker** container download and install the docker engine here: https://docs.docker.com/engine/install/
+## Running via Docker
+The ZAC application can be run in a docker container by following the steps below.
 
-## Docker Build
+If you don't have docker installed, you can download and install the docker engine here: https://docs.docker.com/engine/install/
+
+
+### Build the Docker Image
 From project root:
 1. build the image: `docker build . -t openziti/zac`
 
-## Run via Docker
 
 ### Running The Classic ZAC application
 1. run: (sudo may/may not be necessary) 
@@ -51,7 +55,23 @@ sudo docker run -d --name zac -p 1408:1408 openziti/zac edge-api
 
 
 
+
 ## Running OpenZitiConsole From Source
+
+### Running Classic App (pure html/javascript)
+
+1) Install project dependencies
+	```
+	npm install --legacy-peer-deps
+	```
+
+2) Host the app by running the node server
+	```
+	node server.js
+	```
+ 
+3) Access the app @ http://localhost:1408
+
 
 ### Running the ZAC Angular App
 * Make sure you have the angular CLI installed
@@ -66,42 +86,34 @@ npm install -g @angular/cli@16.0.0-next.0
 From the project root: 
 
 1) install project dependencies:
-```
-npm install --legacy-peer-deps
-```
+	```
+	npm install --legacy-peer-deps
+	```
 
 2) build core project library
-```
-ng build ziti-console-lib
-```
+	```
+	ng build ziti-console-lib
+	```
 
-3) build & run the ziti-console app project
+3) build & run the ziti-console app 
 
-	  a) If you plan to connect to an Edge Controller via HTTPS with a trusted TLS/SSL certificate use the edge integration by running:
+	  a) In most cases, ff you plan on running the application in a local environment, you'll want to build & run the angular app with the node-api integration via:
+   	  ```
+	  ng build ziti-console-node
+	  ```
+	  ```
+	  node server.js node-api
+	  ```
+
+	  b) If you plan to connect directly to an Edge Controller via HTTPS with a trusted TLS/SSL certificate, you can use the edge-api integration by building & running
 	  ```
 	  ng build ziti-console
-	  node server.js
+   	  ```
+   	  ```
+	  node server.js edge-api
 	  ```
 
-	  b) otherwise run with the node integration via:
-	  ```
-	  ng build ziti-console-node
-	  node ./projects/ziti-console/server-ng.js
-	  ```
-
-4) Access the app @ http://localhost:1408
-
-
-### Running Classic App (pure html/javascript)
-1)
-```
-npm install --legacy-peer-deps
-```
-```
-node ./projects/ziti-console/server.js
-```
-2) Access the app @ http://localhost:1408
-
+5) Access the app @ http://localhost:1408
 
 
 ## Developing Angular App
@@ -110,21 +122,22 @@ There are two elements to the Angular app -
 From project Root:
 
 1) Install dependencies
-```
-npm install --legacy-peer-deps
-```
+	```
+	npm install --legacy-peer-deps
+	```
+	
+2) The NPM library is referenced/linked in package.json as "ziti-console-lib": "file:dist/ziti-console-lib".
+   This library includes the pure javascript code it shared with ziti-console, and Angular code it shares with other apps.
 
-2) the NPM library referenced in package.json as
-"ziti-console-lib": "file:dist/ziti-console-lib". The NPM library includes the pure javascript code it shared with ziti-console, and 
-generic Angular code it shares with other apps.
-
-3) A sample angular application in app-ziti-console.
-```
-cd projects/ziti-console-lib
-ng build --watch
-cd ../..
-ng serve ziti-console --ssl
-```
+3) Run & watch changes in the core library in **ziti-console-lib**
+	```
+	ng build ziti-console-lib --watch
+ 	```
+ 
+4) Then in a seperate window run & watch changes in the main application **app-ziti-console**
+   	```
+	ng serve ziti-console
+	```
 
 This ensures changes made to the NPM library get pulled into the Angular app you are developing
 
