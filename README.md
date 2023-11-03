@@ -5,10 +5,11 @@ Before you start, make sure you are able to connect to a Ziti Edge Controller. T
 
 To build and run the application from source, you'll also need the following developer tools installed and available on your command line:
 
-* Angular CLI v16.x+
-* npm v8.1.x+
-* Node JS v16.3.x+
-
+| Tool        | Version |
+| :---:       | :---:   |
+| Angular CLI | 16.x+   |
+| Node.js     | 16.3.x+ | 
+| npm         | 8.1.x   |
 
 
 ## Running via Docker
@@ -54,16 +55,19 @@ sudo docker run -d --name zac -p 1408:1408 openziti/zac edge-api
 
 
 
+
 ## Running OpenZitiConsole From Source
 
 ### Running Classic App (pure html/javascript)
-1)
-```
-npm install --legacy-peer-deps
-```
-```
-node server.js
-```
+
+1) Install project dependencies
+	```
+	npm install --legacy-peer-deps
+	```
+	```
+	node server.js
+	```
+ 
 2) Access the app @ http://localhost:1408
 
 
