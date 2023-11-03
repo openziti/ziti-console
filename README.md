@@ -7,8 +7,8 @@ To build and run the application from source, you'll also need the following dev
 
 | Tool        | Version |
 | :---:       | :---:   |
-| Angular CLI | 16.x+   |
-| Node.js     | 16.3.x+ | 
+| Angular CLI | 16.x   |
+| Node.js     | 16.3.x | 
 | npm         | 8.1.x   |
 
 
