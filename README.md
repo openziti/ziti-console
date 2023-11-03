@@ -72,20 +72,20 @@ npm install --legacy-peer-deps
 
 2) build core project library
 ```
-ng build open-ziti-console-lib
+ng build ziti-console-lib
 ```
 
 3) build & run the ziti-console app project
 
 	  a) If you plan to connect to an Edge Controller via HTTPS with a trusted TLS/SSL certificate use the edge integration by running:
 	  ```
-	  ng build open-ziti
+	  ng build ziti-console
 	  node server.js
 	  ```
 
 	  b) otherwise run with the node integration via:
 	  ```
-	  ng build open-ziti-node
+	  ng build ziti-console-node
 	  node ./projects/ziti-console/server-ng.js
 	  ```
 
@@ -115,22 +115,22 @@ npm install --legacy-peer-deps
 ```
 
 2) the NPM library referenced in package.json as
-"open-ziti-console-lib": "file:dist/open-ziti-console-lib". The NPM library includes the pure javascript code it shared with ziti-console, and 
+"ziti-console-lib": "file:dist/ziti-console-lib". The NPM library includes the pure javascript code it shared with ziti-console, and 
 generic Angular code it shares with other apps.
 
-3) A sample angular application in app-open-ziti.
+3) A sample angular application in app-ziti-console.
 ```
-cd projects/open-ziti-console-lib
+cd projects/ziti-console-lib
 ng build --watch
 cd ../..
-ng serve open-ziti --ssl
+ng serve ziti-console --ssl
 ```
 
 This ensures changes made to the NPM library get pulled into the Angular app you are developing
 
 ### Hybrid App
 In the interim, the ziti-console project is a hybrid app, in that it runs the classic ZAC code (pure HTML/JS) together with tranisitoned angular components.
-This requires some duplication - for instance in running both the classic settings and the open-ziti settings.
+This requires some duplication - for instance in running both the classic settings and the ziti-console settings.
 
 
 

@@ -26,9 +26,9 @@ RUN npm install --force
 
 RUN npm install -g @angular/cli 
 
-RUN ng build open-ziti-console-lib
-RUN ng build open-ziti
-RUN ng build open-ziti-node
+RUN ng build ziti-console-lib
+RUN ng build ziti-console
+RUN ng build ziti-console-node
 
 ENTRYPOINT ["/usr/src/app/run-zac.sh"]
 CMD ["/usr/src/app/run-zac.sh"]

@@ -22,8 +22,8 @@ import _ from 'lodash';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const sessionStore = sessionStoreFactory(session);
-const __assets = '/../open-ziti-console-lib/src/lib/assets';
-const __html= '/../open-ziti-console-lib/src/lib/html';
+const __assets = '/../ziti-console-lib/src/lib/assets';
+const __html= '/../ziti-console-lib/src/lib/html';
 
 const loadModule = async (modulePath) => {
 	try {
@@ -36,6 +36,12 @@ const loadModule = async (modulePath) => {
 var ziti;
 const zitiServiceName = process.env.ZITI_SERVICE_NAME || 'zac';
 const zitiIdentityFile = process.env.ZITI_IDENTITY_FILE;
+
+const integration = _.get(process, 'argv[2]') || "classic";
+
+_.forEach(process.argv, (arg) => {
+	console.log(arg);
+});
 
 try {
 	ziti = await loadModule('@openziti/ziti-sdk-nodejs')
@@ -115,7 +121,7 @@ var helmetOptions = {
 	crossOriginEmbedderPolicy: false
 };
 
-app.use("/assets", express.static(__dirname + '/../../dist/open-ziti-console-lib/assets', {
+app.use("/assets", express.static(__dirname + '/../../dist/ziti-console-lib/assets', {
 	maxAge: '31536000000' 
 }));
 app.use(cors(corsOptions));
@@ -180,7 +186,6 @@ if (!fs.existsSync(__dirname+settingsPath)) {
 	fs.mkdirSync(__dirname+settingsPath);
 }
 if (!fs.existsSync(__dirname+settingsPath+'tags.json')) {
-  console.log(__dirname+__assets + '/data/tags.json', __dirname+settingsPath+'tags.json');
 	fs.copyFileSync(__dirname+__assets + '/data/tags.json', __dirname+settingsPath+'tags.json');
 }
 if (!fs.existsSync(__dirname+settingsPath+'templates.json')) {
@@ -197,16 +202,19 @@ if (!fs.existsSync(__dirname+settingsPath+'/resources')) {
 	fs.mkdirSync(__dirname+settingsPath+'/resources');
 	fse.copySync(__dirname+__assets + '/resources/',__dirname+settingsPath+'/resources/');
 }
+
+console.log("PAGES: " + __dirname+__assets);
+
 var pages = JSON.parse(fs.readFileSync(__dirname+__assets + '/data/site.json', 'utf8'));
 var tags = JSON.parse(fs.readFileSync(__dirname+settingsPath+'tags.json', 'utf8'));
 var templates = JSON.parse(fs.readFileSync(__dirname+settingsPath+'templates.json', 'utf8'));
 
-console.log("Loading Settings File From: "+__dirname+settingsPath+'settings.json');
 var settings = JSON.parse(fs.readFileSync(__dirname+settingsPath+'settings.json', 'utf8'));
 
 if (settings.port && !isNaN(settings.port)) port = settings.port;
 if (settings.portTLS && !isNaN(settings.portTLS)) portTLS = settings.portTLS;
 if (settings.rejectUnauthorized && !isNaN(settings.rejectUnauthorized)) rejectUnauthorized = settings.rejectUnauthorized;
+
 
 if (process.env.PORT) port = process.env.PORT;
 if (process.env.PORTTLS) portTLS = process.env.PORTTLS;
@@ -255,46 +263,6 @@ var transporter;
 if (settings.mail && settings.mail.host && settings.mail.host.trim().length>0) {
 	console.log("Setting up Mailer from "+settings.mail.host);
 	transporter = nodemailer.createTransport(settings.mail);
-}
-
-/**
- * Setup static pages from configuration files defined in /data/site.json
- */
-for (var i=0; i<pages.length; i++) {
-	app.get(pages[i].url, function(request, response) {
-		if (!baseUrl||baseUrl.trim().length==0&&request.session.baseUrl) baseUrl = request.session.baseUrl;
-		if (!serviceUrl||serviceUrl.trim().length==0&&request.session.serviceUrl) serviceUrl = request.session.serviceUrl;
-		var page = pages[0];
-		for (var i=0; i<pages.length; i++) {
-			if (pages[i].url==request.url) {
-				page = pages[i];
-				break;
-			}
-		}
-		if (page.access=="") {
-			if (page.url=="/login") request.session.user = null;
-			var headerNow = header.split("{{title}}").join(page.title);
-			headerNow = headerNow.split("{{auth}}").join("");
-			fs.readFile(__dirname+__html+page.page, 'utf8', function(err, data) {
-				var html = headerNow+data+footer;
-				for (let prop in components) html = html.split('{{html.'+prop+'}}').join(components[prop]);
-				response.send(html);
-			});
-		} else {
-			if (request.session.user==null||request.session.user=="") response.redirect("/login");
-			else {
-				if (Number(page.access)<=Number(request.session.authorization)) {
-					var headerNow = header.split("{{title}}").join(page.title);
-					headerNow = headerNow.split("{{auth}}").join(" loggedIn");
-					fs.readFile(__dirname+__html+page.page, 'utf8', function(err, data) {
-						var html = headerNow+data+footer;
-						for (let prop in components) html = html.split('{{html.'+prop+'}}').join(components[prop]);
-						response.send(html);
-					});
-				} else response.redirect('/login');
-			}
-		}
-	});
 }
 
 
@@ -352,6 +320,58 @@ app.post("/api/login", function(request, response) {
 		});
 	}
 });
+
+if (integration === 'node-api') {
+  app.use(bodyParser.urlencoded({extended:false}));
+
+  app.use('/', express.static(__dirname + '/../../dist/app-ziti-console-node'));
+  app.use('/:name', express.static(__dirname + '/../../dist/app-ziti-console-node'));
+
+  app.post("/api/logout", function(request, response) {
+  	request.session.user = null;
+  	response.send({
+  		success: true,
+  		message: 'Logout Successful'
+  	});
+  });
+} else {
+  for (var i=0; i<pages.length; i++) {
+  	app.get(pages[i].url, function(request, response) {
+  		if (!baseUrl||baseUrl.trim().length==0&&request.session.baseUrl) baseUrl = request.session.baseUrl;
+  		if (!serviceUrl||serviceUrl.trim().length==0&&request.session.serviceUrl) serviceUrl = request.session.serviceUrl;
+  		var page = pages[0];
+  		for (var i=0; i<pages.length; i++) {
+  			if (pages[i].url==request.url) {
+  				page = pages[i];
+  				break;
+  			}
+  		}
+  		if (page.access=="") {
+  			if (page.url=="/login") request.session.user = null;
+  			var headerNow = header.split("{{title}}").join(page.title);
+  			headerNow = headerNow.split("{{auth}}").join("");
+  			fs.readFile(__dirname+__html+page.page, 'utf8', function(err, data) {
+  				var html = headerNow+data+footer;
+  				for (let prop in components) html = html.split('{{html.'+prop+'}}').join(components[prop]);
+  				response.send(html);
+  			});
+  		} else {
+  			if (request.session.user==null||request.session.user=="") response.redirect("/login");
+  			else {
+  				if (Number(page.access)<=Number(request.session.authorization)) {
+  					var headerNow = header.split("{{title}}").join(page.title);
+  					headerNow = headerNow.split("{{auth}}").join(" loggedIn");
+  					fs.readFile(__dirname+__html+page.page, 'utf8', function(err, data) {
+  						var html = headerNow+data+footer;
+  						for (let prop in components) html = html.split('{{html.'+prop+'}}').join(components[prop]);
+  						response.send(html);
+  					});
+  				} else response.redirect('/login');
+  			}
+  		}
+  	});
+  }
+}
 
 function Authenticate(request) {
 	return new Promise(function(resolve, reject) {
@@ -929,7 +949,6 @@ app.post("/api/service", async function(request, response) {
 			cli: [],
 			services: []
 		};
-		console.log(clientId+" "+serverId+" "+serverConfigId+" "+clientConfigId+" "+bindId+" "+dialId);
 	
 		var logs = [];
 		logs.push({name: serverName, id: serverId, type: "Config"});
@@ -1056,8 +1075,6 @@ async function GetConfigId(request, response, url, user, type) {
 		//Authenticate(request).then((results) => {
 			if (hasAccess(user)) {
 				DoCall(url+"/config-types?filter=(name = \""+type+"\")&limit=1", {}, request, true).then((results) => {
-					console.log("Config Returned");
-					console.log(JSON.stringify(results));
 					resolve(results.data[0].id);
 				});
 			}
@@ -1213,7 +1230,7 @@ app.post("/api/dataSave", function(request, response) {
 						//console.log("Not Array: "+prop+" "+saveParams.data[prop].length);
 					}
 				}
-				console.log("Session: "+request.session.user);
+
 				external(url, {method: method, json: saveParams, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 					if (err) HandleError(response, err);
 					else {
