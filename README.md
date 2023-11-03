@@ -64,11 +64,13 @@ sudo docker run -d --name zac -p 1408:1408 openziti/zac edge-api
 	```
 	npm install --legacy-peer-deps
 	```
+
+2) Host the app by running the node server
 	```
 	node server.js
 	```
  
-2) Access the app @ http://localhost:1408
+3) Access the app @ http://localhost:1408
 
 
 ### Running the ZAC Angular App
@@ -95,13 +97,13 @@ From the project root:
 
 3) build & run the ziti-console app project
 
-	  a) If you plan to connect to an Edge Controller via HTTPS with a trusted TLS/SSL certificate use the edge integration by running:
+	  a) If you plan to connect to an Edge Controller via HTTPS with a trusted TLS/SSL certificate use the edge integration by building & running:
 	  ```
 	  ng build ziti-console
 	  node server.js edge-api
 	  ```
 
-	  b) otherwise run with the node integration via:
+	  b) otherwise build & run the angular app with the node integration via:
 	  ```
 	  ng build ziti-console-node
 	  node server.js node-api
