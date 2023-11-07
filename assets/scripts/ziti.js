@@ -13,6 +13,9 @@ limitations under the License.
 var page;
 
 $(document).ready(function(e) {
+	if (window.isSPA) {
+		return;
+	}
 	app.init();
 });
 

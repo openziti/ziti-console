@@ -1,0 +1,17 @@
+<div class="qr-code-container" [ngClass]="{'modal-view': isModal}">
+    <span class="info-text" *ngIf="!jwtExpired">TO REGISTER THIS IDENTITY</span>
+    <span class="info-text" *ngIf="jwtExpired">REGISTRATION KEY EXPIRED</span>
+    <div (click)="identitiesSvc.downloadJWT(jwt, identity.name)" *ngIf="!jwtExpired" class="download-button">
+        <div class="download-key"></div>
+        <div>DOWNLOAD KEY</div>
+        <div class="download-key"></div>
+    </div>
+    <div (click)="identitiesSvc.reissueJWT(identity)" *ngIf="jwtExpired" class="download-button">
+        <div class="download-key"></div>
+        <div>REISSUE KEY</div>
+        <div class="tap-to-download"></div>
+    </div>
+    <span class="info-text" *ngIf="!jwtExpired">OR SCAN QR CODE</span>
+    <qrcode *ngIf="!jwtExpired" [errorCorrectionLevel]="'M'" [qrdata]="jwt" [width]="qrCodeSize"></qrcode>
+    <span class="info-text" >{{jwtExpired ? 'EXPIRED' : 'EXPIRES'}} {{expirationDate}}</span>
+</div>

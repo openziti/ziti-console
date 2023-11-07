@@ -1,0 +1,14 @@
+<div class="header-filter-container">
+  <div *ngIf="type === 'TEXTINPUT' || type === 'COMBO'" class="text-input-filter">
+    <input
+      #filterInput
+      (keyup)="setFilterDebounced()"
+      [(ngModel)]="filterString"
+      class="search"
+      id="SearchFilter"
+      placeholder="Type to Filter"
+      type="text"
+    />
+  </div>
+  <div *ngIf="type === 'SELECT'"></div>
+</div>

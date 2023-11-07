@@ -1,0 +1,20 @@
+.sized {
+  &.large {
+    height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+}
+
+::ng-deep .p-component.p-datepicker {
+  background: var(--background) !important;
+}
+
+::ng-deep .p-datepicker .p-timepicker button.p-element {
+  background-color: var(--primaryColor);
+}
+
+::ng-deep .p-datepicker .p-datepicker-header button.p-element.p-ripple {
+  background-color: var(--primaryColor);
+}

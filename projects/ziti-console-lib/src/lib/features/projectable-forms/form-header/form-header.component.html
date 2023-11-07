@@ -1,0 +1,65 @@
+<div class="form-header-container">
+    <div class="form-header-group">
+        <div class="form-title-container">
+            <div class="form-title-back-button" (click)="requestAction('close')">
+                <div class="form-title-back-button-image"></div>
+                <div class="form-title-back-button-line"></div>
+            </div>
+            <div>
+                <span class="form-title">{{title}}</span>
+                <span class="form-title title-name" *ngIf="data.name">{{data.name}}</span>
+            </div>
+        </div>
+        <div class="header-actions-container">
+            <div class="form-header-toggle-container">
+                        <span
+                                class="toggle-option-text"
+                                [ngClass]="{'toggle-option-selected': formView === 'simple'}"
+                                (click)="requestAction('toggle-view', 'raw')"
+                        >
+                            SIMPLE
+                        </span>
+                <div class="form-header-toggle" (click)="requestAction('toggle-view', formView)">
+                    <div
+                            class="form-toggle-switch"
+                            [ngClass]="{'toggle-left': formView === 'simple', 'toggle-right': formView === 'raw'}"
+                    >
+                        <div class="form-toggle-indicator"></div>
+                        <div class="form-toggle-indicator"></div>
+                    </div>
+                </div>
+                <span
+                        class="toggle-option-text"
+                        [ngClass]="{'toggle-option-selected': formView === 'raw'}"
+                        (click)="requestAction('toggle-view', 'simple')"
+                >
+                            RAW
+                        </span>
+            </div>
+            <div class="more-actions-container" *ngIf="moreActions && moreActions.length > 0" (click)="showMoreActions()" (clickOutside)="closeActionsMoreActions()">
+                <div class="more-actions-button">
+                    <div class="more-actions-label">
+                        <div class="more-actions-text">More Actions</div>
+                        <div class="more-actions-arrow"></div>
+                    </div>
+                </div>
+                <div class="more-actions-list" *ngIf="showActionsDropDown">
+                    <div
+                        *ngFor="let action of moreActions"
+                        class="more-actions-item"
+                        (click)="requestAction(action.name, action.data)"
+                    >
+                        {{action.label}}
+                    </div>
+                </div>
+            </div>
+            <div class="save-button" (click)="requestAction('save')">Save</div>
+        </div>
+    </div>
+    <div class="form-header-group badges-container">
+        <div *ngFor="let badge of data.badges" class="header-badge-container {{badge.class}}">
+            <span *ngIf="badge.circle" class="circle {{badge.circle}}"></span>
+            <span class="badge-label">{{badge.label}}</span>
+        </div>
+    </div>
+</div>

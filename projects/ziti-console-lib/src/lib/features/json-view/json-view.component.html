@@ -1,0 +1,2 @@
+<div id="jsoneditor" [ngClass]="{'read-only': readOnly}" #editor (keyup.enter)="enterKeyPressed($event)"></div>
+<div *ngIf="showCopy" class="icon-copy copy" (click)="copyToClipboad()"></div>

@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:16.14.2
 
 # The in-container path for the key file to use for TLS.
 ENV ZAC_SERVER_KEY=
@@ -20,6 +20,14 @@ EXPOSE 8443
 COPY . .
 
 # Fetch dependencies
-RUN npm install
+RUN npm install --force
 
+RUN npm install -g @angular/cli
+RUN ng build ziti-console-lib
+RUN cp -r ./assets ./dist/ziti-console-lib
+RUN cp -r ./html ./dist/ziti-console-lib/assets
+RUN ng build ziti-console
+RUN ng build ziti-console-node
+
+ENTRYPOINT ["/usr/src/app/run-zac.sh"]
 CMD ["/usr/src/app/run-zac.sh"]

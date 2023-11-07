@@ -1,0 +1,10 @@
+<div
+  #toggleButton
+  (click)="toggle(item)"
+  *ngIf="!item.hideSelect"
+  [ngClass]="{ selected: item.selected, disabled: disableToggle }"
+  attr.name="RowSelect0_{{ item.name }}"
+  class="row-toggle tSelect"
+  id="RowSelect0_{{ item.id }}"
+  attr.data-id="{{item.id}}"
+></div>

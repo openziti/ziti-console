@@ -1,0 +1,22 @@
+<div class="configform">
+    <label for="Name">Name</label>
+    <input id="Name" type="text" maxlength="500"
+           placeholder="enter a name...">
+    <label for="Types">Types</label>
+    <select id="Types" [(ngModel)]="configType" (change)="createForm()">
+        <option value="">Select A Type...</option>
+        <option *ngFor="let config of options"
+                [value]="config">{{config}}
+        </option>
+    </select>
+    <ng-container #dynamicform></ng-container>
+    <json-editor
+        #editor
+        (blur)="onJsonChange()"
+        (mouseout)="onJsonChange()"
+        (paste)="onJsonChangeDebounced()"
+        [data]="jsonData"
+        [options]="editorOptions"
+    >
+    </json-editor>
+</div>

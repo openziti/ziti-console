@@ -17,11 +17,15 @@ import nodemailer from 'nodemailer';
 import {fileURLToPath} from 'url';
 import crypto from 'crypto';
 import compression from 'compression';
-
+import _ from 'lodash';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const sessionStore = sessionStoreFactory(session);
+const __assets = '/assets';
+const __html= '/html';
+
+
 
 const loadModule = async (modulePath) => {
 	try {
@@ -35,6 +39,7 @@ var ziti;
 const zitiServiceName = process.env.ZITI_SERVICE_NAME || 'zac';
 const zitiIdentityFile = process.env.ZITI_IDENTITY_FILE;
 
+const integration = _.get(process, 'argv[2]') || "classic";
 try {
 	ziti = await loadModule('@openziti/ziti-sdk-nodejs')
 } catch (e) {
@@ -54,10 +59,11 @@ if (zitified) {
 
 const zacVersion = fs.readFileSync("./version.txt", 'utf8');
 
+
 var serviceUrl = "";
 var baseUrl = "";
-var headerFile = __dirname+"/assets/templates/header.htm";
-var footerFile = __dirname+"/assets/templates/footer.htm";
+var headerFile = __dirname+__assets + "/templates/header.htm";
+var footerFile = __dirname+__assets + "/templates/footer.htm";
 var header = fs.readFileSync(headerFile, 'utf8');
 var footer = fs.readFileSync(footerFile, 'utf8');
 var onlyDeleteSelfController = true;
@@ -91,7 +97,9 @@ if (zitified) {
 }
 var corsOptions = {
   origin: '*',
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  //credentials: true,
+  //allowedHeaders: 'Accept, Content-Type, Accept-Encoding, Accept-Language, Access-Control-Request-Headers, Access-Control-Request-Method, Connection, Host, Origin, Referer, Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, User-Agent'
 }
 var helmetOptions = {
     contentSecurityPolicy: {
@@ -99,8 +107,9 @@ var helmetOptions = {
         defaultSrc: ["'self'", 'www.googletagmanager.com', 'openstreetmap.org'],
         styleSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', "'unsafe-inline'"],
         scriptSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', "'unsafe-inline'"],
+		scriptSrcAttr: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', "'unsafe-inline'"],
         imgSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', 'b.tile.opernstreetmap.org', 'data:', 'blob:', 'https:'],
-        connectSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', 'ws:', 'wss:'],
+        connectSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', 'ws:', 'wss:', '*.netfoundry.io'],
         frameSrc: ["'self'", 'www.googletagmanager.com', 'openstreetmap.org'],
         frameAncestors: ["'self'", 'www.googletagmanager.com', 'openstreetmap.org'],
         mediaSrc: ["'self'", 'www.googletagmanager.com', 'openstreetmap.org', 'data:', 'blob:', 'https:'],
@@ -110,7 +119,12 @@ var helmetOptions = {
 	crossOriginEmbedderPolicy: false
 };
 
-app.use('/assets', express.static('assets', {
+if (integration !== 'classic') {
+	helmetOptions.contentSecurityPolicy.directives.scriptSrc.push("'unsafe-eval'");
+	helmetOptions.contentSecurityPolicy.directives.scriptSrcAttr.push("'unsafe-eval'");
+}
+
+app.use("/assets", express.static(__dirname + '/assets', {
 	maxAge: '31536000000' 
 }));
 app.use(cors(corsOptions));
@@ -135,10 +149,11 @@ app.use(function (req, res, next) {
 	next();
 });
 
+
 /**
  * Load configurable settings, or create the settings in place if they have never been defined
  */
-var initial = JSON.parse(fs.readFileSync(path.join(__dirname,"assets","data","settings.json")));
+var initial = JSON.parse(fs.readFileSync(path.join(__dirname,__assets,"data","settings.json")));
 
 var port = initial.port;
 var bindIP = initial.bindIP;
@@ -174,27 +189,28 @@ if (!fs.existsSync(__dirname+settingsPath)) {
 	fs.mkdirSync(__dirname+settingsPath);
 }
 if (!fs.existsSync(__dirname+settingsPath+'tags.json')) {
-	fs.copyFileSync(__dirname+'/assets/data/tags.json', __dirname+settingsPath+'tags.json');
+	fs.copyFileSync(__dirname+__assets + '/data/tags.json', __dirname+settingsPath+'tags.json');
 }
 if (!fs.existsSync(__dirname+settingsPath+'templates.json')) {
-	fs.copyFileSync(__dirname+'/assets/data/templates.json', __dirname+settingsPath+'templates.json');
+	fs.copyFileSync(__dirname+__assets + '/data/templates.json', __dirname+settingsPath+'templates.json');
 }
 if (fs.existsSync(__dirname+settingsPath+'settings.json')&&updateSettings) {
 	console.log("Updating Settings File - Backing Up Previous Settings");
 	fs.renameSync(__dirname+settingsPath+'settings.json', __dirname+settingsPath+'settings.'+moment().unix());
 }
 if (!fs.existsSync(__dirname+settingsPath+'settings.json')) {
-	fs.copyFileSync(__dirname+'/assets/data/settings.json', __dirname+settingsPath+'settings.json');
+	fs.copyFileSync(__dirname+__assets + '/data/settings.json', __dirname+settingsPath+'settings.json');
 }
 if (!fs.existsSync(__dirname+settingsPath+'/resources')) {
 	fs.mkdirSync(__dirname+settingsPath+'/resources');
-	fse.copySync(__dirname+'/assets/resources/',__dirname+settingsPath+'/resources/');
+	fse.copySync(__dirname+__assets + '/resources/',__dirname+settingsPath+'/resources/');
 }
-var pages = JSON.parse(fs.readFileSync(__dirname+'/assets/data/site.json', 'utf8'));
+
+
+var pages = JSON.parse(fs.readFileSync(__dirname+__assets + '/data/site.json', 'utf8'));
 var tags = JSON.parse(fs.readFileSync(__dirname+settingsPath+'tags.json', 'utf8'));
 var templates = JSON.parse(fs.readFileSync(__dirname+settingsPath+'templates.json', 'utf8'));
 
-console.log("Loading Settings File From: "+__dirname+settingsPath+'settings.json');
 var settings = JSON.parse(fs.readFileSync(__dirname+settingsPath+'settings.json', 'utf8'));
 
 if (settings.port && !isNaN(settings.port)) port = settings.port;
@@ -219,10 +235,10 @@ for (var i=0; i<process.argv.length; i++) {
 }
 
 var components = {};
-var comFiles = fs.readdirSync(__dirname+"/assets/components");
+var comFiles = fs.readdirSync(__dirname+__assets + "/components");
 for (let i=0; i<comFiles.length; i++) {
 	var name = path.parse(comFiles[i]).name;
-	components[name] = fs.readFileSync(__dirname+"/assets/components/"+comFiles[i], 'utf8');
+	components[name] = fs.readFileSync(__dirname+__assets + "/components/"+comFiles[i], 'utf8');
 }
 components["canStyle"] = true;
 if (settings.allowPersonal != null) components["canStyle"] = settings.allowPersonal;
@@ -249,46 +265,6 @@ var transporter;
 if (settings.mail && settings.mail.host && settings.mail.host.trim().length>0) {
 	console.log("Setting up Mailer from "+settings.mail.host);
 	transporter = nodemailer.createTransport(settings.mail);
-}
-
-/**
- * Setup static pages from configuration files defined in /data/site.json
- */
-for (var i=0; i<pages.length; i++) {
-	app.get(pages[i].url, function(request, response) {
-		if (!baseUrl||baseUrl.trim().length==0&&request.session.baseUrl) baseUrl = request.session.baseUrl;
-		if (!serviceUrl||serviceUrl.trim().length==0&&request.session.serviceUrl) serviceUrl = request.session.serviceUrl;
-		var page = pages[0];
-		for (var i=0; i<pages.length; i++) {
-			if (pages[i].url==request.url) {
-				page = pages[i];
-				break;
-			}
-		}
-		if (page.access=="") {
-			if (page.url=="/login") request.session.user = null;
-			var headerNow = header.split("{{title}}").join(page.title);
-			headerNow = headerNow.split("{{auth}}").join("");
-			fs.readFile(__dirname+"/html"+page.page, 'utf8', function(err, data) {
-				var html = headerNow+data+footer;
-				for (let prop in components) html = html.split('{{html.'+prop+'}}').join(components[prop]);
-				response.send(html);
-			});
-		} else {
-			if (request.session.user==null||request.session.user=="") response.redirect("/login");
-			else {
-				if (Number(page.access)<=Number(request.session.authorization)) {
-					var headerNow = header.split("{{title}}").join(page.title);
-					headerNow = headerNow.split("{{auth}}").join(" loggedIn");
-					fs.readFile(__dirname+"/html"+page.page, 'utf8', function(err, data) {
-						var html = headerNow+data+footer;
-						for (let prop in components) html = html.split('{{html.'+prop+'}}').join(components[prop]);
-						response.send(html);
-					});
-				} else response.redirect('/login');
-			}
-		}
-	});
 }
 
 
@@ -345,6 +321,63 @@ app.post("/api/login", function(request, response) {
 			response.json({error: error});
 		});
 	}
+});
+
+if (integration === 'node-api') {
+    app.use(bodyParser.urlencoded({extended:false}));
+
+    app.use('/', express.static(__dirname + '/dist/app-ziti-console-node'));
+    app.use('/:name', express.static(__dirname + '/dist/app-ziti-console-node'));
+} else if (integration === 'edge-api') {
+    app.use(bodyParser.urlencoded({extended:false}));
+
+    app.use('/', express.static(__dirname + '/dist/app-ziti-console'));
+    app.use('/:name', express.static(__dirname + '/dist/app-ziti-console'));
+} else {
+  for (var i=0; i<pages.length; i++) {
+  	app.get(pages[i].url, function(request, response) {
+  		if (!baseUrl||baseUrl.trim().length==0&&request.session.baseUrl) baseUrl = request.session.baseUrl;
+  		if (!serviceUrl||serviceUrl.trim().length==0&&request.session.serviceUrl) serviceUrl = request.session.serviceUrl;
+  		var page = pages[0];
+  		for (var i=0; i<pages.length; i++) {
+  			if (pages[i].url==request.url) {
+  				page = pages[i];
+  				break;
+  			}
+  		}
+  		if (page.access=="") {
+  			if (page.url=="/login") request.session.user = null;
+  			var headerNow = header.split("{{title}}").join(page.title);
+  			headerNow = headerNow.split("{{auth}}").join("");
+  			fs.readFile(__dirname+__html+page.page, 'utf8', function(err, data) {
+  				var html = headerNow+data+footer;
+  				for (let prop in components) html = html.split('{{html.'+prop+'}}').join(components[prop]);
+  				response.send(html);
+  			});
+  		} else {
+  			if (request.session.user==null||request.session.user=="") response.redirect("/login");
+  			else {
+  				if (Number(page.access)<=Number(request.session.authorization)) {
+  					var headerNow = header.split("{{title}}").join(page.title);
+  					headerNow = headerNow.split("{{auth}}").join(" loggedIn");
+  					fs.readFile(__dirname+__html+page.page, 'utf8', function(err, data) {
+  						var html = headerNow+data+footer;
+  						for (let prop in components) html = html.split('{{html.'+prop+'}}').join(components[prop]);
+  						response.send(html);
+  					});
+  				} else response.redirect('/login');
+  			}
+  		}
+  	});
+  }
+}
+
+app.post("/api/logout", function(request, response) {
+    request.session.user = null;
+    response.send({
+        success: true,
+        message: 'Logout Successful'
+    });
 });
 
 function Authenticate(request) {
@@ -497,10 +530,10 @@ function IsServerDefined(url) {
  */
 app.post("/api/language", (request, response) => {
 	var locale = request.body.locale;
-	if (fs.existsSync('assets/languages/'+locale+'.json')) {
-		response.sendFile(path.resolve(__dirname+'/assets/languages/'+locale+'.json'));
+	if (fs.existsSync(__assets + '/languages/'+locale+'.json')) {
+		response.sendFile(path.resolve(__dirname+__assets + '/languages/'+locale+'.json'));
 	} else {
-		response.sendFile(path.resolve(__dirname+'/assets/languages/en-us.json'));
+		response.sendFile(path.resolve(__dirname+__assets + '/languages/en-us.json'));
 	}
 });
 
@@ -923,7 +956,6 @@ app.post("/api/service", async function(request, response) {
 			cli: [],
 			services: []
 		};
-		console.log(clientId+" "+serverId+" "+serverConfigId+" "+clientConfigId+" "+bindId+" "+dialId);
 	
 		var logs = [];
 		logs.push({name: serverName, id: serverId, type: "Config"});
@@ -1050,8 +1082,6 @@ async function GetConfigId(request, response, url, user, type) {
 		//Authenticate(request).then((results) => {
 			if (hasAccess(user)) {
 				DoCall(url+"/config-types?filter=(name = \""+type+"\")&limit=1", {}, request, true).then((results) => {
-					console.log("Config Returned");
-					console.log(JSON.stringify(results));
 					resolve(results.data[0].id);
 				});
 			}

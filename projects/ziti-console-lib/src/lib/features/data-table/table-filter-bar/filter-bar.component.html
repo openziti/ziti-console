@@ -1,0 +1,30 @@
+<div class="filters">
+    <input
+        id="SearchFilter"
+        data-defined="search"
+        type="text"
+        class="search"
+        placeholder="Type to Filter"
+        (keyup)="inputChangedDebounced()"
+        [(ngModel)]="filterString"
+    />
+    <div class="clear icon-clear" data-defined="clear"></div>
+    <div class="searchButton icon-search"></div>
+    <div class="filtered-columns-list" id="ColumnFilterContainer">
+        <div
+                (click)="removeFilter(filter)"
+                *ngFor="let filter of _filters"
+                class="filtered-column-item ag-dnd-ghost ag-unselectable ag-theme-alpine"
+                id="ColumnVisibility_{{ filter.filterName }}"
+                title="Remove filter"
+        >
+            <span class="ag-dnd-ghost-icon">
+                <span class="ag-icon ag-icon-filter"></span>
+            </span>
+            <div class="ag-dnd-ghost-label">{{ filter.filterName }}: {{ filter.label }}</div>
+        </div>
+    </div>
+    <div class="counters"><span id="Start">{{startCount}}</span>-<span id="End">{{endCount}}</span> of <span id="Total">{{totalCount}}</span></div>
+    <div class="navigate prev icon-prev" [ngClass]="{disabled: prevDisabled}" (click)="prevPage()"></div>
+    <div class="navigate next icon-next" [ngClass]="{disabled: nextDisabled}" (click)="nextPage()"></div>
+</div>

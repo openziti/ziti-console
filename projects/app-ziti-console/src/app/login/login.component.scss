@@ -1,0 +1,26 @@
+:host {
+  flex: 1 1 auto;
+  max-width: 540px;
+}
+
+.button {
+  display:inline-block;
+  background-color: #0273fb;
+  box-shadow: 0 3px 9px #0273fb4d;
+  color: #ffffff;
+  float:right;
+}
+.button:disabled {
+  cursor: auto;
+  pointer-events: none;
+  background-color: #0273fb4d;
+  box-shadow: 0 3px 9px lightgrey;
+}
+
+select {
+  padding-right: 0;
+}
+
+select, input {
+  max-width: 600px;
+}

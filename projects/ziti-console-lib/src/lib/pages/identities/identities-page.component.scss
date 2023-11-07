@@ -1,0 +1,527 @@
+.ziti-page-container {
+  .action {
+    line-height: 60px;
+    top: 25px;
+    right: 25px;
+    z-index: 999;
+  }
+}
+
+.ziti-identities-container {
+  ::ng-deep {
+    .zac-wrapper-container {
+      height: 0px;
+      left: -999999px;
+      position: fixed;
+      .action {
+        display: none;
+      }
+    }
+  }
+}
+.ziti-ag-grid {
+  height: 100%;
+  position: relative;
+  width: 100%;
+
+  .ziti-ag-grid-table {
+    height: 100%;
+    width: 100%;
+
+    .ag-root-wrapper {
+      border-bottom-style: none;
+    }
+
+    .ag-cell {
+      align-items: center;
+      display: flex;
+    }
+  }
+}
+
+.system-policies-toggle,
+.hidden-results-container {
+  position: relative;
+  right: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: 10px;
+  padding-left: 20px;
+  border-radius: 7px;
+  padding-bottom: 0;
+  padding-right: 0;
+  padding-top: 0;
+  flex-wrap: nowrap;
+  flex: 1 0 auto;
+
+  .toggle-text {
+    font-weight: 600;
+    font-size: 12px;
+
+    a {
+      cursor: pointer;
+    }
+  }
+
+  .toggle {
+    width: 75px;
+    margin-left: 10px;
+
+    &.on {
+      .switch {
+        left: 52px;
+      }
+    }
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: transparent;
+    border-top: 2px solid var(--tableText);
+    border-right: 2px solid var(--tableText);
+    border-bottom: 2px solid transparent;
+    border-left: 2px solid transparent;
+    animation: loading 0.5s infinite linear;
+    margin-left: 5px;
+  }
+}
+
+.hidden-results-container {
+  &.loading-results {
+    opacity: 0.7;
+  }
+}
+
+.nf-cell-vert-align {
+  align-items: center;
+  display: flex;
+}
+
+.ag-row .ag-cell {
+  align-items: center;
+  display: flex;
+}
+
+.hidden-columns-list {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  margin-left: 7px;
+  min-height: 30px;
+  flex-wrap: wrap;
+  flex: 0 1 auto;
+
+  &.hidden-results {
+    flex-wrap: nowrap;
+    overflow: auto;
+    .hidden-column-item {
+      flex: 1 0 auto;
+    }
+  }
+  &::-webkit-scrollbar {
+    height: 14px;
+  }
+
+  .hidden-column-item {
+    align-items: center;
+    background-color: var(--background);
+    border: 2px solid var(--background);
+    border-radius: 12px;
+    cursor: pointer;
+    color: var(----stroke);
+    font-weight: 600;
+    font-family: 'Open Sans', sans-serif;
+    display: flex;
+    flex: 0 1 auto;
+    height: 25px !important;
+    margin-left: 10px;
+    margin-top: 5px;
+    padding-left: 5px;
+    padding-right: 10px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    position: relative;
+    text-align: center;
+    box-shadow: unset;
+    transform: translateY(0);
+
+  }
+
+  .ag-dnd-ghost {
+    &:hover {
+      border: 2px solid var(--primaryColor) !important;
+
+      .ag-dnd-ghost-label {
+        color: var(--ag-alpine-active-color, var(--primaryColor));
+      }
+
+      .ag-dnd-ghost-icon {
+        .ag-icon-eye-slash {
+          color: var(--ag-alpine-active-color, var(--primaryColor));
+
+          &:before {
+            content: '\f113';
+          }
+        }
+      }
+    }
+  }
+
+  .ag-dnd-ghost-label {
+    line-height: initial;
+  }
+
+}
+
+::ng-deep .darkmode .ag-dnd-ghost-icon {
+  .ag-icon-eye-slash {
+    color: white !important;
+  }
+}
+
+.tMenu {
+  transition-property: opacity;
+  z-index: 99999999999;
+  height: fit-content;
+
+  &.action-menu {
+    position: fixed;
+
+    &.header-menu {
+    }
+
+    width: 175px;
+  }
+
+  .tActionRow {
+    transition-property: opacity;
+    &.has-icon {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    .v7Offline {
+      background-color: var(--placeholder);
+    }
+
+    .v7OnlineOffline {
+      width: 14px;
+      height: 14px;
+      border-color: var(--placeholder);
+
+      &:hover {
+        border-color: var(--placeholder);
+      }
+    }
+  }
+}
+
+.hidden-items-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+
+.os-icon {
+  width: 23px;
+  height: 23px;
+  background-size: 23px 23px;
+  display: inline-flex;
+  margin-right: 8px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+
+  &.empty {
+    background: transparent;
+  }
+  &.apple {
+    background-image: url(/assets/images/apple.png);
+  }
+  &.windows {
+    background-image: url(/assets/images/windows.png);
+  }
+  &.linux {
+    background-image: url(/assets/images/linux.png);
+  }
+  &.android {
+    background-image: url(/assets/images/android.png);
+  }
+  &.other {
+    background-image: url(/assets/images/other.png);
+  }
+}
+
+::ng-deep .date-time-container {
+  position: fixed;
+  .p-calendar .p-inputtext {
+    height: 1px;
+    width: 1px;
+    padding: 0;
+  }
+  .filter-button-container {
+    height: 50px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    .toggleButton {
+      padding-left: 5px;
+      padding-right: 5px;
+      width: unset;
+    }
+  }
+  .p-calendar {
+    height: 30px;
+
+    .p-inputtext {
+      height: 30px;
+      border-top-left-radius: 20px;
+      border-bottom-left-radius: 20px;
+      text-indent: 5px;
+    }
+
+    .p-button-icon-only {
+      border-top-right-radius: 20px;
+      border-bottom-right-radius: 20px;
+    }
+  }
+}
+
+#TimeSearch {
+  position: relative;
+  float: left;
+  display: inline-block;
+  margin-left: 10px;
+  width: 50px;
+  height: 40px;
+  background-color: var(--primary);
+}
+
+#TimeSearch #TimeSearchList {
+  width: 44px;
+  height: 0;
+  position: absolute;
+  top: 0;
+  left: -2px;
+  overflow: hidden;
+  transition: var(--transition);
+  background-color: var(--menu);
+  border-radius: 8px;
+  z-index: 30;
+}
+
+#TimeSearch #TimeSearchList .time {
+  width: 40px;
+  background-color: var(--background);
+  padding-left: 8px;
+  padding-right: 8px;
+  border-radius: 8px;
+  line-height: 26px;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 2px;
+  margin-left: 2px;
+  left: -2px;
+  top: -51px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+#TimeSearch #TimeSearchList.open {
+  top: -51px;
+  width: 44px;
+  height: 226px;
+}
+
+#TimeSearch #TimeSelectButton {
+  width: 40px;
+  background-color: var(--background);
+  padding-left: 8px;
+  padding-right: 8px;
+  border-radius: 8px;
+  line-height: 26px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+  margin-top: 7px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+#TimeSearch #TimeSelectButton:hover,
+#TimeSearch #TimeSearchList .time:hover {
+  background-color: var(--primaryColor);
+  color: var(--white);
+}
+
+::ng-deep p-togglebutton {
+  .p-togglebutton.p-button {
+    border-radius: 7px !important;
+    box-shadow: 0 5px 20px 0 rgb(0 0 0 / 5%) !important;
+    margin-top: -2px !important;
+  }
+
+  .p-togglebutton.p-button:hover {
+    filter: brightness(99%) !important;
+    box-shadow: 0 5px 20px 0 rgb(0 0 0 / 5%) !important;
+    transition: all 0.3s ease;
+  }
+
+  .p-togglebutton.p-button:active {
+    filter: brightness(95%) !important;
+    box-shadow: none !important;
+    transform: translateY(1px) !important;
+    transition: all 0.3s ease;
+  }
+}
+
+#TimeSearch #TimeSelectButton {
+  margin-top: 4px !important;
+}
+
+::ng-deep .p-calendar .p-inputtext {
+  height: 37px;
+}
+
+::ng-deep .p-inputtext {
+  border-radius: 7px;
+}
+
+.calendar {
+  display: inline-block;
+  padding-left: 5px;
+  float: left;
+  padding-right: 10px;
+  margin-top: -2px;
+}
+
+::ng-deep .p-datepicker:not(.p-datepicker-inline) {
+  background: var(--table);
+  border: 0 none;
+  box-shadow: rgb(9 30 66 / 15%) 0 20px 32px -8px;
+  border-radius: 12px;
+}
+
+::ng-deep .p-button.p-button-text {
+  background-color: transparent;
+  color: var(--primaryColor);
+  border-color: transparent;
+}
+
+::ng-deep .p-button.p-button-text:enabled:hover {
+  background: var(--primaryColorShadowLight);
+  color: var(--primaryColor);
+  border-color: transparent;
+}
+
+::ng-deep .p-datepicker table td > span.p-highlight {
+  color: var(--tableText);
+  background: var(--primaryColorShadowLight);
+}
+
+::ng-deep .p-inputtext:enabled:hover {
+  border-color: var(--primaryColor);
+}
+
+::ng-deep .p-datepicker {
+  padding: 0.5rem;
+  padding-bottom: 0;
+  background: var(--table);
+  color: var(--tableText);
+  border: 1px solid var(--inputBorder);
+  border-radius: 3px;
+}
+
+::ng-deep .p-inputtext:enabled:focus {
+  outline: 0 none;
+  outline-offset: 0;
+  box-shadow: 0 0 0 1 var(--primaryColorShadowLight);
+  border-color: var(--primaryColor);
+}
+
+::ng-deep .p-inputtext {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+  'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  font-size: 1rem;
+  color: var(--tableText);
+  background: var(--table);
+  padding: 0.5rem 0.5rem;
+  border: 1px solid var(--inputBorder);
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 7px;
+}
+
+::ng-deep .p-datepicker:not(.p-datepicker-inline) .p-datepicker-header {
+  background: var(--table);
+}
+
+::ng-deep .p-datepicker .p-datepicker-header {
+  padding: 0.5rem;
+  color: var(--tableText);
+  background: var(--table);
+  font-weight: 600;
+  margin: 0;
+  border-bottom: 1px solid var(--inputBorder);
+  border-top-right-radius: 12px;
+  border-top-left-radius: 12px;
+}
+
+::ng-deep .p-datepicker:not(.p-disabled) table td span:not(.p-highlight):not(.p-disabled):hover {
+  background: #e9ecef;
+  color: var(--table);
+}
+
+::ng-deep .p-datepicker .p-timepicker {
+  border-top: 1px solid var(--background);
+  padding: 0.5rem;
+}
+
+::ng-deep .p-togglebutton.p-button {
+  background: var(--background);
+  border: 1px solid var(--inputBorder);
+  color: var(--tableText);
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+::ng-deep .p-datepicker .p-datepicker-buttonbar {
+  padding: 1rem 0;
+  border-top: 1px solid var(--inputBorder);
+}
+
+::ng-deep .p-button {
+  color: #ffffff;
+  background: var(--primaryColor);
+  border: 1px solid var(--primaryColor);
+  padding: 0.495rem 1rem;
+  font-size: 1rem;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  border-radius: 7px;
+}
+
+::ng-deep .p-togglebutton.p-button.p-highlight {
+  background: var(--primaryColor);
+  border: 1px solid var(--primaryColor);
+  color: var(--background);
+}
+
+::ng-deep .p-togglebutton.p-button.p-highlight:hover {
+  background: var(--primaryColor);
+  border: 1px solid var(--primaryColor);
+  color: var(--background);
+}
+
+app-zac-wrapper {
+  z-index: 999999;
+}

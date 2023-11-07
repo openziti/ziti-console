@@ -1,0 +1,30 @@
+<div id="TagExtended">
+    <div class="grid tags">
+        <label>Name</label><label>Value</label>
+    </div>
+    <div id="NewTags" >
+        <div class="grid tags" *ngFor="let tag of tagsArray">
+            <input
+                id="NewKey"
+                maxlength="100"
+                placeholder="enter the tag key"
+                [(ngModel)]="tag['name']"
+                (keyup.enter)="enterKeyPressed($event)"
+            >
+            <input
+                id="NewValue"
+                placeholder="enter the value"
+                type="text"
+                maxlength="100"
+                [(ngModel)]="tag['value']"
+                (keyup.enter)="enterKeyPressed($event)"
+            >
+            <div class="removeIcon icon-clear" (click)="removeTag(tag.name)"></div>
+        </div>
+    </div>
+    <div class="grid tags">
+        <input id="NewKey" (keyup.enter)="enterKeyPressed($event)" [(ngModel)]="newTagName" [ngClass]="{invalid: this.errors.name}" maxlength="100" placeholder="enter the tag key">
+        <input id="NewValue" (keyup.enter)="enterKeyPressed($event)" [(ngModel)]="newTagValue" [ngClass]="{invalid: this.errors.value}" placeholder="enter the value" maxlength="100">
+        <div id="AddCustomButton" class="addIcon icon-add" (click)="addTag()"></div>
+    </div>
+</div>
