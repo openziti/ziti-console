@@ -129,9 +129,9 @@ From project Root:
 2) The NPM library is referenced/linked in package.json as "ziti-console-lib": "file:dist/ziti-console-lib".
    This library includes the pure javascript code it shared with ziti-console, and Angular code it shares with other apps.
 
-3) Run & watch changes in the core library in **ziti-console-lib**
+3) Run & watch changes in the core library in **ziti-console-lib** by running the npm script **watch:lib**
 	```
-	ng build ziti-console-lib --watch
+	npm run watch:lib
  	```
  
 4) Then in a seperate window run & watch changes in the main application **app-ziti-console**
