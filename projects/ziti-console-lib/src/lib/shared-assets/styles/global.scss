@@ -137,6 +137,10 @@
   flex: 1 1 auto;
   padding-bottom: 15px;
 
+  &[hidden] {
+    display: none;
+  }
+
   &.one-third {
     width: 33%;
   }

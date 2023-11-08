@@ -56,7 +56,7 @@
                     <input class="form-field-input" placeholder="Optional External ID" [(ngModel)]="formData.externalId"/>
                 </lib-form-field-container>
                 <lib-form-field-toggle [(toggleOn)]="showMore" (toggleOnChange)="showMoreChanged($event)" style="margin: 0px 10px"></lib-form-field-toggle>
-                <div *ngIf="showMore" class="form-group-column">
+                <div [hidden]="!showMore" class="form-group-column">
                     <lib-form-field-container
                         [title]="'Enrollment Type'"
                         [title2]="enrollmentType === 'CA' ? 'CERTIFICATE AUTHORITY' : (enrollmentType === 'updb' ? 'UPDB USERNAME' : undefined)"

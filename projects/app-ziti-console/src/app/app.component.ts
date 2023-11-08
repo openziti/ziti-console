@@ -44,6 +44,7 @@ export class AppComponent implements OnInit {
             return Promise.resolve();
         } else {
             this.router.navigate(['/login']);
+            this.isAuthorized = false;
             return Promise.resolve();
         }
     }

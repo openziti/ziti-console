@@ -125,21 +125,19 @@ From project Root:
 	```
 	npm install --legacy-peer-deps
 	```
-	
-2) The NPM library is referenced/linked in package.json as "ziti-console-lib": "file:dist/ziti-console-lib".
-   This library includes the pure javascript code it shared with ziti-console, and Angular code it shares with other apps.
 
-3) Run & watch changes in the core library in **ziti-console-lib**
+3) Run & watch changes in the core library in **ziti-console-lib** by running the npm script **watch:lib**
 	```
-	ng build ziti-console-lib --watch
+	npm run watch:lib
  	```
- 
+   * Note: The NPM library is referenced/linked in package.json as "ziti-console-lib": "file:dist/ziti-console-lib".
+   	   This library includes the pure javascript code it shared with ziti-console, and Angular code it shares with other apps.
+
 4) Then in a seperate window run & watch changes in the main application **app-ziti-console**
    	```
 	ng serve ziti-console
 	```
-
-This ensures changes made to the NPM library get pulled into the Angular app you are developing
+  This ensures changes made to the NPM library get pulled into the Angular app you are developing
 
 ### Hybrid App
 In the interim, the ziti-console project is a hybrid app, in that it runs the classic ZAC code (pure HTML/JS) together with tranisitoned angular components.
