@@ -109,7 +109,7 @@ var helmetOptions = {
         scriptSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', "'unsafe-inline'"],
 		scriptSrcAttr: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', "'unsafe-inline'"],
         imgSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', 'b.tile.opernstreetmap.org', 'data:', 'blob:', 'https:'],
-        connectSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', 'ws:', 'wss:', '*.netfoundry.io'],
+        connectSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', 'ws:', 'wss:'],
         frameSrc: ["'self'", 'www.googletagmanager.com', 'openstreetmap.org'],
         frameAncestors: ["'self'", 'www.googletagmanager.com', 'openstreetmap.org'],
         mediaSrc: ["'self'", 'www.googletagmanager.com', 'openstreetmap.org', 'data:', 'blob:', 'https:'],

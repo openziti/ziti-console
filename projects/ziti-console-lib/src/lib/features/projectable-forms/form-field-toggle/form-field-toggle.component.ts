@@ -16,8 +16,6 @@ export class FormFieldToggleComponent {
 
   enterKeyPressed(event) {
     this.toggleSwitch();
-    event.stopPropagation();
-    event.preventDefault();
   }
 
   toggleSwitch() {

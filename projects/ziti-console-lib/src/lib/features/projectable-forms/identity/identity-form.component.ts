@@ -52,9 +52,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   associatedServiceNames: any = [];
   servicesLoading = false;
   servicePoliciesLoading = false;
-  authPolicies: any = [
-    {id: 'default', name: 'Default'}
-  ];
+  authPolicies: any = [];
 
   showMore = false;
   errors: any = {};

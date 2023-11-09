@@ -43,7 +43,6 @@ export const OPEN_ZITI_NAVIGATOR = {
                     label: 'Policies',
                     route: URLS.ZITI_SERVICE_POLICIES,
                     iconClass: 'icon-servicepolicy',
-                    sublabel: '(AppWANs)',
                     selectedRoutes: [URLS.ZITI_SERVICE_POLICIES]
                 },
                 {
