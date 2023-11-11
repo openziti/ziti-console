@@ -32,7 +32,6 @@ export class AppComponent implements OnInit {
             this.version = results.version;
             this.displayNav = !results.hideNav ?? true;
             this.displayTool = !results.hideTool ?? true;
-            this.isAuthorized = results.session?.id;
             this.loading = false;
             this.checkSession();
         });
@@ -43,6 +42,7 @@ export class AppComponent implements OnInit {
             this.isAuthorized = true;
             return Promise.resolve();
         } else {
+            this.isAuthorized = false;
             this.router.navigate(['/login']);
             this.isAuthorized = false;
             return Promise.resolve();

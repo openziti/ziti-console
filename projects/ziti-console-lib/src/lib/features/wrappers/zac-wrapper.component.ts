@@ -31,7 +31,6 @@ export class ZacWrapperComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.loading = true;
     this.wrapperService.initZac();
     this.subscription.add(
     this.wrapperService.pageChanged.subscribe(() => {
@@ -61,7 +60,6 @@ export class ZacWrapperComponent implements OnInit, OnDestroy {
   }
 
   async loadPage() {
-    this.loading = true;
     this.pageHtml = await this.wrapperService.loadCurrentPage();
     defer(() => {
       this.wrapperService.resetZacEvents();

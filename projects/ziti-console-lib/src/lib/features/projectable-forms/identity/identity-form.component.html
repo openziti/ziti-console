@@ -2,16 +2,15 @@
      (keyup.enter)="save($event)"
      (keyup.escape)="closeModal(false)"
 >
-    <div class="identity-form-container">
-        <lib-form-header
+    <lib-form-header
             [data]="formData"
             [title]="formData.id ? 'Edit Identity: ' : 'Create New Identity'"
             [moreActions]="formData.moreActions"
             (actionRequested)="headerActionRequested($event)"
             [(formView)]="formView"
-        ></lib-form-header>
-
-        <div class="form-group-row" *ngIf="formView === 'simple'">
+    ></lib-form-header>
+    <div class="identity-form-container projectable-form-container">
+        <div class="projectable-form-main-column form-group-row" *ngIf="formView === 'simple'">
             <div class="form-group-column three-fifths">
                 <lib-form-field-container [title]="'Identity Name'" [label]="'REQUIRED'">
                     <input
@@ -202,10 +201,10 @@
                 </lib-form-field-container>
                 <lib-form-field-container
                         [title]="'API Calls'"
-                        [label]="'OPTIONAL'"
+                        [label]="''"
                 >
                     <div class="form-row">
-                        <input class="form-field-input" [value]="apiCallURL"/>
+                        <input class="form-field-input" [value]="apiCallURL" readonly/>
                         <div class="url-copy icon-copy copy" (click)="copyToClipboard(apiCallURL)"></div>
                     </div>
                     <lib-json-view *ngIf="formData" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>

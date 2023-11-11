@@ -43,12 +43,12 @@
     border: none;
 
     .ag-body-vertical-scroll-viewport {
-      background-color: var(--background);
+      background-color: var(--formBackground);
     }
 
     .ag-row {
       border: none;
-      background-color: var(--background);
+      background-color: var(--formBackground);
       color: var(--text);
 
       &.row-invalid {
@@ -64,7 +64,7 @@
       }
 
       &.ag-row-selected {
-        background-color: var(--background);
+        background-color: var(--formBackground);
 
         &.ag-row-hover {
           background-color: rgba(33, 150, 243, 0.1);
@@ -330,7 +330,7 @@
     .ag-header-viewport {
       box-sizing: border-box;
       border-bottom: 4px solid var(--primary);
-      background-color: var(--background);
+      background-color: var(--formBackground);
       padding-left: 4px;
       line-height: 55px;
       position: -webkit-sticky !important;
@@ -774,7 +774,7 @@
     .ag-header-row {
       box-sizing: border-box;
       border-bottom: 4px solid var(--primary);
-      background-color: var(--background);
+      background-color: var(--formBackground);
       padding-left: 4px;
       line-height: 55px;
       position: -webkit-sticky !important;

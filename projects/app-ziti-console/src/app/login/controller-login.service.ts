@@ -73,6 +73,7 @@ export class ControllerLoginService extends LoginServiceClass {
                             `Login Failed`,
                             errorMessage,
                         );
+                        this.router.navigate(['/login']);
                     }
                     this.growlerService.show(growlerData);
                     throw({error: errorMessage});

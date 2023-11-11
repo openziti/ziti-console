@@ -78,9 +78,24 @@
   align-items: center;
   height: 100%;
   width: 100%;
-  padding-left: 50px;
-  padding-right: 50px;
   min-width: 675px;
+  overflow: hidden;
+
+  .projectable-form-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    align-items: center;
+    gap: 15px;
+    padding-left: 50px;
+    padding-right: 50px;
+    overflow: auto;
+
+    .projectable-form-main-column {
+      max-width: 1100px;
+    }
+  }
 }
 
 .save-button {
@@ -116,10 +131,10 @@
   position: relative;
   width: 100%;
   gap: 30px;
-  overflow-y: auto;
   padding-bottom: 15px;
   padding-left: 10px;
   padding-right: 10px;
+
   &.one-third {
     height: 33%;
   }
