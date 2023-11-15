@@ -39,7 +39,7 @@ var service = {
 									window.location = "/login";
 								}, 3000);
 							} else {
-								if (e.responseJSON&&e.responseJSON.error!=null&&e.responseJSON.error.indexOf("credentials are invalid")>0) {
+								if (e.responseJSON&&e.responseJSON.error!=null&&(e.responseJSON.error.indexOf("credentials are invalid")>0 || e.responseJSON.errorObj.code==='UNAUTHORIZED')) {
 									console.log("ERROR");
 									console.log(e.responseJSON);
 									window.location = "/login?logout=true";

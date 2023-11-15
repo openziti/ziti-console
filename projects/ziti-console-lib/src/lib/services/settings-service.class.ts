@@ -63,6 +63,7 @@ export abstract class SettingsServiceClass {
     public abstract init();
     public abstract controllerSave(name: string, url: string);
     public abstract initApiVersions(url);
+    public abstract loadSettings();
 
     public get() {
         const tmp = localStorage.getItem('ziti.settings');

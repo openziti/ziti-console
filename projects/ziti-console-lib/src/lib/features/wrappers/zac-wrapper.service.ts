@@ -11,6 +11,7 @@ import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service
 import {ZacWrapperServiceClass} from "./zac-wrapper-service.class";
 import {GrowlerService} from "../messaging/growler.service";
 import {GrowlerModel} from "../messaging/growler.model";
+import {LoggerService} from "../messaging/logger.service";
 
 // @ts-ignore
 const {modal} = window;
@@ -93,8 +94,9 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
         override http: HttpClient,
         override router: Router,
         override growlerService: GrowlerService,
+        override loggerService: LoggerService
     ) {
-        super(zitiDomainController, URLS, settingsService, http, router, growlerService);
+        super(zitiDomainController, URLS, settingsService, http, router, growlerService, loggerService);
         this.getCurrentPage(this.router.url);
         this.initRouteListener();
     }
@@ -206,6 +208,8 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                 this.page = 'posture-checks';
                 route = this.URLS.ZITI_POSTURE_CHECKS;
                 break;
+            case '/certificate-authorities':
+            case 'certificate-authorities':
             case '/cas':
             case 'cas':
                 this.page = 'cas';
@@ -348,6 +352,7 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
     }
 
     override loadCurrentPage() {
+        this.getCurrentPage(this.router.url);
         if (isEmpty(this.page)) {
             this.page = 'index'
         }
@@ -871,13 +876,6 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
     }
 
     handleError(result: any) {
-        // this.growlService.show(
-        //   new GrowlerData(
-        //     'error',
-        //     'An Error Occurred',
-        //     `Error`,
-        //     result?.message
-        //   )
-        // );
+        this.loggerService.error(result);
     }
 }

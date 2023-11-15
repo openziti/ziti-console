@@ -2,6 +2,7 @@ import {Inject, Component, OnDestroy, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
 import {SettingsServiceClass, LoginServiceClass, SETTINGS_SERVICE, ZAC_LOGIN_SERVICE} from "ziti-console-lib";
 import {Subscription} from "rxjs";
+import {defer, isEmpty, get} from "lodash";
 
 // @ts-ignore
 const {growler, context} = window;
@@ -41,6 +42,7 @@ export class LoginComponent implements OnInit, OnDestroy {
             if (results) this.settingsReturned(results);
         }));
         this.edgeChanged();
+        this.initSettings();
     }
 
     async login() {
@@ -53,7 +55,9 @@ export class LoginComponent implements OnInit, OnDestroy {
                 this.selectedEdgeController,
                 this.username.trim(),
                 this.password
-            );
+            ).then(() => {
+                context.set('serviceUrl', this.selectedEdgeController);
+            });
         }
     }
 
@@ -102,9 +106,12 @@ export class LoginComponent implements OnInit, OnDestroy {
         }
     }
 
+    initSettings() {
+        this.settingsService.loadSettings();
+    }
+
     settingsReturned(settings: any) {
         this.edgeControllerList = [];
-        this.selectedEdgeController = settings.selectedEdgeController;
         if (settings.edgeControllers?.length > 0) {
             this.backToLogin = false;
             this.edgeControllerList = [];
@@ -117,8 +124,17 @@ export class LoginComponent implements OnInit, OnDestroy {
             this.edgeCreate = true;
             this.userLogin = false;
         }
-        const lastUrl = context.get("serviceUrl");
-        if (lastUrl && lastUrl.trim().length > 0) this.selectedEdgeController = lastUrl.trim();
+        const serviceUrl = localStorage.getItem("ziti-serviceUrl-value");
+        if (!isEmpty(serviceUrl)) {
+            const lastUrl: any = JSON.parse(serviceUrl).data;
+            defer(() => {
+                this.selectedEdgeController = lastUrl.trim();
+            });
+        } else {
+            defer(() => {
+                this.selectedEdgeController = settings.selectedEdgeController;
+            });
+        }
     }
 
     ngOnDestroy(): void {

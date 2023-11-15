@@ -4,6 +4,7 @@ import {HttpBackend} from "@angular/common/http";
 import {SettingsServiceClass, GrowlerService, GrowlerModel} from "ziti-console-lib";
 import {firstValueFrom, map, tap} from "rxjs";
 import {catchError} from "rxjs/operators";
+import {get} from "lodash";
 
 // @ts-ignore
 const {growler} = window;
@@ -38,6 +39,48 @@ export class NodeSettingsService extends SettingsServiceClass {
 
     hasSession() {
         return this.hasNodeSession;
+    }
+
+    override loadSettings() {
+        const nodeServerURL = window.location.origin;
+        const apiURL = nodeServerURL + '/api/settings';
+        this.httpClient.post(
+            apiURL,
+            {},
+            {
+                headers: {
+                    "content-type": "application/json"
+                }
+            }
+        ).toPromise().then((result: any) => {
+            if (!isEmpty(result?.error)) {
+                let growlerData = new GrowlerModel(
+                    'error',
+                    'Error',
+                    `Login Failed`,
+                    result.error,
+                );
+                this.growlerService.show(growlerData);
+            } else {
+                let selectedController;
+                result?.edgeControllers.forEach((controller) => {
+                    if (controller.default) {
+                        selectedController = controller.url;
+                    }
+                })
+                this.settings.selectedEdgeController = selectedController || get(result, 'edgeControllers[0].url');
+                this.settings.edgeControllers = result?.edgeControllers || [];
+                this.set(this.settings);
+            }
+        }).catch((err) => {
+            let growlerData = new GrowlerModel(
+                'error',
+                'Error',
+                `Login Failed`,
+                `Unable to connect - please make sure the URL is correct and the controller is online`,
+            );
+            this.growlerService.show(growlerData);
+        });
     }
 
     override controllerSave(name, controllerURL) {

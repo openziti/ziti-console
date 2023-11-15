@@ -26,7 +26,7 @@ export class NodeLoginService extends LoginServiceClass {
     }
 
     async login(prefix: string, url: string, username: string, password: string) {
-        this.nodeLogin(url, username, password);
+        return this.nodeLogin(url, username, password);
     }
 
     nodeLogin(controllerURL: string, username: string, password: string) {

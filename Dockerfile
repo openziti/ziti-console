@@ -20,14 +20,14 @@ EXPOSE 8443
 COPY . .
 
 # Fetch dependencies
-RUN npm install --legacy-peer-deps
+RUN npm install
 
 RUN npm install -g @angular/cli
 RUN ng build ziti-console-lib
 RUN cp -r ./assets ./dist/ziti-console-lib
 RUN cp -r ./html ./dist/ziti-console-lib/assets
 RUN ng build ziti-console
-RUN ng build ziti-console-node
+RUN ng build ziti-console-edge
 
 ENTRYPOINT ["/usr/src/app/run-zac.sh"]
 CMD ["/usr/src/app/run-zac.sh"]
