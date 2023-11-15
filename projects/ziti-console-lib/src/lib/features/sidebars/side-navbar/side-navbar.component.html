@@ -6,7 +6,7 @@
         <div *ngFor="let group of currentNav.groups" class="side-navigator-menu-group">
             <span class="side-navigator-menu-group-label">{{ group.label }}</span>
             <div *ngFor="let item of group.menuItems">
-                <div class="side-navigator-menu-item {{item.className}}" [routerLink]="item.route"
+                <div class="side-navigator-menu-item {{item.className}}" [routerLink]="item.route" *ngIf="!item.hidden"
                      [ngClass]="{ selected: item.selectedRoutes?.includes(url) }">
                     <div class="side-navigator-menu-item-icon">
                         <div class="image" [ngClass]="item.iconClass"></div>

@@ -1,4 +1,5 @@
 import {URLS} from "./app-urls.constants";
+import {environment} from "./environments/environment";
 
 export const OPEN_ZITI_NAVIGATOR = {
     groups: [
@@ -94,7 +95,8 @@ export const CLASSIC_ZITI_NAVIGATOR = {
                     label: 'Recipies',
                     route: URLS.ZITI_RECIPES,
                     iconClass: 'icon-template',
-                    selectedRoutes: [URLS.ZITI_RECIPES]
+                    selectedRoutes: [URLS.ZITI_RECIPES],
+                    hidden: !environment.nodeIntegration
                 },
                 {
                     label: 'Services',

@@ -168,7 +168,8 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 sortable: true,
                 filter: true,
                 sortColumn: this.sort.bind(this),
-                sortDir: 'asc'
+                sortDir: 'asc',
+                width: 300,
             },
             {
                 colId: 'roles',
@@ -207,6 +208,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 tooltipComponent: SDKTooltipComponent,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
+                width: 125,
             },
             {
                 colId: 'type',
@@ -227,6 +229,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 sortable: true,
                 sortColumn: this.sort.bind(this),
                 cellClass: 'nf-cell-vert-align tCol',
+                width: 100,
             },
             {
                 colId: 'createdAt',
