@@ -25,7 +25,7 @@ export class TabNameService {
                 {label: 'Identities', url: '/identities'},
                 {label: 'Recipes', url: '/recipes', hidden: !this.settings.supportedFeatures?.recipies},
                 {label: 'Terminators', url: '/terminators'},
-                {label: 'Posture Checks', url: '/config-posture-checks'},
+                {label: 'Posture Checks', url: '/posture-checks'},
             ]
             ],
             ["services", [

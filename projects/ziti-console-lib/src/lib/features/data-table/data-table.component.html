@@ -135,7 +135,7 @@
     <lib-no-items
         (clickEmit)="openCreate()"
         [image]="'No_Clients'"
-        [isEmpty]="rowData.length === 0"
+        [isEmpty]="!rowData || rowData.length === 0"
         [typeName]="this.entityTypeLabel"
     ></lib-no-items>
 </ng-template>

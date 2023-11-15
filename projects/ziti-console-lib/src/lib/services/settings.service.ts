@@ -82,6 +82,10 @@ export class SettingsService extends SettingsServiceClass {
         else return Promise.resolve();
     }
 
+    override loadSettings() {
+        //this is a no-op for the default settings service
+    }
+
     override controllerSave(name: string, url: string) {
         url = url.split('#').join('').split('?').join('');
         if (url.endsWith('/')) url = url.substr(0, url.length - 1);

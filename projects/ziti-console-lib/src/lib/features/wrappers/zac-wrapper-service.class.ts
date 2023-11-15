@@ -7,6 +7,7 @@ import {HttpClient} from "@angular/common/http";
 import {Subscription} from "rxjs";
 import $ from 'jquery';
 import {GrowlerService} from "../messaging/growler.service";
+import {LoggerService} from "../messaging/logger.service";
 
 export const ZAC_WRAPPER_SERVICE = new InjectionToken<ZacWrapperServiceClass>('ZAC_WRAPPER_SERVICE');
 
@@ -27,7 +28,8 @@ export abstract class ZacWrapperServiceClass {
         @Inject(SETTINGS_SERVICE) protected settingsService: SettingsService,
         protected http: HttpClient,
         protected router: Router,
-        protected growlerService: GrowlerService
+        protected growlerService: GrowlerService,
+        protected loggerService: LoggerService
     ) {}
 
     public abstract initZac();

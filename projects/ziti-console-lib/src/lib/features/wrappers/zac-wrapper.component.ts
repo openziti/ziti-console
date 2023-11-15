@@ -6,6 +6,7 @@ import {SettingsService, SETTINGS_SERVICE} from "../../services/settings.service
 import {LoggerService} from "../messaging/logger.service";
 
 import $ from 'jquery';
+import {LoginServiceClass, ZAC_LOGIN_SERVICE} from "../../services/login-service.class";
 const context = window['context'];
 
 @Component({
@@ -26,7 +27,8 @@ export class ZacWrapperComponent implements OnInit, OnDestroy {
   constructor(
       @Inject(ZAC_WRAPPER_SERVICE) private wrapperService: ZacWrapperServiceClass,
       @Inject(SETTINGS_SERVICE) private settingsService: SettingsService,
-      private loggerService: LoggerService
+      private loggerService: LoggerService,
+      @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass
   ) {
   }
 
@@ -39,14 +41,14 @@ export class ZacWrapperComponent implements OnInit, OnDestroy {
       }
       this.loadPage();
     }));
-    this.settingsService.settingsChange.subscribe((results:any) => {
+    this.settingsService.settingsChange.subscribe(async (results:any) => {
         if (this.waitingForSession && !this.pageLoading) {
             this.pageLoading = true;
-            delay(async () => {
+            defer(async () => {
               await this.loadPage();
               this.waitingForSession = false;
               this.pageLoading = false;
-            }, 200)
+            });
         }
     });
     defer(() => {

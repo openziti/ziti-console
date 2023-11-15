@@ -39,7 +39,8 @@ var ziti;
 const zitiServiceName = process.env.ZITI_SERVICE_NAME || 'zac';
 const zitiIdentityFile = process.env.ZITI_IDENTITY_FILE;
 
-const integration = _.get(process, 'argv[2]') || "classic";
+const integration = _.get(process, 'argv[2]') || "node-api";
+
 try {
 	ziti = await loadModule('@openziti/ziti-sdk-nodejs')
 } catch (e) {
@@ -323,17 +324,7 @@ app.post("/api/login", function(request, response) {
 	}
 });
 
-if (integration === 'node-api') {
-    app.use(bodyParser.urlencoded({extended:false}));
-
-    app.use('/', express.static(__dirname + '/dist/app-ziti-console-node'));
-    app.use('/:name', express.static(__dirname + '/dist/app-ziti-console-node'));
-} else if (integration === 'edge-api') {
-    app.use(bodyParser.urlencoded({extended:false}));
-
-    app.use('/', express.static(__dirname + '/dist/app-ziti-console'));
-    app.use('/:name', express.static(__dirname + '/dist/app-ziti-console'));
-} else {
+if (integration === 'classic') {
   for (var i=0; i<pages.length; i++) {
   	app.get(pages[i].url, function(request, response) {
   		if (!baseUrl||baseUrl.trim().length==0&&request.session.baseUrl) baseUrl = request.session.baseUrl;
@@ -370,6 +361,15 @@ if (integration === 'node-api') {
   		}
   	});
   }
+} else if (integration === 'edge-api') {
+    app.use(bodyParser.urlencoded({extended:false}));
+
+    app.use('/', express.static(__dirname + '/dist/app-ziti-console-edge'));
+    app.use('/:name', express.static(__dirname + '/dist/app-ziti-console-edge'));
+} else {
+    app.use(bodyParser.urlencoded({extended:false}));
+    app.use('/', express.static(__dirname + '/dist/app-ziti-console'));
+    app.use('/:name', express.static(__dirname + '/dist/app-ziti-console'));
 }
 
 app.post("/api/logout", function(request, response) {

@@ -9,6 +9,7 @@ import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service
 
 import {get, set, isEmpty} from "lodash";
 import {GrowlerService} from "../messaging/growler.service";
+import {LoggerService} from "../messaging/logger.service";
 
 @Injectable({providedIn: 'root'})
 export class NodeWrapperService extends ZacWrapperService {
@@ -19,9 +20,10 @@ export class NodeWrapperService extends ZacWrapperService {
         @Inject(SETTINGS_SERVICE) override settingsService: SettingsService,
         override http: HttpClient,
         override router: Router,
-        override growlerService: GrowlerService
+        override growlerService: GrowlerService,
+        override loggerService: LoggerService
     ) {
-        super(zitiDomainController, URLS, settingsService, http, router, growlerService);
+        super(zitiDomainController, URLS, settingsService, http, router, growlerService, loggerService);
     }
 
     override initZac() {
