@@ -28,19 +28,22 @@ export class EdgeRouterFormService {
         const isUpdate = !isEmpty(formData.id);
         const data: any = this.getEdgeRouterDataModel(formData, isUpdate);
         const svc = isUpdate ? this.zitiService.patch.bind(this.zitiService) : this.zitiService.post.bind(this.zitiService);
-        return svc('edge-routers', data, formData.id).then((result: any) => {
-            return this.extService.formDataSaved(result).then((result: any) => {
-                if (!result) {
-                    return result;
+        return svc('edge-routers', data, formData.id).then(async (result: any) => {
+            let router = await this.zitiService.getSubdata('edge-routers', result?.data?.id, '').then((routerData) => {
+                return routerData.data;
+            });
+            return this.extService.formDataSaved(result).then((formSavedResult: any) => {
+                if (!formSavedResult) {
+                    return router;
                 }
                 const growlerData = new GrowlerModel(
                     'success',
                     'Success',
-                    `Identity ${isUpdate ? 'Updated' : 'Created'}`,
+                    `Edge Router ${isUpdate ? 'Updated' : 'Created'}`,
                     `Successfully ${isUpdate ? 'updated' : 'created'} Identity: ${formData.name}`,
                 );
                 this.growlerService.show(growlerData);
-                return true;
+                return router;
             }).catch((result) => {
                 return false;
             });

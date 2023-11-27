@@ -166,6 +166,7 @@
                         [identity]="formData"
                         [jwt]="jwt"
                         [expiration]="enrollmentExpiration"
+                        [type]="'identity'"
                     ></lib-qr-code>
                 </lib-form-field-container>
                 <lib-form-field-container
@@ -212,7 +213,7 @@
             </div>
         </div>
         <div class="form-group-column" *ngIf="formView === 'raw'">
-            <lib-json-view *ngIf="formData" [(data)]="formData" (change)="rawDataChanged($event)"></lib-json-view>
+            <lib-json-view *ngIf="formData" [(data)]="formData"></lib-json-view>
         </div>
     </div>
 </div>

@@ -1,4 +1,5 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, OnInit, OnDestroy} from '@angular/core';
+
 import {EdgeRoutersPageService} from "./edge-routers-page.service";
 import {DataTableFilterService} from "../../features/data-table/data-table-filter.service";
 import {ListPageComponent} from "../../shared/list-page-component.class";
@@ -19,7 +20,7 @@ import {EdgeRouter} from "../../models/edge-router";
   templateUrl: './edge-routers-page.component.html',
   styleUrls: ['./edge-routers-page.component.scss']
 })
-export class EdgeRoutersPageComponent extends ListPageComponent implements OnInit {
+export class EdgeRoutersPageComponent extends ListPageComponent implements OnInit, OnDestroy {
 
   title = 'Edge Router Management'
   tabs: { url: string, label: string }[] ;
@@ -48,6 +49,11 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
     this.zacWrapperService.resetZacEvents();
     this.getEdgeRouterRoleAttributes();
     super.ngOnInit();
+  }
+
+  override ngOnDestroy() {
+    this.closeModal();
+    super.ngOnDestroy();
   }
 
   headerActionClicked(action: string) {

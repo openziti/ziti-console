@@ -174,7 +174,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   }
 
   save(event?) {
-    console.log(event);
     if(!this.validate()) {
       return;
     }
@@ -269,7 +268,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   }
 
   closeModal(refresh = false, ignoreChanges = false): void {
-    console.log('test');
     if (!ignoreChanges && this._dataChange) {
       const confirmed = confirm('You have unsaved changes. Do you want to leave this page and discard your changes or stay on this page?');
       if (!confirmed) {
@@ -280,10 +278,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   }
 
   clear(): void {
-  }
-
-  rawDataChanged(event) {
-    console.log(event);
   }
 
   _dataChange = false;

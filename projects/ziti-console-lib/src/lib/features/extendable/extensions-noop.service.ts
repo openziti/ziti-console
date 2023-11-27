@@ -29,7 +29,7 @@ export class ExtensionsNoopService implements ExtensionService {
     return Promise.resolve(data);
   }
 
-  formDataChanged = new BehaviorSubject<any>({});
+  formDataChanged = new BehaviorSubject<any>({isEmpty: true});
 
   validateData(): Promise<any> {
     return Promise.resolve(true);

@@ -47,6 +47,7 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
   isEditing = false;
   enrollmentExpiration: any;
   jwt: any;
+  token: any;
   isLoading = false;
   associatedServicePolicies: any = [];
   associatedServicePolicyNames: any = [];
@@ -73,7 +74,6 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
   constructor(
       @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
       public svc: EdgeRouterFormService,
-      public identitiesService: IdentitiesPageService,
       @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
       private growlerService: GrowlerService,
       @Inject(EDGE_ROUTER_EXTENSION_SERVICE) private extService: ExtensionService
@@ -87,8 +87,9 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
         this.settings = results;
       })
     );
-    this.jwt = this.identitiesService.getJWT(this.formData);
-    this.enrollmentExpiration = this.identitiesService.getEnrollmentExpiration(this.formData);
+    this.jwt = this.formData.enrollmentJwt;
+    this.token = this.formData.enrollmentToken;
+    this.enrollmentExpiration = this.formData?.enrollmentExpiresAt;
     this.getAssociatedServices();
     this.getAssociatedServicePolicies();
     this.getAuthPolicies();
@@ -97,6 +98,9 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
     this.extService.updateFormData(this.formData);
     this.subscription.add(
       this.extService.formDataChanged.subscribe((data) => {
+        if (data.isEmpty) {
+          return;
+        }
         this.formData = data;
       })
     );
@@ -150,7 +154,7 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
   }
 
   get hasEnrolmentToken() {
-    return this.identitiesService.hasEnrolmentToken(this.formData);
+    return !isEmpty(this.formData.enrollmentJwt) || !isEmpty(this.formData.enrollmentToken);
   }
 
   get jwtExpired() {
@@ -163,7 +167,7 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
         this.save();
         break;
       case 'close':
-        this.closeModal();
+        this.closeModal(true);
         break;
       case 'toggle-view':
         this.formView = action.data;
@@ -197,8 +201,9 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
 
     this.isLoading = true;
     this.svc.save(this.formData).then((result) => {
-      if (result) {
-        this.closeModal(true, true);
+      if (!isEmpty(result?.id)) {
+        this.formData = result;
+        this.initData = this.formData;
       }
     }).finally(() => {
       this.isLoading = false;
@@ -265,8 +270,7 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
     this.growlerService.show(growlerData);
   }
 
-  closeModal(refresh = false, ignoreChanges = false): void {
-    console.log('test');
+  closeModal(refresh = true, ignoreChanges = false): void {
     if (!ignoreChanges && this._dataChange) {
       const confirmed = confirm('You have unsaved changes. Do you want to leave this page and discard your changes or stay on this page?');
       if (!confirmed) {
@@ -277,10 +281,6 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
   }
 
   clear(): void {
-  }
-
-  rawDataChanged(event) {
-    console.log(event);
   }
 
   _dataChange = false;

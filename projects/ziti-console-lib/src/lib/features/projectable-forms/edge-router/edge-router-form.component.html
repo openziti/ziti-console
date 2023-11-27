@@ -2,16 +2,15 @@
      (keyup.enter)="save($event)"
      (keyup.escape)="closeModal(false)"
 >
-    <div class="edge-router-form-container">
-        <lib-form-header
-            [data]="formData"
-            [title]="formData.id ? 'Edit Edge Router: ' : 'Create New Edge Router'"
-            [moreActions]="formData.moreActions"
-            (actionRequested)="headerActionRequested($event)"
-            [(formView)]="formView"
-        ></lib-form-header>
-
-        <div class="form-group-row" *ngIf="formView === 'simple'">
+    <lib-form-header
+        [data]="formData"
+        [title]="formData.id ? 'Edit Edge Router: ' : 'Create New Edge Router'"
+        [moreActions]="formData.moreActions"
+        (actionRequested)="headerActionRequested($event)"
+        [(formView)]="formView"
+    ></lib-form-header>
+    <div class="edge-router-form-container projectable-form-container">
+        <div class="projectable-form-main-column form-group-row" *ngIf="formView === 'simple'">
             <div class="form-group-column three-fifths">
                 <lib-form-field-container [title]="'Edge Router Name'" [label]="'REQUIRED'">
                     <input
@@ -39,9 +38,10 @@
                 <lib-form-field-toggle [(toggleOn)]="showMore" style="margin: 0px 10px"></lib-form-field-toggle>
                 <div *ngIf="showMore" class="form-group-column">
                     <lib-form-field-container
-                        [title]="'TUNNELER ENABLED'"
-                        [title2]="'NO TRAVERSAL'"
+                        [title]="'TUNNELER'"
+                        [title2]="'TRAVERSAL'"
                         [layout]="'row'"
+                        class="form-field-advanced"
                     >
                         <div class="config-item">
                             <div class="config-container toggle-container">
@@ -60,7 +60,7 @@
 
                         <div class="config-item">
                             <div class="config-container toggle-container">
-                                <div class="config-container-label">NO TRAVERSAL</div>
+                                <div class="config-container-label">ALLOW TRAVERSAL</div>
                                 <div
                                         (click)="toggleNoTraversal()"
                                         [ngClass]="{ on: formData.noTraversal }"
@@ -90,6 +90,18 @@
                 </div>
             </div>
             <div class="form-group-column two-fifths">
+                <lib-form-field-container
+                        *ngIf="hasEnrolmentToken"
+                        [showHeader]="false"
+                >
+                    <lib-qr-code
+                            [identity]="formData"
+                            [jwt]="jwt"
+                            [token]="token"
+                            [expiration]="enrollmentExpiration"
+                            [type]="'router'"
+                    ></lib-qr-code>
+                </lib-form-field-container>
                 <lib-form-field-container
                         *ngIf="formData.id"
                         [title]="'Associated Services'"
@@ -134,7 +146,7 @@
             </div>
         </div>
         <div class="form-group-column" *ngIf="formView === 'raw'">
-            <lib-json-view *ngIf="formData" [(data)]="formData" (change)="rawDataChanged($event)"></lib-json-view>
+            <lib-json-view *ngIf="formData" [(data)]="formData"></lib-json-view>
         </div>
     </div>
 </div>

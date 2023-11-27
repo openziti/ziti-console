@@ -44,6 +44,18 @@ export class EdgeRoutersService {
         });
     }
 
+    public getZitiEdgeRouter(id) {
+        return this.getZitiEntities('edge-routers/' + id, this.paging).then((results: any) => {
+            if (!isEmpty(results?.data)) {
+                results.data = results.data.map((row) => {
+                    row.actionList = ['update', 'delete'];
+                    return row;
+                });
+            }
+            return results;
+        });
+    }
+
     getZitiEntities(type: string, paging: any) {
         const sessionId = this.settingsService.settings.session.id;
         const prefix = this.settingsService.apiVersions["edge-management"].v1.path;

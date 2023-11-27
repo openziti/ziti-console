@@ -34,10 +34,6 @@ export class ResetEnrollmentComponent {
     this.dialogRef.close(false);
   }
 
-  setDate(event) {
-    console.log(event);
-  }
-
   resetEnrollment() {
     let id = this.identity?.authenticators?.cert?.id;
     if (!id) {

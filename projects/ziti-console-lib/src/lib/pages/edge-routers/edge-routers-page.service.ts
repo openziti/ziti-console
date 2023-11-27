@@ -11,7 +11,7 @@ import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../services/ziti-data.service";
 import {CsvDownloadService} from "../../services/csv-download.service";
 import {EdgeRouter} from "../../models/edge-router";
-import {unset} from "lodash";
+import {unset, forEach} from "lodash";
 import {ITooltipAngularComp} from "ag-grid-angular";
 import {ITooltipParams} from "ag-grid-community";
 import {OSTooltipComponent} from "../../features/data-table/tooltips/os-tooltip.component";
@@ -93,23 +93,21 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
         }
 
         const osRenderer = (row) => {
-            let os = "other";
-            let osDetails = "";
-            if (row?.data?.versionInfo) {
-                if (row?.data?.versionInfo?.osVersion&&row?.data?.versionInfo?.osVersion.toLowerCase().indexOf("windows")>=0) os = "windows";
-                else {
-                    if (row?.data?.versionInfo?.os&&row?.data?.versionInfo?.os.toLowerCase().indexOf("darwin")>=0) os = "apple";
-                    else if (row?.data?.versionInfo?.os&&row?.data?.versionInfo?.os.toLowerCase().indexOf("linux")>=0) os = "linux";
-                    else if (row?.data?.versionInfo?.os&&row?.data?.versionInfo?.os.toLowerCase().indexOf("android")>=0) os = "android";
-                    else if (row?.data?.versionInfo?.os&&row?.data?.versionInfo?.os.toLowerCase().indexOf("windows")>=0) os = "windows";
-                }
-                if (row?.data?.versionInfo?.os) osDetails += "OS: "+row?.data?.versionInfo?.os;
-                if (row?.data?.versionInfo?.arch) osDetails += "&#10;Arch: "+row?.data?.versionInfo?.arch;
-                if (row?.data?.versionInfo?.osRelease) osDetails += "&#10;Release: "+row?.data?.versionInfo?.osRelease;
-                if (row?.data?.versionInfo?.osVersion) osDetails += "&#10;Version: "+row?.data?.versionInfo?.osVersion;
+            const osMap: any = {
+                'darwin': 'apple',
+                'linux': 'linux',
+                'android': 'android',
+                'windows': 'windows'
             }
+            let os = "other";
+            forEach(osMap, (value, key) => {
+                if (row?.data?.versionInfo?.osVersion?.toLowerCase().indexOf(key)>=0 ||
+                    row?.data?.versionInfo?.os.toLowerCase().indexOf(key)>=0) {
+                    os = value;
+                }
+            });
             return `<div class="col desktop" data-id="${row?.data?.id}" style="overflow: unset;">
-                <span class="os ${os}" data-balloon-pos="up" aria-label="${osDetails}"></span>
+                <span class="os ${os}" data-balloon-pos="up"></span>
               </div>`
         }
 
@@ -307,7 +305,7 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
             } else {
                 this.selectedEdgeRouter.badges.push({label: 'Offline', class: 'offline', circle: 'false'});
             }
-            if (this.selectedEdgeRouter.isVerified) {
+            if (!this.selectedEdgeRouter.isVerified) {
                 this.selectedEdgeRouter.badges.push({label: 'Unverified', class: 'unreg'});
             }
             // TODO: implement when metrics and dialog features are available
