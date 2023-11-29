@@ -41,7 +41,7 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
   }
 
   override ngOnInit() {
-    this.tabs = this.tabNames.getTabs('edge-routers');
+    this.tabs = this.tabNames.getTabs('routers');
     this.svc.refreshData = this.refreshData;
     this.zacWrapperService.zitiUpdated.subscribe(() => {
       this.refreshData();

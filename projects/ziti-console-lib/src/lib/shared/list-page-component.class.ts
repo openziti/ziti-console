@@ -51,13 +51,16 @@ export abstract class ListPageComponent {
     }
 
     itemToggled(item: any): void {
-        this.updateSelectedItems();
+        this.updateSelectedItems(item);
     }
 
-    updateSelectedItems() {
+    updateSelectedItems(toggledItem?: any) {
         let itemSelected = false;
         this.selectedItems = [];
         this.rowData.forEach((item) => {
+            if (toggledItem?.id && toggledItem?.id === item?.id) {
+                item.selected = toggledItem.selected;
+            }
             if (item.selected) {
                 itemSelected = true;
                 this.selectedItems.push(item);

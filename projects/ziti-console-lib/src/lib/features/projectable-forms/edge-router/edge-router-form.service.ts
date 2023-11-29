@@ -29,10 +29,11 @@ export class EdgeRouterFormService {
         const data: any = this.getEdgeRouterDataModel(formData, isUpdate);
         const svc = isUpdate ? this.zitiService.patch.bind(this.zitiService) : this.zitiService.post.bind(this.zitiService);
         return svc('edge-routers', data, formData.id).then(async (result: any) => {
-            let router = await this.zitiService.getSubdata('edge-routers', result?.data?.id, '').then((routerData) => {
+            const id = result?.data?.id || formData.id;
+            let router = await this.zitiService.getSubdata('edge-routers', id, '').then((routerData) => {
                 return routerData.data;
             });
-            return this.extService.formDataSaved(result).then((formSavedResult: any) => {
+            return this.extService.formDataSaved(router).then((formSavedResult: any) => {
                 if (!formSavedResult) {
                     return router;
                 }

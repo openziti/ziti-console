@@ -63,11 +63,11 @@
                                 <div class="config-container-label">ALLOW TRAVERSAL</div>
                                 <div
                                         (click)="toggleNoTraversal()"
-                                        [ngClass]="{ on: formData.noTraversal }"
+                                        [ngClass]="{ on: !formData.noTraversal }"
                                         class="toggle"
                                 >
-                                    <span [hidden]="!formData.noTraversal" class="on-label">YES</span>
-                                    <span [hidden]="formData.noTraversal" class="off-label">NO</span>
+                                    <span [hidden]="formData.noTraversal" class="on-label">YES</span>
+                                    <span [hidden]="!formData.noTraversal" class="off-label">NO</span>
                                     <div class="switch"></div>
                                 </div>
                             </div>
