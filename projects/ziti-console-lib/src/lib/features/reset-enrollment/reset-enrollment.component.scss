@@ -1,9 +1,56 @@
-.sized {
-  &.large {
-    height: 220px;
+.reset-enrollment-container {
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  width: 600px;
+  padding: 20px;
+  gap: 15px;
+  background-color: var(--background);
+  border-radius: 10px;
+  overflow: visible;
+}
+
+.reset-title-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  .title {
+    padding: 0;
+    height: inherit;
+    line-height: initial;
+  }
+
+  .subtitle {
+    padding: 0;
+    height: inherit;
+    line-height: initial;
+  }
+}
+
+.reset-content-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.reset-buttons-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: flex-start;
+
+  .button {
+    border-radius: 7px;
+    line-height: initial;
+    margin-top: 0;
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+::ng-deep .reset-enroll-dialog-container {
+  .mat-mdc-dialog-surface {
+    overflow: visible;
   }
 }
 

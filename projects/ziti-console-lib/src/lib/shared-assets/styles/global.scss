@@ -1,4 +1,8 @@
 
+body {
+  overflow: hidden;
+}
+
 .modal.box.full {
   bottom: unset !important;
   left: 100% !important;
@@ -230,6 +234,9 @@ lib-form-field-container {
   border-radius: 10px;
 }
 
+.form-field-label {
+  text-transform: uppercase;
+}
 
 .icon-copy.copy {
   right: 10px;

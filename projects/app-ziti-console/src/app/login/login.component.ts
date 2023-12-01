@@ -57,6 +57,8 @@ export class LoginComponent implements OnInit, OnDestroy {
                 this.password
             ).then(() => {
                 context.set('serviceUrl', this.selectedEdgeController);
+                this.settingsService.settings.selectedEdgeController = this.selectedEdgeController;
+                this.settingsService.set(this.settingsService.settings);
             });
         }
     }
@@ -104,6 +106,7 @@ export class LoginComponent implements OnInit, OnDestroy {
             this.edgeCreate = true;
             this.userLogin = false;
         }
+        this.settingsService.settings.selectedEdgeController = this.selectedEdgeController;
     }
 
     initSettings() {
