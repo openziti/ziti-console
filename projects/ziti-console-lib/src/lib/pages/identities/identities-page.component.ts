@@ -3,16 +3,10 @@ import {IdentitiesPageService} from "./identities-page.service";
 import {DataTableFilterService} from "../../features/data-table/data-table-filter.service";
 import {ListPageComponent} from "../../shared/list-page-component.class";
 import {TabNameService} from "../../services/tab-name.service";
-
-import {invoke, isEmpty, defer, unset, cloneDeep} from 'lodash';
-import moment from 'moment';
-import $ from 'jquery';
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {MatDialog} from "@angular/material/dialog";
 import {ZacWrapperServiceClass, ZAC_WRAPPER_SERVICE} from "../../features/wrappers/zac-wrapper-service.class";
-import {SettingsService} from "../../services/settings.service";
 import {ConsoleEventsService} from "../../services/console-events.service";
-import {Identity} from "../../models/identity";
 import {QrCodeComponent} from "../../features/qr-code/qr-code.component";
 import {ResetEnrollmentComponent} from "../../features/reset-enrollment/reset-enrollment.component";
 

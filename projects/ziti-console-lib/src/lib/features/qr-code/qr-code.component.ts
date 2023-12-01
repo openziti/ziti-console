@@ -12,8 +12,11 @@ import {IdentitiesPageService} from "../../pages/identities/identities-page.serv
 export class QrCodeComponent implements OnChanges {
 
   @Input() jwt: any;
+  @Input() token: any;
   @Input() expiration: any;
   @Input() identity: any = {};
+  @Input() type: string = 'identity';
+  @Input() authenticators: any;
 
   jwtExpired;
   expirationDate;
@@ -29,6 +32,7 @@ export class QrCodeComponent implements OnChanges {
   {
     if (!isEmpty(data)) {
       this.jwt = data.jwt;
+      this.token = data.token;
       this.expiration = data.expiration;
       this.qrCodeSize = data.qrCodeSize || 200;
       this.jwtExpired = this.getJwtExpired();
@@ -36,6 +40,10 @@ export class QrCodeComponent implements OnChanges {
       this.isModal = true;
       this.identity = data.identity;
     }
+  }
+
+  get showResetToken() {
+    return this.authenticators?.cert?.id || this.authenticators?.updb?.id;
   }
 
   getJwtExpired() {

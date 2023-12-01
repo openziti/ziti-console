@@ -1,25 +1,22 @@
-<div id="ResetModal" class="modal box open" style="height: fit-content;">
-    <div class="sized large">
-        <div class="close icon-close" (click)="cancel()"></div>
-        <div>
-            <div class="title">Reset Enrollment</div>
-            <div class="subtitle">Select a Date to reset the enrollment token</div>
-        </div>
-        <div>
-            <label>Date Enrollment Expires</label>
-            <p-calendar
-                    [(ngModel)]="dateValue"
-                    (onSelect)="setDate($event)"
-                    dateFormat="mm/dd/yy"
-                    selectionMode="single"
-                    [showIcon]="showIcon"
-                    [showTime]="true"
-                    placeholder="Select Time Range"
-                    #calendar
-            ></p-calendar>
-        </div>
-        <div class="buttons">
-            <div id="ResetEnrollButton" class="button" (click)="resetEnrollment()">Reset Enrollment</div>
-        </div>
+<div id="ResetModal" class="reset-enrollment-container modal" style="height: fit-content;">
+    <div class="close icon-close" (click)="cancel()"></div>
+    <div class="reset-title-container">
+        <div class="title">Reset Enrollment</div>
+        <div class="subtitle">Select a Date to reset the enrollment token</div>
+    </div>
+    <div class="reset-content-container">
+        <label>Date Enrollment Expires</label>
+        <p-calendar
+                [(ngModel)]="dateValue"
+                dateFormat="mm/dd/yy"
+                selectionMode="single"
+                [showIcon]="showIcon"
+                [showTime]="true"
+                placeholder="Select Time Range"
+                #calendar
+        ></p-calendar>
+    </div>
+    <div class="reset-buttons-container">
+        <div id="ResetEnrollButton" class="button" (click)="resetEnrollment()">Reset Enrollment</div>
     </div>
 </div>
