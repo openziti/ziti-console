@@ -16,6 +16,7 @@ export class QrCodeComponent implements OnChanges {
   @Input() expiration: any;
   @Input() identity: any = {};
   @Input() type: string = 'identity';
+  @Input() authenticators: any;
 
   jwtExpired;
   expirationDate;
@@ -39,6 +40,10 @@ export class QrCodeComponent implements OnChanges {
       this.isModal = true;
       this.identity = data.identity;
     }
+  }
+
+  get showResetToken() {
+    return this.authenticators?.cert?.id || this.authenticators?.updb?.id;
   }
 
   getJwtExpired() {

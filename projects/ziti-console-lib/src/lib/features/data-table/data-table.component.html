@@ -1,4 +1,4 @@
-<div class="data-table-container" *ngIf="filterApplied || rowData?.length > 0;else nodata">
+<div class="data-table-container" *ngIf="isLoading || filterApplied || rowData?.length > 0;else nodata">
     <lib-table-filter-bar
             [startCount]="startCount"
             [endCount]="endCount"
@@ -135,7 +135,7 @@
     <lib-no-items
         (clickEmit)="openCreate()"
         [image]="'No_Clients'"
-        [isEmpty]="rowData.length === 0"
+        [isEmpty]="!rowData || rowData.length === 0"
         [typeName]="this.entityTypeLabel"
     ></lib-no-items>
 </ng-template>

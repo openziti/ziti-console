@@ -38,7 +38,7 @@ import {SimpleZitiDomainControllerService} from "./services/simple-ziti-domain-c
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MatDialogModule} from "@angular/material/dialog";
 import {URLS} from "./app-urls.constants";
-import {OPEN_ZITI_NAVIGATOR} from "./app-nav.constants";
+import {CLASSIC_ZITI_NAVIGATOR, OPEN_ZITI_NAVIGATOR} from "./app-nav.constants";
 import {ZitiApiInterceptor} from "./interceptors/ziti-api.interceptor";
 import {LoggerModule, NgxLoggerLevel} from "ngx-logger";
 import {ErrorInterceptor} from "./interceptors/error-handler.interceptor";
@@ -85,7 +85,7 @@ if (environment.nodeIntegration) {
         {provide: ZITI_DOMAIN_CONTROLLER, useClass: SimpleZitiDomainControllerService},
         {provide: ZAC_WRAPPER_SERVICE, useClass: wrapperService},
         {provide: ZITI_URLS, useValue: URLS},
-        {provide: ZITI_NAVIGATOR, useValue: OPEN_ZITI_NAVIGATOR},
+        {provide: ZITI_NAVIGATOR, useValue: CLASSIC_ZITI_NAVIGATOR},
         {provide: ZITI_TAB_OVERRIDES, useClass: NoopTabInterceptorService},
         {provide: HTTP_INTERCEPTORS, useClass: apiInterceptor, multi: true},
         {provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true},

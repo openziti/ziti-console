@@ -49,7 +49,6 @@
             <span class="ag-icon ag-icon-filter" id="HeaderFilterIcon_{{ columnDef.colId }}"></span>
         </span>
     <div
-      (click)="sort($event)"
       (clickOutside)="hideFilter($event)"
       [ngClass]="{ 'show-input-filter': showFilter }"
       class="header-text-container text-input-filter"

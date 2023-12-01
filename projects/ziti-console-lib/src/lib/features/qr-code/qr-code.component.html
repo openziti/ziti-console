@@ -12,9 +12,9 @@
         <div>COPY ENROLLMENT TOKEN</div>
         <div class="download-key"></div>
     </div>
-    <div (click)="identitiesSvc.reissueJWT(identity)" *ngIf="jwtExpired && type !== 'router'" class="download-button" >
+    <div (click)="identitiesSvc.reissueJWT(identity)" *ngIf="showResetToken" class="download-button" >
         <div class="download-key"></div>
-        <div>REISSUE KEY</div>
+        <div>RESET ENROLLMENT</div>
         <div class="tap-to-download"></div>
     </div>
     <span class="info-text" *ngIf="!jwtExpired && type !== 'router'">OR SCAN QR CODE</span>
@@ -25,5 +25,5 @@
         <div>DOWNLOAD ENROLLMENT JWT</div>
         <div class="download-key"></div>
     </div>
-    <span class="info-text" >{{jwtExpired ? 'EXPIRED' : 'EXPIRES'}} {{expirationDate}}</span>
+    <span class="info-text" *ngIf="showResetToken">{{jwtExpired ? 'EXPIRED' : 'EXPIRES'}} {{expirationDate}}</span>
 </div>

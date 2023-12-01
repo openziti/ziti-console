@@ -1,4 +1,4 @@
-import {Component, Inject, ViewChild} from '@angular/core';
+import {Component, Inject, ViewChild, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {GrowlerModel} from "../messaging/growler.model";
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../services/ziti-data.service";
@@ -11,10 +11,10 @@ import moment from "moment";
   templateUrl: './reset-enrollment.component.html',
   styleUrls: ['./reset-enrollment.component.scss']
 })
-export class ResetEnrollmentComponent {
+export class ResetEnrollmentComponent implements OnInit {
 
   identity: any;
-  dateValue = new Date();
+  dateValue = moment().add(2, 'days').toDate();
   showIcon: boolean = true;
   @ViewChild('calendar', { static: false }) calendar: any;
   constructor(
@@ -26,6 +26,10 @@ export class ResetEnrollmentComponent {
     this.identity = data;
   }
 
+  ngOnInit() {
+    this.dialogRef.addPanelClass('reset-enroll-dialog-container');
+  }
+
   confirm() {
     this.dialogRef.close(true);
   }
@@ -35,7 +39,7 @@ export class ResetEnrollmentComponent {
   }
 
   resetEnrollment() {
-    let id = this.identity?.authenticators?.cert?.id;
+    let id = this.identity?.authenticators?.cert?.id || this.identity?.authenticators?.updb?.id;
     if (!id) {
       if(!isEmpty(this.identity?.enrollment?.ott)) {
         id = this.identity?.enrollment?.ott.id;

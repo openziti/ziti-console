@@ -102,6 +102,8 @@ export class NodeDataService extends ZitiDataService {
                                 results.data = newData;
                             }
                         });
+                    } else if (results.error) {
+                        this.handleError(results)
                     }
                     return results;
                 })
@@ -122,6 +124,8 @@ export class NodeDataService extends ZitiDataService {
                 map((results: any) => {
                     if(!isEmpty(results.error)) {
                         throw({error: results.error});
+                    } else if (results.error) {
+                        this.handleError(results)
                     }
                     return results;
                 })
@@ -270,4 +274,12 @@ export class NodeDataService extends ZitiDataService {
         return urlFilter;
     }
 
+    handleError(results) {
+        if (results?.errorObj?.code === 'UNAUTHORIZED') {
+            localStorage.removeItem('ziti.settings');
+            window.location.href = '/login';
+        } else {
+            this.logger.error(results?.error)
+        }
+    }
 }

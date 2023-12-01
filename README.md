@@ -30,7 +30,7 @@ From the project root:
 
 1) install project dependencies:
 	```
-	npm install --legacy-peer-deps
+	npm install
 	```
 
 2) build core project library

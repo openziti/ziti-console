@@ -47,7 +47,7 @@ export abstract class ListPageServiceClass {
         this.dataService = inject(ZITI_DATA_SERVICE);
         this.settings.settingsChange.subscribe((settings) => {
             if (!isEmpty(this.settings?.settings?.session?.id)) {
-                if (this.currentSettings?.session?.id !== settings?.session?.id) {
+                if (this.currentSettings?.session?.id !== settings?.session?.id && this.refreshData) {
                     this.refreshData();
                     this.currentSettings = settings
                 }
