@@ -113,8 +113,12 @@ var helmetOptions = {
 app.use('/assets', express.static('assets', {
 	maxAge: '31536000000' 
 }));
-app.use(cors(corsOptions));
-app.use(helmet(helmetOptions));
+if (process.env.ALLOW_HTTP==="") {
+	app.use(cors(corsOptions));
+	app.use(helmet(helmetOptions));
+} else {
+	console.log("ALLOW_HTTP - skipping cors/helmet");
+}
 app.use(compression());
 app.use(function(req, res, next) {
     return next();
