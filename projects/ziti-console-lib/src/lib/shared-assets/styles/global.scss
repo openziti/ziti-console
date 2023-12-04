@@ -397,6 +397,10 @@ lib-form-field-container {
 
 .ag-cell {
   .cell-name-renderer {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
     strong {
       &:hover {
         cursor: pointer;

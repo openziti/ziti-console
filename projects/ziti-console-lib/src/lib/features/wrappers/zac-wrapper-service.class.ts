@@ -5,11 +5,13 @@ import {ZITI_URLS} from "../../ziti-console.constants";
 import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service";
 import {HttpClient} from "@angular/common/http";
 import {Subscription} from "rxjs";
-import $ from 'jquery';
 import {GrowlerService} from "../messaging/growler.service";
 import {LoggerService} from "../messaging/logger.service";
 
 export const ZAC_WRAPPER_SERVICE = new InjectionToken<ZacWrapperServiceClass>('ZAC_WRAPPER_SERVICE');
+
+// @ts-ignore
+const {$, tags} = window;
 
 @Injectable({providedIn: 'root'})
 export abstract class ZacWrapperServiceClass {
@@ -63,19 +65,20 @@ export abstract class ZacWrapperServiceClass {
     }
 
     resetZacEvents() {
-        window['$']("input").off("keyup");
-        window['$']("select").off("keyup");
-        window['$'](".toggle").off("click");
-        window['$']("body").off("keyup");
-        window['tags'].tagData = [];
-        window['$']("#SServiceName").off('keyup');
-        window['$']("#SServiceHost").off('keyup');
-        window['$']("#CreateButton").off('click');
-        window['$']("#CreateIdButton").off('click');
-        window['$']("#IdentityDownload").off('click');
-        window['$']("#DoneIdButton").off('click');
-        window['$']("#DoneServiceButton").off('click');
-        window['$']("#InlineAddIdentityButton").off('click');
-        window['$']("#InlineAddServiceButton").off('click');
+        $("input").off("keyup");
+        $("select").off("keyup");
+        $(".toggle").off("click");
+        $("body").off("keyup");
+        $("#SServiceName").off('keyup');
+        $("#SServiceHost").off('keyup');
+        $("#CreateButton").off('click');
+        $("#CreateIdButton").off('click');
+        $("#IdentityDownload").off('click');
+        $("#DoneIdButton").off('click');
+        $("#DoneServiceButton").off('click');
+        $("#InlineAddIdentityButton").off('click');
+        $("#InlineAddServiceButton").off('click');
+        $("#AlertButton").off('click');
+        tags.tagData = [];
     }
 }

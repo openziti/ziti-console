@@ -2,6 +2,7 @@ import {DataTableFilterService} from "../features/data-table/data-table-filter.s
 import {ListPageServiceClass} from "./list-page-service.class";
 import {Injectable} from "@angular/core";
 import {Subscription} from "rxjs";
+import {ConsoleEventsService} from "../services/console-events.service";
 
 @Injectable()
 export abstract class ListPageComponent {
@@ -10,6 +11,7 @@ export abstract class ListPageComponent {
     abstract headerActionClicked(action: string): void;
     abstract tableAction(event: {action: string, item: any}): void;
     abstract isLoading: boolean;
+    abstract closeModal(event?: any): void;
 
     startCount = '-';
     endCount = '-';
@@ -27,7 +29,8 @@ export abstract class ListPageComponent {
 
     constructor(
         protected filterService: DataTableFilterService,
-        public svc: ListPageServiceClass
+        public svc: ListPageServiceClass,
+        protected consoleEvents: ConsoleEventsService,
     ) {}
 
     ngOnInit() {
@@ -44,6 +47,17 @@ export abstract class ListPageComponent {
             this.currentPage = page;
             this.refreshData();
         });
+        this.subscription.add(
+            this.consoleEvents.closeSideModal.subscribe((event: any) => {
+                this.closeModal();
+            })
+        );
+        this.subscription.add(
+            this.consoleEvents.refreshData.subscribe((event: any) => {
+                this.refreshData();
+            })
+        );
+        this.consoleEvents.enableZACEvents();
     }
 
     ngOnDestroy() {
@@ -70,6 +84,7 @@ export abstract class ListPageComponent {
     }
 
     refreshData(sort?: { sortBy: string, ordering: string }): void {
+        this.isLoading = true;
         this.svc.getData(this.filterService.filters, sort, this.currentPage)
             .then((data: any) => {
                 this.rowData = data.data;

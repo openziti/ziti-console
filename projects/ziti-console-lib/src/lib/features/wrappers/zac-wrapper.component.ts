@@ -1,4 +1,5 @@
 import {Component, Inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Router, NavigationEnd} from '@angular/router';
 import {ZAC_WRAPPER_SERVICE, ZacWrapperServiceClass} from "./zac-wrapper-service.class";
 import {delay, invoke, isEmpty, defer, set, get} from 'lodash';
 import {Subscription} from "rxjs";
@@ -28,20 +29,23 @@ export class ZacWrapperComponent implements OnInit, OnDestroy {
       @Inject(ZAC_WRAPPER_SERVICE) private wrapperService: ZacWrapperServiceClass,
       @Inject(SETTINGS_SERVICE) private settingsService: SettingsService,
       private loggerService: LoggerService,
-      @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass
+      @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass,
+      private router: Router,
   ) {
   }
 
   ngOnInit(): void {
     this.wrapperService.initZac();
     this.subscription.add(
-    this.wrapperService.pageChanged.subscribe(() => {
-      if (this.waitingForSession) {
-        return;
-      }
-      this.loadPage();
-    }));
-    this.settingsService.settingsChange.subscribe(async (results:any) => {
+      this.wrapperService.pageChanged.subscribe(() => {
+        if (this.waitingForSession) {
+          return;
+        }
+        this.loadPage();
+      })
+    );
+    this.subscription.add(
+      this.settingsService.settingsChange.subscribe(async (results:any) => {
         if (this.waitingForSession && !this.pageLoading) {
             this.pageLoading = true;
             defer(async () => {
@@ -49,8 +53,16 @@ export class ZacWrapperComponent implements OnInit, OnDestroy {
               this.waitingForSession = false;
               this.pageLoading = false;
             });
-        }
-    });
+          }
+      })
+    );
+    this.subscription.add(
+        this.router.events.subscribe((event: any) => {
+          if (event instanceof NavigationEnd) {
+            this.loadPage();
+          }
+        })
+    );
     defer(() => {
       this.wrapperService.initZACButtonListener();
     })
