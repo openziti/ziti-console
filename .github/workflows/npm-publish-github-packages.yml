@@ -14,6 +14,7 @@ jobs:
         with:
           node-version: 16
       - run: npm install
+      - run: npm install -g @angular/cli@16.0.0-next.0
       - run: ng build ziti-console-lib
       - run: ng build ziti-console
       - run: ng build ziti-console-edge
