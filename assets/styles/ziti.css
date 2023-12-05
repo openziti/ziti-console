@@ -2,7 +2,7 @@
  ** Main Application Styles
 ***/
 body {
-    --highlighted: #f5a93d;;
+    --highlighted: #f5a93d;
     --red: #ff104b;
     --green: #00db48;
     --white: #FFF;
@@ -20,6 +20,7 @@ body {
     --transition: 0.5s;
     --offWhite: #FCFCFC;
     --dark: #28292B;
+    --formGroup: #344459;
 }
 
 ::placeholder {

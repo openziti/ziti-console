@@ -1,11 +1,11 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output, OnInit, OnChanges, DoCheck} from '@angular/core';
 
 @Component({
   selector: 'lib-preview-list',
   templateUrl: './preview-list.component.html',
   styleUrls: ['./preview-list.component.scss']
 })
-export class PreviewListComponent {
+export class PreviewListComponent implements OnInit, OnChanges, DoCheck {
   @Input() hideOption: string;
   @Input() public label = '';
   @Input() public clickable = false;
@@ -14,19 +14,28 @@ export class PreviewListComponent {
   @Output() itemSelected = new EventEmitter<string>();
   public names = [];
   filterFor = '';
+  initLength = 0;
 
   ngOnInit() {
     this.names = [];
     this.names.push(...this.allNames);
     this.names = this.names.filter((item) => item !== this.hideOption);
     this.sort();
+    this.initLength = this.allNames?.length || 0;
   }
 
-  ngOnChanges() {
+  ngDoCheck() {
+    if (this.initLength !== this.allNames.length) {
+      this.ngOnChanges();
+    }
+  }
+
+  ngOnChanges(changes?: any) {
     this.names = [];
     this.names.push(...this.allNames);
     this.names = this.names.filter((item) => item !== this.hideOption);
     this.sort();
+    this.initLength = this.allNames.length || 0;
   }
 
   onKeydownEvent() {

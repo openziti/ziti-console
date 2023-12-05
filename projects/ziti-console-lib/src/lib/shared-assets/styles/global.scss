@@ -102,6 +102,41 @@ body {
   }
 }
 
+.form-field-dropdown {
+  background-image: url(/assets/svgs/ArrowDown.svg);
+  background-position: center right 10px;
+  background-repeat: no-repeat;
+  background-size: 18px;
+  padding-right: 28px;
+  min-height: 50px;
+}
+
+.form-field-input {
+  min-height: 50px;
+}
+
+.form-field-input-group {
+  padding: 15px;
+  background-color: var(--formGroup);
+  border-radius: 7px;
+}
+
+.form-field-title {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tableText);
+  text-transform: uppercase;
+  height: 14px;
+}
+
+.button-row-right {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
 .save-button {
   display: flex;
   align-items: center;

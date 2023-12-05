@@ -251,6 +251,10 @@ export class NodeDataService extends ZitiDataService {
         );
     }
 
+    override schema(data: any): Promise<any> {
+        return Promise.resolve({});
+    }
+
     private getUrlFilter(paging: any) {
         let urlFilter = '';
         let toSearchOn = "name";

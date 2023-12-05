@@ -30,6 +30,7 @@ import {
     DEACTIVATE_GUARD,
     ZAC_LOGIN_SERVICE,
     EDGE_ROUTER_EXTENSION_SERVICE,
+    SERVICE_EXTENSION_SERVICE,
     ExtensionsNoopService
 } from "ziti-console-lib";
 
@@ -95,6 +96,7 @@ if (environment.nodeIntegration) {
         {provide: ZAC_LOGIN_SERVICE, useClass: loginService},
         {provide: SETTINGS_SERVICE, useClass: settingsService},
         {provide: EDGE_ROUTER_EXTENSION_SERVICE, useClass: ExtensionsNoopService},
+        {provide: SERVICE_EXTENSION_SERVICE, useClass: ExtensionsNoopService},
     ],
     bootstrap: [AppComponent]
 })

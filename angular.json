@@ -319,6 +319,12 @@
       "root": "projects/ziti-console-lib",
       "sourceRoot": "projects/ziti-console-lib/src",
       "prefix": "lib",
+      "i18n": {
+        "sourceLocale": "en-us",
+        "locales": {
+          "en-us": "src/lib/assets/languages/en-us.json"
+        }
+      },
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",

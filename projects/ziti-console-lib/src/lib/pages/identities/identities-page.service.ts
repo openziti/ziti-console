@@ -297,7 +297,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
             token = item?.enrollment?.updb?.jwt;
             expiration = item?.enrollment?.updb?.expiresAt;
         }
-        return token && !moment(expiration).isBefore();
+        return token;
     }
 
     public getIdentitiesRoleAttributes() {

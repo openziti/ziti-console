@@ -34,10 +34,10 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
       filterService: DataTableFilterService,
       public dialogForm: MatDialog,
       private tabNames: TabNameService,
-      private consoleEvents: ConsoleEventsService,
+      consoleEvents: ConsoleEventsService,
       @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperServiceClass
   ) {
-    super(filterService, svc);
+    super(filterService, svc, consoleEvents);
   }
 
   override ngOnInit() {
