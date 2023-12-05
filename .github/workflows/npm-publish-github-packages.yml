@@ -4,9 +4,7 @@
 name: Build and Package SPA
 
 on:
-  release:
-    types: [created]
-
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
