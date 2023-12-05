@@ -1,5 +1,5 @@
 {
-  "name": "io.netfoundry.zac",
+  "name": "@rgallettonf/io.netfoundry.zac",
   "version": "2.9.4",
   "description": "Ziti Administration Console",
   "main": "server.js",
