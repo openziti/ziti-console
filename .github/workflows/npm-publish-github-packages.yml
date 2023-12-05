@@ -14,9 +14,9 @@ jobs:
         with:
           node-version: 16
       - run: npm install
-      - run: npm build ziti-console-lib
-      - run: npm build ziti-console
-      - run: npm build ziti-console-edge
+      - run: ng build ziti-console-lib
+      - run: ng build ziti-console
+      - run: ng build ziti-console-edge
 
   publish-gpr:
     needs: build
