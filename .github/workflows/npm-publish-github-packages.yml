@@ -9,13 +9,13 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     steps:
-      - name: Build and Publish Shared Library
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: 16
           registry-url: https://npm.pkg.github.com/
-      - run: ./publishSharedLib.sh
+      - name: Build and Publish Shared Library
+        run: ./publishSharedLib.sh
       - name: Set VERSION Environment Variable
         run: echo "VERSION=$(jq -r .version package.json)"
       - name: Upload SPA To Job
