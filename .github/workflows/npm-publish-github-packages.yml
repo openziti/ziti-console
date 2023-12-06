@@ -9,19 +9,20 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     steps:
+      - name: Build and Publish Shared Library
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: 16
           registry-url: https://npm.pkg.github.com/
-      - run: npm install
-      - run: npm install -g @angular/cli@16.0.0-next.0
-      - run: ng build ziti-console-lib
-      - run: ng build ziti-console
-      - run: ng build ziti-console-edge
-      - run: cp package-spa.json dist/app-ziti-console-edge/package.json
-      - run: cd dist/app-ziti-console-edge && npm publish
-      - run: cd dist/ziti-console-lib && npm publish
+      - run: ./publishSharedLib.sh
+      - name: Set VERSION Environment Variable
+        run: echo "VERSION=$(jq -r .version package.json)"
+      - name: Upload SPA To Job
+        uses: actions/upload-artifact@v3
+        with:
+          name: ZitiConsole-SPA-${{ env.VERSION }}
+          path: "dist/app-ziti-console"
 
     env:
       NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
