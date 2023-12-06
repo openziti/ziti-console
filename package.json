@@ -1,9 +1,13 @@
 {
-  "name": "io.netfoundry.zac",
-  "version": "2.9.4",
+  "name": "@rgallettonf/io.netfoundry.zac",
+  "version": "0.0.0",
   "description": "Ziti Administration Console",
   "main": "server.js",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rgallettonf/ziti-console-ng.git"
+  },
   "scripts": {
     "clean": "rm -rf node_modules;",
     "zitified": "ZITI_IDENTITY_FILE=zac-identity.json ZITI_SERVICE_NAME=test-service node server.js",
