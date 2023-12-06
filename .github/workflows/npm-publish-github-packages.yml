@@ -19,6 +19,6 @@ jobs:
       - run: ng build ziti-console-lib
       - run: ng build ziti-console
       - run: ng build ziti-console-edge
-      - run: npm publish
+      - run: cd dist/ziti-console/lib && npm publish
     env:
       NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
