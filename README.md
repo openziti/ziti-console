@@ -10,7 +10,7 @@ To build and run the application from source, you'll also need to make sure you 
 | Tool        | Min. Version |
 | :---:       | :---:        |
 | Angular CLI | 16.x         |
-| Node.js     | 16.3.x       | 
+| Node.js     | 16.13.x       | 
 | npm         | 8.1.x        |
 
 
@@ -18,10 +18,10 @@ To build and run the application from source, you'll also need to make sure you 
 ## Running ZAC From Source
 
 * Make sure you have the angular CLI installed
-* This project is currently running on angular 16.2.11
+* This project is currently running on angular 16
 * To install the angular CLI run:
 ```
-npm install -g @angular/cli@16.0.0-next.0
+npm install -g @angular/cli@16
 ```
 
 * You'll also need to be running Node.js version >= 16.13.x
