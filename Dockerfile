@@ -22,10 +22,8 @@ COPY . .
 # Fetch dependencies
 RUN npm install
 
-RUN npm install -g @angular/cli
+RUN npm install -g @angular/cli@16.0.0-next.0
 RUN ng build ziti-console-lib
-RUN cp -r ./assets ./dist/ziti-console-lib
-RUN cp -r ./html ./dist/ziti-console-lib/assets
 RUN ng build ziti-console
 RUN ng build ziti-console-node
 
