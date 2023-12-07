@@ -1,6 +1,6 @@
 {
   "name": "@rgallettonf/io.netfoundry.zac",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Ziti Administration Console",
   "main": "server.js",
   "type": "module",
