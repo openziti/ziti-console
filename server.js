@@ -364,12 +364,12 @@ if (integration === 'classic') {
 } else if (integration === 'edge-api') {
     app.use(bodyParser.urlencoded({extended:false}));
 
-    app.use('/', express.static(__dirname + '/dist/app-ziti-console-edge'));
-    app.use('/:name', express.static(__dirname + '/dist/app-ziti-console-edge'));
-} else {
-    app.use(bodyParser.urlencoded({extended:false}));
     app.use('/', express.static(__dirname + '/dist/app-ziti-console'));
     app.use('/:name', express.static(__dirname + '/dist/app-ziti-console'));
+} else {
+    app.use(bodyParser.urlencoded({extended:false}));
+    app.use('/', express.static(__dirname + '/dist/app-ziti-console-node'));
+    app.use('/:name', express.static(__dirname + '/dist/app-ziti-console-node'));
 }
 
 app.post("/api/logout", function(request, response) {

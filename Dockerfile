@@ -25,7 +25,7 @@ RUN npm install
 RUN npm install -g @angular/cli
 RUN ng build ziti-console-lib
 RUN ng build ziti-console
-RUN ng build ziti-console-edge
+RUN ng build ziti-console-node
 
 ENTRYPOINT ["/usr/src/app/run-zac.sh"]
 CMD ["/usr/src/app/run-zac.sh"]
