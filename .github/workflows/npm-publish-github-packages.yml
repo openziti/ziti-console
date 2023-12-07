@@ -21,6 +21,7 @@ jobs:
         run: ./publishSharedLib.sh
       - name: Set VERSION Environment Variable
         run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Upload SPA To Job
         uses: actions/upload-artifact@v3
         with:
@@ -38,3 +39,4 @@ jobs:
 
     env:
       NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      BUILD_CONFIG: "Release"
