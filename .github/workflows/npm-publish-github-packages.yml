@@ -26,6 +26,15 @@ jobs:
         with:
           name: ZitiConsole-SPA-${{ env.VERSION }}
           path: "dist/app-ziti-console"
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ZitiConsole-SPA-${{ env.VERSION }}
+          asset_name: ZitiConsole-SPA-${{ env.VERSION }}
+          asset_content_type: application/zip
 
     env:
       NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
