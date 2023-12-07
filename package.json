@@ -14,7 +14,7 @@
     "ng": "ng",
     "start": "ng serve ziti-console",
     "build": "ng build ziti-console-lib && ng build ziti-console && ng build ziti-console-node",
-    "build-lib": "ng build ziti-console-lib && shx cp -r ./assets ./dist/ziti-console-lib && shx cp -r ./html ./dist/ziti-console-lib/assets && ng build ziti-console && ng build ziti-console-edge",
+    "build-lib": "ng build ziti-console-lib && shx cp -r ./assets ./dist/ziti-console-lib && shx cp -r ./html ./dist/ziti-console-lib/assets && ng build ziti-console && ng build ziti-console-node",
     "watch:lib": "onchange -i ./projects/ziti-console-lib/src/**/* -- npm run build-lib",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
