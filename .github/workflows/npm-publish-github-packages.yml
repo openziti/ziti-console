@@ -15,6 +15,8 @@ jobs:
         with:
           node-version: 16
           registry-url: https://npm.pkg.github.com/
+      - name: Build and Publish Shared Library
+        run: ./publishSharedLib.sh
       - name: Set VERSION Environment Variable
         run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
       - name: Upload SPA To Job
