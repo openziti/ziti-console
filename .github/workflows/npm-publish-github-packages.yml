@@ -5,9 +5,8 @@ name: Build and Publish SPA
 
 on:
   workflow_dispatch:
-  push:
-    tags:        
-      - '*'
+  release:
+    types: [created]
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
@@ -17,16 +16,6 @@ jobs:
         with:
           node-version: 16
           registry-url: https://npm.pkg.github.com/
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
       - name: Build and Publish Shared Library
         run: ./publishSharedLib.sh
       - name: Set VERSION Environment Variable
@@ -41,7 +30,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ github.event.release.upload_url }}
           asset_path: ZitiConsole-SPA-${{ env.VERSION }}
           asset_name: ZitiConsole-SPA-${{ env.VERSION }}
           asset_content_type: application/zip
