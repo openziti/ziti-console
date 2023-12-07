@@ -22,4 +22,10 @@ COPY . .
 # Fetch dependencies
 RUN npm install
 
+RUN npm install -g @angular/cli@16.0.0-next.0
+RUN ng build ziti-console-lib
+RUN ng build ziti-console
+RUN ng build ziti-console-node
+
+ENTRYPOINT ["/usr/src/app/run-zac.sh"]
 CMD ["/usr/src/app/run-zac.sh"]

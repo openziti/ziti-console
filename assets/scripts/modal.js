@@ -14,10 +14,13 @@ limitations under the License.
 var modal = {
 	id: "",
 	init: function() {
-		$("body").append('<div class="modal background"></div>');
-		$("body").append('<div id="ConfirmModal" class="modal box"><div class="close icon-close"></div><div class="title">Are you Sure</div><div id="ConfirmWhat" class="subtitle"></div><div class="buttons"><div class="linkButton closer">Oops, No get me out of here</div><div id="YesButton" class="button">Yes</div></div></div>');
+		if (!window.isSPA || !window.modalInit) {
+			$("body").append('<div class="modal background"></div>');
+			$("body").append('<div id="ConfirmModal" class="modal box"><div class="close icon-close"></div><div class="title">Are you Sure</div><div id="ConfirmWhat" class="subtitle"></div><div class="buttons"><div class="linkButton closer">Oops, No get me out of here</div><div id="YesButton" class="button">Yes</div></div></div>');
+		}
 		$("#ConfirmCancel").click(modal.close);
 		modal.events();
+		window.modalInit = true;
 	},
 	events: function() {
 		$(".modal .close").click(modal.close);

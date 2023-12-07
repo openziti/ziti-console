@@ -1,0 +1,109 @@
+<div
+  (click)="sort($event)"
+  [ngClass]="{ 'nf-can-sort': enableSorting }"
+  class="ag-cell-label-container ag-header-cell-sorted-none"
+  id="TableHeaderContainer_{{ columnDef.colId }}"
+>
+    <span
+      #menuButton
+      (click)="openGridMenu()"
+      *ngIf="false"
+      class="ag-header-icon ag-header-cell-menu-button"
+      id="HeaderMenu_{{ columnDef.colId }}"
+      ref="eMenu"
+    >
+        <span class="ag-icon ag-icon-menu" unselectable="on"></span>
+    </span>
+  <span
+    (click)="pin()"
+    class="ag-header-icon ag-header-col-pin-button"
+    id="HeaderPin_{{ columnDef.colId }}"
+    title="{{ pinned ? 'Unpin Column' : 'Pin Column' }}"
+  >
+        <span class="ag-icon ag-icon-pin"></span>
+    </span>
+  <span
+    (click)="hide()"
+    class="ag-header-icon ag-header-col-hide-button"
+    id="HeaderHide_{{ columnDef.colId }}"
+    title="Hide Column"
+  >
+        <span class="ag-icon ag-icon-eye-slash"></span>
+    </span>
+  <div class="ag-header-cell-label" ref="eLabel" unselectable="on">
+        <span
+          *ngIf="!headerParams.filterType"
+          [ngClass]="{ 'ag-filter-applied': filterApplied }"
+          class="ag-header-icon ag-header-col-filter-button"
+          id="HeaderFilterSpacer_{{ columnDef.colId }}"
+        >
+            <span class="ag-icon ag-icon-filter" id="HeaderFilterSpace_{{ columnDef.colId }}" style="opacity: 0"></span>
+        </span>
+    <span
+      (click)="toggleFilter($event)"
+      *ngIf="headerParams.filterType"
+      [ngClass]="{ 'ag-filter-applied': filterApplied }"
+      class="ag-header-icon ag-header-col-filter-button"
+      id="HeaderFilterButton_{{ columnDef.colId }}"
+    >
+            <span class="ag-icon ag-icon-filter" id="HeaderFilterIcon_{{ columnDef.colId }}"></span>
+        </span>
+    <div
+      (clickOutside)="hideFilter($event)"
+      [ngClass]="{ 'show-input-filter': showFilter }"
+      class="header-text-container text-input-filter"
+    >
+            <span
+              (click)="toggleSecondaryFilter($event)"
+              *ngIf="showBubble"
+              [ngClass]="statusClass"
+              class="bubble"
+              id="HeaderStatus_{{ columnDef.colId }}"
+            >
+                <svg *ngIf="showLoader" class="circular" viewBox="25 25 50 50">
+                    <circle
+                      class="path"
+                      cx="50"
+                      cy="50"
+                      fill="none"
+                      r="20"
+                      stroke-miterlimit="10"
+                      stroke-width="3"
+                    ></circle>
+                </svg>
+            </span>
+      <app-table-column-filter
+        *ngIf="((showFilter || comboActive) && !(filterType === 'COMBO' && !comboActive)) && filterType !== 'SELECT' && filterType !== 'CUSTOM'"
+        [columnId]="columnDef.field"
+        [filterName]="headerName"
+        [filterString]="''"
+        [openStatusMenu]="toggleSecondaryFilter.bind(this)"
+        [type]="filterType"
+      ></app-table-column-filter>
+      <span
+        *ngIf="((!showFilter && !comboActive) || (filterType === 'COMBO' && !comboActive)) || filterType === 'SELECT' || filterType === 'CUSTOM'"
+        [title]="headerName"
+        class="ag-header-cell-text"
+        id="HeaderName_{{ columnDef.colId }}"
+        unselectable="on"
+      >{{ headerName }}</span
+      >
+    </div>
+    <span
+      *ngIf="enableSorting && !showFilter"
+      [ngClass]="{ 'ag-hidden': sortDir !== 'desc' }"
+      class="ag-header-icon ag-header-label-icon ag-sort-ascending-icon"
+      id="HeaderSortAsc_{{ columnDef.colId }}"
+    >
+            <span class="ag-icon ag-icon-asc" unselectable="on"></span>
+        </span>
+    <span
+      *ngIf="enableSorting && !showFilter"
+      [ngClass]="{ 'ag-hidden': sortDir !== 'asc' }"
+      class="ag-header-icon ag-header-label-icon ag-sort-descending-icon"
+      id="HeaderSortDesc_{{ columnDef.colId }}"
+    >
+            <span class="ag-icon ag-icon-desc" unselectable="on"></span>
+        </span>
+  </div>
+</div>

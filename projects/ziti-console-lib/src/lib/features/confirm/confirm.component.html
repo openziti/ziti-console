@@ -1,0 +1,14 @@
+<div class="confirm-modal-container">
+    <div class="close icon-close" (click)="cancel()"></div>
+    <div class="confirm-title-container">
+        <span class="confirm-title">{{dataObj.title}}</span>
+        <span class="confirm-subtitle">{{dataObj.subtitle}}</span>
+    </div>
+    <div class="confirm-message-content">
+        <span>{{dataObj.message}}</span>
+    </div>
+    <div class="confirm-buttons-container">
+        <button class="button save cancel" (click)="cancel()" *nif="dataObj.showCancel">{{dataObj.cancelLabel}}</button>
+        <button class="button save confirm" (click)="confirm()">{{dataObj.confirmLabel}}</button>
+    </div>
+</div>

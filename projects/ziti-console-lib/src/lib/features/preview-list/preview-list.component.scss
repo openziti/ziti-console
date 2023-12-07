@@ -1,0 +1,90 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+}
+
+.counter {
+    background-color: #4c5566;
+    color: var(--white);
+    position: absolute;
+    right: 0px;
+}
+
+.listBox {
+    background-color: var(--stroke);
+    padding: 10px;
+    border-radius: 7px;
+    height: 100%;
+    min-height: 180px;
+}
+
+.listBox input {
+    height: 40px;
+    border-radius: 27px;
+    font-size: 14px;
+    font-weight: 600;
+    background-image: url(/assets/images/Filter.png);
+    background-size: auto 21px;
+    background-position: top 8px right 12px;
+    background-repeat: no-repeat;
+    margin-bottom: 10px;
+    padding-left: 14px;
+}
+
+.text {
+    overflow-y: scroll;
+    height: 100%;
+}
+
+.listText {
+    width: 100%;
+    position: relative;
+    float: left;
+    font-size: 14px;
+    font-weight: 600;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-bottom: 2px;
+    color: var(--primary)
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--background) !important;
+}
+
+.clickable {
+    color: var(--primary);
+    cursor: pointer;
+}
+
+.clickable:hover,
+.clickable:focus {
+    filter: brightness(90%);
+    text-decoration: underline;
+}
+
+.clickable:active {
+    color: var(--icon);
+    -webkit-transform: translateY(1px);
+    transform: translateY(1px);
+    text-decoration: underline;
+}
+
+.spinner {
+    position: absolute;
+    right: 1em;
+    top: 1em;
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: transparent;
+    border-top: 5px solid var(--placeholder);
+    border-right: 5px solid var(--placeholder);
+    border-bottom: 5px solid transparent;
+    border-left: 5px solid transparent;
+    -webkit-animation: loading 0.5s infinite linear;
+    animation: loading 0.5s infinite linear;
+}

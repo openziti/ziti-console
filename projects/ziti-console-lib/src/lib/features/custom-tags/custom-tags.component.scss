@@ -1,0 +1,7 @@
+.grid {
+  &.tags {
+    .invalid {
+      border-color: var(--red);
+    }
+  }
+}

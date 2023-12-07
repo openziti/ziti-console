@@ -1,0 +1,27 @@
+<div class="form-field-container" class="{{class}}" [ngClass]="{'form-field-row': layout === 'row'}">
+    <div class="form-field-header" *ngIf="showHeader">
+        <div class="form-field-title-container">
+            <span class="form-field-title">{{title}}</span>
+            <div
+                *ngIf="helpText"
+                class="form-field-info infoicon"
+                matTooltip="{{helpText}}"
+                matTooltipPosition="below"
+            ></div>
+        </div>
+        <span class="form-field-label" *ngIf="label">{{label}}</span>
+        <span class="form-field-count" *ngIf="count || count === 0">{{count}}</span>
+        <div class="form-field-title-container title-container-2" *ngIf="title2">
+            <span class="form-field-title title2">{{title2}}</span>
+            <div
+                    *ngIf="helpText2"
+                    class="form-field-info infoicon"
+                    matTooltip="{{helpText2}}"
+                    matTooltipPosition="below"
+            ></div>
+        </div>
+    </div>
+    <div class="form-field-content" [style]="contentStyle">
+        <ng-content></ng-content>
+    </div>
+</div>

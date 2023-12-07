@@ -63,4 +63,13 @@ else
 fi
 fi
 
-exec node /usr/src/app/server.js
+if [[ "$1" == "classic" ]]; then
+  echo "Running classic ZAC application"
+  exec node /usr/src/app/server.js classic
+elif [[ "$1" == "edge-api" ]]; then
+  echo "Running ZAC server with Edge API integration"
+  exec node /usr/src/app/server-edge.js
+else
+  echo "Running ZAC server with Node API integration"
+  exec node /usr/src/app/server.js node-api
+fi

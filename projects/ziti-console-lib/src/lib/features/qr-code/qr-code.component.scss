@@ -1,0 +1,22 @@
+.qr-code-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .info-text {
+    color: var(--red);
+    font-weight: 600;
+  }
+
+  .download-button {
+    margin: 10px 0px;
+  }
+
+  &.modal-view {
+    width: 400px;
+    background-color: var(--background);
+    padding: 20px;
+    border-radius: 15px;
+  }
+}
