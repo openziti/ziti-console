@@ -5,6 +5,9 @@ name: Build and Publish SPA
 
 on:
   workflow_dispatch:
+  push:
+    tags:        
+      - '*'
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
@@ -17,7 +20,7 @@ jobs:
       - name: Build and Publish Shared Library
         run: ./publishSharedLib.sh
       - name: Set VERSION Environment Variable
-        run: echo "VERSION=$(jq -r .version package.json)"
+        run: echo "VERSION=$(jq -r .version package.json)" >> $env:VERSION
       - name: Upload SPA To Job
         uses: actions/upload-artifact@v3
         with:
