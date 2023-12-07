@@ -4,7 +4,6 @@
 name: Build and Publish SPA
 
 on:
-  workflow_dispatch:
   release:
     types: [created]
 jobs:
@@ -23,7 +22,7 @@ jobs:
       - name: Upload SPA To Job
         uses: actions/upload-artifact@v3
         with:
-          name: ZitiConsole-SPA-${{ env.VERSION }}
+          name: ziti-console-${{ env.VERSION }}
           path: "dist/app-ziti-console"
 
     env:
