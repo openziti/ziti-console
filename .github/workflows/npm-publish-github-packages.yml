@@ -23,6 +23,8 @@ jobs:
         run: |
             zip -r ziti-console-${{ env.VERSION }}.zip dist/app-ziti-console
             gh release upload ${{github.event.release.tag_name}} ziti-console-${{ env.VERSION }}.zip
+        env:
+          GITHUB_TOKEN: ${{ github.TOKEN }}
       - name: Upload SPA To Job
         uses: actions/upload-artifact@v3
         with:
