@@ -21,8 +21,8 @@ jobs:
         run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
       - name: Zip Shared Dist
         run: |
-            zip -r -j ziti-console-${{ env.VERSION }}.zip dist/app-ziti-console/*
-            gh release upload ${{github.event.release.tag_name}} ziti-console-${{ env.VERSION }}.zip
+            cd dist/app-ziti-console-node && zip -r ziti-console.zip *
+            gh release upload ${{github.event.release.tag_name}} ziti-console.zip
         env:
           GITHUB_TOKEN: ${{ github.TOKEN }}
       - name: Upload SPA To Job
