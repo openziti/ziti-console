@@ -19,12 +19,17 @@ jobs:
         run: ./publishSharedLib.sh
       - name: Set VERSION Environment Variable
         run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
+      - name: Zip Shared Dist
+        run: |
+            zip -r ziti-console-${{ env.VERSION }}.zip dist/app-ziti-console
+            gh release upload ${{github.event.release.tag_name}} ziti-console-${{ env.VERSION }}.zip
+        env:
+          GITHUB_TOKEN: ${{ github.TOKEN }}
       - name: Upload SPA To Job
         uses: actions/upload-artifact@v3
         with:
-          name: ziti-console-${{ env.VERSION }}
-          path: "dist/app-ziti-console"
-
+          name: ziti-console-${{ env.VERSION }}.zip
+          path: ziti-console-${{ env.VERSION }}.zip
     env:
       NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       BUILD_CONFIG: "Release"
