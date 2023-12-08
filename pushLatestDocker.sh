@@ -1,4 +1,4 @@
-ZAC_VERSION=$(cat version.txt)
+ZAC_VERSION=$(jq -r .version package.json)
 
 if [ -z "${ZAC_VERSION}" ]; then
   echo "ZAC_VERSION was not set and auto-detection failed."
