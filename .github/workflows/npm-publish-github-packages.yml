@@ -19,12 +19,16 @@ jobs:
         run: ./publishSharedLib.sh
       - name: Set VERSION Environment Variable
         run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
-      - name: Upload SPA To Job
+      - name: Upload SPA to Job
         uses: actions/upload-artifact@v3
         with:
           name: ziti-console-${{ env.VERSION }}
           path: "dist/app-ziti-console"
-
+      - name: Upload Update json to Job
+        uses: actions/upload-artifact@v2
+        with:
+          name: ziti-console-${{ env.VERSION }}
+          path: ${{ env.VERSION }}.json
     env:
       NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       BUILD_CONFIG: "Release"
