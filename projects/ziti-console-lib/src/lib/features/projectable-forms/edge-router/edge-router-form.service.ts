@@ -34,17 +34,18 @@ export class EdgeRouterFormService {
                 return routerData.data;
             });
             return this.extService.formDataSaved(router).then((formSavedResult: any) => {
-                if (!formSavedResult) {
-                    return router;
-                }
+                const returnVal = {
+                    data: router,
+                    close: this.extService.closeAfterSave
+                };
                 const growlerData = new GrowlerModel(
                     'success',
                     'Success',
                     `Edge Router ${isUpdate ? 'Updated' : 'Created'}`,
-                    `Successfully ${isUpdate ? 'updated' : 'created'} Identity: ${formData.name}`,
+                    `Successfully ${isUpdate ? 'updated' : 'created'} Edge Router: ${formData.name}`,
                 );
                 this.growlerService.show(growlerData);
-                return router;
+                return returnVal;
             }).catch((result) => {
                 return false;
             });
