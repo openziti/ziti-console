@@ -1,4 +1,5 @@
 import {Component, Inject, OnInit, OnDestroy} from '@angular/core';
+import {Router, NavigationEnd} from '@angular/router'
 import {IdentitiesPageService} from "./identities-page.service";
 import {DataTableFilterService} from "../../features/data-table/data-table-filter.service";
 import {ListPageComponent} from "../../shared/list-page-component.class";
@@ -29,10 +30,11 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       filterService: DataTableFilterService,
       public dialogForm: MatDialog,
       private tabNames: TabNameService,
-      private consoleEvents: ConsoleEventsService,
-      @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperServiceClass
+      @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperServiceClass,
+      private router: Router,
+      consoleEvents: ConsoleEventsService,
   ) {
-    super(filterService, svc);
+    super(filterService, svc, consoleEvents);
   }
 
   override ngOnInit() {
@@ -41,6 +43,13 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
     this.subscription.add(
       this.zacWrapperService.zitiUpdated.subscribe(() => {
         this.refreshData();
+      })
+    );
+    this.subscription.add(
+      this.router.events.subscribe((event: any) => {
+        if (event instanceof NavigationEnd) {
+          this.refreshData();
+        }
       })
     );
     this.zacWrapperService.resetZacEvents();

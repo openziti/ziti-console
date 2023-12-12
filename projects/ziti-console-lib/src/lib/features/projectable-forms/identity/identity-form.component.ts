@@ -133,6 +133,10 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     });
   }
 
+  get hasAuthenticator() {
+    return this.identitiesService.hasAuthenticator(this.formData);
+  }
+
   get hasEnrolmentToken() {
     return this.identitiesService.hasEnrolmentToken(this.formData);
   }

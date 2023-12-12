@@ -4,7 +4,7 @@
   "newProjectRoot": "projects",
 
   "projects": {
-    "ziti-console-edge": {
+    "ziti-console": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -18,7 +18,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/app-ziti-console-edge",
+            "outputPath": "dist/app-ziti-console",
             "index": "projects/app-ziti-console/src/index.html",
             "main": "projects/app-ziti-console/src/main.ts",
             "polyfills": [
@@ -166,7 +166,7 @@
         }
       }
     },
-    "ziti-console": {
+    "ziti-console-node": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -180,7 +180,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/app-ziti-console",
+            "outputPath": "dist/app-ziti-console-node",
             "index": "projects/app-ziti-console/src/index.html",
             "main": "projects/app-ziti-console/src/main.ts",
             "polyfills": [

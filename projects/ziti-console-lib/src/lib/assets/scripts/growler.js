@@ -11,8 +11,16 @@ var growler = {
     else $("#AlarmCount").hide();
   },
   events: function() {
-    $("#AlertButton").click(growler.toggle);
-    $("#NotificationMenuClose").click(growler.toggle);
+    $("#AlertButton").click(growler.openAlerts);
+    $("#NotificationMenuClose").click(growler.closeAlerts);
+  },
+  openAlerts: function(e) {
+    growler.loadLogs();
+    header.openIfClosed();
+    $("#NotificationsMenu").addClass("open");
+  },
+  closeAlerts: function(e) {
+    $("#NotificationsMenu").removeClass("open");
   },
   toggle: function(e) {
     if ($("#NotificationsMenu").hasClass("open")) $("#NotificationsMenu").removeClass("open");

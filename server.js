@@ -22,8 +22,8 @@ import _ from 'lodash';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const sessionStore = sessionStoreFactory(session);
-const __assets = '/assets';
-const __html= '/html';
+const __assets = '/dist/ziti-console-lib/assets';
+const __html = '/dist/ziti-console-lib/assets/html';
 
 
 
@@ -125,7 +125,7 @@ if (integration !== 'classic') {
 	helmetOptions.contentSecurityPolicy.directives.scriptSrcAttr.push("'unsafe-eval'");
 }
 
-app.use("/assets", express.static(__dirname + '/assets', {
+app.use("/assets", express.static(__dirname + __assets , {
 	maxAge: '31536000000' 
 }));
 app.use(cors(corsOptions));
@@ -364,12 +364,12 @@ if (integration === 'classic') {
 } else if (integration === 'edge-api') {
     app.use(bodyParser.urlencoded({extended:false}));
 
-    app.use('/', express.static(__dirname + '/dist/app-ziti-console-edge'));
-    app.use('/:name', express.static(__dirname + '/dist/app-ziti-console-edge'));
-} else {
-    app.use(bodyParser.urlencoded({extended:false}));
     app.use('/', express.static(__dirname + '/dist/app-ziti-console'));
     app.use('/:name', express.static(__dirname + '/dist/app-ziti-console'));
+} else {
+    app.use(bodyParser.urlencoded({extended:false}));
+    app.use('/', express.static(__dirname + '/dist/app-ziti-console-node'));
+    app.use('/:name', express.static(__dirname + '/dist/app-ziti-console-node'));
 }
 
 app.post("/api/logout", function(request, response) {

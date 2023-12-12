@@ -250,6 +250,15 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 cellRenderer: 'cellTokenComponent',
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
+            },
+            {
+                colId: 'isMfaEnabled',
+                field: 'isMfaEnabled',
+                headerName: 'MFA',
+                headerComponent: TableColumnDefaultComponent,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align tCol',
+                width: 100,
             }
         ];
     }
@@ -282,6 +291,10 @@ export class IdentitiesPageService extends ListPageServiceClass {
             }
             return row;
         });
+    }
+
+    hasAuthenticator(item) {
+        return item?.authenticators?.cert?.id || item.authenticators?.updb?.id;
     }
 
     hasEnrolmentToken(item) {

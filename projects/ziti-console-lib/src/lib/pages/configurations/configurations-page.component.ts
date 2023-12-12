@@ -5,6 +5,7 @@ import {TabNameService} from "../../services/tab-name.service";
 import {ListPageComponent} from "../../shared/list-page-component.class";
 import {CallbackResults} from "../../features/list-page-features/list-page-form/list-page-form.component";
 import {SettingsService} from "../../services/settings.service";
+import {ConsoleEventsService} from "../../services/console-events.service";
 
 @Component({
     selector: 'lib-configurations',
@@ -25,8 +26,9 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
         svc: ConfigurationsPageService,
         filterService: DataTableFilterService,
         private tabNames: TabNameService,
+        consoleEvents: ConsoleEventsService,
     ) {
-        super(filterService, svc);
+        super(filterService, svc, consoleEvents);
     }
 
     override ngOnInit() {
@@ -82,4 +84,6 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
         this.schema = schema;
     }
 
+    closeModal(event: any) {
+    }
 }

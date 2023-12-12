@@ -6,6 +6,7 @@
 
     <lib-data-table [tableId]="'identities'"
                     [rowData]="rowData"
+                    [isLoading]="isLoading"
                     [columnDefinitions]="columnDefs"
                     (actionRequested)="tableAction($event)"
                     [startCount]="startCount"
@@ -33,4 +34,3 @@
             (close)="closeModal($event)"
     ></lib-overrides>
 </lib-side-modal>
-<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

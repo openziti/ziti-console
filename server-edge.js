@@ -34,8 +34,8 @@ var helmetOptions = {
 app.use(cors(corsOptions));
 app.use(helmet(helmetOptions));
 
-app.use('/', express.static('dist/app-ziti-console-edge'));
-app.use('/:name', express.static('dist/app-ziti-console-edge'));
+app.use('/', express.static('dist/app-ziti-console'));
+app.use('/:name', express.static('dist/app-ziti-console'));
 
 app.listen(startupPort, function() {
     console.log("Ziti Admin Console is now listening on port "+startupPort);

@@ -42,6 +42,10 @@ export class QrCodeComponent implements OnChanges {
     }
   }
 
+  get hasJWT() {
+    return !isEmpty(this.jwt);
+  }
+
   get showResetToken() {
     return this.authenticators?.cert?.id || this.authenticators?.updb?.id;
   }
