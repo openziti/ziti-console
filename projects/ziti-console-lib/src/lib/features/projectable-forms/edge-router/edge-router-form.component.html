@@ -110,8 +110,7 @@
                         [helpText]="'Preview list of all services that this Edge Router is associated with.'"
                 >
                     <lib-preview-list
-                        (itemSelected)="serviceSelected($event)"
-                        [clickable]="true"
+                        [clickable]="false"
                         [isLoading]="servicesLoading"
                         [allNames]="associatedServiceNames"
                     ></lib-preview-list>
@@ -122,15 +121,14 @@
                 </lib-form-field-container>
                 <lib-form-field-container
                         *ngIf="formData.id"
-                        [title]="'Associated Service Policies'"
-                        [count]="associatedServicePolicies.length"
-                        [helpText]="'Preview list of all service policies that this Edge Router is associated with.'"
+                        [title]="'Associated Identities'"
+                        [count]="associatedIdentities.length"
+                        [helpText]="'Preview list of all Identities that this Edge Router is associated with.'"
                 >
                     <lib-preview-list
-                        (itemSelected)="serviceSelected($event)"
                         [clickable]="false"
-                        [isLoading]="servicePoliciesLoading"
-                        [allNames]="associatedServicePolicyNames"
+                        [isLoading]="identitiesLoading"
+                        [allNames]="associatedIdentityNames"
                     ></lib-preview-list>
                 </lib-form-field-container>
                 <lib-form-field-container

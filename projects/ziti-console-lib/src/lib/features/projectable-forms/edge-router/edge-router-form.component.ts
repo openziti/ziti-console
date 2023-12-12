@@ -49,12 +49,12 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
   jwt: any;
   token: any;
   isLoading = false;
-  associatedServicePolicies: any = [];
-  associatedServicePolicyNames: any = [];
+  associatedIdentities: any = [];
+  associatedIdentityNames: any = [];
   associatedServices: any = [];
   associatedServiceNames: any = [];
   servicesLoading = false;
-  servicePoliciesLoading = false;
+  identitiesLoading = false;
   authPolicies: any = [
     {id: 'default', name: 'Default'}
   ];
@@ -91,7 +91,7 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
     this.token = this.formData.enrollmentToken;
     this.enrollmentExpiration = this.formData?.enrollmentExpiresAt;
     this.getAssociatedServices();
-    this.getAssociatedServicePolicies();
+    this.getAssociatedIdentities();
     this.getAuthPolicies();
     this.initData = cloneDeep(this.formData);
     this.watchData();
@@ -121,7 +121,7 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
   }
 
   getAssociatedServices() {
-    this.zitiService.getSubdata('identities', this.formData.id, 'services').then((result: any) => {
+    this.zitiService.getSubdata('edge-routers', this.formData.id, 'services').then((result: any) => {
       this.associatedServices = result.data;
       this.associatedServiceNames = this.associatedServices.map((svc) => {
         return svc.name;
@@ -129,10 +129,10 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
     });
   }
 
-  getAssociatedServicePolicies() {
-    this.zitiService.getSubdata('identities', this.formData.id, 'service-policies').then((result: any) => {
-      this.associatedServicePolicies = result.data;
-      this.associatedServicePolicyNames = this.associatedServicePolicies.map((policy) => {
+  getAssociatedIdentities() {
+    this.zitiService.getSubdata('edge-routers', this.formData.id, 'identities').then((result: any) => {
+      this.associatedIdentities = result.data;
+      this.associatedIdentityNames = this.associatedIdentities.map((policy) => {
         return policy.name;
       });
     });
@@ -201,8 +201,13 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
 
     this.isLoading = true;
     this.svc.save(this.formData).then((result) => {
+      if (result?.close) {
+        this.closeModal(true, true);
+      }
       if (!isEmpty(result?.id)) {
-        this.formData = result;
+        this.formData = result?.data || this.formData;
+        this.initData = this.formData;
+      } else {
         this.initData = this.formData;
       }
     }).finally(() => {
