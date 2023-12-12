@@ -38,24 +38,17 @@ From the project root:
 	npm run build-lib
 	```
 
-3) build & run the ziti-console app 
+3) build the ziti-console angular app 
 
-	  a) The standard way to connect to the ziti controller is via the node-api integration. To do this run:
-   	  ```
-	  ng build ziti-console-node
-	  ```
-	  ```
-	  node server.js node-api
-	  ```
+   	```
+	ng build ziti-console-node
+	```
 
+4) run the node server
+	```
+	node server.js
+	```
 
-	  b) However, if you wish to connect the ZAC application directly to an Edge Controller with a trusted TLS/SSL certificate, via HTTPS, you can use the edge-api integration by running the following commands:
-	  ```
-	  ng build ziti-console
-   	  ```
-   	  ```
-	  node server.js edge-api
-	  ```
 
 4) Finally, access the app @ http://localhost:1408
 
@@ -67,19 +60,19 @@ From project Root:
 
 1) Install dependencies
 	```
-	npm install --legacy-peer-deps
+	npm install
 	```
 
 3) Run & watch changes in the core library in **ziti-console-lib** by running the npm script **watch:lib**
 	```
-	npm run watch:lib
+	ng build ziti-console-lib --watch
  	```
    * Note: The NPM library is referenced/linked in package.json as "ziti-console-lib": "file:dist/ziti-console-lib".
    	   This library includes the pure javascript code it shared with ziti-console, and Angular code it shares with other apps.
 
 4) Then in a seperate window run & watch changes in the main application **app-ziti-console**
    	```
-	ng serve ziti-console
+	ng build ziti-console-node --watch
 	```
   This ensures changes made to the NPM library get pulled into the Angular app as you are developing
 
@@ -95,18 +88,9 @@ If you don't have docker installed, you can download and install the docker engi
 From project root:
 1. build the image: `docker build . -t openziti/zac`
 
-### Running The Angular ZAC application with node API integration
+### Running The Angular ZAC application
 * If you plan to connect to an Edge Controller that is NOT configured with a trusted SSL/TLS certificate, it's recomended you use the Node API integration
 * To do this via **docker** run the container with the `node-api` argument:
 ```
-sudo docker run -d --name zac -p 1408:1408 openziti/zac node-api
+sudo docker run -d --name zac -p 1408:1408 openziti/zac
 ```
-
-### Running The Angular ZAC application with edge API integration
-* If your Edge Controller does use a trusted SSL/TLS certificate, you can access it from the console with the Edge API integration
-* To do this via **docker** run the container with the `edge-api` argument:
-```
-sudo docker run -d --name zac -p 1408:1408 openziti/zac edge-api
-```
-
-

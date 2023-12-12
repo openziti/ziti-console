@@ -1,20 +1,16 @@
 {
-  "name": "@rgallettonf/io.netfoundry.zac",
-  "version": "0.0.0",
+  "name": "io.netfoundry.zac",
+  "version": "3.0.0",
   "description": "Ziti Administration Console",
   "main": "server.js",
   "type": "module",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/rgallettonf/ziti-console-ng.git"
-  },
   "scripts": {
     "clean": "rm -rf node_modules;",
     "zitified": "ZITI_IDENTITY_FILE=zac-identity.json ZITI_SERVICE_NAME=test-service node server.js",
     "ng": "ng",
     "start": "ng serve ziti-console",
     "build": "ng build ziti-console-lib && ng build ziti-console && ng build ziti-console-node",
-    "build-lib": "ng build ziti-console-lib && shx cp -r ./assets ./dist/ziti-console-lib && shx cp -r ./html ./dist/ziti-console-lib/assets && ng build ziti-console && ng build ziti-console-edge",
+    "build-lib": "ng build ziti-console-lib && shx cp -r ./assets ./dist/ziti-console-lib && shx cp -r ./html ./dist/ziti-console-lib/assets && ng build ziti-console && ng build ziti-console-node",
     "watch:lib": "onchange -i ./projects/ziti-console-lib/src/**/* -- npm run build-lib",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
