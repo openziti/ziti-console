@@ -110,8 +110,8 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 if (row?.data?.envInfo?.osRelease) osDetails += "&#10;Release: "+row?.data?.envInfo?.osRelease;
                 if (row?.data?.envInfo?.osVersion) osDetails += "&#10;Version: "+row?.data?.envInfo?.osVersion;
             }
-            return `<div class="col desktop" data-id="${row?.data?.id}" style="overflow: unset;">
-                <span class="os ${os}" data-balloon-pos="up" aria-label="${osDetails}"></span>
+            return `<div class="col desktop" style="overflow: unset;">
+                <span class="os ${os}"></span>
               </div>`
         }
 

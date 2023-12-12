@@ -79,10 +79,10 @@ export class NodeDataService extends ZitiDataService {
         );
     }
 
-    get(type: string, paging: any, filters: FilterObj[] = []) {
+    get(type: string, paging: any, filters: FilterObj[] = [], url?) {
         const nodeServerURL = window.location.origin;
         const serviceUrl = nodeServerURL + '/api/data';
-        const body = {paging: paging, type: type};
+        const body = {paging: paging, type: type, url: url};
 
         return firstValueFrom(this.httpClient.post(serviceUrl,body,{}).pipe(
                 catchError((err: any) => {

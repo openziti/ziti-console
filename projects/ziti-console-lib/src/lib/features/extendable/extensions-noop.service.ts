@@ -17,6 +17,9 @@ export interface ExtensionService {
 })
 export class ExtensionsNoopService implements ExtensionService {
 
+  formDataChanged = new BehaviorSubject<any>({isEmpty: true});
+  closed: EventEmitter<any> = new EventEmitter<any>();
+
   constructor() { }
 
   extendAfterViewInits(extentionPoints: any): void {
@@ -29,11 +32,8 @@ export class ExtensionsNoopService implements ExtensionService {
     return Promise.resolve(data);
   }
 
-  formDataChanged = new BehaviorSubject<any>({});
-
   validateData(): Promise<any> {
     return Promise.resolve(true);
   }
 
-  closed: EventEmitter<any> = new EventEmitter<any>();
 }

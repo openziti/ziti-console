@@ -48,7 +48,7 @@ export class AppComponent implements OnInit {
             return Promise.resolve();
         }
     }
- 
+
     handleUserSettings() {
         if (localStorage.getItem("mode")!=null&&localStorage.getItem("mode")=="dark") {
             this.darkmodeEnabled = true;
