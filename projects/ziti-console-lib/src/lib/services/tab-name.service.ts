@@ -33,7 +33,13 @@ export class TabNameService {
                 {label: 'Configurations', url: '/configs'},
                 {label: 'Config Types', url: '/config-types'},
             ]
+            ],
+            ["routers", [
+                {label: 'Routers', url: '/routers'},
+                {label: 'Transit Routers', url: '/transit-routers'},
+                {label: 'Router Policies', url: '/router-policies'},
             ]
+            ],
         ]
     );
 
