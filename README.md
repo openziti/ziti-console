@@ -35,7 +35,7 @@ From the project root:
 
 2) build core project library
 	```
-	npm run build-lib
+	ng build ziti-console-lib
 	```
 
 3) build the ziti-console angular app 
@@ -83,14 +83,14 @@ The ZAC application can be run in a docker container by following the steps belo
 
 If you don't have docker installed, you can download and install the docker engine here: https://docs.docker.com/engine/install/
 
-
-### Build the Docker Image
 From project root:
-1. build the image: `docker build . -t openziti/zac`
 
-### Running The Angular ZAC application
-* If you plan to connect to an Edge Controller that is NOT configured with a trusted SSL/TLS certificate, it's recomended you use the Node API integration
-* To do this via **docker** run the container with the `node-api` argument:
+1. build the image: 
+```
+docker build . -t openziti/zac
+```
+
+2. Run the image built in the previous step in a container using the following command
 ```
 sudo docker run -d --name zac -p 1408:1408 openziti/zac
 ```
