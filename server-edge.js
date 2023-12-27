@@ -4,7 +4,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 
 const app = express();
-const startupPort = process.env.PORT || 1408;
+const port = process.env.PORT || 1408;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
@@ -37,15 +37,20 @@ app.use(helmet(helmetOptions));
 app.use('/', express.static('dist/app-ziti-console'));
 app.use('/:name', express.static('dist/app-ziti-console'));
 
-app.listen(startupPort, function() {
-    console.log("Ziti Admin Console is now listening on port "+startupPort);
-}).on('error', function(err) {
-    if (err.code=="EADDRINUSE") {
-        maxAttempts--;
-        console.log("Port "+startupPort+" In Use, Attempting new port "+(startupPort+1));
-        startupPort++;
-        if (maxAttempts>0) StartServer(startupPort);
-    } else {
-        console.log("All Ports in use "+port+" to "+startupPort);
-    }
-});
+let maxAttempts = 100;
+StartServer(port);
+
+function StartServer(startupPort) {
+    app.listen(startupPort, function() {
+        console.log("Ziti Admin Console is now listening on port "+startupPort);
+    }).on('error', function(err) {
+        if (err.code=="EADDRINUSE") {
+            maxAttempts--;
+            console.log("Port "+startupPort+" In Use, Attempting new port "+(startupPort+1));
+            startupPort++;
+            if (maxAttempts>0) StartServer(startupPort);
+        } else {
+            console.log("All Ports in use "+port+" to "+startupPort);
+        }
+    });
+}
