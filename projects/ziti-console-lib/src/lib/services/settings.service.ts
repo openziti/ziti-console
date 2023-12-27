@@ -89,7 +89,7 @@ export class SettingsService extends SettingsServiceClass {
     override controllerSave(name: string, url: string) {
         url = url.split('#').join('').split('?').join('');
         if (url.endsWith('/')) url = url.substr(0, url.length - 1);
-        if (!url.startsWith('https://')) url = 'https://' + url;
+        if (!url.startsWith('https://') && !url.startsWith('http://')) url = 'https://' + url;
         const callUrl = url + "/edge/management/v1/version?rejectUnauthorized=" + this.rejectUnauthorized;
         firstValueFrom(this.httpClient.get(callUrl).pipe(catchError((err: any) => {
             throw "Edge Controller not Online: " + err?.message;
@@ -139,7 +139,7 @@ export class SettingsService extends SettingsServiceClass {
     public initApiVersions(url: string) {
         url = url.split('#').join('').split('?').join('');
         if (url.endsWith('/')) url = url.substr(0, url.length - 1);
-        if (!url.startsWith('https://')) url = 'https://' + url;
+        if (!url.startsWith('https://') && !url.startsWith('http://')) url = 'https://' + url;
         const callUrl = url + "/edge/management/v1/version?rejectUnauthorized=false";
         return firstValueFrom(this.httpClient.get(callUrl)
             .pipe(
