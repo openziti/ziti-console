@@ -64,7 +64,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   testResult: string = '';
   testResultOpen = false;
 
-  @ViewChild('nameFieldInput') nameFieldInput: ElementRef;
   constructor(
       @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
       public svc: IdentityFormService,
