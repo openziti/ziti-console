@@ -34,17 +34,4 @@ export class NodeWrapperService extends ZacWrapperService {
         this.initZacListeners();
         this.zacInit = true;
     }
-
-    override loadCurrentPage() {
-        if (isEmpty(this.page)) {
-            this.page = 'index'
-        }
-        const path = 'assets/html/' + this.page + '.htm';
-        return this.http.get(path, {responseType: "text"}).toPromise().then((html: any) => {
-            for (const prop in COMPONENTS) {
-                html = html.split('{{html.' + prop + '}}').join(COMPONENTS[prop]);
-            }
-            return html;
-        });
-    }
 }

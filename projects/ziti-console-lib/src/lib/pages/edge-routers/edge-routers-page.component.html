@@ -1,0 +1,32 @@
+<div class="ziti-page-container ziti-edge-routers-container">
+    <lib-list-page-header [title]="title"
+                          [tabs]="tabs"
+                          [showAdd]="!itemsSelected"
+                          (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
+
+    <lib-data-table [tableId]="'edge-routers'"
+                    [rowData]="rowData"
+                    [columnDefinitions]="columnDefs"
+                    (actionRequested)="tableAction($event)"
+                    [startCount]="startCount"
+                    [endCount]="endCount"
+                    [totalCount]="totalCount"
+                    [emptyMsg]="'No Edge Routers defined, Click the plus to add an Edge Router.'"
+                    [filterApplied]="filterApplied"
+                    [menuItems]="svc.menuItems"
+                    [headerActions]="svc.tableHeaderActions"
+    >
+    </lib-data-table>
+</div>
+<lib-side-modal [(open)]="svc.sideModalOpen" [showClose]="false">
+    <lib-edge-router-form
+        *ngIf="svc.modalType === 'edge-router' && svc.sideModalOpen"
+        [formData]="svc.selectedEdgeRouter"
+        [edgeRouterRoleAttributes]="edgeRouterRoleAttributes"
+        (close)="closeModal($event)"
+        (dataChange)="dataChanged($event)"
+    >
+        <ng-content select="[slot=provider]" slot="provider"></ng-content>
+    </lib-edge-router-form>
+</lib-side-modal>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

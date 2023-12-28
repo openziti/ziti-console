@@ -133,7 +133,6 @@ export class JsonViewComponent implements AfterViewInit, OnChanges {
       this.jsonInvalidChange.emit(false);
     } else {
       this.jsonInvalidChange.emit(true);
-      console.log(errors);
     }
   }
 
@@ -170,7 +169,6 @@ export class JsonViewComponent implements AfterViewInit, OnChanges {
 
   copyToClipboad() {
     var clipData = JSON.stringify(JSON.parse(JSON.stringify(this.data)),null,2);
-    console.log(clipData);
     navigator.clipboard.writeText(clipData);
     const growlerData = new GrowlerModel(
         'success',
