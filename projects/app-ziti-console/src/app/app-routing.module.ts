@@ -7,7 +7,7 @@ import {
   ZacWrapperComponent,
   IdentitiesPageComponent,
   DeactivateGuardService,
-  //EdgeRoutersPageComponent
+  EdgeRoutersPageComponent
 } from "ziti-console-lib";
 import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
@@ -61,7 +61,7 @@ const routes: Routes = [
   },
   {
     path: 'routers',
-    component: ZacWrapperComponent,
+    component: EdgeRoutersPageComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
   },
@@ -194,7 +194,7 @@ const routes: Routes = [
 
 @NgModule({
   imports: [RouterModule.forRoot(routes,
-    {enableTracing: true, onSameUrlNavigation: 'reload'})],
+      {enableTracing: true, onSameUrlNavigation: 'reload'})],
   exports: [RouterModule]
 })
 export class AppRoutingModule {
