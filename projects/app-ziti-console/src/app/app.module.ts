@@ -29,8 +29,8 @@ import {
     ZITI_URLS,
     DEACTIVATE_GUARD,
     ZAC_LOGIN_SERVICE,
-    //EDGE_ROUTER_EXTENSION_SERVICE,
-    //ExtensionsNoopService
+    EDGE_ROUTER_EXTENSION_SERVICE,
+    ExtensionsNoopService
 } from "ziti-console-lib";
 
 import {AppRoutingModule} from "./app-routing.module";
@@ -94,7 +94,7 @@ if (environment.nodeIntegration) {
         {provide: ZITI_DATA_SERVICE, useClass: zitiDataService},
         {provide: ZAC_LOGIN_SERVICE, useClass: loginService},
         {provide: SETTINGS_SERVICE, useClass: settingsService},
-        //{provide: EDGE_ROUTER_EXTENSION_SERVICE, useClass: ExtensionsNoopService},
+        {provide: EDGE_ROUTER_EXTENSION_SERVICE, useClass: ExtensionsNoopService},
     ],
     bootstrap: [AppComponent]
 })

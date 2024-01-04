@@ -19,11 +19,11 @@ export abstract class ZitiDataService {
               protected settingsService: SettingsService,
               protected httpClient: HttpClient,
               protected router: Router
-              ) {}
+  ) {}
 
   abstract post(type, model): Promise<any>;
   abstract patch(type, model, id): Promise<any>;
-  abstract get(type: string, paging: any, filters: FilterObj[]): Promise<any>;
+  abstract get(type: string, paging: any, filters: FilterObj[], url?): Promise<any>;
   abstract getSubdata(entityType: string, id: any, dataType: string): Promise<any>;
   abstract saveSubdata(entityType: string, id: any, dataType: string, params: any): Promise<any>;
   abstract deleteSubdata(entityType: string, id: any, dataType: string, params: any): Promise<any>;

@@ -6,6 +6,7 @@ export const SHAREDZ_EXTENSION = new InjectionToken<any>('SHAREDZ_EXTENSION');
 export interface ExtensionService {
   formDataChanged: BehaviorSubject<any>;
   closed: EventEmitter<any>;
+  closeAfterSave: boolean;
   extendAfterViewInits(extentionPoints: any): void;
   updateFormData(data: any): void;
   validateData(): Promise<any>;
@@ -16,6 +17,10 @@ export interface ExtensionService {
   providedIn: 'root'
 })
 export class ExtensionsNoopService implements ExtensionService {
+
+  formDataChanged = new BehaviorSubject<any>({isEmpty: true});
+  closed: EventEmitter<any> = new EventEmitter<any>();
+  closeAfterSave = true;
 
   constructor() { }
 
@@ -29,11 +34,8 @@ export class ExtensionsNoopService implements ExtensionService {
     return Promise.resolve(data);
   }
 
-  formDataChanged = new BehaviorSubject<any>({});
-
   validateData(): Promise<any> {
     return Promise.resolve(true);
   }
 
-  closed: EventEmitter<any> = new EventEmitter<any>();
 }
