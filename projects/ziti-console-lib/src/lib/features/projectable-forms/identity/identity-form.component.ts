@@ -80,7 +80,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   testResult: string = '';
   testResultOpen = false;
 
-  @ViewChild('nameFieldInput') nameFieldInput: ElementRef;
   constructor(
       @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
       public svc: IdentityFormService,
@@ -194,7 +193,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   }
 
   save(event?) {
-    console.log(event);
     if(!this.validate()) {
       return;
     }
@@ -226,16 +224,16 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
 
   get apiData() {
     const data: any = {
-          name: this.formData?.name || '',
-          type: this.formData?.type?.name || this.formData?.type || '',
-          appData: this.formData?.appData || '',
-          isAdmin: this.formData?.isAdmin || '',
-          roleAttributes: this.formData.roleAttributes || '',
-          authPolicyId: this.formData.authPolicyId || '',
-          externalId: this.formData.externalId || '',
-          defaultHostingCost: this.formData.defaultHostingCost || '0',
-          defaultHostingPrecedence: this.formData.defaultHostingPrecedence || 'defaultHostingPrecedence',
-          tags: this.formData.tags || ''
+      name: this.formData?.name || '',
+      type: this.formData?.type?.name || this.formData?.type || '',
+      appData: this.formData?.appData || '',
+      isAdmin: this.formData?.isAdmin || '',
+      roleAttributes: this.formData.roleAttributes || '',
+      authPolicyId: this.formData.authPolicyId || '',
+      externalId: this.formData.externalId || '',
+      defaultHostingCost: this.formData.defaultHostingCost || '0',
+      defaultHostingPrecedence: this.formData.defaultHostingPrecedence || 'defaultHostingPrecedence',
+      tags: this.formData.tags || ''
     }
     if (!this.isEditing) {
       data.enrollment = this.formData.enrollment || {ott: true};
@@ -289,7 +287,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   }
 
   closeModal(refresh = false, ignoreChanges = false): void {
-    console.log('test');
     if (!ignoreChanges && this._dataChange) {
       const confirmed = confirm('You have unsaved changes. Do you want to leave this page and discard your changes or stay on this page?');
       if (!confirmed) {
@@ -300,10 +297,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   }
 
   clear(): void {
-  }
-
-  rawDataChanged(event) {
-    console.log(event);
   }
 
   _dataChange = false;

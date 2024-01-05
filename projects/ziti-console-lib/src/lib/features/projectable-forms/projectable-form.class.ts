@@ -15,7 +15,7 @@
 */
 
 import {ExtendableComponent} from "../extendable/extendable.component";
-import {Component, EventEmitter, Input, Output} from "@angular/core";
+import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from "@angular/core";
 
 import {defer, unset} from "lodash";
 
@@ -29,6 +29,8 @@ const {context, tags, resources, service} = window;
 export abstract class ProjectableForm extends ExtendableComponent {
     @Input() abstract formData: any;
     @Output() abstract close: EventEmitter<any>;
+    @ViewChild('nameFieldInput') nameFieldInput: ElementRef;
+
     abstract errors: { name: string, msg: string }[];
 
     abstract clear(): void;
@@ -38,6 +40,11 @@ export abstract class ProjectableForm extends ExtendableComponent {
     tagElements: any = [];
     tagData: any = [];
     hideTags = false;
+
+    override ngAfterViewInit() {
+        super.ngAfterViewInit();
+        this.nameFieldInput.nativeElement.focus();
+    }
 
     showMoreChanged(showMore) {
         if (!showMore || this.hideTags) {

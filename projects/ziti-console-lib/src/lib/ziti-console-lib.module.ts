@@ -56,7 +56,7 @@ import {HiddenColumnsBarComponent} from "./features/data-table/table-hidden-colu
 import {FilterBarComponent} from "./features/data-table/table-filter-bar/filter-bar.component";
 import {AgGridModule} from "ag-grid-angular";
 import {IdentitiesPageComponent} from "./pages/identities/identities-page.component";
-//import {EdgeRoutersPageComponent} from "./pages/edge-routers/edge-routers-page.component";
+import {EdgeRoutersPageComponent} from "./pages/edge-routers/edge-routers-page.component";
 import {ZITI_NAVIGATOR} from "./ziti-console.constants";
 import { GrowlerComponent } from './features/messaging/growler.component';
 import { ConfirmComponent } from './features/confirm/confirm.component';
@@ -83,8 +83,7 @@ import {SDKTooltipComponent} from "./features/data-table/tooltips/sdk-tooltip.co
 import { OverridesComponent } from './features/overrides/overrides.component';
 import { ResetEnrollmentComponent } from './features/reset-enrollment/reset-enrollment.component';
 import { CustomTagsComponent } from './features/custom-tags/custom-tags.component';
-//import {EdgeRouterFormComponent} from "./features/projectable-forms/edge-router/edge-router-form.component";
-import {ListPageServiceClass} from "./shared/list-page-service.class";
+import {EdgeRouterFormComponent} from "./features/projectable-forms/edge-router/edge-router-form.component";
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -113,7 +112,7 @@ export function playerFactory() {
         FilterBarComponent,
         ListPageFormComponent,
         IdentitiesPageComponent,
-        //EdgeRoutersPageComponent,
+        EdgeRoutersPageComponent,
         DataTableComponent,
         TableCellSelectComponent,
         TableColumnSelectComponent,
@@ -122,7 +121,7 @@ export function playerFactory() {
         TableColumnDefaultComponent,
         TableColumnFilterComponent,
         IdentityFormComponent,
-        //EdgeRouterFormComponent,
+        EdgeRouterFormComponent,
         HiddenColumnsBarComponent,
         FilterBarComponent,
         ExtendableComponent,
@@ -176,9 +175,9 @@ export function playerFactory() {
         ProtocolAddressPortInputComponent,
         ConfigurationsPageComponent,
         ConfigurationFormComponent,
-        //EdgeRouterFormComponent,
+        EdgeRouterFormComponent,
         IdentitiesPageComponent,
-        //EdgeRoutersPageComponent,
+        EdgeRoutersPageComponent,
         ZacRoutingModule,
         SideModalComponent,
         IdentityFormComponent,

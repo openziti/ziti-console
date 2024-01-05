@@ -1,0 +1,147 @@
+<div class="projectable-form-wrapper"
+     (keyup.enter)="save($event)"
+     (keyup.escape)="closeModal(false)"
+>
+    <lib-form-header
+        [data]="formData"
+        [title]="formData.id ? 'Edit Edge Router: ' : 'Create New Edge Router'"
+        [moreActions]="formData.moreActions"
+        (actionRequested)="headerActionRequested($event)"
+        [(formView)]="formView"
+    ></lib-form-header>
+    <div class="edge-router-form-container projectable-form-container">
+        <div class="projectable-form-main-column form-group-row" *ngIf="formView === 'simple'">
+            <div class="form-group-column three-fifths">
+                <lib-form-field-container [title]="'Edge Router Name'" [label]="'REQUIRED'">
+                    <input
+                        class="form-field-input"
+                        placeholder="Name this edge router"
+                        [ngClass]="{error: errors['name']}"
+                        [(ngModel)]="formData.name"
+                        autofocus
+                        #nameFieldInput
+                    />
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Select or create Edge Router attributes'"
+                        [label]="'OPTIONAL'"
+                        [contentStyle]="'z-index: 99999999'"
+                        [helpText]="'Attributes are tags applied to an resource. Apply the same tag to other Edge Routers to form a group of Edge Routers.'"
+                >
+                    <lib-tag-selector
+                            [(selectedRoleAttributes)]="formData.roleAttributes"
+                            [availableRoleAttributes]="edgeRouterRoleAttributes"
+                            [placeholder]="'Add attributes to group Edge Routers'"
+                    ></lib-tag-selector>
+                </lib-form-field-container>
+                <ng-content select="[slot=provider]"></ng-content>
+                <lib-form-field-toggle [(toggleOn)]="showMore" style="margin: 0px 10px"></lib-form-field-toggle>
+                <div *ngIf="showMore" class="form-group-column">
+                    <lib-form-field-container
+                        [title]="'TUNNELER'"
+                        [title2]="'TRAVERSAL'"
+                        [layout]="'row'"
+                        class="form-field-advanced"
+                    >
+                        <div class="config-item">
+                            <div class="config-container toggle-container">
+                                <div class="config-container-label">TUNNELER ENABLED</div>
+                                <div
+                                        (click)="toggleTunnelerEnabled()"
+                                        [ngClass]="{ on: formData.isTunnelerEnabled }"
+                                        class="toggle"
+                                >
+                                    <span [hidden]="!formData.isTunnelerEnabled" class="on-label">YES</span>
+                                    <span [hidden]="formData.isTunnelerEnabled" class="off-label">NO</span>
+                                    <div class="switch"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="config-item">
+                            <div class="config-container toggle-container">
+                                <div class="config-container-label">ALLOW TRAVERSAL</div>
+                                <div
+                                        (click)="toggleNoTraversal()"
+                                        [ngClass]="{ on: !formData.noTraversal }"
+                                        class="toggle"
+                                >
+                                    <span [hidden]="formData.noTraversal" class="on-label">YES</span>
+                                    <span [hidden]="!formData.noTraversal" class="off-label">NO</span>
+                                    <div class="switch"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </lib-form-field-container>
+                    <lib-form-field-container
+                            [title]="'Custom Tags'"
+                            [label]="'OPTIONAL'"
+                            class="form-field-advanced"
+                    >
+                        <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
+                    </lib-form-field-container>
+                    <lib-form-field-container
+                            [title]="'App Data'"
+                            [label]="'OPTIONAL'"
+                            class="form-field-advanced"
+                    >
+                        <lib-json-view></lib-json-view>
+                    </lib-form-field-container>
+                </div>
+            </div>
+            <div class="form-group-column two-fifths">
+                <lib-form-field-container
+                        *ngIf="hasEnrolmentToken"
+                        [showHeader]="false"
+                >
+                    <lib-qr-code
+                            [identity]="formData"
+                            [jwt]="formData.jwt"
+                            [token]="formData.token"
+                            [expiration]="formData.enrollmentExpiresAt"
+                            [type]="'router'"
+                    ></lib-qr-code>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        *ngIf="formData.id"
+                        [title]="'Associated Services'"
+                        [count]="svc.associatedServices.length"
+                        [class]="'hide-overflow'"
+                        [helpText]="'Preview list of all services that this Edge Router is associated with.'"
+                >
+                    <lib-preview-list
+                        [clickable]="false"
+                        [isLoading]="servicesLoading"
+                        [allNames]="svc.associatedServiceNames"
+                    ></lib-preview-list>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        *ngIf="formData.id"
+                        [title]="'Associated Identities'"
+                        [count]="svc.associatedIdentities.length"
+                        [helpText]="'Preview list of all Identities that this Edge Router is associated with.'"
+                >
+                    <lib-preview-list
+                        [clickable]="false"
+                        [isLoading]="identitiesLoading"
+                        [allNames]="svc.associatedIdentityNames"
+                    ></lib-preview-list>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'API Calls'"
+                        [label]="'OPTIONAL'"
+                >
+                    <div class="form-row">
+                        <input class="form-field-input" [value]="apiCallURL"/>
+                        <div class="icon-copy copy" (click)="svc.copyToClipboard(apiCallURL)"></div>
+                    </div>
+                    <lib-json-view *ngIf="formData" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
+                </lib-form-field-container>
+            </div>
+        </div>
+        <div class="form-group-column" *ngIf="formView === 'raw'">
+            <lib-json-view *ngIf="formData" [(data)]="formData"></lib-json-view>
+        </div>
+    </div>
+</div>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

@@ -54,10 +54,6 @@ export class ResetEnrollmentComponent implements OnInit {
     this.dialogRef.close(false);
   }
 
-  setDate(event) {
-    console.log(event);
-  }
-
   resetEnrollment() {
     let id = this.identity?.authenticators?.cert?.id || this.identity?.authenticators?.updb?.id;
     if (!id) {
