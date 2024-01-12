@@ -7,8 +7,6 @@ import {
   Output,
   OnChanges,
   SimpleChanges,
-  ViewChild,
-  ElementRef,
   AfterViewInit,
   Inject
 } from '@angular/core';
@@ -16,14 +14,11 @@ import {Subscription} from 'rxjs';
 import {ProjectableForm} from "../projectable-form.class";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 
-import {isEmpty, forEach, delay, unset, keys, cloneDeep, isEqual} from 'lodash';
+import {isEmpty, delay, cloneDeep, isEqual} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
-import {GrowlerModel} from "../../messaging/growler.model";
-import {EdgeRouter} from "../../../models/edge-router";
 import {EDGE_ROUTER_EXTENSION_SERVICE, EdgeRouterFormService} from './edge-router-form.service';
 import {MatDialogRef} from "@angular/material/dialog";
-import {IdentitiesPageService} from "../../../pages/identities/identities-page.service";
 import {ExtensionService} from "../../extendable/extensions-noop.service";
 
 @Component({
@@ -43,16 +38,10 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
   @Output() dataChange: EventEmitter<any> = new EventEmitter<any>();
 
+  formView = 'simple';
   initData: any = {};
   isEditing = false;
-  enrollmentExpiration: any;
-  jwt: any;
-  token: any;
   isLoading = false;
-  associatedIdentities: any = [];
-  associatedIdentityNames: any = [];
-  associatedServices: any = [];
-  associatedServiceNames: any = [];
   servicesLoading = false;
   identitiesLoading = false;
   authPolicies: any = [
@@ -61,16 +50,9 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
 
   showMore = false;
   errors: any = {};
-  formView = 'simple';
-  enrollmentType = 'ott';
-  enrollmentCA;
-  enrollmentUPDB = '';
   settings: any = {};
-  testResult: string = '';
-  testResultOpen = false;
   subscription: Subscription = new Subscription();
 
-  @ViewChild('nameFieldInput') nameFieldInput: ElementRef;
   constructor(
       @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
       public svc: EdgeRouterFormService,
@@ -87,12 +69,11 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
         this.settings = results;
       })
     );
-    this.jwt = this.formData.enrollmentJwt;
-    this.token = this.formData.enrollmentToken;
-    this.enrollmentExpiration = this.formData?.enrollmentExpiresAt;
-    this.getAssociatedServices();
-    this.getAssociatedIdentities();
-    this.getAuthPolicies();
+    this.svc.getAssociatedServices(this.formData.id);
+    this.svc.getAssociatedIdentities(this.formData.id);
+    this.svc.getAuthPolicies().then(result => {
+      this.authPolicies = result;
+    });
     this.initData = cloneDeep(this.formData);
     this.watchData();
     this.extService.updateFormData(this.formData);
@@ -111,54 +92,12 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
     this.subscription.unsubscribe();
   }
 
-  override ngAfterViewInit() {
-    super.ngAfterViewInit();
-    this.nameFieldInput.nativeElement.focus();
-  }
-
   ngOnChanges(changes: SimpleChanges) {
     this.isEditing = !isEmpty(this.formData.id);
   }
 
-  getAssociatedServices() {
-    this.zitiService.getSubdata('edge-routers', this.formData.id, 'services').then((result: any) => {
-      this.associatedServices = result.data;
-      this.associatedServiceNames = this.associatedServices.map((svc) => {
-        return svc.name;
-      });
-    });
-  }
-
-  getAssociatedIdentities() {
-    this.zitiService.getSubdata('edge-routers', this.formData.id, 'identities').then((result: any) => {
-      this.associatedIdentities = result.data;
-      this.associatedIdentityNames = this.associatedIdentities.map((policy) => {
-        return policy.name;
-      });
-    });
-  }
-
-  getAuthPolicies() {
-    const paging = {
-      filter: "",
-      noSearch: true,
-      order: "asc",
-      page: 1,
-      searchOn: "name",
-      sort: "name",
-      total: 100
-    }
-    this.zitiService.get('auth-policies', paging, []).then((result: any) => {
-      this.authPolicies = [{id: 'default', name: 'Default'}, ...result.data];
-    });
-  }
-
   get hasEnrolmentToken() {
     return !isEmpty(this.formData.enrollmentJwt) || !isEmpty(this.formData.enrollmentToken);
-  }
-
-  get jwtExpired() {
-    return false;
   }
 
   headerActionRequested(action) {
@@ -171,23 +110,6 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
         break;
       case 'toggle-view':
         this.formView = action.data;
-        break;
-    }
-  }
-
-  updateEnrollment() {
-    switch (this.enrollmentType) {
-      case 'ott':
-        this.formData.enrollment = {ott: true}
-        break;
-      case 'CA':
-        this.formData.enrollment = {ottca: this.enrollmentCA};
-        break;
-      case 'updb':
-        this.formData.enrollment = {updb: this.enrollmentUPDB};
-        break;
-      default:
-        this.formData.enrollment = {ott: true}
         break;
     }
   }
@@ -254,25 +176,6 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
 
   toggleNoTraversal() {
     this.formData.noTraversal = !this.formData.noTraversal;
-  }
-
-  serviceSelected(serviceName) {
-
-  }
-
-  closeTestResult() {
-    this.testResultOpen = false;
-  }
-
-  copyToClipboard(val) {
-    navigator.clipboard.writeText(val);
-    const growlerData = new GrowlerModel(
-        'success',
-        'Success',
-        `Text Copied`,
-        `API call URL copied to clipboard`,
-    );
-    this.growlerService.show(growlerData);
   }
 
   closeModal(refresh = true, ignoreChanges = false): void {
