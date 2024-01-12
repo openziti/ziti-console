@@ -1,11 +1,27 @@
-import {Component, EventEmitter, Input, Output, OnInit, OnChanges, DoCheck} from '@angular/core';
+/*
+    Copyright NetFoundry Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
+
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 
 @Component({
   selector: 'lib-preview-list',
   templateUrl: './preview-list.component.html',
   styleUrls: ['./preview-list.component.scss']
 })
-export class PreviewListComponent implements OnInit, OnChanges, DoCheck {
+export class PreviewListComponent {
   @Input() hideOption: string;
   @Input() public label = '';
   @Input() public clickable = false;
@@ -14,28 +30,19 @@ export class PreviewListComponent implements OnInit, OnChanges, DoCheck {
   @Output() itemSelected = new EventEmitter<string>();
   public names = [];
   filterFor = '';
-  initLength = 0;
 
   ngOnInit() {
     this.names = [];
     this.names.push(...this.allNames);
     this.names = this.names.filter((item) => item !== this.hideOption);
     this.sort();
-    this.initLength = this.allNames?.length || 0;
   }
 
-  ngDoCheck() {
-    if (this.initLength !== this.allNames.length) {
-      this.ngOnChanges();
-    }
-  }
-
-  ngOnChanges(changes?: any) {
+  ngOnChanges() {
     this.names = [];
     this.names.push(...this.allNames);
     this.names = this.names.filter((item) => item !== this.hideOption);
     this.sort();
-    this.initLength = this.allNames.length || 0;
   }
 
   onKeydownEvent() {

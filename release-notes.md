@@ -1,3 +1,10 @@
+# Release 3.0.1
+* New Angular list page and create/edit form for Edge Routers
+* Updated new scripts with proper license headers
+
+# Release 3.0.0
+* Integration of new Angular shared library ziti-console-lib and Angular project app-ziti-console
+
 # Release 2.9.4
 * Fix role attribute view in router list
 * Change the UI to work with the new controller requirements for POST content Issue #173

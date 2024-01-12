@@ -17,6 +17,11 @@ export const EDGE_ROUTER_EXTENSION_SERVICE = new InjectionToken<any>('EDGE_ROUTE
 })
 export class EdgeRouterFormService {
 
+    associatedIdentities: any = [];
+    associatedIdentityNames: any = [];
+    associatedServices: any = [];
+    associatedServiceNames: any = [];
+
     constructor(
         @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
         @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
@@ -81,5 +86,50 @@ export class EdgeRouterFormService {
             }
         });
         return saveModel;
+    }
+
+    getAuthPolicies() {
+        const paging = {
+            filter: "",
+            noSearch: true,
+            order: "asc",
+            page: 1,
+            searchOn: "name",
+            sort: "name",
+            total: 100
+        }
+        return this.zitiService.get('auth-policies', paging, []).then((result: any) => {
+            return [{id: 'default', name: 'Default'}, ...result.data];
+        });
+    }
+
+    copyToClipboard(val) {
+        navigator.clipboard.writeText(val);
+        const growlerData = new GrowlerModel(
+            'success',
+            'Success',
+            `Text Copied`,
+            `API call URL copied to clipboard`,
+        );
+        this.growlerService.show(growlerData);
+    }
+
+
+    getAssociatedServices(id) {
+        this.zitiService.getSubdata('edge-routers', id, 'services').then((result: any) => {
+            this.associatedServices = result.data;
+            this.associatedServiceNames = this.associatedServices.map((svc) => {
+                return svc.name;
+            });
+        });
+    }
+
+    getAssociatedIdentities(id) {
+        this.zitiService.getSubdata('edge-routers', id, 'identities').then((result: any) => {
+            this.associatedIdentities = result.data;
+            this.associatedIdentityNames = this.associatedIdentities.map((policy) => {
+                return policy.name;
+            });
+        });
     }
 }
