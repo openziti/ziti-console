@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {Subject} from "rxjs";
-import {debounce} from "lodash";
+import {debounce, isEmpty} from "lodash";
 
 @Component({
   selector: 'lib-text-list-input',
@@ -27,7 +27,18 @@ export class TextListInputComponent {
     this._fieldName = name;
     this._idName = name.replace(/\s/g, '').toLowerCase();
   }
-  @Input() fieldValue = '';
+
+  _fieldValue: any = '';
+  @Input('fieldValue')
+  set fieldValue(val) {
+    this._fieldValue = val;
+  }
+
+  get fieldValue() {
+    const val = isEmpty(this._fieldValue) ? undefined : this._fieldValue;
+    return val;
+  }
+
   @Input() placeholder = '';
   @Input() parentage: string[] = [];
   @Input() labelColor = '#000000';

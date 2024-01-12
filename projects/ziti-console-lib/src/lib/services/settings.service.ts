@@ -6,7 +6,7 @@ import {HttpBackend, HttpClient} from "@angular/common/http";
 import {SettingsServiceClass} from "./settings-service.class";
 import {GrowlerService} from "../features/messaging/growler.service";
 import {GrowlerModel} from "../features/messaging/growler.model";
-
+import $ from 'jquery';
 export const SETTINGS_SERVICE = new InjectionToken<SettingsServiceClass>('SETTINGS_SERVICE');
 
 // @ts-ignore
@@ -89,8 +89,26 @@ export class SettingsService extends SettingsServiceClass {
     override controllerSave(name: string, url: string) {
         url = url.split('#').join('').split('?').join('');
         if (url.endsWith('/')) url = url.substr(0, url.length - 1);
-        if (!url.startsWith('https://')) url = 'https://' + url;
+        if (!url.startsWith('https://') && !url.startsWith('http://')) url = 'http://' + url;
         const callUrl = url + "/edge/management/v1/version?rejectUnauthorized=" + this.rejectUnauthorized;
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json",
+            dataType: "json",
+            url: url,
+            data: '',
+            async: true,
+            beforeSend: function(e) {
+                // Set indication of operation
+            },
+            error: function(e) {
+                // Process Error
+                if (console) console.log(e);
+            },
+            complete: function(e) {
+                console.log(e);
+            }
+        });
         firstValueFrom(this.httpClient.get(callUrl).pipe(catchError((err: any) => {
             throw "Edge Controller not Online: " + err?.message;
         }))).then((body: any) => {
@@ -139,7 +157,7 @@ export class SettingsService extends SettingsServiceClass {
     public initApiVersions(url: string) {
         url = url.split('#').join('').split('?').join('');
         if (url.endsWith('/')) url = url.substr(0, url.length - 1);
-        if (!url.startsWith('https://')) url = 'https://' + url;
+        if (!url.startsWith('https://')) url = 'http://' + url;
         const callUrl = url + "/edge/management/v1/version?rejectUnauthorized=false";
         return firstValueFrom(this.httpClient.get(callUrl)
             .pipe(

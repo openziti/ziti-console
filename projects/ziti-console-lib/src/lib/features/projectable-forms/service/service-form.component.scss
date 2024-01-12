@@ -15,9 +15,42 @@
   padding-right: 28px;
 }
 
+.form-field-extended-fields {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.jsonButton {
+  position: relative;
+  top: 0;
+  margin: 0;
+  padding: 10px;
+  height: 30px;
+}
+
 .disabled {
   opacity: .5;
   pointer-events: none;
+}
+
+::ng-deep .config-form-container {
+  label {
+    color: var(--white) !important;
+  }
+}
+
+.config-title-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  .jsonButton {
+    color: var(--offWhite);
+    font-weight: 600;
+    opacity: 1;
+  }
 }
 
 .attach-config {

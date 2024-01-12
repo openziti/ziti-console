@@ -10,22 +10,22 @@ import {
   ViewChild,
   ElementRef,
   AfterViewInit,
-  Inject
+  Inject,
+  ViewContainerRef
 } from '@angular/core';
 import {Subscription} from 'rxjs';
 import {ProjectableForm} from "../projectable-form.class";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 
-import {isEmpty, forEach, delay, unset, keys, defer, cloneDeep, isEqual} from 'lodash';
+import {isEmpty, forEach, delay, unset, keys, defer, cloneDeep, isEqual, some} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
-import {EdgeRouter} from "../../../models/edge-router";
 import {SERVICE_EXTENSION_SERVICE, ServiceFormService} from './service-form.service';
 import {MatDialogRef} from "@angular/material/dialog";
-import {IdentitiesPageService} from "../../../pages/identities/identities-page.service";
 import {ExtensionService} from "../../extendable/extensions-noop.service";
 import {TranslateService} from "@ngx-translate/core";
+import {SchemaService} from "../../../services/schema.service";
 
 @Component({
   selector: 'lib-service-form',
@@ -66,26 +66,61 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     {id: 'random', label: this.translateService.instant('Random')},
     {id: 'ha', label: this.translateService.instant('HighAvailability')},
   ];
+  bindingTypes = [
+    {id: 'udp', name: 'UDP'},
+    {id: 'transport', name: 'Transport'},
+    {id: 'edge', name: 'Edge'},
+  ];
+  protocols = [
+    {id: 'udp', name: 'UDP'},
+    {id: 'tcp', name: 'TCP'}
+  ];
   associatedIdentities: any = [];
   associatedIdentityNames: any = [];
   identitiesLoading = false;
   configTypes: any = [];
   configs: any = [];
+  routers: any = [];
   filteredConfigs: any = [];
   selectedConfigTypeId: any = '';
   selectedConfigType: any = {};
   selectedSchema: any = {};
   selectedConfigId: any = '';
+  selectedRouterId: string = '';
+  selectedRouter: string = '';
+  selectedBindingId: string = '';
   configData: any;
   addedConfigNames: any = [];
+  addedTerminators: any = [];
   newConfigName: string = '';
+  terminatorHost: string = '';
+  terminatorPort: string = '';
   showMore = false;
   errors: any = {};
   configErrors: any = {};
+  terminatorErrors: any = {};
   formView = 'simple';
   settings: any = {};
+  terminatorProtocol = 'udp';
   subscription: Subscription = new Subscription();
+  configJsonView = false;
+  configDataLabel = this.translateService.instant('ConfigurationForm');
+  attachLabel = this.translateService.instant('CreateAndAttach');
+  items: any = [];
 
+  lColorArray = [
+    'black',
+    'white',
+    'white',
+  ]
+
+  bColorArray = [
+    '#33aaff',
+    '#fafafa',
+    '#33aaff',
+  ]
+
+  @ViewChild("dynamicform", {read: ViewContainerRef}) dynamicForm!: ViewContainerRef;
   @ViewChild('nameFieldInput') nameFieldInput: ElementRef;
   constructor(
       @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
@@ -93,7 +128,8 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
       @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
       private growlerService: GrowlerService,
       @Inject(SERVICE_EXTENSION_SERVICE) private extService: ExtensionService,
-      private translateService: TranslateService
+      private translateService: TranslateService,
+      private schemaSvc: SchemaService
   ) {
     super();
   }
@@ -116,7 +152,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
         if (data.isEmpty) {
           return;
         }
-        this.formData = data;
+        //this.formData = data;
       })
     );
   }
@@ -131,7 +167,10 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     this.nameFieldInput.nativeElement.focus();
     this.resetTags();
     this.getConfigTypes();
-    this.getConfigs();
+    this.getConfigs().then(() => {
+      this.updatedAddedConfigs();
+    });
+    this.getRouters();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -145,12 +184,67 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   }
 
   getConfigs() {
-    this.zitiService.get('configs', this.paging, []).then((result: any) => {
+    return this.zitiService.get('configs', this.paging, []).then((result: any) => {
       this.configs = result.data;
+      this.configTypeChanged();
     });
   }
 
-  configTypeChanged(event: any) {
+  getRouters() {
+    this.zitiService.get('edge-routers', this.paging, []).then((result: any) => {
+      this.routers = result.data;
+    });
+  }
+
+  updatedAddedConfigs() {
+    this.addedConfigNames = [];
+    this.configs.forEach((availableConfig) => {
+      const cfgExists = some(this.formData.configs, configId => {
+        return availableConfig.id == configId;
+      });
+      if (cfgExists) {
+        this.addedConfigNames.push(availableConfig.name);
+      }
+    })
+  }
+
+  updateAddedTerminators() {
+
+  }
+
+  toggleJSONView() {
+    if (!this.configJsonView) {
+      this.updateConfigData();
+    }
+    this.configJsonView = !this.configJsonView;
+    const key = this.configJsonView ? 'JSONConfiguration' : 'ConfigurationForm';
+    this.configDataLabel = this.translateService.instant(key);
+  }
+
+  updateConfigData() {
+    const data = {};
+    this.addItemsToConfig(this.items, data);
+    this.configData = data;
+  }
+
+  addItemsToConfig(items, data) {
+    items.forEach((item) => {
+      let props = [];
+      if (item.items) {
+        data[item.key] = this.addItemsToConfig(item.items, {});
+      } else if (item?.component?.instance?.getProperties) {
+        props = item?.component?.instance?.getProperties();
+      } else if (item?.component?.instance) {
+        props = [{key: item.key, value: item.component.instance.fieldValue}];
+      }
+      props.forEach((prop) => {
+        data[prop.key] = prop.value;
+      });
+    });
+    return data;
+  }
+
+  configTypeChanged(event?: any) {
     this.filteredConfigs = this.configs.filter((config) => {
       return config.configTypeId === this.selectedConfigTypeId;
     });
@@ -159,7 +253,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
         this.selectedConfigType = configType;
       }
     });
-    this.selectedConfigId = '';
+    this.selectedConfigId = !isEmpty(this.selectedConfigTypeId) ? 'add-new' : '';
     this.configChanged();
   }
 
@@ -167,9 +261,14 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     let selectedConfig: any = {};
     this.configData = undefined;
     let data;
+    let attachLabelKey = 'AttachService';
     if (this.selectedConfigId === 'add-new') {
       data = {};
       this.selectedSchema = await this.zitiService.schema(this.selectedConfigType.schema);
+      if (!this.configJsonView) {
+        this.createForm();
+      }
+      attachLabelKey = 'CreateAndAttach';
     } else if (this.selectedConfigId) {
       this.filteredConfigs.forEach((config) => {
         if (this.selectedConfigId === config.id) {
@@ -185,6 +284,50 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
         this.configData = cloneDeep(data);
       });
     }
+    this.attachLabel = this.translateService.instant(attachLabelKey);
+  }
+
+  async createForm() {
+    this.clearForm();
+    if (this.selectedConfigType && this.dynamicForm) {
+      if (this.selectedSchema) {
+        this.render(this.selectedSchema);
+      }
+    }
+  }
+
+  render(schema: any) {
+    if (schema.properties) {
+      this.items = this.schemaSvc.render(schema, this.dynamicForm, this.lColorArray, this.bColorArray);
+      for (let obj of this.items) {
+        const cRef = obj.component;
+        cRef.instance.errors = this.errors;
+        if (cRef?.instance.valueChange) {
+          const pName: string[]  = cRef.instance.parentage;
+          let parentKey;
+          if(pName) parentKey = pName.join('.');
+          if (parentKey && !this.formData[parentKey]) this.formData[parentKey] = {};
+          this.subscription.add(
+              cRef.instance.valueChange.subscribe((val: any) => {
+                //this.setFormValue(cRef, val);
+              }));
+        }
+      }
+    }
+  }
+
+  clearForm() {
+    this.items.forEach((item: any) => {
+      if (item?.component) item.component.destroy();
+    });
+    this.errors = {};
+    this.items = [];
+    this.formData = {
+      configs: [],
+      encryptionRequired: true,
+      terminatorStrategy: '',
+    };
+    if (this.subscription) this.subscription.unsubscribe();
   }
 
   async attachConfig(addedConfigId) {
@@ -197,8 +340,38 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
         data: this.configData,
         name: this.newConfigName
       }
-      const config = await this.svc.createConfig(newConfig);
-      return;
+      const configId = await this.svc.createConfig(newConfig)
+          .then((result) => {
+            return result?.data?.id;
+          })
+          .catch((result) => {
+        const errorField = result?.error?.error?.cause?.field;
+        if (!isEmpty(errorField)) {
+          this.configErrors[errorField] = true;
+        }
+        const errorMessage = result?.error?.error?.cause?.reason;
+        const growlerData = new GrowlerModel(
+            'error',
+            'Error',
+            `Error Creating Config`,
+            errorMessage,
+        );
+        this.growlerService.show(growlerData);
+        return undefined;
+      });
+      if (!isEmpty(configId)) {
+        this.formData.configs.push(configId);
+        this.addedConfigNames.push(this.newConfigName);
+        this.getConfigs();
+        const growlerData = new GrowlerModel(
+            'success',
+            'Success',
+            `New Config Attached`,
+            `New Config ${this.newConfigName} has been created and attached to the service`,
+        );
+        this.growlerService.show(growlerData);
+        return;
+      }
     }
     let configAdded = false;
     this.formData.configs.forEach((configId) => {
@@ -217,7 +390,47 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
         this.addedConfigNames.push(configName);
       }
       this.formData.configs.push(addedConfigId);
+    } else {
+      const growlerData = new GrowlerModel(
+          'warning',
+          'Info',
+          `Config Already Attached`,
+          'Config has already been attached to this service',
+      );
+      this.growlerService.show(growlerData);
     }
+  }
+
+  routerChanged(event?: any) {
+    let selectedRouter;
+    if (this.selectedConfigId) {
+      this.routers.forEach((router) => {
+        if (this.selectedRouterId === router.id) {
+          selectedRouter = router;
+        }
+      });
+    }
+    this.selectedRouter = selectedRouter;
+  }
+
+  addTerminator(item) {
+    let termAdded = false;
+    this.addedTerminators.forEach((termName) => {
+      if (item.name === termName) {
+        termAdded = true;
+      }
+    });
+    if (!termAdded) {
+      this.addedTerminators.push(item.name);
+    }
+  }
+
+  bindingTypeChanged(event?: any) {
+
+  }
+
+  terminatorProtocolChanged(event?: any) {
+
   }
 
   get showConfigData() {
@@ -280,7 +493,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   validateConfig() {
     this.configErrors = {};
     if (isEmpty(this.newConfigName)) {
-      this.configErrors['configName'] = true;
+      this.configErrors['name'] = true;
     }
     return isEmpty(this.configErrors);
   }
@@ -294,7 +507,9 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
           name: this.formData?.name || '',
           encryptionRequired: this.formData?.encryptionRequired || '',
           terminatorStrategy: this.formData.terminatorStrategy || '',
-          tags: this.formData.tags || ''
+          tags: this.formData.tags || '',
+          roleAttributes: this.formData.roleAttributes || [],
+          configs: this.formData.configs || []
     }
     return data;
   }

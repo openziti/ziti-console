@@ -1,20 +1,35 @@
-<div class="grid addressFull">
-    <div>
-        <lib-selector-input *ngIf="showProtocol" [fieldName]="protocolFieldName"
-                      [fieldValue]="protocolValue"
+<div class="grid {{className}}">
+    <div *ngIf="showProtocol" [ngClass]="{disabled: disableProtocol}">
+        <lib-selector-input [fieldName]="protocolFieldName"
+                      [(fieldValue)]="protocol"
                       [labelColor]="labelColor"
-                      (fieldValueChange)="protocolChange($event)"></lib-selector-input>
+                      [placeholder]="'Type'"
+                      [valueList]="['tcp', 'udp']"
+                      (fieldValueChange)="update()"
+        ></lib-selector-input>
     </div>
-    <div>
-        <lib-string-input *ngIf="showAddress" [fieldName]="addressFieldName"
-                    [fieldValue]="addressValue"
+    <div *ngIf="showAddress" [ngClass]="{disabled: disableAddress}">
+        <lib-string-input [fieldName]="addressFieldName"
+                    [(fieldValue)]="address"
                     [labelColor]="labelColor"
-                    (fieldValueChange)="addressChange($event)"></lib-string-input>
+                    [placeholder]="'host.name'"
+                          (fieldValueChange)="update()"
+        ></lib-string-input>
     </div>
-    <div>
-        <lib-number-input *ngIf="showPort" [fieldName]="portFieldName"
-                    [fieldValue]="portValue"
+    <div *ngIf="showHostName" [ngClass]="{disabled: disableHostName}">
+        <lib-string-input [fieldName]="hostNameFieldName"
+                          [(fieldValue)]="hostName"
+                          [labelColor]="labelColor"
+                          [placeholder]="'host.name'"
+                          (fieldValueChange)="update()"
+        ></lib-string-input>
+    </div>
+    <div *ngIf="showPort" [ngClass]="{disabled: disablePort}">
+        <lib-number-input [fieldName]="portFieldName"
+                    [(fieldValue)]="port"
                     [labelColor]="labelColor"
-                    (fieldValueChange)="portChange($event)"></lib-number-input>
+                    [placeholder]="'0'"
+                    (fieldValueChange)="update()"
+        ></lib-number-input>
     </div>
 </div>

@@ -109,7 +109,9 @@
     "Configurations": "Configurations",
     "AddConfigurations": "Add Configurations",
     "JSONConfiguration": "JSON Configuration",
+    "ConfigurationForm": "Configuration Form",
     "Schema": "Schema",
+    "CreateAndAttach": "Create and Attach",
     "AttachService": "Attach to Service",
     "ManageFields": "Manage Custom Fields",
     "ManageServers": "Manage Servers",
@@ -254,6 +256,8 @@
     "SelectAConfig": "Select a Config",
     "SelectConfiguration": "Select configuration...",
     "SelectConfigurationType": "Select configuration type...",
+    "SelectedConfigurations": "Selected Configurations",
+    "SelectARouter": "Select a Router...",
     "MinPasswordLength": "Minimum Length",
     "SelectJwtSigners": "Search and Selact Associated JWT Signers",
     "TypeToFilter": "Type to filter or enter to add value",
@@ -273,6 +277,7 @@
     "Cancel": "Cancel",
     "Done": "Done",
     "EgHost": "e.g. myservice.ziti",
+    "TerminatingRouters": "Terminating Routers",
 
 
 

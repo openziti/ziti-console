@@ -20,7 +20,8 @@ body {
     --transition: 0.5s;
     --offWhite: #FCFCFC;
     --dark: #28292B;
-    --formGroup: #344459;
+    --formGroup: #232f3e;
+    --formSubGroup: #5e7088;
 }
 
 ::placeholder {

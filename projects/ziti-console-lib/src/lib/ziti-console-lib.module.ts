@@ -73,6 +73,8 @@ import {EdgeRouterFormComponent} from "./features/projectable-forms/edge-router/
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import {ServiceFormComponent} from "./features/projectable-forms/service/service-form.component";
+import { PortRangesComponent } from './features/dynamic-widgets/port-ranges/port-ranges.component';
+import { ForwardingConfigComponent } from './features/dynamic-widgets/forwarding-config/forwarding-config.component';
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -136,7 +138,9 @@ export function HttpLoaderFactory(http: HttpClient) {
         ResetEnrollmentComponent,
         CustomTagsComponent,
         ServicesPageComponent,
-        ServiceFormComponent
+        ServiceFormComponent,
+        PortRangesComponent,
+        ForwardingConfigComponent,
     ],
     imports: [
         CommonModule,

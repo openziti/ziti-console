@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 
 @Component({
   selector: 'lib-form-field-container',
@@ -14,9 +14,16 @@ export class FormFieldContainerComponent {
   @Input() helpText2: any = undefined;
   @Input() label: any = undefined;
   @Input() count: any = undefined;
+  @Input() action: any = undefined;
+  @Input() actionLabel: string;
   @Input() class = '';
   @Input() contentStyle: any = '';
   @Input() showHeader: any = true;
 
+  @Output() actionRequested: EventEmitter<any> = new EventEmitter<any>();
   constructor() {}
+
+  actionClicked() {
+    this.actionRequested.emit({action: this.action});
+  }
 }
