@@ -1,4 +1,21 @@
+/*
+    Copyright NetFoundry Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
+
 import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {ForwardingConfigService} from "./forwarding-config.service";
 
 @Component({
   selector: 'lib-forwarding-config',
@@ -7,7 +24,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 })
 export class ForwardingConfigComponent {
 
-  @Input() protocol: string = undefined;
+  @Input() protocol: string = 'tcp';
   @Input() address: string = undefined;
   @Input() port: number = undefined;
   @Input() forwardProtocol = false;
@@ -30,6 +47,8 @@ export class ForwardingConfigComponent {
   disableProtocol = false;
   disableAddress = false;
   disablePort = false;
+
+  constructor(private svc: ForwardingConfigService) {}
 
   forwardProtocolToggled(event) {
     if (!this.forwardProtocol) {
@@ -58,15 +77,28 @@ export class ForwardingConfigComponent {
     this.disablePort = this.forwardPort;
   }
 
+  setProperties(data: any) {
+    this.forwardPort = data.forwardPort;
+    this.forwardProtocol = data.forwardProtocol;
+    this.forwardAddress = data.forwardAddress;
+    this.protocol = data.protocol ? data.protocol : 'tcp';
+    this.address = data.address;
+    this.port = data.port;
+    this.allowedProtocols = data.allowedProtocols;
+    this.allowedAddresses = data.allowedAddresses;
+    this.setAllowedPortRanges(data.allowedPortRanges);
+    this.svc.validate(this.allowedPortRanges);
+  }
+
   getProperties() {
-    const props = [
-      {key: 'forwardProtocol', value: this.forwardProtocol},
-      {key: 'forwardAddress', value: this.forwardAddress},
-      {key: 'forwardPort', value: this.forwardPort},
-      {key: 'allowedAddresses', value: this.allowedAddresses},
-      {key: 'allowedPortRanges', value: this.allowedPortRanges},
-      {key: 'allowedProtocols', value: this.allowedProtocols},
-    ];
-    return props;
+    return this.svc.getProperties(this.protocol, this.address, this.port, this.forwardProtocol, this.forwardAddress, this.forwardProtocol, this.allowedProtocols, this.allowedAddresses, this.allowedPortRanges);
+  }
+
+  validatePortRanges() {
+    this.errors['allowedPortRanges'] = this.svc.validatePortRanges(this.allowedPortRanges);
+  }
+
+  setAllowedPortRanges(ranges) {
+    this.allowedPortRanges = this.svc.parseAllowedPortRanges(ranges);
   }
 }

@@ -1,5 +1,5 @@
 import {Injectable, Inject, InjectionToken} from "@angular/core";
-import {isEmpty, unset, keys} from 'lodash';
+import {isEmpty, unset, keys, some, defer} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
@@ -7,6 +7,7 @@ import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.serv
 import {ExtensionService} from "../../extendable/extensions-noop.service";
 import {Service} from "../../../models/service";
 import moment from 'moment';
+import {TranslateService} from "@ngx-translate/core";
 
 export const SERVICE_EXTENSION_SERVICE = new InjectionToken<any>('SERVICE_EXTENSION_SERVICE');
 
@@ -15,11 +16,32 @@ export const SERVICE_EXTENSION_SERVICE = new InjectionToken<any>('SERVICE_EXTENS
 })
 export class ServiceFormService {
 
+    hideConfigJSON = false;
+
+    strategies = [
+        {id: 'smartrouting', label: this.translateService.instant('SmartRouting')},
+        {id: 'weighted', label: this.translateService.instant('Weighted')},
+        {id: 'random', label: this.translateService.instant('Random')},
+        {id: 'ha', label: this.translateService.instant('HighAvailability')},
+    ];
+
+    bindingTypes = [
+        {id: 'udp', name: 'UDP'},
+        {id: 'transport', name: 'Transport'},
+        {id: 'edge', name: 'Edge'},
+    ];
+
+    protocols = [
+        {id: 'udp', name: 'UDP'},
+        {id: 'tcp', name: 'TCP'}
+    ];
+
     constructor(
         @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
         @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
         private growlerService: GrowlerService,
-        @Inject(SERVICE_EXTENSION_SERVICE)private extService: ExtensionService
+        @Inject(SERVICE_EXTENSION_SERVICE)private extService: ExtensionService,
+        private translateService: TranslateService,
     ) {}
  
     save(formData): Promise<any> {
@@ -93,5 +115,62 @@ export class ServiceFormService {
             );
             this.growlerService.show(growlerData);
         });
+    }
+
+    updateFormView(items, data) {
+        items.forEach((item) => {
+            if (item.items) {
+                this.updateFormView(item.items, data[item.key]);
+            } else if (item?.component?.instance?.setProperties) {
+                let val;
+                switch (item.key) {
+                    case 'forwardingconfig':
+                        val = {
+                            protocol: data.protocol,
+                            address: data.address,
+                            port: data.port,
+                            forwardProtocol: data.forwardProtocol,
+                            forwardAddress: data.forwardAddress,
+                            forwardPort: data.forwardPort,
+                            allowedProtocols: data.allowedProtocols,
+                            allowedAddresses: data.allowedAddresses,
+                            allowedPortRanges: data.allowedPortRanges
+                        }
+                        break;
+                    default:
+                        val = data[item.key];
+                        break;
+                }
+                item?.component?.instance?.setProperties(val);
+            } else if (item?.component?.setInput) {
+                item.component.setInput('fieldValue', data[item.key]);
+            }
+        });
+        return data;
+    }
+
+    addItemsToConfig(items, data) {
+        items.forEach((item) => {
+            let props = [];
+            if (item.items) {
+                data[item.key] = this.addItemsToConfig(item.items, {});
+            } else if (item?.component?.instance?.getProperties) {
+                props = item?.component?.instance?.getProperties();
+            } else if (item?.component?.instance) {
+                props = [{key: item.key, value: item.component.instance.fieldValue}];
+            }
+            props.forEach((prop) => {
+                data[prop.key] = prop.value;
+            });
+        });
+        return data;
+    }
+
+    bindingTypeChanged(event?: any) {
+
+    }
+
+    terminatorProtocolChanged(event?: any) {
+
     }
 }

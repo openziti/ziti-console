@@ -595,3 +595,29 @@ lib-form-field-container {
     }
   }
 }
+
+.page {
+  .p-element {
+    .p-chips.p-component {
+      .p-inputtext.p-chips-multiple-container {
+        box-shadow: none;
+      }
+      &.p-input-wrapper {
+        &.p-focus {
+          border-color: var(--primary);
+        }
+        .p-chips-token {
+          background: var(--primary);
+          color: var(--offWhite);
+        }
+      }
+    }
+    &.error {
+      .p-chips.p-component {
+        &.p-input-wrapper {
+          border-color: var(--red);
+        }
+      }
+    }
+  }
+}

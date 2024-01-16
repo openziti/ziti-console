@@ -53,6 +53,8 @@
             [placeholder]="'80 120-125 443 8080'"
             [(fieldValue)]="allowedPortRanges"
             [labelColor]="'#000000'"
+            [fieldClass]="errors['allowedPortRanges'] ? 'error' : ''"
+            (fieldValueChange)="validatePortRanges()"
         >
         </lib-text-list-input>
     </div>

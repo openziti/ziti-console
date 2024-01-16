@@ -103,6 +103,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   settings: any = {};
   terminatorProtocol = 'udp';
   subscription: Subscription = new Subscription();
+  hideConfigJSON = false;
   configJsonView = false;
   configDataLabel = this.translateService.instant('ConfigurationForm');
   attachLabel = this.translateService.instant('CreateAndAttach');
@@ -111,17 +112,16 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   lColorArray = [
     'black',
     'white',
-    'white',
+    'black',
   ]
 
   bColorArray = [
     '#33aaff',
+    'var(--secondary)',
     '#fafafa',
-    '#33aaff',
   ]
 
   @ViewChild("dynamicform", {read: ViewContainerRef}) dynamicForm!: ViewContainerRef;
-  @ViewChild('nameFieldInput') nameFieldInput: ElementRef;
   constructor(
       @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
       public svc: ServiceFormService,
@@ -204,27 +204,62 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
       });
       if (cfgExists) {
         this.addedConfigNames.push(availableConfig.name);
+        this.addedConfigNames = [...this.addedConfigNames];
       }
     })
   }
 
-  updateAddedTerminators() {
-
-  }
-
   toggleJSONView() {
-    if (!this.configJsonView) {
-      this.updateConfigData();
-    }
     this.configJsonView = !this.configJsonView;
     const key = this.configJsonView ? 'JSONConfiguration' : 'ConfigurationForm';
     this.configDataLabel = this.translateService.instant(key);
+    this.updateConfigData();
   }
 
   updateConfigData() {
-    const data = {};
-    this.addItemsToConfig(this.items, data);
-    this.configData = data;
+    if (!this.configJsonView) {
+      this.updateFormView(this.items, this.configData);
+    } else {
+      this.hideConfigJSON = true;
+      defer(() => {
+        const data = {};
+        this.addItemsToConfig(this.items, data);
+        this.configData = data;
+        this.hideConfigJSON = false;
+      });
+    }
+  }
+
+  updateFormView(items, data) {
+    items.forEach((item) => {
+      if (item.items) {
+        this.updateFormView(item.items, data[item.key]);
+      } else if (item?.component?.instance?.setProperties) {
+        let val;
+        switch (item.key) {
+          case 'forwardingconfig':
+            val = {
+              protocol: data.protocol,
+              address: data.address,
+              port: data.port,
+              forwardProtocol: data.forwardProtocol,
+              forwardAddress: data.forwardAddress,
+              forwardPort: data.forwardPort,
+              allowedProtocols: data.allowedProtocols,
+              allowedAddresses: data.allowedAddresses,
+              allowedPortRanges: data.allowedPortRanges
+            }
+            break;
+          default:
+            val = data[item.key];
+            break;
+        }
+        item?.component?.instance?.setProperties(val);
+      } else if (item?.component?.setInput) {
+        item.component.setInput('fieldValue', data[item.key]);
+      }
+    });
+    return data;
   }
 
   addItemsToConfig(items, data) {
@@ -265,9 +300,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     if (this.selectedConfigId === 'add-new') {
       data = {};
       this.selectedSchema = await this.zitiService.schema(this.selectedConfigType.schema);
-      if (!this.configJsonView) {
-        this.createForm();
-      }
+      await this.createForm();
       attachLabelKey = 'CreateAndAttach';
     } else if (this.selectedConfigId) {
       this.filteredConfigs.forEach((config) => {
@@ -284,6 +317,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
         this.configData = cloneDeep(data);
       });
     }
+    this.updateConfigData();
     this.attachLabel = this.translateService.instant(attachLabelKey);
   }
 
@@ -291,12 +325,12 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     this.clearForm();
     if (this.selectedConfigType && this.dynamicForm) {
       if (this.selectedSchema) {
-        this.render(this.selectedSchema);
+        this.renderSchmea(this.selectedSchema);
       }
     }
   }
 
-  render(schema: any) {
+  renderSchmea(schema: any) {
     if (schema.properties) {
       this.items = this.schemaSvc.render(schema, this.dynamicForm, this.lColorArray, this.bColorArray);
       for (let obj of this.items) {
@@ -307,10 +341,6 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
           let parentKey;
           if(pName) parentKey = pName.join('.');
           if (parentKey && !this.formData[parentKey]) this.formData[parentKey] = {};
-          this.subscription.add(
-              cRef.instance.valueChange.subscribe((val: any) => {
-                //this.setFormValue(cRef, val);
-              }));
         }
       }
     }
@@ -362,6 +392,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
       if (!isEmpty(configId)) {
         this.formData.configs.push(configId);
         this.addedConfigNames.push(this.newConfigName);
+        this.addedConfigNames = [...this.addedConfigNames];
         this.getConfigs();
         const growlerData = new GrowlerModel(
             'success',
@@ -370,6 +401,9 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
             `New Config ${this.newConfigName} has been created and attached to the service`,
         );
         this.growlerService.show(growlerData);
+        this.newConfigName = '';
+        this.selectedConfigTypeId = '';
+        this.selectedConfigId = '';
         return;
       }
     }
@@ -388,6 +422,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
       });
       if (!isEmpty(configName)) {
         this.addedConfigNames.push(configName);
+        this.addedConfigNames = [...this.addedConfigNames];
       }
       this.formData.configs.push(addedConfigId);
     } else {
@@ -498,40 +533,8 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     return isEmpty(this.configErrors);
   }
 
-  get apiCallURL() {
-    return this.settings.selectedEdgeController + '/edge/management/v1/services' + (this.formData.id ? `/${this.formData.id}` : '');
-  }
-
-  get apiData() {
-    const data: any = {
-          name: this.formData?.name || '',
-          encryptionRequired: this.formData?.encryptionRequired || '',
-          terminatorStrategy: this.formData.terminatorStrategy || '',
-          tags: this.formData.tags || '',
-          roleAttributes: this.formData.roleAttributes || [],
-          configs: this.formData.configs || []
-    }
-    return data;
-  }
-
-  _apiData = {};
-  set apiData(data) {
-    this._apiData = data;
-  }
-
   toggleEncryptionRequired() {
     this.formData.encryptionRequired = !this.formData.encryptionRequired;
-  }
-
-  copyToClipboard(val) {
-    navigator.clipboard.writeText(val);
-    const growlerData = new GrowlerModel(
-        'success',
-        'Success',
-        `Text Copied`,
-        `API call URL copied to clipboard`,
-    );
-    this.growlerService.show(growlerData);
   }
 
   closeModal(refresh = true, ignoreChanges = false): void {

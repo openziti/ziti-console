@@ -8,11 +8,13 @@ import {debounce, isEmpty} from "lodash";
     <div [ngClass]="fieldClass">
       <label for="schema_{{parentage?parentage+'_':''}}{{_idName}}"  [ngStyle]="{'color': labelColor}">{{_fieldName}}</label>
       <p-chips id="schema_{{parentage?parentage+'_':''}}{{_idName}}"
-          (keyup)="onKeyup()"
+          (keyup)="onKeyup($event)"
           [(ngModel)]="fieldValue"
           [allowDuplicate]="false"
           [placeholder]="placeholder"
           [addOnBlur]="true"
+          [ngClass]="fieldClass" 
+          (onBlur)="emitEvents()"
           separator=",">
       </p-chips>
       <div *ngIf="error" class="error">{{error}}</div>
@@ -47,7 +49,17 @@ export class TextListInputComponent {
   @Output() fieldValueChange = new EventEmitter<string>();
   valueChange = new Subject<string> ();
 
-  onKeyup() {
+  onKeyup(event: any) {
+    if (event.key === " ") {
+      event.preventDefault();
+      const element = event.target as HTMLElement;
+      element.blur();
+      element.focus();
+    }
+    this.emitEvents();
+  }
+
+  emitEvents() {
     debounce(() => {
       this.fieldValueChange.emit(this.fieldValue);
       this.valueChange.next(this.fieldValue);

@@ -103,7 +103,8 @@
                             </div>
 
                             <!--<span class="form-field-title" [innerHTML]="configDataLabel"></span>-->
-                            <lib-json-view *ngIf="configJsonView" [(data)]="configData"></lib-json-view>
+                            <lib-json-view *ngIf="configJsonView && !hideConfigJSON" [(data)]="configData"></lib-json-view>
+                            <lib-json-view *ngIf="configJsonView && hideConfigJSON" [(data)]="configData"></lib-json-view>
                             <div class="config-form-container" [hidden]="configJsonView">
                                 <ng-container #dynamicform></ng-container>
                             </div>

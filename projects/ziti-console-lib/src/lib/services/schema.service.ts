@@ -82,6 +82,22 @@ export class SchemaService {
         }
     }
 
+    renderSchema(schema, dynamicForm, lColorArray, bColorArray, formData) {
+        if (schema.properties) {
+            this.items = this.render(schema, dynamicForm, lColorArray, bColorArray);
+            for (let obj of this.items) {
+                const cRef = obj.component;
+                if (cRef?.instance.valueChange) {
+                    const pName: string[]  = cRef.instance.parentage;
+                    let parentKey;
+                    if(pName) parentKey = pName.join('.');
+                    if (parentKey && !formData[parentKey]) formData[parentKey] = {};
+                }
+            }
+        }
+        return this.items;
+    }
+
     render(schema: any, view: ViewContainerRef, lColorArray: string[], bColorArray: string[]) {
         this.items = [];
         this.bColorArray = bColorArray;
@@ -402,12 +418,12 @@ export class SchemaService {
     }
 
     private buildSelectField(view: ViewContainerRef, nestLevel: number, key: string, list: string[], parentage: string[]) {
+        const val = list?.length > 0 ? list[0] : '';
         let componentRef = view.createComponent(SelectorInputComponent);
         componentRef.setInput('fieldName', this.getLabel(key));
         if (parentage && !_.isEmpty(parentage)) componentRef.setInput('parentage', parentage);
-        componentRef.setInput('fieldValue', '');
+        componentRef.setInput('fieldValue', val);
         componentRef.setInput('valueList', list);
-        componentRef.setInput('placeholder', `select a value`);
         componentRef.setInput('labelColor', this.lColorArray[nestLevel]);
         return componentRef;
     }
@@ -416,7 +432,7 @@ export class SchemaService {
         let componentRef = view.createComponent(CheckboxListInputComponent);
         componentRef.setInput('fieldName', this.getLabel(key));
         if (parentage && !_.isEmpty(parentage)) componentRef.setInput('parentage', parentage);
-        componentRef.setInput('fieldValue', '');
+        componentRef.setInput('fieldValue', []);
         componentRef.setInput('valueList', list);
         componentRef.setInput('placeholder', `select a value`);
         componentRef.setInput('labelColor', this.lColorArray[nestLevel]);
@@ -450,7 +466,7 @@ export class SchemaService {
     private buildPortRanges(view: ViewContainerRef, nestLevel: number, parentage: string[], properties: ProtocolAddressPort) {
         let componentRef = view.createComponent(PortRangesComponent);
         return {
-            key: 'portranges',
+            key: 'portRanges',
             component: componentRef
         };
     }
@@ -493,10 +509,10 @@ export class SchemaService {
         componentRef.setInput('showAddress', showAddress);
         componentRef.setInput('showHostName', showHostName);
         componentRef.setInput('showPort', showPort);
-        componentRef.setInput('protocolValue', '');
-        componentRef.setInput('addressValue', '');
-        componentRef.setInput('hostNameValue', '');
-        componentRef.setInput('portValue', '');
+        componentRef.setInput('protocol', '');
+        componentRef.setInput('address', '');
+        componentRef.setInput('hostName', '');
+        componentRef.setInput('port', '');
         componentRef.setInput('protocolList', protocolList);
         if (labelPrefix) componentRef.setInput('labelPrefix', labelPrefix);
         componentRef.setInput('labelColor', this.lColorArray[nestLevel]);
@@ -523,9 +539,9 @@ export class SchemaService {
             if (this.reservedProperties.includes(key)) {
                 this.reservedPropertiesMap[key] = item;
             } if (parentage.length > 0) {
-                if (parent.items) {
+                if (parent?.items) {
                     parent.items.push(item);
-                } else {
+                } else if (parent) {
                     parent.items = [item];
                 }
             } else {
@@ -615,12 +631,11 @@ export class SchemaService {
                 const subItems = [];
                 for (var subKey in items.properties) {
                     subItems.push({
-                        key: key,
-                        subKey: subKey,
+                        key: subKey,
                         value: items.properties[subKey]
                     });
                 }
-                componentRef = this.buildNestedContainer(view, nestLevel, key, parentage, property);
+                componentRef = this.buildNestedContainer(view, nestLevel, key, parentage, items, parent);
             } else if (Array.isArray(items.enum)) {
                 componentRef = this.buildCheckBoxListField(view, nestLevel, key, items.enum, parentage);
 
