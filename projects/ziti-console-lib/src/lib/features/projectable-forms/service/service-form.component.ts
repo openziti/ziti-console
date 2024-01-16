@@ -24,7 +24,6 @@ import {GrowlerModel} from "../../messaging/growler.model";
 import {SERVICE_EXTENSION_SERVICE, ServiceFormService} from './service-form.service';
 import {MatDialogRef} from "@angular/material/dialog";
 import {ExtensionService} from "../../extendable/extensions-noop.service";
-import {TranslateService} from "@ngx-translate/core";
 import {SchemaService} from "../../../services/schema.service";
 
 @Component({
@@ -61,10 +60,10 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   token: any;
   isLoading = false;
   strategies = [
-    {id: 'smartrouting', label: this.translateService.instant('SmartRouting')},
-    {id: 'weighted', label: this.translateService.instant('Weighted')},
-    {id: 'random', label: this.translateService.instant('Random')},
-    {id: 'ha', label: this.translateService.instant('HighAvailability')},
+    {id: 'smartrouting', label: 'Smart Routing'},
+    {id: 'weighted', label: 'Weighted'},
+    {id: 'random', label: 'Random'},
+    {id: 'ha', label: 'High Availability'},
   ];
   bindingTypes = [
     {id: 'udp', name: 'UDP'},
@@ -105,8 +104,8 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   subscription: Subscription = new Subscription();
   hideConfigJSON = false;
   configJsonView = false;
-  configDataLabel = this.translateService.instant('ConfigurationForm');
-  attachLabel = this.translateService.instant('CreateAndAttach');
+  configDataLabel = 'Configuration Form';
+  attachLabel = 'Create and Attach';
   items: any = [];
 
   lColorArray = [
@@ -128,7 +127,6 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
       @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
       private growlerService: GrowlerService,
       @Inject(SERVICE_EXTENSION_SERVICE) private extService: ExtensionService,
-      private translateService: TranslateService,
       private schemaSvc: SchemaService
   ) {
     super();
@@ -211,8 +209,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
 
   toggleJSONView() {
     this.configJsonView = !this.configJsonView;
-    const key = this.configJsonView ? 'JSONConfiguration' : 'ConfigurationForm';
-    this.configDataLabel = this.translateService.instant(key);
+    this.configDataLabel = this.configJsonView ? 'JSON Configuration' : 'Configuration Form';
     this.updateConfigData();
   }
 
@@ -296,12 +293,12 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     let selectedConfig: any = {};
     this.configData = undefined;
     let data;
-    let attachLabelKey = 'AttachService';
+    let attachLabel = 'Attach to Service';
     if (this.selectedConfigId === 'add-new') {
       data = {};
       this.selectedSchema = await this.zitiService.schema(this.selectedConfigType.schema);
       await this.createForm();
-      attachLabelKey = 'CreateAndAttach';
+      attachLabel = 'Create and Attach';
     } else if (this.selectedConfigId) {
       this.filteredConfigs.forEach((config) => {
         if (this.selectedConfigId === config.id) {
@@ -318,7 +315,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
       });
     }
     this.updateConfigData();
-    this.attachLabel = this.translateService.instant(attachLabelKey);
+    this.attachLabel = attachLabel;
   }
 
   async createForm() {

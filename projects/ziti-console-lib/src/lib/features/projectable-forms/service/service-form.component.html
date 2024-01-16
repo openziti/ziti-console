@@ -4,7 +4,7 @@
 >
     <lib-form-header
         [data]="formData"
-        [title]="(formData.id ? 'EditService' : 'CreateService') | translate"
+        [title]="(formData.id ? 'Edit Service' : 'Create Service')"
         [moreActions]="formData.moreActions"
         (actionRequested)="headerActionRequested($event)"
         [(formView)]="formView"
@@ -12,10 +12,10 @@
     <div class="edge-router-form-container projectable-form-container">
         <div class="projectable-form-main-column form-group-row" *ngIf="formView === 'simple'">
             <div class="form-group-column three-fifths">
-                <lib-form-field-container [title]="'ServiceName' | translate" [label]="'Required' | translate">
+                <lib-form-field-container [title]="'Service Name'" [label]="'Required'">
                     <input
                         class="form-field-input"
-                        placeholder="{{'ServiceNamePlaceholder' | translate}}"
+                        placeholder="Name this Service"
                         [ngClass]="{error: errors['name']}"
                         [(ngModel)]="formData.name"
                         autofocus
@@ -23,26 +23,26 @@
                     />
                 </lib-form-field-container>
                 <lib-form-field-container
-                        [title]="'ServiceAttributesTitle' | translate"
-                        [label]="'Optional' | translate"
+                        [title]="'Select or create Service attributes'"
+                        [label]="'Optional'"
                         [contentStyle]="'z-index: 99999999'"
-                        [helpText]="'ServiceAttributesHelp' | translate"
+                        [helpText]="'Attributes are tags applied to a resource. Apply the same tag to other Services to form a group of Services.'"
                 >
                     <lib-tag-selector
                             [(selectedRoleAttributes)]="formData.roleAttributes"
                             [availableRoleAttributes]="serviceRoleAttributes"
-                            [placeholder]="'ServiceAttributesPlaceholder' | translate"
+                            [placeholder]="'Add attributes to group Services'"
                     ></lib-tag-selector>
                 </lib-form-field-container>
                 <lib-form-field-container
-                        [title]="'AddConfigurations' | translate"
+                        [title]="'Add Configurations'"
                         [action]="false"
                         [actionLabel]="attachLabel"
                         (actionRequested)="attachConfig(selectedConfigId)"
                 >
                     <div class="form-field-input-group">
                         <div class="config-title-row">
-                            <span class="form-field-title">{{'SelectAConfig' | translate}}</span>
+                            <span class="form-field-title">Select a Config</span>
                         </div>
                         <select
                                 [(ngModel)]="selectedConfigTypeId"
@@ -50,7 +50,7 @@
                                 id="SelectedConfigType"
                                 class="form-field-dropdown"
                         >
-                            <option value="">{{'SelectConfigurationType' | translate}}</option>
+                            <option value="">Select configuration type...</option>
                             <option
                                     *ngFor="let type of configTypes"
                                     [value]="type.id"
@@ -65,8 +65,8 @@
                                 class="form-field-dropdown"
                                 [ngClass]="{'disabled': !selectedConfigTypeId || selectedConfigTypeId === ''}"
                         >
-                            <option value="">{{'SelectConfiguration' | translate}}</option>
-                            <option value="add-new">{{'AddNew' | translate}} Config</option>
+                            <option value="">Select configuration...</option>
+                            <option value="add-new">Add a New  Config</option>
                             <option
                                     *ngFor="let config of filteredConfigs"
                                     [value]="config.id"
@@ -76,7 +76,7 @@
                         </select>
                         <div [hidden]="!showConfigData" class="form-field-extended-fields">
                             <div *ngIf="showConfigData" class="config-title-row" style="margin-bottom: 10px;">
-                                <span class="form-field-title">{{'ConfigName' | translate}}</span>
+                                <span class="form-field-title">Config Name</span>
                                 <div
                                         class="save-button"
                                         (click)="attachConfig(selectedConfigId)"
@@ -87,12 +87,12 @@
                                     *ngIf="showConfigData"
                                     [(ngModel)]="newConfigName"
                                     class="form-field-input"
-                                    [placeholder]="'NewConfigName' | translate"
+                                    [placeholder]="'New Config Name'"
                                     [ngClass]="{error: configErrors['name']}"
                                     style="margin-bottom: 20px;"
                             />
                             <div class="config-title-row" style="margin-bottom: 10px;">
-                                <span class="form-field-title">{{'ConfigurationForm' | translate}}</span>
+                                <span class="form-field-title">Configuration Form</span>
                                 <div
                                         id="OnOffButton"
                                         class="onoff jsonButton configsForm save-button"
@@ -114,8 +114,8 @@
                 <lib-form-field-toggle [(toggleOn)]="showMore" style="margin: 0px 10px"></lib-form-field-toggle>
                 <div *ngIf="showMore" class="form-group-column">
                     <lib-form-field-container
-                        [title]="'TerminatorStrategy' | translate"
-                        [title2]="'Encryption' | translate"
+                        [title]="'Terminator Strategy'"
+                        [title2]="'Encryption'"
                         [layout]="'row'"
                         class="form-field-advanced"
                     >
@@ -124,7 +124,7 @@
                                 id="authPolicyId"
                                 class="form-field-dropdown"
                         >
-                            <option value="">{{'SelectStrategy' | translate}}</option>
+                            <option value="">Select a Strategy....</option>
                             <option
                                     *ngFor="let strat of strategies"
                                     [value]="strat.id"
@@ -134,7 +134,7 @@
                         </select>
                         <div class="config-item">
                             <div class="config-container toggle-container">
-                                <div class="config-container-label">{{'RequireEncryption' | translate}}</div>
+                                <div class="config-container-label">Require Encryption</div>
                                 <div
                                         (click)="toggleEncryptionRequired()"
                                         [ngClass]="{ on: formData.encryptionRequired }"
@@ -165,7 +165,7 @@
             </div>
             <div class="form-group-column two-fifths">
                 <lib-form-field-container
-                    [title]="'SelectedConfigurations' | translate"
+                    [title]="'Selected Configurations'"
                     [count]="addedConfigNames ? addedConfigNames.length : 0"
                 >
                     <lib-preview-list
@@ -173,17 +173,17 @@
                     ></lib-preview-list>
                 </lib-form-field-container>
                 <lib-form-field-container
-                        [title]="'Terminators' | translate"
+                        [title]="'Terminators'"
                 >
                     <div class="form-field-input-group" style="background-color: #344459">
-                        <span class="form-field-title">{{'Router' | translate}}</span>
+                        <span class="form-field-title">{{'Router'}}</span>
                         <select
                                 [(ngModel)]="selectedRouterId"
                                 (change)="routerChanged($event)"
                                 id="SelectedRouter"
                                 class="form-field-dropdown"
                         >
-                            <option value="">{{'SelectARouter' | translate}}</option>
+                            <option value="">Select a Router...</option>
                             <option
                                     *ngFor="let router of routers"
                                     [value]="router.id"
@@ -204,7 +204,7 @@
                                         id="SelectedBindingType"
                                         class="form-field-dropdown"
                                 >
-                                    <option value="">{{'SelectBinding' | translate}}</option>
+                                    <option value="">Select Binding...</option>
                                     <option
                                             *ngFor="let binding of bindingTypes"
                                             [value]="binding.id"
@@ -260,13 +260,13 @@
                             <div
                                     class="save-button"
                                     (click)="addTerminator(selectedRouter)"
-                            >{{'Add' | translate}}
+                            >Add
                             </div>
                         </div>
                     </div>
                 </lib-form-field-container>
                 <lib-form-field-container
-                        [title]="'TerminatingRouters' | translate"
+                        [title]="'Terminating Routers'"
                         [count]="addedTerminators ? addedTerminators.length : 0"
                 >
                     <lib-preview-list

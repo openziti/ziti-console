@@ -86,18 +86,12 @@ import { ResetEnrollmentComponent } from './features/reset-enrollment/reset-enro
 import { CustomTagsComponent } from './features/custom-tags/custom-tags.component';
 import {EdgeRouterFormComponent} from "./features/projectable-forms/edge-router/edge-router-form.component";
 
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import {ServiceFormComponent} from "./features/projectable-forms/service/service-form.component";
 import { PortRangesComponent } from './features/dynamic-widgets/port-ranges/port-ranges.component';
 import { ForwardingConfigComponent } from './features/dynamic-widgets/forwarding-config/forwarding-config.component';
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
-}
-
-export function HttpLoaderFactory(http: HttpClient) {
-    return new TranslateHttpLoader(http, './assets/languages/', '.json')
 }
 
 @NgModule({
@@ -172,13 +166,6 @@ export function HttpLoaderFactory(http: HttpClient) {
         NgJsonEditorModule,
         MatTooltipModule,
         LottieModule.forRoot({player: playerFactory}),
-        TranslateModule.forRoot({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient]
-            }
-        })
     ],
     exports: [
         ZacWrapperComponent,

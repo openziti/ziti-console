@@ -6,7 +6,6 @@ import {ConsoleEventsService} from "../../services/console-events.service";
 import {ZAC_WRAPPER_SERVICE, ZacWrapperServiceClass} from "../../features/wrappers/zac-wrapper-service.class";
 import {ListPageComponent} from "../../shared/list-page-component.class";
 import {MatDialog} from "@angular/material/dialog";
-import {TranslateService} from "@ngx-translate/core";
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
 
 @Component({
@@ -30,13 +29,10 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
       private tabNames: TabNameService,
       consoleEvents: ConsoleEventsService,
       @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperServiceClass,
-      private translateService: TranslateService,
   ) {
     super(filterService, svc, consoleEvents);
     let userLang = navigator.language || 'en-us';
     userLang = userLang.toLowerCase();
-    this.translateService.setDefaultLang(userLang);
-    this.translateService.use(userLang);
   }
 
   override ngOnInit() {
@@ -97,11 +93,11 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
   private openBulkDelete(selectedItems: any[]) {
     const data = {
       appendId: 'DeleteServices',
-      title: this.translateService.instant('Delete'),
-      message: this.translateService.instant('ConfirmDelete'),
+      title: 'Delete',
+      message: 'Are you sure you would like to delete the selected item(s)?"',
       bulletList: [],
-      confirmLabel: this.translateService.instant('Yes'),
-      cancelLabel: this.translateService.instant('Cancel')
+      confirmLabel: 'Yes',
+      cancelLabel: 'Cancel'
     };
     this.dialogRef = this.dialogForm.open(ConfirmComponent, {
       data: data,

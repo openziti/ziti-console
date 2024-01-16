@@ -7,7 +7,6 @@ import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.serv
 import {ExtensionService} from "../../extendable/extensions-noop.service";
 import {Service} from "../../../models/service";
 import moment from 'moment';
-import {TranslateService} from "@ngx-translate/core";
 
 export const SERVICE_EXTENSION_SERVICE = new InjectionToken<any>('SERVICE_EXTENSION_SERVICE');
 
@@ -16,32 +15,11 @@ export const SERVICE_EXTENSION_SERVICE = new InjectionToken<any>('SERVICE_EXTENS
 })
 export class ServiceFormService {
 
-    hideConfigJSON = false;
-
-    strategies = [
-        {id: 'smartrouting', label: this.translateService.instant('SmartRouting')},
-        {id: 'weighted', label: this.translateService.instant('Weighted')},
-        {id: 'random', label: this.translateService.instant('Random')},
-        {id: 'ha', label: this.translateService.instant('HighAvailability')},
-    ];
-
-    bindingTypes = [
-        {id: 'udp', name: 'UDP'},
-        {id: 'transport', name: 'Transport'},
-        {id: 'edge', name: 'Edge'},
-    ];
-
-    protocols = [
-        {id: 'udp', name: 'UDP'},
-        {id: 'tcp', name: 'TCP'}
-    ];
-
     constructor(
         @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
         @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
         private growlerService: GrowlerService,
         @Inject(SERVICE_EXTENSION_SERVICE)private extService: ExtensionService,
-        private translateService: TranslateService,
     ) {}
  
     save(formData): Promise<any> {
