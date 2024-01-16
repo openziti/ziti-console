@@ -44,7 +44,8 @@ var helmetOptions = {
       },
     },
     frameguard: { action: 'SAMEORIGIN' },
-    crossOriginEmbedderPolicy: false
+    crossOriginEmbedderPolicy: false,
+    strictTransportSecurity: false
 };
 
 app.use(cors(corsOptions));

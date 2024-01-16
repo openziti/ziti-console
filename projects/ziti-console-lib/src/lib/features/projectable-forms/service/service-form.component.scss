@@ -1,4 +1,4 @@
-.identity-form-container {
+.edge-router-form-container {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -7,9 +7,87 @@
   gap: 15px;
 }
 
+.form-field-dropdown {
+  background-image: url(/assets/svgs/ArrowDown.svg);
+  background-position: center right 10px;
+  background-repeat: no-repeat;
+  background-size: 18px;
+  padding-right: 28px;
+}
+
+.form-field-extended-fields {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.jsonButton {
+  position: relative;
+  top: 0;
+  margin: 0;
+  padding: 10px;
+  height: 30px;
+}
+
 .disabled {
   opacity: .5;
   pointer-events: none;
+}
+
+::ng-deep .config-form-container {
+  label {
+    color: var(--white) !important;
+  }
+}
+
+.config-title-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  .jsonButton {
+    color: var(--offWhite);
+    font-weight: 600;
+    opacity: 1;
+  }
+}
+
+.attach-config {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  background: var(--primary);
+  padding: 7px;
+  border-radius: 7px;
+  color: var(--white);
+  cursor: pointer;
+  box-shadow: 0 3px 9px 0 var(--primaryColorOpaque);
+  border: none;
+  width: fit-content;
+
+  &:active {
+    background: #648293;
+    box-shadow: none;
+    transform: translateY(1px);
+  }
+  &:hover {
+    outline: 0;
+    filter: brightness(90%);
+    box-shadow: 0 2px 3px 0 var(--primaryColorOpaque);
+  }
+}
+
+.form-field-input-group {
+  gap: 10px;
+  display: flex;
+  flex-direction: column;
+
+  .form-field-title {
+    color: var(--offWhite);
+  }
 }
 
 ::ng-deep .admin-toggle {
@@ -84,14 +162,6 @@
       .switch {
         top: 1px;
       }
-    }
-  }
-}
-
-::ng-deep .copy {
-  &.icon-copy {
-    &.url-copy {
-      background-color: var(--navigation);
     }
   }
 }

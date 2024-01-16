@@ -1,0 +1,283 @@
+<div class="projectable-form-wrapper"
+     (keyup.enter)="save($event)"
+     (keyup.escape)="closeModal(false)"
+>
+    <lib-form-header
+        [data]="formData"
+        [title]="(formData.id ? 'Edit Service' : 'Create Service')"
+        [moreActions]="formData.moreActions"
+        (actionRequested)="headerActionRequested($event)"
+        [(formView)]="formView"
+    ></lib-form-header>
+    <div class="edge-router-form-container projectable-form-container">
+        <div class="projectable-form-main-column form-group-row" *ngIf="formView === 'simple'">
+            <div class="form-group-column three-fifths">
+                <lib-form-field-container [title]="'Service Name'" [label]="'Required'">
+                    <input
+                        class="form-field-input"
+                        placeholder="Name this Service"
+                        [ngClass]="{error: errors['name']}"
+                        [(ngModel)]="formData.name"
+                        autofocus
+                        #nameFieldInput
+                    />
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Select or create Service attributes'"
+                        [label]="'Optional'"
+                        [contentStyle]="'z-index: 99999999'"
+                        [helpText]="'Attributes are tags applied to a resource. Apply the same tag to other Services to form a group of Services.'"
+                >
+                    <lib-tag-selector
+                            [(selectedRoleAttributes)]="formData.roleAttributes"
+                            [availableRoleAttributes]="serviceRoleAttributes"
+                            [placeholder]="'Add attributes to group Services'"
+                    ></lib-tag-selector>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Add Configurations'"
+                        [action]="false"
+                        [actionLabel]="attachLabel"
+                        (actionRequested)="attachConfig(selectedConfigId)"
+                >
+                    <div class="form-field-input-group">
+                        <div class="config-title-row">
+                            <span class="form-field-title">Select a Config</span>
+                        </div>
+                        <select
+                                [(ngModel)]="selectedConfigTypeId"
+                                (change)="configTypeChanged($event)"
+                                id="SelectedConfigType"
+                                class="form-field-dropdown"
+                        >
+                            <option value="">Select configuration type...</option>
+                            <option
+                                    *ngFor="let type of configTypes"
+                                    [value]="type.id"
+                            >
+                                {{ type.name }}
+                            </option>
+                        </select>
+                        <select
+                                [(ngModel)]="selectedConfigId"
+                                (change)="configChanged($event)"
+                                id="SelectedConfig"
+                                class="form-field-dropdown"
+                                [ngClass]="{'disabled': !selectedConfigTypeId || selectedConfigTypeId === ''}"
+                        >
+                            <option value="">Select configuration...</option>
+                            <option value="add-new">Add a New  Config</option>
+                            <option
+                                    *ngFor="let config of filteredConfigs"
+                                    [value]="config.id"
+                            >
+                                {{ config.name }}
+                            </option>
+                        </select>
+                        <div [hidden]="!showConfigData" class="form-field-extended-fields">
+                            <div *ngIf="showConfigData" class="config-title-row" style="margin-bottom: 10px;">
+                                <span class="form-field-title">Config Name</span>
+                                <div
+                                        class="save-button"
+                                        (click)="attachConfig(selectedConfigId)"
+                                >{{attachLabel}}
+                                </div>
+                            </div>
+                            <input
+                                    *ngIf="showConfigData"
+                                    [(ngModel)]="newConfigName"
+                                    class="form-field-input"
+                                    [placeholder]="'New Config Name'"
+                                    [ngClass]="{error: configErrors['name']}"
+                                    style="margin-bottom: 20px;"
+                            />
+                            <div class="config-title-row" style="margin-bottom: 10px;">
+                                <span class="form-field-title">Configuration Form</span>
+                                <div
+                                        id="OnOffButton"
+                                        class="onoff jsonButton configsForm save-button"
+                                        (click)="toggleJSONView()"
+                                >
+                                    <span>{{configJsonView ? 'Form View' : 'JSON View'}}</span>
+                                </div>
+                            </div>
+
+                            <!--<span class="form-field-title" [innerHTML]="configDataLabel"></span>-->
+                            <lib-json-view *ngIf="configJsonView && !hideConfigJSON" [(data)]="configData"></lib-json-view>
+                            <lib-json-view *ngIf="configJsonView && hideConfigJSON" [(data)]="configData"></lib-json-view>
+                            <div class="config-form-container" [hidden]="configJsonView">
+                                <ng-container #dynamicform></ng-container>
+                            </div>
+                        </div>
+                    </div>
+                </lib-form-field-container>
+                <lib-form-field-toggle [(toggleOn)]="showMore" style="margin: 0px 10px"></lib-form-field-toggle>
+                <div *ngIf="showMore" class="form-group-column">
+                    <lib-form-field-container
+                        [title]="'Terminator Strategy'"
+                        [title2]="'Encryption'"
+                        [layout]="'row'"
+                        class="form-field-advanced"
+                    >
+                        <select
+                                [(ngModel)]="formData.terminatorStrategy"
+                                id="authPolicyId"
+                                class="form-field-dropdown"
+                        >
+                            <option value="">Select a Strategy....</option>
+                            <option
+                                    *ngFor="let strat of strategies"
+                                    [value]="strat.id"
+                            >
+                                {{ strat.label }}
+                            </option>
+                        </select>
+                        <div class="config-item">
+                            <div class="config-container toggle-container">
+                                <div class="config-container-label">Require Encryption</div>
+                                <div
+                                        (click)="toggleEncryptionRequired()"
+                                        [ngClass]="{ on: formData.encryptionRequired }"
+                                        class="toggle"
+                                >
+                                    <span [hidden]="!formData.encryptionRequired" class="on-label">YES</span>
+                                    <span [hidden]="formData.encryptionRequired" class="off-label">NO</span>
+                                    <div class="switch"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </lib-form-field-container>
+                    <lib-form-field-container
+                            [title]="'Custom Tags'"
+                            [label]="'OPTIONAL'"
+                            class="form-field-advanced"
+                    >
+                        <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
+                    </lib-form-field-container>
+                    <lib-form-field-container
+                            [title]="'App Data'"
+                            [label]="'OPTIONAL'"
+                            class="form-field-advanced"
+                    >
+                        <lib-json-view></lib-json-view>
+                    </lib-form-field-container>
+                </div>
+            </div>
+            <div class="form-group-column two-fifths">
+                <lib-form-field-container
+                    [title]="'Selected Configurations'"
+                    [count]="addedConfigNames ? addedConfigNames.length : 0"
+                >
+                    <lib-preview-list
+                        [allNames]="addedConfigNames"
+                    ></lib-preview-list>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Terminators'"
+                >
+                    <div class="form-field-input-group" style="background-color: #344459">
+                        <span class="form-field-title">{{'Router'}}</span>
+                        <select
+                                [(ngModel)]="selectedRouterId"
+                                (change)="routerChanged($event)"
+                                id="SelectedRouter"
+                                class="form-field-dropdown"
+                        >
+                            <option value="">Select a Router...</option>
+                            <option
+                                    *ngFor="let router of routers"
+                                    [value]="router.id"
+                            >
+                                {{ router.name }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-field-input-group" *ngIf="selectedRouterId && selectedRouterId !== ''" style="background-color: #344459">
+                        <div class="form-field-row">
+                            <div class="config-item">
+                                <div class="config-item-label-container">
+                                    <span class="config-label">BINDING</span>
+                                </div>
+                                <select
+                                        [(ngModel)]="selectedBindingId"
+                                        (change)="bindingTypeChanged($event)"
+                                        id="SelectedBindingType"
+                                        class="form-field-dropdown"
+                                >
+                                    <option value="">Select Binding...</option>
+                                    <option
+                                            *ngFor="let binding of bindingTypes"
+                                            [value]="binding.id"
+                                    >
+                                        {{ binding.name }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="config-item">
+                                <div class="config-item-label-container">
+                                    <span class="config-label">PROTOCOL</span>
+                                </div>
+                                <select
+                                        [(ngModel)]="terminatorProtocol"
+                                        (change)="terminatorProtocolChanged($event)"
+                                        id="SelectedTerminatorProtocol"
+                                        class="form-field-dropdown"
+                                >
+                                    <option
+                                            *ngFor="let protocol of protocols"
+                                            [value]="protocol.id"
+                                    >
+                                        {{ protocol.name }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-field-row">
+                            <div class="config-item">
+                                <div class="config-item-label-container">
+                                    <span class="config-label">HOST</span>
+                                </div>
+                                <input
+                                        [(ngModel)]="terminatorHost"
+                                        class="form-field-input"
+                                        [placeholder]="'example.com'"
+                                        [ngClass]="{error: terminatorErrors['host']}"
+                                />
+                            </div>
+                            <div class="config-item">
+                                <div class="config-item-label-container">
+                                    <span class="config-label">PORT</span>
+                                </div>
+                                <input
+                                        [(ngModel)]="terminatorPort"
+                                        class="form-field-input"
+                                        [placeholder]="'80, 443, etc...'"
+                                        [ngClass]="{error: terminatorErrors['port']}"
+                                />
+                            </div>
+                        </div>
+                        <div class="button-row-right" >
+                            <div
+                                    class="save-button"
+                                    (click)="addTerminator(selectedRouter)"
+                            >Add
+                            </div>
+                        </div>
+                    </div>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Terminating Routers'"
+                        [count]="addedTerminators ? addedTerminators.length : 0"
+                >
+                    <lib-preview-list
+                            [allNames]="addedTerminators"
+                    ></lib-preview-list>
+                </lib-form-field-container>
+            </div>
+        </div>
+        <div class="form-group-column" *ngIf="formView === 'raw'">
+            <lib-json-view *ngIf="formData" [(data)]="formData"></lib-json-view>
+        </div>
+    </div>
+</div>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

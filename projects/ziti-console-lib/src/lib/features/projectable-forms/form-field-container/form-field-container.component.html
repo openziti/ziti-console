@@ -11,6 +11,7 @@
         </div>
         <span class="form-field-label" *ngIf="label">{{label}}</span>
         <span class="form-field-count" *ngIf="count || count === 0">{{count}}</span>
+        <div class="form-field-action save-button" *ngIf="action" (click)="actionClicked()">{{actionLabel}}</div>
         <div class="form-field-title-container title-container-2" *ngIf="title2">
             <span class="form-field-title title2">{{title2}}</span>
             <div

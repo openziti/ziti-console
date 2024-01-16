@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {Subject} from "rxjs";
-import {debounce} from "lodash";
+import {defer, isEmpty} from "lodash";
 
 @Component({
   selector: 'lib-checkbox-list-input',
@@ -11,7 +11,7 @@ import {debounce} from "lodash";
           <input type="checkbox"
               class="jsonEntry"
                  [ngClass]="{'error': error}"
-              [checked]="item.checked" (click)="item.checked=!item.checked;update();"/>
+              [checked]="item.checked" (click)="item.checked=!item.checked;updateFieldVal();"/>
           <span class="boxlabel">{{item.name}}</span>
       </div>
       <div *ngIf="error" class="error">{{error}}</div>
@@ -29,31 +29,58 @@ export class CheckboxListInputComponent {
   @Input() set fieldName(name: string) {
     this._fieldName = name;
     this._idName = name.replace(/\s/g, '').toLowerCase();
-  }  @Input() fieldValue: string[] = [];
+  }
+  _fieldValue: string[] = [];
+  @Input() set fieldValue(vals) {
+    this._fieldValue = vals;
+    this.updateCheckedItems();
+  }
+  get fieldValue():string [] {
+    return this._fieldValue;
+  }
   @Input() placeholder = '';
   @Input() parentage: string[] = [];
   @Input() set valueList(list: string[]) {
-    const items: any[] = [];
-    list.forEach(v => {
-      items.push ({name: v, checked: false});
-    });
-    this.items = items;
-}
+    this.updateCheckboxItems(list);
+  }
   @Input() labelColor = '#000000';
   @Input() fieldClass = '';
   @Input() error = '';
   @Output() fieldValueChange = new EventEmitter<string[]>();
   valueChange = new Subject<string[]> ();
 
-  update() {
-    debounce(() => {
-      this.fieldValue = [];
-      this.items.forEach(item => {
-        if(item.checked) this.fieldValue.push(item.name);
+  updateCheckedItems() {
+    if (isEmpty(this._fieldValue)) {
+      return;
+    }
+    this.items?.forEach((item) => {
+      let checked = false;
+      this._fieldValue?.forEach((val) => {
+        if (item.name === val) {
+          checked = true;
+        }
       });
-      this.fieldValueChange.emit(this.fieldValue);
-      this.valueChange.next(this.fieldValue);
-    }, 500)();
+      item.checked = checked;
+    });
+  }
+
+  updateCheckboxItems(list: string[]) {
+    const items: any[] = [];
+    list.forEach(v => {
+      items.push ({name: v, checked: false});
+    });
+    this.items = items;
+  }
+
+  updateFieldVal() {
+    defer(() => {
+      this._fieldValue = [];
+      this.items.forEach(item => {
+        if(item.checked) this._fieldValue.push(item.name);
+      });
+      this.fieldValueChange.emit(this._fieldValue);
+      this.valueChange.next(this._fieldValue);
+    });
   }
 }
 

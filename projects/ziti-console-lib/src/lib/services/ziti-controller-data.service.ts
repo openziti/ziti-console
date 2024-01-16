@@ -25,6 +25,7 @@ import {HttpClient} from "@angular/common/http";
 import {FilterObj} from "../features/data-table/data-table-filter.service";
 import {ZitiDataService} from "./ziti-data.service";
 import {isEmpty, get} from "lodash";
+import {Resolver} from "@stoplight/json-ref-resolver";
 import moment from "moment";
 
 @Injectable({
@@ -244,4 +245,13 @@ export class ZitiControllerDataService extends ZitiDataService {
         return urlFilter;
     }
 
+    override schema(data): Promise<any> {
+        return Promise.resolve(this.dereferenceJSONSchema(data));
+    }
+
+    async dereferenceJSONSchema(data: any) {
+        const resolver = new Resolver();
+        const schema = await resolver.resolve(data);
+        return schema.result;
+    }
 }

@@ -55,7 +55,8 @@
     "ZitiWizard": "Ziti Wizard",
     "WizardService": "Follow these steps to create a ziti service configuration",
     "ServiceName": "Service Name",
-
+    "ConfigName": "Config Name",
+    "NewConfigName": "New Config Name",
     "EnterName": "enter a name...",
     "EnterNameConfig": "enter a name for the config...",
     "EnterEMail": "enter your email address...",
@@ -106,8 +107,11 @@
     "ConfigurationTypes": "Configuration Types",
     "Configuration": "Configuration",
     "Configurations": "Configurations",
+    "AddConfigurations": "Add Configurations",
     "JSONConfiguration": "JSON Configuration",
+    "ConfigurationForm": "Configuration Form",
     "Schema": "Schema",
+    "CreateAndAttach": "Create and Attach",
     "AttachService": "Attach to Service",
     "ManageFields": "Manage Custom Fields",
     "ManageServers": "Manage Servers",
@@ -249,6 +253,11 @@
     "ExternalId": "External ID",
     "EnterExternal": "Enter external identifier",
     "SelectAuthPolicy": "Select an Auth Policy...",
+    "SelectAConfig": "Select a Config",
+    "SelectConfiguration": "Select configuration...",
+    "SelectConfigurationType": "Select configuration type...",
+    "SelectedConfigurations": "Selected Configurations",
+    "SelectARouter": "Select a Router...",
     "MinPasswordLength": "Minimum Length",
     "SelectJwtSigners": "Search and Selact Associated JWT Signers",
     "TypeToFilter": "Type to filter or enter to add value",
@@ -268,6 +277,7 @@
     "Cancel": "Cancel",
     "Done": "Done",
     "EgHost": "e.g. myservice.ziti",
+    "TerminatingRouters": "Terminating Routers",
 
 
 
@@ -302,8 +312,15 @@
     "RequireEncryption": "Require Encryption",
     "IdentityNameFormat": "Identity Name Format",
     "EnterIdentityNameFormat": "Enter a format for the identity name or leave blank for any",
-
-
+    "EditService": "Edit Service",
+    "CreateService": "Create Service",
     "ErrorInvalidFile": "Unable to read file, try opening in a text editor and pasting into the text field.",
-    "ConfirmClose": "The form has unsaved data, are you sure you want to close?"
+    "ConfirmClose": "The form has unsaved data, are you sure you want to close?",
+    "ConfirmDelete": "Are you sure you would like to delete the selected item(s)?",
+    "ServiceName": "Service Name",
+    "ServiceAttributesTitle": "Select or create Service attributes",
+    "ServiceNamePlaceholder": "Name this Service",
+    "ServiceAttributesPlaceholder": "Add attributes to group Services",
+    "ServiceAttributesHelp": "Attributes are tags applied to a resource. Apply the same tag to other Services to form a group of Services.",
+    "Encryption": "Encryption"
 }
