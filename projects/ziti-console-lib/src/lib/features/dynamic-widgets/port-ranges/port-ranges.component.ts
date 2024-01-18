@@ -56,7 +56,6 @@ export class PortRangesComponent {
       element.blur();
       element.focus();
     }
-    this.emitEvents();
   }
 
   validateConfig() {
