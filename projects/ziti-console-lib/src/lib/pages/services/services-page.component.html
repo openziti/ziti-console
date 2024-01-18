@@ -1,0 +1,31 @@
+<div class="ziti-page-container ziti-services-container">
+    <lib-list-page-header [title]="'Services'"
+                          [tabs]="tabs"
+                          [showAdd]="!itemsSelected"
+                          (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
+
+    <lib-data-table [tableId]="'services'"
+                    [rowData]="rowData"
+                    [columnDefinitions]="columnDefs"
+                    (actionRequested)="tableAction($event)"
+                    [startCount]="startCount"
+                    [endCount]="endCount"
+                    [totalCount]="totalCount"
+                    [currentPage]="currentPage"
+                    [emptyMsg]="'No Services defined, Click the plus to add a service.'"
+                    [filterApplied]="filterApplied"
+                    [menuItems]="svc.menuItems"
+                    [headerActions]="svc.tableHeaderActions"
+    >
+    </lib-data-table>
+</div>
+<lib-side-modal [(open)]="svc.sideModalOpen" [showClose]="false">
+    <lib-service-form
+            *ngIf="svc.modalType === 'service' && svc.sideModalOpen"
+            [formData]="svc.selectedService"
+            [serviceRoleAttributes]="serviceRoleAttributes"
+            (close)="closeModal($event)"
+            (dataChange)="dataChanged($event)"
+    ></lib-service-form>
+</lib-side-modal>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

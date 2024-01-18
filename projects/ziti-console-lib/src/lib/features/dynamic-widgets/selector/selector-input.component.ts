@@ -11,7 +11,7 @@ import {debounce} from "lodash";
              class="jsonEntry"
               [ngClass]="{'error': error}"
              [(ngModel)]="fieldValue" (change)="selected()">
-          <option value="">{{placeholder}}</option>
+          <option value="" *ngIf="placeholder">{{placeholder}}</option>
         <ng-container *ngIf="!listIsObject">
           <option *ngFor="let name of _valueList" [value]="name">{{name}}</option>
         </ng-container>

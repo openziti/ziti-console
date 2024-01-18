@@ -36,10 +36,8 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
   @Input() formData: any = {};
   @Input() edgeRouterRoleAttributes: any[] = [];
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
-  @Output() dataChange: EventEmitter<any> = new EventEmitter<any>();
 
   formView = 'simple';
-  initData: any = {};
   isEditing = false;
   isLoading = false;
   servicesLoading = false;
@@ -75,7 +73,6 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
       this.authPolicies = result;
     });
     this.initData = cloneDeep(this.formData);
-    this.watchData();
     this.extService.updateFormData(this.formData);
     this.subscription.add(
       this.extService.formDataChanged.subscribe((data) => {
@@ -85,6 +82,7 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
         this.formData = data;
       })
     );
+    this.initData = cloneDeep(this.formData);
   }
 
   ngOnDestroy() {
@@ -178,28 +176,6 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
     this.formData.noTraversal = !this.formData.noTraversal;
   }
 
-  closeModal(refresh = true, ignoreChanges = false): void {
-    if (!ignoreChanges && this._dataChange) {
-      const confirmed = confirm('You have unsaved changes. Do you want to leave this page and discard your changes or stay on this page?');
-      if (!confirmed) {
-        return;
-      }
-    }
-    this.close.emit({refresh: refresh});
-  }
-
   clear(): void {
-  }
-
-  _dataChange = false;
-  watchData() {
-    delay(() => {
-      const dataChange = !isEqual(this.initData, this.formData);
-      if (dataChange !== this._dataChange) {
-        this.dataChange.emit(dataChange);
-      }
-      this._dataChange = dataChange;
-      this.watchData();
-    }, 100);
   }
 }

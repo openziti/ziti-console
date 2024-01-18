@@ -46,4 +46,5 @@ export abstract class ZitiDataService {
   abstract delete(type: string, id: string): Promise<any>;
   abstract call(url: string): Promise<any>;
   abstract resetEnrollment(id: string, any: string): Promise<any>;
+  abstract schema(data: any): Promise<any>;
 }
