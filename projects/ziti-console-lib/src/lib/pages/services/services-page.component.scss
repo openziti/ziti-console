@@ -206,19 +206,5 @@
       flex-direction: row;
       align-items: center;
     }
-
-    .v7Offline {
-      background-color: var(--placeholder);
-    }
-
-    .v7OnlineOffline {
-      width: 14px;
-      height: 14px;
-      border-color: var(--placeholder);
-
-      &:hover {
-        border-color: var(--placeholder);
-      }
-    }
   }
 }

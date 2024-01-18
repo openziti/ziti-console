@@ -16,7 +16,7 @@
                     <input
                         class="form-field-input"
                         placeholder="Name this Service"
-                        [ngClass]="{error: errors['name']}"
+                        [ngClass]="{error: svc.errors['name']}"
                         [(ngModel)]="formData.name"
                         autofocus
                         #nameFieldInput
@@ -37,58 +37,63 @@
                 <lib-form-field-container
                         [title]="'Add Configurations'"
                         [action]="false"
-                        [actionLabel]="attachLabel"
-                        (actionRequested)="attachConfig(selectedConfigId)"
+                        [actionLabel]="svc.attachLabel"
+                        (actionRequested)="svc.attachConfig(svc.selectedConfigId)"
                 >
                     <div class="form-field-input-group">
                         <div class="config-title-row">
                             <span class="form-field-title">Select a Config</span>
                         </div>
                         <select
-                                [(ngModel)]="selectedConfigTypeId"
+                                [(ngModel)]="svc.selectedConfigTypeId"
                                 (change)="configTypeChanged($event)"
                                 id="SelectedConfigType"
                                 class="form-field-dropdown"
                         >
                             <option value="">Select configuration type...</option>
                             <option
-                                    *ngFor="let type of configTypes"
+                                    *ngFor="let type of svc.configTypes"
                                     [value]="type.id"
                             >
                                 {{ type.name }}
                             </option>
                         </select>
                         <select
-                                [(ngModel)]="selectedConfigId"
+                                [(ngModel)]="svc.selectedConfigId"
                                 (change)="configChanged($event)"
                                 id="SelectedConfig"
                                 class="form-field-dropdown"
-                                [ngClass]="{'disabled': !selectedConfigTypeId || selectedConfigTypeId === ''}"
+                                [ngClass]="{'disabled': !svc.selectedConfigTypeId || svc.selectedConfigTypeId === ''}"
                         >
                             <option value="">Select configuration...</option>
                             <option value="add-new">Add a New  Config</option>
                             <option
-                                    *ngFor="let config of filteredConfigs"
+                                    *ngFor="let config of svc.filteredConfigs"
                                     [value]="config.id"
                             >
                                 {{ config.name }}
                             </option>
                         </select>
+                        <div *ngIf="!showConfigData && svc.selectedConfigId && svc.selectedConfigId !== ''" class="button-row-right" >
+                            <div class="save-button" (click)="svc.attachConfig(svc.selectedConfigId)">
+                                {{svc.attachLabel}}
+                            </div>
+                        </div>
                         <div [hidden]="!showConfigData" class="form-field-extended-fields">
                             <div *ngIf="showConfigData" class="config-title-row" style="margin-bottom: 10px;">
                                 <span class="form-field-title">Config Name</span>
                                 <div
                                         class="save-button"
-                                        (click)="attachConfig(selectedConfigId)"
-                                >{{attachLabel}}
+                                        (click)="svc.attachConfig(svc.selectedConfigId)"
+                                >{{svc.attachLabel}}
                                 </div>
                             </div>
                             <input
                                     *ngIf="showConfigData"
-                                    [(ngModel)]="newConfigName"
+                                    [(ngModel)]="svc.newConfigName"
                                     class="form-field-input"
                                     [placeholder]="'New Config Name'"
-                                    [ngClass]="{error: configErrors['name']}"
+                                    [ngClass]="{error: svc.configErrors['name']}"
                                     style="margin-bottom: 20px;"
                             />
                             <div class="config-title-row" style="margin-bottom: 10px;">
@@ -96,16 +101,16 @@
                                 <div
                                         id="OnOffButton"
                                         class="onoff jsonButton configsForm save-button"
-                                        (click)="toggleJSONView()"
+                                        (click)="svc.toggleJSONView()"
                                 >
-                                    <span>{{configJsonView ? 'Form View' : 'JSON View'}}</span>
+                                    <span>{{svc.configJsonView ? 'Show Form' : 'Show JSON'}}</span>
                                 </div>
                             </div>
 
                             <!--<span class="form-field-title" [innerHTML]="configDataLabel"></span>-->
-                            <lib-json-view *ngIf="configJsonView && !hideConfigJSON" [(data)]="configData"></lib-json-view>
-                            <lib-json-view *ngIf="configJsonView && hideConfigJSON" [(data)]="configData"></lib-json-view>
-                            <div class="config-form-container" [hidden]="configJsonView">
+                            <lib-json-view *ngIf="svc.configJsonView && !svc.hideConfigJSON" [(data)]="svc.configData"></lib-json-view>
+                            <lib-json-view *ngIf="svc.configJsonView && svc.hideConfigJSON" [(data)]="svc.configData"></lib-json-view>
+                            <div class="config-form-container" [hidden]="svc.configJsonView">
                                 <ng-container #dynamicform></ng-container>
                             </div>
                         </div>
@@ -166,10 +171,12 @@
             <div class="form-group-column two-fifths">
                 <lib-form-field-container
                     [title]="'Selected Configurations'"
-                    [count]="addedConfigNames ? addedConfigNames.length : 0"
+                    [count]="svc.addedConfigNames ? svc.addedConfigNames.length : 0"
                 >
                     <lib-preview-list
-                        [allNames]="addedConfigNames"
+                        [allNames]="svc.addedConfigNames"
+                        [allowRemove]="true"
+                        (itemRemoved)="svc.removeConfig($event)"
                     ></lib-preview-list>
                 </lib-form-field-container>
                 <lib-form-field-container
@@ -178,29 +185,28 @@
                     <div class="form-field-input-group" style="background-color: #344459">
                         <span class="form-field-title">{{'Router'}}</span>
                         <select
-                                [(ngModel)]="selectedRouterId"
-                                (change)="routerChanged($event)"
+                                [(ngModel)]="svc.selectedRouterId"
+                                (change)="svc.routerChanged($event)"
                                 id="SelectedRouter"
                                 class="form-field-dropdown"
                         >
                             <option value="">Select a Router...</option>
                             <option
-                                    *ngFor="let router of routers"
+                                    *ngFor="let router of svc.routers"
                                     [value]="router.id"
                             >
                                 {{ router.name }}
                             </option>
                         </select>
                     </div>
-                    <div class="form-field-input-group" *ngIf="selectedRouterId && selectedRouterId !== ''" style="background-color: #344459">
+                    <div class="form-field-input-group" *ngIf="svc.selectedRouterId && svc.selectedRouterId !== ''" style="background-color: #344459">
                         <div class="form-field-row">
                             <div class="config-item">
                                 <div class="config-item-label-container">
                                     <span class="config-label">BINDING</span>
                                 </div>
                                 <select
-                                        [(ngModel)]="selectedBindingId"
-                                        (change)="bindingTypeChanged($event)"
+                                        [(ngModel)]="svc.selectedBindingId"
                                         id="SelectedBindingType"
                                         class="form-field-dropdown"
                                 >
@@ -218,8 +224,7 @@
                                     <span class="config-label">PROTOCOL</span>
                                 </div>
                                 <select
-                                        [(ngModel)]="terminatorProtocol"
-                                        (change)="terminatorProtocolChanged($event)"
+                                        [(ngModel)]="svc.terminatorProtocol"
                                         id="SelectedTerminatorProtocol"
                                         class="form-field-dropdown"
                                 >
@@ -238,10 +243,10 @@
                                     <span class="config-label">HOST</span>
                                 </div>
                                 <input
-                                        [(ngModel)]="terminatorHost"
+                                        [(ngModel)]="svc.terminatorHost"
                                         class="form-field-input"
                                         [placeholder]="'example.com'"
-                                        [ngClass]="{error: terminatorErrors['host']}"
+                                        [ngClass]="{error: svc.terminatorErrors['host']}"
                                 />
                             </div>
                             <div class="config-item">
@@ -249,17 +254,17 @@
                                     <span class="config-label">PORT</span>
                                 </div>
                                 <input
-                                        [(ngModel)]="terminatorPort"
+                                        [(ngModel)]="svc.terminatorPort"
                                         class="form-field-input"
                                         [placeholder]="'80, 443, etc...'"
-                                        [ngClass]="{error: terminatorErrors['port']}"
+                                        [ngClass]="{error: svc.terminatorErrors['port']}"
                                 />
                             </div>
                         </div>
                         <div class="button-row-right" >
                             <div
                                     class="save-button"
-                                    (click)="addTerminator(selectedRouter)"
+                                    (click)="svc.addTerminator()"
                             >Add
                             </div>
                         </div>
@@ -267,10 +272,10 @@
                 </lib-form-field-container>
                 <lib-form-field-container
                         [title]="'Terminating Routers'"
-                        [count]="addedTerminators ? addedTerminators.length : 0"
+                        [count]="svc.addedTerminatorNames ? svc.addedTerminatorNames.length : 0"
                 >
                     <lib-preview-list
-                            [allNames]="addedTerminators"
+                            [allNames]="svc.addedTerminatorNames"
                     ></lib-preview-list>
                 </lib-form-field-container>
             </div>

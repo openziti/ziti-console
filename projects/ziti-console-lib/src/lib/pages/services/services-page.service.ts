@@ -1,3 +1,19 @@
+/*
+    Copyright NetFoundry Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
+
 import {Injectable, Inject} from "@angular/core";
 import {cloneDeep, isEmpty} from 'lodash';
 import moment from 'moment';
@@ -143,6 +159,9 @@ export class ServicesPageService extends ListPageServiceClass {
             //pre-process data before rendering
             results.data = this.addActionsPerRow(results);
         }
+        if (!isEmpty(results?.meta?.pagination)) {
+            this.totalCount = results.meta?.pagination.totalCount;
+        }
         return results;
     }
 
@@ -159,8 +178,8 @@ export class ServicesPageService extends ListPageServiceClass {
 
     downloadAllItems() {
         const paging = cloneDeep(this.paging);
-        paging.total = 2000;
-        super.getTableData('identities', paging, undefined, undefined)
+        paging.total = this.totalCount;
+        super.getTableData('services', paging, undefined, undefined)
             .then((results: any) => {
                 return this.downloadItems(results?.data);
             });
@@ -168,7 +187,7 @@ export class ServicesPageService extends ListPageServiceClass {
 
     downloadItems(selectedItems) {
         this.csvDownloadService.download(
-            'identities.csv',
+            'services',
             selectedItems,
             CSV_COLUMNS,
             false,

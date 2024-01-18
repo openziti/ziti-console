@@ -53,11 +53,9 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   @Input() formData: any = {};
   @Input() identityRoleAttributes: any[] = [];
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
-  @Output() dataChange: EventEmitter<any> = new EventEmitter<any>();
 
   override entityType = 'identity';
 
-  initData: any = {};
   isEditing = false;
   enrollmentExpiration: any;
   jwt: any;
@@ -101,7 +99,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     this.getAssociatedServicePolicies();
     this.getAuthPolicies();
     this.initData = cloneDeep(this.formData);
-    this.watchData();
     this.loadTags();
   }
 
@@ -144,7 +141,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       total: 100
     }
     this.zitiService.get('auth-policies', paging, []).then((result: any) => {
-      this.authPolicies = [{id: 'default', name: 'Default'}, ...result.data];
+      this.authPolicies = [...result.data];
     });
   }
 
@@ -286,28 +283,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     this.growlerService.show(growlerData);
   }
 
-  closeModal(refresh = false, ignoreChanges = false): void {
-    if (!ignoreChanges && this._dataChange) {
-      const confirmed = confirm('You have unsaved changes. Do you want to leave this page and discard your changes or stay on this page?');
-      if (!confirmed) {
-        return;
-      }
-    }
-    this.close.emit({refresh: refresh});
-  }
-
   clear(): void {
-  }
-
-  _dataChange = false;
-  watchData() {
-    delay(() => {
-      const dataChange = !isEqual(this.initData, this.formData);
-      if (dataChange !== this._dataChange) {
-        this.dataChange.emit(dataChange);
-      }
-      this._dataChange = dataChange;
-      this.watchData();
-    }, 100);
   }
 }

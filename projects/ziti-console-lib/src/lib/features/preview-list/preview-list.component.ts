@@ -27,7 +27,9 @@ export class PreviewListComponent {
   @Input() public clickable = false;
   @Input() isLoading = false;
   @Input() allNames = [];
+  @Input() allowRemove = false
   @Output() itemSelected = new EventEmitter<string>();
+  @Output() itemRemoved = new EventEmitter<string>();
   public names = [];
   filterFor = '';
 
@@ -61,5 +63,9 @@ export class PreviewListComponent {
 
   selected(name: string) {
     if (this.clickable) this.itemSelected.emit(name);
+  }
+
+  remove(name) {
+    this.itemRemoved.emit(name);
   }
 }

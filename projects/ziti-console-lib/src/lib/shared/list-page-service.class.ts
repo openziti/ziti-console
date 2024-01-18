@@ -47,6 +47,7 @@ export abstract class ListPageServiceClass {
         sort: "name",
         total: 50
     }
+    totalCount = 0;
     dataService: ZitiDataService;
     refreshData: (sort?: {sortBy: string, ordering: string}) => void | undefined;
 

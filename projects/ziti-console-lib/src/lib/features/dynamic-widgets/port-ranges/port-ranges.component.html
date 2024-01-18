@@ -1,8 +1,8 @@
 <label>PORT RANGES</label>
 <p-chips
-        (keydown)="onKeyDown($event)"
         (onAdd)="validateConfig()"
         (onRemove)="validateConfig()"
+        (keyup)="onKeyup($event)"
         [(ngModel)]="fieldValue"
         [allowDuplicate]="false"
         [ngClass]="{ error: invalid }"

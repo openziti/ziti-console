@@ -1,13 +1,29 @@
-import {Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewContainerRef} from '@angular/core';
+/*
+    Copyright NetFoundry Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
+
+import {Component, DoCheck, EventEmitter, Input, OnInit, Output, ViewChild, ViewContainerRef} from '@angular/core';
 import {Subject} from "rxjs";
-import {debounce, isEmpty, isNumber} from "lodash";
+import _, {debounce, isEmpty, isNumber} from "lodash";
 
 @Component({
   selector: 'lib-protocol-address-port-input',
   templateUrl: './protocol-address-port-input.component.html',
   styleUrls: ['./protocol-address-port-input.component.scss']
 })
-export class ProtocolAddressPortInputComponent implements OnInit {
+export class ProtocolAddressPortInputComponent implements OnInit, DoCheck {
   @Input() protocolList: any;
   @Input() showProtocol = true;
   @Input() showAddress = true;
@@ -38,15 +54,20 @@ export class ProtocolAddressPortInputComponent implements OnInit {
   hostNameFieldName = 'Host Name';
   portFieldName = 'Port';
 
+  checkAddressDebounced = debounce(this.checkAddress, 100, {maxWait: 100, leading: true});
   ngOnInit() {
-    const getVals = () => {
-      let val = this.address;
-      this.addressChange.emit(this.address);
-      setTimeout(() => {
-        getVals();
-      }, 2000);
-    }
-    getVals();
+
+  }
+
+  ngDoCheck() {
+    this.checkAddressDebounced();
+  }
+
+  _addressChanged = false;
+  _prevAddress;
+  checkAddress() {
+    this._addressChanged = !_.isEqual(this._prevAddress, this.address);
+    this.addressChange.emit(this.address);
   }
 
   update() {
