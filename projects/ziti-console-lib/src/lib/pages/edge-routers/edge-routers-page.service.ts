@@ -22,12 +22,21 @@ import {SettingsServiceClass} from "../../services/settings-service.class";
 
 const CSV_COLUMNS = [
     {label: 'Name', path: 'name'},
-    {label: 'OS', path: 'versionInfo.os'},
-    {label: 'Attributes', path: 'envInfo.osVersion'},
-    {label: 'Verified', path: 'sdkInfo.version'},
+    {label: 'Attributes', path: 'roleAttributes'},
+    {label: 'Verified', path: 'isVerified'},
     {label: 'Online', path: 'isOnline'},
     {label: 'Created', path: 'createdAt'},
     {label: 'Token', path: 'enrollmentToken'},
+    {label: 'No Traversal', path: 'noTraversal'},
+    {label: 'Host Name', path: 'hostname'},
+    {label: 'Disabled', path: 'disabled'},
+    {label: 'Tunneler Enabled', path: 'isTunnelerEnabled'},
+    {label: 'OS', path: 'versionInfo.os'},
+    {label: 'Architecture', path: 'versionInfo.arch'},
+    {label: 'Version', path: 'versionInfo.version'},
+    {label: 'Revision', path: 'versionInfo.revision'},
+    {label: 'Fingerprint', path: 'fingerprint'},
+    {label: 'ID', path: 'id'},
 ];
 
 @Injectable({
@@ -285,7 +294,7 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
 
     downloadItems(selectedItems) {
         this.csvDownloadService.download(
-            'edge-routers.csv',
+            'edge-routers',
             selectedItems,
             CSV_COLUMNS,
             false,
