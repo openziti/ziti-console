@@ -10,7 +10,7 @@
         [(formView)]="formView"
     ></lib-form-header>
     <div class="edge-router-form-container projectable-form-container">
-        <div class="projectable-form-main-column form-group-row" *ngIf="formView === 'simple'">
+        <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
             <div class="form-group-column three-fifths">
                 <lib-form-field-container [title]="'Service Name'" [label]="'Required'">
                     <input

@@ -90,6 +90,14 @@
   }
 }
 
+.projectable-form-main-column {
+  &.form-group-row {
+    &[hidden] {
+      display: none;
+    }
+  }
+}
+
 ::ng-deep .admin-toggle {
   width: 100%;
   width: 35%;
