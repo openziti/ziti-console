@@ -40,12 +40,20 @@ import {SettingsServiceClass} from "../../services/settings-service.class";
 
 const CSV_COLUMNS = [
     {label: 'Name', path: 'name'},
+    {label: 'Roles', path: 'roleAttributes'},
+    {label: 'Online', path: 'hasApiSession'},
+    {label: 'Edge Router Connected', path: 'hasEdgeRouterConnection'},
     {label: 'OS', path: 'envInfo.os'},
     {label: 'OS Version', path: 'envInfo.osVersion'},
     {label: 'SDK', path: 'sdkInfo.version'},
+    {label: 'App Version', path: 'sdkInfo.appVersion'},
     {label: 'Type', path: 'typeId'},
     {label: 'Is Admin', path: 'isAdmin'},
-    {label: 'Created At', path: 'createdAt'}
+    {label: 'Auth Policy', path: 'authPolicy.name'},
+    {label: 'Auth Policy ID', path: 'authPolicy.id'},
+    {label: 'MFA Enabled', path: 'isMfaEnabled'},
+    {label: 'Created At', path: 'createdAt'},
+    {label: 'ID', path: 'id'},
 ];
 
 @Injectable({
@@ -438,7 +446,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
 
     downloadItems(selectedItems) {
         this.csvDownloadService.download(
-            'identities.csv',
+            'identities',
             selectedItems,
             CSV_COLUMNS,
             false,
