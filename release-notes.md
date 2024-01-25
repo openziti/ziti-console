@@ -1,6 +1,6 @@
 # Release 3.0.2
 * Issue #203 - Fixed styling inconsistencies between old list tables and new ag-grid tables
-* Issue #304 - Updated fields for Identities, and Routers CSV download file
+* Issue #204 - Updated fields for Identities, and Routers CSV download file
 * Issue #205 - Fixed display of Registration Token/QR Code Component
 
 # Release 3.0.1
