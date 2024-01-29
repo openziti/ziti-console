@@ -12,6 +12,8 @@ export * from './lib/pages/identities/identities-page.component';
 export * from './lib/pages/identities/identities-page.service';
 export * from './lib/pages/edge-routers/edge-routers-page.component';
 export * from './lib/pages/edge-routers/edge-routers-page.service';
+export * from './lib/pages/services/services-page.component';
+export * from './lib/pages/services/services-page.service';
 export * from './lib/services/login-service.class';
 export * from './lib/services/noop-login.service';
 export * from './lib/services/settings-service.class';
@@ -49,6 +51,8 @@ export * from './lib/features/projectable-forms/identity/identity-form.component
 export * from './lib/features/projectable-forms/identity/identity-form.service';
 export * from './lib/features/projectable-forms/edge-router/edge-router-form.component';
 export * from './lib/features/projectable-forms/edge-router/edge-router-form.service';
+export * from './lib/features/projectable-forms/service/service-form.component';
+export * from './lib/features/projectable-forms/service/service-form.service';
 export * from './lib/features/extendable/extensions-noop.service';
 export * from './lib/features/projectable-forms/form-header/form-header.component';
 export * from './lib/features/loading-indicator/loading-indicator.component';

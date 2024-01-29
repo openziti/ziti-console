@@ -47,7 +47,18 @@
     padding-left: 10px;
     padding-right: 10px;
     margin-bottom: 2px;
-    color: var(--primary)
+    color: var(--primary);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+
+    .icon-clear {
+        margin-top: 2px;
+        &:hover {
+            color: var(--background);
+        }
+    }
 }
 
 ::-webkit-scrollbar-thumb {

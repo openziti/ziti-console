@@ -25,6 +25,7 @@ import {HttpClient} from "@angular/common/http";
 import {FilterObj} from "../features/data-table/data-table-filter.service";
 import {isEmpty, get} from "lodash";
 import {ZitiDataService} from "./ziti-data.service";
+import {Resolver} from "@stoplight/json-ref-resolver";
 import moment from "moment";
 
 @Injectable({
@@ -265,6 +266,13 @@ export class NodeDataService extends ZitiDataService {
                 })
             )
         );
+    }
+
+    schema(data: any): Promise<any> {
+        const resolver = new Resolver();
+        return resolver.resolve(data).then((schema) => {
+            return schema.result
+        });
     }
 
     private getUrlFilter(paging: any) {

@@ -15,9 +15,9 @@
 */
 
 import {ExtendableComponent} from "../extendable/extendable.component";
-import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from "@angular/core";
+import {Component, DoCheck, ElementRef, EventEmitter, Input, Output, ViewChild} from "@angular/core";
 
-import {defer, unset} from "lodash";
+import {defer, delay, isEqual, unset, debounce} from "lodash";
 
 // @ts-ignore
 const {context, tags, resources, service} = window;
@@ -26,9 +26,10 @@ const {context, tags, resources, service} = window;
     template: '',
     styleUrls: ['./projectable-form.class.scss']
 })
-export abstract class ProjectableForm extends ExtendableComponent {
+export abstract class ProjectableForm extends ExtendableComponent implements DoCheck {
     @Input() abstract formData: any;
     @Output() abstract close: EventEmitter<any>;
+    @Output() dataChange: EventEmitter<any> = new EventEmitter<any>();
     @ViewChild('nameFieldInput') nameFieldInput: ElementRef;
 
     abstract errors: { name: string, msg: string }[];
@@ -40,6 +41,10 @@ export abstract class ProjectableForm extends ExtendableComponent {
     tagElements: any = [];
     tagData: any = [];
     hideTags = false;
+    initData = {};
+    _dataChange = false;
+
+    checkDataChangeDebounced = debounce(this.checkDataChange, 100, {maxWait: 100});
 
     override ngAfterViewInit() {
         super.ngAfterViewInit();
@@ -120,5 +125,27 @@ export abstract class ProjectableForm extends ExtendableComponent {
 
     getTagValues() {
         return tags.val();
+    }
+
+    closeModal(refresh = true, ignoreChanges = false): void {
+        if (!ignoreChanges && this._dataChange) {
+            const confirmed = confirm('You have unsaved changes. Do you want to leave this page and discard your changes or stay on this page?');
+            if (!confirmed) {
+                return;
+            }
+        }
+        this.close.emit({refresh: refresh});
+    }
+
+    ngDoCheck() {
+        this.checkDataChangeDebounced();
+    }
+
+    checkDataChange() {
+        const dataChange = !isEqual(this.initData, this.formData);
+        if (dataChange !== this._dataChange) {
+            this.dataChange.emit(dataChange);
+        }
+        this._dataChange = dataChange;
     }
 }

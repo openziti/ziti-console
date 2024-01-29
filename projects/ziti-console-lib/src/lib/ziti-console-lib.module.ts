@@ -17,7 +17,7 @@
 import {APP_INITIALIZER, InjectionToken, Injector, NgModule} from '@angular/core';
 import {ZacWrapperComponent} from "./features/wrappers/zac-wrapper.component";
 import {SafePipe} from "./safe.pipe";
-import {HttpClientModule} from "@angular/common/http";
+import {HttpClientModule, HttpClient} from "@angular/common/http";
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {ZacRoutingModule} from "./zac-routing.module";
@@ -57,6 +57,7 @@ import {FilterBarComponent} from "./features/data-table/table-filter-bar/filter-
 import {AgGridModule} from "ag-grid-angular";
 import {IdentitiesPageComponent} from "./pages/identities/identities-page.component";
 import {EdgeRoutersPageComponent} from "./pages/edge-routers/edge-routers-page.component";
+import {ServicesPageComponent} from "./pages/services/services-page.component";
 import {ZITI_NAVIGATOR} from "./ziti-console.constants";
 import { GrowlerComponent } from './features/messaging/growler.component';
 import { ConfirmComponent } from './features/confirm/confirm.component';
@@ -84,6 +85,10 @@ import { OverridesComponent } from './features/overrides/overrides.component';
 import { ResetEnrollmentComponent } from './features/reset-enrollment/reset-enrollment.component';
 import { CustomTagsComponent } from './features/custom-tags/custom-tags.component';
 import {EdgeRouterFormComponent} from "./features/projectable-forms/edge-router/edge-router-form.component";
+
+import {ServiceFormComponent} from "./features/projectable-forms/service/service-form.component";
+import { PortRangesComponent } from './features/dynamic-widgets/port-ranges/port-ranges.component';
+import { ForwardingConfigComponent } from './features/dynamic-widgets/forwarding-config/forwarding-config.component';
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -142,6 +147,10 @@ export function playerFactory() {
         OverridesComponent,
         ResetEnrollmentComponent,
         CustomTagsComponent,
+        ServicesPageComponent,
+        ServiceFormComponent,
+        PortRangesComponent,
+        ForwardingConfigComponent,
     ],
     imports: [
         CommonModule,
@@ -178,13 +187,15 @@ export function playerFactory() {
         EdgeRouterFormComponent,
         IdentitiesPageComponent,
         EdgeRoutersPageComponent,
+        ServicesPageComponent,
         ZacRoutingModule,
         SideModalComponent,
         IdentityFormComponent,
         LoadingIndicatorComponent,
         GrowlerModule,
         FormFieldContainerComponent,
-        FormFieldToggleComponent
+        FormFieldToggleComponent,
+        ServiceFormComponent
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},

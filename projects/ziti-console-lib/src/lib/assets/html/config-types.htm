@@ -146,6 +146,7 @@
                     page.apiParams.autoFormatRange({line:0, ch:0}, {line:page.apiParams.lineCount()});
                     page.apiParams.scrollTo(null, 0);
                     $("#AddModal").scrollTop(stayAt);
+                    return obj;
                 } catch (e) {
                     console.log(e);
                 }
