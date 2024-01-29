@@ -1,3 +1,6 @@
+# Release 3.0.3
+* Fix Router Count on Dashboard
+
 # Release 3.0.2
 * Issue #203 - Fixed styling inconsistencies between old list tables and new ag-grid tables
 * Issue #204 - Updated fields for Identities, and Routers CSV download file
