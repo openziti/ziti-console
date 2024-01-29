@@ -97,11 +97,19 @@
             serviceRoles: null,
             apiParams: null,
             init: function() {
-                page.routerRoles = new Selector("RouterRoles","edge routers","edge-routers");
-                page.serviceRoles = new Selector("ServiceRoles","services","services");
-                page.filterObject = new Data("service-edge-router-policies");
+                page.routerRoles = new MultiSelect("RouterRoles", 10, true);
+                page.routerRoles.appendHash = true;
+                page.routerRoles.addSource(new SelectSource("routers", "@", "name", "role"));
+                page.routerRoles.addSource(new SelectSource("edge-router-role-attributes", "#", "id"));
                 page.routerRoles.init();
+
+                page.serviceRoles = new MultiSelect("ServiceRoles",  10, true);
+                page.serviceRoles.appendHash = true;
+                page.serviceRoles.addSource(new SelectSource("services", "@", "name", "role"));
+                page.serviceRoles.addSource(new SelectSource("service-role-attributes", "#", "id"));
                 page.serviceRoles.init();
+
+                page.filterObject = new Data("service-edge-router-policies");
                 page.filterObject.init(true, true);
 
                 page.apiParams = CodeMirror.fromTextArea(document.getElementById("ApiParams"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
