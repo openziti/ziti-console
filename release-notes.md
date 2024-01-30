@@ -1,7 +1,11 @@
 # Release 3.0.3
-* Issue #208 - Router Role Attributes and Service Role Attributes are not populating while creating Service/Router Policies
-* Issue #207 - Entity type name is missing from the "No Items" display on some list pages
-* Issue #212 - Router count on dashboard does not display correctly
+
+## Bug Fixes
+
+* [Issue #207](https://github.com/openziti/ziti-console/issues/207) - Entity type name is missing from the "No Items" display on some list pages
+* [Issue #208](https://github.com/openziti/ziti-console/issues/208) - Router Role Attributes and Service Role Attributes are not populating while creating Service/Router Policies
+* [Issue #212](https://github.com/openziti/ziti-console/issues/212) - Router count on dashboard does not display correctly
+
 
 # Release 3.0.2
 * Issue #203 - Fixed styling inconsistencies between old list tables and new ag-grid tables
