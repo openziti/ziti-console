@@ -1,6 +1,8 @@
 sessions/
 node_modules/
 iisnode/
+dist/
+.angular/
 web.config
 node-console.iml
 node-console.ipr
