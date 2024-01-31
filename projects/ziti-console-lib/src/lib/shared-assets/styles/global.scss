@@ -120,7 +120,7 @@ body {
 }
 
 .form-field-dropdown {
-  background-image: url(/assets/svgs/ArrowDown.svg);
+  background-image: url(./assets/svgs/ArrowDown.svg);
   background-position: center right 10px;
   background-repeat: no-repeat;
   background-size: 18px;
@@ -273,7 +273,7 @@ body {
   background-position: 0px 0px;
   width: 14px;
   height: 14px;
-  background-image: url(/assets/svgs/infoicon.svg);
+  background-image: url(./assets/svgs/infoicon.svg);
   cursor: pointer;
   transition: 0.5s;
   margin-bottom: 3px;
@@ -355,7 +355,7 @@ lib-form-field-container {
   .download-key {
     background-size: 65%;
     background-position: left 10px center;
-    background-image: url(/assets/svgs/DownloadKey.svg);
+    background-image: url(./assets/svgs/DownloadKey.svg);
     background-repeat: no-repeat;
     padding-top: 10px;
     margin-left: 10px;
@@ -441,7 +441,7 @@ lib-form-field-container {
     }
 
     .form-title-back-button-image {
-      background-image: url(/assets/svgs/ArrowDownDark.svg);
+      background-image: url(./assets/svgs/ArrowDownDark.svg);
       background-size: 20px 14px;
       width: 20px;
       height: 14px;

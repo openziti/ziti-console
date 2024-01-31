@@ -15,14 +15,28 @@ jobs:
         with:
           node-version: 16
           registry-url: https://npm.pkg.github.com/
-      - name: Build and Publish Shared Library
-        run: ./publishSharedLib.sh
       - name: Set VERSION Environment Variable
         run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
-      - name: Zip Shared Dist
+      - name: Build and Publish Shared Library - zac
+        run: ./publishSharedLib.sh /zac/
+      - name: Zip Shared Dist - zac
         run: |
             cd dist/app-ziti-console && zip -r ziti-console.zip *
             gh release upload ${{github.event.release.tag_name}} ziti-console.zip
+        env:
+          GITHUB_TOKEN: ${{ github.TOKEN }}
+      - name: Upload SPA To Job - zac
+        uses: actions/upload-artifact@v3
+        with:
+          name: ziti-console-zac-${{ env.VERSION }}.zip
+          path: ziti-console-${{ env.VERSION }}.zip
+
+      - name: Build and Publish Shared Library
+        run: ./publishSharedLib.sh /
+      - name: Zip Shared Dist
+        run: |
+          cd dist/app-ziti-console && zip -r ziti-console.zip *
+          gh release upload ${{github.event.release.tag_name}} ziti-console.zip
         env:
           GITHUB_TOKEN: ${{ github.TOKEN }}
       - name: Upload SPA To Job

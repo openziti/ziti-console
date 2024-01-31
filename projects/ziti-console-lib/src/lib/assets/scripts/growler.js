@@ -90,7 +90,7 @@ var growler = {
       $("#Growler").find(".title").html(title);
       $("#Growler").find(".subtitle").html(subtitle);
       $("#Growler").find(".content").html(message);
-      $("#Growler").find(".icon").css("background-image", "url(/assets/images/"+type+".png)");
+      $("#Growler").find(".icon").css("background-image", "url(./assets/images/"+type+".png)");
       $("#Growler").addClass("open");
       growler.showId = setTimeout(function() {
         growler.showId = -1;
