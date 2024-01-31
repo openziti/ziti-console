@@ -32,7 +32,7 @@ jobs:
           path: ziti-console-${{ env.VERSION }}.zip
 
       - name: Build and Publish Shared Library
-        run: ./publishSharedLib.sh /
+        run: ./publishSharedLib.sh / publish
       - name: Zip Shared Dist
         run: |
           cd dist/app-ziti-console && zip -r ziti-console.zip *

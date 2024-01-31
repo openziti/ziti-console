@@ -1910,7 +1910,7 @@ app.post("/api/send", function(request, response) {
 					html += '<img alt="QR '+name+'" src="'+codes[i]+'" style="display: block;"/>';
 				}
 			}
-			var body = '<html><body><center><h2>The Following Open Ziti Identities have been created for you</h2><div style="position:relative; display: inline-block">'+html+'</div></center></body></html>';
+			var body = '<html><body><center><h2>The following identities have been created for you</h2><div style="position:relative; display: inline-block">'+html+'</div></center></body></html>';
 			var subject = request.body.subject;
 			var to = request.body.to;
 			var from = 'ziggy@zac.openziti.org';
@@ -1919,7 +1919,7 @@ app.post("/api/send", function(request, response) {
 				from: 'Ziggy <'+from+'>',
 				to: [to],
 				subject: subject,
-				text: "Open Ziti Identities Attached",
+				text: "OpenZiti Identities Attached",
 				html: body,
 				list: {
 					help: from+'?subject=help',
