@@ -15,7 +15,7 @@
 }
 
 .sort.asc {
-  background-image: url(./assets/svgs/ArrowDown.svg);
+  background-image: url(/assets/svgs/ArrowDown.svg);
   opacity: 1;
   background-repeat: no-repeat;
   background-size: 20px;
@@ -23,7 +23,7 @@
 }
 
 .sort.desc {
-  background-image: url(./assets/svgs/ArrowUp.svg);
+  background-image: url(/assets/svgs/ArrowUp.svg);
   opacity: 1;
   background-repeat: no-repeat;
   background-size: 20px;
@@ -81,7 +81,7 @@ main.table {
 
 .tHead.filterable {
   padding-left: 30px;
-  background-image: url(./assets/svgs/Filter.svg);
+  background-image: url(/assets/svgs/Filter.svg);
   background-size: 18px;
   background-position: left 0px top 7px;
   background-repeat: no-repeat;
@@ -147,21 +147,21 @@ main.table {
 }
 
 .tIcon.AWS {
-  background-image: url(./assets/images/gateways-aws.png);
+  background-image: url(/assets/images/gateways-aws.png);
   width: 65px;
 }
 
 .tIcon.Microsoft {
-  background-image: url(./assets/svgs/Azure.svg);
+  background-image: url(/assets/svgs/Azure.svg);
   background-position-x: 15px;
 }
 
 .tIcon.Google {
-  background-image: url(./assets/svgs/cloud-logo.svg);
+  background-image: url(/assets/svgs/cloud-logo.svg);
 }
 
 .tIcon.AliCloud {
-  background-image: url(./assets/svgs/AlibabaCloudSmall.svg);
+  background-image: url(/assets/svgs/AlibabaCloudSmall.svg);
 }
 
 .inviteStatus.tYes {
@@ -246,7 +246,7 @@ main.table {
   height: 90%;
   top: 0px;
   position: absolute;
-  background-image: url(./assets/svgs/NoData.svg);
+  background-image: url(/assets/svgs/NoData.svg);
   background-position: top 102px center;
   background-size: 180px;
   color: var(--icon);
@@ -350,7 +350,7 @@ main.table {
 
 .tSelect.selected {
   background-color: var(--green);
-  background-image: url(./assets/images/Icon_Check.png); //REPLACE
+  background-image: url(/assets/images/Icon_Check.png); //REPLACE
   background-size: 45%;
   background-position: center center;
   border: none;
@@ -586,7 +586,7 @@ main.table {
   height: 16px;
   top: 20px;
   right: 33px;
-  background-image: url(./assets/svgs/Filter.svg);
+  background-image: url(/assets/svgs/Filter.svg);
   background-size: contain;
   background-position: center center;
   cursor: pointer;

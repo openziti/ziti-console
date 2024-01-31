@@ -882,18 +882,18 @@
     background: transparent;
   }
   &.apple {
-    background-image: url(./assets/images/apple.png);
+    background-image: url(/assets/images/apple.png);
   }
   &.windows {
-    background-image: url(./assets/images/windows.png);
+    background-image: url(/assets/images/windows.png);
   }
   &.linux {
-    background-image: url(./assets/images/linux.png);
+    background-image: url(/assets/images/linux.png);
   }
   &.android {
-    background-image: url(./assets/images/android.png);
+    background-image: url(/assets/images/android.png);
   }
   &.other {
-    background-image: url(./assets/images/other.png);
+    background-image: url(/assets/images/other.png);
   }
 }
