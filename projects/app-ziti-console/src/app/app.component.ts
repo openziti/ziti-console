@@ -25,7 +25,7 @@ import { Router } from '@angular/router';
     styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-    title = 'Open Ziti Console';
+    title = 'Ziti Admin Console';
     version = '';
     isAuthorized = false;
     displayNav = true;
