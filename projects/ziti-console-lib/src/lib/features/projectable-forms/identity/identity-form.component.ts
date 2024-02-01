@@ -29,7 +29,7 @@ import {
 import {ProjectableForm} from "../projectable-form.class";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 
-import {isEmpty, forEach, delay, unset, keys, forOwn, cloneDeep, isEqual, set} from 'lodash';
+import {isEmpty, forEach, delay, unset, keys, forOwn, cloneDeep, isEqual, set, result} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
@@ -86,7 +86,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       private growlerService: GrowlerService
   ) {
     super();
-    this.identityRoleAttributes = ['test'];
+    this.identityRoleAttributes = [];
   }
 
   ngOnInit(): void {
@@ -110,6 +110,14 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
 
   ngOnChanges(changes: SimpleChanges) {
     this.isEditing = !isEmpty(this.formData.id);
+  }
+
+  refreshIdentity() {
+    this.svc.refreshIdentity(this.formData.id).then(result => {
+      this.formData = result.data;
+      this.enrollmentExpiration = this.identitiesService.getEnrollmentExpiration(this.formData);
+      this.jwt = this.identitiesService.getJWT(this.formData);
+    })
   }
 
   getAssociatedServices() {

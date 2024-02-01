@@ -77,6 +77,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
         {name: 'Download JWT', action: 'download-enrollment'},
         {name: 'View QR', action: 'qr-code'},
         {name: 'Reset Enrollment', action: 'reset-enrollment'},
+        {name: 'Reissue Enrollment', action: 'reissue-enrollment'},
         {name: 'Override', action: 'override'},
         {name: 'Delete', action: 'delete'},
     ]
@@ -310,6 +311,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
             if (this.hasEnrolmentToken(row)) {
                 row.actionList.push('download-enrollment');
                 row.actionList.push('qr-code');
+                row.actionList.push('reissue-enrollment');
             } else {
                 row.actionList.push('reset-enrollment');
             }
@@ -334,7 +336,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
             token = item?.enrollment?.updb?.jwt;
             expiration = item?.enrollment?.updb?.expiresAt;
         }
-        return token && !moment(expiration).isBefore();
+        return token;
     }
 
     public getIdentitiesRoleAttributes() {
@@ -386,11 +388,26 @@ export class IdentitiesPageService extends ListPageServiceClass {
         this.growlerService.show(growlerData);
     }
 
-    reissueJWT(identity) {
+    resetJWT(identity) {
         this.dialogRef = this.dialogForm.open(ResetEnrollmentComponent, {
-            data: identity,
+            data: {
+                identity: identity,
+                type: 'reset'
+            },
             autoFocus: false,
         });
+        return this.dialogRef;
+    }
+
+    reissueJWT(identity) {
+        this.dialogRef = this.dialogForm.open(ResetEnrollmentComponent, {
+            data: {
+                identity: identity,
+                type: 'reissue'
+            },
+            autoFocus: false,
+        });
+        return this.dialogRef;
     }
 
     getEnrollmentExpiration(identity: any) {

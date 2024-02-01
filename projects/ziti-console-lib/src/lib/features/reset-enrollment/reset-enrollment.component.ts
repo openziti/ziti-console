@@ -19,8 +19,9 @@ import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {GrowlerModel} from "../messaging/growler.model";
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../services/ziti-data.service";
 import {GrowlerService} from "../messaging/growler.service";
-import {isEmpty} from "lodash";
+import {isEmpty, result} from "lodash";
 import moment from "moment";
+import {ResetEnrollmentService} from "./reset-enrollment.service";
 
 @Component({
   selector: 'lib-reset-enrollment',
@@ -29,60 +30,54 @@ import moment from "moment";
 })
 export class ResetEnrollmentComponent implements OnInit {
 
+  type = 'reset';
   identity: any;
   dateValue = moment().add(2, 'days').toDate();
   showIcon: boolean = true;
   @ViewChild('calendar', { static: false }) calendar: any;
   constructor(
+      private svc: ResetEnrollmentService,
       private dialogRef: MatDialogRef<ResetEnrollmentComponent>,
       @Inject(MAT_DIALOG_DATA) public data: any,
-      @Inject(ZITI_DATA_SERVICE) private dataService: ZitiDataService,
-      private growlerService: GrowlerService
+      @Inject(ZITI_DATA_SERVICE) private dataService: ZitiDataService
   ) {
-    this.identity = data;
+    this.identity = data.identity;
+    this.type = data.type || 'reset';
   }
 
   ngOnInit() {
-    this.dialogRef.addPanelClass('reset-enroll-dialog-container');
+      this.dialogRef.addPanelClass('reset-enroll-dialog-container');
   }
 
   confirm() {
-    this.dialogRef.close(true);
+      this.dialogRef.close(true);
   }
 
   cancel() {
-    this.dialogRef.close(false);
+      this.dialogRef.close(false);
   }
 
-  resetEnrollment() {
-    let id = this.identity?.authenticators?.cert?.id || this.identity?.authenticators?.updb?.id;
-    if (!id) {
-      if(!isEmpty(this.identity?.enrollment?.ott)) {
-        id = this.identity?.enrollment?.ott.id;
-      } else if(!isEmpty(this.identity?.enrollment?.ottca)) {
-        id = this.identity?.enrollment?.ottca.id;
-      } else if (!isEmpty(this.identity?.enrollment?.updb)) {
-        id = this.identity?.enrollment?.updb.id;
-      }
+  handleAction() {
+    if (this.type === 'reset'){
+      this.reset();
+    } else {
+      this.reissue();
     }
-    const dateObj: any = moment(this.dateValue);
-    return this.dataService.resetEnrollment(id, dateObj).then(() => {
-      const growlerData = new GrowlerModel(
-          'success',
-          'Success',
-          `Enrollment Reset`,
-          `Successfully reissued enrollment token`,
-      );
-      this.growlerService.show(growlerData);
-      this.confirm();
-    }).catch((error) => {
-      const growlerData = new GrowlerModel(
-          'error',
-          'Error',
-          `Reset Failed`,
-          `Failed to reissues enrollment token`,
-      );
-      this.growlerService.show(growlerData);
-    });
+  }
+
+  reset() {
+      this.svc.resetEnrollment(this.identity, this.dateValue).then((result) => {
+          if (result) {
+              this.confirm();
+          }
+      });
+  }
+
+  reissue() {
+      this.svc.reissueEnrollment(this.identity, this.dateValue).then((result) => {
+          if (result) {
+              this.confirm();
+          }
+      });
   }
 }
