@@ -200,6 +200,30 @@ export class NodeDataService extends ZitiDataService {
         );
     }
 
+    override reissueEnrollment(id: string, date: string): Promise<any> {
+        const nodeServerURL = window.location.origin;
+        const serviceUrl = nodeServerURL + '/api/reissueEnroll';
+        const dateStr = moment(date).format("M/D/YYYY hh:mm A");
+        const body = {
+            date: dateStr,
+            id: id
+        }
+        return firstValueFrom(this.httpClient.post(serviceUrl, body, {}).pipe(
+                catchError((err: any) => {
+                    const error = "Server Not Accessible";
+                    if (err.code != "ECONNREFUSED") throw({error: err.code});
+                    throw({error: error});
+                }),
+                map((results: any) => {
+                    if(!isEmpty(results.error)) {
+                        throw({error: results.error});
+                    }
+                    return results;
+                })
+            )
+        );
+    }
+
     override deleteSubdata(entityType: string, id: any, dataType: string, data: any): Promise<any> {
         const nodeServerURL = window.location.origin;
         const serviceUrl = nodeServerURL + '/api/subSave';

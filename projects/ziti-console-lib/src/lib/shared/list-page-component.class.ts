@@ -20,6 +20,8 @@ import {Injectable} from "@angular/core";
 import {Subscription} from "rxjs";
 import {ConsoleEventsService} from "../services/console-events.service";
 
+import {defer} from "lodash";
+
 @Injectable()
 export abstract class ListPageComponent {
     abstract title;
@@ -99,11 +101,19 @@ export abstract class ListPageComponent {
         this.itemsSelected = itemSelected;
     }
 
-    refreshData(sort?: { sortBy: string, ordering: string }): void {
+    refreshData(sort?: { sortBy: string, ordering: string }, hardRefresh = false): void {
         this.isLoading = true;
         this.svc.getData(this.filterService.filters, sort, this.currentPage)
             .then((data: any) => {
-                this.rowData = data.data;
+                this.rowData = [];
+                if (hardRefresh) {
+                    defer(() => {
+                        this.rowData = data.data;
+                    });
+                } else {
+                    this.rowData = data.data;
+                }
+
                 this.totalCount = data.meta.pagination.totalCount;
                 this.startCount = (data.meta.pagination.offset + 1);
                 if (this.startCount + data.meta.pagination.limit > this.totalCount) {

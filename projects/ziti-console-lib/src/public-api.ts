@@ -53,6 +53,7 @@ export * from './lib/features/projectable-forms/edge-router/edge-router-form.com
 export * from './lib/features/projectable-forms/edge-router/edge-router-form.service';
 export * from './lib/features/projectable-forms/service/service-form.component';
 export * from './lib/features/projectable-forms/service/service-form.service';
+export * from './lib/features/reset-enrollment/reset-enrollment.service';
 export * from './lib/features/extendable/extensions-noop.service';
 export * from './lib/features/projectable-forms/form-header/form-header.component';
 export * from './lib/features/loading-indicator/loading-indicator.component';

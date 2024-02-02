@@ -112,6 +112,14 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     this.isEditing = !isEmpty(this.formData.id);
   }
 
+  refreshIdentity() {
+    this.svc.refreshIdentity(this.formData.id).then(result => {
+      this.formData = result.data;
+      this.enrollmentExpiration = this.identitiesService.getEnrollmentExpiration(this.formData);
+      this.jwt = this.identitiesService.getJWT(this.formData);
+    })
+  }
+
   getAssociatedServices() {
     this.zitiService.getSubdata('identities', this.formData.id, 'services').then((result: any) => {
       this.associatedServices = result.data;

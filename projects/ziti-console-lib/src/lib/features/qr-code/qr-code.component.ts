@@ -19,6 +19,7 @@ import moment from 'moment';
 import {isEmpty} from 'lodash';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {IdentitiesPageService} from "../../pages/identities/identities-page.service";
+import {DialogRef} from "@angular/cdk/dialog";
 
 @Component({
   selector: 'lib-qr-code',
@@ -33,6 +34,7 @@ export class QrCodeComponent implements OnChanges {
   @Input() identity: any = {};
   @Input() type: string = 'identity';
   @Input() authenticators: any;
+  @Output() doRefresh: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   jwtExpired;
   expirationDate;
@@ -66,12 +68,34 @@ export class QrCodeComponent implements OnChanges {
     return this.authenticators?.cert?.id || this.authenticators?.updb?.id;
   }
 
+  get showReissueToken() {
+    return (this.identity?.enrollment?.ott?.id || this.identity?.enrollment?.updb?.id) && moment(this.expiration).isBefore();
+  }
+
   getJwtExpired() {
     return moment(this.expiration).isBefore();
   }
 
   getExpirationDate() {
     return moment(this.expiration).local().format('M/D/YY h:mm a');
+  }
+
+  reissue() {
+    const dialogRef: MatDialogRef<any> = this.identitiesSvc.reissueJWT(this.identity);
+    dialogRef.afterClosed().subscribe((result) => {
+        if (result) {
+          this.doRefresh.emit(true);
+        }
+    });
+  }
+
+  reset() {
+    const dialogRef: MatDialogRef<any> = this.identitiesSvc.resetJWT(this.identity);
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.doRefresh.emit(true);
+      }
+    });
   }
 
   ngOnChanges() {

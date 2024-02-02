@@ -151,6 +151,9 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       case 'reset-enrollment':
         this.resetEnrollment(event.item);
         break;
+      case 'reissue-enrollment':
+        this.reissueEnrollment(event.item);
+        break;
       case 'qr-code':
         this.showQRCode(event.item)
         break;
@@ -175,7 +178,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       jwt: this.svc.getJWT(item),
       expiration: this.svc.getEnrollmentExpiration(item),
       qrCodeSize: 300,
-      identity: item
+      identity: item,
     };
     this.dialogRef = this.dialogForm.open(QrCodeComponent, {
       data: data,
@@ -195,12 +198,30 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
 
   resetEnrollment(identity) {
     this.dialogRef = this.dialogForm.open(ResetEnrollmentComponent, {
-      data: identity,
+      data: {
+        identity: identity,
+        type: 'reset',
+      },
       autoFocus: false,
     });
     this.dialogRef.afterClosed().subscribe((result) => {
       if(result) {
-        this.refreshData();
+        this.refreshData(undefined, true);
+      }
+    })
+  }
+
+  reissueEnrollment(identity) {
+    this.dialogRef = this.dialogForm.open(ResetEnrollmentComponent, {
+      data: {
+        identity: identity,
+        type: 'reissue',
+      },
+      autoFocus: false,
+    });
+    this.dialogRef.afterClosed().subscribe((result) => {
+      if(result) {
+        this.refreshData(undefined, true);
       }
     })
   }
