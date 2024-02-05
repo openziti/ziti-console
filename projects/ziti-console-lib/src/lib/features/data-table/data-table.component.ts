@@ -182,6 +182,7 @@ export class DataTableComponent implements OnChanges, OnInit {
   };
 
   @ViewChild('calendar', { static: false }) calendar: any;
+  @ViewChild('contextMenu') contextMenu;
 
   constructor(public svc: DataTableService, private tableFilterService: DataTableFilterService) {
     this.resizeGridColumnsDebounced = _.debounce(this.svc.resizeGridColumns.bind(this.svc), 20, {leading: true});
@@ -254,8 +255,13 @@ export class DataTableComponent implements OnChanges, OnInit {
   openActionMenu(event, item): void {
     this.selectedItem = item;
     this.openMenu = true;
-    this.menuLeft = event.clientX - 150;
-    this.menuTop = event.clientY + 5;
+    _.delay(() => {
+      const height = this.contextMenu?.nativeElement?.offsetHeight || 120;
+      const windowOffset = window.innerHeight - event.clientY;
+      const menuOffset = windowOffset <= height ? height - windowOffset : 0;
+      this.menuLeft = event.clientX - 100;
+      this.menuTop = event.clientY + 5 - menuOffset;
+    }, 10);
   }
 
   onGridReady(params) {

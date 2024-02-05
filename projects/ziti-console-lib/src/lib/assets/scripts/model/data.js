@@ -361,10 +361,17 @@ var Data = function(name, context) {
 	};
 	this.dots = function(e) {
 		var menu = $(e.currentTarget).children(".gridMenu");
+		$(".gridMenu.open").css('margin-top', undefined);
 		if (menu.hasClass("open")) menu.removeClass("open");
 		else {
 			$(".gridMenu.open").removeClass("open");
 			menu.addClass("open");
+			setTimeout(() => {
+				const height = menu[0]?.offsetHeight || 120;
+				const windowOffset = window.innerHeight - e.clientY;
+				const menuOffset = windowOffset <= height ? (height - windowOffset) + 7 : 0;
+				menu.css('margin-top', -menuOffset + 'px');
+			}, 10);
 		}
 	};
 	this.getParams = function() {
