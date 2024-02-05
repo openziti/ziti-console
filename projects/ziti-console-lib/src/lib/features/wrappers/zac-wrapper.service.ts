@@ -30,7 +30,7 @@ import {GrowlerModel} from "../messaging/growler.model";
 import {LoggerService} from "../messaging/logger.service";
 
 // @ts-ignore
-const {modal} = window;
+const {modal, growler} = window;
 
 export const COMPONENTS: any = {
     api: `<label data-i18n="APICalls"></label>
@@ -893,5 +893,13 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
 
     handleError(result: any) {
         this.loggerService.error(result);
+        const error = result;
+        let message = '';
+        if (error.cause&&error.causeMessage&&error.causeMessage.length>0) message = error.causeMessage;
+        else if (error.cause&&error.cause.message&&error.cause.message.length>0) message = error.cause.message;
+        else if (error.cause&&error.cause.reason&&error.cause.reason.length>0) message = error.cause.reason;
+        else if (error.message&&error.message.length>0) message = error.message;
+        else message = error;
+        growler.error('Error', message);
     }
 }
