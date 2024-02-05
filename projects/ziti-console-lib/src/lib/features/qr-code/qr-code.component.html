@@ -11,9 +11,14 @@
         <div>COPY ENROLLMENT TOKEN</div>
         <div class="download-key"></div>
     </div>
-    <div (click)="identitiesSvc.reissueJWT(identity)" *ngIf="showResetToken" class="download-button" >
+    <div (click)="identitiesSvc.resetJWT(identity)" *ngIf="showResetToken" class="download-button" >
         <div class="download-key"></div>
         <div>RESET ENROLLMENT</div>
+        <div class="tap-to-download"></div>
+    </div>
+    <div (click)="reissue()" *ngIf="showReissueToken" class="download-button" >
+        <div class="download-key"></div>
+        <div>REISSUE ENROLLMENT</div>
         <div class="tap-to-download"></div>
     </div>
     <span class="info-text" *ngIf="!jwtExpired && type !== 'router'">OR SCAN QR CODE</span>

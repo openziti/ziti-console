@@ -122,4 +122,9 @@ export class IdentityFormService {
             return status;
         });
     }
+
+    refreshIdentity(id) {
+        const url: any = `/identities/${id}`
+        return this.zitiService.call(url);
+    }
 }

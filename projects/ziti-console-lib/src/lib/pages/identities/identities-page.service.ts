@@ -77,6 +77,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
         {name: 'Download JWT', action: 'download-enrollment'},
         {name: 'View QR', action: 'qr-code'},
         {name: 'Reset Enrollment', action: 'reset-enrollment'},
+        {name: 'Reissue Enrollment', action: 'reissue-enrollment'},
         {name: 'Override', action: 'override'},
         {name: 'Delete', action: 'delete'},
     ]
@@ -308,9 +309,12 @@ export class IdentitiesPageService extends ListPageServiceClass {
         return results.data.map((row) => {
             row.actionList = ['update', 'override', 'delete'];
             if (this.hasEnrolmentToken(row)) {
-                row.actionList.push('download-enrollment');
-                row.actionList.push('qr-code');
-            } else {
+                row.actionList.push('reissue-enrollment');
+                if (!this.enrollmentExpired(row)) {
+                    row.actionList.push('download-enrollment');
+                    row.actionList.push('qr-code');
+                }
+            } else if (this.hasAuthenticator(row)) {
                 row.actionList.push('reset-enrollment');
             }
             return row;
@@ -323,18 +327,26 @@ export class IdentitiesPageService extends ListPageServiceClass {
 
     hasEnrolmentToken(item) {
         let token;
-        let expiration;
         if (item?.enrollment?.ott?.jwt) {
-            token = item?.enrollment?.ott?.jwt
-            expiration = item?.enrollment?.ott?.expiresAt;
+            token = item?.enrollment?.ott?.jwt;
         } else if (item?.enrollment?.ottca?.jwt) {
             token = item?.enrollment?.ottca?.jwt;
-            expiration = item?.enrollment?.ottca?.expiresAt;
         } else if (item?.enrollment?.updb?.jwt) {
             token = item?.enrollment?.updb?.jwt;
+        }
+        return token;
+    }
+
+    enrollmentExpired(item) {
+        let expiration;
+        if (item?.enrollment?.ott?.jwt) {
+            expiration = item?.enrollment?.ott?.expiresAt;
+        } else if (item?.enrollment?.ottca?.jwt) {
+            expiration = item?.enrollment?.ottca?.expiresAt;
+        } else if (item?.enrollment?.updb?.jwt) {
             expiration = item?.enrollment?.updb?.expiresAt;
         }
-        return token && !moment(expiration).isBefore();
+        return moment(expiration).isBefore();
     }
 
     public getIdentitiesRoleAttributes() {
@@ -386,11 +398,26 @@ export class IdentitiesPageService extends ListPageServiceClass {
         this.growlerService.show(growlerData);
     }
 
-    reissueJWT(identity) {
+    resetJWT(identity) {
         this.dialogRef = this.dialogForm.open(ResetEnrollmentComponent, {
-            data: identity,
+            data: {
+                identity: identity,
+                type: 'reset'
+            },
             autoFocus: false,
         });
+        return this.dialogRef;
+    }
+
+    reissueJWT(identity) {
+        this.dialogRef = this.dialogForm.open(ResetEnrollmentComponent, {
+            data: {
+                identity: identity,
+                type: 'reissue'
+            },
+            autoFocus: false,
+        });
+        return this.dialogRef;
     }
 
     getEnrollmentExpiration(identity: any) {
