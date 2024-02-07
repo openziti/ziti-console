@@ -1,0 +1,32 @@
+.boxlabel {
+  text-transform: uppercase; position:absolute;padding-top: 0.3rem; padding-left:0.25rem
+}
+input {
+  width: 1rem; height: 1.5rem; border-radius: 4px;
+}
+input:checked {
+  background-color: var(--green)!important
+}
+
+.jsonEntry {
+  &.checkbox {
+    width: 25px;
+    height: 25px;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background-color .5s;
+    top: 13px;
+    left: 10px;
+    background-color: var(--navigation);
+    transition: var(--transition);
+    border: 2px var(--offWhite) solid;
+    &:checked {
+      background-color: var(--green);
+      background-image: url(/assets/images/check.png);
+      background-size: 45%;
+      background-position: center center;
+      background-repeat: no-repeat;
+      border: none;
+    }
+  }
+}

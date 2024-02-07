@@ -18,6 +18,8 @@ import {Component, Inject} from '@angular/core';
 import {DialogRef} from "@angular/cdk/dialog";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 
+import {isEmpty, isNil} from "lodash";
+
 @Component({
   selector: 'lib-confirm',
   templateUrl: './confirm.component.html',
@@ -33,11 +35,15 @@ export class ConfirmComponent {
     confirmLabel: '',
     cancelLabel: '',
     bulletList: [],
-    showCancel: false
+    showCancelButton: false,
+    showCancelLink: false
   }
 
   constructor(private dialogRef: MatDialogRef<ConfirmComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
     this.dataObj = data;
+    if (isNil(this.dataObj?.cancelLabel) || isEmpty(this.dataObj?.cancelLabel)) {
+      this.dataObj.cancelLabel = 'Oops, no get me out of here';
+    }
   }
 
   confirm() {

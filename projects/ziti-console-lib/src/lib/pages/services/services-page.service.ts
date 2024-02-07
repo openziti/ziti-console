@@ -44,7 +44,6 @@ const CSV_COLUMNS = [
 export class ServicesPageService extends ListPageServiceClass {
 
     private paging = this.DEFAULT_PAGING;
-    public sideModalOpen = false;
     public modalType = 'service';
 
     selectedService: any = new Service();
@@ -64,6 +63,7 @@ export class ServicesPageService extends ListPageServiceClass {
         {name: 'Download Selected', action: 'download-selected'},
     ]
 
+    resourceType = 'services';
     constructor(
         @Inject(SETTINGS_SERVICE) settings: SettingsServiceClass,
         filterService: DataTableFilterService,

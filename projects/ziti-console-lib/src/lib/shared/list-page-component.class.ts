@@ -19,6 +19,8 @@ import {ListPageServiceClass} from "./list-page-service.class";
 import {Injectable} from "@angular/core";
 import {Subscription} from "rxjs";
 import {ConsoleEventsService} from "../services/console-events.service";
+import {ConfirmComponent} from "../features/confirm/confirm.component";
+import {MatDialog} from "@angular/material/dialog";
 
 import {defer} from "lodash";
 
@@ -40,7 +42,7 @@ export abstract class ListPageComponent {
     columnDefs: any = [];
     rowData = [];
     filterApplied = false;
-
+    dialogRef: any;
     modalOpen = false;
 
     subscription: Subscription = new Subscription();
@@ -49,9 +51,11 @@ export abstract class ListPageComponent {
         protected filterService: DataTableFilterService,
         public svc: ListPageServiceClass,
         protected consoleEvents: ConsoleEventsService,
+        protected dialogForm: MatDialog,
     ) {}
 
     ngOnInit() {
+        this.svc.sideModalOpen = false;
         this.svc.refreshData = this.refreshData.bind(this);
         this.columnDefs = this.svc.initTableColumns();
         this.filterService.clearFilters();
@@ -125,5 +129,35 @@ export abstract class ListPageComponent {
             }).finally(() => {
                 this.isLoading = false;
             });
+    }
+
+    protected openBulkDelete(selectedItems: any[], entityTypeLabel = 'item(s)') {
+        const selectedIds = selectedItems.map((row) => {
+            return row.id;
+        });
+        const selectedNames = selectedItems.map((item) => {
+            return item.name;
+        });
+        const countLabel = selectedItems.length > 1 ? selectedItems.length : '';
+        const data = {
+            appendId: 'DeleteServices',
+            title: 'Delete',
+            message: `Are you sure you would like to delete the following ${countLabel} ${entityTypeLabel}?`,
+            bulletList: selectedNames,
+            confirmLabel: 'Yes',
+            cancelLabel: 'Oops, no get me out of here',
+            showCancelLink: true
+        };
+        this.dialogRef = this.dialogForm.open(ConfirmComponent, {
+            data: data,
+            autoFocus: false,
+        });
+        this.dialogRef.afterClosed().subscribe((result) => {
+            if (result) {
+                this.svc.removeItems(selectedIds).then(() => {
+                    this.refreshData(this.svc.currentSort);
+                });
+            }
+        });
     }
 }

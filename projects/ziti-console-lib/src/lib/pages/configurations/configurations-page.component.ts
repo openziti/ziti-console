@@ -22,6 +22,7 @@ import {ListPageComponent} from "../../shared/list-page-component.class";
 import {CallbackResults} from "../../features/list-page-features/list-page-form/list-page-form.component";
 import {SettingsService} from "../../services/settings.service";
 import {ConsoleEventsService} from "../../services/console-events.service";
+import {MatDialog} from "@angular/material/dialog";
 
 @Component({
     selector: 'lib-configurations',
@@ -43,8 +44,9 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
         filterService: DataTableFilterService,
         private tabNames: TabNameService,
         consoleEvents: ConsoleEventsService,
+        dialogForm: MatDialog
     ) {
-        super(filterService, svc, consoleEvents);
+        super(filterService, svc, consoleEvents, dialogForm);
     }
 
     override ngOnInit() {
@@ -59,7 +61,11 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
                 this.openUpdate();
                 break;
             case 'delete':
-                this.openBulkDelete()
+                const selectedItems = this.rowData.filter((row) => {
+                    return row.selected;
+                });
+                const label = selectedItems.length > 1 ? 'configurations' : 'configuration';
+                this.openBulkDelete(selectedItems, label);
                 break;
             default:
         }
@@ -82,10 +88,6 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
             this.formSubtitle = 'Change Configuration details';
         }
         this.showEditForm = true;
-    }
-
-    private openBulkDelete() {
-
     }
 
     viewButtons(state: boolean) {
