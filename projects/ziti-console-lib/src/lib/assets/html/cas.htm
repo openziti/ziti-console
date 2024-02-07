@@ -379,7 +379,7 @@
                 } else growler.form();
             },
             params: function() {
-                try {  
+                try {
                     var obj = {
                         name: $("#Name").val(),
                         isAutoCaEnrollmentEnabled: $("#IsAutoEnrollmentEnabled").hasClass("on"),
@@ -387,7 +387,8 @@
                         identityRoles: page.roles.val(),
                         identityNameFormat: $("#IdentityNameFormat").val(),
                         isAuthEnabled: $("#IsAuthEnabled").hasClass("on"),
-                        tags: tags.val()
+                        tags: tags.val(),
+                        certPem: $('#Pem').val(),
                     };
 
                     if ($("#IsExternalId").hasClass("on")) {
