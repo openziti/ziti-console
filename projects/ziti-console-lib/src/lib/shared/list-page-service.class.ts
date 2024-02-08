@@ -32,6 +32,7 @@ export abstract class ListPageServiceClass {
     abstract initTableColumns(): any[];
     abstract getData(filters?: FilterObj[], sort?: any, page?: any): Promise<any[]>
     abstract validate: ValidatorCallback;
+    abstract resourceType: string;
 
     headerComponentParams = {
         filterType: 'TEXTINPUT',
@@ -55,6 +56,11 @@ export abstract class ListPageServiceClass {
     tableHeaderActions: any = [];
     currentSettings: any = {};
     dialogRef: any;
+    sideModalOpen = false;
+    currentSort = {
+        sortBy: 'name',
+        ordering: 'desc'
+    };
 
     constructor(
         @Inject(SETTINGS_SERVICE) protected settings: SettingsServiceClass,
@@ -91,16 +97,17 @@ export abstract class ListPageServiceClass {
         return this.dataService.get(resourceType, paging, nonNameFilters);
     }
 
-    removeItems(resourceType: string, ids: string[]) {
+    removeItems(ids: string[]) {
         const promises = [];
         ids.forEach((id) => {
-            const prom = this.dataService.delete(resourceType, id);
+            const prom = this.dataService.delete(this.resourceType, id);
             promises.push(prom);
         });
         return Promise.all(promises);
     }
 
     sort(sortBy, ordering= 'desc') {
+        this.currentSort = {sortBy, ordering};
         if(this.refreshData) this.refreshData({sortBy, ordering});
     }
 }

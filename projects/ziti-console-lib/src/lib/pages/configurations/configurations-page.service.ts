@@ -34,6 +34,8 @@ export class ConfigurationsPageService extends ListPageServiceClass {
 
     private paging = this.DEFAULT_PAGING;
 
+    resourceType = 'configurations';
+
     constructor(
         private schemaSvc: SchemaService,
         @Inject(SETTINGS_SERVICE) settings: SettingsService,

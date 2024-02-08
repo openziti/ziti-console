@@ -36,7 +36,6 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
 
   title = 'Identity Management'
   tabs: { url: string, label: string }[] ;
-  dialogRef: any;
   isLoading = false;
   identityRoleAttributes: any[] = [];
   formDataChanged = false;
@@ -44,13 +43,13 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   constructor(
       public override svc: IdentitiesPageService,
       filterService: DataTableFilterService,
-      public dialogForm: MatDialog,
+      dialogForm: MatDialog,
       private tabNames: TabNameService,
       @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperServiceClass,
       private router: Router,
       consoleEvents: ConsoleEventsService,
   ) {
-    super(filterService, svc, consoleEvents);
+    super(filterService, svc, consoleEvents, dialogForm);
   }
 
   override ngOnInit() {
@@ -84,10 +83,9 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       case 'delete':
         const selectedItems = this.rowData.filter((row) => {
           return row.selected;
-        }).map((row) => {
-          return row.id;
         });
-        this.openBulkDelete(selectedItems);
+        const label = selectedItems.length > 1 ? 'identities' : 'identity';
+        this.openBulkDelete(selectedItems, label);
         break;
       default:
     }
@@ -103,28 +101,6 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
 
   dataChanged(event) {
     this.formDataChanged = event;
-  }
-
-  private openBulkDelete(selectedItems: any[]) {
-      const data = {
-        appendId: 'DeleteIdentities',
-        title: 'Delete',
-        message: 'Are you sure you would like to delete the selected Identities?',
-        bulletList: [],
-        confirmLabel: 'Yes',
-        cancelLabel: 'Cancel'
-      };
-      this.dialogRef = this.dialogForm.open(ConfirmComponent, {
-        data: data,
-        autoFocus: false,
-      });
-      this.dialogRef.afterClosed().subscribe((result) => {
-        if (result) {
-          this.svc.removeItems('identities', selectedItems).then(() => {
-            this.refreshData();
-          });
-        }
-      });
   }
 
   tableAction(event: any) {
@@ -187,7 +163,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   }
 
   deleteItem(item: any) {
-    this.openBulkDelete([item.id]);
+    this.openBulkDelete([item], 'identity');
   }
 
   getIdentityRoleAttributes() {

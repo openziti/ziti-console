@@ -25,7 +25,7 @@ import {defer, isEmpty} from "lodash";
       <label [ngStyle]="{'color': labelColor}">{{_fieldName}}</label>
       <div  *ngFor="let item of items">
           <input type="checkbox"
-              class="jsonEntry"
+              class="jsonEntry checkbox"
                  [ngClass]="{'error': error}"
               [checked]="item.checked" (click)="item.checked=!item.checked;updateFieldVal();"/>
           <span class="boxlabel">{{item.name}}</span>
@@ -33,10 +33,7 @@ import {defer, isEmpty} from "lodash";
       <div *ngIf="error" class="error">{{error}}</div>
     </div>
   `,
-  styles:['.boxlabel {text-transform: uppercase; position:absolute;padding-top: 0.3rem; padding-left:0.25rem}',
-      'input {width: 1rem; height: 1.5rem; border-radius: 4px;}',
-      'input:checked {background-color: var(--green)!important}'
-      ]
+  styleUrls: ['./checkbox-list.component.scss'],
 })
 export class CheckboxListInputComponent {
   items: any[] = [];

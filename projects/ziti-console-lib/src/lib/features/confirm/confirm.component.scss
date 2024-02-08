@@ -4,6 +4,37 @@
   background-color: var(--background);
   border-radius: 25px;
 
+  .icon-close {
+    font-size: 25px;
+    top: 15px;
+    right: 15px;
+    width: 35px;
+    font-weight: 600;
+  }
+
+  .confirm-model-body {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    .confirm-modal-content {
+      display: flex;
+      flex-direction: column;
+    }
+    .confirm-modal-main {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+    .confirm-modal-icon {
+      width: 120px;
+      height: 120px;
+      background-image: url(/assets/svgs/Confirm_Trash.svg);
+      background-size: contain;
+      z-index: 20;
+      box-sizing: var(--shadow);
+      margin-left: 15px;
+    }
+  }
   .confirm-title-container {
     width: 100%;
     display: flex;
@@ -19,7 +50,7 @@
       height: auto;
       font-family: Russo One;
       margin-top: 30px;
-      margin-left: 30px;
+      margin-left: 150px;
       filter: brightness(50%);
     }
   }
@@ -27,7 +58,8 @@
     color: var(--text);
     font-size: 14px;
     position: relative;
-    margin: 30px;
+    margin: 15px;
+    margin-top: 5px;
     padding: 0;
     font-weight: 600;
     font-family: Open Sans;
@@ -36,6 +68,25 @@
     align-items: center;
     justify-content: center;
     color: var(--tableText);
+    max-width: 400px;
+  }
+  .confirm-message-bullet-list {
+    margin-left: 20px;
+    margin-bottom: 15px;
+    margin-right: 20px;
+    max-height: 200px;
+    overflow: auto;
+    .confirm-item-name {
+      color: var(--primaryColor);
+      text-decoration: none;
+      transition: .5s ease;
+      &::marker {
+        color: var(--tableText);
+      }
+    }
+    ul {
+      margin: 0;
+    }
   }
   .confirm-buttons-container {
     display: flex;
@@ -44,6 +95,13 @@
     width: 100%;
     padding-right: 20px;
     padding-bottom: 20px;
+    align-items: flex-end;
+    .linkButton {
+      position: absolute;
+      left: 25px;
+      color: var(--subText);
+      font-weight: 600;
+    }
   }
 
   button {

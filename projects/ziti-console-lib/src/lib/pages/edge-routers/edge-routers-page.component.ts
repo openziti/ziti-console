@@ -24,7 +24,6 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
 
   title = 'Edge Router Management'
   tabs: { url: string, label: string }[] ;
-  dialogRef: any;
   isLoading = false;
   edgeRouterRoleAttributes: any[] = [];
   formDataChanged = false;
@@ -32,12 +31,12 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
   constructor(
       public override svc: EdgeRoutersPageService,
       filterService: DataTableFilterService,
-      public dialogForm: MatDialog,
+      dialogForm: MatDialog,
       private tabNames: TabNameService,
       consoleEvents: ConsoleEventsService,
       @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperServiceClass
   ) {
-    super(filterService, svc, consoleEvents);
+    super(filterService, svc, consoleEvents, dialogForm);
   }
 
   override ngOnInit() {
@@ -67,10 +66,9 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
       case 'delete':
         const selectedItems = this.rowData.filter((row) => {
           return row.selected;
-        }).map((row) => {
-          return row.id;
         });
-        this.openBulkDelete(selectedItems);
+        const label = selectedItems.length > 1 ? 'routers' : 'router';
+        this.openBulkDelete(selectedItems, label);
         break;
       default:
     }
@@ -86,28 +84,6 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
 
   dataChanged(event) {
     this.formDataChanged = event;
-  }
-
-  private openBulkDelete(selectedItems: any[]) {
-      const data = {
-        appendId: 'DeleteEdgeRouters',
-        title: 'Delete',
-        message: 'Are you sure you would like to delete the selected Edge Routers?',
-        bulletList: [],
-        confirmLabel: 'Yes',
-        cancelLabel: 'Cancel'
-      };
-      this.dialogRef = this.dialogForm.open(ConfirmComponent, {
-        data: data,
-        autoFocus: false,
-      });
-      this.dialogRef.afterClosed().subscribe((result) => {
-        if (result) {
-          this.svc.removeItems('edge-routers', selectedItems).then(() => {
-            this.refreshData();
-          });
-        }
-      });
   }
 
   tableAction(event: any) {
@@ -142,7 +118,7 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
   }
 
   deleteItem(item: any) {
-    this.openBulkDelete([item.id]);
+    this.openBulkDelete([item.id], 'router');
   }
 
   getEdgeRouterRoleAttributes() {

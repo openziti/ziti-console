@@ -648,6 +648,9 @@ export class DataTableComponent implements OnChanges, OnInit {
       case 'edge-routers':
         this.entityTypeLabel = 'Edge Routers';
         break;
+      case 'services':
+        this.entityTypeLabel = 'Services';
+        break;
     }
   }
 

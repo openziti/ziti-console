@@ -395,9 +395,7 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                 });
                 break;
             case 'dataSave':
-                this.saveZitiEntity(params, returnTo).then(() => {
-                    this.zitiUpdated.emit();
-                });
+                this.saveZitiEntity(params, returnTo);
                 break;
             case 'identity':
                 this.createSimpleIdentity(params).then((result) => {
@@ -720,9 +718,11 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                     data: result.data
                 }
             }));
-        })
-        Promise.all(promises).then(() => {
-            returnTo({});
+        });
+        return Promise.all(promises).then(() => {
+            this.getZitiEntities(params.type, params.paging).then((result) => {
+                returnTo(result);
+            });
         });
     }
 
@@ -748,7 +748,7 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                     for (let i = 0; i < objects.length; i++) {
                         const parameters: any = {};
                         parameters.ids = objects[i][1];
-                        this.callZitiEdge(serviceUrl + "/" + type + "/" + id.trim() + "/" + objects[i][0], parameters, 'DELETE');
+                        return this.callZitiEdge(serviceUrl + "/" + type + "/" + id.trim() + "/" + objects[i][0], parameters, 'DELETE');
                     }
                 }
             }
@@ -762,8 +762,9 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
         }
 
         return this.callZitiEdge(url, saveParams, method).then((result: any) => {
-            if (result?.error) this.handleError(result.error);
-            else if (result?.data) {
+            if (result?.error) {
+                returnTo(this.handleError(result.error));
+            } else if (result?.data) {
                 if (additional) {
                     let objects = Object.entries(additional);
                     let index = 0;
@@ -900,6 +901,6 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
         else if (error.cause&&error.cause.reason&&error.cause.reason.length>0) message = error.cause.reason;
         else if (error.message&&error.message.length>0) message = error.message;
         else message = error;
-        growler.error('Error', message);
+        return {error: message};
     }
 }

@@ -45,7 +45,6 @@ const CSV_COLUMNS = [
 export class EdgeRoutersPageService extends ListPageServiceClass {
 
     private paging = this.DEFAULT_PAGING;
-    public sideModalOpen = false;
     public modalType = 'edge-router';
 
     selectedEdgeRouter: any = new EdgeRouter();
@@ -68,6 +67,8 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
         {name: 'Download All', action: 'download-all'},
         {name: 'Download Selected', action: 'download-selected'},
     ]
+
+    resourceType = 'edge-routers';
 
     constructor(
         @Inject(SETTINGS_SERVICE) settings: SettingsServiceClass,

@@ -1,14 +1,29 @@
 <div class="confirm-modal-container">
     <div class="close icon-close" (click)="cancel()"></div>
-    <div class="confirm-title-container">
-        <span class="confirm-title">{{dataObj.title}}</span>
-        <span class="confirm-subtitle">{{dataObj.subtitle}}</span>
-    </div>
-    <div class="confirm-message-content">
-        <span>{{dataObj.message}}</span>
+    <div class="confirm-model-body">
+        <div class="confirm-modal-content">
+            <div class="confirm-title-container">
+                <span class="confirm-title">{{dataObj.title}}</span>
+                <span class="confirm-subtitle">{{dataObj.subtitle}}</span>
+            </div>
+            <div class="confirm-modal-main">
+                <div class="confirm-modal-icon"></div>
+                <div>
+                    <div class="confirm-message-content">
+                        <span>{{dataObj.message}}</span>
+                    </div>
+                    <div class="confirm-message-bullet-list">
+                        <ul>
+                            <li *ngFor="let item of dataObj.bulletList" class="confirm-item-name">{{item}}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="confirm-buttons-container">
-        <button class="button save cancel" (click)="cancel()" *nif="dataObj.showCancel">{{dataObj.cancelLabel}}</button>
+        <div class="linkButton cancel" (click)="cancel()" *ngIf="dataObj.showCancelLink">{{dataObj.cancelLabel}}</div>
+        <button class="button save cancel" (click)="cancel()" *ngIf="dataObj.showCancelButton">{{dataObj.cancelLabel}}</button>
         <button class="button save confirm" (click)="confirm()">{{dataObj.confirmLabel}}</button>
     </div>
 </div>

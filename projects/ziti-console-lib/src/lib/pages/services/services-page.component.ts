@@ -31,7 +31,6 @@ import {ConfirmComponent} from "../../features/confirm/confirm.component";
 })
 export class ServicesPageComponent extends ListPageComponent implements OnInit, OnDestroy  {
 
-  dialogRef: any;
   serviceRoleAttributes: any[] = [];
   formDataChanged = false;
   isLoading: boolean;
@@ -41,12 +40,12 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
   constructor(
       public override svc: ServicesPageService,
       filterService: DataTableFilterService,
-      public dialogForm: MatDialog,
+      dialogForm: MatDialog,
       private tabNames: TabNameService,
       consoleEvents: ConsoleEventsService,
       @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperServiceClass,
   ) {
-    super(filterService, svc, consoleEvents);
+    super(filterService, svc, consoleEvents, dialogForm);
     let userLang = navigator.language || 'en-us';
     userLang = userLang.toLowerCase();
   }
@@ -67,10 +66,9 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
       case 'delete':
         const selectedItems = this.rowData.filter((row) => {
           return row.selected;
-        }).map((row) => {
-          return row.id;
         });
-        this.openBulkDelete(selectedItems);
+        const label = selectedItems.length > 1 ? 'services' : 'service';
+        this.openBulkDelete(selectedItems, label);
         break;
       default:
     }
@@ -103,30 +101,10 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
   }
 
   deleteItem(item: any) {
-    this.openBulkDelete([item.id]);
+    this.openBulkDelete([item.id], 'service');
   }
 
-  private openBulkDelete(selectedItems: any[]) {
-    const data = {
-      appendId: 'DeleteServices',
-      title: 'Delete',
-      message: 'Are you sure you would like to delete the selected item(s)?"',
-      bulletList: [],
-      confirmLabel: 'Yes',
-      cancelLabel: 'Cancel'
-    };
-    this.dialogRef = this.dialogForm.open(ConfirmComponent, {
-      data: data,
-      autoFocus: false,
-    });
-    this.dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.svc.removeItems('services', selectedItems).then(() => {
-          this.refreshData();
-        });
-      }
-    });
-  }
+
 
   getServiceRoleAttributes() {
     this.svc.getServiceRoleAttributes().then((result: any) => {

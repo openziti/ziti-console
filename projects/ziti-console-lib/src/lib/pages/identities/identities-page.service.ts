@@ -62,8 +62,7 @@ const CSV_COLUMNS = [
 export class IdentitiesPageService extends ListPageServiceClass {
 
     private paging = this.DEFAULT_PAGING;
-    public sideModalOpen = false;
-    public modalType = 'identity';
+    public modalType = 'identities';
 
     selectedIdentity: any = new Identity();
     columnFilters: any = {
@@ -87,6 +86,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
         {name: 'Download Selected', action: 'download-selected'},
     ]
 
+    resourceType = 'identities';
     constructor(
         @Inject(SETTINGS_SERVICE) settings: SettingsServiceClass,
         filterService: DataTableFilterService,

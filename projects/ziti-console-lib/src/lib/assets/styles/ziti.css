@@ -1037,7 +1037,7 @@ aside .icon {
     font-size: 24px;
     text-align: center;
     cursor: pointer;
-    background-color: var(--background);
+    background-color: transparent;
     transition: var(--transition);
     line-height: 13px;
     border-radius: 7px;
