@@ -1,4 +1,4 @@
-<div class="zac-wrapper-container" [innerHTML]="pageHtml | safe" #zacContainer></div>
+<div class="zac-wrapper-container" [innerHTML]="pageHtml | safe" #zacContainer [ngClass]="{'hidden': pageLoading}"></div>
 <!-- Operational Wizard UI -->
 <div id="WizardModal" class="modal box">
     <div class="close icon-close"></div>
@@ -14,7 +14,7 @@
 
 
 <!-- Add Any Modal UI -->
-<div id="AddAnyModal" class="modal box" style="height: fit-content; width: 600px; transition: var(--transition);">
+<div id="AddAnyModal" class="modal box" style="height: fit-content; width: 600px; transition: var(--transition);" [ngClass]="{'hidden': pageLoading}">
     <div class="close icon-close"></div>
     <div id="Select1">
         <div class="title" data-i18n="AddTitle"></div>
@@ -128,5 +128,4 @@
     </div>
 
 </div>
-
 <lib-loading-indicator *ngIf="loading" [isLoading]="loading"></lib-loading-indicator>

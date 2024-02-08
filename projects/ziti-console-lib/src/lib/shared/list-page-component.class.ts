@@ -107,6 +107,7 @@ export abstract class ListPageComponent {
 
     refreshData(sort?: { sortBy: string, ordering: string }, hardRefresh = false): void {
         this.isLoading = true;
+        sort = sort ? sort : this.svc.currentSort;
         this.svc.getData(this.filterService.filters, sort, this.currentPage)
             .then((data: any) => {
                 this.rowData = [];
