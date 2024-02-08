@@ -89,7 +89,6 @@
             data: [],
             idsObject: null,
             init: function() {
-                
                 page.map = L.map("MainMap", {zoomControl: false});
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '&copy; NetFoundry Inc.'}).addTo(page.map);
                 page.map.setView(new L.LatLng(41.850033, -87.6500523), 4);
@@ -125,7 +124,7 @@
             getLoaded: function(e) {
                 page.data = context.get(summary.name);
                 $("#TotalIdentities").html(page.data.identities);
-                $("#TotalServices").html(page.data.services);
+                $("#TotalServices").html(page.data['services.edge']);
                 $("#TotalConfigurations").html(page.data.configs);
                 $("#TotalEdgeRouters").html(page.data.routers);
                 $("#TotalServicePolicies").html(page.data.servicePolicies);
