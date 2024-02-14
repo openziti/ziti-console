@@ -1,7 +1,7 @@
-.angular
-.github
-.git
-.vscode
-dist
-node_modules
-sessions
+/.angular
+/.github
+/.git
+/.vscode
+/dist
+/node_modules
+/sessions
