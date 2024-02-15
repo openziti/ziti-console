@@ -118,7 +118,6 @@
             edit: function(id, readOnly = false) {
                 if ($(`[data-id="${id}"]`).parent('.readOnly').length > 0) {
                     readOnly = true;
-                    debugger;
                 }
                 var detail = page.filterObject.details(id);
                 page.schema.setValue(JSON.stringify(detail.schema));
