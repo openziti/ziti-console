@@ -85,7 +85,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       public svc: IdentityFormService,
       public identitiesService: IdentitiesPageService,
       @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
-      growlerService: GrowlerService
+      public growlerService: GrowlerService
   ) {
     super();
     this.identityRoleAttributes = [];
