@@ -111,15 +111,20 @@
             gridAction: function(e) {
                 var action = $(e.currentTarget).data("action");
                 var id = $(e.currentTarget).data("id");
+                var readOnly = $(e.currentTarget).parents(".readOnly").length > 0;
                 if (action=="delete") page.filterObject.delete([id]);
-                else if (action=="edit") page.edit(id);
+                else if (action=="edit") page.edit(id, readOnly);
             },
-            edit: function(id) {
+            edit: function(id, readOnly = false) {
+                if ($(`[data-id="${id}"]`).parent('.readOnly').length > 0) {
+                    readOnly = true;
+                    debugger;
+                }
                 var detail = page.filterObject.details(id);
                 page.schema.setValue(JSON.stringify(detail.schema));
                 page.schema.autoFormatRange({line:0, ch:0}, {line:page.schema.lineCount()});
                 page.params();
-                modal.show("AddModal");
+                modal.show("AddModal", readOnly);
             },
             save: function() {
                 if (page.validate()) {

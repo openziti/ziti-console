@@ -866,8 +866,8 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
             return;
         }
         const modalIds = ['DetailModal', 'AddMessageModal', 'QRModal', 'ResetModal', 'OverrideModal', 'AddModal'];
-        modal.show = (id) => {
-            this.modalShow(id);
+        modal.show = (id, readOnly) => {
+            this.modalShow(id, readOnly);
             if (modalIds.includes(id)) {
                 $('body').addClass('updateModalOpen');
             }
