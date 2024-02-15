@@ -1,31 +1,31 @@
-FROM node:latest
+# Build Stage
+FROM node:16.20.2 as builder
 
-# The in-container path for the key file to use for TLS.
-ENV ZAC_SERVER_KEY=
-# The in-container path for the cert bundle file to use for TLS.
-ENV ZAC_SERVER_CERT_CHAIN=
-# the HTTP port ZAC uses
-ENV PORT=
-# the HTTPS port ZAC uses
-ENV PORTTLS=
-
-# Create app directory
 WORKDIR /usr/src/app
 
-# Expose ports
-EXPOSE 1408
-EXPOSE 8443
+COPY package*.json ./
 
-# Copy source code to image
-COPY . .
-
-# Fetch dependencies
 RUN npm install
+
+COPY . .
 
 RUN npm install -g @angular/cli@16.0.0-next.0
 RUN ng build ziti-console-lib
 RUN ng build ziti-console
 RUN ng build ziti-console-node
 
-ENTRYPOINT ["/usr/src/app/run-zac.sh"]
-CMD ["/usr/src/app/run-zac.sh"]
+# Final Stage
+FROM node:16.20.2-alpine
+
+WORKDIR /usr/src/app
+
+COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/run-zac.sh ./
+
+# Set environment variables...
+
+EXPOSE 1408
+EXPOSE 8443
+
+ENTRYPOINT ["./run-zac.sh"]
+CMD ["./run-zac.sh"]
