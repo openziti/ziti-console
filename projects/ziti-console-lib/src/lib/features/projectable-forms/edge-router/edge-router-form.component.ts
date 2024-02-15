@@ -124,8 +124,9 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
       if (result?.close) {
         this.closeModal(true, true);
       }
-      if (!isEmpty(result?.id)) {
-        this.formData = result?.data || this.formData;
+      const data = result?.data?.id ? result.data : result;
+      if (!isEmpty(data.id)) {
+        this.formData = data || this.formData;
         this.initData = this.formData;
       } else {
         this.initData = this.formData;

@@ -28,6 +28,7 @@ export class PreviewListComponent {
   @Input() isLoading = false;
   @Input() allNames = [];
   @Input() allowRemove = false
+  @Input() tooltip = '';
   @Output() itemSelected = new EventEmitter<string>();
   @Output() itemRemoved = new EventEmitter<string>();
   public names = [];

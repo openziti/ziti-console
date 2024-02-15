@@ -103,18 +103,6 @@ export class EdgeRouterFormService {
         });
     }
 
-    copyToClipboard(val) {
-        navigator.clipboard.writeText(val);
-        const growlerData = new GrowlerModel(
-            'success',
-            'Success',
-            `Text Copied`,
-            `API call URL copied to clipboard`,
-        );
-        this.growlerService.show(growlerData);
-    }
-
-
     getAssociatedServices(id) {
         this.zitiService.getSubdata('edge-routers', id, 'services').then((result: any) => {
             this.associatedServices = result.data;

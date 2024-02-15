@@ -5,7 +5,7 @@
     <div class="text row">
         <div (click)="selected(name)" *ngFor="let name of names" [ngClass]="{ clickable: clickable }" class="listText">
             <div *ngIf="allowRemove" class="icon-clear" (click)="remove(name)"></div>
-            {{ name }}
+            <span class="preview-name" matTooltip="{{tooltip}}" matTooltipPosition="below">{{ name }}</span>
         </div>
     </div>
 </div>

@@ -29,7 +29,7 @@ import {
 import {ProjectableForm} from "../projectable-form.class";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 
-import {isEmpty, forEach, delay, unset, keys, forOwn, cloneDeep, isEqual, set} from 'lodash';
+import {isEmpty, isNil, forEach, delay, unset, keys, forOwn, cloneDeep, isEqual, set, result} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
@@ -78,15 +78,17 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   testResult: string = '';
   testResultOpen = false;
 
+  cas = [];
+
   constructor(
       @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
       public svc: IdentityFormService,
       public identitiesService: IdentitiesPageService,
       @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
-      private growlerService: GrowlerService
+      growlerService: GrowlerService
   ) {
     super();
-    this.identityRoleAttributes = ['test'];
+    this.identityRoleAttributes = [];
   }
 
   ngOnInit(): void {
@@ -95,9 +97,11 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     });
     this.jwt = this.identitiesService.getJWT(this.formData);
     this.enrollmentExpiration = this.identitiesService.getEnrollmentExpiration(this.formData);
+    this.initEnrollmentType();
     this.getAssociatedServices();
     this.getAssociatedServicePolicies();
     this.getAuthPolicies();
+    this.getCertificateAuthorities();
     this.initData = cloneDeep(this.formData);
     this.loadTags();
   }
@@ -120,6 +124,16 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     })
   }
 
+  initEnrollmentType() {
+    if (this.formData?.enrollment?.ott) {
+      this.enrollmentType = 'ott';
+    } else if (this.formData?.enrollment?.updb) {
+      this.enrollmentType = 'updb';
+    } else if (this.formData?.enrollment?.ottca) {
+      this.enrollmentType = 'CA';
+    }
+  }
+
   getAssociatedServices() {
     this.zitiService.getSubdata('identities', this.formData.id, 'services').then((result: any) => {
       this.associatedServices = result.data;
@@ -135,6 +149,24 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       this.associatedServicePolicyNames = this.associatedServicePolicies.map((policy) => {
         return policy.name;
       });
+    });
+  }
+
+  getCertificateAuthorities() {
+    const paging = {
+      filter: "",
+      noSearch: true,
+      order: "asc",
+      page: 1,
+      searchOn: "name",
+      sort: "name",
+      total: 100
+    }
+    this.zitiService.get('cas', paging, []).then((result: any) => {
+      this.cas = [...result.data];
+      if (this.cas.length > 0) {
+        this.enrollmentCA = this.cas[0].id;
+      }
     });
   }
 
@@ -220,9 +252,18 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     if (isEmpty(this.formData.name)) {
       this.errors['name'] = true;
     }
+    if (this.enrollmentType === 'CA' && (isEmpty(this.enrollmentCA) || isNil(this.enrollmentCA))) {
+      this.errors['enrollmentCA'] = true;
+    }
+    if (this.enrollmentType === 'updb' && (isEmpty(this.enrollmentUPDB) || isNil(this.enrollmentUPDB))) {
+      this.errors['enrollmentUPDB'] = true;
+    }
     return isEmpty(this.errors);
   }
 
+  get enrollmentTypeTitle() {
+    return this.enrollmentType === 'CA' ? 'CERTIFICATE AUTHORITY' : (this.enrollmentType === 'updb' && !this.isEditing) ? 'UPDB USERNAME' : undefined;
+  }
   get apiCallURL() {
     return this.settings.selectedEdgeController + '/edge/management/v1/identities' + (this.formData.id ? `/${this.formData.id}` : '');
   }
@@ -239,7 +280,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       defaultHostingCost: this.formData.defaultHostingCost || '0',
       defaultHostingPrecedence: this.formData.defaultHostingPrecedence || 'defaultHostingPrecedence',
       tags: this.formData.tags || ''
-    }
+    };
     if (!this.isEditing) {
       data.enrollment = this.formData.enrollment || {ott: true};
     }
@@ -262,6 +303,10 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       this.testResult = result;
       this.testResultOpen = true;
     });
+  }
+
+  toggleIsAdmin() {
+    this.formData.isAdmin = !this.formData.isAdmin;
   }
 
   get identityType() {

@@ -73,13 +73,20 @@
 .clickable:hover,
 .clickable:focus {
     filter: brightness(90%);
-    text-decoration: underline;
 }
 
 .clickable:active {
     color: var(--icon);
     -webkit-transform: translateY(1px);
     transform: translateY(1px);
+}
+
+.clickable .preview-name:hover,
+.clickable .preview-name:focus {
+    text-decoration: underline;
+}
+
+.clickable .preview-name:active {
     text-decoration: underline;
 }
 

@@ -14,9 +14,23 @@
   }
 
   &.modal-view {
-    width: 400px;
+    width: 500px;
     background-color: var(--background);
     padding: 20px;
     border-radius: 15px;
+  }
+  .qr-code-buttons {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+  .qr-code-expandable {
+    cursor: pointer;
+    transition: transform .25s;
+    &:hover {
+      transform: scale(1.15);
+    }
   }
 }
