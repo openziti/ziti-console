@@ -44,6 +44,7 @@ export abstract class ListPageComponent {
     filterApplied = false;
     dialogRef: any;
     modalOpen = false;
+    gridObj: any = {};
 
     subscription: Subscription = new Subscription();
 
@@ -127,6 +128,7 @@ export abstract class ListPageComponent {
                     this.endCount = data.meta.pagination.limit;
                 }
                 this.updateSelectedItems();
+                this.refreshCells();
             }).finally(() => {
                 this.isLoading = false;
             });
@@ -159,6 +161,19 @@ export abstract class ListPageComponent {
                     this.refreshData(this.svc.currentSort);
                 });
             }
+        });
+    }
+
+    gridReady(event) {
+        this.gridObj = event;
+    }
+
+    refreshCells() {
+        defer(() => {
+            var params = {
+                force: true,
+            };
+            this.gridObj?.api?.refreshCells(params);
         });
     }
 }

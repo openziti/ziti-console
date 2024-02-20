@@ -22,6 +22,7 @@
             [rowData]="rowData"
             [tooltipHideDelay]="20000"
             [tooltipShowDelay]="0"
+            (gridReady)="onGridReady($event)"
             class="ziti-ag-grid-table ag-theme-alpine rows"
             id="ItemGrid"
         >
