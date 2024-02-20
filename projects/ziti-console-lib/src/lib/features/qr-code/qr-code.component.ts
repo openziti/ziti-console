@@ -17,7 +17,7 @@
 import {Component, EventEmitter, Input, Output, OnChanges, Inject, Optional} from '@angular/core';
 import moment from 'moment';
 import {isEmpty} from 'lodash';
-import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {IdentitiesPageService} from "../../pages/identities/identities-page.service";
 import {DialogRef} from "@angular/cdk/dialog";
 
@@ -34,6 +34,8 @@ export class QrCodeComponent implements OnChanges {
   @Input() identity: any = {};
   @Input() type: string = 'identity';
   @Input() authenticators: any;
+  @Input() qrOnly: boolean = false;
+  @Input() canExpand: boolean = false;
   @Output() doRefresh: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   jwtExpired;
@@ -41,11 +43,11 @@ export class QrCodeComponent implements OnChanges {
   qrCodeSize = 200;
   isModal = false;
 
-
   constructor(
       @Optional() private dialogRef: MatDialogRef<QrCodeComponent>,
+      @Optional() private dialogForm: MatDialog,
       @Optional() @Inject(MAT_DIALOG_DATA) public data: any,
-      public identitiesSvc: IdentitiesPageService
+      public identitiesSvc: IdentitiesPageService,
   )
   {
     if (!isEmpty(data)) {
@@ -57,6 +59,7 @@ export class QrCodeComponent implements OnChanges {
       this.expirationDate = this.getExpirationDate();
       this.isModal = true;
       this.identity = data.identity;
+      this.qrOnly = data.qrOnly;
     }
   }
 
@@ -95,6 +98,20 @@ export class QrCodeComponent implements OnChanges {
       if (result) {
         this.doRefresh.emit(true);
       }
+    });
+  }
+
+  expandQRCode() {
+    const data = {
+      jwt: this.jwt,
+      expiration: this.expiration,
+      qrCodeSize: 400,
+      identity: this.identity,
+      qrOnly: true
+    };
+    const dialogRef = this.dialogForm.open(QrCodeComponent, {
+      data: data,
+      autoFocus: false,
     });
   }
 

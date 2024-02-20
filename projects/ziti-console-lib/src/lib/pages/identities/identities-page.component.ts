@@ -153,7 +153,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
     const data = {
       jwt: this.svc.getJWT(item),
       expiration: this.svc.getEnrollmentExpiration(item),
-      qrCodeSize: 300,
+      qrCodeSize: 400,
       identity: item,
     };
     this.dialogRef = this.dialogForm.open(QrCodeComponent, {
@@ -184,7 +184,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       if(result) {
         this.refreshData(undefined, true);
       }
-    })
+    });
   }
 
   reissueEnrollment(identity) {

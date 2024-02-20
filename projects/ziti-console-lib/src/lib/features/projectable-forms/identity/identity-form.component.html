@@ -58,7 +58,7 @@
                 <div [hidden]="!showMore" class="form-group-column">
                     <lib-form-field-container
                         [title]="'Enrollment Type'"
-                        [title2]="enrollmentType === 'CA' ? 'CERTIFICATE AUTHORITY' : (enrollmentType === 'updb' ? 'UPDB USERNAME' : undefined)"
+                        [title2]="enrollmentTypeTitle"
                         [layout]="'row'"
                         class="form-field-advanced"
                     >
@@ -79,11 +79,14 @@
                             *ngIf="enrollmentType === 'CA'"
                             [ngClass]="{disabled: isEditing}"
                             [(ngModel)]="enrollmentCA"
+                            [ngClass]="{error: errors.enrollmentCA}"
                             (change)="updateEnrollment()"
-                        ></select>
+                        >
+                            <option *ngFor="let ca of cas" [value]="ca.id">{{ca.name}}</option>
+                        </select>
                         <input
-                            *ngIf="enrollmentType === 'updb'"
-                            [ngClass]="{disabled: isEditing}"
+                            *ngIf="enrollmentType === 'updb' && !isEditing"
+                            [ngClass]="{disabled: isEditing, error: errors.enrollmentUPDB}"
                             [(ngModel)]="enrollmentUPDB"
                             (keyup)="updateEnrollment()"
                             class="form-field-input"
@@ -94,27 +97,24 @@
                         >
                     </lib-form-field-container>
                     <lib-form-field-container
-                            [title]="'Identity Type'"
-                            [title2]="'Is Admin'"
+                            [title]="'Admin'"
                             [layout]="'row'"
                             class="form-field-advanced is-admin-container"
                     >
-                        <select id="IdentityType"
-                                style="padding-right: 0px; margin-right: 10px;"
-                                [ngClass]="{disabled: isEditing}"
-                                [(ngModel)]="identityType"
-                        >
-                            <option value="Device">Device</option>
-                            <option value="Service">Service</option>
-                            <option value="User">User</option>
-                        </select>
-                        <lib-form-field-toggle
-                                [(toggleOn)]="formData.isAdmin"
-                                [orientation]="'column'"
-                                [labelOn]="'YES'"
-                                [labelOff]="'NO'"
-                                class="admin-toggle"
-                        ></lib-form-field-toggle>
+                        <div class="config-item">
+                            <div class="config-container toggle-container">
+                                <div class="config-container-label">IS ADMIN</div>
+                                <div
+                                        (click)="toggleIsAdmin()"
+                                        [ngClass]="{ on: formData.isAdmin }"
+                                        class="toggle"
+                                >
+                                    <span [hidden]="!formData.isAdmin" class="on-label">YES</span>
+                                    <span [hidden]="formData.isAdmin" class="off-label">NO</span>
+                                    <div class="switch"></div>
+                                </div>
+                            </div>
+                        </div>
                     </lib-form-field-container>
                     <lib-form-field-container
                             [title]="'Hosting Cost'"
@@ -168,6 +168,7 @@
                         [expiration]="enrollmentExpiration"
                         [authenticators]="formData.authenticators"
                         [type]="'identity'"
+                        [canExpand]="true"
                         (doRefresh)="refreshIdentity()"
                     ></lib-qr-code>
                 </lib-form-field-container>

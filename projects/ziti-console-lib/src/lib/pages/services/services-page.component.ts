@@ -52,6 +52,7 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
 
   override ngOnInit() {
     super.ngOnInit();
+    this.getServiceRoleAttributes();
     this.tabs = this.tabNames.getTabs('services');
   }
 
@@ -101,7 +102,8 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
   }
 
   deleteItem(item: any) {
-    this.openBulkDelete([item.id], 'service');
+    this.openBulkDelete([item], 'service');
+    console.log('test');
   }
 
 

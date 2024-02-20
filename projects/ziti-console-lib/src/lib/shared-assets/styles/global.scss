@@ -138,6 +138,10 @@ body {
   background-size: 18px;
   padding-right: 28px;
   min-height: 50px;
+
+  &.error {
+    border-color: var(--red);
+  }
 }
 
 .form-field-input {

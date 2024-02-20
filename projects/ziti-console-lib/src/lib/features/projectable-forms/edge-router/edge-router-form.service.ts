@@ -114,7 +114,6 @@ export class EdgeRouterFormService {
         this.growlerService.show(growlerData);
     }
 
-
     getAssociatedServices(id) {
         this.zitiService.getSubdata('edge-routers', id, 'services').then((result: any) => {
             this.associatedServices = result.data;
