@@ -78,6 +78,13 @@ var Data = function(name, context) {
 			if (page&&page.save) this.saveButton.click(page.save);
 			$(".searchButton").click(this.get.bind(this));
 		}
+		$(document).click((e) => {
+			setTimeout(() => {
+				if (!$(e.target).parents('.dots')) {
+					$(".gridMenu").removeClass('open');
+				}
+			}, 50);
+		});
 	};
 	this.isEditing = function() {
 		return (this.editId!='');
@@ -362,7 +369,9 @@ var Data = function(name, context) {
 	this.dots = function(e) {
 		var menu = $(e.currentTarget).children(".gridMenu");
 		$(".gridMenu.open").css('margin-top', undefined);
-		if (menu.hasClass("open")) menu.removeClass("open");
+		if (menu.hasClass("open")) {
+			menu.removeClass("open");
+		}
 		else {
 			$(".gridMenu.open").removeClass("open");
 			menu.addClass("open");
