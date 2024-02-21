@@ -91,7 +91,6 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   showMore = false;
   formView = 'simple';
   settings: any = {};
-  errors: any = {};
   subscription: Subscription = new Subscription();
 
   @ViewChild("dynamicform", {read: ViewContainerRef}) dynamicForm!: ViewContainerRef;
@@ -99,10 +98,10 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
       @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
       public svc: ServiceFormService,
       @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
-      private growlerService: GrowlerService,
+      growlerService: GrowlerService,
       @Inject(SERVICE_EXTENSION_SERVICE) private extService: ExtensionService
   ) {
-    super();
+    super(growlerService);
   }
 
   ngOnInit(): void {
@@ -114,8 +113,10 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     this.jwt = this.formData.enrollmentJwt;
     this.token = this.formData.enrollmentToken;
     this.enrollmentExpiration = this.formData?.enrollmentExpiresAt;
+    this.svc.resetFormData();
     this.svc.getAssociatedConfigs();
     this.svc.getAssociatedTerminators();
+    this.svc.errors = {};
     this.initData = cloneDeep(this.formData);
     this.subscription.add(
       this.extService.formDataChanged.subscribe((data) => {
@@ -155,7 +156,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   }
 
   get showConfigData() {
-    return this.svc.selectedConfigId === 'add-new';
+    return this.svc.selectedConfigId === 'add-new' || this.svc.selectedConfigId === 'preview';
   }
 
   headerActionRequested(action) {
@@ -200,6 +201,10 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
 
   toggleEncryptionRequired() {
     this.formData.encryptionRequired = !this.formData.encryptionRequired;
+  }
+
+  get apiCallURL() {
+    return this.settings.selectedEdgeController + '/edge/management/v1/services' + (this.formData.id ? `/${this.formData.id}` : '');
   }
 
   clear(): void {

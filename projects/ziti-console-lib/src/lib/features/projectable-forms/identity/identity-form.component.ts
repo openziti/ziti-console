@@ -69,7 +69,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   authPolicies: any = [];
 
   showMore = false;
-  errors: any = {};
   formView = 'simple';
   enrollmentType = 'ott';
   enrollmentCA;
@@ -85,9 +84,9 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       public svc: IdentityFormService,
       public identitiesService: IdentitiesPageService,
       @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
-      public growlerService: GrowlerService
+      growlerService: GrowlerService
   ) {
-    super();
+    super(growlerService);
     this.identityRoleAttributes = [];
   }
 
@@ -323,17 +322,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
 
   closeTestResult() {
     this.testResultOpen = false;
-  }
-
-  copyToClipboard(val) {
-    navigator.clipboard.writeText(val);
-    const growlerData = new GrowlerModel(
-        'success',
-        'Success',
-        `Text Copied`,
-        `API call URL copied to clipboard`,
-    );
-    this.growlerService.show(growlerData);
   }
 
   clear(): void {

@@ -16,7 +16,8 @@
 
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {ForwardingConfigService} from "./forwarding-config.service";
-import {SchemaService} from "../../../services/schema.service";
+import {ValidationService} from "../../../services/validation.service";
+import {isEmpty} from "lodash";
 
 @Component({
   selector: 'lib-forwarding-config',
@@ -49,7 +50,7 @@ export class ForwardingConfigComponent {
   disableAddress = false;
   disablePort = false;
 
-  constructor(private svc: ForwardingConfigService, private schemaSvc: SchemaService) {}
+  constructor(private svc: ForwardingConfigService, private validationService: ValidationService) {}
 
   forwardProtocolToggled(event) {
     if (!this.forwardProtocol) {
@@ -96,10 +97,14 @@ export class ForwardingConfigComponent {
   }
 
   validatePortRanges() {
-    this.errors['allowedPortRanges'] = this.schemaSvc.validatePortRanges(this.allowedPortRanges);
+    this.errors['allowedPortRanges'] = this.validationService.validatePortRanges(this.allowedPortRanges);
   }
 
   setAllowedPortRanges(ranges) {
-    this.allowedPortRanges = this.schemaSvc.parseAllowedPortRanges(ranges);
+    if (!ranges || isEmpty(ranges)) {
+      this.allowedPortRanges = undefined;
+      return;
+    }
+    this.allowedPortRanges = this.validationService.parseAllowedPortRanges(ranges);
   }
 }

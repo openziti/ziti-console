@@ -17,6 +17,7 @@
 import {Component, DoCheck, EventEmitter, Input, OnInit, Output, ViewChild, ViewContainerRef} from '@angular/core';
 import {Subject} from "rxjs";
 import _, {debounce, isEmpty, isNumber} from "lodash";
+import {ValidationService} from "../../../services/validation.service";
 
 @Component({
   selector: 'lib-protocol-address-port-input',
@@ -35,7 +36,7 @@ export class ProtocolAddressPortInputComponent implements OnInit, DoCheck {
   @Input() disablePort = false;
   @Input() protocol: string;
   @Input() address: string;
-  @Input() hostName: string;
+  @Input() hostname: string;
   @Input() port: number;
   @Input() parentage: string[] = [];
   @Input() labelColor = '#000000';
@@ -45,16 +46,19 @@ export class ProtocolAddressPortInputComponent implements OnInit, DoCheck {
   @Output() fieldValueChange: EventEmitter<any> = new EventEmitter<any>();
   @Output() portChange: EventEmitter<number> = new EventEmitter<number>();
   @Output() addressChange: EventEmitter<string> = new EventEmitter<string>();
-  @Output() hostNameChange: EventEmitter<string> = new EventEmitter<string>();
+  @Output() hostnameChange: EventEmitter<string> = new EventEmitter<string>();
   @Output() protocolChange: EventEmitter<string> = new EventEmitter<string>();
   valueChange = new Subject<any> ();
 
   protocolFieldName = 'Protocol';
   addressFieldName = 'Address';
-  hostNameFieldName = 'Host Name';
+  hostnameFieldName = 'Host Name';
   portFieldName = 'Port';
 
   checkAddressDebounced = debounce(this.checkAddress, 100, {maxWait: 100, leading: true});
+
+  constructor(private validationService: ValidationService) {
+  }
   ngOnInit() {
 
   }
@@ -73,7 +77,7 @@ export class ProtocolAddressPortInputComponent implements OnInit, DoCheck {
   update() {
     this.portChange.emit(this.port);
     this.addressChange.emit(this.address);
-    this.hostNameChange.emit(this.hostName);
+    this.hostnameChange.emit(this.hostname);
     this.protocolChange.emit(this.protocol);
   }
 
@@ -88,7 +92,7 @@ export class ProtocolAddressPortInputComponent implements OnInit, DoCheck {
   getProperties() {
     const protocol = isEmpty(this.protocol) ? undefined : this.protocol;
     const address = isEmpty(this.address) ? undefined : this.address;
-    const hostname = isEmpty(this.hostName) ? undefined : this.hostName;
+    const hostname = isEmpty(this.hostname) ? undefined : this.hostname;
     const port = !isNumber(this.port) ? undefined : this.port;
 
     const props = [
@@ -98,5 +102,12 @@ export class ProtocolAddressPortInputComponent implements OnInit, DoCheck {
       {key: 'port', value: port}
     ];
     return props;
+  }
+
+  setProperties(data: any) {
+    this.protocol = data.protocol;
+    this.address = data.address;
+    this.port = data.port;
+    this.hostname = data.hostname;
   }
 }
