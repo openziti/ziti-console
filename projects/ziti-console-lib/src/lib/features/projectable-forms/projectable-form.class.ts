@@ -18,6 +18,8 @@ import {ExtendableComponent} from "../extendable/extendable.component";
 import {Component, DoCheck, ElementRef, EventEmitter, Input, Output, ViewChild} from "@angular/core";
 
 import {defer, delay, isEqual, unset, debounce} from "lodash";
+import {GrowlerModel} from "../messaging/growler.model";
+import {GrowlerService} from "../messaging/growler.service";
 
 // @ts-ignore
 const {context, tags, resources, service} = window;
@@ -32,12 +34,12 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     @Output() dataChange: EventEmitter<any> = new EventEmitter<any>();
     @ViewChild('nameFieldInput') nameFieldInput: ElementRef;
 
-    abstract errors: { name: string, msg: string }[];
-
     abstract clear(): void;
     abstract save(): void;
 
+    public errors: any = {};
     protected entityType = 'identity';
+
     tagElements: any = [];
     tagData: any = [];
     hideTags = false;
@@ -46,8 +48,13 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
 
     checkDataChangeDebounced = debounce(this.checkDataChange, 100, {maxWait: 100});
 
+    protected constructor(private growlerService: GrowlerService) {
+        super();
+    }
+
     override ngAfterViewInit() {
         super.ngAfterViewInit();
+        this.errors = {};
         this.nameFieldInput.nativeElement.focus();
     }
 
@@ -147,5 +154,16 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
             this.dataChange.emit(dataChange);
         }
         this._dataChange = dataChange;
+    }
+
+    copyToClipboard(val) {
+        navigator.clipboard.writeText(val);
+        const growlerData = new GrowlerModel(
+            'success',
+            'Success',
+            `Text Copied`,
+            `API call URL copied to clipboard`,
+        );
+        this.growlerService.show(growlerData);
     }
 }

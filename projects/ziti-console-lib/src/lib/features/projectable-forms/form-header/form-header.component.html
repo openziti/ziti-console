@@ -53,7 +53,12 @@
                     </div>
                 </div>
             </div>
-            <div class="save-button" (click)="requestAction('save')">Save</div>
+            <div class="save-button"
+                 (click)="requestAction('save')"
+                 [ngClass]="{'save-disabled': saveDisabled}"
+                 matTooltip="{{saveDisabled ? saveTooltip : ''}}"
+                 matTooltipPosition="below"
+            >Save</div>
         </div>
     </div>
     <div class="form-header-group badges-container">

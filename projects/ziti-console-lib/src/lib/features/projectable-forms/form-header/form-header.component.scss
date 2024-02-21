@@ -104,6 +104,12 @@
       min-width: 65px;
       height: 33px;
       text-transform: none;
+
+      &.save-disabled {
+        filter: grayscale(1);
+        opacity: .3;
+        pointer: not-allowed;
+      }
     }
   }
 }

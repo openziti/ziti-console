@@ -15,8 +15,7 @@
 */
 
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {isNumber} from 'lodash';
-import {SchemaService} from "../../../services/schema.service";
+import {ValidationService} from "../../../services/validation.service";
 
 @Component({
   selector: 'lib-port-ranges',
@@ -30,13 +29,13 @@ export class PortRangesComponent {
   errors: any = {};
   invalid: boolean = false;
 
-  constructor(private schemaSvc: SchemaService) {}
+  constructor(private validationService: ValidationService) {}
 
   getProperties() {
     if (!this.fieldValue) {
       return [];
     }
-    const ranges = this.schemaSvc.getPortRanges(this.fieldValue);
+    const ranges = this.validationService.getPortRanges(this.fieldValue);
     return [{key: 'portRanges', value: ranges}];
   }
 
@@ -46,7 +45,7 @@ export class PortRangesComponent {
       return;
     }
 
-    this.fieldValue = this.schemaSvc.parseAllowedPortRanges(ranges);
+    this.fieldValue = this.validationService.parseAllowedPortRanges(ranges);
   }
 
   onKeyup(event: any) {

@@ -17,8 +17,8 @@
         ></lib-string-input>
     </div>
     <div *ngIf="showHostName" [ngClass]="{disabled: disableHostName}">
-        <lib-string-input [fieldName]="hostNameFieldName"
-                          [(fieldValue)]="hostName"
+        <lib-string-input [fieldName]="hostnameFieldName"
+                          [(fieldValue)]="hostname"
                           [labelColor]="labelColor"
                           [placeholder]="'host.name'"
                           (fieldValueChange)="update()"

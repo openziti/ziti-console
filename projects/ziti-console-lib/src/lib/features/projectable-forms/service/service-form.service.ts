@@ -50,6 +50,8 @@ export class ServiceFormService {
     configs: any = [];
     configTypes: any = [];
     filteredConfigs: any = [];
+    showCfgPreviewOption = false;
+    selectedConfigName: any = '';
     selectedConfigTypeId: any = '';
     selectedConfigType: any = {};
     addedConfigNames: any = [];
@@ -72,8 +74,9 @@ export class ServiceFormService {
     selectedRouter: any;
     selectedBindingId: string = '';
     terminatorProtocol = 'udp';
-
+    saveDisabled = false;
     associatedConfigs: any = [];
+    associatedConfigsMap: any = {};
     associatedTerminators: any = [];
 
     lColorArray = [
@@ -97,7 +100,17 @@ export class ServiceFormService {
         @Inject(SERVICE_EXTENSION_SERVICE)private extService: ExtensionService,
         private schemaSvc: SchemaService
     ) {}
- 
+
+    resetFormData() {
+        this.selectedConfigName = '';
+        this.selectedConfigTypeId = '';
+        this.associatedConfigsMap = {};
+        this.configData = {};
+        this.associatedConfigs = [];
+        this.errors = {};
+        this.newConfigName = '';
+    }
+
     save(formData): Promise<any> {
         const isUpdate = !isEmpty(formData.id);
         const data: any = this.getServiceDataModel(formData, isUpdate);
@@ -144,6 +157,21 @@ export class ServiceFormService {
         })
     }
 
+    previewConfig(configName, dynamicForm) {
+        this.showCfgPreviewOption = true;
+        this.configData = this.associatedConfigsMap[configName].data;
+        this.selectedConfigName = this.associatedConfigsMap[configName].name;
+        this.selectedConfigId = 'preview';
+        this.selectedConfigTypeId = this.associatedConfigsMap[configName].configTypeId;
+        this.configTypeChanged(dynamicForm, false);
+        this.updateConfigData();
+        this.selectedConfigId = 'preview';
+        this.newConfigName = this.selectedConfigName;
+        defer(() => {
+            this.selectedConfigId = 'preview';
+        })
+    }
+
     addTerminators(serviceId) {
         const promises = [];
         this.addedTerminators.forEach((terminator) => {
@@ -186,7 +214,9 @@ export class ServiceFormService {
     getAssociatedConfigs() {
         this.zitiService.getSubdata('services', this.formData.id, 'configs').then((result: any) => {
             this.associatedConfigs = result.data;
+            this.associatedConfigsMap = {};
             this.addedConfigNames = this.associatedConfigs.map((cfg) => {
+                this.associatedConfigsMap[cfg.name] = cfg;
                 return cfg.name;
             });
         });
@@ -216,7 +246,7 @@ export class ServiceFormService {
         });
     }
 
-    configTypeChanged(dynamicForm?) {
+    configTypeChanged(dynamicForm?, resetData?) {
         this.filteredConfigs = this.configs.filter((config) => {
             return config.configTypeId === this.selectedConfigTypeId;
         });
@@ -226,7 +256,7 @@ export class ServiceFormService {
             }
         });
         this.selectedConfigId = !isEmpty(this.selectedConfigTypeId) ? 'add-new' : '';
-        this.configChanged(dynamicForm);
+        this.configChanged(dynamicForm, resetData);
     }
 
     routerChanged(event?: any) {
@@ -300,14 +330,17 @@ export class ServiceFormService {
             if (!this.validateConfig()) {
                 return;
             }
-            const newConfig = {
+            const newConfig: any = {
                 configTypeId: this.selectedConfigTypeId,
                 data: this.configData,
                 name: this.newConfigName
             }
             configId = await this.createConfig(newConfig)
                 .then((result) => {
-                    return result?.data?.id;
+                    const cfg = result?.data;
+                    newConfig.id = result?.data?.id;
+                    this.associatedConfigsMap[newConfig.name] = newConfig.data;
+                    return cfg?.id;
                 })
                 .catch((result) => {
                     const errorField = result?.error?.error?.cause?.field;
@@ -325,6 +358,7 @@ export class ServiceFormService {
                     return undefined;
                 });
             if (!isEmpty(configId)) {
+                this.saveDisabled = false;
                 this.formData.configs.push(configId);
                 this.addedConfigNames.push(this.newConfigName);
                 this.addedConfigNames = [...this.addedConfigNames];
@@ -341,35 +375,37 @@ export class ServiceFormService {
                 this.selectedConfigId = '';
                 return;
             }
-        }
-        let configAdded = false;
-        this.formData.configs.forEach((configId) => {
-            if (configId === addedConfigId) {
-                configAdded = true;
-            }
-        });
-        if (!configAdded) {
-            let configName = '';
-            this.configs.forEach((config) => {
-                if (config.id === addedConfigId) {
-                    configName = config.name;
+        } else {
+            let configAdded = false;
+            this.formData.configs.forEach((configId) => {
+                if (configId === addedConfigId) {
+                    configAdded = true;
                 }
             });
-            if (!isEmpty(configName)) {
-                this.addedConfigNames.push(configName);
-                this.addedConfigNames = [...this.addedConfigNames];
+            if (!configAdded) {
+                let configName = '';
+                this.configs.forEach((config) => {
+                    if (config.id === addedConfigId) {
+                        configName = config.name;
+                    }
+                });
+                if (!isEmpty(configName)) {
+                    this.addedConfigNames.push(configName);
+                    this.addedConfigNames = [...this.addedConfigNames];
+                }
+                this.formData.configs.push(addedConfigId);
+                this.selectedConfigTypeId = '';
+                this.selectedConfigId = '';
+                this.saveDisabled = false;
+            } else {
+                const growlerData = new GrowlerModel(
+                    'warning',
+                    'Info',
+                    `Config Already Attached`,
+                    'Config has already been attached to this service',
+                );
+                this.growlerService.show(growlerData);
             }
-            this.formData.configs.push(addedConfigId);
-            this.selectedConfigTypeId = '';
-            this.selectedConfigId = '';
-        } else {
-            const growlerData = new GrowlerModel(
-                'warning',
-                'Info',
-                `Config Already Attached`,
-                'Config has already been attached to this service',
-            );
-            this.growlerService.show(growlerData);
         }
     }
 
@@ -389,6 +425,11 @@ export class ServiceFormService {
             });
             this.formData.configs = newConfigs;
             this.addedConfigNames = newConfigNames;
+            if (this.selectedConfigId === 'preview' && nameToRemove === this.selectedConfigName) {
+                this.selectedConfigId = '';
+                this.selectedConfigTypeId = '';
+                this.updateConfigData();
+            }
         }
     }
 
@@ -399,10 +440,10 @@ export class ServiceFormService {
         this.hideConfigJSON = false;
     }
 
-    addItemsToConfig(items, data) {
+    addItemsToConfig(items, data = {}) {
         items.forEach((item) => {
             let props = [];
-            if (item.items) {
+            if (item.items && data) {
                 data[item.key] = this.addItemsToConfig(item.items, {});
             } else if (item?.component?.instance?.getProperties) {
                 props = item?.component?.instance?.getProperties();
@@ -416,9 +457,9 @@ export class ServiceFormService {
         return data;
     }
 
-    async configChanged(dynamicForm) {
+    async configChanged(dynamicForm, resetData = true) {
         let selectedConfig: any = {};
-        this.configData = undefined;
+        this.configData = resetData ? undefined : this.configData;
         let data;
         let attachLabel = 'Attach to Service';
         if (this.selectedConfigId === 'add-new') {
@@ -426,6 +467,7 @@ export class ServiceFormService {
             this.selectedSchema = await this.zitiService.schema(this.selectedConfigType.schema);
             attachLabel = 'Create and Attach';
             this.createForm(dynamicForm);
+            this.saveDisabled = true;
         } else if (this.selectedConfigId) {
             this.filteredConfigs.forEach((config) => {
                 if (this.selectedConfigId === config.id) {
@@ -433,6 +475,9 @@ export class ServiceFormService {
                 }
             });
             data = selectedConfig?.data || {};
+            this.saveDisabled = true;
+        } else {
+            this.saveDisabled = false;
         }
         if (!this.configData) {
             this.configData = data;
@@ -456,7 +501,7 @@ export class ServiceFormService {
         }
     }
 
-    updateFormView(items, data) {
+    updateFormView(items, data: any = {}) {
         items.forEach((item) => {
             if (item.items) {
                 this.updateFormView(item.items, data[item.key]);
@@ -474,6 +519,14 @@ export class ServiceFormService {
                             allowedProtocols: data.allowedProtocols,
                             allowedAddresses: data.allowedAddresses,
                             allowedPortRanges: data.allowedPortRanges
+                        }
+                        break;
+                    case 'pap':
+                        val = {
+                            protocol: data.protocol,
+                            address: data.address,
+                            port: data.port,
+                            hostname: data.hostname,
                         }
                         break;
                     default:
@@ -527,4 +580,22 @@ export class ServiceFormService {
         }
         return isEmpty(this.configErrors);
     }
+
+    _apiData = {};
+    set apiData(data) {
+        this._apiData = data;
+    }
+
+    get apiData() {
+        const data: any = {
+            name: this.formData?.name || '',
+            roleAttributes: this.formData?.roleAttributes || [],
+            configs: this.formData?.configs || [],
+            encryptionRequired: this.formData?.encryptionRequired,
+            terminatorStrategy: this.formData?.terminatorStrategy || '',
+            tags: this.formData?.tags || {}
+        }
+        return data;
+    }
+
 }

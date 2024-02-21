@@ -30,6 +30,7 @@ import {SchemaService} from "../../../services/schema.service";
 import {ProjectableForm} from "../projectable-form.class";
 import {JsonEditorComponent, JsonEditorOptions} from 'ang-jsoneditor';
 import _ from "lodash";
+import {GrowlerService} from "../../messaging/growler.service";
 
 
 @Component({
@@ -72,8 +73,9 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
     private readOnly: false;
 
     constructor(private svc: ConfigurationService,
-                private schemaSvc: SchemaService) {
-        super();
+                private schemaSvc: SchemaService,
+                growlerService: GrowlerService) {
+        super(growlerService);
     }
 
     async createForm() {

@@ -15,14 +15,14 @@
 */
 
 import {Injectable} from "@angular/core";
-import {SchemaService} from "../../../services/schema.service";
+import {ValidationService} from "../../../services/validation.service";
 
 @Injectable({
     providedIn: 'root'
 })
 export class ForwardingConfigService {
 
-    constructor(private schemaSvc: SchemaService) {}
+    constructor(private validationService: ValidationService) {}
 
     getProperties(protocol, address, port, forwardProtocol, forwardAddress, forwardPort, allowedProtocols, allowedAddresses, allowedPortRanges) {
         const props = [
@@ -33,7 +33,7 @@ export class ForwardingConfigService {
             {key: 'forwardAddress', value: forwardAddress ? forwardAddress : undefined},
             {key: 'forwardPort', value: forwardPort ? forwardPort : undefined},
             {key: 'allowedAddresses', value: allowedAddresses},
-            {key: 'allowedPortRanges', value: this.schemaSvc.getPortRanges(allowedPortRanges)},
+            {key: 'allowedPortRanges', value: this.validationService.getPortRanges(allowedPortRanges)},
             {key: 'allowedProtocols', value: allowedProtocols},
         ];
         return props;
@@ -41,6 +41,6 @@ export class ForwardingConfigService {
 
     validate(allowedPortRanges) {
         const errors: any = {};
-        errors.allowedPortRanges = this.schemaSvc.validatePortRanges(allowedPortRanges);
+        errors.allowedPortRanges = this.validationService.validatePortRanges(allowedPortRanges);
     }
 }

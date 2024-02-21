@@ -47,7 +47,6 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
   ];
 
   showMore = false;
-  errors: any = {};
   settings: any = {};
   subscription: Subscription = new Subscription();
 
@@ -55,10 +54,10 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
       @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
       public svc: EdgeRouterFormService,
       @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
-      private growlerService: GrowlerService,
+      growlerService: GrowlerService,
       @Inject(EDGE_ROUTER_EXTENSION_SERVICE) private extService: ExtensionService
   ) {
-    super();
+    super(growlerService);
   }
 
   ngOnInit(): void {

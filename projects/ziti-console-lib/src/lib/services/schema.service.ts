@@ -32,7 +32,7 @@ import {ForwardingConfigComponent} from "../features/dynamic-widgets/forwarding-
 export type ProtocolAddressPort = {
     protocol: any;
     address: any;
-    hostName: any;
+    hostname: any;
     port: any;
 }
 
@@ -495,9 +495,9 @@ export class SchemaService {
             showAddress = true;
             if (properties.address?.key?.startsWith('forward')) labelPrefix = 'Forward ';
         }
-        if (properties.hostName) {
+        if (properties.hostname) {
             showHostName = true;
-            if (properties.hostName?.key?.startsWith('forward')) labelPrefix = 'Forward ';
+            if (properties.hostname?.key?.startsWith('forward')) labelPrefix = 'Forward ';
         }
         if (properties.port) {
             showPort = true;
@@ -511,7 +511,7 @@ export class SchemaService {
         componentRef.setInput('showPort', showPort);
         componentRef.setInput('protocol', '');
         componentRef.setInput('address', '');
-        componentRef.setInput('hostName', '');
+        componentRef.setInput('hostname', '');
         componentRef.setInput('port', '');
         componentRef.setInput('protocolList', protocolList);
         if (labelPrefix) componentRef.setInput('labelPrefix', labelPrefix);
@@ -568,7 +568,7 @@ export class SchemaService {
 
     private addSpecialFields(schema: any, view: ViewContainerRef, nestLevel: number, parentage: string[]) {
         let address = undefined;
-        let hostName = undefined;
+        let hostname = undefined;
         let port = undefined;
         let protocol = undefined;
         let forwardProtocol = undefined;
@@ -580,7 +580,7 @@ export class SchemaService {
             let exclude = true;
             if (key === "port") port = schema.properties[key];
             else if (key === "address") address = schema.properties[key];
-            else if (key === "hostname") hostName = schema.properties[key];
+            else if (key === "hostname") hostname = schema.properties[key];
             else if (key === "protocol") protocol = schema.properties[key];
             else if (key === "forwardProtocol") forwardProtocol = schema.properties[key];
             else if (key === "forwardPort") forwardPort = schema.properties[key];
@@ -592,15 +592,15 @@ export class SchemaService {
                 excludedProperties.push(key);
             }
         }
-        if ((protocol || address || hostName || port) && !(forwardProtocol && forwardAddress && forwardPort)) {
-            const properties: ProtocolAddressPort = {protocol, address, hostName, port};
+        if ((protocol || address || hostname || port) && !(forwardProtocol && forwardAddress && forwardPort)) {
+            const properties: ProtocolAddressPort = {protocol, address, hostname, port};
             this.items.push(this.buildProtocolAddressPort(view, nestLevel, parentage, properties));
         }
         if (forwardProtocol && forwardAddress && forwardPort) {
             const properties: ProtocolAddressPort = {
                 protocol: forwardProtocol,
                 address: forwardAddress,
-                hostName: undefined,
+                hostname: undefined,
                 port: forwardPort
             };
             this.items.push(this.buildForwardingConfig(view, nestLevel, parentage, properties));
@@ -652,76 +652,6 @@ export class SchemaService {
             componentRef = this.buildTextField(view, nestLevel, key, parentage);
         }
         return componentRef;
-    }
-
-    getPortRanges(allowedPortRanges) {
-        if (!allowedPortRanges) {
-            return [];
-        }
-        const ranges = [];
-        allowedPortRanges.forEach((val: string) => {
-            const vals = val.split('-');
-            if (vals.length === 1) {
-                const port = parseInt(val);
-                ranges.push({high: port, low: port});
-            } else if (vals.length === 2) {
-                const port1 = parseInt(vals[0]);
-                const port2 = parseInt(vals[1]);
-                ranges.push({low: port1, high: port2});
-            } else {
-                // do nothing, invalid range
-            }
-        });
-        return ranges;
-    }
-
-    parseAllowedPortRanges(allowedPortRanges) {
-        const val = [];
-        if (!allowedPortRanges) {
-            return val;
-        }
-        allowedPortRanges.forEach((range: any) => {
-            if (range.low === range.high) {
-                val.push(range.low + '');
-            } else {
-                val.push(range.low + '-' + range.high);
-            }
-        });
-        return val;
-    }
-
-    validatePortRanges(allowedPortRanges) {
-        let invalid = false;
-        if (!allowedPortRanges) {
-            return invalid;
-        }
-        allowedPortRanges.forEach((val: string) => {
-            const vals = val.split('-');
-            if (vals.length === 1) {
-                const port = parseInt(val);
-                if (!this.isValidPort(port)) {
-                    invalid = true;
-                    return;
-                }
-            } else if (vals.length === 2) {
-                const port1 = parseInt(vals[0]);
-                const port2 = parseInt(vals[1]);
-                if (!this.isValidPort(port1) || !this.isValidPort(port2)) {
-                    invalid = true;
-                    return;
-                } else if (port1 > port2) {
-                    invalid = true;
-                    return;
-                }
-            } else {
-                invalid = true;
-            }
-        });
-        return invalid;
-    }
-
-    isValidPort(port) {
-        return !isNaN(port) && isNumber(port) && port >= 1 && port <= 65535;
     }
 
     private addError(errors: any, key: string, msg: string) {

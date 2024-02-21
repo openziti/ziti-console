@@ -8,6 +8,8 @@
         [moreActions]="formData.moreActions"
         (actionRequested)="headerActionRequested($event)"
         [(formView)]="formView"
+        [saveDisabled]="svc.saveDisabled"
+        [saveTooltip]="'Complete and attach config definition, or remove before saving'"
     ></lib-form-header>
     <div class="edge-router-form-container projectable-form-container">
         <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
@@ -39,6 +41,7 @@
                         [action]="false"
                         [actionLabel]="svc.attachLabel"
                         (actionRequested)="svc.attachConfig(svc.selectedConfigId)"
+                        [helpText]="'Configurations are used to define how to intercept and host a service. Ziti Networks come with built-in configuration types (ie. intercept.v1 and host.v1)'"
                 >
                     <div class="form-field-input-group">
                         <div class="config-title-row">
@@ -67,6 +70,7 @@
                         >
                             <option value="">Select configuration...</option>
                             <option value="add-new">Add a New  Config</option>
+                            <option value="preview" *ngIf="svc.selectedConfigId === 'preview'">View Config Data</option>
                             <option
                                     *ngFor="let config of svc.filteredConfigs"
                                     [value]="config.id"
@@ -74,17 +78,18 @@
                                 {{ config.name }}
                             </option>
                         </select>
-                        <div *ngIf="!showConfigData && svc.selectedConfigId && svc.selectedConfigId !== ''" class="button-row-right" >
+                        <div *ngIf="!showConfigData && svc.selectedConfigId && svc.selectedConfigId !== '' && svc.selectedConfigId !== 'preview'" class="button-row-right" >
                             <div class="save-button" (click)="svc.attachConfig(svc.selectedConfigId)">
                                 {{svc.attachLabel}}
                             </div>
                         </div>
-                        <div [hidden]="!showConfigData" class="form-field-extended-fields">
+                        <div [hidden]="!showConfigData" class="form-field-extended-fields" [ngClass]="{'cfg-preview': svc.selectedConfigId === 'preview'}">
                             <div *ngIf="showConfigData" class="config-title-row" style="margin-bottom: 10px;">
                                 <span class="form-field-title">Config Name</span>
                                 <div
                                         class="save-button"
                                         (click)="svc.attachConfig(svc.selectedConfigId)"
+                                        *ngIf="svc.selectedConfigId !== 'preview'"
                                 >{{svc.attachLabel}}
                                 </div>
                             </div>
@@ -97,13 +102,31 @@
                                     style="margin-bottom: 20px;"
                             />
                             <div class="config-title-row" style="margin-bottom: 10px;">
-                                <span class="form-field-title">Configuration Form</span>
-                                <div
-                                        id="OnOffButton"
-                                        class="onoff jsonButton configsForm save-button"
-                                        (click)="svc.toggleJSONView()"
-                                >
-                                    <span>{{svc.configJsonView ? 'Show Form' : 'Show JSON'}}</span>
+                                <span class="form-field-title">Configuration Data</span>
+                                <div class="form-header-toggle-container" *ngIf="svc.selectedConfigId !== 'preview'">
+                                    <span
+                                            class="toggle-option-text"
+                                            [ngClass]="{'toggle-option-selected': !svc.configJsonView}"
+                                            (click)="svc.toggleJSONView()"
+                                    >
+                                        FORM
+                                    </span>
+                                                <div class="form-header-toggle" (click)="svc.toggleJSONView()">
+                                                    <div
+                                                            class="form-toggle-switch"
+                                                            [ngClass]="{'toggle-left': !svc.configJsonView, 'toggle-right': svc.configJsonView}"
+                                                    >
+                                                        <div class="form-toggle-indicator"></div>
+                                                        <div class="form-toggle-indicator"></div>
+                                                    </div>
+                                                </div>
+                                                <span
+                                                        class="toggle-option-text"
+                                                        [ngClass]="{'toggle-option-selected': svc.configJsonView}"
+                                                        (click)="svc.toggleJSONView()"
+                                                >
+                                        JSON
+                                    </span>
                                 </div>
                             </div>
 
@@ -122,6 +145,8 @@
                         [title]="'Terminator Strategy'"
                         [title2]="'Encryption'"
                         [layout]="'row'"
+                        [helpText]="'Pick a strategy to determine how to rank available terminators for a service'"
+                        [helpText2]="'Encrypts packets when entering or leaving the network.'"
                         class="form-field-advanced"
                     >
                         <select
@@ -176,107 +201,22 @@
                     <lib-preview-list
                         [allNames]="svc.addedConfigNames"
                         [allowRemove]="true"
+                        [clickable]="true"
+                        [tooltip]="'View Config Data'"
                         (itemRemoved)="svc.removeConfig($event)"
+                        (itemSelected)="svc.previewConfig($event, dynamicForm)"
                     ></lib-preview-list>
                 </lib-form-field-container>
                 <lib-form-field-container
-                        [title]="'Terminators'"
+                        [title]="'API Calls'"
+                        [label]="''"
+                        [class]="'api-call-container'"
                 >
-                    <div class="form-field-input-group" style="background-color: #344459">
-                        <span class="form-field-title">{{'Router'}}</span>
-                        <select
-                                [(ngModel)]="svc.selectedRouterId"
-                                (change)="svc.routerChanged($event)"
-                                id="SelectedRouter"
-                                class="form-field-dropdown"
-                        >
-                            <option value="">Select a Router...</option>
-                            <option
-                                    *ngFor="let router of svc.routers"
-                                    [value]="router.id"
-                            >
-                                {{ router.name }}
-                            </option>
-                        </select>
+                    <div class="form-row">
+                        <input class="form-field-input" [value]="apiCallURL" readonly/>
+                        <div class="url-copy icon-copy copy" (click)="copyToClipboard(apiCallURL)"></div>
                     </div>
-                    <div class="form-field-input-group" *ngIf="svc.selectedRouterId && svc.selectedRouterId !== ''" style="background-color: #344459">
-                        <div class="form-field-row">
-                            <div class="config-item">
-                                <div class="config-item-label-container">
-                                    <span class="config-label">BINDING</span>
-                                </div>
-                                <select
-                                        [(ngModel)]="svc.selectedBindingId"
-                                        id="SelectedBindingType"
-                                        class="form-field-dropdown"
-                                >
-                                    <option value="">Select Binding...</option>
-                                    <option
-                                            *ngFor="let binding of bindingTypes"
-                                            [value]="binding.id"
-                                    >
-                                        {{ binding.name }}
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="config-item">
-                                <div class="config-item-label-container">
-                                    <span class="config-label">PROTOCOL</span>
-                                </div>
-                                <select
-                                        [(ngModel)]="svc.terminatorProtocol"
-                                        id="SelectedTerminatorProtocol"
-                                        class="form-field-dropdown"
-                                >
-                                    <option
-                                            *ngFor="let protocol of protocols"
-                                            [value]="protocol.id"
-                                    >
-                                        {{ protocol.name }}
-                                    </option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-field-row">
-                            <div class="config-item">
-                                <div class="config-item-label-container">
-                                    <span class="config-label">HOST</span>
-                                </div>
-                                <input
-                                        [(ngModel)]="svc.terminatorHost"
-                                        class="form-field-input"
-                                        [placeholder]="'example.com'"
-                                        [ngClass]="{error: svc.terminatorErrors['host']}"
-                                />
-                            </div>
-                            <div class="config-item">
-                                <div class="config-item-label-container">
-                                    <span class="config-label">PORT</span>
-                                </div>
-                                <input
-                                        [(ngModel)]="svc.terminatorPort"
-                                        class="form-field-input"
-                                        [placeholder]="'80, 443, etc...'"
-                                        [ngClass]="{error: svc.terminatorErrors['port']}"
-                                />
-                            </div>
-                        </div>
-                        <div class="button-row-right" >
-                            <div
-                                    class="save-button"
-                                    (click)="svc.addTerminator()"
-                            >Add
-                            </div>
-                        </div>
-                    </div>
-                </lib-form-field-container>
-                <lib-form-field-container
-                        [title]="'Terminating Routers'"
-                        [count]="svc.addedTerminatorNames ? svc.addedTerminatorNames.length : 0"
-                >
-                    <lib-preview-list
-                            [allNames]="svc.addedTerminatorNames"
-                    ></lib-preview-list>
+                    <lib-json-view *ngIf="formData" [(data)]="svc.apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
                 </lib-form-field-container>
             </div>
         </div>
