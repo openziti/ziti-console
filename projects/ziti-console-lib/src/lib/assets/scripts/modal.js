@@ -26,12 +26,17 @@ var modal = {
 		$(".modal .close").click(modal.close);
 		$(".modal .closer").click(modal.close);
 	},
-	show: function(id) {
+	show: function(id, readOnly = false) {
 		$(".modal.background").addClass("open");
 		modal.id = id;
 		$("#"+id).addClass("open");
 		$("body").addClass("noscroll");
 		$("#"+id).find("input").first().focus();
+		if (readOnly) {
+			$("#"+id).addClass("readOnly");
+		} else {
+			$("#"+id).removeClass("readOnly");
+		}
 	},
 	showing: function(id) {
 		return id.trim().length>0&&modal.id==id;

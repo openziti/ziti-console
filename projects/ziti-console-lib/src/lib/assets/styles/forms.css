@@ -488,6 +488,16 @@ label .note:hover {
     transition: var(--transition);
 }
 
+.selector.disabled {
+	cursor: not-allowed;
+	opacity: .6;
+}
+
+.selector.disabled:hover {
+	cursor: not-allowed;
+	opacity: .6;
+}
+
 .selector:hover {
     border: 1.5px var(--primary) solid;
     cursor: pointer;

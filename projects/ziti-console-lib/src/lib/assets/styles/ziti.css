@@ -624,6 +624,10 @@ aside .icon {
     width: 100%;
 }
 
+.modal.box.readOnly .buttons {
+    display: none !important;
+}
+
 .configBox .subform label {
     color: var(--white);
 }

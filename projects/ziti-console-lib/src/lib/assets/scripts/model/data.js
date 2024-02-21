@@ -38,6 +38,7 @@ var Data = function(name, context) {
 		filter: "",
 		noSearch: false
 	};
+	this.systemConfigTypes = ['host.v1', 'host.v2', 'intercept.v1', 'ziti-tunneler-client.v1', 'ziti-tunneler-server.v1'];
 	this.init = function(load, autoBind, all) {
 		if (autoBind) {
 			this.autoBind = autoBind;
@@ -183,6 +184,10 @@ var Data = function(name, context) {
 					row.removeClass("template");
 					row.attr("id", "Row"+i);
 					var obj = this.data[i];
+					let readOnly = false;
+					if (this.context === 'config-types') {
+						readOnly = this.systemConfigTypes.includes(obj.name);
+					}
 					for (var prop in obj) {
 						if (page.row) row.html(page.row(row.html(), obj));
 						row.html(row.html().split("{{"+prop+"}}").join(obj[prop]));
@@ -192,6 +197,11 @@ var Data = function(name, context) {
 					}
 					row.attr("data-defined", "");
 					rows.append(row);
+					if (readOnly) {
+						row.addClass('readOnly');
+						row.find('.selector').addClass('disabled');
+						row.find('.dots').addClass('readOnly');
+					}
 				}
 
                 if (page&&page.gridAction) $(".gridAction").click(page.gridAction);
@@ -314,6 +324,9 @@ var Data = function(name, context) {
 	};
 	this.select = function(e) {
 		var selector = $(e.currentTarget);
+		if (selector.hasClass("disabled")) {
+			return;
+		}
 		if (selector.hasClass("selected")) {
 			selector.removeClass("selected");
 			if (selector.hasClass("all")) $(".selector").removeClass("selected");
@@ -342,7 +355,13 @@ var Data = function(name, context) {
 			}
 		} else {
 			selector.addClass("selected");
-			if (selector.hasClass("all")) $(".selector").addClass("selected");
+			if (selector.hasClass("all")) {
+				$(".selector").each((index, item) => {
+					if (!$(item).hasClass('disabled')) {
+						$(item).addClass("selected");
+					}
+				});
+			}
 			else {
 				if (this.lastSelected) {
 					if (e.ctrlKey) {
@@ -375,6 +394,9 @@ var Data = function(name, context) {
 		else {
 			$(".gridMenu.open").removeClass("open");
 			menu.addClass("open");
+			if ($(e.currentTarget).hasClass("readOnly")) {
+				menu.find('[data-action="delete"]').hide();
+			}
 			setTimeout(() => {
 				const height = menu[0]?.offsetHeight || 120;
 				const windowOffset = window.innerHeight - e.clientY;
