@@ -17,6 +17,7 @@
                     [filterApplied]="filterApplied"
                     [menuItems]="svc.menuItems"
                     [headerActions]="svc.tableHeaderActions"
+                    (gridReady)="gridReady($event)"
     >
     </lib-data-table>
 </div>

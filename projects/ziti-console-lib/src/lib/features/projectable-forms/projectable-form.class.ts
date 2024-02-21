@@ -43,7 +43,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     tagElements: any = [];
     tagData: any = [];
     hideTags = false;
-    initData = {};
+    initData: any = {};
     _dataChange = false;
 
     checkDataChangeDebounced = debounce(this.checkDataChange, 100, {maxWait: 100});
