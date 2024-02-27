@@ -1,10 +1,9 @@
-**Steps To Release**
+# Steps To Release
 
-* Update Version in version.txt
-* Update version in project root package.json
-* Update version in ziti-console-lib package.json 
+* Update version in ./package.json
+* Update version in ./projects/ziti-console-lib/package.json
 * Add what has changed to release-notes.md
-* Commit to "Master"
+* Commit to "main"
 * Create a new Release in Github
 * Create and Assign the Tag for the version in version.txt
 * Add the contents of the release-notes to the release
