@@ -18,7 +18,7 @@ jobs:
       - name: Set VERSION Environment Variable
         run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
       - name: Build and Publish Shared Library - zac
-        run: ./publishSharedLib.sh /zac/
+        run: ./publishSharedLib.sh zac
       - name: Zip Shared Dist - zac
         run: |
             cd dist/app-ziti-console && zip -r ziti-console.zip *
