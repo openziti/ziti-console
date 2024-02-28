@@ -17,7 +17,9 @@
     </ng-container>
 
     <ng-template #userLogin>
-        <lib-selector-input [fieldName]="'Edge Controller'"
+        <lib-selector-input
+                    *ngIf="!originIsController"
+                    [fieldName]="'Edge Controller'"
                     [(fieldValue)]="selectedEdgeController"
                     [error]="edgeNameError"
                     [placeholder]="'Connect to a new Edge Controller'"
