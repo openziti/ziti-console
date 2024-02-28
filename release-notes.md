@@ -1,3 +1,24 @@
+# app-ziti-console-v3.0.6
+
+## Features/Improvements
+* [Issue #251](https://github.com/openziti/ziti-console/pull/251) - Check if ZAC origin is has available Edge API's and only show Username/Password screen if so
+
+
+# ziti-console-lib-v0.0.7
+
+## Bug Fixes
+
+* [Issue #220](https://github.com/openziti/ziti-console/issues/220) - Error growlers are not showing when ZAC is running directly against an edge controller
+* [Issue #222](https://github.com/openziti/ziti-console/issues/222) - Drop down menu for list pages appears off screen for items at the bottom
+* [Issue #225](https://github.com/openziti/ziti-console/issues/225) - Can't create new certificate authorities
+* [Issue #226](https://github.com/openziti/ziti-console/issues/226) - Dashboard - displayed count for Services in the "Summary" section is incorrect
+* [Issue #241](https://github.com/openziti/ziti-console/issues/241) - QR Code and JWT icons not showing in list table after re-issuing enrollment tokens for identities
+
+## Features/Improvements
+* [Issue #186](https://github.com/openziti/ziti-console/issues/186) - Display items to be deleted in prompt
+* [Issue #218](https://github.com/openziti/ziti-console/issues/218) - Enable re-issue of expired tokens
+
+
 # Release 3.0.3
 
 ## Bug Fixes
