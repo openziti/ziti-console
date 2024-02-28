@@ -7,6 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: startsWith(github.event.release.name, 'app-ziti-console-v')
     steps:
       - uses: actions/checkout@v3
       - name: Login to Docker Hub
