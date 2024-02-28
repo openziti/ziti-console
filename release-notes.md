@@ -4,7 +4,7 @@
 * [Issue #251](https://github.com/openziti/ziti-console/pull/251) - Check if ZAC origin is has available Edge API's and only show Username/Password screen if so
 
 
-# ziti-console-lib-v0.0.7
+# ziti-console-lib-v0.0.8
 
 ## Bug Fixes
 
