@@ -1,8 +1,11 @@
 #!/bin/bash
+#
 # this script is used to run zac within a container
-# it only exists to add the two symlinks required to run the server with TLS by reusing the certificates
-# created by the ziti-edge-controller
-echo "running ZAC"
+#
+# this adds two symlinks required to run the server with TLS:
+# - the private key: server.key -> ${ZAC_SERVER_KEY}
+# - certificate chain, including any intermediates: server.chain.pem -> ${ZAC_SERVER_CERT_CHAIN}
+
 if [[ "${ZAC_SERVER_KEY}" != "" ]]; then
   while [ ! -f "${ZAC_SERVER_KEY}" ]; do
     echo "waiting for server key to exist..."
@@ -64,12 +67,15 @@ fi
 fi
 
 if [[ "$1" == "classic" ]]; then
-  echo "Running classic ZAC application"
+  echo "Running Classic ZAC Application"
   exec node /usr/src/app/server.js classic
 elif [[ "$1" == "edge-api" ]]; then
   echo "Running ZAC server with Edge API integration"
   exec node /usr/src/app/server-edge.js
+elif (( $#)); then
+  echo "Running: server.js $*"
+  exec node /usr/src/app/server.js $*
 else
-  echo "Running ZAC server with Node API integration"
+  echo "Running ZAC Server with Node API Integration"
   exec node /usr/src/app/server.js node-api
 fi
