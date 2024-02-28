@@ -18,7 +18,7 @@ import {Inject, Component, OnDestroy, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
 import {SettingsServiceClass, LoginServiceClass, SETTINGS_SERVICE, ZAC_LOGIN_SERVICE} from "ziti-console-lib";
 import {Subscription} from "rxjs";
-import {defer, isEmpty, get} from "lodash";
+import {defer, isEmpty, isNil, get} from "lodash";
 
 // @ts-ignore
 const {growler, context} = window;
@@ -41,6 +41,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     edgeUrlError = '';
     backToLogin = false;
     showEdge = false;
+    originIsController = false;
     private subscription = new Subscription();
 
     constructor(
@@ -57,8 +58,22 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.settingsService.settingsChange.subscribe((results: any) => {
             if (results) this.settingsReturned(results);
         }));
-        this.edgeChanged();
-        this.initSettings();
+        this.checkOriginForController();
+    }
+
+    checkOriginForController() {
+        const url = window.location.origin + "/edge/management/v1/version?rejectUnauthorized=false";
+        this.settingsService.initApiVersions(url).then((result) => {
+            if (isNil(result) || isEmpty(result)) {
+                this.edgeChanged();
+                this.initSettings();
+            } else {
+                this.originIsController = true;
+                this.edgeCreate = false;
+                this.selectedEdgeController = url;
+                this.settingsService.addContoller(this.edgeName, window.location.hostname);
+            }
+        });
     }
 
     async login() {
@@ -86,6 +101,7 @@ export class LoginComponent implements OnInit, OnDestroy {
             this.login();
         }
     }
+
     create() {
         if (this.isValid()) {
             this.settingsService.addContoller(this.edgeName, this.edgeUrl);
