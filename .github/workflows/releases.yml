@@ -1,0 +1,47 @@
+on:
+  release:
+    types: [created]
+
+name: Create Releases
+
+jobs:
+  build-and-publish-app-ziti-console:
+    if: startsWith(github.event.release.name, 'app-ziti-console-v')
+    runs-on: ubuntu-latest
+    env:
+      NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      BUILD_CONFIG: "Release"
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: https://npm.pkg.github.com/
+      - name: build and upload ziti-console.zip as SPA for use with controller
+        env:
+          GITHUB_TOKEN: ${{ github.TOKEN }}
+        run: |
+          ./build.sh /zac/
+          cd dist/app-ziti-console && zip -r ziti-console.zip *
+          gh release upload ${{github.event.release.tag_name}} ziti-console.zip
+
+  build-and-publish-ziti-console-lib:
+    if: startsWith(github.event.release.name, 'ziti-console-lib-v')
+    runs-on: ubuntu-latest
+    env:
+      NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      BUILD_CONFIG: "Release"
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: https://npm.pkg.github.com/
+      - name: Set VERSION Environment Variable
+        run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
+      - name: Set VERSION Environment Variable
+        run: |
+          VERSION=$(echo "${{ github.event.release.name }}" | grep -oP '^.*-v(.*)$')
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+      - name: Build and Publish Shared Library - ziti-console-lib
+        run: ./publishSharedLib.sh
