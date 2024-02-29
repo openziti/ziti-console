@@ -14,4 +14,4 @@
 
 * Publish release(s)
 * Go to Actions Tab and make sure both "Create Releases" and "Deploy QuickStart Container" actions are triggered by release
-* Once both actions are complete, publish release notes to "openziti-visibility" channel
+* Once both actions are complete, tell people the usual ways
