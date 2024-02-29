@@ -74,7 +74,7 @@ if (zitified) {
 	await ziti.init( zitiIdentityFile ).catch(( err ) => { process.exit(); }); // Authenticate ourselves onto the Ziti network using the specified identity file
 }
 
-const zacVersion = fs.readFileSync("./version.txt", 'utf8');
+const zacVersion = process.env.npm_package_version;
 
 
 var serviceUrl = "";
