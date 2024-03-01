@@ -1,11 +1,11 @@
-<div class="form-header-container">
+<div class="form-header-container" [ngClass]="{'show-more-actions': moreActions && moreActions.length > 0}">
     <div class="form-header-group">
         <div class="form-title-container">
             <div class="form-title-back-button" (click)="requestAction('close')">
                 <div class="form-title-back-button-image"></div>
                 <div class="form-title-back-button-line"></div>
             </div>
-            <div>
+            <div class="form-header-title-text">
                 <span class="form-title">{{title}}</span>
                 <span class="form-title title-name" *ngIf="data.name">{{data.name}}</span>
             </div>
