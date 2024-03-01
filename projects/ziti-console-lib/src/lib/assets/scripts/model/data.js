@@ -80,11 +80,9 @@ var Data = function(name, context) {
 			$(".searchButton").click(this.get.bind(this));
 		}
 		$(document).click((e) => {
-			setTimeout(() => {
-				if (!$(e.target).parents('.dots')) {
-					$(".gridMenu").removeClass('open');
-				}
-			}, 50);
+			if (!$(e.target).hasClass('dots') && $(e.target).parents('.dots').length === 0) {
+				$(".gridMenu").removeClass('open');
+			}
 		});
 	};
 	this.isEditing = function() {
