@@ -137,23 +137,23 @@ font-family: "Open Sans";
 }
 
 .growler.error .icon {
-    background-image: url(../../assets/images/Growl_Error.png);
+    background-image: url(../images/Growl_Error.png);
 }
 
 .growler.success .icon {
-    background-image: url(../../assets/images/Growl_Success.png);
+    background-image: url(../images/Growl_Success.png);
 }
 
 .growler.info .icon {
-    background-image: url(../../assets/images/Growl_Info.png);
+    background-image: url(../images/Growl_Info.png);
 }
 
 .growler.warning .icon {
-    background-image: url(../../assets/images/Growl_Warning.png);
+    background-image: url(../images/Growl_Warning.png);
 }
 
 .growler.bug .icon {
-    background-image: url(../../assets/images/Growl_Bug.png);
+    background-image: url(../images/Growl_Bug.png);
 }
 
 #NotificationsMenu {

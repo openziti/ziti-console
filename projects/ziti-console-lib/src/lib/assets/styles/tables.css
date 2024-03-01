@@ -347,12 +347,12 @@
 }
 
 .grid .col.sort.asc {
-	background-image: url(../../assets/images/SortDown.png);
+	background-image: url(../images/SortDown.png);
 	opacity: 1.0;
 }
 
 .grid .col.sort.desc {
-	background-image: url(../../assets/images/SortUp.png);
+	background-image: url(../images/SortUp.png);
 	opacity: 1.0;
 }
 
