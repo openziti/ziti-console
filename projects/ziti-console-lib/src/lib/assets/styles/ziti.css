@@ -160,7 +160,7 @@ aside {
     top: 0px;
     bottom: 0px;
     width: 380px;
-    background-image: url(/assets/images/Login.jpg);
+    background-image: url(../images/Login.jpg);
     background-size: cover;
     background-position: center center;
 }
@@ -195,7 +195,7 @@ aside .title {
 aside .icon {
     width: 100px;
     height: 100px;
-    background-image: url(/assets/icons/android-icon-192x192.png);
+    background-image: url(../icons/android-icon-192x192.png);
     position: absolute;
     background-size: contain;
     top: calc(50% - 200px);
@@ -308,7 +308,7 @@ aside .icon {
     cursor: pointer;
     background-size: 50px auto;
     background-position: center center;
-    background-image: url(/assets/svgs/upload.svg);
+    background-image: url(../svgs/upload.svg);
     transition: var(--transition);
 }
 
@@ -556,7 +556,7 @@ aside .icon {
     height: 200px;
     background-position: top center;
     background-size: contain;
-    background-image: url(/assets/svgs/nodata.svg);
+    background-image: url(../svgs/nodata.svg);
     display: none;
     text-align: center;
     font-size: 24px;
@@ -989,7 +989,7 @@ aside .icon {
 .multiselect .selected .item:hover {
     opacity: 1.0;
     padding-left: 24px;
-    background-image: url(/assets/svgs/close.svg);
+    background-image: url(../svgs/close.svg);
 }
 
 .selectable {
@@ -1029,7 +1029,7 @@ aside .icon {
 .selectable .item:hover {
     padding-left: 40px;
     opacity: 1.0;
-    background-image: url(/assets/svgs/select.svg);
+    background-image: url(../svgs/select.svg);
 }
 
 .dots {
@@ -1288,23 +1288,23 @@ aside .icon {
 }
 
 .os.windows {
-    background-image: url(/assets/images/windows.png);
+    background-image: url(../images/windows.png);
 }
 
 .os.apple {
-    background-image: url(/assets/images/apple.png);
+    background-image: url(../images/apple.png);
 }
 
 .os.android {
-    background-image: url(/assets/images/android.png);
+    background-image: url(../images/android.png);
 }
 
 .os.linux {
-    background-image: url(/assets/images/linux.png);
+    background-image: url(../images/linux.png);
 }
 
 .os.other {
-    background-image: url(/assets/images/other.png);
+    background-image: url(../images/other.png);
 }
 
 .sectionTitle {
@@ -1332,7 +1332,7 @@ aside .icon {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center center;
-    background-image: url(/assets/svgs/cert.svg);
+    background-image: url(../svgs/cert.svg);
     transition: var(--transition);
 }
 
@@ -1707,7 +1707,7 @@ aside .icon {
     transform: rotate(-12deg);
     top: 30px;
     right: 30%;
-    background-image: url(/assets/svgs/heart.svg);
+    background-image: url(../svgs/heart.svg);
     background-position: center center;
     background-size: contain;
     opacity: 0.0;
@@ -3166,4 +3166,31 @@ button[aria-label][data-balloon-pos] {
         height: 72px;
         opacity: 0;
     }
+}
+
+.os-icon.empty {
+    background: transparent;
+}
+.os-icon.apple {
+    background-image: url(../images/apple.png);
+}
+.os-icon.windows {
+    background-image: url(../images/windows.png);
+}
+.os-icon.linux {
+    background-image: url(../images/linux.png);
+}
+.os-icon.android {
+    background-image: url(../images/android.png);
+}
+.os-icon.other {
+    background-image: url(../images/other.png);
+}
+
+.sort.asc {
+    background-image: url(../svgs/ArrowDown.svg);
+}
+
+.sort.desc {
+    background-image: url(../svgs/ArrowUp.svg);
 }

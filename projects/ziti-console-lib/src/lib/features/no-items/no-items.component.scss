@@ -1,7 +1,7 @@
 :host {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: calc(100% - 200px);
   width: 100%;
   align-items: center;
   justify-content: center;
@@ -12,7 +12,7 @@
   display: inline-block;
   width: 35px;
   height: 35px;
-  background-image: url(/assets/svgs/No_Plus.svg);
+  background-image: url(../../assets/svgs/No_Plus.svg);
   background-size: contain;
   background-repeat: no-repeat;
   margin-bottom: -8px;
@@ -27,6 +27,21 @@
   filter: brightness(80%);
   transform: scale(0.97);
   transition: 0.3s;
+}
+
+.noarea {
+  .icon {
+    width: 100%;
+    height: 250px;
+    background-position: center center;
+    background-size: contain;
+    position: relative;
+    float: left;
+    z-index: unset;
+    left: unset;
+    cursor: pointer;
+    transition: .3s;
+  }
 }
 
 @media only screen and (max-width: 715px) {

@@ -136,7 +136,7 @@
 <ng-template #nodata>
     <lib-no-items
         (clickEmit)="openCreate()"
-        [image]="'No_Clients'"
+        [image]="noItemsImage"
         [isEmpty]="!rowData || rowData.length === 0"
         [typeName]="this.entityTypeLabel"
     ></lib-no-items>

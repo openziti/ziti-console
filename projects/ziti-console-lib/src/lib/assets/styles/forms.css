@@ -97,7 +97,7 @@ input.errors, select.errors, textarea.errors, div.errors .selectable {
 }
 
 select {
-    background-image: url(/assets/images/select.png);
+    background-image: url(../images/select.png);
     background-position: center right 10px;
     background-repeat: no-repeat;
     background-size: 14px 7px;
@@ -121,7 +121,7 @@ select {
 }
 
 .check.checked {
-	background-image: url(/assets/images/check.png);
+	background-image: url(../images/check.png);
 	background-color: var(--primary) !important;
 }
 
@@ -506,7 +506,7 @@ label .note:hover {
 
 .selector.selected {
 	background-color: var(--green);
-	background-image: url(/assets/images/check.png);
+	background-image: url(../images/check.png);
 	background-size: 45%;
 	background-position: center center;
     border: none;

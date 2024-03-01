@@ -21,7 +21,7 @@ export class NoItemsComponent implements OnChanges {
 
   ngOnChanges() {
     this.background = {
-      'background-image': 'url(/assets/svgs/' + this.image + '.svg)',
+      'background-image': 'url(assets/svgs/' + this.image + '.svg)',
     };
   }
 

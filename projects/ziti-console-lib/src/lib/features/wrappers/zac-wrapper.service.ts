@@ -430,7 +430,7 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                 });
                 break;
             case 'settings':
-                this.http.get("/assets/data/settings.json", {}).toPromise().then((result) => {
+                this.http.get("assets/data/settings.json", {}).toPromise().then((result) => {
                     returnTo(result);
                 });
                 break;
