@@ -9,6 +9,6 @@ import {AnimationOptions} from 'ngx-lottie';
 export class LoadingIndicatorComponent {
   @Input() isLoading = false;
   lottieOptions: AnimationOptions = {
-    path: '/assets/animations/Loader.json',
+    path: 'assets/animations/Loader.json',
   };
 }

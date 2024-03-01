@@ -68,6 +68,7 @@ export class AppComponent implements OnInit {
     handleUserSettings() {
         if (localStorage.getItem("mode")!=null&&localStorage.getItem("mode")=="dark") {
             this.darkmodeEnabled = true;
+            this.loadDarkModeStyles();
           }
           if (localStorage.getItem("primaryColor")!=null) {
             document.documentElement.style.setProperty("--primary", localStorage.getItem("primaryColor"));
@@ -75,5 +76,24 @@ export class AppComponent implements OnInit {
           if (localStorage.getItem("secondaryColor")!=null) {
             document.documentElement.style.setProperty("--secondary", localStorage.getItem("secondaryColor"));
           }
+    }
+
+    loadDarkModeStyles() {
+        const head = document.getElementsByTagName('head')[0];
+
+        let themeLink = document.getElementById(
+            'client-theme'
+        ) as HTMLLinkElement;
+        if (themeLink) {
+            themeLink.href = './assets/styles/dark.css';
+        } else {
+            const style = document.createElement('link');
+            style.id = 'client-theme';
+            style.rel = 'stylesheet';
+            style.type = 'text/css';
+            style.href = './assets/styles/dark.css'; //<--add assets
+
+            head.appendChild(style);
+        }
     }
 }

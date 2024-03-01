@@ -106,27 +106,27 @@ header #NavigationButton .icon {
 }
 
 header #AddButton .icon {
-    background-image: url(/assets/svgs/MainMenuPlus.svg);
+    background-image: url(../../assets/svgs/MainMenuPlus.svg);
 }
 
 header #SearchButton .icon {
-    background-image: url(/assets/svgs/MainMenuSearch.svg);
+    background-image: url(../../assets/svgs/MainMenuSearch.svg);
 }
 
 header #AlertButton .icon {
-    background-image: url(/assets/svgs/MainMenuNotifications.svg);
+    background-image: url(../../assets/svgs/MainMenuNotifications.svg);
 }
 
 header #HelpButton .icon {
-    background-image: url(/assets/svgs/MainMenuSupport.svg);
+    background-image: url(../../assets/svgs/MainMenuSupport.svg);
 }
 
 header #OrgButton .icon {
-    background-image: url(/assets/svgs/settings.svg);
+    background-image: url(../../assets/svgs/settings.svg);
 }
 
 header #ProfileButton .icon {
-    background-image: url(/assets/svgs/MainMenuBlankUser.svg);
+    background-image: url(../../assets/svgs/MainMenuBlankUser.svg);
     width: 37px;
     height: 37px;
     left: 9px;

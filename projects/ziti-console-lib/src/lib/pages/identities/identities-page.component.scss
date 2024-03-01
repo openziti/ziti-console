@@ -238,25 +238,6 @@
   margin-right: 8px;
   margin-top: 5px;
   margin-bottom: 5px;
-
-  &.empty {
-    background: transparent;
-  }
-  &.apple {
-    background-image: url(/assets/images/apple.png);
-  }
-  &.windows {
-    background-image: url(/assets/images/windows.png);
-  }
-  &.linux {
-    background-image: url(/assets/images/linux.png);
-  }
-  &.android {
-    background-image: url(/assets/images/android.png);
-  }
-  &.other {
-    background-image: url(/assets/images/other.png);
-  }
 }
 
 ::ng-deep .date-time-container {

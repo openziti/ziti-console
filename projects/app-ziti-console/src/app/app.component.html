@@ -1,4 +1,3 @@
-<link *ngIf="darkmodeEnabled" href="/assets/styles/dark.css" rel="stylesheet" type="text/css">
 <div *ngIf="!loading" class="main" [ngClass]="{sideNavClosed: !displayNav}">
     <div class="side">
         <ng-container *ngIf="isAuthorized; else login">
