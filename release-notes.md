@@ -1,3 +1,15 @@
+# app-ziti-console-v3.0.7
+
+## Features/Improvements
+* [Issue #261](https://github.com/openziti/ziti-console/pull/261) - Refactor references in /assets to enable dynamic baseHref configuration
+
+# ziti-console-lib-v0.0.9
+
+## Bug Fixes
+
+* [Issue #258](https://github.com/openziti/ziti-console/issues/258) - SAVE button is pushed off the page if entity name has a large number of characters
+* [Issue #237](https://github.com/openziti/ziti-console/issues/237) - Click outside to close table menu
+
 # app-ziti-console-v3.0.6
 
 ## Features/Improvements
