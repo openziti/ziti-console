@@ -1,4 +1,5 @@
-FROM node:lts as zac-builder
+FROM node:20-bookworm-slim as zac-builder
+
 WORKDIR /usr/src/app
 
 RUN npm install -g @angular/cli@16.0.0-next.0
@@ -12,10 +13,8 @@ RUN ng build ziti-console
 RUN ng build ziti-console-node
 
 
-FROM node:lts
+FROM node:20-bookworm-slim
 WORKDIR /usr/src/app
-
-RUN apt update && apt install bash
 
 COPY --from=zac-builder /usr/src/app/dist ./dist
 COPY --from=zac-builder /usr/src/app/node_modules ./node_modules
