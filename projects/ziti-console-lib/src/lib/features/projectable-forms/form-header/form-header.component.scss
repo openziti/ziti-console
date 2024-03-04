@@ -10,6 +10,15 @@
   flex-direction: column;
   width: 100%;
 
+  &.show-more-actions {
+    .form-title-container {
+      max-width: calc(100% - 400px);
+    }
+    .header-actions-container {
+      min-width: 400px;
+    }
+  }
+
   .form-header-group {
     display: flex;
     flex-direction: row;
@@ -29,6 +38,14 @@
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
+    max-width: calc(100% - 200px);
+
+    .form-header-title-text {
+      overflow: hidden;
+      display: block;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
 
     .form-title {
       width: 100%;
@@ -96,7 +113,7 @@
   .header-actions-container {
     display: flex;
     flex-direction: row;
-    min-width: 400px;
+    min-width: 180px;
     justify-content: flex-end;
 
     .save-button {
