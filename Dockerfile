@@ -1,12 +1,7 @@
-# latest LTS version of node, e.g. 20
-#FROM node:lts-alpine as builder
-# this project's current LTS version of node, i.e., 16
-FROM node:16.20.2-alpine3.18 as builder
-
-# install Angular (ng) CLI
-RUN npm install -g @angular/cli@16.0.0-next.0
-
+FROM node:lts as zac-builder
 WORKDIR /usr/src/app
+
+RUN npm install -g @angular/cli@16.0.0-next.0
 
 COPY package*.json ./
 RUN npm install --omit=optional
@@ -16,18 +11,17 @@ RUN ng build ziti-console-lib
 RUN ng build ziti-console
 RUN ng build ziti-console-node
 
-#FROM node:lts-alpine
-FROM node:16.20.2-alpine3.18
 
+FROM node:lts
 WORKDIR /usr/src/app
 
-COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/node_modules ./node_modules
+RUN apt update && apt install bash
+
+COPY --from=zac-builder /usr/src/app/dist ./dist
+COPY --from=zac-builder /usr/src/app/node_modules ./node_modules
 COPY ./package*.json ./
 COPY ./server.js ./
 COPY ./run-zac.sh ./
-
-RUN apk add --no-cache bash
 
 # The in-container path for the key file to use for TLS.
 ENV ZAC_SERVER_KEY=
