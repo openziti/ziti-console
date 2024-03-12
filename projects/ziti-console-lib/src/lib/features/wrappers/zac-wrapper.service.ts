@@ -653,12 +653,22 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
         return schema.result;
     }
 
-    getLocaleFile(locale: string = 'en-us') {
+    async getLocaleFile(locale: string = 'en-us') {
         locale = locale.toLowerCase();
-        const path = 'assets/languages/' + locale + '.json';
-        return this.http.get(path, {responseType: "text"}).toPromise().then((result: any) => {
+        let path = 'assets/languages/' + locale + '.json';
+        let localeFile = await this.http.get(path, {responseType: "text"}).toPromise().then((result: any) => {
             return JSON.parse(result);
+        }).catch((error) => {
+            this.loggerService.error(error);
+            return;
         });
+        if (!localeFile) {
+            path = 'assets/languages/en-us.json';
+            localeFile = await this.http.get(path, {responseType: "text"}).toPromise().then((result: any) => {
+                return JSON.parse(result);
+            })
+        }
+        return localeFile;
     }
 
     getZitiEntities(type: string, paging: any) {
