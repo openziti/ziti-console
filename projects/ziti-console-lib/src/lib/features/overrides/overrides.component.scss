@@ -33,3 +33,42 @@
     }
   }
 }
+
+::ng-deep .override-list-container {
+  .p-element.p-icon-wrapper path {
+    stroke: var(--formSubGroup) !important;
+    fill: var(--formSubGroup) !important;
+  }
+  .p-dropdown {
+    font-weight: 400;
+    font-family: 'Open Sans', Arial, sans-serif;
+    height: 50px;
+    width: 100%;
+    border-color: var(--stroke);
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 7px;
+    padding-left: 10px;
+    padding-right: 10px;
+    outline: none;
+    box-sizing: border-box;
+    font-size: 15px;
+    background-color: var(--navigation) !important;
+    color: var(--text);
+    -webkit-appearance: none;
+  }
+  .p-inputtext {
+    border-radius: 7px;
+    border-color: transparent;
+    height: 47px;
+    &:hover {
+      border-color: transparent;
+    }
+    &:active {
+      border-color: transparent;
+    }
+  }
+  .p-dropdown:not(.p-disabled).p-focus {
+    box-shadow: none;
+  }
+}

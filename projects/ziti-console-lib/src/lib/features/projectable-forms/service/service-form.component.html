@@ -41,6 +41,7 @@
                         [action]="false"
                         [actionLabel]="svc.attachLabel"
                         (actionRequested)="svc.attachConfig(svc.selectedConfigId)"
+                        (keyup.enter)="captureConfigEnterEvent($event)"
                         [helpText]="'Configurations are used to define how to intercept and host a service. Ziti Networks come with built-in configuration types (ie. intercept.v1 and host.v1)'"
                 >
                     <div class="form-field-input-group">

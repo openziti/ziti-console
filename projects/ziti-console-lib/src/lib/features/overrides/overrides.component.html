@@ -19,20 +19,36 @@
             </div>
         </div>
         <div class="darkened">ADD OVERRIDE CONFIG</div>
-        <div class="grid split">
+        <div class="grid split override-list-container">
             <div>
                 <label for="ServiceList">Service</label>
-                <select id="ServiceList" [(ngModel)]="selectedServiceId">
-                    <option [value]="undefined">Select a service</option>
-                    <option *ngFor="let svc of services" [value]="svc.id">{{svc.name}}</option>
-                </select>
+                <p-dropdown
+                    #servicesList
+                    id="ServiceList"
+                    [options]="services"
+                    [(ngModel)]="selectedServiceId"
+                    placeholder="Select a service"
+                    [editable]="true"
+                    [optionValue]="'id'"
+                    [optionLabel]="'name'"
+                    (keyup)="filterServices($event)"
+                    (onFocus)="servicesList.show()"
+                ></p-dropdown>
             </div>
             <div>
                 <label for="ConfigList">Configuration</label>
-                <select id="ConfigList" [(ngModel)]="selectedConfigId">
-                    <option [value]="undefined">Select a config</option>
-                    <option *ngFor="let cfg of configs" [value]="cfg.id">{{cfg.name}}</option>
-                </select>
+                <p-dropdown
+                    #configList
+                    id="ConfigList"
+                    [options]="configs"
+                    [(ngModel)]="selectedConfigId"
+                    placeholder="Select a config"
+                    [editable]="true"
+                    [optionValue]="'id'"
+                    [optionLabel]="'name'"
+                    (keyup)="filterConfigs($event)"
+                    (onFocus)="configList.show()"
+                ></p-dropdown>
             </div>
         </div>
         <div class="buttons">

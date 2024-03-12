@@ -38,15 +38,31 @@ export class OverridesService {
         });
     }
 
-    loadServices(): Promise<any> {
-        return this.zitiDataService.get(`services`, {}, []).then((result) => {
-            return result.data;
+    loadServices(filter): Promise<any> {
+        const paging = {
+            searchOn: 'name',
+            filter: filter,
+            total: 30,
+            page: 1,
+            sort: 'name',
+            order: 'desc'
+        };
+        return this.zitiDataService.get(`services`, paging, []).then((result) => {
+            return result;
         });
     }
 
-    loadConfigs(): Promise<any> {
-        return this.zitiDataService.get(`configs`, {}, []).then((result) => {
-            return result.data;
+    loadConfigs(filter): Promise<any> {
+        const paging = {
+            searchOn: 'name',
+            filter: filter,
+            total: 30,
+            page: 1,
+            sort: 'name',
+            order: 'desc'
+        };
+        return this.zitiDataService.get(`configs`, paging, []).then((result) => {
+            return result;
         });
     }
 
@@ -73,6 +89,7 @@ export class OverridesService {
                 `Successfully added override to identity`,
             );
             this.growlerService.show(growlerData);
+            return true;
         }).catch((error) => {
             const growlerData = new GrowlerModel(
                 'error',
@@ -81,6 +98,7 @@ export class OverridesService {
                 `Failed to add override to identity`,
             );
             this.growlerService.show(growlerData);
+            return false;
         });
     }
 
