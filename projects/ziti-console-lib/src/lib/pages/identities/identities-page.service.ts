@@ -159,7 +159,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
         }
 
         const createdAtFormatter = (row) => {
-            return moment(row?.data?.createdAt).local().format('M/D/YYYY H:MM A');
+            return moment(row?.data?.createdAt).local().format('M/D/YYYY h:mm A');
         }
 
         const columnFilters = this.columnFilters;
