@@ -89,6 +89,8 @@ import {EdgeRouterFormComponent} from "./features/projectable-forms/edge-router/
 import {ServiceFormComponent} from "./features/projectable-forms/service/service-form.component";
 import { PortRangesComponent } from './features/dynamic-widgets/port-ranges/port-ranges.component';
 import { ForwardingConfigComponent } from './features/dynamic-widgets/forwarding-config/forwarding-config.component';
+import { CardListComponent } from './features/card-list/card-list.component';
+import { CardComponent } from './features/card/card.component';
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -151,6 +153,8 @@ export function playerFactory() {
         ServiceFormComponent,
         PortRangesComponent,
         ForwardingConfigComponent,
+        CardListComponent,
+        CardComponent,
     ],
     imports: [
         CommonModule,
