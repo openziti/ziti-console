@@ -152,4 +152,8 @@ export class NodeLoginService extends LoginServiceClass {
             return false;
         });
     }
+
+    checkOriginForController(): Promise<any> {
+        return Promise.resolve(false);
+    }
 }
