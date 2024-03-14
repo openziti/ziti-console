@@ -37,4 +37,8 @@ export class NoopLoginService extends LoginServiceClass {
 
     observeLogin(serviceUrl: string, username: string, password: string) {
     }
+
+    checkOriginForController(): Promise<any> {
+        return Promise.resolve(true);
+    }
 }

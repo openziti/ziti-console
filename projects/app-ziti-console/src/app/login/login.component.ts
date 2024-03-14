@@ -62,22 +62,19 @@ export class LoginComponent implements OnInit, OnDestroy {
         }));
     }
 
-    checkOriginForController() {
+    async checkOriginForController() {
         this.isLoading = true;
-        const controllerUrl = window.location.origin;
-        this.settingsService.initApiVersions(controllerUrl).then((result) => {
-            if (isNil(result) || isEmpty(result)) {
-                this.edgeChanged();
-                this.initSettings();
-            } else {
-                this.originIsController = true;
-                this.edgeCreate = false;
-                this.selectedEdgeController = controllerUrl;
-                this.settingsService.addContoller(this.edgeName, window.location.hostname);
-            }
-        }).finally(() => {
-            this.isLoading = false;
-        });
+        this.originIsController = await this.svc.checkOriginForController();
+        if (this.originIsController) {
+            this.originIsController = true;
+            this.edgeCreate = false;
+            this.selectedEdgeController = window.location.origin;
+            this.settingsService.addContoller(this.edgeName, window.location.hostname);
+        } else {
+            this.edgeChanged();
+            this.initSettings();
+        }
+        this.isLoading = false;
     }
 
     async login() {

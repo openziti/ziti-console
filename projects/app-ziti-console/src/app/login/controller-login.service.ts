@@ -21,7 +21,7 @@ import {firstValueFrom, lastValueFrom, Observable, ObservableInput, of, switchMa
 import {catchError} from "rxjs/operators";
 import {Router} from "@angular/router";
 import moment from "moment";
-import {debounce, defer, isEmpty} from "lodash";
+import {debounce, defer, isEmpty, isNil} from "lodash";
 
 @Injectable({
     providedIn: 'root'
@@ -44,6 +44,19 @@ export class ControllerLoginService extends LoginServiceClass {
 
     async login(prefix: string, url: string, username: string, password: string) {
         this.controllerLogin(prefix, url, username, password);
+    }
+
+    checkOriginForController(): Promise<any> {
+        const controllerUrl = window.location.origin;
+        return this.settingsService.initApiVersions(controllerUrl).then((result) => {
+            if (isNil(result) || isEmpty(result)) {
+                return false;
+            } else {
+                return true;
+            }
+        }).catch((result) => {
+            return false;
+        });
     }
 
     controllerLogin(prefix: string, url: string, username: string, password: string) {
