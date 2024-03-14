@@ -1,0 +1,10 @@
+:host {
+  --shadow: rgba(0, 0, 0, 0.08);
+}
+
+.card-list-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: center;
+}

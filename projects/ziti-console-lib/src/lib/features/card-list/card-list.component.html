@@ -1,0 +1,26 @@
+<div class="fullModal opened">
+    <div class="title" style="filter: brightness(50%)">Create A New Service</div>
+    <div class="subtitle">Choose a Service type</div>
+    <div class="card-list-container">
+        <lib-card
+            (click)="cardSelected('simple')"
+            [imageUrl]="'/assets/svgs/Simple.svg'"
+            [title]="'Simple Service'"
+            [content]="'Create a basic SDK, Endpoint, or Edge Router Hosted Service. Works with older versions of Endpoint Software.'"
+            [buttonText]="'Create Simple Service'"
+            [id]="'SimpleServiceCard'"
+        ></lib-card>
+        <lib-card
+                (click)="cardSelected('advanced')"
+                [imageUrl]="'/assets/svgs/configs.svg'"
+                [title]="'Advanced Configuration'"
+                [content]="'This service allows custom configurations. Select from pre-defined configs and/or add new ones.'"
+                [buttonText]="'Create Advanced Configuration'"
+                [id]="'AdvancedServiceCard'"
+        ></lib-card>
+    </div>
+    <div (click)="closeModal()" class="buttonBall close" id="EscZitiAWClose">
+        <div class="buttonLabel">ESC</div>
+    </div>
+
+</div>
