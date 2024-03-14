@@ -59,13 +59,13 @@
   }
   .p-inputtext {
     border-radius: 7px;
-    border-color: transparent;
+    border-color: transparent !important;
     height: 47px;
     &:hover {
-      border-color: transparent;
+      border-color: transparent !important;
     }
     &:active {
-      border-color: transparent;
+      border-color: transparent !important;
     }
   }
   .p-dropdown:not(.p-disabled).p-focus {

@@ -33,12 +33,13 @@
                     [optionLabel]="'name'"
                     (keyup)="filterServices($event)"
                     (onFocus)="servicesList.show()"
+                    (onChange)="serviceSelectionChanged($event)"
                 ></p-dropdown>
             </div>
             <div>
                 <label for="ConfigList">Configuration</label>
                 <p-dropdown
-                    #configList
+                    #configsList
                     id="ConfigList"
                     [options]="configs"
                     [(ngModel)]="selectedConfigId"
@@ -47,7 +48,8 @@
                     [optionValue]="'id'"
                     [optionLabel]="'name'"
                     (keyup)="filterConfigs($event)"
-                    (onFocus)="configList.show()"
+                    (onFocus)="configsList.show()"
+                    (onChange)="configSelectionChanged($event)"
                 ></p-dropdown>
             </div>
         </div>
