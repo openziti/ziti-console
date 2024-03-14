@@ -1,12 +1,12 @@
 <div class="fullModal opened">
-    <div class="title" style="filter: brightness(50%)">Create A New Service</div>
-    <div class="subtitle">Choose a Service type</div>
+    <div class="title" style="filter: brightness(50%)">Create a service"</div>
+    <div class="subtitle">Choose a service type</div>
     <div class="card-list-container">
         <lib-card
             (click)="cardSelected('simple')"
             [imageUrl]="'/assets/svgs/Simple.svg'"
             [title]="'Simple Service'"
-            [content]="'Create a basic SDK, Endpoint, or Edge Router Hosted Service. Works with older versions of Endpoint Software.'"
+            [content]="'Simple services required fewer details, only asking for the most commonly used fields.'"
             [buttonText]="'Create Simple Service'"
             [id]="'SimpleServiceCard'"
         ></lib-card>
@@ -14,7 +14,7 @@
                 (click)="cardSelected('advanced')"
                 [imageUrl]="'/assets/svgs/configs.svg'"
                 [title]="'Advanced Configuration'"
-                [content]="'This service allows custom configurations. Select from pre-defined configs and/or add new ones.'"
+                [content]="'Advanced Services allow you to configure any option supported by the controller but are subsequently a bit more complex.'"
                 [buttonText]="'Create Advanced Configuration'"
                 [id]="'AdvancedServiceCard'"
         ></lib-card>
