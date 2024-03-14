@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-import {Component, EventEmitter, Inject, Input, OnInit, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Inject, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {OverridesService} from "./overrides.service";
 import {isEmpty} from "lodash"
 
@@ -32,16 +32,37 @@ export class OverridesComponent implements OnInit {
   overrides: any = [];
   selectedServiceId;
   selectedConfigId;
+  showMore = false;
+
+  @ViewChild('servicesList') servicesList: any;
+  @ViewChild('configsList') configsList: any;
 
   constructor(public svc: OverridesService) {}
 
   ngOnInit() {
     this.loadOverrides();
-    this.svc.loadServices().then((services) => {
-      this.services = services;
+    this.getServices('');
+    this.getConfigs('');
+  }
+
+  filterServices(event) {
+    this.getServices(event.target.value);
+  }
+
+  filterConfigs(event) {
+    this.getConfigs(event.target.value);
+  }
+
+  getServices(filter = '') {
+    this.svc.loadServices(filter).then((result) => {
+      this.services = result.data;
+      //this.showMore = result.totalCount > result.limit;
     });
-    this.svc.loadConfigs().then((configs) => {
-      this.configs = configs;
+  }
+
+  getConfigs(filter = '') {
+    this.svc.loadConfigs(filter).then((result) => {
+      this.configs = result.data;
     });
   }
 
@@ -52,8 +73,18 @@ export class OverridesComponent implements OnInit {
   }
 
   addOverride() {
-    this.svc.addOverride(this.identity, this.selectedServiceId, this.selectedConfigId).then(() => {
+    this.svc.addOverride(this.identity, this.selectedServiceId, this.selectedConfigId).then((result) => {
+      if (!result) {
+        return;
+      }
       this.loadOverrides();
+      this.selectedConfigId = undefined;
+      this.selectedServiceId = undefined;
+      this.servicesList.clear();
+      this.servicesList.resetFilter();
+      this.configsList.clear();
+      this.configsList.resetFilter();
+      this.getServices('');
     });
   }
 

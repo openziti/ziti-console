@@ -31,6 +31,7 @@ import {SelectorInputComponent} from './features/dynamic-widgets/selector/select
 import {CheckboxListInputComponent} from './features/dynamic-widgets/checkbox-list/checkbox-list-input.component';
 import {TextListInputComponent} from "./features/dynamic-widgets/text-list/text-list-input.component";
 import {ChipsModule} from "primeng/chips";
+import {DropdownModule} from 'primeng/dropdown';
 import {CalendarModule} from 'primeng/calendar';
 import {QRCodeModule} from 'angularx-qrcode';
 import {
@@ -166,6 +167,7 @@ export function playerFactory() {
         NgJsonEditorModule,
         MatTooltipModule,
         LottieModule.forRoot({player: playerFactory}),
+        DropdownModule
     ],
     exports: [
         ZacWrapperComponent,

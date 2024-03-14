@@ -159,6 +159,11 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     return this.svc.selectedConfigId === 'add-new' || this.svc.selectedConfigId === 'preview';
   }
 
+  captureConfigEnterEvent(event) {
+    event.stopPropagation();
+    this.svc.attachConfig(this.svc.selectedConfigId);
+  }
+
   headerActionRequested(action) {
     switch(action.name) {
       case 'save':
