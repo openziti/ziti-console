@@ -53,6 +53,24 @@ export class OverridesComponent implements OnInit {
     this.getConfigs(event.target.value);
   }
 
+  serviceSelectionChanged(event) {
+    const selectedService = this.services.find((service) => {
+      return service.id === event.value;
+    });
+    if (selectedService) {
+      this.servicesList.editableInputViewChild.nativeElement.value = selectedService.name;
+    }
+  }
+
+  configSelectionChanged(event) {
+    const selectedConfig = this.configs.find((config) => {
+      return config.id === event.value;
+    });
+    if (selectedConfig) {
+      this.configsList.editableInputViewChild.nativeElement.value = selectedConfig.name;
+    }
+  }
+
   getServices(filter = '') {
     this.svc.loadServices(filter).then((result) => {
       this.services = result.data;
