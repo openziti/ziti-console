@@ -1,3 +1,16 @@
+# app-ziti-console-v3.0.8
+## Bug Fixes
+
+* [Issue #275](https://github.com/openziti/ziti-console/issues/275) - The "Select Edge Controller" dropdown is hidden on the login page after logout
+
+# ziti-console-lib-v0.0.10
+
+## Bug Fixes
+
+* [Issue #265](https://github.com/openziti/ziti-console/issues/265) - Titles and page text don't display if locale region is anything other than en-us
+* [Issue #268](https://github.com/openziti/ziti-console/issues/268) - Only 10 Services and Configurations are listing while overriding services to Identity
+* [Issue #267](https://github.com/openziti/ziti-console/issues/267) - Minute value in the "Created At" column of Identities and Routers is always showing the same value
+
 # app-ziti-console-v3.0.7
 
 ## Features/Improvements
