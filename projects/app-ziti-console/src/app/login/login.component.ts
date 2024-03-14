@@ -18,7 +18,7 @@ import {Inject, Component, OnDestroy, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
 import {SettingsServiceClass, LoginServiceClass, SETTINGS_SERVICE, ZAC_LOGIN_SERVICE} from "ziti-console-lib";
 import {Subscription} from "rxjs";
-import {defer, isEmpty, isNil, get} from "lodash";
+import {isEmpty, isNil, get} from "lodash";
 
 // @ts-ignore
 const {growler, context} = window;
@@ -42,6 +42,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     backToLogin = false;
     showEdge = false;
     originIsController = false;
+    isLoading = false;
     private subscription = new Subscription();
 
     constructor(
@@ -51,6 +52,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         ) { }
 
     ngOnInit() {
+        this.checkOriginForController();
         if (this.svc.hasSession()) {
             this.router.navigate(['/dashboard']);
         }
@@ -58,10 +60,10 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.settingsService.settingsChange.subscribe((results: any) => {
             if (results) this.settingsReturned(results);
         }));
-        this.checkOriginForController();
     }
 
     checkOriginForController() {
+        this.isLoading = true;
         const controllerUrl = window.location.origin;
         this.settingsService.initApiVersions(controllerUrl).then((result) => {
             if (isNil(result) || isEmpty(result)) {
@@ -73,6 +75,8 @@ export class LoginComponent implements OnInit, OnDestroy {
                 this.selectedEdgeController = controllerUrl;
                 this.settingsService.addContoller(this.edgeName, window.location.hostname);
             }
+        }).finally(() => {
+            this.isLoading = false;
         });
     }
 
@@ -160,15 +164,15 @@ export class LoginComponent implements OnInit, OnDestroy {
             this.userLogin = false;
         }
         const serviceUrl = localStorage.getItem("ziti-serviceUrl-value");
+        if (this.originIsController) {
+            // the origin is already selected as the target ziti controller so no need to set it again.
+            return;
+        }
         if (!isEmpty(serviceUrl)) {
             const lastUrl: any = JSON.parse(serviceUrl).data;
-            defer(() => {
-                this.selectedEdgeController = lastUrl.trim();
-            });
+            this.selectedEdgeController = lastUrl.trim();
         } else {
-            defer(() => {
-                this.selectedEdgeController = settings.selectedEdgeController;
-            });
+            this.selectedEdgeController = settings.selectedEdgeController;
         }
     }
 
