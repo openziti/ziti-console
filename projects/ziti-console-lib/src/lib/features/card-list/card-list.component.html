@@ -1,19 +1,21 @@
-<div class="fullModal opened">
-    <div class="title" style="filter: brightness(50%)">Create a service"</div>
+<div class="card-list-wrapper fullModal opened">
+    <div class="title" style="filter: brightness(50%)">Create a service</div>
     <div class="subtitle">Choose a service type</div>
     <div class="card-list-container">
         <lib-card
             (click)="cardSelected('simple')"
             [imageUrl]="'/assets/svgs/Simple.svg'"
-            [title]="'Simple Service'"
+            [title]="'Simple'"
             [content]="'Simple services required fewer details, only asking for the most commonly used fields.'"
+            [buttonText]="'Create Simple Service'"
             [id]="'SimpleServiceCard'"
         ></lib-card>
         <lib-card
                 (click)="cardSelected('advanced')"
                 [imageUrl]="'/assets/svgs/Advanced.svg'"
-                [title]="'Advanced Configuration'"
-                [content]="'Advanced Services allow you to configure any option supported by the controller but are subsequently a bit more complex.'"
+                [title]="'Advanced'"
+                [content]="'Advanced services allow you to configure any option supported by the controller but are subsequently a bit more complex.'"
+                [buttonText]="'Create Advanced Service'"
                 [id]="'AdvancedServiceCard'"
         ></lib-card>
     </div>
