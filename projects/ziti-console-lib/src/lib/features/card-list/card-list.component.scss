@@ -1,0 +1,17 @@
+:host {
+  --shadow: rgba(0, 0, 0, 0.08);
+}
+
+.card-list-wrapper {
+
+  >.title {
+    font-size: 26px;
+  }
+
+  .card-list-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: center;
+  }
+}

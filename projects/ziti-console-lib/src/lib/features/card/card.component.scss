@@ -1,0 +1,177 @@
+
+.buttonCard .title {
+    top: 230px;
+}
+
+.buttonCard .content {
+    font-size: 14px;
+    bottom: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.red {
+    color: var(--red);
+    font-weight: 650;
+    background-color: unset;
+}
+
+.disabled {
+    background: var(--inputBorder);
+    box-shadow: none;
+    color: var(--icon);
+}
+
+.save {
+    margin-top: 3px;
+    font-size: 14px;
+    font-family: Open Sans;
+    font-weight: 600;
+    display: inline-block;
+    min-width: 150px;
+    clear: both;
+    overflow: hidden;
+    height: 45px;
+    padding: 13px;
+    width: -moz-fit-content;
+    width: fit-content;
+    text-transform: uppercase;
+    text-align: center;
+    border-radius: 7px;
+    position: relative;
+    border: 0;
+    background: var(--primaryColor);
+    color: #fff;
+    white-space: nowrap;
+    transition: all .15s ease;
+    cursor: pointer;
+    box-shadow: 0 3px 9px 0 var(--primaryColorOpaque);
+}
+
+.padTop {
+    padding-top: 12px;
+}
+
+.linkButton {
+    margin-top: unset;
+}
+
+.subtext {
+    color: var(--stroke);
+}
+
+.buttonCard {
+    max-width: 320px;
+    width: 320px;
+    position: relative;
+    float: none;
+    cursor: pointer;
+    padding-bottom: 25px;
+    margin: 0 auto;
+    margin-right: 20px;
+    margin-left: 20px;
+    margin-top: 20px;
+    background-color: var(--navigation);
+    -webkit-box-shadow: 0px 12px 23px 0px var(--shadow);
+    box-shadow: 0px 12px 23px 0px var(--shadow);
+    -webkit-transition: box-shadow 0.3s;
+    -moz-transition: box-shadow 0.3s;
+    -ms-transition: box-shadow 0.3s;
+    -o-transition: box-shadow 0.3s;
+    transition: box-shadow 0.3s;
+    border-radius: 7px;
+    min-height: 405px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    &.shadow {
+        box-shadow: 0px 12px 23px 0px var(--shadow);
+        .icon {
+            background-size: 50%;
+            background-position: center top;
+        }
+    }
+
+    &:hover {
+        filter: brightness(99.5%);
+        -webkit-box-shadow: 0px 3px 3px 0px var(--shadow);
+        box-shadow: 0px 3px 3px 0px var(--shadow);
+        -webkit-transition: box-shadow 0.3s;
+        -moz-transition: box-shadow 0.3s;
+        -ms-transition: box-shadow 0.3s;
+        -o-transition: box-shadow 0.3s;
+        transition: box-shadow 0.3s;
+    }
+
+    &:active {
+        filter: brightness(99%);
+        -webkit-box-shadow: 0px 1px 1px 0px var(--shadow);
+        box-shadow: 0px 1px 1px 0px var(--shadow);
+        -webkit-transition: box-shadow 0.3s;
+        -moz-transition: box-shadow 0.3s;
+        -ms-transition: box-shadow 0.3s;
+        -o-transition: box-shadow 0.3s;
+        transition: box-shadow 0.3s;
+    }
+
+    .title {
+        font-size: 16px;
+        color: var(--tableText);
+        text-align: center;
+        text-transform: uppercase;
+        padding-top: 0px;
+        font-weight: 600;
+        font-family: 'Open Sans';
+        position: absolute;
+        top: 220px;
+        width: 100%;
+    }
+
+    .buttonArea {
+        position: absolute;
+        bottom: 25px;
+        width: 100%;
+    }
+
+    .subButton {
+        position: absolute;
+        bottom: 10px;
+    }
+
+    .content {
+        color: var(--text);
+        font-size: 13px;
+        height: 80px;
+        margin-top: 15px;
+        margin-bottom: 30px;
+        padding-left: 30px;
+        padding-right: 30px;
+        padding-top: 30px;
+        bottom: 70px;
+        position: absolute;
+        font-weight: 400;
+        font-family: 'Open Sans';
+    }
+
+    .icon {
+        position: absolute;
+        top: 30px;
+        left: 10px;
+        right: 10px;
+        height: 185px;
+        background-position: center bottom;
+        background-size: contain;
+        z-index: unset;
+        width: unset;
+        min-width: unset;
+        min-height: unset;
+    }
+
+    .buttonArea {
+        bottom: 30px;
+    }
+}
