@@ -59,7 +59,7 @@ export abstract class ListPageServiceClass {
     sideModalOpen = false;
     currentSort = {
         sortBy: 'name',
-        ordering: 'desc'
+        ordering: 'asc'
     };
 
     constructor(
@@ -106,7 +106,7 @@ export abstract class ListPageServiceClass {
         return Promise.all(promises);
     }
 
-    sort(sortBy, ordering= 'desc') {
+    sort(sortBy, ordering= 'asc') {
         this.currentSort = {sortBy, ordering};
         if(this.refreshData) this.refreshData({sortBy, ordering});
     }

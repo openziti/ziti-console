@@ -191,7 +191,7 @@ export class TableColumnDefaultComponent implements IHeaderAngularComp, AfterVie
       return;
     }
     if (_.isEmpty(this.sortDir)) {
-      this.sortDir = 'desc';
+      this.sortDir = 'asc';
     } else if (this.sortDir === 'asc') {
       this.sortDir = 'desc';
     } else {

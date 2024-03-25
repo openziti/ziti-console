@@ -39,7 +39,7 @@
             <div class="more-actions-container" *ngIf="moreActions && moreActions.length > 0" (click)="showMoreActions()" (clickOutside)="closeActionsMoreActions()">
                 <div class="more-actions-button">
                     <div class="more-actions-label">
-                        <div class="more-actions-text">More Actions</div>
+                        <div class="more-actions-text">{{moreActionsText}}</div>
                         <div class="more-actions-arrow"></div>
                     </div>
                 </div>
@@ -58,7 +58,7 @@
                  [ngClass]="{'save-disabled': saveDisabled}"
                  matTooltip="{{saveDisabled ? saveTooltip : ''}}"
                  matTooltipPosition="below"
-            >Save</div>
+            >{{actionButtonText}}</div>
         </div>
     </div>
     <div class="form-header-group badges-container">

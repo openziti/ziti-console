@@ -12,7 +12,7 @@
 
   &.show-more-actions {
     .form-title-container {
-      max-width: calc(100% - 400px);
+      max-width: calc(100% - 250px);
     }
     .header-actions-container {
       min-width: 400px;
@@ -117,7 +117,6 @@
     justify-content: flex-end;
 
     .save-button {
-      max-width: 65px;
       min-width: 65px;
       height: 33px;
       text-transform: none;
@@ -205,87 +204,6 @@
     cursor: pointer;
     &:hover {
       background-color: var(--inputBorder);
-    }
-  }
-}
-
-.form-header-toggle-container {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-right: 20px;
-
-  .form-header-toggle {
-    display: flex;
-    flex-direction: row;
-    width: 30px;
-    height: 18px;
-    border-radius: 10px;
-    border-color: var(--inputBorder);
-    border-style: solid;
-    border-width: 2px;
-    margin-left: 5px;
-    margin-right: 5px;
-    cursor: pointer;
-    position: relative;
-    margin-right: 5px;
-
-    &:hover {
-      filter: brightness(90%);
-    }
-
-    &:active {
-      transform: translateY(1px);
-      filter: brightness(80%);
-    }
-
-    .form-toggle-switch {
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-start;
-      align-items: center;
-      height: 100%;
-      margin-left: 3px;
-      position: absolute;
-      transition: 0.5s;
-      left: 0;
-
-      &.toggle-right {
-        left: 10px;
-
-        .form-toggle-indicator {
-          border-color: var(--red);
-        }
-      }
-
-      .form-toggle-indicator {
-        height: 10px;
-        border-color: var(--green);
-        border-style: solid;
-        border-left-width: 1px;
-        border-right-width: 1px;
-        position: relative;
-        margin-left: 2px;
-      }
-    }
-  }
-
-  .toggle-option-text {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--placeholder);
-    cursor: pointer;
-
-    &:hover {
-      filter: brightness(90%);
-      &.toggle-option-selected {
-        filter: unset;
-      }
-    }
-
-    &.toggle-option-selected {
-      color: var(--tableText);
-      cursor: default;
     }
   }
 }

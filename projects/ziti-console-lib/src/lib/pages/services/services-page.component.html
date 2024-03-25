@@ -20,12 +20,22 @@
     </lib-data-table>
 </div>
 <lib-side-modal [(open)]="svc.sideModalOpen" [showClose]="false">
+    <lib-card-list
+        *ngIf="showCardList"
+        (close)="closeModal($event)"
+        (selected)="serviceTypeSelected($event)"
+    ></lib-card-list>
     <lib-service-form
-            *ngIf="svc.modalType === 'service' && svc.sideModalOpen"
+            *ngIf="svc.sideModalOpen && svc.serviceType === 'advanced'"
             [formData]="svc.selectedService"
             [serviceRoleAttributes]="serviceRoleAttributes"
             (close)="closeModal($event)"
             (dataChange)="dataChanged($event)"
     ></lib-service-form>
+    <lib-simple-service
+            *ngIf="svc.sideModalOpen && svc.serviceType === 'simple'"
+            (close)="closeModal($event)"
+            (dataChange)="dataChanged($event)"
+    ></lib-simple-service>
 </lib-side-modal>
 <lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

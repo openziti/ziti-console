@@ -31,6 +31,7 @@ import {ConfirmComponent} from "../../features/confirm/confirm.component";
 })
 export class ServicesPageComponent extends ListPageComponent implements OnInit, OnDestroy  {
 
+  serviceType = '';
   serviceRoleAttributes: any[] = [];
   formDataChanged = false;
   isLoading: boolean;
@@ -59,6 +60,7 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
   headerActionClicked(action: string) {
     switch(action) {
       case 'add':
+        this.svc.serviceType = '';
         this.svc.openUpdate();
         break;
       case 'edit':
@@ -82,6 +84,7 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
         this.itemToggled(event.item)
         break;
       case 'update':
+        this.svc.serviceType = 'advanced';
         this.svc.openUpdate(event.item);
         break;
       case 'create':
@@ -118,12 +121,25 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
     this.formDataChanged = event;
   }
 
+  get showCardList() {
+    return this.svc.sideModalOpen && this.svc.serviceType === '';
+  }
+
   closeModal(event?) {
+    if (event?.data === 'cards') {
+      this.svc.serviceType = '';
+      return;
+    }
+    this.svc.serviceType = '';
     this.svc.sideModalOpen = false;
     if(event?.refresh) {
       this.refreshData();
       this.getServiceRoleAttributes();
     }
+  }
+
+  serviceTypeSelected(event) {
+    this.svc.serviceType = event;
   }
 
 }

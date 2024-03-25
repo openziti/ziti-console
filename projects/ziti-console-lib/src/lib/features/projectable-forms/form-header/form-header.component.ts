@@ -28,7 +28,8 @@ export class FormHeaderComponent {
   @Input() formView = 'simple';
   @Input() saveDisabled = false;
   @Input() saveTooltip = '';
-
+  @Input() actionButtonText = 'Save';
+  @Input() moreActionsText = 'More Actions';
   @Output() formViewChange: EventEmitter<string> = new EventEmitter<string>();
   @Output() actionRequested: EventEmitter<any> = new EventEmitter<any>();
 

@@ -27,11 +27,11 @@ input, select, textarea {
     border-style: solid;
     border-width: 2px;
     border-radius: 7px;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 7px;
+    padding-right: 7px;
     outline: none;
     box-sizing: border-box;
-    font-size: 15px;
+    font-size: 14px;
     background-color: var(--navigation) !important;
     color: var(--text);
     -webkit-appearance: none;
@@ -74,6 +74,12 @@ input:focus, select:focus, textarea:focus {
     border-color: var(--primary);
 }
 
+input::-webkit-inner-spin-button {
+	display: none;
+	-webkit-appearance: none;
+	margin: 0;
+}
+
 .searchSelector input:focus {
     border-color: rgba(0,0,0,0) !important;
 }
@@ -98,10 +104,10 @@ input.errors, select.errors, textarea.errors, div.errors .selectable {
 
 select {
     background-image: url(../images/select.png);
-    background-position: center right 10px;
+    background-position: center right 7px;
     background-repeat: no-repeat;
     background-size: 14px 7px;
-    padding-right: 28px;
+    padding-right: 22px;
 }
 
 .check {
