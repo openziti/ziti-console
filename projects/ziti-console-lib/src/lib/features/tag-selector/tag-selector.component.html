@@ -56,12 +56,12 @@
                         (click)="$event.stopPropagation()"
                         *ngFor="let item of _selectedNamedAttributes"
                         [hidden]="item === this.hideOption"
-                        class="hashtag select2-selection__choice"
+                        class="attag select2-selection__choice"
                         title="@{{ item }}"
                     >
                         <span
                             (click)="removeNamedAttribute(item); $event.stopPropagation()"
-                            class="attag select2-selection__choice__remove"
+                            class="select2-selection__choice__remove"
                             role="presentation"
                         >×</span
                         >@{{ item }}

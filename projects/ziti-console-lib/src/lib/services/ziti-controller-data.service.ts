@@ -52,7 +52,7 @@ export class ZitiControllerDataService extends ZitiDataService {
         super(logger, growler, settingsService, httpClient, router);
     }
 
-    post(type, model): Promise<any> {
+    post(type, model, chained = false): Promise<any> {
         const apiVersions = this.settingsService.apiVersions || {};
         const prefix = apiVersions["edge-management"]?.v1?.path;
         const url = this.settingsService.settings.selectedEdgeController;
@@ -71,7 +71,7 @@ export class ZitiControllerDataService extends ZitiDataService {
         );
     }
 
-    patch(type, model, id): Promise<any> {
+    patch(type, model, id, chained = false): Promise<any> {
         const apiVersions = this.settingsService.apiVersions || {};
         const prefix = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
         const url = this.settingsService.settings.selectedEdgeController;

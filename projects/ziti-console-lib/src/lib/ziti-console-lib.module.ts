@@ -91,6 +91,7 @@ import {ServiceFormComponent} from "./features/projectable-forms/service/service
 import { PortRangesComponent } from './features/dynamic-widgets/port-ranges/port-ranges.component';
 import { ForwardingConfigComponent } from './features/dynamic-widgets/forwarding-config/forwarding-config.component';
 import { CardListComponent } from './features/card-list/card-list.component';
+import { SimpleServiceComponent } from './features/projectable-forms/service/simple-service/simple-service.component';
 import { CardComponent } from './features/card/card.component';
 
 export function playerFactory() {
@@ -155,6 +156,7 @@ export function playerFactory() {
         PortRangesComponent,
         ForwardingConfigComponent,
         CardListComponent,
+        SimpleServiceComponent,
         CardComponent,
     ],
     imports: [

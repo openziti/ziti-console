@@ -37,8 +37,8 @@ export abstract class ZitiDataService {
               protected router: Router
   ) {}
 
-  abstract post(type, model): Promise<any>;
-  abstract patch(type, model, id): Promise<any>;
+  abstract post(type, model, chained?): Promise<any>;
+  abstract patch(type, model, id, chained?): Promise<any>;
   abstract get(type: string, paging: any, filters: FilterObj[], url?): Promise<any>;
   abstract getSubdata(entityType: string, id: any, dataType: string): Promise<any>;
   abstract saveSubdata(entityType: string, id: any, dataType: string, params: any): Promise<any>;

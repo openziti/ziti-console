@@ -52,11 +52,11 @@ export class NodeDataService extends ZitiDataService {
         super(logger, growler, settingsService, httpClient, router)
     }
 
-    post(type, model) {
+    post(type, model, chained = false) {
         let clientSub;
         const nodeServerURL = window.location.origin;
         const serviceUrl = nodeServerURL + '/api/dataSave';
-        const body = {paging: this.DEFAULT_PAGING, type: type, save: model};
+        const body = {paging: this.DEFAULT_PAGING, type: type, save: model, chained: chained};
 
         return firstValueFrom(this.httpClient.post(serviceUrl,body,{}).pipe(
                 catchError((err: any) => {
@@ -74,11 +74,11 @@ export class NodeDataService extends ZitiDataService {
         );
     }
 
-    patch(type, model, id) {
+    patch(type, model, id, chained = false) {
         let clientSub;
         const nodeServerURL = window.location.origin;
         const serviceUrl = nodeServerURL + '/api/dataSave';
-        const body = {paging: this.DEFAULT_PAGING, type: type, save: model, id: id};
+        const body = {paging: this.DEFAULT_PAGING, type: type, save: model, id: id, chained: chained};
 
         return firstValueFrom(this.httpClient.post(serviceUrl,body,{}).pipe(
                 catchError((err: any) => {

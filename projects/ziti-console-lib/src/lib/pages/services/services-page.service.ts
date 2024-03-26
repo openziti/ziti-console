@@ -46,6 +46,7 @@ export class ServicesPageService extends ListPageServiceClass {
     private paging = this.DEFAULT_PAGING;
     public modalType = 'service';
 
+    serviceType = '';
     selectedService: any = new Service();
     columnFilters: any = {
         name: '',
@@ -106,6 +107,7 @@ export class ServicesPageService extends ListPageServiceClass {
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
                 onCellClicked: (data) => {
+                    this.serviceType = 'advanced';
                     this.openUpdate(data.data);
                 },
                 resizable: true,
@@ -123,6 +125,7 @@ export class ServicesPageService extends ListPageServiceClass {
                 headerName: 'Roles',
                 headerComponent: TableColumnDefaultComponent,
                 onCellClicked: (data) => {
+                    this.serviceType = '';
                     this.openUpdate(data.data);
                 },
                 resizable: true,
@@ -174,6 +177,19 @@ export class ServicesPageService extends ListPageServiceClass {
 
     public getServiceRoleAttributes() {
         return this.zitiService.get('service-role-attributes', {}, []);
+    }
+
+    public getIdentityNamedAttributes() {
+        return this.zitiService.get('identities', {}, []).then((result) => {
+            const namedAttributes = result.data.map((identity) => {
+                return identity.name;
+            });
+            return namedAttributes;
+        });
+    }
+
+    public getIdentityRoleAttributes() {
+        return this.zitiService.get('identity-role-attributes', {}, []);
     }
 
     downloadAllItems() {

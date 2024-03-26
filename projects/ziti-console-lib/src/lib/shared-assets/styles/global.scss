@@ -125,12 +125,46 @@ body {
   }
 }
 
+.form-field-divider-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 0 150px;
+  width: 100%;
+}
+.form-field-line {
+  width: 100%;
+  flex: 1 1 auto;
+  border-style: solid;
+  border-width: 1px;
+  border-color: var(--stroke);
+}
+.form-field-label {
+  color: var(--stroke);
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  flex: 1 0 auto;
+  flex-wrap: nowrap;
+}
 .form-field-row {
   display: flex;
   flex-direction: row;
   gap: 10px;
 }
 
+.form-field-clickable {
+  cursor: pointer;
+}
+
+.form-field-expand {
+  font-size: 30px;
+  color: var(--placeholder);
+  &.open {
+    transform: rotate(90deg);
+  }
+}
 .form-field-dropdown {
   background-image: url(/assets/svgs/ArrowDown.svg);
   background-position: center right 10px;
@@ -181,6 +215,26 @@ body {
   width: 100%;
   display: flex;
   justify-content: flex-end;
+}
+
+.fullModal {
+  background-color: #f6f7fb !important;
+}
+
+.button {
+  &.save-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    background: var(--primary);
+    padding: 7px;
+    border-radius: 7px;
+    color: var(--white);
+    cursor: pointer;
+    box-shadow: 0 3px 9px 0 var(--primaryColorOpaque);
+  }
 }
 
 .save-button {
@@ -236,6 +290,7 @@ body {
   gap: 20px;
   flex: 1 1 auto;
   padding-bottom: 15px;
+  max-width: 1100px;
 
   &[hidden] {
     display: none;
@@ -275,7 +330,7 @@ body {
 
 .form-field-input {
   &::placeholder {
-    font-weight: 600;
+    font-weight: 400;
   }
   &.error {
     border-color: var(--red);
@@ -389,7 +444,7 @@ lib-form-field-container {
   }
 
   .tap-to-download {
-    font-family: icomoon!important;
+    font-family: zac!important;
     speak: none;
     font-style: normal;
     font-weight: 400;
@@ -407,7 +462,7 @@ lib-form-field-container {
     background-repeat: no-repeat;
 
     &:before {
-      content: "\e90b";
+      content: "\e92d";
     }
   }
 }
@@ -653,3 +708,4 @@ lib-form-field-container {
     }
   }
 }
+
