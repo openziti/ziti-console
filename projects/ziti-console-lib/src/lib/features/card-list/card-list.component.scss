@@ -6,12 +6,80 @@
 
   >.title {
     font-size: 26px;
+    filter: brightness(50%);
+    padding-top: 35px;
+    text-align: center;
+    width: 100%;
+    color: var(--primaryColor);
+    font-family: "Russo One";
+    text-transform: uppercase;
+    position: relative;
+    font-weight: 400;
   }
-
+  >.subtitle {
+    text-align: center;
+    width: 100%;
+    color: var(--tableText);
+    position: relative;
+    margin-bottom: 0px;
+    font-size: 32px;
+    font-weight: 300;
+    font-family: "Open Sans";
+    float: left;
+  }
   .card-list-container {
     display: flex;
     flex-direction: row;
     width: 100%;
     justify-content: center;
+  }
+
+  .buttonBall {
+    &.close {
+      font-style: normal;
+      font-weight: 600;
+      -webkit-font-smoothing: antialiased;
+      cursor: pointer;
+      position: absolute;
+      width: 63px;
+      height: 63px;
+      font-size: 30px;
+      top: 20px;
+      right: 20px;
+      left: unset;
+      z-index: 20;
+      color: var(--stroke);
+      text-transform: uppercase;
+      text-align: center;
+      line-height: 40px;
+      font-family: icomoon !important;
+      font-variant: normal;
+      border-radius: 33px;
+      transition: all 0.3s ease 0s;
+
+      &::before {
+        content: '\e905';
+        font-size: 35px;
+      }
+    }
+    &:hover {
+      background-color: var(--primaryColor);
+      color: var(--white);
+      box-shadow: 0 2px 3px 0 var(--primaryColorOpaque);
+      transition: all 0.2s ease 0s;
+      &::before {
+        color: var(--white);
+      }
+    }
+    .buttonLabel {
+      font-weight: 600;
+      font-family: "Open Sans", Arial, sans-serif;
+      position: absolute;
+      bottom: -2px;
+      width: 100%;
+      text-align: center;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
   }
 }

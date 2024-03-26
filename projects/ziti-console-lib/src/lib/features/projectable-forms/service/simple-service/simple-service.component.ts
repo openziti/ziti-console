@@ -49,7 +49,7 @@ export class SimpleServiceComponent extends ProjectableForm {
     data: {
       portRanges: [],
       addresses: [],
-      protocols: []
+      protocols: ['tcp', 'udp']
     }
   };
   hostConfigApiData = {
@@ -76,6 +76,11 @@ export class SimpleServiceComponent extends ProjectableForm {
     serviceRoles: [],
     identityRoles: []
   };
+  dialPolicyNamedAttributes = [];
+  dialPolicyRoleAttributes = [];
+  bindPolicyNamedAttributes = [];
+  bindPolicyRoleAttributes = [];
+  identitiesNameIdMap = {};
   interceptConfigId;
   hostConfigId;
   sdkOnlyDial = false;
@@ -102,6 +107,17 @@ export class SimpleServiceComponent extends ProjectableForm {
     this.hostConfigApiUrl = `${this.controllerDomain}/edge/management/v1/configs`;
     this.dialPolicyApiUrl = `${this.controllerDomain}/edge/management/v1/service-policies`;
     this.bindPolicyApiUrl = `${this.controllerDomain}/edge/management/v1/service-policies`;
+    this.getIdentityNamedAttributes()
+  }
+
+  getIdentityNamedAttributes() {
+    this.zitiService.get('identities', {}, []).then((result) => {
+      const namedAttributes = result.data.map((identity) => {
+        this.identitiesNameIdMap[identity.name] = identity.id;
+        return identity.name;
+      });
+      this.identityNamedAttributes = namedAttributes;
+    });
   }
 
   headerActionRequested(action) {
@@ -160,22 +176,36 @@ export class SimpleServiceComponent extends ProjectableForm {
   }
 
   async save(refresh?) {
-    const interceptConfigResult = await this.zitiService.post('configs', this.interceptConfigApiData, true);
-    this.interceptConfigId = interceptConfigResult.id ? interceptConfigResult.id : interceptConfigResult.data.id;
-    const hostConfigResult = await this.zitiService.post('configs', this.hostConfigApiData, true);
-    this.hostConfigId = hostConfigResult.id ? hostConfigResult.id : hostConfigResult.data.id;
-    this.serviceApiData.configs[0] = this.interceptConfigId;
-    this.serviceApiData.configs[1] = this.hostConfigId;
+    this.serviceApiData.configs = [];
+    if (!this.sdkOnlyDial) {
+      const interceptConfigResult = await this.zitiService.post('configs', this.interceptConfigApiData, true);
+      this.interceptConfigId = interceptConfigResult.id ? interceptConfigResult.id : interceptConfigResult.data.id;
+      this.serviceApiData.configs.push(this.interceptConfigId);
+    }
+    if (!this.sdkOnlyBind) {
+      const hostConfigResult = await this.zitiService.post('configs', this.hostConfigApiData, true);
+      this.hostConfigId = hostConfigResult.id ? hostConfigResult.id : hostConfigResult.data.id;
+      this.serviceApiData.configs.push(this.hostConfigId);
+    }
+
+    console.log(this.dialPolicyData);
+    console.log(this.bindPolicyData);
     const serviceResult = await this.zitiService.post('services', this.serviceApiData, true);
     const serviceId = serviceResult.id ? serviceResult.id : serviceResult.data.id;
     this.dialPolicyData.serviceRoles = [`@${serviceId}`];
     this.bindPolicyData.serviceRoles = [`@${serviceId}`];
-    this.dialPolicyData.identityRoles = this.bindPolicyData.identityRoles.map((role) => {
-      return '#' + role;
+    this.dialPolicyData.identityRoles = this.dialPolicyNamedAttributes.map((name) => {
+      return '@' + this.identitiesNameIdMap[name];
     });
-    this.bindPolicyData.identityRoles = this.bindPolicyData.identityRoles.map((role) => {
+    this.dialPolicyData.identityRoles = [...this.dialPolicyData.identityRoles, ...this.dialPolicyRoleAttributes.map((role) => {
       return '#' + role;
+    })];
+    this.bindPolicyData.identityRoles = this.bindPolicyNamedAttributes.map((name) => {
+      return '@' + this.identitiesNameIdMap[name];
     });
+    this.bindPolicyData.identityRoles = [...this.bindPolicyData.identityRoles, ...this.bindPolicyRoleAttributes.map((role) => {
+      return '#' + role;
+    })];
     await this.zitiService.post('service-policies', this.dialPolicyData);
     await this.zitiService.post('service-policies', this.bindPolicyData);
     const growlerData = new GrowlerModel(

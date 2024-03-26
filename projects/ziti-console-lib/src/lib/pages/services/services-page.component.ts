@@ -33,6 +33,7 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
 
   serviceType = '';
   serviceRoleAttributes: any[] = [];
+  identityRoleAttributes: any[] = [];
   formDataChanged = false;
   isLoading: boolean;
   tabs: { url: string; label: string }[];
@@ -114,6 +115,9 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
   getServiceRoleAttributes() {
     this.svc.getServiceRoleAttributes().then((result: any) => {
       this.serviceRoleAttributes = result.data;
+    });
+    this.svc.getIdentityRoleAttributes().then((result: any) => {
+      this.identityRoleAttributes = result.data;
     });
   }
 

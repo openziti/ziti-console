@@ -179,6 +179,19 @@ export class ServicesPageService extends ListPageServiceClass {
         return this.zitiService.get('service-role-attributes', {}, []);
     }
 
+    public getIdentityNamedAttributes() {
+        return this.zitiService.get('identities', {}, []).then((result) => {
+            const namedAttributes = result.data.map((identity) => {
+                return identity.name;
+            });
+            return namedAttributes;
+        });
+    }
+
+    public getIdentityRoleAttributes() {
+        return this.zitiService.get('identity-role-attributes', {}, []);
+    }
+
     downloadAllItems() {
         const paging = cloneDeep(this.paging);
         paging.total = this.totalCount;

@@ -5,8 +5,6 @@
     <lib-form-header
             [data]="formData"
             [title]="showForm ? 'Create a Simple Service' : 'Service Creation Summary'"
-            [moreActions]="moreActions"
-            [moreActionsText]="'Copy Actions'"
             [actionButtonText]="'Save'"
             (actionRequested)="headerActionRequested($event)"
             [(formView)]="formView"
@@ -50,7 +48,7 @@
                 <lib-form-field-container
                         [title]="'ACCESSING CONFIGURATION'"
                         [contentStyle]="'z-index: 99999999'"
-                        [helpText]="'IP/Hostname used by the client to reach the application. Note: Does not need to match Host Configuration.'"
+                        [helpText]="'How will client applications use this service? Specify a hostname/IP and port, or use the &quot;SDK Only&quot; toggle for an application embedded configuration.'"
                 >
                     <div class="form-field-input-group accessing-group">
                         <div class="form-field-sub-group">
@@ -58,7 +56,8 @@
                                 <span class="form-field-title">What identities can access this service?</span>
                             </div>
                             <lib-tag-selector
-                                    [(selectedRoleAttributes)]="dialPolicyData.identityRoles"
+                                    [(selectedNamedAttributes)]="dialPolicyNamedAttributes"
+                                    [(selectedRoleAttributes)]="dialPolicyRoleAttributes"
                                     [availableNamedAttributes]="identityNamedAttributes"
                                     [availableRoleAttributes]="identityRoleAttributes"
                                     [placeholder]="'Select identity attributes to grant access'"
@@ -91,11 +90,11 @@
                                 </div>
                                 <div class="config-item-container" [ngClass]="{disabled: sdkOnlyDial}">
                                     <span class="config-item-label">HOSTNAME / IP</span>
-                                    <input id="HowTo" type="text" maxlength="100" data-i18n="EgHost" placeholder="e.g. myservice.ziti" [(ngModel)]="interceptConfigApiData.data.addresses[0]">
+                                    <input id="HowTo" type="text" maxlength="100" data-i18n="EgHost" [placeholder]="sdkOnlyDial ? '' : 'e.g. myservice.ziti'" [(ngModel)]="sdkOnlyDial ? '' : interceptConfigApiData.data.addresses[0]">
                                 </div>
                                 <div class="config-item-container" [ngClass]="{disabled: sdkOnlyDial}">
                                     <span class="config-item-label">PORT</span>
-                                    <input id="HowToPort" type="number" maxlength="10" placeholder="443" (keyup)="interceptPortChanged($event)" [(ngModel)]="interceptPort">
+                                    <input id="HowToPort" type="number" maxlength="10" [placeholder]="sdkOnlyDial ? '' : 443" (keyup)="interceptPortChanged($event)" [(ngModel)]="sdkOnlyDial ? '' : interceptPort">
                                 </div>
                             </div>
                         </div>
@@ -104,7 +103,7 @@
                 <lib-form-field-container
                         [title]="'HOSTING CONFIGURATION'"
                         [contentStyle]="'z-index: 99999999'"
-                        [helpText]="'Protocol IP/Hostname and port of destination application. Note: Must be reachable from assigned identity/host.'"
+                        [helpText]="'Where should traffic for this service be sent? Specify a protocol, hostname/IP, and port, or use the &quot;SDK Only&quot; toggle for an application embedded configuration.'"
 
                 >
                     <div class="form-field-input-group hosting-group">
@@ -113,7 +112,8 @@
                                 <span class="form-field-title">What identities can host this service?</span>
                             </div>
                             <lib-tag-selector
-                                    [(selectedRoleAttributes)]="bindPolicyData.identityRoles"
+                                    [(selectedNamedAttributes)]="bindPolicyNamedAttributes"
+                                    [(selectedRoleAttributes)]="bindPolicyRoleAttributes"
                                     [availableNamedAttributes]="identityNamedAttributes"
                                     [availableRoleAttributes]="identityRoleAttributes"
                                     [placeholder]="'Select identity attributes'"
@@ -146,7 +146,7 @@
                                 </div>
                                 <div class="config-item-container" [ngClass]="{disabled: sdkOnlyBind}">
                                     <span class="config-item-label">PROTOCOL</span>
-                                    <select id="HostedProtocol" (change)="hostProtocolsChanged($event)" [(ngModel)]="hostProtocol">
+                                    <select id="HostedProtocol" (change)="hostProtocolsChanged($event)" [(ngModel)]="sdkOnlyBind ? '' : hostProtocol">
                                         <option value="tcp">TCP</option>
                                         <option value="udp" >UDP</option>
                                         <option value="both" >TCP/UDP</option>
@@ -154,11 +154,11 @@
                                 </div>
                                 <div class="config-item-container" [ngClass]="{disabled: sdkOnlyBind}">
                                     <span class="config-item-label">HOSTNAME / IP</span>
-                                    <input id="HostedHost" type="text" maxlength="100" data-i18n="EgHost" placeholder="e.g. myservice.ziti" [(ngModel)]="hostConfigApiData.data.address">
+                                    <input id="HostedHost" type="text" maxlength="100" data-i18n="EgHost" [placeholder]="sdkOnlyBind ? '' : 'e.g. myservice.ziti'" [(ngModel)]="sdkOnlyBind ? '' : hostConfigApiData.data.address">
                                 </div>
                                 <div class="config-item-container" [ngClass]="{disabled: sdkOnlyBind}">
                                     <span class="config-item-label">PORT</span>
-                                    <input id="HostedPort" type="number" maxlength="10" placeholder="443" [(ngModel)]="hostConfigApiData.data.port">
+                                    <input id="HostedPort" type="number" maxlength="10" [placeholder]="sdkOnlyBind ? '' : 443" [(ngModel)]="sdkOnlyBind ? '' : hostConfigApiData.data.port">
                                 </div>
                             </div>
                         </div>

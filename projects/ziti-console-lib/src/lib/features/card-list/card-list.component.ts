@@ -12,7 +12,7 @@ import {ExtensionService} from "../extendable/extensions-noop.service";
   styleUrls: ['./card-list.component.scss']
 })
 export class CardListComponent extends ProjectableForm {
-  formData: any;
+  formData: any = {};
 
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
   @Output() selected: EventEmitter<any> = new EventEmitter<any>();

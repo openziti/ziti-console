@@ -36,6 +36,8 @@
             *ngIf="svc.sideModalOpen && svc.serviceType === 'simple'"
             (close)="closeModal($event)"
             (dataChange)="dataChanged($event)"
+            [serviceRoleAttributes]="serviceRoleAttributes"
+            [identityRoleAttributes]="identityRoleAttributes"
     ></lib-simple-service>
 </lib-side-modal>
 <lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
