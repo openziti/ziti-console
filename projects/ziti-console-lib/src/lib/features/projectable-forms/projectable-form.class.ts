@@ -48,7 +48,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
 
     checkDataChangeDebounced = debounce(this.checkDataChange, 100, {maxWait: 100});
 
-    protected constructor(private growlerService: GrowlerService) {
+    protected constructor(protected growlerService: GrowlerService) {
         super();
     }
 
@@ -134,7 +134,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         return tags.val();
     }
 
-    closeModal(refresh = true, ignoreChanges = false): void {
+    closeModal(refresh = true, ignoreChanges = false, data?): void {
         if (!ignoreChanges && this._dataChange) {
             const confirmed = confirm('You have unsaved changes. Do you want to leave this page and discard your changes or stay on this page?');
             if (!confirmed) {
