@@ -1,4 +1,4 @@
-name: Deploy Quickstart Container
+name: Push Docker Image
 
 on:
   workflow_dispatch:

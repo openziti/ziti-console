@@ -45,9 +45,9 @@ const __html = '/dist/ziti-console-lib/assets/html';
 
 const loadModule = async (modulePath) => {
 	try {
-	  return await import(modulePath)
+		return await import(modulePath)
 	} catch (e) {
-	  throw new Error(`Unable to import module ${modulePath}`)
+		throw new Error(`Unable to import module ${modulePath}`)
 	}
 }
 
@@ -181,7 +181,8 @@ var bindIP = initial.bindIP;
 var portTLS = initial.portTLS;
 var updateSettings = initial.update;
 var settingsPath = initial.location;
-var rejectUnauthorized = false;
+var rejectUnauthorized = initial.rejectUnauthorized;
+var trustedRootCaBundle = initial.trustedRootCaBundle;
 var emailRegEx = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
 /**
@@ -236,8 +237,15 @@ var settings = JSON.parse(fs.readFileSync(__dirname+settingsPath+'settings.json'
 
 if (settings.port && !isNaN(settings.port)) port = settings.port;
 if (settings.portTLS && !isNaN(settings.portTLS)) portTLS = settings.portTLS;
-if (settings.rejectUnauthorized && !isNaN(settings.rejectUnauthorized)) rejectUnauthorized = settings.rejectUnauthorized;
+if (settings.rejectUnauthorized && typeof settings.rejectUnauthorized === 'boolean') rejectUnauthorized = settings.rejectUnauthorized;
+if (settings.trustedRootCaBundle) trustedRootCaBundle = settings.trustedRootCaBundle;
 
+var tlsOpts = {};
+tlsOpts.rejectUnauthorized = rejectUnauthorized;
+if (tlsOpts.rejectUnauthorized) {
+	tlsOpts.ca = fs.readFileSync(__dirname+settingsPath+trustedRootCaBundle, 'utf8');
+}
+log("tlsOpts: " + JSON.stringify(tlsOpts));
 
 if (process.env.PORT) port = process.env.PORT;
 if (process.env.PORTTLS) portTLS = process.env.PORTTLS;
@@ -335,6 +343,7 @@ app.post("/api/login", function(request, response) {
 			//	username: request.body.username,
 			//	password: request.body.password
 			//};
+
 			Authenticate(request).then((results) => {
 				response.json(results);
 			});
@@ -410,23 +419,30 @@ function Authenticate(request) {
 		};
 		log("Connecting to: "+serviceUrl+"/authenticate?method=password");
 		//if (request.session.creds != null) {
-			external.post(serviceUrl+"/authenticate?method=password", {json: params , rejectUnauthorized: rejectUnauthorized }, function(err, res, body) {
-				if (err) {
-					log(err);
-					var error = "Server Not Accessible";
-					if (err.code!="ECONNREFUSED") resolve( {error: err.code} );
-					resolve( {error: error} );
-				} else {
-					if (body.error) resolve( {error: body.error.message} );
-					else {
-						if (body.data&&body.data.token) {
-							request.session.user = body.data.token;
-							request.session.authorization = 100;
-							resolve( {success: "Logged In"} );
-						} else resolve( {error: "Invalid Account"} );
+			external.post(
+				serviceUrl+"/authenticate?method=password",
+				{
+					...tlsOpts,
+					json: params
+				},
+				function(err, res, body) {
+					if (err) {
+						log(err);
+						var error = "Server Not Accessible";
+						if (err.code!="ECONNREFUSED") resolve( {error: err.code} );
+						resolve( {error: error} );
+					} else {
+						if (body.error) resolve( {error: body.error.message} );
+						else {
+							if (body.data&&body.data.token) {
+								request.session.user = body.data.token;
+								request.session.authorization = 100;
+								resolve( {success: "Logged In"} );
+							} else resolve( {error: "Invalid Account"} );
+						}
 					}
-				}				
-			});
+				}
+			);
 		//}
 	});
 }
@@ -438,7 +454,7 @@ function Authenticate(request) {
  */
 function GetPath() {
 	return new Promise(function(resolve, reject) {
-		external.get(baseUrl+"/edge/management/v1/version", {rejectUnauthorized: rejectUnauthorized}, function(err, res, body) {
+		external.get(baseUrl+"/edge/management/v1/version", tlsOpts, function(err, res, body) {
 			try {
 				var data = JSON.parse(body);
 				resolve(data.data.apiVersions["edge-management"].v1.path);
@@ -456,7 +472,7 @@ function GetPath() {
 app.post('/api/version', function(request, response) {
 	log("Checking Version: "+baseUrl+"/version");
 	if (baseUrl) {
-		external.get(baseUrl+"/version", {rejectUnauthorized: rejectUnauthorized}, function(err, res, body) {
+		external.get(baseUrl+"/version", tlsOpts, function(err, res, body) {
 			if (err) log(err);
 			else {
 				try {
@@ -484,7 +500,7 @@ app.post("/api/reset", function(request, response) {
 		if (request.body.newpassword!=request.body.confirm) response.json({error: "Password does not match confirmation"});
 		else {
 			log("Connecting to: "+serviceUrl+"/current-identity/authenticators?filter=method=\"updb\"");
-			external.get(serviceUrl+"/current-identity/authenticators?filter=method=\"updb\"", {rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user }}, function(err, res, body) {
+			external.get(serviceUrl+"/current-identity/authenticators?filter=method=\"updb\"", {...tlsOpts, headers: { "zt-session": request.session.user }}, function(err, res, body) {
 				if (err) {
 					log(err);
 					var error = "Server Not Accessible";
@@ -504,7 +520,7 @@ app.post("/api/reset", function(request, response) {
 								username: data.data[0].username
 							}
 							log("Connecting to: "+serviceUrl+"/current-identity/authenticators/"+id);
-							external.put(serviceUrl+"/current-identity/authenticators/"+id, {json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user }}, function(err, res, body) {
+							external.put(serviceUrl+"/current-identity/authenticators/"+id, {...tlsOpts, json: params, headers: { "zt-session": request.session.user }}, function(err, res, body) {
 								if (err) {
 									log(err);
 									var error = "Server Not Accessible";
@@ -560,7 +576,7 @@ app.post("/api/language", (request, response) => {
 /**
  * Returns the current system settings
  */
-app.post("/api/settings", function(rewwquest, response) {
+app.post("/api/settings", function(request, response) {
 	var toReturn = settings;
 	delete toReturn.mail;
 	delete toReturn.to;
@@ -588,12 +604,17 @@ app.post("/api/controllerSave", function(request, response) {
 		response.json({ errors: errors });
 	} else {
 		var callUrl = url+"/edge/management/v1/version";
+
 		log("Calling Controller: "+callUrl);
-		external.get(callUrl, {rejectUnauthorized: rejectUnauthorized, timeout: 5000}, function(err, res, body) {
+		external.get(callUrl, {
+			...tlsOpts,
+			timeout: 5000
+		},
+		function(err, res, body) {
 			if (err) {
 				log("Add Controller Error");
 				log(err);
-				response.json( {error: "Edge Controller not Online", errorObj: err} );
+				response.json( {error: "error adding edge controller", errorObj: err} );
 			} else {
 				try {
 					var results = JSON.parse(body);
@@ -685,7 +706,7 @@ app.delete("/api/mfa", function(request, response) {
 	if (hasAccess(user)) {
 		var id = request.body.id;
 		///Authenticate(request).then((result) => {
-			external.delete(serviceUrl+"/identities/"+id.trim()+"/mfa", {rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+			external.delete(serviceUrl+"/identities/"+id.trim()+"/mfa", {...tlsOpts, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 				if (err) {
 					log("Error: "+JSON.stringify(body.err));
 					response.json({error: err});
@@ -710,7 +731,7 @@ app.post("/api/resetEnroll", function(request, response) {
 		var params = { expiresAt: date };
 		log("Calling "+url);
 		log(JSON.stringify(params));
-		external.post(url, { json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+		external.post(url, { ...tlsOpts, json: params, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 			if (body.error) HandleError(response, body.error);
 			else {
 				log("Success: "+JSON.stringify(body));
@@ -731,7 +752,7 @@ app.post("/api/resetEnroll", function(request, response) {
 app.post("/api/call", function(request, response) {
 	log("Calling: "+serviceUrl+"/"+request.body.url);
 	//Authenticate(request).then((results) => {
-		external.get(serviceUrl+"/"+request.body.url, {json: {}, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+		external.get(serviceUrl+"/"+request.body.url, {...tlsOpts, json: {}, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 			if (err) {
 				log("Error: "+JSON.stringify(err));
 				response.json({ error: err });
@@ -770,7 +791,7 @@ app.post("/api/data", function(request, response) {
 function DoCall(url, json, request, isFirst=true) {
 	return new Promise(function(resolve, reject) {
 		log("Calling: "+url+" "+isFirst+" "+request.session.user);
-		external.get(url, {json: json, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+		external.get(url, {...tlsOpts, json: json, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 			if (err) {
 				log("Server Error: "+JSON.stringify(err));
 				resolve({ error: err });
@@ -880,7 +901,7 @@ app.post("/api/subdata", function(request, response) {
 function GetSubs(url, type, id, parentType, request, response) {
 	log("Calling: "+serviceUrl+"/"+url);
 	//Authenticate(request).then((results) => {
-		external.get(serviceUrl+"/"+url, {json: {}, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+		external.get(serviceUrl+"/"+url, {...tlsOpts, json: {}, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 			if (err) response.json({ error: err });
 			else {
 				log("Returned: "+JSON.stringify(body));
@@ -901,7 +922,7 @@ app.post("/api/jwt", function(request, response) {
 	//Authenticate(request).then((results) => {
 		var url = serviceUrl+"/"+type+"/"+id+"/jwt";
 		log("Calling: "+url);
-		external.get(url, {json: {}, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+		external.get(url, {...tlsOpts, json: {}, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 			response.json({id: id, jwt: body});
 		});
 	//});
@@ -1012,7 +1033,7 @@ async function CreateClientPolicy(request, respone, url, user, name, serviceId, 
 						identityRoles: access
 					};
 					log("Saving As: POST "+JSON.stringify(params));
-					external(url+"/service-policies", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+					external(url+"/service-policies", {...tlsOpts, method: "POST", json: params, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 						log(JSON.stringify(body));
 						let cli = "ziti edge create service-policy '"+name+"' Dial --service-roles '"+serviceId+"' --identity-roles '"+access.toString()+"'";
 						let serviceCall = {
@@ -1046,7 +1067,7 @@ async function CreateServerPolicy(request, respone, url, user, name, serviceId, 
 						identityRoles: hosted
 					};
 					log("Saving As: POST "+JSON.stringify(params));
-					external(url+"/service-policies", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+					external(url+"/service-policies", {...tlsOpts, method: "POST", json: params, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 						log(JSON.stringify(body));
 						let cli = "ziti edge create service-policy '"+name+"' Bind --semantic AnyOf --service-roles '"+serviceId+"' --identity-roles '"+hosted.toString()+"'";
 						let serviceCall = {
@@ -1077,7 +1098,7 @@ async function CreateService(request, respone, url, user, name, encrypt, serverI
 					encryptionRequired: encrypt
 				};
 				log("Saving As: POST "+JSON.stringify(params));
-				external(url+"/services", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+				external(url+"/services", {...tlsOpts, method: "POST", json: params, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 					log(JSON.stringify(body));
 					let cli = "ziti edge create service '"+name+"' --configs '"+serverId+","+clientId+"'";
 					let serviceCall = {
@@ -1134,7 +1155,7 @@ async function CreateConfig(request, response, user, url, configId, name, data, 
 					data: data
 				};
 				log("Saving As: POST "+JSON.stringify(params));
-				external(url+"/configs", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+				external(url+"/configs", {...tlsOpts, method: "POST", json: params, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 					log(JSON.stringify(body));
 					index++;
 					if (body.error) resolve(CreateConfig(request, response, user, url, configId, name, data, index));
@@ -1180,7 +1201,7 @@ app.post("/api/identity", function(request, response) {
 		//Authenticate(request).then((results) => {
 			if (hasAccess(user)) {
 				log("Saving As: POST "+JSON.stringify(params));
-				external(url, {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+				external(url, {...tlsOpts, method: "POST", json: params, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 					log(JSON.stringify(body));
 					if (body.error) HandleError(response, body.error);
 					else if (body.data) {
@@ -1263,7 +1284,7 @@ app.post("/api/dataSave", function(request, response) {
 								params.ids = objects[i][1];
 								log("Delete:"+serviceUrl+"/"+type+"/"+id.trim()+"/"+objects[i][0]);
 								log(JSON.stringify(params));
-								external.delete(serviceUrl+"/"+type+"/"+id.trim()+"/"+objects[i][0], {json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {});
+								external.delete(serviceUrl+"/"+type+"/"+id.trim()+"/"+objects[i][0], {...tlsOpts, json: params, headers: { "zt-session": request.session.user } }, function(err, res, body) {});
 							}
 						}
 					}
@@ -1272,7 +1293,7 @@ app.post("/api/dataSave", function(request, response) {
 				saveParams.data = RedefineObject(saveParams.data);
 				log("Saving As: "+method+" "+JSON.stringify(saveParams));
 				console.log("Session: "+request.session.user);
-				external(url, {method: method, json: saveParams, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+				external(url, {...tlsOpts, method: method, json: saveParams, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 					if (err) HandleError(response, err);
 					else {
 						log(JSON.stringify(body));
@@ -1287,7 +1308,7 @@ app.post("/api/dataSave", function(request, response) {
 										log("Body: "+JSON.stringify(body.data));
 										log("Url: "+serviceUrl+"/"+type+"/"+id+"/"+objects[i][0]);
 										log("Objects: "+JSON.stringify({ ids: objects[i][1] }));
-										external.put(serviceUrl+"/"+type+"/"+id+"/"+objects[i][0], {json: { ids: objects[i][1] }, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": user } }, function(err, res, body) {
+										external.put(serviceUrl+"/"+type+"/"+id+"/"+objects[i][0], {...tlsOpts, json: { ids: objects[i][1] }, headers: { "zt-session": user } }, function(err, res, body) {
 											index++;
 											if (index==objects.length) {
 												if (chained) response.json(body.data);
@@ -1329,7 +1350,7 @@ app.post("/api/subSave", function(request, response) {
 			if (hasAccess(user)) {
 				log(url);
 				log("Sub Saving As: "+doing+" "+JSON.stringify(saveParams));
-				external(url, {method: doing, json: saveParams, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+				external(url, {...tlsOpts, method: doing, json: saveParams, headers: { "zt-session": request.session.user } }, function(err, res, body) {
 					if (err) {
 						log(err);
 						response.json({ error: err });
@@ -1351,7 +1372,7 @@ app.post("/api/verify", function(request, response) {
 		var url = serviceUrl+"/cas/"+id+"/verify";
 		var user = request.session.user;
 		if (hasAccess(user)) {
-			external(url, {method: "POST", body: cert, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user, "Content-Type": "text/plain" } }, function(err, res, body) {
+			external(url, {...tlsOpts, method: "POST", body: cert, headers: { "zt-session": request.session.user, "Content-Type": "text/plain" } }, function(err, res, body) {
 				var result = JSON.parse(body);
 				if (err) {
 					log(err);
@@ -1446,7 +1467,7 @@ function DoDelete(type, ids, user, request, index) {
 function ProcessDelete(type, id, user, request, isFirst=true) {
 	return new Promise(function(resolve, reject) {
 		log("Delete: "+serviceUrl+"/"+type+"/"+id)
-		external.delete(serviceUrl+"/"+type+"/"+id, {json: {}, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": user } }, function(err, res, body) {
+		external.delete(serviceUrl+"/"+type+"/"+id, {...tlsOpts, json: {}, headers: { "zt-session": user } }, function(err, res, body) {
 			if (err) {
 				log("Err: "+err);
 				reject(err);
@@ -1690,7 +1711,7 @@ app.post("/api/execute", function(request, response) {
 
 function DoPatch(url, params, request) {
 	return new Promise(function(resolve, reject) {
-		external.put(url, { json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user }}, (err, results, body) => {
+		external.put(url, { ...tlsOpts, json: params, headers: { "zt-session": request.session.user }}, (err, results, body) => {
 			resolve(body);
 		});
 	});
@@ -1698,7 +1719,7 @@ function DoPatch(url, params, request) {
 
 function DoPost(url, params, request) {
 	return new Promise(function(resolve, reject) {
-		external.post(url, { json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user }}, (err, results, body) => {
+		external.post(url, { ...tlsOpts, json: params, headers: { "zt-session": request.session.user }}, (err, results, body) => {
 			resolve(body);
 		});
 	});
@@ -1881,7 +1902,7 @@ app.post("/api/message", function(request, response) {
 			}
 		});
 	} else {
-		external.post("https://sendmail.netfoundry.io/message", {json: params, rejectUnauthorized: rejectUnauthorized }, function(err, res, body) {
+		external.post("https://sendmail.netfoundry.io/message", {...tlsOpts, json: params}, function(err, res, body) {
 			if (err) response.json({ errors: err });
 			else {
 				if (body.error) response.json({ errors: body.error });
@@ -1945,7 +1966,7 @@ app.post("/api/send", function(request, response) {
 			});
 		}
 	} else {
-		external.post("https://sendmail.netfoundry.io/send", {json: request.body, rejectUnauthorized: rejectUnauthorized }, function(err, res, body) {
+		external.post("https://sendmail.netfoundry.io/send", {...tlsOpts, json: request.body}, function(err, res, body) {
 			if (err) response.json({ errors: err });
 			else {
 				if (body.error) response.json({ errors: body.error });
