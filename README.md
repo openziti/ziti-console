@@ -86,6 +86,16 @@ the full path to the trust bundle would be `/usr/src/ziti/trusted-root-ca-bundle
 If you run `SETTINGS=../mnt node server.js` in `/app` then the application will look for the settings file at
 `/mnt/settings.json` and the trust bundle at `/mnt/trusted-root-ca-bundle.pem`.
 
+## Server TLS
+
+The console server can be configured to present a TLS server certificate on a configurable TCP port. TLS is enabled when
+the private key and certificate files exist with the expected filenames in the working directory.
+
+* `./server.key` - private key
+* `./server.chain.pem` - server certificate chain
+
+Configure the TLS port in `settings.json` by setting `portTLS` (default: 8443).
+
 ## Developing with Angular
 
 There are two elements to the Angular app.
