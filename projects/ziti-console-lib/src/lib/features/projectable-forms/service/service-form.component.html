@@ -209,6 +209,17 @@
                     ></lib-preview-list>
                 </lib-form-field-container>
                 <lib-form-field-container
+                        *ngIf="formData.id"
+                        [title]="'Associated Service Policies'"
+                        [count]="svc.associatedServicePolicies.length"
+                        [helpText]="'Preview list of all service policies that this service is associated with.'"
+                >
+                    <lib-preview-list
+                            [clickable]="false"
+                            [allNames]="svc.associatedServicePolicyNames"
+                    ></lib-preview-list>
+                </lib-form-field-container>
+                <lib-form-field-container
                         [title]="'API Calls'"
                         [label]="''"
                         [class]="'api-call-container'"
