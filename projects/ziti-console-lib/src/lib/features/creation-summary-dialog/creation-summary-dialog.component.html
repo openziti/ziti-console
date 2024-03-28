@@ -12,21 +12,21 @@
             </span>
         </div>
         <div class="form-group-row exec-operations-group">
-            <div class="attribute-categories">
-                <div class="attribute-category" *ngFor="let group of summaryData">
-                    <div class="attribute-category-title">{{group.title}}</div>
+            <div class="summary-groups-container">
+                <div class="summary-group" *ngFor="let group of summaryData">
+                    <div class="summary-group-title">{{group.title}}</div>
                     <ul>
                         <li
                                 *ngFor="let entity of group.entities"
                                 (click)="selectZitiEntity(entity.name, 'all')"
                                 [ngClass]="{selected: selectedEntityType === 'all'}"
-                                class="attribute-item drop-target-svc"
+                                class="entity-item drop-target-svc"
                         >
                             <span class="spinner" *ngIf="entity.status === 'loading'"></span>
                             <input type="checkbox" [disabled]="true" [checked]="true" class="success-check" *ngIf="entity.status === 'done'">
                             <div class="retry" *ngIf="entity.status === 'error'" (click)="doRetry(entity)"></div>
                             <div class="icon-clear" *ngIf="entity.status === 'error'"></div>
-                            <span class="attribute-name" matTooltipShowDelay="1000">
+                            <span class="entity-name" matTooltipShowDelay="1000">
                                 {{ entity.name.length > 0 ? entity.name : 'SimpleService' }}
                             </span>
                         </li>
@@ -100,7 +100,7 @@
         </div>
     </lib-form-field-container>
 
-    <div class="visibility-config-container" *ngIf="false">
+    <div class="visibility-config-container">
         <input type="checkbox" [checked]="hideSummaryNextTime" class="config-check">
         <span>Hide this summary next time</span>
     </div>

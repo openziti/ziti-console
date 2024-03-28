@@ -20,12 +20,14 @@
                                     <span class="form-field-title">Service Name</span>
                                 </div>
                                 <input
-                                        class="form-field-input"
-                                        placeholder="Name this service"
-                                        autofocus
-                                        #nameFieldInput
-                                        [(ngModel)]="serviceApiData.name"
-                                        (keyup)="serviceNameChanged($event)"
+                                    class="form-field-input"
+                                    placeholder="Name this service"
+                                    autofocus
+                                    #nameFieldInput
+                                    [ngClass]="{error: errors.name}"
+                                    [(ngModel)]="serviceApiData.name"
+                                    (keyup)="serviceNameChanged($event)"
+                                    (change)="validateServiceName()"
                                 />
                             </div>
                             <div class="form-field-sub-group">
@@ -33,9 +35,9 @@
                                     <span class="form-field-title">SELECT OR CREATE SERVICE ATTRIBUTES</span>
                                 </div>
                                 <lib-tag-selector
-                                        [(selectedRoleAttributes)]="serviceApiData.attributes"
-                                        [availableRoleAttributes]="serviceRoleAttributes"
-                                        [placeholder]="'Add attributes to group services'"
+                                    [(selectedRoleAttributes)]="serviceApiData.attributes"
+                                    [availableRoleAttributes]="serviceRoleAttributes"
+                                    [placeholder]="'Add attributes to group services'"
                                 ></lib-tag-selector>
                             </div>
                         </div>
@@ -61,6 +63,9 @@
                                     [availableNamedAttributes]="identityNamedAttributes"
                                     [availableRoleAttributes]="identityRoleAttributes"
                                     [placeholder]="'Select identity attributes to grant access'"
+                                    [hasError]="errors.dialIdentities"
+                                    (selectedNamedAttributesChange)="validateDialIdentities()"
+                                    (selectedRoleAttributesChange)="validateDialIdentities()"
                             ></lib-tag-selector>
                         </div>
                         <div class="form-field-sub-group">
@@ -90,11 +95,11 @@
                                 </div>
                                 <div class="config-item-container" [ngClass]="{disabled: sdkOnlyDial}">
                                     <span class="config-item-label">HOSTNAME / IP</span>
-                                    <input id="HowTo" type="text" maxlength="100" data-i18n="EgHost" [placeholder]="sdkOnlyDial ? '' : 'e.g. myservice.ziti'" [(ngModel)]="sdkOnlyDial ? '' : interceptConfigApiData.data.addresses[0]">
+                                    <input id="HowTo" type="text" maxlength="100" data-i18n="EgHost" (change)="validateInterceptAddress()" [ngClass]="{error: errors.interceptAddress}" [placeholder]="sdkOnlyDial ? '' : 'e.g. myservice.ziti'" [(ngModel)]="sdkOnlyDial ? '' : interceptConfigApiData.data.addresses[0]">
                                 </div>
                                 <div class="config-item-container" [ngClass]="{disabled: sdkOnlyDial}">
                                     <span class="config-item-label">PORT</span>
-                                    <input id="HowToPort" type="number" maxlength="10" [placeholder]="sdkOnlyDial ? '' : 443" (keyup)="interceptPortChanged($event)" [(ngModel)]="sdkOnlyDial ? '' : interceptPort">
+                                    <input id="HowToPort" type="number" maxlength="10" (change)="validateInterceptPort()" [ngClass]="{error: errors.interceptPort}" [placeholder]="sdkOnlyDial ? '' : 443" (keyup)="interceptPortChanged($event)" [(ngModel)]="sdkOnlyDial ? '' : interceptPort">
                                 </div>
                             </div>
                         </div>
@@ -117,6 +122,9 @@
                                     [availableNamedAttributes]="identityNamedAttributes"
                                     [availableRoleAttributes]="identityRoleAttributes"
                                     [placeholder]="'Select identity attributes'"
+                                    [hasError]="errors.bindIdentities"
+                                    (selectedNamedAttributesChange)="validateBindIdentities()"
+                                    (selectedRoleAttributesChange)="validateBindIdentities()"
                             ></lib-tag-selector>
                         </div>
                         <div class="form-field-sub-group">
@@ -154,11 +162,11 @@
                                 </div>
                                 <div class="config-item-container" [ngClass]="{disabled: sdkOnlyBind}">
                                     <span class="config-item-label">HOSTNAME / IP</span>
-                                    <input id="HostedHost" type="text" maxlength="100" data-i18n="EgHost" [placeholder]="sdkOnlyBind ? '' : 'e.g. myservice.ziti'" [(ngModel)]="sdkOnlyBind ? '' : hostConfigApiData.data.address">
+                                    <input id="HostedHost" type="text" maxlength="100" data-i18n="EgHost" (change)="validateHostAddress()" [ngClass]="{error: errors.hostAddress}" [placeholder]="sdkOnlyBind ? '' : 'e.g. myservice.ziti'" [(ngModel)]="sdkOnlyBind ? '' : hostConfigApiData.data.address">
                                 </div>
                                 <div class="config-item-container" [ngClass]="{disabled: sdkOnlyBind}">
                                     <span class="config-item-label">PORT</span>
-                                    <input id="HostedPort" type="number" maxlength="10" [placeholder]="sdkOnlyBind ? '' : 443" [(ngModel)]="sdkOnlyBind ? '' : hostConfigApiData.data.port">
+                                    <input id="HostedPort" type="number" maxlength="10" (change)="validateHostPort()" [ngClass]="{error: errors.hostPort}" [placeholder]="sdkOnlyBind ? '' : 443" [(ngModel)]="sdkOnlyBind ? '' : hostConfigApiData.data.port">
                                 </div>
                             </div>
                         </div>

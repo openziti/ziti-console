@@ -22,34 +22,6 @@
   }
 }
 
-.attributes-filter-container {
-  flex-shrink: 0;
-  width: 375px;
-  height: 100%;
-  border-radius: 16px;
-  background-color: var(--navigation);
-  overflow: hidden;
-  box-shadow: 0px 12px 23px 0px var(--shadow);
-  display: flex;
-  flex-direction: column;
-}
-
-.attributes-filter-search {
-  margin: 10px;
-  margin-bottom: 15px;
-  width: calc(100% - 20px);
-  height: 40px;
-  float: left;
-  border-radius: 30px;
-  font-size: 14px;
-  font-weight: 600;
-  padding-left: 18px;
-  background-image: url(/assets/svgs/Filter.svg);
-  background-size: 18px;
-  background-position: right 15px top 10px;
-  background-repeat: no-repeat;
-}
-
 .resource-type-container {
   display: flex;
   flex-direction: column;
@@ -70,14 +42,14 @@
   }
 }
 
-.attribute-name {
+.entity-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   width: fit-content;
 }
 
-.attribute-category {
+.summary-group {
   ul {
     padding-inline-start: 0px;
     margin-block-start: 5px;
@@ -86,7 +58,7 @@
     overflow-x: hidden;
   }
 
-  .attribute-item {
+  .entity-item {
     display: flex;
     align-items: center;
     gap: 5px;
@@ -120,21 +92,9 @@
       }
     }
   }
-
-  .attribute-count {
-    position: absolute;
-    right: 20px;
-    color: var(--shadowCard);
-  }
-
-  .attribute-tag-char {
-    color: var(--red);
-    margin-right: 5px;
-    font-weight: 600;
-  }
 }
 
-.attribute-categories {
+.summary-groups-container {
   overflow: auto;
   height: 100%;
   width: 100%;
@@ -144,22 +104,13 @@
   flex-direction: column;
 }
 
-.attribute-category-title {
+.summary-group-title {
   margin-left: 0;
   color: var(--primaryColor);
   font-weight: 700;
   font-size: 15px;
   filter: brightness(65%);
   text-transform: uppercase;
-}
-
-.attributes-filter-header {
-  display: flex;
-  flex-direction: column;
-  padding-left: 10px;
-  padding-right: 10px;
-  padding-top: 12px;
-  position: relative;
 }
 
 .resource-type-container {
@@ -199,25 +150,12 @@
       margin-top: 10px;
     }
 
-    .selected-attribute-text {
-      display: flex;
-      flex-direction: row;
-      margin-top: 5px;
-    }
-
     .selected-hash-tag {
       color: var(--red);
       font-size: 18px;
       font-weight: 600;
       margin-right: 2px;
       margin-left: 5px;
-      margin-top: 2px;
-    }
-
-    .selected-attribute-name {
-      color: var(--primaryColor);
-      font-size: 18px;
-      font-weight: 600;
       margin-top: 2px;
     }
   }
