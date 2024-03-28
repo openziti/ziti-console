@@ -90,10 +90,6 @@ export class CreationSummaryDialogComponent {
     entityData.retry(this.summaryData);
   }
 
-  copyToClipboard(data) {
-
-  }
-
   close() {
     this.dialogRef.close('cancel');
   }

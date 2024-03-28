@@ -33,56 +33,6 @@
                     </ul>
                 </div>
             </div>
-            <div style="width: 100%; display: flex; flex-direction: column; gap: 10px;" *ngIf="false">
-                <div class="form-header-toggle-container" style="justify-content: flex-end;height: 25px;margin-right: 0;">
-                        <span
-                                class="toggle-option-text"
-                                [ngClass]="{'toggle-option-selected': showAPI}"
-                                (click)="toggleAPIView()"
-                        >
-                            API
-                        </span>
-                    <div class="form-header-toggle" (click)="toggleAPIView()">
-                        <div
-                                class="form-toggle-switch"
-                                [ngClass]="{'toggle-left': showAPI, 'toggle-right': !showAPI}"
-                        >
-                            <div class="form-toggle-indicator"></div>
-                            <div class="form-toggle-indicator"></div>
-                        </div>
-                    </div>
-                    <span
-                            class="toggle-option-text"
-                            [ngClass]="{'toggle-option-selected': !showAPI}"
-                            (click)="toggleAPIView()"
-                    >
-                            CLI
-                        </span>
-                </div>
-                <div class="form-field-input-group service-group">
-                    <div class="form-field-sub-group">
-                        <div class="config-title-row">
-                            <span class="form-field-title">CLI Command</span>
-                        </div>
-                        <div class="form-row">
-                            <input class="form-field-input" [value]="selectedCliCommand" readonly/>
-                            <div class="url-copy icon-copy copy" (click)="copyToClipboard(selectedCliCommand)"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-field-input-group service-group">
-                    <div class="form-field-sub-group">
-                        <div class="config-title-row">
-                            <span class="form-field-title">API Call</span>
-                        </div>
-                        <div class="form-row">
-                            <input class="form-field-input" [value]="selectedApiUrl" readonly/>
-                            <div class="url-copy icon-copy copy" (click)="copyToClipboard(selectedApiUrl)"></div>
-                        </div>
-                        <lib-json-view [(data)]="selectedApiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
-                    </div>
-                </div>
-            </div>
         </div>
     </lib-form-field-container>
     <lib-form-field-container [showHeader]="false" style="margin-top: 10px;">

@@ -1,14 +1,14 @@
 .creation-summary-dialog-container {
   background-color: var(--formBackground);
-  min-width: 474px;
-  border-radius: 15px;
-  padding: 20px;
+  min-width: 475px;
+  border-radius: var(--modalBorderRadius);
+  padding: var(--paddingXXL);
 
   .title-row {
     display: flex;
     align-items: center;
     flex-direction: column;
-    margin-bottom: 15px;
+    margin-bottom: var(--marginLarge);
   }
   .subtitle {
     color: var(--text);
@@ -25,8 +25,8 @@
 .resource-type-container {
   display: flex;
   flex-direction: column;
-  padding-left: 15px;
-  padding-right: 15px;
+  padding-left: var(--paddingLarge);
+  padding-right: var(--paddingLarge);
 
   &.disabled {
     opacity: 0.5;
@@ -52,7 +52,7 @@
 .summary-group {
   ul {
     padding-inline-start: 0px;
-    margin-block-start: 5px;
+    margin-block-start: var(--marginSmall);
     max-height: 650px;
     overflow: auto;
     overflow-x: hidden;
@@ -113,54 +113,6 @@
   text-transform: uppercase;
 }
 
-.resource-type-container {
-  font-size: 14px;
-  padding-left: 15px;
-  padding-right: 15px;
-  height: 130px;
-  position: relative;
-  background-color: var(--background);
-  box-shadow: 1px -5px 8px 1px var(--shadow);
-
-  .result-type-select {
-    background-position: center right 5px;
-    height: 33px;
-    width: 180px;
-    margin-left: 5px;
-    margin-right: 5px;
-    padding: 5px;
-  }
-
-  .resource-type-placeholder {
-    margin-top: 35px;
-  }
-
-  .resource-type-content {
-    display: flex;
-    flex-direction: row;
-
-    .resource-type-label {
-      font-weight: 600;
-      margin-left: 5px;
-      margin-right: 5px;
-      margin-top: 10px;
-    }
-
-    .resource-type-text {
-      margin-top: 10px;
-    }
-
-    .selected-hash-tag {
-      color: var(--red);
-      font-size: 18px;
-      font-weight: 600;
-      margin-right: 2px;
-      margin-left: 5px;
-      margin-top: 2px;
-    }
-  }
-}
-
 .exec-operations-group {
   padding: 0;
 }
@@ -168,10 +120,11 @@
 .confirm-buttons-container {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   flex-direction: row;
   width: 100%;
-  padding-top: 10px;
-  align-items: flex-end;
+  padding-top: var(--paddingMedium);
+
   .linkButton {
     position: absolute;
     left: 25px;
@@ -238,7 +191,7 @@ button {
 }
 
 .success-check {
-  border-radius: 15px;
+  border-radius: 100%;
   top: 13px;
   left: 10px;
   transition: var(--transition);
@@ -271,7 +224,7 @@ button {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 10px;
+  gap: var(--gapMedium);
 
   .copy-links-title {
     display: flex;
@@ -307,7 +260,7 @@ button {
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
-    padding: 0 10px;
+    padding: var(--paddingMedium);
     width: 100%;
 
     .link-button {
@@ -329,7 +282,7 @@ button {
   width: 100%;
   justify-content: flex-start;
   gap: 5px;
-  margin-top: 10px;
+  margin-top: var(--marginMedium);
 }
 
 ::ng-deep {
