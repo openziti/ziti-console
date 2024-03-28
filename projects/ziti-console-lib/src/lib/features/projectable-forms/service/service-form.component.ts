@@ -116,6 +116,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     this.svc.resetFormData();
     this.svc.getAssociatedConfigs();
     this.svc.getAssociatedTerminators();
+    this.svc.getAssociatedServicePolicies();
     this.svc.errors = {};
     this.initData = cloneDeep(this.formData);
     this.subscription.add(
