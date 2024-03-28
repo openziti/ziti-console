@@ -1,23 +1,24 @@
 {
-    "edgeControllers":[], 
+    "edgeControllers":[],
     "bindIP": "",
-    "editable": true, 
-    "update": false, 
-    "location": "../ziti", 
+    "editable": true,
+    "update": false,
+    "location": "../ziti",
     "port": 1408,
     "portTLS": 8443,
     "logo": "",
     "primary": "",
     "secondary": "",
-    "allowPersonal":  true,
+    "allowPersonal": true,
     "rejectUnauthorized": false,
-    "mail": { 
+    "trustedRootCaBundle": "trusted-root-ca-bundle.pem",
+    "mail": {
         "host": "",
         "port": 25,
         "secure": false,
         "auth": {
-            "user": "", 
-            "pass": "" 
+            "user": "",
+            "pass": ""
         }
     },
     "from": "",

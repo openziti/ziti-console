@@ -3,9 +3,11 @@
 
 The OpenZiti Console is an administrative web interface for an OpenZiti network.
 
-## Run with NodeJS
+## Run with Node.js
 
-Before you start, ensure you can connect to an OpenZiti Controller. To learn more about OpenZiti constructs and APIs go to [the API reference](https://openziti.io/docs/reference/developer/api/).
+This section is about running the standalone Node.js server (`node-api` run mode) that presents a web interface and API to the user for managing an OpenZiti network.
+
+The `node-api` implements [the OpenZiti management API](https://openziti.io/docs/reference/developer/api/), so the server must be configured with the address of the OpenZiti controller.
 
 To build and run the application from source, you'll also need to make sure you have the following developer tools installed and available on your command line:
 
@@ -49,19 +51,53 @@ From the project root:
 
 1. Finally, access the app @ http://localhost:1408
 
+## Settings
+
+The `node-api` server can be configured with a settings file.
+
+These are the most relevant settings. Link to default
+[settings.json](./projects/ziti-console-lib/src/lib/assets/data/settings.json)
+
+* `edgeControllers` - a list of edge controller management API URLs
+* `rejectUnauthorized` - require a valid SSL certificate for the edge controller before sending the password
+* `trustedRootCaBundle` - path to the PEM bundle of trusted root certificates; relative to settings path
+
+The application will look for a settings file in a settings path. The default is a folder named "ziti" adjacent to the
+working directory containing `server.js`. Override the relative path to the settings file by setting the `SETTINGS`
+environment variable.
+
+For example, for `/usr/src/app/server.js` the default settings file location would be `/usr/src/ziti/settings.json`, and
+the full path to the trust bundle would be `/usr/src/ziti/trusted-root-ca-bundle.pem`.
+
+```json
+{
+    "edgeControllers": [
+        {
+            "default": true,
+            "name": "Mega Ziti",
+            "url": "https://megaziti.example.com:1280"
+        }
+    ],
+    "rejectUnauthorized": true,
+    "trustedRootCaBundle": "trusted-root-ca-bundle.pem"
+}
+```
+
+If you run `SETTINGS=../mnt node server.js` in `/app` then the application will look for the settings file at
+`/mnt/settings.json` and the trust bundle at `/mnt/trusted-root-ca-bundle.pem`.
+
 ## Developing with Angular
 
 There are two elements to the Angular app.
 
-From project Root:
-
-1. Install dependencies
+1. In the top-level directory of this project: install dependencies
 
     ```bash
     npm install
     ```
 
-1. Run & watch changes in the core library in **ziti-console-lib** by running the npm script **watch:lib**
+1. In `./projects/ziti-console-lib`, run & watch changes in the core library by running the npm script **watch:lib** if
+    modifying the shared code in that directory, e.g., the default settings.json file.
 
     ```bash
     ng build ziti-console-lib --watch
@@ -70,13 +106,12 @@ From project Root:
     * Note: The NPM library is referenced/linked in package.json as "ziti-console-lib": "file:dist/ziti-console-lib".
     This library includes the pure javascript code it shared with ziti-console, and the Angular code it shares with other apps.
 
-1. Then in a separate window run & watch changes in the main application **app-ziti-console**
+1. Then in a separate window, in `./projects/app-ziti-console`, run & watch changes in the main application if changing
+    that part of the application. This ensures changes made to the NPM library get pulled into the Angular app as you are developing.
 
     ```bash
     ng build ziti-console-node --watch
     ```
-
-  This ensures changes made to the NPM library get pulled into the Angular app as you are developing
 
 ## Docker
 
