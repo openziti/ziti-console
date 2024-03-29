@@ -157,6 +157,15 @@ export class ServiceFormService {
         })
     }
 
+    getAssociatedServicePolicies() {
+        this.zitiService.getSubdata('services', this.formData.id, 'service-policies').then((result: any) => {
+            this.associatedServicePolicies = result.data;
+            this.associatedServicePolicyNames = this.associatedServicePolicies.map((policy) => {
+                return policy.name;
+            });
+        });
+    }
+
     previewConfig(configName, dynamicForm) {
         this.showCfgPreviewOption = true;
         this.configData = this.associatedConfigsMap[configName].data;
