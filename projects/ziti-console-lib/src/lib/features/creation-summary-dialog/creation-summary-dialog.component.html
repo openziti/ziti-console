@@ -1,0 +1,61 @@
+<div class="creation-summary-dialog-container">
+    <div class="close icon-close" (click)="close()"></div>
+    <div class="title-row">
+        <span class="title">Execution Summary</span>
+        <span class="subtitle">The following entities were created for this service</span>
+    </div>
+    <lib-form-field-container [showHeader]="false">
+        <div class="copy-links-container">
+            <span class="copy-links-title">
+                <span class="title">Entities</span>
+                <span class="subtitle" *ngIf="hasCreationError">One or more of the following resources failed to create. See below for more details and/or retry.</span>
+            </span>
+        </div>
+        <div class="form-group-row exec-operations-group">
+            <div class="summary-groups-container">
+                <div class="summary-group" *ngFor="let group of summaryData">
+                    <div class="summary-group-title">{{group.title}}</div>
+                    <ul>
+                        <li
+                                *ngFor="let entity of group.entities"
+                                (click)="selectZitiEntity(entity.name, 'all')"
+                                [ngClass]="{selected: selectedEntityType === 'all'}"
+                                class="entity-item drop-target-svc"
+                        >
+                            <span class="spinner" *ngIf="entity.status === 'loading'"></span>
+                            <input type="checkbox" [disabled]="true" [checked]="true" class="success-check" *ngIf="entity.status === 'done'">
+                            <div class="retry" *ngIf="entity.status === 'error'" (click)="doRetry(entity)"></div>
+                            <div class="icon-clear" *ngIf="entity.status === 'error'"></div>
+                            <span class="entity-name" matTooltipShowDelay="1000">
+                                {{ entity.name.length > 0 ? entity.name : 'SimpleService' }}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </lib-form-field-container>
+    <lib-form-field-container [showHeader]="false" style="margin-top: 10px;">
+        <div class="copy-links-container">
+            <div class="copy-links-title">
+                <div class="title-container">
+                    <span class="title">Copy Links</span>
+                    <div class="copy-icon"></div>
+                </div>
+            </div>
+            <div class="copy-links">
+                <div class="link-button" (click)="copyCliCommands()">CLI Commands</div>
+                <div class="link-button" (click)="copyAPIRequests()">API Requests</div>
+            </div>
+        </div>
+    </lib-form-field-container>
+
+    <div class="visibility-config-container">
+        <input type="checkbox" [checked]="hideSummaryNextTime" class="config-check">
+        <span>Hide this summary next time</span>
+    </div>
+    <div class="confirm-buttons-container">
+        <button class="button save alert" (click)="done()">Done</button>
+        <button class="button save cancel" (click)="confirm()">Create another</button>
+    </div>
+</div>

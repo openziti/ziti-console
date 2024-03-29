@@ -78,6 +78,8 @@ export class ServiceFormService {
     associatedConfigs: any = [];
     associatedConfigsMap: any = {};
     associatedTerminators: any = [];
+    associatedServicePolicies: any = [];
+    associatedServicePolicyNames: any = [];
 
     lColorArray = [
         'black',
@@ -155,6 +157,15 @@ export class ServiceFormService {
             this.growlerService.show(growlerData);
             throw resp;
         })
+    }
+
+    getAssociatedServicePolicies() {
+        this.zitiService.getSubdata('services', this.formData.id, 'service-policies').then((result: any) => {
+            this.associatedServicePolicies = result.data;
+            this.associatedServicePolicyNames = this.associatedServicePolicies.map((policy) => {
+                return policy.name;
+            });
+        });
     }
 
     previewConfig(configName, dynamicForm) {
