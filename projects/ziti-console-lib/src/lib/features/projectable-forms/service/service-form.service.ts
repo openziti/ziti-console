@@ -78,6 +78,8 @@ export class ServiceFormService {
     associatedConfigs: any = [];
     associatedConfigsMap: any = {};
     associatedTerminators: any = [];
+    associatedServicePolicies: any = [];
+    associatedServicePolicyNames: any = [];
 
     lColorArray = [
         'black',
