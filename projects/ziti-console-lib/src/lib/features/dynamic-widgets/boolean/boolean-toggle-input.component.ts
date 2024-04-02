@@ -16,11 +16,7 @@ import {debounce} from "lodash";
       <div *ngIf="error" class="error">{{error}}</div>
     </div>
   `,
-  styles: [
-      '.on {background-color: var(--green);}',
-      '.toggle .yes, .toggle .no { position: absolute; top:0.4rem; font-size: 0.75rem}',
-    '.toggle .yes {left: 0.6rem}',
-    '.toggle .no {right: 0.6rem}']
+  styleUrls:['./boolean-toggle-input.component.scss'  ]
 })
 export class BooleanToggleInputComponent {
   _fieldName = 'Field Label';

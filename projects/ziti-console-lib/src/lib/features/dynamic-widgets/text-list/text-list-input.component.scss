@@ -4,7 +4,7 @@
     width: 100%;
     font-weight: 400;
     font-family: 'Open Sans', Arial, sans-serif;
-    height: 50px;
+    height: var(--defaultInputHeight);
     border-color: var(--stroke);
     border-style: solid;
     border-width: 2px;
@@ -20,8 +20,7 @@
 
     .p-inputtext.p-chips-multiple-container {
       width: 100%;
-      padding-top: 0;
-      padding-bottom: 0;
+      padding: 0;
       border-width: 2px;
 
       &.p-focus {
@@ -37,7 +36,7 @@
 
   .p-chips .p-chips-multiple-container .p-chips-input-token input {
     height: 25px;
-    font-size: 1rem;
+    font-size: 14px;
     color: #495057;
     padding: 0;
     margin: 0;
@@ -50,14 +49,13 @@
   }
 
   .p-chips .p-chips-multiple-container .p-chips-token {
-    padding: .55rem .5rem;
     margin-right: .5rem;
     font-family: Open Sans, sans-serif;
     font-weight: 600;
     margin-top: 5px;
     margin-bottom: 5px;
-    background: #E3F2FD;
-    color: #495057;
+    background: var(--primary);
+    color: var(--white);
     border-radius: 7px;
     cursor: default;
     display: inline-flex;

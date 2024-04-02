@@ -319,7 +319,7 @@ var schema = {
         if (schema.data&&schema.data.properties) {
             for (var key in schema.data.properties) {
                 if (key!="httpChecks"&&key!="portChecks") {
-                    items.push({ key: key.toLowerCase(), content: schema.getField(key, schema.data.properties[key]) });
+                    items.push({ key: key.toLowerCase(), content: schema.getField(key, schema.data.properties[key]), type: schema.getType(key, schema.data.properties[key]) });
                 }
             }
         }

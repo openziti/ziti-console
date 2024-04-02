@@ -49,7 +49,7 @@
         color: var(--white);
         display: flex;
         justify-content: space-between;
-        height: 43px;
+        height: var(--defaultInputHeight);
         align-items: center;
         margin-bottom: 0;
         .label {
@@ -125,7 +125,7 @@
       }
       .addressFull {
         select {
-          height: 43px;
+          height: var(--defaultInputHeight);
         }
       }
     }
@@ -213,9 +213,9 @@
 
 ::ng-deep .simple-service-wrapper {
   input {
-    max-height: 43px;
+    max-height: var(--defaultInputHeight);
     min-height: 0px;
-    height: 43px;
+    height: var(--defaultInputHeight);
   }
   .select2-search__field {
     height: 100%;

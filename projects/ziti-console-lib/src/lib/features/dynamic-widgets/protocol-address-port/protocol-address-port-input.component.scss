@@ -14,6 +14,10 @@
     }
 }
 
+.grid.address-only {
+    grid-template-columns: auto;
+}
+
 .host-name-port {
     grid-template-columns: auto 75px;
 }

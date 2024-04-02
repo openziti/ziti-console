@@ -28,6 +28,7 @@ import {
 } from "../features/dynamic-widgets/protocol-address-port/protocol-address-port-input.component";
 import {PortRangesComponent} from "../features/dynamic-widgets/port-ranges/port-ranges.component";
 import {ForwardingConfigComponent} from "../features/dynamic-widgets/forwarding-config/forwarding-config.component";
+import {Subscription} from "rxjs";
 
 export type ProtocolAddressPort = {
     protocol: any;
@@ -48,9 +49,7 @@ export class SchemaService {
     suggesting = null;
     suggestId: any = null;
     suggestingField = "";
-    propertyExcludes = [
-        "portChecks", 'httpChecks',
-    ]
+    propertyExcludes = [];
     reservedProperties = [];
     reservedPropertiesMap: any = {
         protocolAddressPort: undefined,
@@ -58,6 +57,7 @@ export class SchemaService {
         allowedAddresses: undefined,
         forwardAddress: undefined
     };
+    subscriptions: Subscription = new Subscription();
     private items: any[] = [];
     private bColorArray: string[] = [];
     private lColorArray: string[] = [];
@@ -367,14 +367,16 @@ export class SchemaService {
         }
     }
 
-    private buildNestedContainer(view: ViewContainerRef, nestLevel: number, key: string, parentage: string[], property: any, parent?: any) {
+    private buildNestedContainer(view: ViewContainerRef, nestLevel: number, key: string, parentage: string[], property: any, parent?: any, parentType?: any) {
         let componentRef = view.createComponent(ObjectComponent);
         componentRef.setInput('fieldName', this.getLabel(key));
         if (parentage && !_.isEmpty(parentage)) componentRef.setInput('parentage', parentage);
-        componentRef.setInput('bcolor', this.bColorArray[nestLevel]);
+        componentRef.setInput('bcolor', this.bColorArray[nestLevel % this.bColorArray.length]);
         const embeddedView = componentRef.instance.wrapperContents;
-        componentRef.setInput('labelColor', this.lColorArray[nestLevel]);
-        const newParent = [...parentage, key]
+        componentRef.setInput('labelColor', this.lColorArray[nestLevel % this.lColorArray.length]);
+        componentRef.setInput('showAdd', parentType === 'array');
+        componentRef.setInput('open', key === 'terminators');
+        const newParent = [...parentage, key];
         this.addFields(property, embeddedView, ++nestLevel, newParent, parent);
         return componentRef;
     }
@@ -527,15 +529,28 @@ export class SchemaService {
     }
 
     private addFields(schema: any, view: ViewContainerRef, nestLevel: number, parentage: string[], parent?: any) {
-        const excludedProperites = this.addSpecialFields(schema, view, nestLevel, parentage);
+        const {specialFields, excludedProperties} = this.addSpecialFields(schema, view, nestLevel, parentage);
+        if (specialFields.length > 0) {
+            if (parentage.length > 0) {
+                if (parent?.items) {
+                    parent.items = [...parent.items, ...specialFields];
+                } else if (parent) {
+                    parent.items = [...specialFields];
+                }
+            } else {
+                this.items = [...this.items, ...specialFields];
+            }
+        }
         for (let key in schema.properties) {
-            if (excludedProperites.includes(key) || this.propertyExcludes.includes(key)) {
+            if (excludedProperties.includes(key) || this.propertyExcludes.includes(key)) {
                 continue;
             }
             let item: any = {};
             const component = this.addField(view, nestLevel, key, schema.properties[key], parentage, item);
             item.key = key;
             item.component = component;
+            item.type = schema.properties[key]?.type;
+            this.addSubscribers(item);
             if (this.reservedProperties.includes(key)) {
                 this.reservedPropertiesMap[key] = item;
             } if (parentage.length > 0) {
@@ -548,6 +563,52 @@ export class SchemaService {
                 this.items.push(item);
             }
         }
+    }
+
+    addSubscribers(item) {
+        if (item.type !== 'array') {
+            return;
+        }
+        this.subscriptions.add(
+            item?.component?.instance?.itemAdded.subscribe((event) => {
+                const itemData = this.addItemData(item);
+                if (!item.addedItems || item.addedItems.length <= 0) {
+                    item.addedItems = [];
+                }
+                item.addedItems.push(itemData);
+                item.component.instance.addedItems = item.addedItems;
+            })
+        );
+        this.subscriptions.add(
+            item?.component?.instance?.itemRemoved.subscribe(() => {
+                item.addedItems = item.component?.instance?.addedItems;
+            })
+        );
+    }
+
+    addItemData(item) {
+        let itemData = {};
+        item.items.forEach((subItem) => {
+            if (subItem.type === 'array') {
+                if (subItem.addedItems) {
+                    itemData[subItem.key] = subItem.addedItems;
+                } else {
+                    itemData[subItem.key] = [];
+                }
+            } else {
+                if (subItem?.component?.instance?.getProperties) {
+                    const props = subItem?.component?.instance?.getProperties();
+                    props.forEach((prop) => {
+                        itemData[prop.key] = prop.value;
+                    });
+                    subItem?.component?.instance?.setProperties({});
+                } else if (subItem?.component?.instance?.fieldValue) {
+                    itemData[subItem.key] = subItem.component.instance.fieldValue;
+                    subItem.component.instance.fieldValue = undefined;
+                }
+            }
+        })
+        return itemData;
     }
 
     private addFieldToParentItem(itemToAdd, parentage) {
@@ -567,6 +628,7 @@ export class SchemaService {
     }
 
     private addSpecialFields(schema: any, view: ViewContainerRef, nestLevel: number, parentage: string[]) {
+        const specialFields = [];
         let address = undefined;
         let hostname = undefined;
         let port = undefined;
@@ -594,7 +656,7 @@ export class SchemaService {
         }
         if ((protocol || address || hostname || port) && !(forwardProtocol && forwardAddress && forwardPort)) {
             const properties: ProtocolAddressPort = {protocol, address, hostname, port};
-            this.items.push(this.buildProtocolAddressPort(view, nestLevel, parentage, properties));
+            specialFields.push(this.buildProtocolAddressPort(view, nestLevel, parentage, properties));
         }
         if (forwardProtocol && forwardAddress && forwardPort) {
             const properties: ProtocolAddressPort = {
@@ -603,13 +665,13 @@ export class SchemaService {
                 hostname: undefined,
                 port: forwardPort
             };
-            this.items.push(this.buildForwardingConfig(view, nestLevel, parentage, properties));
+            specialFields.push(this.buildForwardingConfig(view, nestLevel, parentage, properties));
             excludedProperties = [...excludedProperties, ...['allowedAddresses', 'allowedPortRanges', 'allowedProtocols']];
         }
         if (portRanges) {
-            this.items.push(this.buildPortRanges(view, nestLevel, parentage, portRanges));
+            specialFields.push(this.buildPortRanges(view, nestLevel, parentage, portRanges));
         }
-        return excludedProperties;
+        return {specialFields, excludedProperties};
     }
 
     private addField(view: ViewContainerRef, nestLevel: number, key: string, property: any, parentage: string[], parent?: any) {
@@ -617,7 +679,7 @@ export class SchemaService {
         let componentRef: ComponentRef<any> | null = null;
         if (type == "object") {
             if (property.properties) {
-                componentRef = this.buildNestedContainer(view, nestLevel, key, parentage, property, parent);
+                componentRef = this.buildNestedContainer(view, nestLevel, key, parentage, property, parent, type);
             }
         } else if (type == "integer") {
             componentRef = this.buildNumericField(view, nestLevel, key, property, parentage);
@@ -635,10 +697,9 @@ export class SchemaService {
                         value: items.properties[subKey]
                     });
                 }
-                componentRef = this.buildNestedContainer(view, nestLevel, key, parentage, items, parent);
+                componentRef = this.buildNestedContainer(view, nestLevel, key, parentage, items, parent, type);
             } else if (Array.isArray(items.enum)) {
                 componentRef = this.buildCheckBoxListField(view, nestLevel, key, items.enum, parentage);
-
             } else {
 
                 componentRef = this.buildTextListField(view, nestLevel, key, parentage);
