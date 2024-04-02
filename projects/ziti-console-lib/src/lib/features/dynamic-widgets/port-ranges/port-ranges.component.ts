@@ -49,7 +49,8 @@ export class PortRangesComponent {
   }
 
   onKeyup(event: any) {
-    if (event.key === " ") {
+    const key = event.key?.toLowerCase();
+    if (key === " " || key === 'enter') {
       event.preventDefault();
       const element = event.target as HTMLElement;
       element.blur();
