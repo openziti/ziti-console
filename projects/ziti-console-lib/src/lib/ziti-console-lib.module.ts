@@ -93,6 +93,7 @@ import { ForwardingConfigComponent } from './features/dynamic-widgets/forwarding
 import { CardListComponent } from './features/card-list/card-list.component';
 import { SimpleServiceComponent } from './features/projectable-forms/service/simple-service/simple-service.component';
 import { CardComponent } from './features/card/card.component';
+import { CreationSummaryDialogComponent } from './features/creation-summary-dialog/creation-summary-dialog.component';
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -158,6 +159,7 @@ export function playerFactory() {
         CardListComponent,
         SimpleServiceComponent,
         CardComponent,
+        CreationSummaryDialogComponent,
     ],
     imports: [
         CommonModule,
