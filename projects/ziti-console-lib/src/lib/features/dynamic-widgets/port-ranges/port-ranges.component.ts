@@ -44,12 +44,13 @@ export class PortRangesComponent {
       this.fieldValue = [];
       return;
     }
-
-    this.fieldValue = this.validationService.parseAllowedPortRanges(ranges);
+    const parsedPortRanges = this.validationService.parsePortRanges(ranges);
+    this.fieldValue = this.validationService.parsePortRanges(parsedPortRanges);
   }
 
   onKeyup(event: any) {
-    if (event.key === " ") {
+    const key = event.key?.toLowerCase();
+    if (key === " " || key === 'enter') {
       event.preventDefault();
       const element = event.target as HTMLElement;
       element.blur();

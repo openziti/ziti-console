@@ -97,7 +97,8 @@ export class ForwardingConfigComponent {
   }
 
   validatePortRanges() {
-    this.errors['allowedPortRanges'] = this.validationService.validatePortRanges(this.allowedPortRanges);
+    const parsedRanges = this.validationService.parsePortRanges(this.allowedPortRanges);
+    this.errors['allowedPortRanges'] = this.validationService.validatePortRanges(parsedRanges);
   }
 
   setAllowedPortRanges(ranges) {
@@ -105,6 +106,6 @@ export class ForwardingConfigComponent {
       this.allowedPortRanges = undefined;
       return;
     }
-    this.allowedPortRanges = this.validationService.parseAllowedPortRanges(ranges);
+    this.allowedPortRanges = this.validationService.combinePortRanges(ranges);
   }
 }

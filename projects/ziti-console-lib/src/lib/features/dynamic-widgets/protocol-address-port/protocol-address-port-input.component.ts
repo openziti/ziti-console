@@ -83,8 +83,10 @@ export class ProtocolAddressPortInputComponent implements OnInit, DoCheck {
 
   get className() {
     let className = 'addressFull'
-    if (!this.showProtocol && (this.showHostName || this.showHostName) && (this.showPort)) {
+    if (!this.showProtocol && (this.showHostName || this.showAddress) && (this.showPort)) {
       className = 'host-name-port';
+    } else if (!this.showProtocol && !this.showPort && (this.showHostName || this.showAddress)) {
+      className = 'address-only';
     }
     return className;
   }

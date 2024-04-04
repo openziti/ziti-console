@@ -8,7 +8,12 @@ import {ExtensionService} from "../../../extendable/extensions-noop.service";
 import {GrowlerModel} from "../../../messaging/growler.model";
 import {MatDialog} from "@angular/material/dialog";
 import {CreationSummaryDialogComponent} from "../../../creation-summary-dialog/creation-summary-dialog.component";
-import {isEmpty, isNil, isNaN, unset, cloneDeep} from 'lodash';
+import {isEmpty, isNil, isNaN, unset, cloneDeep, isEqual} from 'lodash';
+import {ValidationService} from '../../../../services/validation.service';
+import {ServicesPageService} from "../../../../pages/services/services-page.service";
+
+// @ts-ignore
+const {app} = window;
 
 @Component({
   selector: 'lib-simple-service',
@@ -42,7 +47,7 @@ export class SimpleServiceComponent extends ProjectableForm {
   bindPolicyApiUrl = '';
   initServiceApiData = {
     name: "",
-    attributes: [],
+    roleAttributes: [],
     configs: [],
     encryptionRequired: true
   };
@@ -103,6 +108,12 @@ export class SimpleServiceComponent extends ProjectableForm {
   dialIncrement = -1;
   bindIncrement = -1;
 
+  serviceDataChange = false;
+  interceptDataChange = false;
+  hostDataChange = false;
+  dialDataChange = false;
+  bindDataChange = false;
+
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
   @Output() selected: EventEmitter<any> = new EventEmitter<any>();
 
@@ -113,6 +124,8 @@ export class SimpleServiceComponent extends ProjectableForm {
       growlerService: GrowlerService,
       @Inject(SERVICE_EXTENSION_SERVICE) private extService: ExtensionService,
       private dialogForm: MatDialog,
+      private validationService: ValidationService,
+      private servicesPageService: ServicesPageService
   ) {
     super(growlerService);
   }
@@ -150,10 +163,21 @@ export class SimpleServiceComponent extends ProjectableForm {
     this.hostConfigApiData = cloneDeep(this.initHostConfigApiData);
     this.dialPolicyApiData = cloneDeep(this.initDialPolicyApiData);
     this.bindPolicyApiData = cloneDeep(this.initBindPolicyApiData);
+    this.servicesPageService.getServiceRoleAttributes().then((result) => {
+      this.serviceRoleAttributes = result.data;
+    });
   }
 
-  getIdentityNamedAttributes() {
-    this.zitiService.get('identities', {}, []).then((result) => {
+  getIdentityNamedAttributes(filter?) {
+    const paging = {
+      searchOn: 'name',
+      filter: filter || '',
+      total: 30,
+      page: 1,
+      sort: 'name',
+      order: 'asc'
+    };
+    this.zitiService.get('identities', paging, []).then((result) => {
       const namedAttributes = result.data.map((identity) => {
         this.identitiesNameIdMap[identity.name] = identity.id;
         return identity.name;
@@ -168,19 +192,11 @@ export class SimpleServiceComponent extends ProjectableForm {
         this.save();
         break;
       case 'close':
-        this.closeModalHandler();
+        this.closeModal(true, true, 'cards')
         break;
       case 'toggle-view':
         this.formView = action.data;
         break;
-    }
-  }
-
-  closeModalHandler() {
-    if (!this.showForm) {
-      this.showForm = true;
-    } else {
-      this.closeModal(true, true, 'cards');
     }
   }
 
@@ -535,15 +551,30 @@ export class SimpleServiceComponent extends ProjectableForm {
   }
 
   validateInterceptAddress() {
-    if (!this.sdkOnlyDial && (isEmpty(this.interceptConfigApiData.data.addresses) || isEmpty(this.interceptConfigApiData.data.addresses[0]))) {
+    if (this.sdkOnlyDial) {
+      unset(this.errors, 'interceptAddress');
+      unset(this.errors, 'interceptAddressFormat');
+      return;
+    }
+    if (isEmpty(this.interceptConfigApiData.data.addresses) || isEmpty(this.interceptConfigApiData.data.addresses[0])) {
       this.errors.interceptAddress = true;
+    } else if (!this.validationService.isValidInterceptHost(this.interceptConfigApiData.data.addresses[0])) {
+      this.errors.interceptAddress = true;
+      this.errors.interceptAddressFormat = true;
     } else {
       unset(this.errors, 'interceptAddress');
+      unset(this.errors, 'interceptAddressFormat');
     }
   }
 
   validateInterceptPort() {
-    if (!this.sdkOnlyDial && isEmpty(this.interceptConfigApiData.data.portRanges)) {
+    if (this.sdkOnlyDial) {
+      unset(this.errors, 'interceptPort');
+      return;
+    }
+    if (isEmpty(this.interceptConfigApiData.data.portRanges)) {
+      this.errors.interceptPort = true;
+    } else if (this.validationService.validatePortRanges(this.interceptConfigApiData.data.portRanges)) {
       this.errors.interceptPort = true;
     } else {
       unset(this.errors, 'interceptPort');
@@ -559,7 +590,13 @@ export class SimpleServiceComponent extends ProjectableForm {
   }
 
   validateHostPort() {
-    if (!this.sdkOnlyBind && isNil(this.hostConfigApiData.data.port) || isNaN(this.hostConfigApiData.data.port)) {
+    if (this.sdkOnlyBind) {
+      unset(this.errors, 'hostPort');
+      return;
+    }
+    if (isNil(this.hostConfigApiData.data.port) || isNaN(this.hostConfigApiData.data.port)) {
+      this.errors.hostPort = true;
+    } else if (!this.validationService.isValidPort(this.hostConfigApiData.data.port)) {
       this.errors.hostPort = true;
     } else {
       unset(this.errors, 'hostPort');
@@ -620,6 +657,26 @@ export class SimpleServiceComponent extends ProjectableForm {
       -H 'content-type: application/json' \\
       -H 'zt-session: ${this.zitiSessionId}' \\
       --data-raw '${JSON.stringify(this.bindPolicyApiData)}' \\`;
+  }
+
+  override checkDataChange() {
+    const serviceDataChange = !isEqual(this.initServiceApiData, this.serviceApiData);
+    const interceptDataChange = !isEqual(this.initInterceptConfigApiData.data, this.interceptConfigApiData.data);
+    const hostDataChange = !isEqual(this.initHostConfigApiData.data, this.hostConfigApiData.data);
+    const dialDataChange = !isEqual(this.initDialPolicyApiData, this.dialPolicyApiData);
+    const bindDataChange = !isEqual(this.initBindPolicyApiData, this.bindPolicyApiData);
+    const dataChange = serviceDataChange !== this.serviceDataChange || interceptDataChange !== this.interceptDataChange || hostDataChange !== this.hostDataChange ||
+        dialDataChange !== this.dialDataChange || bindDataChange !== this.bindDataChange;
+    if (dataChange) {
+      this.serviceDataChange = serviceDataChange;
+      this.interceptDataChange = interceptDataChange;
+      this.hostDataChange = hostDataChange;
+      this.dialDataChange = dialDataChange;
+      this.bindDataChange = bindDataChange;
+      this.dataChange.emit(dataChange);
+    }
+    this._dataChange = serviceDataChange || interceptDataChange || hostDataChange || dialDataChange || bindDataChange;
+    app.isDirty = false;
   }
 
   clear(): void {

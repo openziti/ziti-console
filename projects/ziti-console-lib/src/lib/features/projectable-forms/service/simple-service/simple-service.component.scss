@@ -10,7 +10,8 @@
   .simple-service-form-container {
     .form-group-column {
       height: fit-content;
-      width: 650px;
+      max-width: 650px;
+      width: 100%;
       transition: var(--transition);
       flex-grow: 0;
       padding-bottom: 0;
@@ -49,7 +50,7 @@
         color: var(--white);
         display: flex;
         justify-content: space-between;
-        height: 43px;
+        height: var(--defaultInputHeight);
         align-items: center;
         margin-bottom: 0;
         .label {
@@ -99,6 +100,19 @@
           }
         }
       }
+      .config-hostname-label {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        white-space: nowrap;
+
+        .form-field-info {
+          margin-top: 1px;
+        }
+        .error-label {
+          margin-left: 5px;
+        }
+      }
     }
   }
   .form-field-input-group {
@@ -125,7 +139,7 @@
       }
       .addressFull {
         select {
-          height: 43px;
+          height: var(--defaultInputHeight);
         }
       }
     }
@@ -213,9 +227,9 @@
 
 ::ng-deep .simple-service-wrapper {
   input {
-    max-height: 43px;
+    max-height: var(--defaultInputHeight);
     min-height: 0px;
-    height: 43px;
+    height: var(--defaultInputHeight);
   }
   .select2-search__field {
     height: 100%;

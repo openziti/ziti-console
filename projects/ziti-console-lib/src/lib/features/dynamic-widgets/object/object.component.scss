@@ -1,0 +1,115 @@
+:host {
+  >label {
+    margin-top: 0;
+  }
+}
+
+.wrapper {
+  border-radius: 0.5rem;
+  padding: var(--paddingMedium);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: var(--marginMedium);
+
+  &.closed {
+    cursor: pointer;
+  }
+
+  .object-main-content {
+    &[hidden] {
+      display: none;
+    }
+  }
+  .save-button {
+    margin-top: var(--marginSmall);
+    height: 35px;
+    min-width: 140px;
+  }
+}
+
+.object-header-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  .object-header-title {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 23px;
+    cursor: pointer;
+  }
+
+  .object-label {
+    margin: 0;
+    cursor: pointer;
+  }
+}
+
+.expand-toggle {
+  font-family: zac;
+  font-weight: 600;
+  font-size: 23px;
+  width: 27px;
+  color: var(--stroke);
+  height: 20px;
+  margin-top: -3px;
+  cursor: pointer;
+  &:before {
+    content: '\e91f';
+  }
+  &.open {
+    transform: rotate(270deg);
+  }
+}
+
+.added-items-list {
+  margin-top: var(--marginSmall);
+  width: 100%;
+
+  label,
+  .added-items-label {
+    margin-top: 0;
+  }
+
+  .object-list-items-container {
+    background-color: rgb(255 255 255 / 30%);
+    border-radius: 7px;
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+    .none-added-label {
+      padding-left: var(--paddingSmall);
+      color: var(--white);
+      opacity: .7;
+    }
+  }
+  .object-list-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+
+    .preview-name {
+      color: var(--formBackground);
+      //cursor: pointer;
+      font-weight: 600;
+      margin-left: var(--marginSmall);
+      margin-bottom: 2px;
+      /*&:hover {
+        text-decoration: underline;
+        color: var(--primary);
+      }*/
+    }
+    .icon-clear {
+      color: var(--formBackground);
+      cursor: pointer;
+      &:hover {
+        color: var(--primary);
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
 <div class="projectable-form-wrapper simple-service-wrapper"
      (keyup.enter)="save($event)"
-     (keyup.escape)="closeModalHandler()"
+     (keyup.escape)="closeModal(true, false, 'cards', $event)"
+     tabindex="0"
 >
     <lib-form-header
             [data]="formData"
@@ -35,7 +36,7 @@
                                     <span class="form-field-title">SELECT OR CREATE SERVICE ATTRIBUTES</span>
                                 </div>
                                 <lib-tag-selector
-                                    [(selectedRoleAttributes)]="serviceApiData.attributes"
+                                    [(selectedRoleAttributes)]="serviceApiData.roleAttributes"
                                     [availableRoleAttributes]="serviceRoleAttributes"
                                     [placeholder]="'Add attributes to group services'"
                                 ></lib-tag-selector>
@@ -66,6 +67,7 @@
                                     [hasError]="errors.dialIdentities"
                                     (selectedNamedAttributesChange)="validateDialIdentities()"
                                     (selectedRoleAttributesChange)="validateDialIdentities()"
+                                    (filterChange)="getIdentityNamedAttributes($event)"
                             ></lib-tag-selector>
                         </div>
                         <div class="form-field-sub-group">
@@ -94,7 +96,15 @@
                                     </div>
                                 </div>
                                 <div class="config-item-container" [ngClass]="{disabled: sdkOnlyDial}">
-                                    <span class="config-item-label">HOSTNAME / IP</span>
+                                    <div class="config-hostname-label">
+                                        <span class="config-item-label">HOSTNAME / IP</span>
+                                        <div
+                                            class="form-field-info infoicon"
+                                            matTooltip="Accessing hostnames must include a '.'"
+                                            matTooltipPosition="above"
+                                        ></div>
+                                        <span *ngIf="errors.interceptAddressFormat" class="error-label">Accessing hostnames must include a '.'</span>
+                                    </div>
                                     <input id="HowTo" type="text" maxlength="100" data-i18n="EgHost" (change)="validateInterceptAddress()" [ngClass]="{error: errors.interceptAddress}" [placeholder]="sdkOnlyDial ? '' : 'e.g. myservice.ziti'" [(ngModel)]="sdkOnlyDial ? '' : interceptConfigApiData.data.addresses[0]">
                                 </div>
                                 <div class="config-item-container" [ngClass]="{disabled: sdkOnlyDial}">

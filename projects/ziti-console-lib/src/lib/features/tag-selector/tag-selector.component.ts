@@ -21,6 +21,7 @@ export class TagSelectorComponent {
   @Output() namedAttributeRemoved = new EventEmitter<any>();
   @Output() selectedRoleAttributesChange = new EventEmitter<any>();
   @Output() selectedNamedAttributesChange = new EventEmitter<any>();
+  @Output() filterChange = new EventEmitter<any>();
 
   hideSelect = true;
   displayedRoleOptions: any[] = [];
@@ -168,6 +169,7 @@ export class TagSelectorComponent {
       default:
         this.applyFilter();
     }
+    this.filterChange.emit(filterString);
   }
 
   handleKeyDown($event: KeyboardEvent) {

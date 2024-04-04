@@ -318,7 +318,7 @@
 
   .select2-container {
     .select2-selection__rendered:not(.empty) {
-      min-height: 50px;
+      min-height: var(--defaultInputHeight);
     }
 
     input {

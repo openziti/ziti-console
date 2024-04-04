@@ -177,7 +177,7 @@ input {
   background-repeat: no-repeat;
   background-size: 18px;
   padding-right: 28px;
-  min-height: 50px;
+  min-height: var(--defaultInputHeight);
 
   &.error {
     border-color: var(--red);
@@ -185,7 +185,7 @@ input {
 }
 
 .form-field-input {
-  min-height: 50px;
+  min-height: var(--defaultInputHeight);
 }
 
 .form-field-input-group {
@@ -396,7 +396,7 @@ lib-form-field-container {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  height: 40px;
+  height: 35px;
   background-image: linear-gradient(to right,var(--backgroundTransparent0) 0 20%,var(--backgroundTransparent1) 20% 100%);
 
   &:hover {
@@ -725,11 +725,13 @@ lib-form-field-container {
 }
 
 .icon-close {
-  font-size: 25px;
-  top: 15px;
-  right: 15px;
-  width: 35px;
-  font-weight: 600;
+  &.close {
+    font-size: 25px;
+    top: 15px;
+    right: 15px;
+    width: 35px;
+    font-weight: 600;
+  }
 }
 
 lib-tag-selector {
@@ -738,6 +740,10 @@ lib-tag-selector {
       border-color: var(--red);
     }
   }
+}
+
+.error-label {
+  color: red;
 }
 
 @keyframes loading {
