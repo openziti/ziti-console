@@ -159,7 +159,7 @@ export function playerFactory() {
         CardListComponent,
         SimpleServiceComponent,
         CardComponent,
-        CreationSummaryDialogComponent,
+        CreationSummaryDialogComponent
     ],
     imports: [
         CommonModule,
