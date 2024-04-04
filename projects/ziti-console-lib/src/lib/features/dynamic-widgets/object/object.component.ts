@@ -3,11 +3,11 @@ import {Component, EventEmitter, Input, Output, ViewChild, ViewContainerRef} fro
 @Component({
   selector: 'lib-object',
   template: `
-    <div id="schema_{{parentage?parentage+'_':''}}{{_idName}}" class="wrapper" [ngStyle]="{'background-color': bcolor}">
+    <div id="schema_{{parentage?parentage+'_':''}}{{_idName}}" class="wrapper" [ngStyle]="{'background-color': bcolor}" [ngClass]="{closed: !open}" (click)="toggleOpen($event, 'wrapper')">
       <div class="object-header-container">
-        <div class="object-header-title">
+        <div class="object-header-title" (click)="toggleOpen($event, 'header')">
           <label class="object-label" for="schema_{{parentage?parentage+'_':''}}{{_idName}}"  [ngStyle]="{'color': labelColor}">{{_fieldName}}</label>
-          <div class="expand-toggle" [ngClass]="{open: open}" (click)="toggleOpen()"></div>
+          <div class="expand-toggle" [ngClass]="{open: open}"></div>
         </div>
         <div class="added-items-list" [hidden]="!open || !showAdd">
           <div class="object-list-items-container">
@@ -56,8 +56,14 @@ export class ObjectComponent {
     this.itemSelected.emit(item);
   }
 
-  toggleOpen() {
+  toggleOpen(event, source) {
+    if (this.open && source === 'wrapper') {
+      return;
+    } else if (!this.open && source === 'header') {
+      return;
+    }
     this.open = !this.open;
+    event.stopPropagation();
   }
 
   removeItemClicked(item, index) {

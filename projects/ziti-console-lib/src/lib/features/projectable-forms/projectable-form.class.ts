@@ -15,14 +15,14 @@
 */
 
 import {ExtendableComponent} from "../extendable/extendable.component";
-import {Component, DoCheck, ElementRef, EventEmitter, Input, Output, ViewChild} from "@angular/core";
+import {Component, DoCheck, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from "@angular/core";
 
 import {defer, delay, isEqual, unset, debounce} from "lodash";
 import {GrowlerModel} from "../messaging/growler.model";
 import {GrowlerService} from "../messaging/growler.service";
 
 // @ts-ignore
-const {context, tags, resources, service} = window;
+const {context, tags, resources, service, app} = window;
 
 @Component({
     template: '',
@@ -134,7 +134,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         return tags.val();
     }
 
-    closeModal(refresh = true, ignoreChanges = false, data?): void {
+    closeModal(refresh = true, ignoreChanges = false, data?, event?): void {
         if (!ignoreChanges && this._dataChange) {
             const confirmed = confirm('You have unsaved changes. Do you want to leave this page and discard your changes or stay on this page?');
             if (!confirmed) {
@@ -142,18 +142,22 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
             }
         }
         this.close.emit({refresh: refresh});
+        if (event) {
+            event.stopPropagation();
+        }
     }
 
     ngDoCheck() {
         this.checkDataChangeDebounced();
     }
 
-    checkDataChange() {
+    protected checkDataChange() {
         const dataChange = !isEqual(this.initData, this.formData);
         if (dataChange !== this._dataChange) {
             this.dataChange.emit(dataChange);
         }
         this._dataChange = dataChange;
+        app.isDirty = false;
     }
 
     copyToClipboard(val) {

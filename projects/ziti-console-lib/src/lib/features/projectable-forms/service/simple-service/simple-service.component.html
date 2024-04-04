@@ -1,6 +1,7 @@
 <div class="projectable-form-wrapper simple-service-wrapper"
      (keyup.enter)="save($event)"
-     (keyup.escape)="closeModalHandler()"
+     (keyup.escape)="closeModal(true, false, 'cards', $event)"
+     tabindex="0"
 >
     <lib-form-header
             [data]="formData"
@@ -35,7 +36,7 @@
                                     <span class="form-field-title">SELECT OR CREATE SERVICE ATTRIBUTES</span>
                                 </div>
                                 <lib-tag-selector
-                                    [(selectedRoleAttributes)]="serviceApiData.attributes"
+                                    [(selectedRoleAttributes)]="serviceApiData.roleAttributes"
                                     [availableRoleAttributes]="serviceRoleAttributes"
                                     [placeholder]="'Add attributes to group services'"
                                 ></lib-tag-selector>
@@ -66,6 +67,7 @@
                                     [hasError]="errors.dialIdentities"
                                     (selectedNamedAttributesChange)="validateDialIdentities()"
                                     (selectedRoleAttributesChange)="validateDialIdentities()"
+                                    (filterChange)="getIdentityNamedAttributes($event)"
                             ></lib-tag-selector>
                         </div>
                         <div class="form-field-sub-group">

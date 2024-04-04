@@ -12,6 +12,10 @@
   gap: 5px;
   margin-top: var(--marginMedium);
 
+  &.closed {
+    cursor: pointer;
+  }
+
   .object-main-content {
     &[hidden] {
       display: none;
@@ -36,10 +40,12 @@
     justify-content: space-between;
     align-items: center;
     height: 23px;
+    cursor: pointer;
   }
 
   .object-label {
     margin: 0;
+    cursor: pointer;
   }
 }
 
