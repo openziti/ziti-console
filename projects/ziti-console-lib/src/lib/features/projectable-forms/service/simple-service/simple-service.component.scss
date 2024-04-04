@@ -10,7 +10,8 @@
   .simple-service-form-container {
     .form-group-column {
       height: fit-content;
-      width: 650px;
+      max-width: 650px;
+      width: 100%;
       transition: var(--transition);
       flex-grow: 0;
       padding-bottom: 0;
@@ -97,6 +98,19 @@
           .off-label {
             margin-left: 32px;
           }
+        }
+      }
+      .config-hostname-label {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        white-space: nowrap;
+
+        .form-field-info {
+          margin-top: 1px;
+        }
+        .error-label {
+          margin-left: 5px;
         }
       }
     }

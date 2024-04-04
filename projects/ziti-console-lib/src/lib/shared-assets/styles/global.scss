@@ -742,6 +742,10 @@ lib-tag-selector {
   }
 }
 
+.error-label {
+  color: red;
+}
+
 @keyframes loading {
   to {
     -webkit-transform: rotate(360deg);

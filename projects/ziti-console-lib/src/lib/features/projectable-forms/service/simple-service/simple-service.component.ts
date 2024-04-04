@@ -553,14 +553,17 @@ export class SimpleServiceComponent extends ProjectableForm {
   validateInterceptAddress() {
     if (this.sdkOnlyDial) {
       unset(this.errors, 'interceptAddress');
+      unset(this.errors, 'interceptAddressFormat');
       return;
     }
     if (isEmpty(this.interceptConfigApiData.data.addresses) || isEmpty(this.interceptConfigApiData.data.addresses[0])) {
       this.errors.interceptAddress = true;
     } else if (!this.validationService.isValidInterceptHost(this.interceptConfigApiData.data.addresses[0])) {
       this.errors.interceptAddress = true;
+      this.errors.interceptAddressFormat = true;
     } else {
       unset(this.errors, 'interceptAddress');
+      unset(this.errors, 'interceptAddressFormat');
     }
   }
 
