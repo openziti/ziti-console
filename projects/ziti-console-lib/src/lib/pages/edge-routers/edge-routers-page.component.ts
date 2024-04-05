@@ -104,6 +104,9 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
       case 'download-all':
         this.svc.downloadAllItems();
         break;
+      case 'download-enrollment':
+        this.downloadJWT(event.item)
+        break;
       case 'download-selected':
         this.svc.downloadItems(this.selectedItems);
         break;
