@@ -102,4 +102,3 @@ export class CreationSummaryDialogComponent {
     this.dialogRef.close('new');
   }
 }
-
