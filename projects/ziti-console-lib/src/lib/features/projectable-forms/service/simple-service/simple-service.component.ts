@@ -253,7 +253,7 @@ export class SimpleServiceComponent extends ProjectableForm {
         'success',
         'Success',
         `Simple Service ${this.serviceApiData.name} Created`,
-        `Successfully entities for simple service ${this.serviceApiData.name}`,
+        `Successfully created entities for simple service ${this.serviceApiData.name}`,
     );
     this.growlerService.show(growlerData);
 

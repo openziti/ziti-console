@@ -101,6 +101,9 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
       case 'delete':
         this.deleteItem(event.item)
         break;
+      case 'download-enrollment':
+        this.downloadJWT(event.item)
+        break;
       case 'download-all':
         this.svc.downloadAllItems();
         break;
