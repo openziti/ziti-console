@@ -86,6 +86,6 @@ export class ValidationService {
     }
 
     isValidInterceptHost(address) {
-        return /^[^.]+\.[^.]+$/.test(address);
+        return /^(?!\.)(?!.*\.$)([^.]*\.[^.]+)+$/.test(address);
     }
 }
