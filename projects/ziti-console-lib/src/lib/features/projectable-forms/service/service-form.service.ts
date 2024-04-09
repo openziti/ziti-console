@@ -15,7 +15,7 @@
 */
 
 import {Injectable, Inject, InjectionToken} from "@angular/core";
-import {isEmpty, isString, unset, keys, some, defer, cloneDeep, filter} from 'lodash';
+import {isEmpty, isString, keys, some, defer, cloneDeep, filter, isNil, isBoolean} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
@@ -474,7 +474,14 @@ export class ServiceFormService {
                     data[item.key] = [];
                 }
             } else if (item.type === 'object') {
-                data[item.key] = this.addItemsToConfig(item.items, {}, item.type);
+                const val = this.addItemsToConfig(item.items, {}, item.type);
+                let hasDefinition = false;
+                keys(val).forEach((key) => {
+                    if (isBoolean(val[key]) || (!isEmpty(val[key]) && !isNil(val[key]))) {
+                        hasDefinition = true;
+                    }
+                });
+                data[item.key] = hasDefinition ? val : undefined;
             } else {
                 let props = [];
                 if (item?.component?.instance?.getProperties) {
