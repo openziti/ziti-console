@@ -1,5 +1,5 @@
 <div class="grid {{className}}">
-    <div *ngIf="showProtocol" [ngClass]="{disabled: disableProtocol, invalid: errors['protocol']}">
+    <div *ngIf="showProtocol" [ngClass]="{disabled: disableProtocol}">
         <lib-selector-input [fieldName]="protocolFieldName"
                       [(fieldValue)]="protocol"
                       [labelColor]="labelColor"
@@ -8,7 +8,7 @@
                       (fieldValueChange)="update()"
         ></lib-selector-input>
     </div>
-    <div *ngIf="showAddress" [ngClass]="{disabled: disableAddress, invalid: errors['address']}">
+    <div *ngIf="showAddress" [ngClass]="{disabled: disableAddress}">
         <lib-string-input [fieldName]="addressFieldName"
                     [(fieldValue)]="address"
                     [labelColor]="labelColor"
@@ -16,7 +16,7 @@
                           (fieldValueChange)="update()"
         ></lib-string-input>
     </div>
-    <div *ngIf="showHostName" [ngClass]="{disabled: disableHostName, invalid: errors['hostname']}">
+    <div *ngIf="showHostName" [ngClass]="{disabled: disableHostName}">
         <lib-string-input [fieldName]="hostnameFieldName"
                           [(fieldValue)]="hostname"
                           [labelColor]="labelColor"
@@ -24,7 +24,7 @@
                           (fieldValueChange)="update()"
         ></lib-string-input>
     </div>
-    <div *ngIf="showPort" [ngClass]="{disabled: disablePort, invalid: errors['port']}">
+    <div *ngIf="showPort" [ngClass]="{disabled: disablePort}">
         <lib-number-input [fieldName]="portFieldName"
                     [(fieldValue)]="port"
                     [labelColor]="labelColor"

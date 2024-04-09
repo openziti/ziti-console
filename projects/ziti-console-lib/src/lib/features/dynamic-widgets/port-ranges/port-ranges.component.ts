@@ -44,7 +44,8 @@ export class PortRangesComponent {
       this.fieldValue = [];
       return;
     }
-    this.fieldValue = this.validationService.combinePortRanges(ranges);
+    const parsedPortRanges = this.validationService.parsePortRanges(ranges);
+    this.fieldValue = this.validationService.parsePortRanges(parsedPortRanges);
   }
 
   onKeyup(event: any) {

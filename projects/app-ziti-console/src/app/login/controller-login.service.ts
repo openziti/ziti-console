@@ -104,10 +104,6 @@ export class ControllerLoginService extends LoginServiceClass {
                         );
                         this.router.navigate(['/login']);
                     }
-                    if (this.settingsService?.settings?.session) {
-                        this.settingsService.settings.session.id = undefined;
-                    }
-                    this.settingsService.set(this.settingsService.settings)
                     this.growlerService.show(growlerData);
                     throw({error: errorMessage});
                 })

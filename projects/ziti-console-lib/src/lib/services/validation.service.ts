@@ -44,9 +44,6 @@ export class ValidationService {
 
     parsePortRanges(portRanges) {
         const parsedPortRanges = [];
-        if (!portRanges) {
-            return parsedPortRanges;
-        }
         portRanges.forEach((val: string) => {
             const vals = val.split('-');
             if (vals.length === 1) {

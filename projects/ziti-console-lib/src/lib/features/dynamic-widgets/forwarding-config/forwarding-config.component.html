@@ -10,7 +10,6 @@
         [(protocol)]="protocol"
         [(address)]="address"
         [(port)]="port"
-        #papComponent
     ></lib-protocol-address-port-input>
     <div class="forwarding-config-toggles">
         <lib-boolean-toggle-input
@@ -35,7 +34,6 @@
     <div class="forwarding-config-allowed-inputs">
         <lib-checkbox-list-input
             *ngIf="forwardProtocol"
-            [ngClass]="{invalid: errors['allowedProtocols']}"
             [fieldName]="'ALLOWED PROTOCOLS'"
             [valueList]="['tcp', 'udp']"
             [(fieldValue)]="allowedProtocols"
@@ -43,7 +41,6 @@
         </lib-checkbox-list-input>
         <lib-text-list-input
             *ngIf="forwardAddress"
-            [ngClass]="{invalid: errors['allowedAddresses']}"
             [fieldName]="'ALLOWED ADDRESSES'"
             [placeholder]="'10.10.0.0/24 domain.com'"
             [(fieldValue)]="allowedAddresses"
@@ -52,7 +49,6 @@
         </lib-text-list-input>
         <lib-text-list-input
             *ngIf="forwardPort"
-            [ngClass]="{invalid: errors['allowedPortRanges']}"
             [fieldName]="'ALLOWED PORT RANGES'"
             [placeholder]="'80 120-125 443 8080'"
             [(fieldValue)]="allowedPortRanges"

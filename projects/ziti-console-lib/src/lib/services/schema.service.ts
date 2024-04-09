@@ -29,8 +29,6 @@ import {
 import {PortRangesComponent} from "../features/dynamic-widgets/port-ranges/port-ranges.component";
 import {ForwardingConfigComponent} from "../features/dynamic-widgets/forwarding-config/forwarding-config.component";
 import {Subscription} from "rxjs";
-import {GrowlerModel} from "../features/messaging/growler.model";
-import {GrowlerService} from "../features/messaging/growler.service";
 
 export type ProtocolAddressPort = {
     protocol: any;
@@ -59,13 +57,12 @@ export class SchemaService {
         allowedAddresses: undefined,
         forwardAddress: undefined
     };
-    requiredProperties: any[] = ['allowedAddresses', 'allowedProtocols', 'allowedPorts'];
     subscriptions: Subscription = new Subscription();
     private items: any[] = [];
     private bColorArray: string[] = [];
     private lColorArray: string[] = [];
 
-    constructor(private growlerService: GrowlerService) {
+    constructor() {
     }
 
     getType(property: any) {
@@ -480,8 +477,7 @@ export class SchemaService {
         let componentRef = view.createComponent(ForwardingConfigComponent);
         return {
             key: 'forwardingconfig',
-            component: componentRef,
-            required: true
+            component: componentRef
         };
     }
 
@@ -575,16 +571,6 @@ export class SchemaService {
         }
         this.subscriptions.add(
             item?.component?.instance?.itemAdded.subscribe((event) => {
-                if (!this.itemDataValid(item)) {
-                    const growlerData = new GrowlerModel(
-                        'error',
-                        'Error',
-                        `Error Validating Config`,
-                        'The entered configuration is invalid. Please update missing/invalid fields and try again.',
-                    );
-                    this.growlerService.show(growlerData);
-                    return
-                }
                 const itemData = this.addItemData(item);
                 if (!item.addedItems || item.addedItems.length <= 0) {
                     item.addedItems = [];
@@ -600,51 +586,10 @@ export class SchemaService {
         );
     }
 
-    itemDataValid(item: any) {
-        let isValid = true;
-        item.items.forEach((subItem) => {
-            if (subItem.type === 'array') {
-                subItem.addedItems.forEach((addedItem) => {
-                    if (addedItem?.component?.instance?.isValid) {
-                        if (!addedItem?.component?.instance?.isValid()) {
-                            isValid = false;
-                        }
-                    }
-                });
-            } else {
-                if (subItem?.component?.instance?.getProperties) {
-                    if (subItem?.component?.instance?.isValid) {
-                        if (!subItem?.component?.instance?.isValid()) {
-                            isValid = false;
-                        }
-                    }
-                } else if (subItem?.component?.instance?.fieldValue) {
-                    if (subItem?.component?.instance?.isValid) {
-                        if (!subItem?.component?.instance?.isValid()) {
-                            isValid = false;
-                        }
-                    }
-                }
-            }
-        });
-        return isValid;
-    }
-
     addItemData(item) {
         let itemData = {};
         item.items.forEach((subItem) => {
-            let isValid = true;
             if (subItem.type === 'array') {
-                subItem.addedItems.forEach((addedItem) => {
-                    if (addedItem?.component?.instance?.isValid) {
-                        if (!addedItem?.component?.instance?.isValid()) {
-                            isValid = false;
-                        }
-                    }
-                });
-                if (!isValid) {
-                    return;
-                }
                 if (subItem.addedItems) {
                     itemData[subItem.key] = subItem.addedItems;
                 } else {
@@ -652,33 +597,17 @@ export class SchemaService {
                 }
             } else {
                 if (subItem?.component?.instance?.getProperties) {
-                    if (subItem?.component?.instance?.isValid) {
-                        if (!subItem?.component?.instance?.isValid()) {
-                            isValid = false;
-                        }
-                    }
-                    if (!isValid) {
-                        return;
-                    }
                     const props = subItem?.component?.instance?.getProperties();
                     props.forEach((prop) => {
                         itemData[prop.key] = prop.value;
                     });
                     subItem?.component?.instance?.setProperties({});
                 } else if (subItem?.component?.instance?.fieldValue) {
-                    if (subItem?.component?.instance?.isValid) {
-                        if (!subItem?.component?.instance?.isValid()) {
-                            isValid = false;
-                        }
-                    }
-                    if (!isValid) {
-                        return;
-                    }
                     itemData[subItem.key] = subItem.component.instance.fieldValue;
                     subItem.component.instance.fieldValue = undefined;
                 }
             }
-        });
+        })
         return itemData;
     }
 
