@@ -1,3 +1,17 @@
+# app-ziti-console-v3.1.0
+# ziti-console-lib-v0.1.0
+*
+## Features/Improvements
+* [Issue #299](https://github.com/openziti/ziti-console/issues/299) - New "Simple Service" form for defining a ziti service, service policies, & configs
+* [Issue #285](https://github.com/openziti/ziti-console/issues/285) - Summary details for new "Simple Service" creation
+*
+## Bug Fixes
+* [Issue #261](https://github.com/openziti/ziti-console/pull/291) - Issues when creating/editing configs on advanced service form
+* [Issue #297](https://github.com/openziti/ziti-console/pull/297) - Download JWT isn't working for routers list page
+* [Issue #293](https://github.com/openziti/ziti-console/pull/293) - Issues with simple service form attribute selections
+* [Issue #310](https://github.com/openziti/ziti-console/pull/310) - Router name does not populate in delete modal.
+* [Issue #310](https://github.com/openziti/ziti-console/pull/307) - Error messages for invalid forwarding config fields in the "Advanced Service" editor are not helpful
+
 # app-ziti-console-v3.0.8
 ## Bug Fixes
 
