@@ -612,17 +612,9 @@ export class SchemaService {
                     }
                 });
             } else {
-                if (subItem?.component?.instance?.getProperties) {
-                    if (subItem?.component?.instance?.isValid) {
-                        if (!subItem?.component?.instance?.isValid()) {
-                            isValid = false;
-                        }
-                    }
-                } else if (subItem?.component?.instance?.fieldValue) {
-                    if (subItem?.component?.instance?.isValid) {
-                        if (!subItem?.component?.instance?.isValid()) {
-                            isValid = false;
-                        }
+                if (subItem?.component?.instance?.isValid) {
+                    if (!subItem?.component?.instance?.isValid()) {
+                        isValid = false;
                     }
                 }
             }
@@ -635,16 +627,6 @@ export class SchemaService {
         item.items.forEach((subItem) => {
             let isValid = true;
             if (subItem.type === 'array') {
-                subItem.addedItems.forEach((addedItem) => {
-                    if (addedItem?.component?.instance?.isValid) {
-                        if (!addedItem?.component?.instance?.isValid()) {
-                            isValid = false;
-                        }
-                    }
-                });
-                if (!isValid) {
-                    return;
-                }
                 if (subItem.addedItems) {
                     itemData[subItem.key] = subItem.addedItems;
                 } else {
@@ -652,28 +634,12 @@ export class SchemaService {
                 }
             } else {
                 if (subItem?.component?.instance?.getProperties) {
-                    if (subItem?.component?.instance?.isValid) {
-                        if (!subItem?.component?.instance?.isValid()) {
-                            isValid = false;
-                        }
-                    }
-                    if (!isValid) {
-                        return;
-                    }
                     const props = subItem?.component?.instance?.getProperties();
                     props.forEach((prop) => {
                         itemData[prop.key] = prop.value;
                     });
                     subItem?.component?.instance?.setProperties({});
                 } else if (subItem?.component?.instance?.fieldValue) {
-                    if (subItem?.component?.instance?.isValid) {
-                        if (!subItem?.component?.instance?.isValid()) {
-                            isValid = false;
-                        }
-                    }
-                    if (!isValid) {
-                        return;
-                    }
                     itemData[subItem.key] = subItem.component.instance.fieldValue;
                     subItem.component.instance.fieldValue = undefined;
                 }

@@ -507,21 +507,13 @@ export class ServiceFormService {
     validateConfigItems(items, parentType = 'object') {
         let isValid = true;
         items.forEach((item) => {
-            if (item.type === 'array') {
-                if (item?.component?.instance?.isValid) {
-                    if (!item?.component?.instance?.isValid()) {
-                        isValid = false;
-                    }
-                }
-            } else if (item.type === 'object') {
+            if (item.type === 'object') {
                 if (!this.validateConfigItems(item.items, item.type)) {
                     isValid = false;
                 }
-            } else {
-                if (item?.component?.instance?.isValid) {
-                    if (!item?.component?.instance?.isValid()) {
-                        isValid = false;
-                    }
+            } else if (item?.component?.instance?.isValid) {
+                if (!item?.component?.instance?.isValid()) {
+                    isValid = false;
                 }
             }
         });
