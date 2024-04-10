@@ -353,6 +353,13 @@ export class ServiceFormService {
                 this.getConfigDataFromForm();
             }
             if (!this.validateConfig()) {
+                const growlerData = new GrowlerModel(
+                    'error',
+                    'Error',
+                    `Error Validating Config`,
+                    'The entered configuration is invalid. Please update missing/invalid fields and try again.',
+                );
+                this.growlerService.show(growlerData);
                 return;
             }
             const newConfig: any = {
@@ -364,7 +371,7 @@ export class ServiceFormService {
                 .then((result) => {
                     const cfg = result?.data;
                     newConfig.id = result?.id ? result.id : result?.data?.id;
-                    this.associatedConfigsMap[newConfig.name] = newConfig.data;
+                    this.associatedConfigsMap[newConfig.name] = {data: newConfig.data, name: newConfig.name, configTypeId: newConfig.configTypeId};
                     return newConfig.id;
                 })
                 .catch((result) => {
@@ -497,6 +504,22 @@ export class ServiceFormService {
         return data;
     }
 
+    validateConfigItems(items, parentType = 'object') {
+        let isValid = true;
+        items.forEach((item) => {
+            if (item.type === 'object') {
+                if (!this.validateConfigItems(item.items, item.type)) {
+                    isValid = false;
+                }
+            } else if (item?.component?.instance?.isValid) {
+                if (!item?.component?.instance?.isValid()) {
+                    isValid = false;
+                }
+            }
+        });
+        return isValid;
+    }
+
     async configChanged(dynamicForm, resetData = true) {
         let selectedConfig: any = {};
         this.configData = resetData ? undefined : this.configData;
@@ -625,6 +648,10 @@ export class ServiceFormService {
         this.configErrors = {};
         if (isEmpty(this.newConfigName)) {
             this.configErrors['name'] = true;
+        }
+        const configItemsValid = this.validateConfigItems(this.items);
+        if (!configItemsValid) {
+            this.configErrors['configData'] = true;
         }
         return isEmpty(this.configErrors);
     }

@@ -14,10 +14,11 @@
     limitations under the License.
 */
 
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output, ViewChild, ViewContainerRef} from '@angular/core';
 import {ForwardingConfigService} from "./forwarding-config.service";
 import {ValidationService} from "../../../services/validation.service";
-import {isEmpty} from "lodash";
+import {isEmpty, isNil, unset} from "lodash";
+import {ProtocolAddressPortInputComponent} from "../protocol-address-port/protocol-address-port-input.component";
 
 @Component({
   selector: 'lib-forwarding-config',
@@ -50,6 +51,7 @@ export class ForwardingConfigComponent {
   disableAddress = false;
   disablePort = false;
 
+  @ViewChild("papComponent") papComponent:ProtocolAddressPortInputComponent;
   constructor(private svc: ForwardingConfigService, private validationService: ValidationService) {}
 
   forwardProtocolToggled(event) {
@@ -96,9 +98,21 @@ export class ForwardingConfigComponent {
     return this.svc.getProperties(this.protocol, this.address, this.port, this.forwardProtocol, this.forwardAddress, this.forwardPort, this.allowedProtocols, this.allowedAddresses, this.allowedPortRanges);
   }
 
+  validateAllowedAddresses() {
+    unset(this.errors, 'allowedAddresses');
+    if (isNil(this.allowedAddresses) || isEmpty(this.allowedAddresses)) {
+      this.errors['allowedAddresses'] = true;
+    }
+    return this.errors['allowedAddresses'];
+  }
+
   validatePortRanges() {
+    unset(this.errors, 'allowedPortRanges');
     const parsedRanges = this.validationService.parsePortRanges(this.allowedPortRanges);
-    this.errors['allowedPortRanges'] = this.validationService.validatePortRanges(parsedRanges);
+    if (isNil(this.allowedPortRanges) || isEmpty(this.allowedPortRanges) || this.validationService.validatePortRanges(parsedRanges)) {
+      this.errors['allowedPortRanges'] = true;
+    }
+    return this.errors['allowedPortRanges'];
   }
 
   setAllowedPortRanges(ranges) {
@@ -107,5 +121,17 @@ export class ForwardingConfigComponent {
       return;
     }
     this.allowedPortRanges = this.validationService.combinePortRanges(ranges);
+  }
+
+  isValid() {
+    this.errors = {};
+    const papIsValid = this.papComponent.isValid();
+    if (this.forwardPort) {
+      this.validatePortRanges();
+    }
+    if (this.forwardAddress) {
+      this.validateAllowedAddresses();
+    }
+    return isEmpty(this.errors) && papIsValid;
   }
 }
