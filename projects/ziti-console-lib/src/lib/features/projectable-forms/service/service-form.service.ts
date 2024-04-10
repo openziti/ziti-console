@@ -371,7 +371,7 @@ export class ServiceFormService {
                 .then((result) => {
                     const cfg = result?.data;
                     newConfig.id = result?.id ? result.id : result?.data?.id;
-                    this.associatedConfigsMap[newConfig.name] = newConfig.data;
+                    this.associatedConfigsMap[newConfig.name] = {data: newConfig.data, name: newConfig.name, configTypeId: newConfig.configTypeId};
                     return newConfig.id;
                 })
                 .catch((result) => {
