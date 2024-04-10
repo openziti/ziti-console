@@ -118,7 +118,7 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
   }
 
   deleteItem(item: any) {
-    this.openBulkDelete([item.id], 'router');
+    this.openBulkDelete([item], 'router');
   }
 
   getEdgeRouterRoleAttributes() {
