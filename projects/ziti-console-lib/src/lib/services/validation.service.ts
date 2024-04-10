@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {isEmpty, isNumber} from "lodash";
+import {isEmpty, isNumber, includes} from "lodash";
 
 @Injectable({
     providedIn: 'root'
@@ -86,6 +86,6 @@ export class ValidationService {
     }
 
     isValidInterceptHost(address) {
-        return /^(?!\.)(?!.*\.$)([^.]*\.[^.]+)+$/.test(address);
+        return includes(address, '.');
     }
 }
