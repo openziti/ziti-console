@@ -78,8 +78,6 @@ const packageJsonRaw = fs.readFileSync("./package.json", 'utf8');
 const packageJson = JSON.parse(packageJsonRaw);
 const zacVersion = packageJson.version;
 
-console.log("ZAV VERSION: " + zacVersion);
-
 var serviceUrl = "";
 var baseUrl = "";
 var headerFile = __dirname+__assets + "/templates/header.htm";
