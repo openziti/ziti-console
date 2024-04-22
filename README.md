@@ -49,6 +49,16 @@ From the project root:
 
 1. Finally, access the app @ http://localhost:1408
 
+## Server TLS
+
+The console server can be configured to present a TLS server certificate on a configurable TCP port. TLS is enabled when
+the private key and certificate files exist with the expected filenames in the working directory.
+
+* `./server.key` - private key
+* `./server.chain.pem` - server certificate chain
+
+Configure the TLS port in `settings.json` by setting `portTLS` (default: 8443).
+
 ## Developing with Angular
 
 There are two elements to the Angular app.
