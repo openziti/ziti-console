@@ -92,9 +92,19 @@ export class JsonViewComponent implements AfterViewInit, OnChanges {
             this.dataChange.emit(this.content.json);
             this.currentData = this.content.json;
           } else if (this.content?.text) {
-            const newData = JSON.parse(this.content.text)
-            this.dataChange.emit(newData);
-            this.currentData = newData;
+            try {
+              const newData = JSON.parse(this.content.text)
+              this.dataChange.emit(newData);
+              this.currentData = newData;
+            } catch (e) {
+              this.jsonInvalidChange.emit(false);
+            }
+          }
+          const errors = this.validate(this.currentData);
+          if (!errors && !_.isEmpty(this.content.text)) {
+            this.jsonInvalidChange.emit(false);
+          } else {
+            this.jsonInvalidChange.emit(true);
           }
         }
       }

@@ -21,7 +21,7 @@ textarea::placeholder {
 input, select, textarea {
     font-weight: 400;
     font-family: 'Open Sans', Arial, sans-serif;
-    height: 50px;
+    height: var(--defaultInputHeight);
     width: 100%;
     border-color: var(--stroke);
     border-style: solid;

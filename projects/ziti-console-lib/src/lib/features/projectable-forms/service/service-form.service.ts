@@ -15,7 +15,7 @@
 */
 
 import {Injectable, Inject, InjectionToken} from "@angular/core";
-import {isEmpty, unset, keys, some, defer, cloneDeep, filter} from 'lodash';
+import {isEmpty, isString, keys, some, defer, cloneDeep, filter, isNil, isBoolean} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
@@ -78,20 +78,22 @@ export class ServiceFormService {
     associatedConfigs: any = [];
     associatedConfigsMap: any = {};
     associatedTerminators: any = [];
+    associatedServicePolicies: any = [];
+    associatedServicePolicyNames: any = [];
 
     lColorArray = [
-        'black',
         'white',
-        'black',
+        'white',
+        'white',
     ]
 
     bColorArray = [
-        '#33aaff',
-        'var(--secondary)',
-        '#fafafa',
+        'var(--formBase)',
+        'var(--formGroup)',
+        'var(--formSubGroup)'
     ]
 
-    subscription: Subscription = new Subscription();
+    subscription: Subscription = new Subscription();Z
 
     constructor(
         @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
@@ -114,15 +116,21 @@ export class ServiceFormService {
     save(formData): Promise<any> {
         const isUpdate = !isEmpty(formData.id);
         const data: any = this.getServiceDataModel(formData, isUpdate);
-        const svc = isUpdate ? this.zitiService.patch.bind(this.zitiService) : this.zitiService.post.bind(this.zitiService);
-        return svc('services', data, formData.id).then(async (result: any) => {
-            const id = result?.data?.id || formData.id;
-            let router = await this.zitiService.getSubdata('services', id, '').then((routerData) => {
-                return routerData.data;
+        let prom;
+        if (isUpdate) {
+            prom = this.zitiService.patch('services', data, formData.id, true);
+        } else {
+            prom = this.zitiService.post('services', data, true);
+        }
+
+        return prom.then(async (result: any) => {
+            const id = isUpdate ? formData.id : (result?.data?.id || result?.id);
+            let svc = await this.zitiService.getSubdata('services', id, '').then((svcData) => {
+                return svcData.data;
             });
-            return this.extService.formDataSaved(router).then((formSavedResult: any) => {
+            return this.extService.formDataSaved(svc).then((formSavedResult: any) => {
                 if (!formSavedResult) {
-                    return router;
+                    return svc;
                 }
                 const growlerData = new GrowlerModel(
                     'success',
@@ -131,7 +139,7 @@ export class ServiceFormService {
                     `Successfully ${isUpdate ? 'updated' : 'created'} Service: ${formData.name}`,
                 );
                 this.growlerService.show(growlerData);
-                return router;
+                return svc;
             }).catch((result) => {
                 return false;
             });
@@ -155,6 +163,15 @@ export class ServiceFormService {
             this.growlerService.show(growlerData);
             throw resp;
         })
+    }
+
+    getAssociatedServicePolicies() {
+        this.zitiService.getSubdata('services', this.formData.id, 'service-policies').then((result: any) => {
+            this.associatedServicePolicies = result.data;
+            this.associatedServicePolicyNames = this.associatedServicePolicies.map((policy) => {
+                return policy.name;
+            });
+        });
     }
 
     previewConfig(configName, dynamicForm) {
@@ -232,10 +249,15 @@ export class ServiceFormService {
     }
 
     createConfig(configData) {
-        return this.zitiService.post('configs', configData).then((result) => {
+        return this.zitiService.post('configs', configData, true).then((result) => {
             return result;
         }).catch((response) => {
-            const msg = response?.error?.error?.cause?.reason;
+            let msg;
+            if (isString(response?.error)) {
+                msg = response?.error;
+            } else {
+                msg = response?.error?.error?.cause?.reason;
+            }
             const growlerData = new GrowlerModel(
                 'error',
                 'Error',
@@ -285,6 +307,9 @@ export class ServiceFormService {
     toggleJSONView() {
         this.configJsonView = !this.configJsonView;
         this.configDataLabel = this.configJsonView ? 'JSON Configuration' : 'Configuration Form';
+        if (this.configJsonView) {
+            //this.configSubscriptions.unsubscribe();
+        }
         this.updateConfigData();
     }
 
@@ -328,6 +353,13 @@ export class ServiceFormService {
                 this.getConfigDataFromForm();
             }
             if (!this.validateConfig()) {
+                const growlerData = new GrowlerModel(
+                    'error',
+                    'Error',
+                    `Error Validating Config`,
+                    'The entered configuration is invalid. Please update missing/invalid fields and try again.',
+                );
+                this.growlerService.show(growlerData);
                 return;
             }
             const newConfig: any = {
@@ -338,9 +370,9 @@ export class ServiceFormService {
             configId = await this.createConfig(newConfig)
                 .then((result) => {
                     const cfg = result?.data;
-                    newConfig.id = result?.data?.id;
-                    this.associatedConfigsMap[newConfig.name] = newConfig.data;
-                    return cfg?.id;
+                    newConfig.id = result?.id ? result.id : result?.data?.id;
+                    this.associatedConfigsMap[newConfig.name] = {data: newConfig.data, name: newConfig.name, configTypeId: newConfig.configTypeId};
+                    return newConfig.id;
                 })
                 .catch((result) => {
                     const errorField = result?.error?.error?.cause?.field;
@@ -440,21 +472,52 @@ export class ServiceFormService {
         this.hideConfigJSON = false;
     }
 
-    addItemsToConfig(items, data = {}) {
+    addItemsToConfig(items, data: any = {}, parentType = 'object') {
         items.forEach((item) => {
-            let props = [];
-            if (item.items && data) {
-                data[item.key] = this.addItemsToConfig(item.items, {});
-            } else if (item?.component?.instance?.getProperties) {
-                props = item?.component?.instance?.getProperties();
-            } else if (item?.component?.instance) {
-                props = [{key: item.key, value: item.component.instance.fieldValue}];
+            if (item.type === 'array') {
+                if (item.addedItems) {
+                    data[item.key] = item.addedItems;
+                } else {
+                    data[item.key] = [];
+                }
+            } else if (item.type === 'object') {
+                const val = this.addItemsToConfig(item.items, {}, item.type);
+                let hasDefinition = false;
+                keys(val).forEach((key) => {
+                    if (isBoolean(val[key]) || (!isEmpty(val[key]) && !isNil(val[key]))) {
+                        hasDefinition = true;
+                    }
+                });
+                data[item.key] = hasDefinition ? val : undefined;
+            } else {
+                let props = [];
+                if (item?.component?.instance?.getProperties) {
+                    props = item?.component?.instance?.getProperties();
+                } else if (item?.component?.instance) {
+                    props = [{key: item.key, value: item.component.instance.fieldValue}];
+                }
+                props.forEach((prop) => {
+                    data[prop.key] = prop.value;
+                });
             }
-            props.forEach((prop) => {
-                data[prop.key] = prop.value;
-            });
         });
         return data;
+    }
+
+    validateConfigItems(items, parentType = 'object') {
+        let isValid = true;
+        items.forEach((item) => {
+            if (item.type === 'object') {
+                if (!this.validateConfigItems(item.items, item.type)) {
+                    isValid = false;
+                }
+            } else if (item?.component?.instance?.isValid) {
+                if (!item?.component?.instance?.isValid()) {
+                    isValid = false;
+                }
+            }
+        });
+        return isValid;
     }
 
     async configChanged(dynamicForm, resetData = true) {
@@ -504,7 +567,15 @@ export class ServiceFormService {
     updateFormView(items, data: any = {}) {
         items.forEach((item) => {
             if (item.items) {
-                this.updateFormView(item.items, data[item.key]);
+                if (item.type === 'array') {
+                    if (item?.component?.instance?.addedItems) {
+                        item.addedItems = data[item.key] || [];
+                        item.component.instance.addedItems = data[item.key] || [];
+                    }
+                    this.updateFormView(item.items, {});
+                } else {
+                    this.updateFormView(item.items, data[item.key]);
+                }
             } else if (item?.component?.instance?.setProperties) {
                 let val;
                 switch (item.key) {
@@ -577,6 +648,10 @@ export class ServiceFormService {
         this.configErrors = {};
         if (isEmpty(this.newConfigName)) {
             this.configErrors['name'] = true;
+        }
+        const configItemsValid = this.validateConfigItems(this.items);
+        if (!configItemsValid) {
+            this.configErrors['configData'] = true;
         }
         return isEmpty(this.configErrors);
     }

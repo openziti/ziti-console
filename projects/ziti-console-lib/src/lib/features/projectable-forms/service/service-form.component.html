@@ -1,6 +1,7 @@
 <div class="projectable-form-wrapper"
      (keyup.enter)="save($event)"
      (keyup.escape)="closeModal(false)"
+     tabindex="0"
 >
     <lib-form-header
         [data]="formData"
@@ -8,8 +9,8 @@
         [moreActions]="formData.moreActions"
         (actionRequested)="headerActionRequested($event)"
         [(formView)]="formView"
-        [saveDisabled]="svc.saveDisabled"
-        [saveTooltip]="'Complete and attach config definition, or remove before saving'"
+        [saveDisabled]="svc.saveDisabled || formDataInvalid"
+        [saveTooltip]="saveButtonTooltip"
     ></lib-form-header>
     <div class="edge-router-form-container projectable-form-container">
         <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
@@ -198,6 +199,7 @@
                 <lib-form-field-container
                     [title]="'Selected Configurations'"
                     [count]="svc.addedConfigNames ? svc.addedConfigNames.length : 0"
+                    [helpText]="'Preview list of all service configurations that this service is associated with.'"
                 >
                     <lib-preview-list
                         [allNames]="svc.addedConfigNames"
@@ -209,9 +211,21 @@
                     ></lib-preview-list>
                 </lib-form-field-container>
                 <lib-form-field-container
+                        *ngIf="formData.id"
+                        [title]="'Associated Service Policies'"
+                        [count]="svc.associatedServicePolicies.length"
+                        [helpText]="'Preview list of all service policies that this service is associated with.'"
+                >
+                    <lib-preview-list
+                            [clickable]="false"
+                            [allNames]="svc.associatedServicePolicyNames"
+                    ></lib-preview-list>
+                </lib-form-field-container>
+                <lib-form-field-container
                         [title]="'API Calls'"
                         [label]="''"
                         [class]="'api-call-container'"
+                        [helpText]="'Preview of the API URL and data model that is used to create/update this service'"
                 >
                     <div class="form-row">
                         <input class="form-field-input" [value]="apiCallURL" readonly/>
@@ -222,7 +236,7 @@
             </div>
         </div>
         <div class="form-group-column" *ngIf="formView === 'raw'">
-            <lib-json-view *ngIf="formData" [(data)]="formData"></lib-json-view>
+            <lib-json-view *ngIf="formData" [(data)]="formData" [(jsonInvalid)]="formDataInvalid"></lib-json-view>
         </div>
     </div>
 </div>

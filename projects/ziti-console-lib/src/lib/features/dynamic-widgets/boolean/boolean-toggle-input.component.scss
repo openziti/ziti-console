@@ -1,0 +1,19 @@
+
+.toggle {
+  margin: 0;
+  &.on {
+    background-color: var(--green)
+  }
+  .yes,
+  .no {
+    position: absolute;
+    top:0.4rem;
+    font-size: 0.75rem;
+  }
+  .yes {
+    left: 0.6rem
+  }
+  .no {
+    right: 0.6rem
+  }
+}

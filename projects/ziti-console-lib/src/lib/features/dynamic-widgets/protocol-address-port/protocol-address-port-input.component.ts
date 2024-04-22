@@ -16,7 +16,7 @@
 
 import {Component, DoCheck, EventEmitter, Input, OnInit, Output, ViewChild, ViewContainerRef} from '@angular/core';
 import {Subject} from "rxjs";
-import _, {debounce, isEmpty, isNumber} from "lodash";
+import _, {debounce, isEmpty, isNumber, isNil, isNaN} from "lodash";
 import {ValidationService} from "../../../services/validation.service";
 
 @Component({
@@ -57,6 +57,8 @@ export class ProtocolAddressPortInputComponent implements OnInit, DoCheck {
 
   checkAddressDebounced = debounce(this.checkAddress, 100, {maxWait: 100, leading: true});
 
+  errors = {};
+
   constructor(private validationService: ValidationService) {
   }
   ngOnInit() {
@@ -83,8 +85,10 @@ export class ProtocolAddressPortInputComponent implements OnInit, DoCheck {
 
   get className() {
     let className = 'addressFull'
-    if (!this.showProtocol && (this.showHostName || this.showHostName) && (this.showPort)) {
+    if (!this.showProtocol && (this.showHostName || this.showAddress) && (this.showPort)) {
       className = 'host-name-port';
+    } else if (!this.showProtocol && !this.showPort && (this.showHostName || this.showAddress)) {
+      className = 'address-only';
     }
     return className;
   }
@@ -102,6 +106,34 @@ export class ProtocolAddressPortInputComponent implements OnInit, DoCheck {
       {key: 'port', value: port}
     ];
     return props;
+  }
+
+  isValid() {
+    this.errors = {};
+    if (!isEmpty(this.parentage)) {
+      return true;
+    }
+    if (this.showProtocol && !this.disableProtocol) {
+      if(isEmpty(this.protocol)) {
+        this.errors['protocol'] = true;
+      }
+    }
+    if (this.showAddress && !this.disableAddress) {
+      if(isEmpty(this.address)) {
+        this.errors['address'] = true;
+      }
+    }
+    if (this.showHostName && !this.disableHostName) {
+      if(isEmpty(this.hostname)) {
+        this.errors['hostname'] = true;
+      }
+    }
+    if (this.showPort && !this.disablePort) {
+      if(isNil(this.port) || isNaN(this.port)) {
+        this.errors['port'] = true;
+      }
+    }
+    return isEmpty(this.errors);
   }
 
   setProperties(data: any) {

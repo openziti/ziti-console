@@ -52,14 +52,14 @@
       text-transform: uppercase;
       text-align: center;
       line-height: 40px;
-      font-family: icomoon !important;
+      font-family: zac !important;
       font-variant: normal;
       border-radius: 33px;
       transition: all 0.3s ease 0s;
 
       &::before {
-        content: '\e905';
-        font-size: 35px;
+        content: '\e91b';
+        font-size: 30px;
       }
     }
     &:hover {

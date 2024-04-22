@@ -66,8 +66,10 @@ export class TextListInputComponent {
   valueChange = new Subject<string> ();
 
   onKeyup(event: any) {
-    if (event.key === " ") {
+    const key = event.key?.toLowerCase();
+    if (key === " " || key === 'enter') {
       event.preventDefault();
+      event.stopPropagation();
       const element = event.target as HTMLElement;
       element.blur();
       element.focus();

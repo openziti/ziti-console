@@ -20,8 +20,25 @@ body {
     --transition: 0.5s;
     --offWhite: #FCFCFC;
     --dark: #28292B;
+    --formBase: #919ca5;
     --formGroup: #232f3e;
     --formSubGroup: #5e7088;
+    --modalBorderRadius: 15px;
+    --paddingSmall: 5px;
+    --paddingMedium: 10px;
+    --paddingLarge: 10px;
+    --paddingXL: 15px;
+    --paddingXXL: 20px;
+    --marginSmall: 5px;
+    --marginMedium: 10px;
+    --marginLarge: 10px;
+    --marginXL: 15px;
+    --marginXXL: 20px;
+    --gapSmall: 5px;
+    --gapMedium: 10px;
+    --gapLarge: 10px;
+    --gapXL: 15px;
+    --defaultInputHeight: 43px;
 }
 
 ::placeholder {

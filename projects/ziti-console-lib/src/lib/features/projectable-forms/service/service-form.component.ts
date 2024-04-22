@@ -90,6 +90,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
 
   showMore = false;
   formView = 'simple';
+  formDataInvalid = false;
   settings: any = {};
   subscription: Subscription = new Subscription();
 
@@ -116,6 +117,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     this.svc.resetFormData();
     this.svc.getAssociatedConfigs();
     this.svc.getAssociatedTerminators();
+    this.svc.getAssociatedServicePolicies();
     this.svc.errors = {};
     this.initData = cloneDeep(this.formData);
     this.subscription.add(
@@ -183,6 +185,13 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     const isExtValid = await this.extService.validateData();
     const isEdit = !isEmpty(this.formData.id);
     if(!isValid || !isExtValid) {
+      const growlerData = new GrowlerModel(
+          'error',
+          'Error',
+          `Data Invalid`,
+          `Service data is invalid. Please update and try again.`,
+      );
+      this.growlerService.show(growlerData);
       return;
     }
 
@@ -210,6 +219,14 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
 
   get apiCallURL() {
     return this.settings.selectedEdgeController + '/edge/management/v1/services' + (this.formData.id ? `/${this.formData.id}` : '');
+  }
+
+  get saveButtonTooltip() {
+    if (this.formDataInvalid) {
+      return 'Service data is invalid. Please update and try again.'
+    } else {
+      return 'Complete and attach config definition, or remove before saving';
+    }
   }
 
   clear(): void {

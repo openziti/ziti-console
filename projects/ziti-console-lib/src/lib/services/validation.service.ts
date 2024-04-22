@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {isNumber} from "lodash";
+import {includes, isEmpty, isNumber} from "lodash";
 
 @Injectable({
     providedIn: 'root'
@@ -27,7 +27,7 @@ export class ValidationService {
         return ranges;
     }
 
-    parseAllowedPortRanges(allowedPortRanges) {
+    combinePortRanges(allowedPortRanges) {
         const val = [];
         if (!allowedPortRanges) {
             return val;
@@ -42,31 +42,43 @@ export class ValidationService {
         return val;
     }
 
-    validatePortRanges(allowedPortRanges) {
-        let invalid = false;
-        if (!allowedPortRanges) {
-            return invalid;
+    parsePortRanges(portRanges) {
+        const parsedPortRanges = [];
+        if (!portRanges) {
+            return parsedPortRanges;
         }
-        allowedPortRanges.forEach((val: string) => {
+        portRanges.forEach((val: string) => {
             const vals = val.split('-');
             if (vals.length === 1) {
                 const port = parseInt(val);
-                if (!this.isValidPort(port)) {
-                    invalid = true;
-                    return;
-                }
+                parsedPortRanges.push({
+                    low: port,
+                    high: port
+                });
             } else if (vals.length === 2) {
                 const port1 = parseInt(vals[0]);
                 const port2 = parseInt(vals[1]);
-                if (!this.isValidPort(port1) || !this.isValidPort(port2)) {
-                    invalid = true;
-                    return;
-                } else if (port1 > port2) {
-                    invalid = true;
-                    return;
-                }
-            } else {
+                parsedPortRanges.push({
+                    low: port1,
+                    high: port2
+                });
+            }
+        });
+        return parsedPortRanges;
+    }
+
+    validatePortRanges(portRanges) {
+        let invalid = false;
+        if (!portRanges) {
+            return invalid;
+        }
+        portRanges.forEach((range: any) => {
+            if (!this.isValidPort(range.low) || !this.isValidPort(range.high)) {
                 invalid = true;
+                return;
+            } else if (range.low > range.high) {
+                invalid = true;
+                return;
             }
         });
         return invalid;
@@ -76,4 +88,7 @@ export class ValidationService {
         return !isNaN(port) && isNumber(port) && port >= 1 && port <= 65535;
     }
 
+    isValidInterceptHost(address) {
+        return includes(address, '.');
+    }
 }

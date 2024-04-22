@@ -17,7 +17,7 @@
                                 [ngClass]="{'toggle-option-selected': formView === 'simple'}"
                                 (click)="requestAction('toggle-view', 'raw')"
                         >
-                            SIMPLE
+                            FORM
                         </span>
                 <div class="form-header-toggle" (click)="requestAction('toggle-view', formView)">
                     <div
@@ -33,8 +33,8 @@
                         [ngClass]="{'toggle-option-selected': formView === 'raw'}"
                         (click)="requestAction('toggle-view', 'simple')"
                 >
-                            RAW
-                        </span>
+                    JSON
+                </span>
             </div>
             <div class="more-actions-container" *ngIf="moreActions && moreActions.length > 0" (click)="showMoreActions()" (clickOutside)="closeActionsMoreActions()">
                 <div class="more-actions-button">

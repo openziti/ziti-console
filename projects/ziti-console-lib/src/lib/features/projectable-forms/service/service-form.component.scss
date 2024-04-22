@@ -122,6 +122,17 @@
 ::ng-deep .config-form-container {
   label {
     color: var(--white) !important;
+    margin-bottom: 0;
+  }
+  .invalid {
+    input {
+      border-color: var(--red);
+    }
+    .p-component {
+      &.p-input-wrapper {
+        border-color: var(--red);
+      }
+    }
   }
 }
 
