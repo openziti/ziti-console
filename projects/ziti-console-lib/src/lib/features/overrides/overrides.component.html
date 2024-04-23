@@ -31,15 +31,15 @@
                     [editable]="true"
                     [optionValue]="'id'"
                     [optionLabel]="'name'"
-                    (keyup)="filterServices($event)"
                     (onFocus)="servicesList.show()"
                     (onChange)="serviceSelectionChanged($event)"
+                    (keyup)="filterServicesDebounced($event)"
                 ></p-dropdown>
             </div>
             <div>
                 <label for="ConfigList">Configuration</label>
                 <p-dropdown
-                    #configsList
+                    #configList
                     id="ConfigList"
                     [options]="configs"
                     [(ngModel)]="selectedConfigId"
@@ -47,9 +47,9 @@
                     [editable]="true"
                     [optionValue]="'id'"
                     [optionLabel]="'name'"
-                    (keyup)="filterConfigs($event)"
-                    (onFocus)="configsList.show()"
                     (onChange)="configSelectionChanged($event)"
+                    (keyup)="filterConfigsDebounced($event)"
+                    (onFocus)="configList.show()"
                 ></p-dropdown>
             </div>
         </div>

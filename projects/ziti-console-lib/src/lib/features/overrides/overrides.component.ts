@@ -16,7 +16,7 @@
 
 import {Component, ElementRef, EventEmitter, Inject, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {OverridesService} from "./overrides.service";
-import {isEmpty} from "lodash"
+import {isEmpty, debounce} from "lodash"
 
 @Component({
   selector: 'lib-overrides',
@@ -34,8 +34,11 @@ export class OverridesComponent implements OnInit {
   selectedConfigId;
   showMore = false;
 
+  filterServicesDebounced = debounce(this.filterServices, 200);
+  filterConfigsDebounced = debounce(this.filterConfigs, 200);
+
   @ViewChild('servicesList') servicesList: any;
-  @ViewChild('configsList') configsList: any;
+  @ViewChild('configList') configList: any;
 
   constructor(public svc: OverridesService) {}
 
@@ -67,7 +70,7 @@ export class OverridesComponent implements OnInit {
       return config.id === event.value;
     });
     if (selectedConfig) {
-      this.configsList.editableInputViewChild.nativeElement.value = selectedConfig.name;
+      this.configList.editableInputViewChild.nativeElement.value = selectedConfig.name;
     }
   }
 
@@ -100,8 +103,8 @@ export class OverridesComponent implements OnInit {
       this.selectedServiceId = undefined;
       this.servicesList.clear();
       this.servicesList.resetFilter();
-      this.configsList.clear();
-      this.configsList.resetFilter();
+      this.configList.clear();
+      this.configList.resetFilter();
       this.getServices('');
     });
   }

@@ -45,7 +45,7 @@ export class OverridesService {
             total: 30,
             page: 1,
             sort: 'name',
-            order: 'desc'
+            order: 'asc'
         };
         return this.zitiDataService.get(`services`, paging, []).then((result) => {
             return result;
