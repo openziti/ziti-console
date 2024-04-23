@@ -11,12 +11,12 @@ To build and run the application from source, you'll also need to make sure you 
 
 | Tool        | Min. Version |
 | :---:       | :---:        |
-| Angular CLI | 16.x         |
 | Node.js     | 16.13.x      |
 | npm         | 8.1.x        |
 
-* Make sure you have the angular CLI installed
-* This project is currently running on angular 16
+
+* You will also need to make sure you have the angular CLI installed
+* This project currently requires Angular CLI v16
 * To install the Angular CLI run:
 
 ```bash
