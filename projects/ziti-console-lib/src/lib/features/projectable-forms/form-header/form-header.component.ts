@@ -38,17 +38,20 @@ export class FormHeaderComponent {
 
   constructor() {}
 
-  requestAction(action, data?: any) {
-    if (action === 'toggle-view') {
-      if (data === 'simple') {
+  requestAction(action) {
+    if (action.name === 'toggle-view') {
+      if (action.data === 'simple') {
         this.formView = 'raw';
       } else {
         this.formView = 'simple';
       }
-      data = this.formView;
+      action.data = this.formView;
       this.formViewChange.emit();
     }
-    this.actionRequested.emit({name: action, data: data})
+    if (action.callback) {
+      action.callback();
+    }
+    this.actionRequested.emit({name: action.name, data: action.data})
     this.showActionsDropDown = false;
   }
 

@@ -14,6 +14,8 @@ import {ZacWrapperServiceClass, ZAC_WRAPPER_SERVICE} from "../../features/wrappe
 import {SettingsService} from "../../services/settings.service";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {EdgeRouter} from "../../models/edge-router";
+import {EDGE_ROUTER_EXTENSION_SERVICE} from "../../features/projectable-forms/edge-router/edge-router-form.service";
+import {ExtensionService} from "../../features/extendable/extensions-noop.service";
 
 @Component({
   selector: 'lib-edge-routers',
@@ -34,7 +36,8 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
       dialogForm: MatDialog,
       private tabNames: TabNameService,
       consoleEvents: ConsoleEventsService,
-      @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperServiceClass
+      @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperServiceClass,
+      @Inject(EDGE_ROUTER_EXTENSION_SERVICE) private extService: ExtensionService
   ) {
     super(filterService, svc, consoleEvents, dialogForm);
   }
@@ -111,6 +114,13 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
         this.svc.downloadItems(this.selectedItems);
         break;
       default:
+        if (this.extService.listActions) {
+          this.extService.listActions.forEach((action) => {
+            if (action.action === event.action) {
+              action.callback(event.item);
+            }
+          })
+        }
         break;
     }
   }

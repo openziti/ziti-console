@@ -55,9 +55,9 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
       public svc: EdgeRouterFormService,
       @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
       growlerService: GrowlerService,
-      @Inject(EDGE_ROUTER_EXTENSION_SERVICE) private extService: ExtensionService
+      @Inject(EDGE_ROUTER_EXTENSION_SERVICE) extService: ExtensionService
   ) {
-    super(growlerService);
+    super(growlerService, extService);
   }
 
   ngOnInit(): void {

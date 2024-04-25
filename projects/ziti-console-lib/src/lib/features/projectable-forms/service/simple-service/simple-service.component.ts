@@ -25,10 +25,6 @@ export class SimpleServiceComponent extends ProjectableForm {
   @Input() identityRoleAttributes: any[] = [];
   @Input() identityNamedAttributes: any[] = [];
 
-  moreActions = [
-    {name: 'copyCLI', action: 'copy-cli', label: 'Copy as CLI'},
-    {name: 'copyAPI', action: 'copy-api', label: 'Copy as API'}
-  ]
   showForm = true;
   formView = 'simple';
   controllerDomain = '';
@@ -122,12 +118,12 @@ export class SimpleServiceComponent extends ProjectableForm {
       public svc: ServiceFormService,
       @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
       growlerService: GrowlerService,
-      @Inject(SERVICE_EXTENSION_SERVICE) private extService: ExtensionService,
+      @Inject(SERVICE_EXTENSION_SERVICE) extService: ExtensionService,
       private dialogForm: MatDialog,
       private validationService: ValidationService,
       private servicesPageService: ServicesPageService
   ) {
-    super(growlerService);
+    super(growlerService, extService);
   }
 
   ngOnInit() {

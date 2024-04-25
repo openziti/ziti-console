@@ -22,9 +22,9 @@ export class CardListComponent extends ProjectableForm {
       public svc: ServiceFormService,
       @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
       growlerService: GrowlerService,
-      @Inject(SERVICE_EXTENSION_SERVICE) private extService: ExtensionService
+      @Inject(SERVICE_EXTENSION_SERVICE) extService: ExtensionService
   ) {
-    super(growlerService);
+    super(growlerService, extService);
   }
   clear(): void {
   }

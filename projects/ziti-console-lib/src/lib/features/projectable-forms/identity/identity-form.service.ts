@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-import {Injectable, Inject} from "@angular/core";
+import {Injectable, Inject, InjectionToken} from "@angular/core";
 import moment from 'moment';
 
 import {isEmpty, unset, keys} from 'lodash';
@@ -23,6 +23,10 @@ import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
 import {Identity} from "../../../models/identity";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
+
+
+export const IDENTITY_EXTENSION_SERVICE = new InjectionToken<any>('IDENTITY_EXTENSION_SERVICE');
+
 
 @Injectable({
     providedIn: 'root'

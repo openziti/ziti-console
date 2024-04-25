@@ -1,7 +1,7 @@
 <div class="form-header-container" [ngClass]="{'show-more-actions': moreActions && moreActions.length > 0}">
     <div class="form-header-group">
         <div class="form-title-container">
-            <div class="form-title-back-button" (click)="requestAction('close')">
+            <div class="form-title-back-button" (click)="requestAction({name: 'close'})">
                 <div class="form-title-back-button-image"></div>
                 <div class="form-title-back-button-line"></div>
             </div>
@@ -15,11 +15,11 @@
                         <span
                                 class="toggle-option-text"
                                 [ngClass]="{'toggle-option-selected': formView === 'simple'}"
-                                (click)="requestAction('toggle-view', 'raw')"
+                                (click)="requestAction({name: 'toggle-view', data: 'raw'})"
                         >
                             FORM
                         </span>
-                <div class="form-header-toggle" (click)="requestAction('toggle-view', formView)">
+                <div class="form-header-toggle" (click)="requestAction({name: 'toggle-view', data: formView})">
                     <div
                             class="form-toggle-switch"
                             [ngClass]="{'toggle-left': formView === 'simple', 'toggle-right': formView === 'raw'}"
@@ -31,7 +31,7 @@
                 <span
                         class="toggle-option-text"
                         [ngClass]="{'toggle-option-selected': formView === 'raw'}"
-                        (click)="requestAction('toggle-view', 'simple')"
+                        (click)="requestAction({name:'toggle-view', action: 'simple'})"
                 >
                     JSON
                 </span>
@@ -47,14 +47,14 @@
                     <div
                         *ngFor="let action of moreActions"
                         class="more-actions-item"
-                        (click)="requestAction(action.name, action.data)"
+                        (click)="requestAction(action)"
                     >
                         {{action.label}}
                     </div>
                 </div>
             </div>
             <div class="save-button"
-                 (click)="requestAction('save')"
+                 (click)="requestAction({name: 'save'})"
                  [ngClass]="{'save-disabled': saveDisabled}"
                  matTooltip="{{saveDisabled ? saveTooltip : ''}}"
                  matTooltipPosition="below"

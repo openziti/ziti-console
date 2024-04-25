@@ -5,7 +5,7 @@
     <lib-form-header
             [data]="formData"
             [title]="formData.id ? 'Edit Identity: ' : 'Create New Identity'"
-            [moreActions]="formData.moreActions"
+            [moreActions]="moreActions"
             (actionRequested)="headerActionRequested($event)"
             [(formView)]="formView"
     ></lib-form-header>

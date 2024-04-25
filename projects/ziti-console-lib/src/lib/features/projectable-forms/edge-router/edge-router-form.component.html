@@ -5,7 +5,7 @@
     <lib-form-header
         [data]="formData"
         [title]="formData.id ? 'Edit Edge Router: ' : 'Create New Edge Router'"
-        [moreActions]="formData.moreActions"
+        [moreActions]="moreActions"
         (actionRequested)="headerActionRequested($event)"
         [(formView)]="formView"
     ></lib-form-header>
@@ -94,7 +94,9 @@
                         *ngIf="hasEnrolmentToken"
                         [showHeader]="false"
                 >
+                    <ng-content select="[slot=registration]"></ng-content>
                     <lib-qr-code
+                            *ngIf="!extService['hideZitiRegistration']"
                             [identity]="formData"
                             [jwt]="formData.jwt"
                             [token]="formData.enrollmentToken"

@@ -15,11 +15,12 @@
 */
 
 import {ExtendableComponent} from "../extendable/extendable.component";
-import {Component, DoCheck, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from "@angular/core";
+import {Component, DoCheck, ElementRef, EventEmitter, Inject, Input, OnInit, Output, ViewChild} from "@angular/core";
 
 import {defer, delay, isEqual, unset, debounce} from "lodash";
 import {GrowlerModel} from "../messaging/growler.model";
 import {GrowlerService} from "../messaging/growler.service";
+import {ExtensionService, SHAREDZ_EXTENSION} from "../extendable/extensions-noop.service";
 
 // @ts-ignore
 const {context, tags, resources, service, app} = window;
@@ -40,6 +41,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     public errors: any = {};
     protected entityType = 'identity';
 
+    moreActions: any[] = [];
     tagElements: any = [];
     tagData: any = [];
     hideTags = false;
@@ -48,7 +50,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
 
     checkDataChangeDebounced = debounce(this.checkDataChange, 100, {maxWait: 100});
 
-    protected constructor(protected growlerService: GrowlerService) {
+    protected constructor(protected growlerService: GrowlerService, @Inject(SHAREDZ_EXTENSION) protected extService: ExtensionService) {
         super();
     }
 
@@ -56,6 +58,9 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         super.ngAfterViewInit();
         this.errors = {};
         this.nameFieldInput.nativeElement.focus();
+        if (this.extService?.moreActions) {
+            this.moreActions = [...this.moreActions, ...this.extService.moreActions];
+        }
     }
 
     showMoreChanged(showMore) {

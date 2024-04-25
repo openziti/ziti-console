@@ -28,6 +28,7 @@
         (dataChange)="dataChanged($event)"
     >
         <ng-content select="[slot=provider]" slot="provider"></ng-content>
+        <ng-content select="[slot=registration]" slot="registration"></ng-content>
     </lib-edge-router-form>
 </lib-side-modal>
 <lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
