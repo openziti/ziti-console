@@ -31,7 +31,7 @@
                 <span
                         class="toggle-option-text"
                         [ngClass]="{'toggle-option-selected': formView === 'raw'}"
-                        (click)="requestAction({name:'toggle-view', action: 'simple'})"
+                        (click)="requestAction({name:'toggle-view', data: 'simple'})"
                 >
                     JSON
                 </span>

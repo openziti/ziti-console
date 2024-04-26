@@ -17,7 +17,7 @@
 import {ExtendableComponent} from "../extendable/extendable.component";
 import {Component, DoCheck, ElementRef, EventEmitter, Inject, Input, OnInit, Output, ViewChild} from "@angular/core";
 
-import {defer, delay, isEqual, unset, debounce} from "lodash";
+import {defer, isEqual, unset, debounce} from "lodash";
 import {GrowlerModel} from "../messaging/growler.model";
 import {GrowlerService} from "../messaging/growler.service";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../extendable/extensions-noop.service";
@@ -50,7 +50,10 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
 
     checkDataChangeDebounced = debounce(this.checkDataChange, 100, {maxWait: 100});
 
-    protected constructor(protected growlerService: GrowlerService, @Inject(SHAREDZ_EXTENSION) protected extService: ExtensionService) {
+    protected constructor(
+        protected growlerService: GrowlerService,
+        @Inject(SHAREDZ_EXTENSION) protected extService: ExtensionService
+    ) {
         super();
     }
 
