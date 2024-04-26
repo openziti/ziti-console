@@ -34,7 +34,7 @@
                             [placeholder]="'Add attributes to group Edge Routers'"
                     ></lib-tag-selector>
                 </lib-form-field-container>
-                <ng-content select="[slot=provider]"></ng-content>
+                <ng-content select="[slot=column-1-slot-1]"></ng-content>
                 <lib-form-field-toggle [(toggleOn)]="showMore" style="margin: 0px 10px"></lib-form-field-toggle>
                 <div *ngIf="showMore" class="form-group-column">
                     <lib-form-field-container
@@ -94,7 +94,7 @@
                         *ngIf="hasEnrolmentToken"
                         [showHeader]="false"
                 >
-                    <ng-content select="[slot=registration]"></ng-content>
+                    <ng-content select="[slot=column-2-slot-1]"></ng-content>
                     <lib-qr-code
                             *ngIf="!extService['hideZitiRegistration']"
                             [identity]="formData"
