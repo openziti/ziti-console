@@ -41,7 +41,7 @@
             class="tActionRow"
             id="ResetTableButton"
         >
-            {{headerAction.name}}
+            {{headerAction.name || headerAction.label}}
         </div>
     </div>
     <div
@@ -59,7 +59,7 @@
                 class="tActionRow"
                 id="TableActionButton_{{menuItem.action}}"
         >
-            {{menuItem.name}}
+            {{menuItem.name || menuItem.label}}
         </div>
     </div>
     <div

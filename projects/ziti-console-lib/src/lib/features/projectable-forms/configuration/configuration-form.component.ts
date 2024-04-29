@@ -17,7 +17,7 @@
 import {
     Component,
     ComponentRef,
-    EventEmitter,
+    EventEmitter, Inject,
     Input,
     OnDestroy,
     OnInit, Output,
@@ -31,6 +31,8 @@ import {ProjectableForm} from "../projectable-form.class";
 import {JsonEditorComponent, JsonEditorOptions} from 'ang-jsoneditor';
 import _ from "lodash";
 import {GrowlerService} from "../../messaging/growler.service";
+import {ExtensionService, SHAREDZ_EXTENSION} from "../../extendable/extensions-noop.service";
+import {SERVICE_EXTENSION_SERVICE} from "../service/service-form.service";
 
 
 @Component({
@@ -74,8 +76,9 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
 
     constructor(private svc: ConfigurationService,
                 private schemaSvc: SchemaService,
-                growlerService: GrowlerService) {
-        super(growlerService);
+                growlerService: GrowlerService,
+                @Inject(SHAREDZ_EXTENSION) extService: ExtensionService) {
+        super(growlerService, extService);
     }
 
     async createForm() {

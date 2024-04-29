@@ -19,6 +19,8 @@ import {GrowlerModel} from "../../features/messaging/growler.model";
 import {GrowlerService} from "../../features/messaging/growler.service";
 import {MatDialog} from "@angular/material/dialog";
 import {SettingsServiceClass} from "../../services/settings-service.class";
+import {EDGE_ROUTER_EXTENSION_SERVICE} from "../../features/projectable-forms/edge-router/edge-router-form.service";
+import {ExtensionService} from "../../features/extendable/extensions-noop.service";
 
 const CSV_COLUMNS = [
     {label: 'Name', path: 'name'},
@@ -77,8 +79,12 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
         override csvDownloadService: CsvDownloadService,
         private growlerService: GrowlerService,
         private dialogForm: MatDialog,
+        @Inject(EDGE_ROUTER_EXTENSION_SERVICE) private extService: ExtensionService
     ) {
         super(settings, filterService, csvDownloadService);
+        if (this.extService.listActions) {
+            this.menuItems = [...this.menuItems, ...this.extService.listActions];
+        }
     }
 
     validate = (formData): Promise<CallbackResults> => {
@@ -256,6 +262,12 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
             row.actionList = ['update', 'delete'];
             if (this.hasEnrolmentToken(row)) {
                 row.actionList.push('download-enrollment');
+            }
+            if (this.extService.listActions) {
+                const keys = this.extService.listActions.map((action) => {
+                    return action.action;
+                });
+                row.actionList = [...row.actionList, ...keys];
             }
             return row;
         });

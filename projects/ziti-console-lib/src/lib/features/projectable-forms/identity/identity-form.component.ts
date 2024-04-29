@@ -22,21 +22,20 @@ import {
   Output,
   OnChanges,
   SimpleChanges,
-  ViewChild,
-  ElementRef,
-  AfterViewInit, Inject
+  AfterViewInit,
+  Inject
 } from '@angular/core';
 import {ProjectableForm} from "../projectable-form.class";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 
-import {isEmpty, isNil, forEach, delay, unset, keys, forOwn, cloneDeep, isEqual, set, result} from 'lodash';
+import {isEmpty, isNil, forOwn, cloneDeep, set} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
-import {GrowlerModel} from "../../messaging/growler.model";
-import {Identity} from "../../../models/identity";
-import { IdentityFormService } from './identity-form.service';
+import {IDENTITY_EXTENSION_SERVICE, IdentityFormService} from './identity-form.service';
 import {MatDialogRef} from "@angular/material/dialog";
 import {IdentitiesPageService} from "../../../pages/identities/identities-page.service";
+import {ExtensionService} from "../../extendable/extensions-noop.service";
+
 
 @Component({
   selector: 'lib-identity-form',
@@ -84,9 +83,10 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       public svc: IdentityFormService,
       public identitiesService: IdentitiesPageService,
       @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
-      growlerService: GrowlerService
+      growlerService: GrowlerService,
+      @Inject(IDENTITY_EXTENSION_SERVICE) extService: ExtensionService
   ) {
-    super(growlerService);
+    super(growlerService, extService);
     this.identityRoleAttributes = [];
   }
 
@@ -103,6 +103,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     this.getCertificateAuthorities();
     this.initData = cloneDeep(this.formData);
     this.loadTags();
+    this.extService.updateFormData(this.formData);
   }
 
   override ngAfterViewInit() {
