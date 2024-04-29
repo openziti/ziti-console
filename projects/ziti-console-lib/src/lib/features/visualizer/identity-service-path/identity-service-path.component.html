@@ -1,0 +1,139 @@
+<div [ngClass]="{ 'full-screen': fullScreen }" class="modal solid" id="TopologyDataModal">
+    <div class="nf-tp-data-header">
+        <div class="modaltitle">Endpoint Service Path</div>
+        <div (click)="hide()" class="buttonBall close" id="EscZEndpointClose"></div>
+        <div (click)="toggleModalSize()" class="buttonBall resize" id="ResizeModalButton"></div>
+    </div>
+
+    <div class="nf-endpoint-topology-container">
+
+        <div style="width: 100%; height: 80px; float: left">
+            <div class="nf-ep-topology-filter-container listBox row">
+                <input
+                    (keyup)="filterSearchArray()"
+                    [(ngModel)]="selectedService"
+                    [matAutocomplete]="auto"
+                    class="nf-topology-filter-input"
+                    id="filterText"
+                    matInput
+                    placeholder="Type to search endpoint accessible services."
+                />
+
+                <div
+                    id="closeDiv"
+                    (click)="clearSearchFilter()"
+                    *ngIf="filterText !== '' && closeRotate === false"
+                    class="close"
+                    id="ClearSearchFilter"
+                ></div>
+                <div
+                    id="closeDiv"
+                    (click)="clearSearchFilter()"
+                    *ngIf="filterText !== '' && closeRotate === true"
+                    class="close rotating"
+                    id="ClearSearchFilter"
+                ></div>
+                <div [hidden]="!noSearchResults" class="no-results-warning">No Results Found</div>
+                <mat-autocomplete #auto="matAutocomplete" (optionSelected)="autocompleteSearch($event)">
+                    <mat-option *ngFor="let option of autocompleteOptions" [value]="option.name">
+                        {{ option.name }}
+                    </mat-option>
+                </mat-autocomplete>
+            </div>
+        </div>
+
+        <div class="nf-tp-topo-data-header" id="EPservicePath">
+
+            <div class="topotip" id="epTooltip"></div>
+
+            <svg height="1000" id="EndpointTopology" width="1200">
+                <text fill="black" font-size="12px" id="vpcTxt1" visibility="hidden" x="5" y="7">
+                    CUSTOMER NETWORK
+                </text>
+                <rect
+                    height="350"
+                    id="vpcRect1"
+                    rx="15"
+                    style="
+                        fill: transparent;
+                        border-color: white;
+                        stroke: #0273fb;
+                        stroke-dasharray: 10, 5;
+                        stroke-width: 1px;
+                    "
+                    visibility="hidden"
+                    width="100"
+                    x="5"
+                    y="15"
+                ></rect>
+
+                <text fill="black" font-size="12px" id="vpcTxt2" visibility="hidden" x="240" y="2">NF HOSTED</text>
+                <rect
+                    height="360"
+                    id="vpcRect2"
+                    rx="15"
+                    style="overflow-y: scroll; fill: transparent; color: white; stroke: #0273fb; stroke-dasharray: 10, 5; stroke-width: 1px"
+                    visibility="hidden"
+                    width="200"
+                    x="170"
+                    y="5"
+                ></rect>
+                <text fill="black" font-size="12px" id="vpcTxt3" visibility="hidden" x="600" y="7">
+                    CUSTOMER HOSTED
+                </text>
+                <rect
+                    height="300"
+                    id="vpcRect3"
+                    rx="15"
+                    style="fill: transparent; color: white; stroke: #0273fb; stroke-dasharray: 10, 5; stroke-width: 1px"
+                    visibility="hidden"
+                    width="280"
+                    x="500"
+                    y="15"
+                ></rect>
+            </svg>
+            <lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
+        </div>
+
+        <div class="nf-topology-legendA">
+            <div class="legend-item-head">
+                <div class="legend-text-heading">Component Status</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-circle unregistered"></div>
+                <div class="legend-text">Unregistered / Offline</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-circle registered_in_use"></div>
+                <div class="legend-text">Registered, Online</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-circle errored"></div>
+                <div class="legend-text">Errored</div>
+            </div>
+        </div>
+
+        <div class="nf-topology-legendB">
+            <div class="legend-item-head">
+                <div class="legend-text-heading">Link Status</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-circle unregistered"></div>
+                <div class="legend-text">Offline</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-circle registered_in_use"></div>
+                <div class="legend-text">In Usage</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-circle registered_not_in_use"></div>
+                <div class="legend-text">Usage Date N/A</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-circle linkerrored"></div>
+                <div class="legend-text">Errored</div>
+            </div>
+        </div>
+
+    </div>
+</div>

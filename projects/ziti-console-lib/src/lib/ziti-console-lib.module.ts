@@ -84,6 +84,7 @@ import {OSTooltipComponent} from './features/data-table/tooltips/os-tooltip.comp
 import {SDKTooltipComponent} from "./features/data-table/tooltips/sdk-tooltip.component";
 import { OverridesComponent } from './features/overrides/overrides.component';
 import { ResetEnrollmentComponent } from './features/reset-enrollment/reset-enrollment.component';
+import {IdentityServicePathComponent} from "./features/visualizer/identity-service-path/identity-service-path.component";
 import { CustomTagsComponent } from './features/custom-tags/custom-tags.component';
 import {EdgeRouterFormComponent} from "./features/projectable-forms/edge-router/edge-router-form.component";
 
@@ -94,7 +95,7 @@ import { CardListComponent } from './features/card-list/card-list.component';
 import { SimpleServiceComponent } from './features/projectable-forms/service/simple-service/simple-service.component';
 import { CardComponent } from './features/card/card.component';
 import { CreationSummaryDialogComponent } from './features/creation-summary-dialog/creation-summary-dialog.component';
-
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
 }
@@ -151,6 +152,7 @@ export function playerFactory() {
         SDKTooltipComponent,
         OverridesComponent,
         ResetEnrollmentComponent,
+        IdentityServicePathComponent,
         CustomTagsComponent,
         ServicesPageComponent,
         ServiceFormComponent,
@@ -174,6 +176,7 @@ export function playerFactory() {
         ClickOutsideModule,
         NgJsonEditorModule,
         MatTooltipModule,
+        MatAutocompleteModule,
         LottieModule.forRoot({player: playerFactory}),
         DropdownModule
     ],
