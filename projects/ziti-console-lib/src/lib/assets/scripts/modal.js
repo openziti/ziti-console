@@ -54,13 +54,12 @@ var modal = {
 			modal.keepAddModalOpen = false;
 		}, 100);
 	},
-	confirm: function(message, onConfirmed, keepAddModalOpen) {
+	confirm: function(message, onConfirmed) {
 		modal.show("ConfirmModal");
-		modal.keepAddModalOpen = true;
 		$("#ConfirmWhat").html(message);
 		$("#YesButton").click(function(e) {
 			onConfirmed();
-			modal.close(undefined, keepAddModalOpen);
+			modal.close();
 		});
 	}
 }
