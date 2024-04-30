@@ -5,12 +5,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 import { MatDialogModule } from '@angular/material/dialog';
-//import { CalendarModule } from 'primeng/calendar';
 import { MatNativeDateModule } from '@angular/material/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { IdentityServicePathComponent } from './identity-service-path.component';
@@ -21,7 +19,6 @@ import { IdentityServicePathComponent } from './identity-service-path.component'
     imports: [
         MatButtonModule,
         MatIconModule,
-        CalendarModule,
         CommonModule,
         FormsModule,
         UiLoaderModule,
@@ -34,7 +31,6 @@ import { IdentityServicePathComponent } from './identity-service-path.component'
         BrowserAnimationsModule,
         FormsModule,
         ReactiveFormsModule,
-        MatDatepickerModule,
         MatNativeDateModule,
     ],
 })

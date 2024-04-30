@@ -125,6 +125,14 @@ export class IdentityServicePathComponent implements OnInit {
                  this.serviceOptions = [];
                  this.serviceOptions.push(noServices());
              } else {
+                 this.zitiService.get(`identities/${this.endpointData.id}/edge-routers`, {}, []).then((result) => {
+                       this.edgerouters = [];
+                        result.data.forEach((rec) => {
+                         // if (rec.wssListener === false) {
+                           this.edgerouters.push(rec);
+                         // }
+                        });
+                 });
                  this.serviceOptions = createServiceOptions(this.services);
                  this.filterText = this.serviceOptions.length === 0 ? '' : this.serviceOptions[0].name;
                  this.selectedService =
@@ -132,18 +140,11 @@ export class IdentityServicePathComponent implements OnInit {
                              ? 'Services not found for a selected Endpoint'
                              : this.serviceOptions[0].name;
                  this.autocompleteOptions = this.serviceOptions;
-                 this.isLoading = false;
+                 // this.isLoading = false;
+                 this.serviceChanged();
              }
         });
-         this.zitiService.get(`identities/${this.endpointData.id}/edge-routers`, {}, []).then((result) => {
-                this.edgerouters = [];
-                result.data.forEach((rec) => {
-                   // if (rec.wssListener === false) {
-                        this.edgerouters.push(rec);
-                    // }
-                 });
 
-                });
 
         function createServiceOptions(_services) {
             const options = [];
@@ -202,7 +203,7 @@ export class IdentityServicePathComponent implements OnInit {
     serviceChanged() {
       this.isLoading = true;
       const allPromises = [];
-    let serviceOb = null
+      let serviceOb = null
 
       this.services.forEach((rec) => {
           if (rec.name === this.selectedService) {
@@ -220,21 +221,17 @@ export class IdentityServicePathComponent implements OnInit {
                const identityPromises = [];
                 result.data.forEach((rec) => {
                     if (rec.type === 'Bind') {
-                        bindPolicies.push(rec);
-                        rec.identityRoles.forEach((identityId) => {
-
-                          const id = identityId.replace('@', '')
-                          const uri = `identities/${id}`;
-                           const promse = this.zitiService.get(uri, {}, []).then((res) => {
-
-                             bindIdnetities.push(res.data);
-
-                           });
-
-                          identityPromises.push(promse);
-
-                        });
-
+                     const bindIdentitiesUrl = this.getLinkForResource(rec, 'identities');
+                     const promse = this.zitiService.get(bindIdentitiesUrl.replace('./',''), {}, []).then((res) => {
+                             if (res && res.data.length >0 ) {
+                                  res.data.forEach( (rs) => {
+                                   this.addItemToArray(bindIdnetities, rs);
+                                  } );
+                             } else {
+                               this.addItemToArray(bindIdnetities, res.data);
+                             }
+                             });
+                     identityPromises.push(promse);
                      }
                  });
                  Promise.all(identityPromises).then( () => {
@@ -244,6 +241,13 @@ export class IdentityServicePathComponent implements OnInit {
 
                 });
 
+    }
+
+    addItemToArray(bindIdnetities, ob) {
+      if(! bindIdnetities.find(item => item.id === ob.id)) {
+           bindIdnetities.push(ob);
+      }
+      return bindIdnetities;
     }
 
     getLinkForResource(ob, resource) {
@@ -264,7 +268,6 @@ export class IdentityServicePathComponent implements OnInit {
                 this.edgerouters,
                 selectedServiceOb
             );
-            console.log('this.graphJsonObj ', this.graphJsonObj);
         } catch (err) {
             console.log(err);
         }
@@ -302,8 +305,6 @@ export class IdentityServicePathComponent implements OnInit {
     toggleModalSize() {
         this.fullScreen = !this.fullScreen;
     }
-
-
 
     hide() {
         this.dialogRef.close();

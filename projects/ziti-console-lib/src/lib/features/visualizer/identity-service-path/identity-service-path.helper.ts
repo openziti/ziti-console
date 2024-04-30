@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@angular/core';
-// import { NETWORK_SERVICE, NetworkServiceV2 } from '@netfoundry-ui/shared/apiv2';
 
 class Link {
     source;
@@ -71,10 +70,11 @@ export class IdentityServicePathHelper {
         selectedServiceOb,
         filterText = ''
     ) {
+        let endpointNodeOb = null;
         const rootOb = new RootJson();
         const bindNode =  bindIdnetities.find( (nd) =>  nd.id === endpoint.id  );
        if (!bindNode) {
-          const endpointNodeOb = createEndpoint(endpoint);
+          endpointNodeOb = createEndpoint(endpoint);
           endpointNodeOb.group = '1';
           endpointNodeOb.posx = 50;
           endpointNodeOb.posy = 200;
@@ -126,7 +126,6 @@ export class IdentityServicePathHelper {
         let countgrp3 = 0;
         group3Ids.find((nid) => {
                 // let's check if the service hosted is an Endpoint
-
                let grp3Node = findEndpoint(nid, bindIdnetities);
                   if(grp3Node) {
                     grp3Node.group = '3';
@@ -134,9 +133,8 @@ export class IdentityServicePathHelper {
                     grp3Node.posy = this.posy_for_group3;
                     this.posy_for_group3 = this.posy_for_group3 + 125;
                     group3Nodes.push(grp3Node);
-
                     countgrp3++;
-                     rootOb.addNode(grp3Node);
+                    rootOb.addNode(grp3Node);
                   }
         });
 
@@ -209,13 +207,13 @@ export class IdentityServicePathHelper {
 
         for (let k1 = 0; k1 < rootOb.nodes.length; k1++) {
             const nd = rootOb.nodes[k1];
-            if (nd.group === '2a' || nd.group === '2ab' || nd.group === '2ac') {
+            if (endpointNodeOb !==null && (nd.group === '2a' || nd.group === '2ab' || nd.group === '2ac')) {
                 const lnk = new Link();
-                lnk.source = endpoint.id;
-                lnk.sourceName = endpoint.name;
+                lnk.source = endpointNodeOb.id;
+                lnk.sourceName = endpointNodeOb.name;
                 lnk.target = nd.id;
                 lnk.targetName = nd.name;
-                lnk.status = getEndpointToRouterLinkState(endpoint, nd);
+                lnk.status = getEndpointToRouterLinkState(endpointNodeOb, nd);
                 lnk.weight = getWeight(lnk.status);
                 rootOb.addLink(lnk);
             }
@@ -225,7 +223,6 @@ export class IdentityServicePathHelper {
             const nd1 = rootOb.nodes[k1];
 
             if (nd1.group.includes('2')) {
-                // b' || nd1.group === '2ac' || nd1.group === '2c' || nd1.group === '2ab') {
                 for (let k2 = 0; k2 < group3Nodes.length; k2++) {
                     const nd2 = group3Nodes[k2];
                     if (nd2.group === '2b' || nd2.group === '2ab') {
@@ -237,7 +234,6 @@ export class IdentityServicePathHelper {
                     lnk.sourceName = nd1.name;
                     lnk.target = nd2.id;
                     lnk.targetName = nd2.name;
-                    //  }
 
                     if (nd1.type.includes('Router') && nd2.type.includes('Router')) {
                         lnk.status =
@@ -386,7 +382,6 @@ export class IdentityServicePathHelper {
         function getWeight(linkState) {
             return linkState === -1 ? 5 : 1;
         }
-
         return rootOb;
     } // end of NEW Function
 
