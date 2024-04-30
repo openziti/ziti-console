@@ -244,7 +244,7 @@
                 page.jwtsList.get();
                 
                 page.apiParams = CodeMirror.fromTextArea(document.getElementById("ApiParams"), { mode: "application/json", lineNumbers: true, extraKeys: {"Ctrl-Space": "autocomplete"}, readOnly: true });
-            }, 
+            },
             events: function() {
                 context.addListener("signers-list", page.signersLoaded);
             },
@@ -305,6 +305,28 @@
                 page.params();
 
                 modal.show("AddModal");
+                const name = $('#Name').val() || '';
+                const editDefaultConfirmed = () => {
+                    modal.keepAddModalOpen = true;
+                    $('.modal.background').css('display', '');
+                    $('.modal.background').css('z-index', '');
+                    $('#ConfirmModal').css('width', '');
+                    $('#ConfirmModal').css('height', '');
+                };
+                if(name.toLowerCase() === 'default') {
+                    const warningText = '<p>WARNING: Do not change these settings unless you\'re sure you know what you are doing.</p> <p>Before changing the default policy, it\'s recommended that you make another policy and apply that to other users first. Then make sure you can still authenticate. </p> <p>Do you still want to continue?</p>';
+                    modal.confirm(warningText, editDefaultConfirmed);
+                    $('.modal.background.open').css('display', 'block');
+                    $('.modal.background.open').css('z-index', '10001');
+                    $('#ConfirmModal').css('width', '500');
+                    $('#ConfirmModal').css('height', '285');
+                    $('.modal .close, .linkButton.closer').click(() => {
+                        $('.modal.background').css('display', '');
+                        $('.modal.background').css('z-index', '');
+                        $('#ConfirmModal').css('width', '');
+                        $('#ConfirmModal').css('height', '');
+                    });
+                }
             },
             row: function(template, data) {
                 var cert = "No";
