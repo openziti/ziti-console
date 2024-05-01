@@ -44,8 +44,15 @@ var modal = {
 	close: function(e) {
 		modal.id = "";
 		$("body").removeClass("noscroll");
-		$(".modal.open").removeClass("open");
+		if (modal.keepAddModalOpen) {
+			$(".modal.open:not(#AddModal)").removeClass("open");
+		} else {
+			$(".modal.open").removeClass("open");
+		}
         $(".commands").removeClass("open");
+		setTimeout(() => {
+			modal.keepAddModalOpen = false;
+		}, 100);
 	},
 	confirm: function(message, onConfirmed) {
 		modal.show("ConfirmModal");
