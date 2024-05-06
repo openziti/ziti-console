@@ -24,7 +24,7 @@ The console can be bound to the same web listener as the controller's management
         - name: client-management
           bindPoints:
             - interface: 0.0.0.0:1280
-              address: localhost:1280
+              address: ziti.example.com:1280
           identity:
             ca: "pki/root/certs/root.cert"
             key: "pki/intermediate/keys/server.key"
@@ -39,7 +39,9 @@ The console can be bound to the same web listener as the controller's management
             - binding: fabric
               options: {}
             - binding: zac
-              options: {"location": "./zac", "indexFile": "index.html"}
+              options:
+                location: ./zac
+                indexFile: index.html
     ```
 
 1. Restart the controller service to apply the changes.
@@ -61,15 +63,15 @@ The console can be bound to the same web listener as the controller's management
         - name: client-management
           bindPoints:
             - interface: 0.0.0.0:1280
-              address: localhost:1280
+              address: ziti.example.com:1280
           identity:
             ca: pki/root/certs/root.cert
             key: pki/intermediate/keys/server.key
             server_cert: pki/intermediate/certs/server.chain.pem
             cert: pki/intermediate/certs/client.cert
             alt_server_certs:
-              - server_cert: console.chain.pem
-                server_key:  console.key
+              - server_cert: /etc/letsencrypt/live/console.example.com/fullchain.pem
+                server_key:  /etc/letsencrypt/keys/console.example.com/private.key
           options:
           apis:
             - binding: edge-management
