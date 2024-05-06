@@ -3,21 +3,23 @@
 
 The OpenZiti Console is an administrative web interface for an OpenZiti network.
 
-## Run with NodeJS
+You can host the console as a Node.js application (`node-api`) or as a static Angular application (SPA).
 
-Before you start, ensure you can connect to an OpenZiti Controller. To learn more about OpenZiti constructs and APIs go to [the API reference](https://openziti.io/docs/reference/developer/api/).
+## Build and Run with Node.js
+
+The node API run mode of this project connects to an OpenZiti controller's management API. To learn more about OpenZiti constructs and APIs go to [the API reference](https://openziti.io/docs/reference/developer/api/).
 
 To build and run the application from source, you'll also need to make sure you have the following developer tools installed and available on your command line:
 
-| Tool        | Min. Version |
+| Tool        |      Version |
 | :---:       | :---:        |
-| Node.js     | 16.13.x      |
-| npm         | 8.1.x        |
+| Node.js     | 18+          |
+| npm         | 8.1+         |
+| ng          | 16+          |
 
+### Install Angular CLI
 
-* You will also need to make sure you have the angular CLI installed
-* This project currently requires Angular CLI v16
-* To install the Angular CLI run:
+This provides the `ng` command.
 
 ```bash
 npm install -g @angular/cli@16
