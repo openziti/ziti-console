@@ -3,6 +3,10 @@
 
 The OpenZiti Console is an administrative web interface for an OpenZiti network.
 
+## Deploy on Linux
+
+[Link to guide](./DEPLOY_LINUX.md)
+
 ## Run with NodeJS
 
 Before you start, ensure you can connect to an OpenZiti Controller. To learn more about OpenZiti constructs and APIs go to [the API reference](https://openziti.io/docs/reference/developer/api/).
