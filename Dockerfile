@@ -1,4 +1,4 @@
-FROM node:20-bookworm-slim as zac-builder
+FROM node:18-bookworm-slim as zac-builder
 
 WORKDIR /usr/src/app
 
@@ -13,7 +13,7 @@ RUN ng build ziti-console
 RUN ng build ziti-console-node
 
 
-FROM node:20-bookworm-slim
+FROM node:18-bookworm-slim
 WORKDIR /usr/src/app
 
 COPY --from=zac-builder /usr/src/app/dist ./dist
