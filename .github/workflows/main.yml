@@ -1,4 +1,4 @@
-name: build
+name: Test Build for All Platforms
 
 on:
   pull_request:
@@ -14,8 +14,8 @@ concurrency:
 env: {}
 
 jobs:
-  build:
-    name: Build Project for All Platforms
+  build-spa-zac:
+    name: Test Build SPA ZAC for All Platforms
     # allow fors to opt-out of time-consuming macOS builds
     runs-on: ubuntu-latest
     steps:
@@ -37,6 +37,36 @@ jobs:
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: ${{ github.workspace }}/
+          file: ./docker-images/ziti-console-assets/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-node-zac:
+    name: Test Build Node ZAC for All Platforms
+    # allow fors to opt-out of time-consuming macOS builds
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set Up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: amd64,arm64
+
+      - name: Set Up Docker BuildKit
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Multi-Platform Container Image to exercise amd64, arm64 builds
+        uses: docker/build-push-action@v5
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          context: ${{ github.workspace }}/
+          file: ./docker-images/zac/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: false
           cache-from: type=gha

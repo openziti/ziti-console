@@ -9,7 +9,6 @@ RUN npm install --omit=optional
 
 COPY . .
 RUN ng build ziti-console-lib
-RUN ng build ziti-console
 RUN ng build ziti-console-node
 
 
