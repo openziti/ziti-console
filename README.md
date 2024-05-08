@@ -9,21 +9,19 @@ Read the production deployment guides for the console as well as the controller,
 
 [Link to deployment guides](https://openziti.io/docs/category/deployments/)
 
-## Run with NodeJS
+## Requirements
 
-Before you start, ensure you can connect to an OpenZiti Controller. To learn more about OpenZiti constructs and APIs go to [the API reference](https://openziti.io/docs/reference/developer/api/).
+To build and run the application from source, you'll also need to make sure you have the following developer tools installed and available on your command line.
 
-To build and run the application from source, you'll also need to make sure you have the following developer tools installed and available on your command line:
-
-| Tool        | Min. Version |
+| Tool        |      Version |
 | :---:       | :---:        |
-| Node.js     | 16.13.x      |
-| npm         | 8.1.x        |
+| Node.js     |  =18         |
+| npm         | >=8.1        |
+| ng          |  =16         |
 
+### Install Angular CLI
 
-* You will also need to make sure you have the angular CLI installed
-* This project currently requires Angular CLI v16
-* To install the Angular CLI run:
+This provides the `ng` command.
 
 ```bash
 npm install -g @angular/cli@16
@@ -31,39 +29,64 @@ npm install -g @angular/cli@16
 
 * You'll also need to be running Node.js version >= 16.13.x
 
+## Projects
+
+This repository houses two projects.
+
+1. [ziti-console-lib](./projects/ziti-console-lib) - Angular library used by the console UI.
+1. [zpp-ziti-console](./projects/app-ziti-console) - console UI with two deployment modes.
+  1. Single page application mode (recommended) 
+  1. Node.js server mode (`server.js`, deprecated)
+
+## Build
+
 From the project root:
 
-1. install project dependencies:
+1. Install the projects' dependencies.
 
     ```bash
     npm install
     ```
 
-1. build project with Angular
+1. Build the library project with Angular.
 
     ```bash
-    ng build ziti-console-lib;
-    ng build ziti-console;
-    ng build ziti-console-node;
+    ng build ziti-console-lib
+    ```
+### Build the Single Page Application
+
+This is the recommended approach.
+
+1. Build the console project with Angular.
+
+    ```bash
+    ng build ziti-console
     ```
 
-1. run the node server
+1. You must host the static files with a web server. 
+   See [the deployment guide](https://openziti.io/docs/guides/deployments/linux/console) for details on configuring the controller to host these files.
+   
+1. Access the console at the controller's address: https://localhost:1280/zac
+
+        
+### Build the Standalone Node Server
+
+This deployment mode is deprecated by the SPA mode.
+
+1. Build the console project with Angular.
+
+    ```bash
+    ng build ziti-console-node
+    ```
+
+1. If developing the standalone Node server, run it.
 
     ```bash
     node server.js
     ```
 
-1. Finally, access the app @ http://localhost:1408
-
-## Server TLS
-
-The console server can be configured to present a TLS server certificate on a configurable TCP port. TLS is enabled when
-the private key and certificate files exist with the expected filenames in the working directory.
-
-* `./server.key` - private key
-* `./server.chain.pem` - server certificate chain
-
-Configure the TLS port in `settings.json` by setting `portTLS` (default: 8443).
+1. Access the console at http://localhost:1408
+1. Configure the server with the URL of the controller's edge-management API, e.g. https://localhost:1280
 
 ## Developing with Angular
 
@@ -94,25 +117,3 @@ From project Root:
 
   This ensures changes made to the NPM library get pulled into the Angular app as you are developing
 
-## Docker
-
-The ZAC application can be run in a docker container by following the steps below.
-
-If you don't have docker installed, you can download and install the docker engine here: https://docs.docker.com/engine/install/
-
-### Build the Container Image
-
-From the project root directory, build the image:
-
-```bash
-docker build . -t openziti/zac
-```
-
-### Run with Angular in Docker
-
-* If you plan to connect to an Edge Controller that is NOT configured with a trusted SSL/TLS certificate, it's recommended you use the Node API integration
-* To do this via **docker** run the container with the `node-api` argument:
-
-```bash
-sudo docker run -d --name zac -p 1408:1408 openziti/zac
-```
