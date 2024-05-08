@@ -317,7 +317,7 @@ export class IdentityServicePathComponent implements OnInit {
         const colors = d3.scaleOrdinal(d3.schemeCategory10);
         const tooltip = d3.select('#epTooltip');
 
-        let svg = d3.select('#EndpointTopology'),
+        let svg = d3.select('#IdentityTopology'),
             node,
             link;
 

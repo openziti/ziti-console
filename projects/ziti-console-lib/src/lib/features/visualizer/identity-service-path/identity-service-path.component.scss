@@ -2,6 +2,15 @@
     overflow: hidden;
     width: 75%;
     height: 85%;
+    background-color: var(--background);
+    border-radius: 25px;
+    z-index: 1001;
+    margin: auto;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    position: fixed;
 
     &.full-screen {
         width: 100%;
@@ -9,12 +18,13 @@
         border-radius: 0;
     }
 
-    .nf-ep-topology-filter-container {
+    .ep-topology-filter-container {
         width: 37%;
         // max-width: 355px;
         margin-top: -20px;
         margin-left: 10px;
         flex: 1 0 auto;
+        padding: 30px 30px 0px;
     }
 
     .nf-topology-filter-input {
@@ -39,20 +49,18 @@
         cursor: pointer;
     }
 
-    .nf-endpoint-topology-container {
+    .identity-topology-container {
         display: flex;
         margin-left: -5px;
         margin-top: 10px;
         flex-direction: column;
         cursor: grab;
-        background: #d4f2ff;
-        background-image: linear-gradient(#d4eaff 2px, transparent 0),
-            linear-gradient(90deg, #d4eaff 2px, transparent 0), linear-gradient(#d4eaff 1px, transparent 0),
-            linear-gradient(90deg, #d4eaff 1px, transparent 0);
+        background: #f5e9f2;
+        background-image: linear-gradient(#ecd3e6 2px, transparent 0), linear-gradient(90deg, #ecd3e6 2px, transparent 0), linear-gradient(#ecd3e6 1px, transparent 0), linear-gradient(90deg, #ecd3e6 1px, transparent 0);
         background-size: 40px 40px, 40px 40px, 10px 10px, 10px 10px;
     }
 
-    .nf-tp-data-header {
+    .tp-data-header {
         height: 40px;
         font-size: 25px;
         font-weight: 600;
@@ -97,7 +105,7 @@
         top: 10px;
         width: 45px;
         height: 35px;
-        right: 44px;
+        right: 0;
         background-image: url(/assets/svgs/Resize.svg);
         background-size: 24px 40px;
         position: absolute;
@@ -130,7 +138,7 @@
         transition: 0.3s;
     }
 
-    .nf-tp-topo-data-header {
+    .tp-topo-data-header {
         border: 0px solid black;
         height: 1200px;
 
@@ -165,7 +173,7 @@
         padding-right: 47px;
     }
 
-    .nf-topology-filter-input {
+    .topology-filter-input {
         height: 50px;
         width: 95%;
         border-radius: 25px;
@@ -203,7 +211,7 @@
         }
     }
 
-    .nf-topology-legendA {
+    .topology-legendA {
         border: 0px solid blue;
         width: 200px;
         border-radius: 12px;
@@ -221,7 +229,7 @@
         margin-top: 0;
         padding-right: 10px;
     }
-    .nf-topology-legendB {
+    .topology-legendB {
         width: 200px;
         border: 0px solid blue;
         border-radius: 12px;
