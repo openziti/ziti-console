@@ -27,14 +27,12 @@ This provides the `ng` command.
 npm install -g @angular/cli@16
 ```
 
-* You'll also need to be running Node.js version >= 16.13.x
-
 ## Projects
 
 This repository houses two projects.
 
 1. [ziti-console-lib](./projects/ziti-console-lib) - Angular library used by the console UI.
-1. [zpp-ziti-console](./projects/app-ziti-console) - console UI with two deployment modes.
+1. [app-ziti-console](./projects/app-ziti-console) - console UI with two deployment modes.
   1. Single page application mode (recommended) 
   1. Node.js server mode (`server.js`, deprecated)
 
