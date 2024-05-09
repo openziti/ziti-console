@@ -131,4 +131,9 @@ export class EdgeRouterFormService {
             });
         });
     }
+
+    refreshRouter(id) {
+        const url: any = `/edge-routers/${id}`
+        return this.zitiService.call(url);
+    }
 }

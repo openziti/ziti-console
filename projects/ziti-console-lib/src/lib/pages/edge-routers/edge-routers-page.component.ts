@@ -5,7 +5,7 @@ import {DataTableFilterService} from "../../features/data-table/data-table-filte
 import {ListPageComponent} from "../../shared/list-page-component.class";
 import {TabNameService} from "../../services/tab-name.service";
 
-import {invoke, isEmpty, defer, unset, cloneDeep} from 'lodash';
+import {invoke, isEmpty, defer, unset, cloneDeep, result} from 'lodash';
 import moment from 'moment';
 import $ from 'jquery';
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
@@ -112,6 +112,11 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
         break;
       case 'download-selected':
         this.svc.downloadItems(this.selectedItems);
+        break;
+      case 're-enroll':
+        this.svc.reenroll(event.item).then((result) => {
+          this.refreshData(this.svc.currentSort);
+        });
         break;
       default:
         if (this.extService.listActions) {

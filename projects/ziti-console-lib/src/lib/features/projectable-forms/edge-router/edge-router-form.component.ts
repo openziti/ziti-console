@@ -14,7 +14,7 @@ import {Subscription} from 'rxjs';
 import {ProjectableForm} from "../projectable-form.class";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 
-import {isEmpty, delay, cloneDeep, isEqual} from 'lodash';
+import {isEmpty, delay, cloneDeep, isEqual, set} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {EDGE_ROUTER_EXTENSION_SERVICE, EdgeRouterFormService} from './edge-router-form.service';
@@ -161,6 +161,14 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
       data.enrollment = this.formData.enrollment || {ott: true};
     }
     return data;
+  }
+
+  refreshEdgeRouter() {
+    this.svc.refreshRouter(this.formData.id).then(result => {
+      this.formData = result.data;
+      this.initData = cloneDeep(this.formData);
+      this.extService.updateFormData(this.formData);
+    })
   }
 
   _apiData = {};

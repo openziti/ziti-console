@@ -20,6 +20,7 @@ import {isEmpty} from 'lodash';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {IdentitiesPageService} from "../../pages/identities/identities-page.service";
 import {DialogRef} from "@angular/cdk/dialog";
+import {EdgeRoutersPageService} from "../../pages/edge-routers/edge-routers-page.service";
 
 @Component({
   selector: 'lib-qr-code',
@@ -48,6 +49,7 @@ export class QrCodeComponent implements OnChanges {
       @Optional() private dialogForm: MatDialog,
       @Optional() @Inject(MAT_DIALOG_DATA) public data: any,
       public identitiesSvc: IdentitiesPageService,
+      public edgeRoutersSvc: EdgeRoutersPageService,
   )
   {
     if (!isEmpty(data)) {
@@ -75,6 +77,10 @@ export class QrCodeComponent implements OnChanges {
     return (this.identity?.enrollment?.ott?.id || this.identity?.enrollment?.updb?.id) && moment(this.expiration).isBefore();
   }
 
+  get showReenrollToken() {
+    return this.jwtExpired && this.type === 'router';
+  }
+
   getJwtExpired() {
     return moment(this.expiration).isBefore();
   }
@@ -89,6 +95,12 @@ export class QrCodeComponent implements OnChanges {
         if (result) {
           this.doRefresh.emit(true);
         }
+    });
+  }
+
+  reenroll() {
+    this.edgeRoutersSvc.reenroll(this.identity).then(() => {
+      this.doRefresh.emit(true);
     });
   }
 

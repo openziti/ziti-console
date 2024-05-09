@@ -122,6 +122,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       this.initData = cloneDeep(this.formData);
       this.enrollmentExpiration = this.identitiesService.getEnrollmentExpiration(this.formData);
       this.jwt = this.identitiesService.getJWT(this.formData);
+      this.extService.updateFormData(this.formData);
     })
   }
 

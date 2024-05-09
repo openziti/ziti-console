@@ -59,9 +59,8 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
     override menuItems = [
         {name: 'Edit', action: 'update'},
         {name: 'Download JWT', action: 'download-enrollment'},
-        {name: 'View QR', action: 'qr-code'},
         {name: 'Reset Enrollment', action: 'reset-enrollment'},
-        {name: 'Override', action: 'override'},
+        {name: 'Re-enroll', action: 're-enroll'},
         {name: 'Delete', action: 'delete'},
     ]
 
@@ -83,7 +82,18 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
     ) {
         super(settings, filterService, csvDownloadService);
         if (this.extService.listActions) {
-            this.menuItems = [...this.menuItems, ...this.extService.listActions];
+            let filteredActions = [];
+            this.menuItems = this.menuItems.map((item) => {
+                filteredActions = this.extService.listActions.filter((extItem) => {
+                    if (item.action === extItem.action) {
+                        item = extItem;
+                        return false;
+                    }
+                    return true;
+                });
+                return item;
+            });
+            this.menuItems = [...this.menuItems, ...filteredActions];
         }
     }
 
@@ -259,7 +269,7 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
 
     private addActionsPerRow(results: any): any[] {
         return results.data.map((row) => {
-            row.actionList = ['update', 'delete'];
+            row.actionList = ['update', 're-enroll', 'delete'];
             if (this.hasEnrolmentToken(row)) {
                 row.actionList.push('download-enrollment');
             }
@@ -315,6 +325,18 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
             undefined,
             false
         );
+    }
+
+    reenroll(router: any) {
+        return this.zitiService.post(`edge-routers/${router.id}/re-enroll`, {}, true).then((result) => {
+            const growlerData = new GrowlerModel(
+                'success',
+                'Success',
+                `Re-enroll Confirmed`,
+                `Router re-enroll was sent. A new enrollment token is now available`,
+            );
+            this.growlerService.show(growlerData);
+        });
     }
 
     public openUpdate(item?: any) {
