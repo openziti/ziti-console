@@ -28,7 +28,7 @@
     }
 
     .nf-topology-filter-input {
-        width: 100%; //450px;
+        width: 100%;
         height: 50px;
         border-radius: 25px;
         border-color: var(--navigation);
@@ -37,12 +37,26 @@
         padding-left: 20px;
         padding-right: 35px;
     }
-
+  .buttonBall.close {
+    position: absolute;
+    z-index: 10;
+    top: 18px;
+    width: 30px;
+    height: 25px;
+    right: 15px;
+    background-image: url(/assets/svgs/close.svg);
+    color: var(--icon);
+    line-height: 40px;
+    cursor: pointer;
+    font-size: 3px;
+   // color: var(--stroke);
+    transition: var(--transition);
+  }
     .buttonBall.resize {
         top: 10px;
         width: 45px;
         height: 35px;
-        right: 37px;
+        right: 42px;
         background-image: url(/assets/svgs/Resize.svg);
         background-size: 24px 40px;
         position: absolute;
@@ -101,19 +115,10 @@
         padding-right: 20px;
     }
 
-    .buttonBall.resize {
-        top: 10px;
-        width: 45px;
-        height: 35px;
-        right: 0;
-        background-image: url(/assets/svgs/Resize.svg);
-        background-size: 24px 40px;
-        position: absolute;
-        cursor: pointer;
-    }
-
-    .listBox.row .close,
-    .modal.solid .close {
+ .listBox.row .close, {
+       position: fixed;
+        display: flex;
+        flex-direction: column;
         font-family: 'icomoon' !important;
         font-style: normal;
         font-weight: 600;
@@ -126,16 +131,19 @@
         text-align: center;
         font-size: 35px;
         line-height: 40px;
-        position: absolute;
-        left: 80% !important;
-        top: 33px !important;
-        width: 45px;
+       // position: absolute;
+        left: 35%;
+        top: 17%;
+        width: 40px;
         height: 40px;
+        background-image: url(/assets/svgs/close.svg);
         z-index: 600;
         background-position: center center;
         background-size: 75%;
         cursor: pointer;
         transition: 0.3s;
+        justify-content: end;
+        align-items: center;
     }
 
     .tp-topo-data-header {
