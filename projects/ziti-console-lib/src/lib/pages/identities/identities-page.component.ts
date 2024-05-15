@@ -26,6 +26,7 @@ import {ZacWrapperServiceClass, ZAC_WRAPPER_SERVICE} from "../../features/wrappe
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {QrCodeComponent} from "../../features/qr-code/qr-code.component";
 import {ResetEnrollmentComponent} from "../../features/reset-enrollment/reset-enrollment.component";
+import { IdentityServicePathComponent } from "../../features/visualizer/identity-service-path/identity-service-path.component";
 
 @Component({
   selector: 'lib-identities',
@@ -130,8 +131,11 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       case 'reissue-enrollment':
         this.reissueEnrollment(event.item);
         break;
-      case 'qr-code':
-        this.showQRCode(event.item)
+      case "identity-service-path":
+        this.openIdentityVisualizer(event.item);
+        break;
+      case "qr-code":
+        this.showQRCode(event.item);
         break;
       case 'download-all':
         this.svc.downloadAllItems();
@@ -169,6 +173,15 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   getIdentityRoleAttributes() {
     this.svc.getIdentitiesRoleAttributes().then((result: any) => {
       this.identityRoleAttributes = result.data;
+    });
+  }
+
+  openIdentityVisualizer(identity) {
+    this.dialogRef = this.dialogForm.open(IdentityServicePathComponent, {
+      data: {
+        identity: identity,
+      },
+      autoFocus: false,
     });
   }
 
