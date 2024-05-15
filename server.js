@@ -721,7 +721,27 @@ app.post("/api/resetEnroll", function(request, response) {
 	}
 });
 
-
+/**
+ * Reissue the identity enrollment token
+ */
+app.post("/api/reissueEnroll", function(request, response) {
+	var user = request.session.user;
+	if (hasAccess(user)) {
+		var id = request.body.id;
+		var date = moment(request.body.date).utc().toISOString();
+		var url = serviceUrl+ `/enrollments/${id}/refresh`;
+		var params = { expiresAt: date };
+		log("Calling "+url);
+		log(JSON.stringify(params));
+		external.post(url, { json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+			if (body.error) HandleError(response, body.error);
+			else {
+				log("Success: "+JSON.stringify(body));
+				response.json({success: "Enrollment Reissued"});
+			}
+		});
+	}
+});
 
 /**------------- Server Search Section -------------**/
 
