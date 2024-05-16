@@ -90,17 +90,17 @@
                 </div>
             </div>
             <div class="form-group-column two-fifths">
+                <ng-content select="[slot=column-2-slot-1]"></ng-content>
                 <lib-form-field-container
-                        *ngIf="hasEnrolmentToken"
+                        *ngIf="hasEnrolmentToken && !extService['hideZitiRegistration']"
                         [showHeader]="false"
                 >
-                    <ng-content select="[slot=column-2-slot-1]"></ng-content>
                     <lib-qr-code
-                            *ngIf="!extService['hideZitiRegistration']"
                             [identity]="formData"
-                            [jwt]="formData.jwt"
+                            [jwt]="formData.enrollmentJwt"
                             [token]="formData.enrollmentToken"
                             [expiration]="formData.enrollmentExpiresAt"
+                            (doRefresh)="refreshEdgeRouter()"
                             [type]="'router'"
                     ></lib-qr-code>
                 </lib-form-field-container>

@@ -27,8 +27,8 @@
         (close)="closeModal($event)"
         (dataChange)="dataChanged($event)"
     >
-        <ng-content select="[slot=provider]" slot="provider"></ng-content>
-        <ng-content select="[slot=registration]" slot="registration"></ng-content>
+        <ng-content select="[slot=column-1-slot-1]" slot="column-1-slot-1"></ng-content>
+        <ng-content select="[slot=column-2-slot-1]" slot="column-2-slot-1"></ng-content>
     </lib-edge-router-form>
 </lib-side-modal>
 <lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

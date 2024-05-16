@@ -48,4 +48,12 @@ export class ExampleExtensionService implements ExtensionService {
     executeListAction() {
         alert('Example action executed from list page menu items');
     }
+
+    processTableColumns(tableColumns: any): any[] {
+        // This function will execute when a list page is initiated.
+        // Use this function to make adjustments to the column definitions of the data table (ie. show/hide, defined custom renderers etc..)
+        // Uncomment the alert below to see when this function is called
+        // alert('ExampleExtensionService "processTableColumns()" function executed');
+        return tableColumns;
+    }
 }
