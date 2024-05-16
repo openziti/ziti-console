@@ -29,6 +29,7 @@ export interface ExtensionService {
   updateFormData(data: any): void;
   validateData(): Promise<any>;
   formDataSaved(data: any): Promise<any>;
+  processTableColumns(tableColumns: any): any[];
 }
 
 @Injectable({
@@ -57,4 +58,7 @@ export class ExtensionsNoopService implements ExtensionService {
     return Promise.resolve(true);
   }
 
+  processTableColumns(tableColumns: any): any[] {
+    return tableColumns;
+  }
 }

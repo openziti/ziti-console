@@ -61,7 +61,7 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
         {name: 'Edit', action: 'update'},
         {name: 'Download JWT', action: 'download-enrollment'},
         {name: 'Reset Enrollment', action: 'reset-enrollment'},
-        {name: 'Re-enroll', action: 're-enroll'},
+        {name: 'Re-Enroll', action: 're-enroll'},
         {name: 'Delete', action: 'delete'},
     ]
 
@@ -83,16 +83,18 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
     ) {
         super(settings, filterService, csvDownloadService);
         if (this.extService.listActions) {
-            let filteredActions = [];
             this.menuItems = this.menuItems.map((item) => {
-                filteredActions = this.extService.listActions.filter((extItem) => {
+                this.extService.listActions.forEach((extItem) => {
                     if (item.action === extItem.action) {
                         item = extItem;
-                        return false;
                     }
-                    return true;
                 });
                 return item;
+            });
+            let filteredActions = this.extService.listActions.filter((extItem) => {
+                return !this.menuItems.some((item) => {
+                    return item.action === extItem.action;
+                });
             });
             this.menuItems = [...this.menuItems, ...filteredActions];
         }
@@ -157,7 +159,7 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
             columnFilters,
         };
 
-        return [
+        let tableColumns = [
             {
                 colId: 'name',
                 field: 'name',
@@ -250,6 +252,12 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
                 cellClass: 'nf-cell-vert-align tCol',
             }
         ];
+
+        if (this.extService.processTableColumns) {
+            tableColumns = this.extService.processTableColumns(tableColumns);
+        }
+
+        return tableColumns;
     }
 
     getData(filters?: FilterObj[], sort?: any): Promise<any> {
@@ -332,7 +340,7 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
         const data = {
             appendId: 'ReenrollRouter',
             title: 'Re-Enroll Router',
-            message: `If the router is currently connected, it will be disconnected until the enrollment process is completed with the newly generated JWT. <p> Are you sure you want to re-enroll the selected router?`,
+            message: `<p>If the router is currently connected, it will be disconnected until the enrollment process is completed with the newly generated JWT. <p> Are you sure you want to re-enroll the selected router?`,
             confirmLabel: 'Yes',
             cancelLabel: 'Oops, no get me out of here',
             showCancelLink: true

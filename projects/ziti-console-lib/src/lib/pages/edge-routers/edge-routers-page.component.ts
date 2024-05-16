@@ -90,6 +90,18 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
   }
 
   tableAction(event: any) {
+    if (this.extService?.listActions?.length > 0) {
+      let extensionFound = false;
+      this.extService?.listActions?.forEach((extAction) => {
+        if (extAction?.action === event?.action) {
+          extAction.callback(event.item);
+          extensionFound = true;
+        }
+      });
+      if (extensionFound) {
+        return;
+      }
+    }
     switch(event?.action) {
       case 'toggleAll':
       case 'toggleItem':
@@ -119,13 +131,6 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
         });
         break;
       default:
-        if (this.extService.listActions) {
-          this.extService.listActions.forEach((action) => {
-            if (action.action === event.action) {
-              action.callback(event.item);
-            }
-          })
-        }
         break;
     }
   }
