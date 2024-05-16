@@ -21,6 +21,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {SettingsServiceClass} from "../../services/settings-service.class";
 import {EDGE_ROUTER_EXTENSION_SERVICE} from "../../features/projectable-forms/edge-router/edge-router-form.service";
 import {ExtensionService} from "../../features/extendable/extensions-noop.service";
+import {ConfirmComponent} from "../../features/confirm/confirm.component";
 
 const CSV_COLUMNS = [
     {label: 'Name', path: 'name'},
@@ -328,14 +329,32 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
     }
 
     reenroll(router: any) {
-        return this.zitiService.post(`edge-routers/${router.id}/re-enroll`, {}, true).then((result) => {
-            const growlerData = new GrowlerModel(
-                'success',
-                'Success',
-                `Re-enroll Confirmed`,
-                `Router re-enroll was sent. A new enrollment token is now available`,
-            );
-            this.growlerService.show(growlerData);
+        const data = {
+            appendId: 'ReenrollRouter',
+            title: 'Re-Enroll Router',
+            message: `If the router is currently connected, it will be disconnected until the enrollment process is completed with the newly generated JWT. <p> Are you sure you want to re-enroll the selected router?`,
+            confirmLabel: 'Yes',
+            cancelLabel: 'Oops, no get me out of here',
+            showCancelLink: true
+        };
+        this.dialogRef = this.dialogForm.open(ConfirmComponent, {
+            data: data,
+            autoFocus: false,
+        });
+        return this.dialogRef.afterClosed().toPromise().then((result) => {
+            if (result) {
+                return this.zitiService.post(`edge-routers/${router.id}/re-enroll`, {}, true).then((result) => {
+                    const growlerData = new GrowlerModel(
+                        'success',
+                        'Success',
+                        `Re-enroll Confirmed`,
+                        `Router re-enroll was sent. A new enrollment token is now available`,
+                    );
+                    this.growlerService.show(growlerData);
+                });
+            } else {
+                return Promise.resolve();
+            }
         });
     }
 
