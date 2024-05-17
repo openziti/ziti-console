@@ -1,6 +1,9 @@
-<div *ngIf="hasEnrolmentToken">
+<div *ngIf="hasEnrolmentToken && !tokenExpired">
     <span class="cert" (click)="downloadCert()"></span>
     <span class="qr icon-qr" *ngIf="!item.enrollmentJwt" (click)="showQRCode()"></span>
+</div>
+<div *ngIf="hasEnrolmentToken && tokenExpired">
+    <span>Enrollment Expired</span>
 </div>
 <div *ngIf="!hasEnrolmentToken">
     --

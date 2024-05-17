@@ -43,6 +43,15 @@ export class TableCellTokenComponent implements ICellRendererAngularComp {
     this.item = params.data;
   }
 
+  get tokenExpired() {
+    const expiration = this.getEnrollmentExpiration(this.item);
+    if (expiration) {
+      return moment(expiration).isBefore();
+    } else {
+      return false;
+    }
+  }
+
   get hasEnrolmentToken() {
     let token;
     let expiration;
@@ -75,6 +84,9 @@ export class TableCellTokenComponent implements ICellRendererAngularComp {
   }
 
   getEnrollmentExpiration(item: any) {
+    if (!isEmpty(item?.enrollmentExpiresAt)) {
+      return item.enrollmentExpiresAt;
+    }
     let expiresAt;
     if (!isEmpty(item?.enrollment?.ott?.expiresAt)) {
       expiresAt = item?.enrollment?.ott?.expiresAt;
