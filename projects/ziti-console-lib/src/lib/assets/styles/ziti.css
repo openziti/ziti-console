@@ -1943,7 +1943,7 @@ aside .icon {
     text-align: center;
     top: -8px;
 }
-path:not(.loader path)  {
+path:not(.loader path, .highcharts-root path) {
     stroke-width: 2;
     stroke: var(--primary);
     stroke-linecap: round;

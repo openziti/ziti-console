@@ -144,6 +144,19 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
             return moment(row?.data?.createdAt).local().format('M/D/YYYY H:MM A');
         }
 
+        const enrollmentTokenFormatter = (row) => {
+            const token = row?.data?.enrollmentToken;
+            if (token) {
+                if (moment(row?.data?.enrollmentExpiresAt).isBefore()) {
+                    return 'Enrollment Expired';
+                } else {
+                    return token;
+                }
+            } else {
+                return '';
+            }
+        };
+
         const columnFilters = this.columnFilters;
 
         const osParams = {
@@ -239,6 +252,7 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
                 field: 'enrollmentToken',
                 headerName: 'Token',
                 headerComponent: TableColumnDefaultComponent,
+                valueFormatter: enrollmentTokenFormatter,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
             },
