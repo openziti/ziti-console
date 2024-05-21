@@ -20,7 +20,6 @@ import { MatIconModule } from '@angular/material/icon';
     styleUrls: ['./identity-service-path.component.scss'],
 })
 export class IdentityServicePathComponent implements OnInit {
-    public currentNetwork;
     public d3;
     refreshRotate = false;
     closeRotate = true;
@@ -34,49 +33,16 @@ export class IdentityServicePathComponent implements OnInit {
     networkGraph;
     graphJsonObj;
     services;
-    services1;
     edgerouters;
     endpoints = [];
-    appwans;
-    endpointsNetwork;
     selectedService = '';
-    edgeRouterPolicies;
-    endpointAttrs = [];
-    servicesTreeNodes = [];
     serviceSelectError;
-    endpointServicesError;
     doEndpointHasAppwans = false;
     doEndpointHasPublicRouters = false;
     doEndpointHasServicesInPrivateNw = false;
     isLoading = false;
-    hideHelp = false;
-    asCreate = false;
-    embedAll = true;
-    asCreateType = '';
-    view = '';
-    transform;
-    serviceParams = [];
     countGrp2Nds = 0;
     countGrp3Nds = 0;
-    networkId: any = null; // input
-    aggregateField = 'nf_endpoint_name'; // input
-
-    colors = ['#0273fb', '#08dc5a', '#FF0D49', '#1aadce', '#6d00f2', '#ffc000', '#ff7e00', '#ca0000', '#00aeb0'];
-    noData = true;
-    initialized = false;
-    currentOrgId;
-    zitiId;
-    result_options = {};
-    result_series = [];
-    interval = '1m';
-    items = [];
-    servicesUsageData;
-    endpointsUsageData;
-    edgeroutersUsageData;
-    endpointUtlizationJson;
-    @ViewChild('visualiserCalendar', { static: false }) datePicker: any;
-    servicesJsons: Map<string, any> = new Map<string, any>();
-    private subscription = new Subscription();
     controllerDomain;
     zitiSessionId;
     serviceApiUrl;
@@ -93,7 +59,6 @@ export class IdentityServicePathComponent implements OnInit {
         private dialogRef: MatDialogRef<IdentityServicePathComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
     ) {
-        //this.view = data.view;
         this.endpointData = data.identity;
         const dtNow = new Date();
         this.rangeDateTime[0] = new Date(dtNow.getTime() - 24 * 60 * 60 * 1000);
@@ -117,8 +82,8 @@ export class IdentityServicePathComponent implements OnInit {
     getEndpointNetworkAsCode() {
 
         this.zitiService.get(`identities/${this.endpointData.id}/services`, {}, []).then((result) => {
-        this.services = result.data;
-        this.closeRotate = false;
+          this.services = result.data;
+          this.closeRotate = false;
 
              if (!this.services) {
                  this.services = [];
@@ -126,18 +91,18 @@ export class IdentityServicePathComponent implements OnInit {
                  this.serviceOptions.push(noServices());
              } else {
                  this.zitiService.get(`identities/${this.endpointData.id}/edge-routers`, {}, []).then((result) => {
-                       this.edgerouters = [];
-                        result.data.forEach((rec) => {
-                         // if (rec.wssListener === false) {
-                           this.edgerouters.push(rec);
-                         // }
-                        });
+                      this.edgerouters = [];
+                      result.data.forEach((rec) => {
+                        // if (rec.wssListener === false) {
+                         this.edgerouters.push(rec);
+                        // }
+                      });
                  });
                  this.serviceOptions = createServiceOptions(this.services);
                  this.filterText = this.serviceOptions.length === 0 ? '' : this.serviceOptions[0].name;
                  this.selectedService =
                  this.serviceOptions.length === 0
-                             ? 'Services not found for a selected Endpoint'
+                             ? 'Services not found for a selected identity'
                              : this.serviceOptions[0].name;
                  this.autocompleteOptions = this.serviceOptions;
                  // this.isLoading = false;
@@ -170,19 +135,11 @@ export class IdentityServicePathComponent implements OnInit {
 
     } // end of getEndpointNetworkAsCode
 
-
-
     filterSearchArray() {
         this.autocompleteOptions = [];
         this.autocompleteOptions = this.serviceOptions.filter((option) =>
             option.name.toLowerCase().includes(this.selectedService.toLowerCase())
         );
-    }
-
-    closePicker() {
-        this.datePicker.toggle();
-        this.datePicker.overlayVisible = false;
-        this.datePicker.datepickerClick = true;
     }
 
     clearSearchFilter() {
@@ -194,10 +151,6 @@ export class IdentityServicePathComponent implements OnInit {
     autocompleteSearch(event) {
         const str = event ? event.option.value : '';
         this.serviceChanged();
-    }
-
-    verifyAndPushToMap(json) {
-        this.servicesJsons.set(this.selectedService, json);
     }
 
     serviceChanged() {
@@ -221,8 +174,8 @@ export class IdentityServicePathComponent implements OnInit {
                const identityPromises = [];
                 result.data.forEach((rec) => {
                     if (rec.type === 'Bind') {
-                     const bindIdentitiesUrl = this.getLinkForResource(rec, 'identities');
-                     const promse = this.zitiService.get(bindIdentitiesUrl.replace('./',''), {}, []).then((res) => {
+                      const bindIdentitiesUrl = this.getLinkForResource(rec, 'identities');
+                      const promse = this.zitiService.get(bindIdentitiesUrl.replace('./',''), {}, []).then((res) => {
                              if (res && res.data.length >0 ) {
                                   res.data.forEach( (rs) => {
                                    this.addItemToArray(bindIdnetities, rs);
@@ -230,16 +183,16 @@ export class IdentityServicePathComponent implements OnInit {
                              } else {
                                this.addItemToArray(bindIdnetities, res.data);
                              }
-                             });
-                     identityPromises.push(promse);
-                     }
-                 });
+                      });
+                      identityPromises.push(promse);
+                    }
+                });
                  Promise.all(identityPromises).then( () => {
                       this.startVisProcess(bindIdnetities, serviceOb);
                       this.isLoading = false;
-                   } );
+                 } );
 
-                });
+        });
 
     }
 
@@ -332,49 +285,6 @@ export class IdentityServicePathComponent implements OnInit {
             .attr('transform', 'translate(' + -300 + ',' + 225 + ')');
 
         svg.selectAll('g').remove();
-        if (!_.isEmpty(this.selectedService) && this.doEndpointHasServicesInPrivateNw) {
-            svg.selectAll('rect#vpcRect3').attr('visibility', 'visible');
-            svg.selectAll('text#vpcTxt3').attr('visibility', 'visible');
-        } else {
-            svg.selectAll('rect#vpcRect3').attr('visibility', 'hidden');
-            svg.selectAll('text#vpcTxt3').attr('visibility', 'hidden');
-        }
-
-        if (!_.isEmpty(this.selectedService) && this.doEndpointHasPublicRouters) {
-            svg.selectAll('rect#vpcRect2').attr('visibility', 'visible');
-            svg.selectAll('text#vpcTxt2').attr('visibility', 'visible');
-        } else {
-            svg.selectAll('rect#vpcRect2').attr('visibility', 'hidden');
-            svg.selectAll('text#vpcTxt2').attr('visibility', 'hidden');
-        }
-
-        if (!_.isEmpty(this.selectedService) && this.doEndpointHasAppwans) {
-            svg.selectAll('rect#vpcRect1').attr('visibility', 'visible');
-            svg.selectAll('text#vpcTxt1').attr('visibility', 'visible');
-        } else {
-            svg.selectAll('rect#vpcRect1').attr('visibility', 'hidden');
-            svg.selectAll('text#vpcTxt1').attr('visibility', 'hidden');
-        }
-
-        if (this.countGrp2Nds <= 5) {
-            svg.selectAll('rect#vpcRect2').attr('height', 360);
-        } else if (this.countGrp2Nds > 5 && this.countGrp2Nds < 10) {
-            const countRect2Height = this.countGrp2Nds * 55;
-            svg.selectAll('rect#vpcRect2').attr('height', countRect2Height);
-            this.countGrp2Nds = 0;
-        } else {
-            const countRect2Height = this.countGrp2Nds * 43;
-            svg.selectAll('rect#vpcRect2').attr('height', countRect2Height);
-            this.countGrp2Nds = 0;
-        }
-
-        if (this.countGrp3Nds > 5) {
-            const countRect3Height = this.countGrp3Nds * 73;
-            svg.selectAll('rect#vpcRect3').attr('height', countRect3Height);
-            this.countGrp3Nds = 0;
-        } else {
-            svg.selectAll('rect#vpcRect3').attr('height', 350);
-        }
 
         const simulation: any = d3
             .forceSimulation()
@@ -663,51 +573,8 @@ export class IdentityServicePathComponent implements OnInit {
                     }
                 }
             });
-            const usageObjects = findAllObjects(endpointUtlizationJson, d.name);
-            let egressValue = 0;
-            let ingressValue = 0;
-            usageObjects.forEach((item) => {
-                const usageValues = printAllVals(item);
-                egressValue = egressValue + Number(usageValues[0]);
-                ingressValue = ingressValue + Number(usageValues[1]);
-            });
-            info = info + '   egress(24Hrs)  :  ' + convertBytes(egressValue) + ' <br>';
-            info = info + '   ingress(24Hrs)  :  ' + convertBytes(ingressValue) + ' <br>';
+
             return info + '</span>';
-        }
-
-        function convertBytes(bytes, decimals = 2) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const dm = decimals < 0 ? 0 : decimals;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-        }
-
-        function printAllVals(obj, result = [0, 0]) {
-            for (const k in obj) {
-                if (typeof obj[k] === 'object') {
-                    printAllVals(obj[k], result);
-                } else {
-                    if (obj[k] === 'usage.egress.tx') {
-                        result[0] = result[0] + Number(obj[1].value);
-                    } else if (obj[k] === 'usage.ingress.tx') {
-                        result[1] = result[1] + Number(obj[1].value);
-                    }
-                }
-            }
-            return result;
-        }
-        function findAllObjects(obj, name, result = []) {
-            for (const k in obj) {
-                if (typeof obj[k] === 'object') {
-                    findAllObjects(obj[k], name, result);
-                } else if (obj[k] === name) {
-                    result.push(obj);
-                }
-            }
-            return result;
         }
 
         function isAnObject(o) {

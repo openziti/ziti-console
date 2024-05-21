@@ -311,9 +311,6 @@ export class IdentityServicePathHelper {
             nodeOb.id = erouter.id;
             nodeOb.name = erouter.name;
             nodeOb.provider = 'aws';
-             //   erouter._embedded && erouter._embedded.host && erouter._embedded.host.provider !== null
-              //      ? erouter._embedded.host.provider
-               //     : 'Private Data Center';
             nodeOb.status = erouter.isVerified === true? 'Registered':'Un-Registered';
             nodeOb.online = erouter.isOnline === false ? 'No' : 'Yes';
             nodeOb.type = 'EdgeRouter';
@@ -333,19 +330,6 @@ export class IdentityServicePathHelper {
                 return null;
             }
         } // end of findEdgeRouterForId
-
-        function getUtilization(name, data) {
-            if (!data) {
-                return '0 Bytes';
-            }
-            for (const jsonData of data) {
-                const vals = Object.values(jsonData);
-                if (vals[0] === name) {
-                    return vals[1] + ' in 30 days';
-                }
-            }
-            return '0 Bytes';
-        }
 
         function getEndpointToRouterLinkState(endpointNode, routerNode) {
             let linkstate = 0;

@@ -309,7 +309,12 @@ export class IdentitiesPageService extends ListPageServiceClass {
 
     private addActionsPerRow(results: any): any[] {
         return results.data.map((row) => {
-            row.actionList = ['update', 'override', 'delete','identity-service-path'];
+            row.actionList = ['update', 'override', 'delete'];
+
+            if (row.typeId && row.typeId === 'Device' ) {
+              row.actionList.push('identity-service-path');
+            }
+
             if (this.hasEnrolmentToken(row)) {
                 row.actionList.push('reissue-enrollment');
                 if (!this.enrollmentExpired(row)) {
