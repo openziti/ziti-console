@@ -1,7 +1,7 @@
 <div [ngClass]="{ 'full-screen': fullScreen }" class="modal solid" id="IdentityVisualizerDataModal">
     <div class="tp-data-header">
         <div class="modaltitle">Identity Service Path</div>
-        <div (click)="hide()" class="buttonBall close" id="EscZEndpointClose"></div>
+        <div (click)="hide()" class="buttonBall icon-close" id="EscZEndpointClose"></div>
         <div (click)="toggleModalSize()" class="buttonBall resize" id="ResizeModalButton"></div>
     </div>
 
@@ -20,17 +20,9 @@
                 />
 
                 <div
-                    id="closeDiv"
                     (click)="clearSearchFilter()"
-                    *ngIf="filterText !== '' && closeRotate === false"
-                    class="close"
-                    id="ClearSearchFilter"
-                ></div>
-                <div
-                    id="closeDiv"
-                    (click)="clearSearchFilter()"
-                    *ngIf="filterText !== '' && closeRotate === true"
-                    class="close rotating"
+                    *ngIf="filterText"
+                    class="clear-svc-icon icon-close"
                     id="ClearSearchFilter"
                 ></div>
                 <div [hidden]="!noSearchResults" class="no-results-warning">No Results Found</div>

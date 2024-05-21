@@ -12,6 +12,34 @@
     right: 0px;
     position: fixed;
 
+    .buttonBall {
+      cursor: pointer;
+      font-weight: 600;
+      &.icon-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 23px;
+        color: var(--icon);
+      }
+      &:hover {
+        filter: brightness(50%);
+      }
+    }
+
+    .clear-svc-icon {
+      font-size: 23px;
+      font-weight: 600;
+      position: absolute;
+      top: 15px;
+      right: 40px;
+      color: var(--icon);
+      cursor: pointer;
+      &:hover {
+        filter: brightness(50%);
+      }
+    }
+
     &.full-screen {
         width: 100%;
         height: 100%;
@@ -20,45 +48,19 @@
 
     .ep-topology-filter-container {
         width: 37%;
-        // max-width: 355px;
-        margin-top: -20px;
-        margin-left: 10px;
-        flex: 1 0 auto;
-        padding: 30px 30px 0px;
+        display: flex;
+        flex-direction: row;
+        position: absolute;
+        margin: 20px;
     }
 
-    .nf-topology-filter-input {
-        width: 100%;
-        height: 50px;
-        border-radius: 25px;
-        border-color: var(--navigation);
-        background-color: var(--navigation);
-        box-shadow: 0px 20px 23px 0px var(--shadow);
-        padding-left: 20px;
-        padding-right: 35px;
-    }
-  .buttonBall.close {
-    position: absolute;
-    z-index: 10;
-    top: 18px;
-    width: 30px;
-    height: 25px;
-    right: 15px;
-    background-image: url(/assets/svgs/close.svg);
-    color: var(--icon);
-    line-height: 40px;
-    cursor: pointer;
-    font-size: 3px;
-   // color: var(--stroke);
-    transition: var(--transition);
-  }
     .buttonBall.resize {
-        top: 10px;
-        width: 45px;
-        height: 35px;
-        right: 42px;
+        top: 20px;
+        width: 23px;
+        height: 23px;
+        right: 55px;
         background-image: url(/assets/svgs/Resize.svg);
-        background-size: 24px 40px;
+        background-size: 23px 23px;
         position: absolute;
         cursor: pointer;
     }
@@ -86,17 +88,6 @@
         font-size: 30px;
         text-transform: uppercase;
         font-weight: 400;
-    }
-
-    .nf-tp-services-data-header {
-        border: 1px solid black;
-        height: 60px;
-        font-size: 12px;
-        font-weight: 300;
-        margin-left: 1px;
-        font-family: 'Russo One';
-        color: var(--primaryColor);
-        text-transform: uppercase;
     }
 
     .node {
@@ -210,15 +201,6 @@
         max-width: 450px;
     }
 
-    ::ng-deep {
-        .nf-network-topology-container {
-            position: absolute;
-            margin: 0;
-            left: 0;
-            top: 50px;
-        }
-    }
-
     .topology-legendA {
         border: 0px solid blue;
         width: 200px;
@@ -253,14 +235,6 @@
         padding-top: 0px;
         padding-bottom: 5px;
         margin-left: 10px;
-    }
-
-    @supports ((-webkit-backdrop-filter: saturate(110%) blur(15px)) or (backdrop-filter: saturate(110%) blur(15px))) {
-        .nf-topology-legendA nf-topology-legendB {
-            background: var(--glass);
-            -webkit-backdrop-filter: saturate(110%) blur(15px);
-            backdrop-filter: saturate(110%) blur(15px);
-        }
     }
 
     .legend-item {
