@@ -80,33 +80,54 @@ export class IdentityServicePathComponent implements OnInit {
     }
 
     getEndpointNetworkAsCode() {
+       const pagesize = 500;
+       const services_paging = {
+           searchOn: 'name',
+           filter: '',
+           total: pagesize,
+           page: 1,
+           sort: 'name',
+           order: 'asc'
+         };
 
-        this.zitiService.get(`identities/${this.endpointData.id}/services`, {}, []).then((result) => {
+        this.zitiService.get(`identities/${this.endpointData.id}/services`, services_paging, []).then((result) => {
           this.services = result.data;
           this.closeRotate = false;
 
-             if (!this.services) {
+             if (!this.services || this.services.length === 0) {
                  this.services = [];
                  this.serviceOptions = [];
                  this.serviceOptions.push(noServices());
+                 this.selectedService = 'Services not found for a selected identity';
+                 this.isLoading = false;
              } else {
-                 this.zitiService.get(`identities/${this.endpointData.id}/edge-routers`, {}, []).then((result) => {
+                 const pages = Math.ceil(result.meta.pagination.totalCount/pagesize);
+                 const promises = [];
+                 for(let page=2; page<=pages; page++ ) {
+                    services_paging.page =page;
+                    const tmp_promise = this.zitiService.get(`identities/${this.endpointData.id}/services`, services_paging, []).then((pageResult) => {
+                       pageResult.data.forEach((serv) => {
+                         this.services.push(serv);
+                       });
+                    });
+                   promises.push(tmp_promise);
+                 }
+                 Promise.all(promises).then( () => {
+                   this.zitiService.get(`identities/${this.endpointData.id}/edge-routers`, {}, []).then((result) => {
                       this.edgerouters = [];
                       result.data.forEach((rec) => {
-                        // if (rec.wssListener === false) {
                          this.edgerouters.push(rec);
-                        // }
                       });
-                 });
-                 this.serviceOptions = createServiceOptions(this.services);
-                 this.filterText = this.serviceOptions.length === 0 ? '' : this.serviceOptions[0].name;
-                 this.selectedService =
-                 this.serviceOptions.length === 0
+                   });
+                   this.serviceOptions = createServiceOptions(this.services);
+                   this.filterText = this.serviceOptions.length === 0 ? '' : this.serviceOptions[0].name;
+                   this.selectedService =
+                   this.serviceOptions.length === 0
                              ? 'Services not found for a selected identity'
                              : this.serviceOptions[0].name;
-                 this.autocompleteOptions = this.serviceOptions;
-                 // this.isLoading = false;
-                 this.serviceChanged();
+                   this.autocompleteOptions = this.serviceOptions;
+                   this.serviceChanged();
+                 });
              }
         });
 
@@ -170,11 +191,11 @@ export class IdentityServicePathComponent implements OnInit {
 
         let bindPolicies = [];
         let bindIdnetities = [];
-        const promise2 =  this.zitiService.get(service_policies_url, {}, []).then((result) => {
+        const promise2 =  this.zitiService.get(service_policies_url, {}, []).then((policies) => {
                const identityPromises = [];
-                result.data.forEach((rec) => {
-                    if (rec.type === 'Bind') {
-                      const bindIdentitiesUrl = this.getLinkForResource(rec, 'identities');
+                policies.data.forEach((policy) => {
+                    if (policy.type === 'Bind') {
+                      const bindIdentitiesUrl = this.getLinkForResource(policy, 'identities');
                       const promse = this.zitiService.get(bindIdentitiesUrl.replace('./',''), {}, []).then((res) => {
                              if (res && res.data.length >0 ) {
                                   res.data.forEach( (rs) => {

@@ -317,6 +317,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
 
             if (this.hasEnrolmentToken(row)) {
                 row.actionList.push('reissue-enrollment');
+                row.actionList.push('identity-service-path');
                 if (!this.enrollmentExpired(row)) {
                     row.actionList.push('download-enrollment');
                     row.actionList.push('qr-code');
