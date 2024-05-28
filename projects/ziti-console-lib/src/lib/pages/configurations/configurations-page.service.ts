@@ -26,6 +26,7 @@ import {CallbackResults} from "../../features/list-page-features/list-page-form/
 import {SchemaService} from "../../services/schema.service";
 import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service";
 import {CsvDownloadService} from "../../services/csv-download.service";
+import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
 
 @Injectable({
     providedIn: 'root'
@@ -40,9 +41,10 @@ export class ConfigurationsPageService extends ListPageServiceClass {
         private schemaSvc: SchemaService,
         @Inject(SETTINGS_SERVICE) settings: SettingsService,
         filterService: DataTableFilterService,
-        csvDownloadService: CsvDownloadService
+        csvDownloadService: CsvDownloadService,
+        @Inject(SHAREDZ_EXTENSION) extService: ExtensionService
     ) {
-        super(settings, filterService, csvDownloadService);
+        super(settings, filterService, csvDownloadService, extService);
     }
 
     initTableColumns(): any {
