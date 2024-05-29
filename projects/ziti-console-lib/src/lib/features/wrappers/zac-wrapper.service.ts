@@ -28,6 +28,7 @@ import {ZacWrapperServiceClass} from "./zac-wrapper-service.class";
 import {GrowlerService} from "../messaging/growler.service";
 import {GrowlerModel} from "../messaging/growler.model";
 import {LoggerService} from "../messaging/logger.service";
+import {VERSION} from "../../version";
 
 // @ts-ignore
 const {modal, growler} = window;
@@ -435,11 +436,15 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                 });
                 break;
             case 'version':
-                const versionData = {
-                    baseUrl: this.settingsService?.settings?.selectedEdgeController,
-                    serviceUrl: '/edge/management/v1'
-                };
-                returnTo(versionData);
+                this.callZitiEdge(`${controllerDomain}/edge/management/v1/version`, {}).then((result) => {
+                    const versionData = {
+                        "data": result.data,
+                        "serviceUrl": "/edge/management/v1",
+                        "zac": VERSION.version,
+                        "baseUrl": this.settingsService?.settings?.selectedEdgeController
+                    }
+                    returnTo(versionData);
+                });
                 break;
             case 'controllerSave':
                 this.callZitiEdge("/api/controllerSave", {}).then((result) => {
