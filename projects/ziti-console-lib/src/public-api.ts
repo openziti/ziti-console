@@ -64,3 +64,4 @@ export * from './lib/shared/list-page-component.class';
 export * from './lib/shared/list-page-service.class';
 export * from './lib/features/projectable-forms/form-field-container/form-field-container.component';
 export * from './lib/features/projectable-forms/form-field-toggle/form-field-toggle.component';
+export * from './lib/version';

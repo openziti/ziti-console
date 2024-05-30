@@ -23,6 +23,7 @@
     "noImplicitAny": false,
     "esModuleInterop": true,
     "strictNullChecks": false,
+    "resolveJsonModule": true,
     "lib": [
       "ES2022",
       "dom"
