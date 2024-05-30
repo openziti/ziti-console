@@ -32,7 +32,7 @@
     "docker:debugmessage": "echo Docker Debug Completed Successfully! Hit Ctrl+C to terminate log tailing.",
     "predocker:debug": "run-s docker:build docker:run",
     "docker:debug": "run-s -cs docker:open:win docker:open:mac docker:debugmessage docker:taillogs",
-    "postinstall": "node ./version.js"
+    "postinstall": "ls && node ./version.js"
   },
   "config": {
     "imageRepo": "netfoundry/ziti-console",
@@ -95,6 +95,7 @@
     "primeng": "^16.0.2",
     "request": "^2.88.2",
     "rxjs": "~7.8.0",
+    "sanitize-html": "^1.27.5",
     "session-file-store": "^1.5.0",
     "tslib": "^2.3.0",
     "vanilla-jsoneditor": "^0.18.4",
