@@ -32,6 +32,7 @@ import {ITooltipAngularComp} from "ag-grid-angular";
 import {ITooltipParams} from "ag-grid-community";
 import {OSTooltipComponent} from "../../features/data-table/tooltips/os-tooltip.component";
 import {SDKTooltipComponent} from "../../features/data-table/tooltips/sdk-tooltip.component";
+import {IdentityServicePathComponent} from "../../features/visualizer/identity-service-path/identity-service-path.component";
 import {GrowlerModel} from "../../features/messaging/growler.model";
 import {GrowlerService} from "../../features/messaging/growler.service";
 import {ResetEnrollmentComponent} from "../../features/reset-enrollment/reset-enrollment.component";
@@ -75,6 +76,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
         {name: 'Edit', action: 'update'},
         {name: 'Download JWT', action: 'download-enrollment'},
         {name: 'View QR', action: 'qr-code'},
+        {name: 'Visualizer', action: 'identity-service-path'},
         {name: 'Reset Enrollment', action: 'reset-enrollment'},
         {name: 'Reissue Enrollment', action: 'reissue-enrollment'},
         {name: 'Override', action: 'override'},
@@ -308,8 +310,14 @@ export class IdentitiesPageService extends ListPageServiceClass {
     private addActionsPerRow(results: any): any[] {
         return results.data.map((row) => {
             row.actionList = ['update', 'override', 'delete'];
+
+            if (row.typeId && row.typeId === 'Device' ) {
+              row.actionList.push('identity-service-path');
+            }
+
             if (this.hasEnrolmentToken(row)) {
                 row.actionList.push('reissue-enrollment');
+                row.actionList.push('identity-service-path');
                 if (!this.enrollmentExpired(row)) {
                     row.actionList.push('download-enrollment');
                     row.actionList.push('qr-code');

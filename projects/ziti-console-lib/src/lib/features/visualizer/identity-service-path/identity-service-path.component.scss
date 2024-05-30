@@ -1,0 +1,429 @@
+#IdentityVisualizerDataModal {
+    overflow: hidden;
+    width: 75%;
+    height: 85%;
+    background-color: var(--background);
+    border-radius: 25px;
+    z-index: 1001;
+    margin: auto;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    position: fixed;
+
+    .buttonBall {
+      cursor: pointer;
+      font-weight: 600;
+      &.icon-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 23px;
+        color: var(--icon);
+      }
+      &:hover {
+        filter: brightness(50%);
+      }
+    }
+
+    .clear-svc-icon {
+      font-size: 23px;
+      font-weight: 600;
+      position: absolute;
+      top: 15px;
+      right: 40px;
+      color: var(--icon);
+      cursor: pointer;
+      &:hover {
+        filter: brightness(50%);
+      }
+    }
+
+    &.full-screen {
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+    }
+
+    .ep-topology-filter-container {
+        width: 37%;
+        display: flex;
+        flex-direction: row;
+        position: absolute;
+        margin: 20px;
+    }
+
+    .buttonBall.resize {
+        top: 20px;
+        width: 23px;
+        height: 23px;
+        right: 55px;
+        background-image: url(/assets/svgs/Resize.svg);
+        background-size: 23px 23px;
+        position: absolute;
+        cursor: pointer;
+    }
+
+    .identity-topology-container {
+        display: flex;
+        margin-left: -5px;
+        margin-top: 10px;
+        flex-direction: column;
+        cursor: grab;
+        background: #f5e9f2;
+        background-image: linear-gradient(#ecd3e6 2px, transparent 0), linear-gradient(90deg, #ecd3e6 2px, transparent 0), linear-gradient(#ecd3e6 1px, transparent 0), linear-gradient(90deg, #ecd3e6 1px, transparent 0);
+        background-size: 40px 40px, 40px 40px, 10px 10px, 10px 10px;
+    }
+
+    .tp-data-header {
+        height: 40px;
+        font-size: 25px;
+        font-weight: 600;
+        margin-left: 20px;
+        margin-top: 10px;
+        margin-bottom: 5px;
+        font-family: 'Russo One';
+        color: var(--primaryColor);
+        font-size: 30px;
+        text-transform: uppercase;
+        font-weight: 400;
+    }
+
+    .node {
+        text {
+            font: 12px 'Open Sans', Arial, sans-serif;
+        }
+    }
+
+    .modaltitle {
+        filter: brightness(50%);
+        padding-top: 6px;
+        padding-left: 5px;
+    }
+
+    .modalbuttons {
+        padding-right: 20px;
+    }
+
+ .listBox.row .close, {
+       position: fixed;
+        display: flex;
+        flex-direction: column;
+        font-family: 'icomoon' !important;
+        font-style: normal;
+        font-weight: 600;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        color: var(--icon);
+        text-align: center;
+        font-size: 35px;
+        line-height: 40px;
+       // position: absolute;
+        left: 35%;
+        top: 17%;
+        width: 40px;
+        height: 40px;
+        background-image: url(/assets/svgs/close.svg);
+        z-index: 600;
+        background-position: center center;
+        background-size: 75%;
+        cursor: pointer;
+        transition: 0.3s;
+        justify-content: end;
+        align-items: center;
+    }
+
+    .tp-topo-data-header {
+        border: 0px solid black;
+        height: 1200px;
+
+        font-size: 12px;
+        font-weight: 400;
+        margin-left: 12px;
+        margin-top: 3px;
+        //font-family: "Russo One";
+        color: var(--primaryColor);
+        // text-transform: uppercase;
+    }
+
+    .services-select {
+        width: 400px;
+        flex-shrink: 0;
+        border-radius: 27px;
+        height: 51px;
+        margin-left: 22px;
+        margin-top: 10px;
+        background-color: #ffffff;
+        border-color: var(--navigation);
+        box-shadow: 0px 20px 23px 0px var(--shadow);
+        color: var(--tableText);
+        padding-left: 20px;
+    }
+
+    select {
+        background-image: url(/assets/svgs/ArrowDown.svg);
+        background-position: center right 15px;
+        background-repeat: no-repeat;
+        background-size: 18px;
+        padding-right: 47px;
+    }
+
+    .topology-filter-input {
+        height: 50px;
+        width: 95%;
+        border-radius: 25px;
+        border-color: var(--navigation);
+        background-color: var(--navigation);
+        box-shadow: 0px 20px 23px 0px var(--shadow);
+        padding-left: 20px;
+    }
+
+    .topotip {
+        display: none;
+        position: fixed;
+        padding: 2px;
+        background: var(--navigation);
+        border: 0px;
+        border-radius: 12px;
+        pointer-events: none;
+        box-shadow: 0px 20px 23px 0px var(--shadow);
+        transition: background-color 0.3s;
+        padding: 10px;
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--tableText);
+        z-index: 2000;
+        opacity: 1;
+        max-width: 450px;
+    }
+
+    .topology-legendA {
+        border: 0px solid blue;
+        width: 200px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        margin-right: 10px;
+        position: absolute;
+        display: inline-block;
+        top: 75px;
+        right: 0px;
+        background: var(--navigation);
+        box-shadow: 0px 20px 23px 0px var(--shadow);
+        padding: 10px;
+        padding-top: 0px;
+        padding-bottom: 5px;
+        margin-top: 0;
+        padding-right: 10px;
+    }
+    .topology-legendB {
+        width: 200px;
+        border: 0px solid blue;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        margin-right: 10px;
+        position: absolute;
+        top: 200px;
+        right: 0px;
+        background: var(--navigation);
+        display: inline-block;
+        box-shadow: 0px 20px 23px 0px var(--shadow);
+        padding: 10px;
+        padding-top: 0px;
+        padding-bottom: 5px;
+        margin-left: 10px;
+    }
+
+    .legend-item {
+        width: 100%;
+        height: 100%;
+        display: inline-block;
+    }
+
+    .legend-item-head {
+        width: 105%;
+        height: 100%;
+        display: inline-block;
+        border: 0px solid blue;
+        left: -3px;
+    }
+
+    .legend-circle {
+        height: 12px;
+        width: 12px;
+        border-radius: 15px;
+        display: inline-block;
+        margin-top: 7px;
+    }
+
+    .legend-circle.unregistered {
+        background-color: #d8dce7;
+    }
+
+    .legend-circle.registered_not_in_use {
+        border: 1px solid #08dc5a; //#CAEEC2;
+        background-color: #ffffff;
+    }
+
+    .legend-circle.registered_in_use {
+        background-color: #08dc5a;
+    }
+
+    .legend-circle.errored {
+        background-color: #fb0d3d;
+    }
+
+    .legend-circle.linkerrored {
+        background-image: url('/assets/images/visualizer/link-cut.png');
+        background-size: contain;
+        // background-color: #ff004e;
+    }
+
+    .legend-text {
+        display: inline-block;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--tableText);
+        padding-left: 7px;
+        padding-bottom: 4px;
+    }
+
+    .legend-text-heading {
+        text-align: center;
+        display: inline-block;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--tableText);
+        padding-left: 10px;
+        padding-top: 2px;
+        padding-bottom: 2px;
+        color: blueviolet;
+    }
+
+    .legend-text2 {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 400;
+        color: var(--tableText);
+        padding-left: 2px;
+        padding-bottom: 4px;
+    }
+    .filters-area {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+        margin-top: 10px;
+    }
+    .dateTimeField input {
+        // width: 80px; //300px;
+        height: 40px;
+        vertical-align: middle;
+        margin-right: 1px;
+    }
+    .p-datepicker table td {
+        padding: 0px;
+    }
+    .p-datepicker table td > span {
+        padding: 0px;
+    }
+    .p-timepicker {
+        padding: 1px;
+    }
+    .p-datepicker-header {
+        padding: 0px;
+    }
+    .p-datepicker-header-group {
+        padding: 0px;
+    }
+    .p-datepicker .p-timepicker button:last-child {
+        height: 15px;
+    }
+    .p-datepicker .p-timepicker button {
+        height: 15px;
+    }
+    .ng-tns-c15-3 {
+        font-size: 15px;
+        font-weight: 700;
+    }
+    .p-datepicker .p-datepicker-buttonbar {
+        padding: 0px;
+    }
+
+    .reset-button {
+        height: 50px;
+        width: 50px;
+        margin-top: -7%;
+        margin-left: 70%;
+        border-radius: 50px;
+        margin-right: 10px;
+        background-size: contain;
+        --background-image: url(/assets/svgs/refresh.svg);
+        cursor: pointer;
+        overflow: hidden;
+        z-index: 24;
+        box-shadow: 0px 20px 23px 0px var(--shadow);
+        transition: 0.3s;
+    }
+    .refresh-button {
+        position: absolute;
+        display: inline-block;
+        height: 43px;
+        width: 122px;
+        margin-top: -85px;
+        margin-left: 65%;
+        border-radius: 10px;
+        margin-right: 10px;
+        font-color: blue;
+        font-weight: 700;
+    }
+    .reset-button:hover {
+        filter: brightness(90%);
+        transform: scale(0.97);
+        transition: 0.3s;
+    }
+
+    .reset-button:active {
+        transform: scale(0.9);
+        transition: 0.3s;
+    }
+
+    @-webkit-keyframes rotating /* Safari and Chrome */ {
+        from {
+            -webkit-transform: rotate(0deg);
+            -o-transform: rotate(0deg);
+            transform: rotate(0deg);
+        }
+        to {
+            -webkit-transform: rotate(360deg);
+            -o-transform: rotate(360deg);
+            transform: rotate(360deg);
+        }
+    }
+    @keyframes rotating {
+        from {
+            -ms-transform: rotate(0deg);
+            -moz-transform: rotate(0deg);
+            -webkit-transform: rotate(0deg);
+            -o-transform: rotate(0deg);
+            transform: rotate(0deg);
+        }
+        to {
+            -ms-transform: rotate(360deg);
+            -moz-transform: rotate(360deg);
+            -webkit-transform: rotate(360deg);
+            -o-transform: rotate(360deg);
+            transform: rotate(360deg);
+        }
+    }
+    .rotating {
+        -webkit-animation: rotating 2s linear infinite;
+        -moz-animation: rotating 2s linear infinite;
+        -ms-animation: rotating 2s linear infinite;
+        -o-animation: rotating 2s linear infinite;
+        animation: rotating 2s linear infinite;
+    }
+}
