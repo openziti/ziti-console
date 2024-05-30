@@ -110,4 +110,12 @@ export abstract class ListPageServiceClass {
         this.currentSort = {sortBy, ordering};
         if(this.refreshData) this.refreshData({sortBy, ordering});
     }
+
+    hasSelectedText() {
+        let text = '';
+        if (window.getSelection) {
+            text = window.getSelection().toString();
+        }
+        return text?.length > 0;
+    }
 }

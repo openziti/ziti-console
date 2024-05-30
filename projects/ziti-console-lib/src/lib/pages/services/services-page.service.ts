@@ -107,6 +107,9 @@ export class ServicesPageService extends ListPageServiceClass {
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
                 onCellClicked: (data) => {
+                    if (this.hasSelectedText()) {
+                        return;
+                    }
                     this.serviceType = 'advanced';
                     this.openUpdate(data.data);
                 },
@@ -125,6 +128,9 @@ export class ServicesPageService extends ListPageServiceClass {
                 headerName: 'Roles',
                 headerComponent: TableColumnDefaultComponent,
                 onCellClicked: (data) => {
+                    if (this.hasSelectedText()) {
+                        return;
+                    }
                     this.serviceType = '';
                     this.openUpdate(data.data);
                 },
@@ -144,6 +150,13 @@ export class ServicesPageService extends ListPageServiceClass {
                 sortable: true,
                 sortColumn: this.sort.bind(this),
                 cellClass: 'nf-cell-vert-align tCol',
+                onCellClicked: (data) => {
+                    if (this.hasSelectedText()) {
+                        return;
+                    }
+                    this.serviceType = '';
+                    this.openUpdate(data.data);
+                },
             }
         ];
     }

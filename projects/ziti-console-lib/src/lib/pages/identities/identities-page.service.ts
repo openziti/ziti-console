@@ -187,6 +187,9 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
                 onCellClicked: (data) => {
+                    if (this.hasSelectedText()) {
+                        return;
+                    }
                     this.openUpdate(data.data);
                 },
                 resizable: true,
@@ -204,6 +207,9 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 headerName: 'Roles',
                 headerComponent: TableColumnDefaultComponent,
                 onCellClicked: (data) => {
+                    if (this.hasSelectedText()) {
+                        return;
+                    }
                     this.openUpdate(data.data);
                 },
                 resizable: true,
