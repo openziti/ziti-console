@@ -11,6 +11,8 @@ WORKDIR /usr/src/app
 RUN npm install -g @angular/cli@16.0.0-next.0
 
 COPY package*.json ./
+COPY ./version.js ./
+COPY --from=zac-builder /usr/src/app/projects/ziti-console-lib/src/lib/version.ts ./usr/src/app/projects/ziti-console-lib/src/lib/version.ts
 RUN npm install --omit=optional
 
 COPY . .
