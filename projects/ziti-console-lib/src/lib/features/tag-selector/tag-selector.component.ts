@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 
 @Component({
   selector: 'lib-tag-selector',
@@ -28,6 +28,9 @@ export class TagSelectorComponent {
   displayedNamedOptions: any[] = [];
   filterString = '';
   _hashAttributes = {};
+
+  @ViewChild('search') search: ElementRef;
+  @ViewChild('dropdownWrapper') dropdownWrapper: ElementRef;
 
   constructor() {
   }
@@ -163,6 +166,13 @@ export class TagSelectorComponent {
     switch ($event.key) {
       case 'Enter':
         this.addNewAttribute(filterString);
+        $event.stopPropagation();
+        $event.preventDefault();
+        break;
+      case 'Escape':
+        this.hide();
+        this.search.nativeElement.blur();
+        this.dropdownWrapper.nativeElement.focus();
         $event.stopPropagation();
         $event.preventDefault();
         break;

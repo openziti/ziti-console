@@ -1,4 +1,4 @@
-<span (clickOutside)="hide()" [ngClass]="{ readOnly: disableField }" class="clickOutside fullWidth tagsSelector">
+<span (clickOutside)="hide()" [ngClass]="{ readOnly: disableField }" class="clickOutside fullWidth tagsSelector" >
     <span
             class="select2 select2-container select2-container--default select2-container--below select2-container--focus"
             dir="ltr"
@@ -30,6 +30,7 @@
                         spellcheck="false"
                         tabindex="0"
                         type="search"
+                        #search
                 />
                 <span *ngIf="isLoading" class="spinner"></span>
 
@@ -50,7 +51,7 @@
                             class="select2-selection__choice__remove"
                             role="presentation"
                         >×</span
-                        >#{{ item }}
+                        ><span class="select2-selection__choice__text">#{{ item }}</span>
                     </li>
                     <li
                         (click)="$event.stopPropagation()"
@@ -64,12 +65,12 @@
                             class="select2-selection__choice__remove"
                             role="presentation"
                         >×</span
-                        >@{{ item }}
+                        ><span class="select2-selection__choice__text">@{{ item }}</span>
                     </li>
                 </ul>
             </span>
         </span>
-        <span aria-hidden="true" class="dropdown-wrapper"></span>
+        <span aria-hidden="true" class="dropdown-wrapper" tabindex="-1" #dropdownWrapper></span>
     </span>
     <span *ngIf="_hasError" class="err">
         {{ errorMessage }}

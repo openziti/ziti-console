@@ -17,6 +17,11 @@
       &.select2-selection-focus {
         border-color: var(--primaryColor);
       }
+      .select2-selection__choice__text {
+        cursor: text;
+        user-select: text;
+        -webkit-user-select: text;
+      }
     }
   }
 }
