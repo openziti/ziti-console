@@ -4,7 +4,8 @@
   "compilerOptions": {
     "outDir": "../../out-tsc/app",
     "types": [],
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "resolveJsonModule": true
   },
   "files": [
     "src/main.ts"

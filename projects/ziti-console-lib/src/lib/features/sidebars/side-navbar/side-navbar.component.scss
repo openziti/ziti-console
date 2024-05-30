@@ -54,13 +54,15 @@
   .version {
     position: absolute;
     bottom: 20px;
-    right: 20px;
-    width: 75%;
-    text-align: center;
+    width: 100%;
     color: var(--text);
-    opacity: 0.7;
+    opacity: .7;
     font-size: 14px;
-    font-weight: bold;
+    right: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   #CustomLogo {
