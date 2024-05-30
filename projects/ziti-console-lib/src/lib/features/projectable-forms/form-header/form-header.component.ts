@@ -15,6 +15,7 @@
 */
 
 import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {isFunction} from 'lodash';
 
 @Component({
   selector: 'lib-form-header',
@@ -33,10 +34,19 @@ export class FormHeaderComponent {
   @Output() formViewChange: EventEmitter<string> = new EventEmitter<string>();
   @Output() actionRequested: EventEmitter<any> = new EventEmitter<any>();
 
-
   showActionsDropDown = false;
 
   constructor() {}
+
+  get hasMoreActions() {
+    let hasMoreActions = false;
+    this.moreActions?.forEach(action => {
+      if (!isFunction(action.hidden) || !action.hidden()) {
+        hasMoreActions = true;
+      }
+    });
+    return hasMoreActions;
+  }
 
   requestAction(action) {
     if (action.name === 'toggle-view') {

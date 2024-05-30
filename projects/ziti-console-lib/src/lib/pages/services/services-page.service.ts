@@ -32,6 +32,7 @@ import {GrowlerModel} from "../../features/messaging/growler.model";
 import {GrowlerService} from "../../features/messaging/growler.service";
 import {MatDialog} from "@angular/material/dialog";
 import {SettingsServiceClass} from "../../services/settings-service.class";
+import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
 
 const CSV_COLUMNS = [
     {label: 'Name', path: 'name'},
@@ -72,8 +73,9 @@ export class ServicesPageService extends ListPageServiceClass {
         override csvDownloadService: CsvDownloadService,
         private growlerService: GrowlerService,
         private dialogForm: MatDialog,
+        @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService
     ) {
-        super(settings, filterService, csvDownloadService);
+        super(settings, filterService, csvDownloadService, extService);
     }
 
     validate = (formData): Promise<CallbackResults> => {

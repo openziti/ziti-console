@@ -20,12 +20,13 @@ import {IdentitiesPageService} from "./identities-page.service";
 import {DataTableFilterService} from "../../features/data-table/data-table-filter.service";
 import {ListPageComponent} from "../../shared/list-page-component.class";
 import {TabNameService} from "../../services/tab-name.service";
-import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {MatDialog} from "@angular/material/dialog";
 import {ZacWrapperServiceClass, ZAC_WRAPPER_SERVICE} from "../../features/wrappers/zac-wrapper-service.class";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {QrCodeComponent} from "../../features/qr-code/qr-code.component";
 import {ResetEnrollmentComponent} from "../../features/reset-enrollment/reset-enrollment.component";
+import {IDENTITY_EXTENSION_SERVICE} from "../../features/projectable-forms/identity/identity-form.service";
+import {ExtensionService} from "../../features/extendable/extensions-noop.service";
 import { IdentityServicePathComponent } from "../../features/visualizer/identity-service-path/identity-service-path.component";
 
 @Component({
@@ -49,6 +50,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperServiceClass,
       private router: Router,
       consoleEvents: ConsoleEventsService,
+      @Inject(IDENTITY_EXTENSION_SERVICE) private extService: ExtensionService
   ) {
     super(filterService, svc, consoleEvents, dialogForm);
   }
@@ -105,6 +107,18 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   }
 
   tableAction(event: any) {
+    if (this.extService?.listActions?.length > 0) {
+      let extensionFound = false;
+      this.extService?.listActions?.forEach((extAction) => {
+        if (extAction?.action === event?.action) {
+          extAction.callback(event.item);
+          extensionFound = true;
+        }
+      });
+      if (extensionFound) {
+        return;
+      }
+    }
     switch(event?.action) {
       case 'toggleAll':
       case 'toggleItem':

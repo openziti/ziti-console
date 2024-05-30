@@ -81,23 +81,7 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
         private dialogForm: MatDialog,
         @Inject(EDGE_ROUTER_EXTENSION_SERVICE) private extService: ExtensionService
     ) {
-        super(settings, filterService, csvDownloadService);
-        if (this.extService.listActions) {
-            this.menuItems = this.menuItems.map((item) => {
-                this.extService.listActions.forEach((extItem) => {
-                    if (item.action === extItem.action) {
-                        item = extItem;
-                    }
-                });
-                return item;
-            });
-            let filteredActions = this.extService.listActions.filter((extItem) => {
-                return !this.menuItems.some((item) => {
-                    return item.action === extItem.action;
-                });
-            });
-            this.menuItems = [...this.menuItems, ...filteredActions];
-        }
+        super(settings, filterService, csvDownloadService, extService);
     }
 
     validate = (formData): Promise<CallbackResults> => {
@@ -105,6 +89,8 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
     }
 
     initTableColumns(): any {
+        this.initMenuActions();
+
         const nameRenderer = (row) => {
             return `<div class="col cell-name-renderer" data-id="${row?.data?.id}">
                 <span class="circle ${row?.data?.isVerified}" title="Verified Status"></span>
@@ -302,12 +288,7 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
             if (this.hasEnrolmentToken(row)) {
                 row.actionList.push('download-enrollment');
             }
-            if (this.extService.listActions) {
-                const keys = this.extService.listActions.map((action) => {
-                    return action.action;
-                });
-                row.actionList = [...row.actionList, ...keys];
-            }
+            this.addListItemExtensionActions(row);
             return row;
         });
     }

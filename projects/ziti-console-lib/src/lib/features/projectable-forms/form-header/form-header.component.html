@@ -36,7 +36,7 @@
                     JSON
                 </span>
             </div>
-            <div class="more-actions-container" *ngIf="moreActions && moreActions.length > 0" (click)="showMoreActions()" (clickOutside)="closeActionsMoreActions()">
+            <div class="more-actions-container" *ngIf="hasMoreActions" (click)="showMoreActions()" (clickOutside)="closeActionsMoreActions()">
                 <div class="more-actions-button">
                     <div class="more-actions-label">
                         <div class="more-actions-text">{{moreActionsText}}</div>

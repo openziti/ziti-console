@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-import {Injectable, Inject, Component} from "@angular/core";
+import {Injectable, Inject, Component, OnInit} from "@angular/core";
 import {cloneDeep, isEmpty} from 'lodash';
 import moment from 'moment';
 import {DataTableFilterService, FilterObj} from "../../features/data-table/data-table-filter.service";
@@ -38,6 +38,8 @@ import {GrowlerService} from "../../features/messaging/growler.service";
 import {ResetEnrollmentComponent} from "../../features/reset-enrollment/reset-enrollment.component";
 import {MatDialog} from "@angular/material/dialog";
 import {SettingsServiceClass} from "../../services/settings-service.class";
+import {ExtensionService} from "../../features/extendable/extensions-noop.service";
+import {IDENTITY_EXTENSION_SERVICE} from "../../features/projectable-forms/identity/identity-form.service";
 
 const CSV_COLUMNS = [
     {label: 'Name', path: 'name'},
@@ -96,8 +98,9 @@ export class IdentitiesPageService extends ListPageServiceClass {
         override csvDownloadService: CsvDownloadService,
         private growlerService: GrowlerService,
         private dialogForm: MatDialog,
+        @Inject(IDENTITY_EXTENSION_SERVICE) extService: ExtensionService
     ) {
-        super(settings, filterService, csvDownloadService);
+        super(settings, filterService, csvDownloadService, extService);
     }
 
     validate = (formData): Promise<CallbackResults> => {
@@ -105,6 +108,8 @@ export class IdentitiesPageService extends ListPageServiceClass {
     }
 
     initTableColumns(): any {
+        this.initMenuActions();
+
         const nameRenderer = (row) => {
             return `<div class="col cell-name-renderer" data-id="${row?.data?.id}">
                 <span class="circle ${row?.data?.hasApiSession}" title="Api Session"></span>
@@ -331,6 +336,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
             } else if (this.hasAuthenticator(row)) {
                 row.actionList.push('reset-enrollment');
             }
+            this.addListItemExtensionActions(row);
             return row;
         });
     }

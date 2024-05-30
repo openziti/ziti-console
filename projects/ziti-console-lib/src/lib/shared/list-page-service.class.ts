@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-import {Inject, inject} from '@angular/core';
+import {Component, Inject, inject, OnInit} from '@angular/core';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../services/ziti-data.service";
 import {DataTableFilterService, FilterObj} from "../features/data-table/data-table-filter.service";
 import {ValidatorCallback} from "../features/list-page-features/list-page-form/list-page-form.component";
@@ -26,6 +26,7 @@ import {SETTINGS_SERVICE, SettingsService} from "../services/settings.service";
 import {isEmpty} from "lodash";
 import {CsvDownloadService} from "../services/csv-download.service";
 import {SettingsServiceClass} from "../services/settings-service.class";
+import {ExtensionService, SHAREDZ_EXTENSION} from "../features/extendable/extensions-noop.service";
 
 export abstract class ListPageServiceClass {
 
@@ -66,6 +67,7 @@ export abstract class ListPageServiceClass {
         @Inject(SETTINGS_SERVICE) protected settings: SettingsServiceClass,
         protected filterService: DataTableFilterService,
         protected csvDownloadService: CsvDownloadService,
+        @Inject(SHAREDZ_EXTENSION) protected extensionService: ExtensionService
     ) {
         this.dataService = inject(ZITI_DATA_SERVICE);
         this.settings.settingsChange.subscribe((settings) => {
@@ -76,6 +78,34 @@ export abstract class ListPageServiceClass {
                 }
             }
         });
+    }
+
+    initMenuActions() {
+        if (this.extensionService.listActions) {
+            this.menuItems = this.menuItems.map((item) => {
+                this.extensionService.listActions.forEach((extItem) => {
+                    if (item.action === extItem.action) {
+                        item = extItem;
+                    }
+                });
+                return item;
+            });
+            let filteredActions = this.extensionService.listActions.filter((extItem) => {
+                return !this.menuItems.some((item) => {
+                    return item.action === extItem.action;
+                });
+            });
+            this.menuItems = [...this.menuItems, ...filteredActions];
+        }
+    }
+
+    addListItemExtensionActions(row) {
+        if (this.extensionService.listActions) {
+            const keys = this.extensionService.listActions.map((action) => {
+                return action.action;
+            });
+            row.actionList = [...row.actionList, ...keys];
+        }
     }
 
     getTableData(resourceType: string, paging: any, filters?: FilterObj[], sort?: any): Promise<any> {
