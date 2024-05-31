@@ -1,3 +1,20 @@
+# app-ziti-console-v3.2.0
+# ziti-console-lib-v0.2.0
+*
+## Feature/Improvements
+* [Issue #338](https://github.com/openziti/ziti-console/issues/338) - Enable "Re-enroll" edge router feature in ZAC
+* [Issue #323](https://github.com/openziti/ziti-console/issues/323) - Allow ZAC extensions to define additional items for the "More Actions" drop down
+* [Issue #344](https://github.com/openziti/ziti-console/issues/344) - Service Path "Visualizer" for Identities
+
+## Bug Fixes
+* [Issue #315](https://github.com/openziti/ziti-console/issues/315) - v3.1.0 displays version "ZAC:undefined"
+* [Issue #316](https://github.com/openziti/ziti-console/issues/316) - reissue endpoint identity failed
+* [Issue #320](https://github.com/openziti/ziti-console/issues/320) - Service & Config selections for defining Identity Overrides need to be debounced
+* [Issue #349](https://github.com/openziti/ziti-console/issues/349) - ER Token & JWT button are still displayed after enrollments is expired
+* [Issue #351](https://github.com/openziti/ziti-console/issues/351) - More options on identity creation form should be hidden until after creation
+* [Issue #352](https://github.com/openziti/ziti-console/issues/352) - Tag selector rendering issues
+* [Issue #356](https://github.com/openziti/ziti-console/issues/356) - ZAC and controller version don't display on nav bar when running ng build ziti-console
+
 # app-ziti-console-v3.1.0
 # ziti-console-lib-v0.1.0
 *
