@@ -4,7 +4,7 @@
 ## Feature/Improvements
 * [Issue #338](https://github.com/openziti/ziti-console/issues/338) - Enable "Re-enroll" edge router feature in ZAC
 * [Issue #323](https://github.com/openziti/ziti-console/issues/323) - Allow ZAC extensions to define additional items for the "More Actions" drop down
-* [Issue #338](https://github.com/openziti/ziti-console/issues/344) - Service Path "Visualizer" for Identities
+* [Issue #344](https://github.com/openziti/ziti-console/issues/344) - Service Path "Visualizer" for Identities
 
 ## Bug Fixes
 * [Issue #315](https://github.com/openziti/ziti-console/issues/315) - v3.1.0 displays version "ZAC:undefined"
