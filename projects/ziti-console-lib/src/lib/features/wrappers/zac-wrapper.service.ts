@@ -768,6 +768,7 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                 }
             }
         }
+        saveParams.data = this.redefineObject(saveParams.data);
         for (const prop in saveParams.data) {
             if (Array.isArray(saveParams.data[prop]) && saveParams.data[prop].length == 0) {
                 delete saveParams.data[prop];
@@ -810,6 +811,26 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                 }
             } else returnTo({error: "Unable to save data"});
         });
+    }
+
+    redefineObject(obj) {
+        for (let prop in obj) {
+            if (Array.isArray(obj[prop]) && obj[prop].length==0) {
+                delete obj[prop];
+            } else {
+                if (typeof obj[prop] === "string" && obj[prop].trim().length==0) {
+                    delete obj[prop];
+                } else {
+                    if (typeof obj[prop] === "object") {
+                        obj[prop] = this.redefineObject(obj[prop]);
+                        if (Object.keys(obj[prop]).length==0) {
+                            delete obj[prop];
+                        }
+                    }
+                }
+            }
+        }
+        return obj;
     }
 
     saveZitiSubData(params: any, returnTo: any) {
