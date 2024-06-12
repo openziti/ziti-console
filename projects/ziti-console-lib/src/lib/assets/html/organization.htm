@@ -85,7 +85,7 @@
         objects: ["router","service","terminator","identity","policy"],
         init: function() {
             for (var i=0; i<page.objects.length; i++) {
-                $("#ObjectsList").append('<div class="tag" data-object="'+page.objects[i]+'">'+page.objects[i]+'</div>')
+                $("#ObjectsList").append('<div class="tag" data-object="'+app.validate(page.objects[i])+'">'+app.validate(page.objects[i])+'</div>')
             }
             this.events();
         },
@@ -109,7 +109,7 @@
                     var element = $("#RowTemplate").clone();
                     element.removeClass("template");
                     element.attr("id","Row"+i);
-                    for (var key in tags.data[i]) element.html(element.html().split("{{"+key+"}}").join(tags.data[i][key]));
+                    for (var key in tags.data[i]) element.html(element.html().split("{{"+key+"}}").join(app.validate(tags.data[i][key])));
                     $(".rows").append(element);
                 }
                 page.pageLoaded();  

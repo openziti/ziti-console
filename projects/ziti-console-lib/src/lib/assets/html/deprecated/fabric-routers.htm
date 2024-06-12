@@ -54,7 +54,7 @@
                         var element = $("#RowTemplate").clone();
                         element.removeClass("template");
                         element.attr("id","Row"+i);
-                        for (var prop in page.data[i]) element.html(element.html().split("{{"+prop+"}}").join(page.data[i][prop]));
+                        for (var prop in page.data[i]) element.html(element.html().split("{{"+prop+"}}").join(app.validate(page.data[i][prop])));
                         $(".rows").append(element);
                     }
                     page.pageLoaded();     

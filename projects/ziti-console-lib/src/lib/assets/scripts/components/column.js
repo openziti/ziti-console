@@ -134,7 +134,7 @@ function Column(elementId) {
         html += '<div class="nfside left"><div class="sub">Total Data '+metrics.total.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")+' MB</div>';
         html += '<div class="label">Data Sent</div><div class="value">'+metrics.dataSent.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")+' MB</div>';
         html += '<div class="label">Data Recv</div><div class="value">'+metrics.dataRecieved.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")+' MB</div>';
-        html += '</div><div class="ngrightlabel" style="line-height: '+(height/2)+'px">'+name+'</div></div>';
+        html += '</div><div class="ngrightlabel" style="line-height: '+(height/2)+'px">'+app.validate(name)+'</div></div>';
         html += '<div class="nfbottom"></div></div>';
         return html;
     };

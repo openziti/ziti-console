@@ -104,9 +104,9 @@
                         var element = $("#RowTemplate").clone();
                         element.removeClass("template");
                         element.attr("id","Row"+index);
-                        element.html(element.html().split("{{id}}").join(settings.data.edgeControllers[i].url));
-                        element.html(element.html().split("{{name}}").join(settings.data.edgeControllers[i].name));
-                        element.html(element.html().split("{{url}}").join(settings.data.edgeControllers[i].url));
+                        element.html(element.html().split("{{id}}").join(app.validate(settings.data.edgeControllers[i].url)));
+                        element.html(element.html().split("{{name}}").join(app.validate(settings.data.edgeControllers[i].name)));
+                        element.html(element.html().split("{{url}}").join(app.validate(settings.data.edgeControllers[i].url)));
                         element.html(element.html().split("{{type}}").join("Edge"));
                         $(".rows").append(element);
                         index++;

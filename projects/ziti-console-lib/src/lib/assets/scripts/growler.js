@@ -61,11 +61,11 @@ var growler = {
           element.removeClass("template");
           element.attr("id","Row"+i);
           element.addClass(growler.data[i].type);
-          element.html(element.html().split("{{type}}").join(growler.data[i].type));
-          element.html(element.html().split("{{level}}").join(growler.data[i].title));
-          element.html(element.html().split("{{subtitle}}").join(growler.data[i].subtitle));
-          element.html(element.html().split("{{message}}").join(growler.data[i].message));
-          element.html(element.html().split("{{time}}").join(moment(growler.data[i].time).fromNow()));
+          element.html(element.html().split("{{type}}").join(app.validate(growler.data[i].type)));
+          element.html(element.html().split("{{level}}").join(app.validate(growler.data[i].title)));
+          element.html(element.html().split("{{subtitle}}").join(app.validate(growler.data[i].subtitle)));
+          element.html(element.html().split("{{message}}").join(app.validate(growler.data[i].message)));
+          element.html(element.html().split("{{time}}").join(app.validate(moment(growler.data[i].time).fromNow())));
           $("#NotificationsList").append(element);
       }
 			$("#AlarmCount").show();
@@ -87,10 +87,10 @@ var growler = {
     if (growler.isDebugging) console.log(type+"::"+title+" - "+message);
     if (type!="debug"||growler.isDebugging) {
       $("#Growler").addClass(type);
-      $("#Growler").find(".title").html(title);
-      $("#Growler").find(".subtitle").html(subtitle);
-      $("#Growler").find(".content").html(message);
-      $("#Growler").find(".icon").css("background-image", "url(assets/images/"+type+".png)");
+      $("#Growler").find(".title").html(app.validate(title));
+      $("#Growler").find(".subtitle").html(app.validate(subtitle));
+      $("#Growler").find(".content").html(app.validate(message));
+      $("#Growler").find(".icon").css("background-image", "url(assets/images/"+app.validate(type)+".png)");
       $("#Growler").addClass("open");
       growler.showId = setTimeout(function() {
         growler.showId = -1;

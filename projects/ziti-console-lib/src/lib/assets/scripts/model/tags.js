@@ -78,12 +78,12 @@ var tags = {
         resourceElements.html("");
         var items = context.get("resources-"+tagId);
         for (var i=0; i<items.length; i++) {
-            var element = $('<div class="resource" data-id="'+items[i]+'" style="background-image:url('+items[i]+');"></div>');
+            var element = $('<div class="resource" data-id="'+app.validate(items[i])+'" style="background-image:url('+app.validate(items[i])+');"></div>');
             element.click(tags.selectResource);
             resourceElements.append(element);
         }
-        var element = $('<div class="upload" data-id="'+tagId+'"><div id="Progress_'+tagId+'" class="progress"></div></div>');
-        var selector = $('<input id="Tag_'+tagId+'_SelectFile" data-id="'+tagId+'" type="file"/>');
+        var element = $('<div class="upload" data-id="'+app.validate(tagId)+'"><div id="Progress_'+app.validate(tagId)+'" class="progress"></div></div>');
+        var selector = $('<input id="Tag_'+app.validate(tagId)+'_SelectFile" data-id="'+app.validate(tagId)+'" type="file"/>');
         element.click(uploader.select);
         selector.change(uploader.selected);
         resourceElements.append(element);
@@ -105,7 +105,7 @@ var tags = {
         var id = $(e.currentTarget).data("tag");
         var val = $(e.currentTarget).val().split(',').join('').trim();
         if (val.length>0) {
-            var element = $('<div class="tag">'+val+'</div>');
+            var element = $('<div class="tag">'+app.validate(val)+'</div>');
             element.click(tags.removeMe);
             $("#Tag_"+id+"_Selected").append(element);
             $(e.currentTarget).val("");
@@ -116,7 +116,7 @@ var tags = {
             var id = $(e.currentTarget).data("tag");
             var val = $(e.currentTarget).val().split(',').join('').trim();
             if (val.length>0) {
-                var element = $('<div class="tag">'+val+'</div>');
+                var element = $('<div class="tag">'+app.validate(val)+'</div>');
                 element.click(tags.removeMe);
                 $("#Tag_"+id+"_Selected").append(element);
                 $(e.currentTarget).val("");
@@ -159,7 +159,7 @@ var tags = {
                 $("#Tag_"+tag.id+"_Selected").html("");
                 for (var j=0; j<items.length; j++) {
                     if (items[j].trim().length>0) {
-                        var element = $('<div class="tag">'+items[j]+'</div>');
+                        var element = $('<div class="tag">'+app.validate(items[j])+'</div>');
                         element.click(tags.removeMe);
                         $("#Tag_"+tag.id+"_Selected").append(element);
                     }
@@ -238,9 +238,10 @@ var tags = {
             for (key in details.tags) {
                 if (!tags.isDefined(key)) {
                     tags.custom.push(key);
-                    html += '<div id="Area_'+key+'" class="grid tags">';
-                    html += '<input id="Tag_'+key+'" placeholder="enter the tag key" type="text"  maxlength="100" value="'+key+'"/>';
-                    html += '<input id="TagVal_'+key+'" placeholder="enter the value" type="text"  maxlength="100" value="'+details.tags[key]+'"/><div data-id="'+key+'" class="removeIcon icon-clear"></div>';
+                    var keyVal = app.validate(key);
+                    html += '<div id="Area_'+keyVal+'" class="grid tags">';
+                    html += '<input id="Tag_'+keyVal+'" placeholder="enter the tag key" type="text"  maxlength="100" value="'+keyVal+'"/>';
+                    html += '<input id="TagVal_'+keyVal+'" placeholder="enter the value" type="text"  maxlength="100" value="'+app.validate(details.tags[key])+'"/><div data-id="'+keyVal+'" class="removeIcon icon-clear"></div>';
                     html += '</div>';
                 }
             }
@@ -275,9 +276,11 @@ var tags = {
         }
         if (newKey&&newKey.length>0&&newVal&&newVal.length>0&&!found) {
             var html = '';
-            html += '<div id="Area_'+newKey+'" class="grid tags">';
-            html += '<input id="Tag_'+newKey+'" type="text" maxlength="100" placeholder="enter the tag key" value="'+newKey+'" />';
-            html += '<input id="TagVal_'+newKey+'" placeholder="enter the value" type="text" maxlength="100" value="'+newVal+'"/><div data-id="'+newKey+'" class="removeIcon icon-clear"></div>';
+            var validKey = app.validate(newKey);
+            var validVal = app.validate(newVal);
+            html += '<div id="Area_'+validKey+'" class="grid tags">';
+            html += '<input id="Tag_'+validKey+'" type="text" maxlength="100" placeholder="enter the tag key" value="'+validKey+'" />';
+            html += '<input id="TagVal_'+validKey+'" placeholder="enter the value" type="text" maxlength="100" value="'+validVal+'"/><div data-id="'+validKey+'" class="removeIcon icon-clear"></div>';
             html += '</div>';
             tags.custom.push(newKey);
             $("#NewKey").val("");

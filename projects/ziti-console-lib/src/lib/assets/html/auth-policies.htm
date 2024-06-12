@@ -249,9 +249,9 @@
                 context.addListener("signers-list", page.signersLoaded);
             },
             signersLoaded: function(e) {
-                $("#JwtSigners").empty().append("<option value=\"\">"+locale.get("SelectSigner")+"</option>");
+                $("#JwtSigners").empty().append("<option value=\"\">"+app.validate(locale.get("SelectSigner"))+"</option>");
                 for (let i=0; i<e.data.length; i++) {
-                    $("#JwtSigners").append('<option value="'+e.data[i].id+'">'+e.data[i].name+'</option>');
+                    $("#JwtSigners").append('<option value="'+e.data[i].id+'">'+app.validate(e.data[i].name)+'</option>');
                 }
             },
             toggled: function(e) {
