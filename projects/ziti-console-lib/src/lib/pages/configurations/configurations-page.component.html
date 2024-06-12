@@ -1,6 +1,7 @@
 <div class="ziti-page-container ziti-identities-container">
     <lib-list-page-header [title]="title"
                           [tabs]="tabs"
+                          [showAdd]="!itemsSelected"
                           (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
 
     <lib-data-table [tableId]="'configurations'"
@@ -12,15 +13,17 @@
                     [totalCount]="totalCount"
                     [emptyMsg]="'No Configurations defined, Click the plus to add a Configuration.'"
                     [filterApplied]="filterApplied"
+                    [menuItems]="svc.menuItems"
+                    (gridReady)="gridReady($event)"
     >
     </lib-data-table>
 
-    <lib-list-page-form [(show)]="showEditForm"
-                        [showButtons]="showButtons"
-                        [title]="formTitle"
-                        [subTitle]="formSubtitle"
-                        [validator]="validate"
-                        (update)="itemUpdate()">
-        <lib-configuration #projectable (showButtons)="viewButtons($event)" (currentSchema)="onSchemaChange($event)"></lib-configuration>
-    </lib-list-page-form>
+    <lib-side-modal [(open)]="svc.sideModalOpen" [showClose]="false">
+        <lib-configuration
+                *ngIf="svc.sideModalOpen"
+                [formData]="svc.selectedConfig"
+                (close)="closeModal($event)"
+                (dataChange)="dataChanged($event)">
+        </lib-configuration>
+    </lib-side-modal>
 </div>

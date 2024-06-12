@@ -1,0 +1,5 @@
+<div class="form-field-extended-fields" [hidden]="showJsonView">
+    <ng-container #dynamicform></ng-container>
+</div>
+<lib-json-view *ngIf="showJsonView && !hideConfigJSON" [(data)]="configData"></lib-json-view>
+<lib-json-view *ngIf="showJsonView && hideConfigJSON" [(data)]="configData"></lib-json-view>

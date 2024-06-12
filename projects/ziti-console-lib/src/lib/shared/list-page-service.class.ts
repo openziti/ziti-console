@@ -39,7 +39,7 @@ export abstract class ListPageServiceClass {
         filterType: 'TEXTINPUT',
         enableSorting: true
     };
-    
+
     DEFAULT_PAGING: any = {
         filter: "",
         noSearch: false,
@@ -62,6 +62,12 @@ export abstract class ListPageServiceClass {
         sortBy: 'name',
         ordering: 'asc'
     };
+
+    nameColumnRenderer = (row) => {
+        return `<div class="col cell-name-renderer" data-id="${row?.data?.id}">
+                <strong>${row?.data?.name}</strong>
+              </div>`
+    }
 
     constructor(
         @Inject(SETTINGS_SERVICE) protected settings: SettingsServiceClass,
@@ -114,17 +120,7 @@ export abstract class ListPageServiceClass {
             paging.sort = sort.sortBy;
             paging.order = sort.ordering;
         }
-        let nonNameFilters: FilterObj[] = [];
-        if(filters) {
-            for (let idx = 0; idx < filters.length; idx++) {
-                if (filters[idx].columnId === 'name' && filters[idx].value) {
-                    paging.noSearch = false;
-                    paging.searchOn = 'name'
-                    paging.filter = filters[idx].value;
-                } else nonNameFilters.push(filters[idx]);
-            }
-        }
-        return this.dataService.get(resourceType, paging, nonNameFilters);
+        return this.dataService.get(resourceType, paging, filters);
     }
 
     removeItems(ids: string[]) {

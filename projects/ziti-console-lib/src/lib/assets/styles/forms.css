@@ -12,6 +12,7 @@ label {
     font-family: 'Open Sans';
     overflow: hidden;
     text-overflow: ellipsis;
+	line-height: var(--defaultLineHeight);
 }
 
 textarea::placeholder {

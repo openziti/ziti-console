@@ -26,6 +26,7 @@ import moment from 'moment';
 import dynamic from "ajv/dist/vocabularies/dynamic";
 import {SchemaService} from "../../../services/schema.service";
 import {Subscription} from "rxjs";
+import {ConfigEditorComponent} from "../../config-editor/config-editor.component";
 
 export const SERVICE_EXTENSION_SERVICE = new InjectionToken<any>('SERVICE_EXTENSION_SERVICE');
 
@@ -93,8 +94,9 @@ export class ServiceFormService {
         'var(--formSubGroup)'
     ]
 
-    subscription: Subscription = new Subscription();Z
+    subscription: Subscription = new Subscription();
 
+    configEditor: ConfigEditorComponent;
     constructor(
         @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
         @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
@@ -174,14 +176,13 @@ export class ServiceFormService {
         });
     }
 
-    previewConfig(configName, dynamicForm) {
+    previewConfig(configName) {
         this.showCfgPreviewOption = true;
         this.configData = this.associatedConfigsMap[configName].data;
         this.selectedConfigName = this.associatedConfigsMap[configName].name;
         this.selectedConfigId = 'preview';
         this.selectedConfigTypeId = this.associatedConfigsMap[configName].configTypeId;
-        this.configTypeChanged(dynamicForm, false);
-        this.updateConfigData();
+        this.configTypeChanged(false);
         this.selectedConfigId = 'preview';
         this.newConfigName = this.selectedConfigName;
         defer(() => {
@@ -268,7 +269,7 @@ export class ServiceFormService {
         });
     }
 
-    configTypeChanged(dynamicForm?, resetData?) {
+    configTypeChanged(resetData?) {
         this.filteredConfigs = this.configs.filter((config) => {
             return config.configTypeId === this.selectedConfigTypeId;
         });
@@ -277,18 +278,10 @@ export class ServiceFormService {
                 this.selectedConfigType = configType;
             }
         });
-        this.selectedConfigId = !isEmpty(this.selectedConfigTypeId) ? 'add-new' : '';
-        this.configChanged(dynamicForm, resetData);
-    }
-
-    routerChanged(event?: any) {
-        let selectedRouter;
-        this.routers.forEach((router) => {
-            if (this.selectedRouterId === router.id) {
-                selectedRouter = router;
-            }
-        });
-        this.selectedRouter = selectedRouter;
+        if (this.selectedConfigId !== 'preview') {
+            this.selectedConfigId = !isEmpty(this.selectedConfigTypeId) ? 'add-new' : '';
+        }
+        this.configChanged(resetData);
     }
 
     updatedAddedConfigs() {
@@ -310,48 +303,11 @@ export class ServiceFormService {
         if (this.configJsonView) {
             //this.configSubscriptions.unsubscribe();
         }
-        this.updateConfigData();
-    }
-
-    async createForm(dynamicForm) {
-        this.clearForm();
-        if (this.selectedConfigType && dynamicForm) {
-            if (this.selectedSchema) {
-                this.renderSchmea(this.selectedSchema, dynamicForm);
-            }
-        }
-    }
-
-    clearForm() {
-        this.items.forEach((item: any) => {
-            if (item?.component) item.component.destroy();
-        });
-        this.items = [];
-        if (this.subscription) this.subscription.unsubscribe();
-    }
-
-    renderSchmea(schema: any, dynamicForm: any) {
-        if (schema.properties) {
-            this.items = this.schemaSvc.render(schema, dynamicForm, this.lColorArray, this.bColorArray);
-            for (let obj of this.items) {
-                const cRef = obj.component;
-                cRef.instance.errors = this.errors;
-                if (cRef?.instance.valueChange) {
-                    const pName: string[]  = cRef.instance.parentage;
-                    let parentKey;
-                    if(pName) parentKey = pName.join('.');
-                    if (parentKey && !this.formData[parentKey]) this.formData[parentKey] = {};
-                }
-            }
-        }
     }
 
     async attachConfig(addedConfigId) {
         let configId;
         if (this.selectedConfigId === 'add-new') {
-            if (!this.configJsonView) {
-                this.getConfigDataFromForm();
-            }
             if (!this.validateConfig()) {
                 const growlerData = new GrowlerModel(
                     'error',
@@ -405,6 +361,8 @@ export class ServiceFormService {
                 this.newConfigName = '';
                 this.selectedConfigTypeId = '';
                 this.selectedConfigId = '';
+                this.configData = {};
+                this.configEditor?.getConfigDataFromForm();
                 return;
             }
         } else {
@@ -460,76 +418,22 @@ export class ServiceFormService {
             if (this.selectedConfigId === 'preview' && nameToRemove === this.selectedConfigName) {
                 this.selectedConfigId = '';
                 this.selectedConfigTypeId = '';
-                this.updateConfigData();
             }
         }
     }
 
-    getConfigDataFromForm() {
-        const data = {};
-        this.addItemsToConfig(this.items, data);
-        this.configData = data;
-        this.hideConfigJSON = false;
-    }
-
-    addItemsToConfig(items, data: any = {}, parentType = 'object') {
-        items.forEach((item) => {
-            if (item.type === 'array') {
-                if (item.addedItems) {
-                    data[item.key] = item.addedItems;
-                } else {
-                    data[item.key] = [];
-                }
-            } else if (item.type === 'object') {
-                const val = this.addItemsToConfig(item.items, {}, item.type);
-                let hasDefinition = false;
-                keys(val).forEach((key) => {
-                    if (isBoolean(val[key]) || (!isEmpty(val[key]) && !isNil(val[key]))) {
-                        hasDefinition = true;
-                    }
-                });
-                data[item.key] = hasDefinition ? val : undefined;
-            } else {
-                let props = [];
-                if (item?.component?.instance?.getProperties) {
-                    props = item?.component?.instance?.getProperties();
-                } else if (item?.component?.instance) {
-                    props = [{key: item.key, value: item.component.instance.fieldValue}];
-                }
-                props.forEach((prop) => {
-                    data[prop.key] = prop.value;
-                });
-            }
-        });
-        return data;
-    }
-
-    validateConfigItems(items, parentType = 'object') {
-        let isValid = true;
-        items.forEach((item) => {
-            if (item.type === 'object') {
-                if (!this.validateConfigItems(item.items, item.type)) {
-                    isValid = false;
-                }
-            } else if (item?.component?.instance?.isValid) {
-                if (!item?.component?.instance?.isValid()) {
-                    isValid = false;
-                }
-            }
-        });
-        return isValid;
-    }
-
-    async configChanged(dynamicForm, resetData = true) {
+    async configChanged(resetData = true) {
         let selectedConfig: any = {};
         this.configData = resetData ? undefined : this.configData;
         let data;
         let attachLabel = 'Attach to Service';
-        if (this.selectedConfigId === 'add-new') {
+        if (this.selectedConfigId === 'preview') {
+            this.selectedSchema = await this.zitiService.schema(this.selectedConfigType.schema);
+        } else if (this.selectedConfigId === 'add-new') {
             data = {};
             this.selectedSchema = await this.zitiService.schema(this.selectedConfigType.schema);
             attachLabel = 'Create and Attach';
-            this.createForm(dynamicForm);
+            //this.createForm(dynamicForm);
             this.saveDisabled = true;
         } else if (this.selectedConfigId) {
             this.filteredConfigs.forEach((config) => {
@@ -542,98 +446,17 @@ export class ServiceFormService {
         } else {
             this.saveDisabled = false;
         }
-        if (!this.configData) {
-            this.configData = data;
-        } else {
-            defer(() => {
-                this.configData = cloneDeep(data);
-            });
+        if (this.selectedConfigId !== 'preview') {
+            if (!this.configData) {
+                this.configData = data;
+            } else {
+                defer(() => {
+                    this.configData = cloneDeep(data);
+                });
+            }
         }
-        this.updateConfigData();
+        //this.updateConfigData();
         this.attachLabel = attachLabel;
-    }
-
-    updateConfigData() {
-        if (!this.configJsonView) {
-            this.updateFormView(this.items, this.configData);
-        } else {
-            this.hideConfigJSON = true;
-            defer(() => {
-                this.getConfigDataFromForm();
-            });
-        }
-    }
-
-    updateFormView(items, data: any = {}) {
-        items.forEach((item) => {
-            if (item.items) {
-                if (item.type === 'array') {
-                    if (item?.component?.instance?.addedItems) {
-                        item.addedItems = data[item.key] || [];
-                        item.component.instance.addedItems = data[item.key] || [];
-                    }
-                    this.updateFormView(item.items, {});
-                } else {
-                    this.updateFormView(item.items, data[item.key]);
-                }
-            } else if (item?.component?.instance?.setProperties) {
-                let val;
-                switch (item.key) {
-                    case 'forwardingconfig':
-                        val = {
-                            protocol: data.protocol,
-                            address: data.address,
-                            port: data.port,
-                            forwardProtocol: data.forwardProtocol,
-                            forwardAddress: data.forwardAddress,
-                            forwardPort: data.forwardPort,
-                            allowedProtocols: data.allowedProtocols,
-                            allowedAddresses: data.allowedAddresses,
-                            allowedPortRanges: data.allowedPortRanges
-                        }
-                        break;
-                    case 'pap':
-                        val = {
-                            protocol: data.protocol,
-                            address: data.address,
-                            port: data.port,
-                            hostname: data.hostname,
-                        }
-                        break;
-                    default:
-                        val = data[item.key];
-                        break;
-                }
-                item?.component?.instance?.setProperties(val);
-            } else if (item?.component?.setInput) {
-                item.component.setInput('fieldValue', data[item.key]);
-            }
-        });
-        return data;
-    }
-
-    addTerminator() {
-        let termAdded = false;
-        this.addedTerminators.forEach((termName) => {
-            if (this.selectedRouter.name === termName) {
-                termAdded = true;
-            }
-        });
-        if (!termAdded) {
-            const terminatorModel = {
-                address: this.terminatorProtocol + ':' + this.terminatorHost + ":" + this.terminatorPort,
-                binding: this.selectedBindingId,
-                router: this.selectedRouter.id,
-                service: undefined
-            }
-            this.addedTerminatorNames = [...this.addedTerminatorNames, this.selectedRouter.name];
-            this.addedTerminators.push(terminatorModel);
-            this.selectedRouterId = '';
-            this.selectedBindingId = '';
-            this.terminatorPort = '';
-            this.terminatorHost = '';
-            this.terminatorProtocol = '';
-        }
     }
 
     validate() {
@@ -646,12 +469,9 @@ export class ServiceFormService {
 
     validateConfig() {
         this.configErrors = {};
+        this.configEditor?.validateConfig();
         if (isEmpty(this.newConfigName)) {
             this.configErrors['name'] = true;
-        }
-        const configItemsValid = this.validateConfigItems(this.items);
-        if (!configItemsValid) {
-            this.configErrors['configData'] = true;
         }
         return isEmpty(this.configErrors);
     }

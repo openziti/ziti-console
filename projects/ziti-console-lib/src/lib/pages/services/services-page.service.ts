@@ -83,12 +83,6 @@ export class ServicesPageService extends ListPageServiceClass {
     }
 
     initTableColumns(): any {
-        const nameRenderer = (row) => {
-            return `<div class="col cell-name-renderer" data-id="${row?.data?.id}">
-                <strong>${row?.data?.name}</strong>
-              </div>`
-        }
-
         const rolesRenderer = (row) => {
             let roles = '';
             row?.data?.roleAttributes?.forEach((attr) => {
@@ -116,7 +110,7 @@ export class ServicesPageService extends ListPageServiceClass {
                     this.openUpdate(data.data);
                 },
                 resizable: true,
-                cellRenderer: nameRenderer,
+                cellRenderer: this.nameColumnRenderer,
                 cellClass: 'nf-cell-vert-align tCol',
                 sortable: true,
                 filter: true,
@@ -233,12 +227,6 @@ export class ServicesPageService extends ListPageServiceClass {
         if (item) {
             this.selectedService = item;
             this.selectedService.badges = [];
-            // TODO: implement when metrics and dialog features are available
-            /*this.selectedService.moreActions = [
-                {name: 'open-metrics', label: 'Open Metrics'},
-                {name: 'dial-logs', label: 'Dial Logs'},
-                {name: 'dial-logs', label: 'View Events'},
-            ];*/
             unset(this.selectedService, '_links');
         } else {
             this.selectedService = new Service();

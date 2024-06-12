@@ -88,7 +88,7 @@
     </div>
 </div>
 
-<div *ngIf="showDateTimePicker" class="date-time-container" [ngStyle]="{ left: menuLeft + 'px', top: menuTop + 'px' }" (clickOutside)="closeHeaderFilter($event)">
+<div *ngIf="showDateTimePicker" class="date-time-container data-table-date-time" [ngStyle]="{ left: menuLeft + 'px', top: menuTop + 'px' }" (clickOutside)="closeHeaderFilter($event)">
     <p-calendar
             [(ngModel)]="dateValue"
             (onSelect)="setDateRangeFilter('custom')"

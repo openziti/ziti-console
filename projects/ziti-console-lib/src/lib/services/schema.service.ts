@@ -642,6 +642,8 @@ export class SchemaService {
                 } else if (subItem?.component?.instance?.fieldValue) {
                     itemData[subItem.key] = subItem.component.instance.fieldValue;
                     subItem.component.instance.fieldValue = undefined;
+                } else if (subItem.items) {
+                    itemData[subItem.key] = this.addItemData(subItem);
                 }
             }
         });

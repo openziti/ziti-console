@@ -39,6 +39,7 @@ body {
     --gapLarge: 10px;
     --gapXL: 15px;
     --defaultInputHeight: 43px;
+    --defaultLineHeight: 15px;
 }
 
 ::placeholder {

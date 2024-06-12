@@ -897,3 +897,57 @@
     background-image: url(../../assets/images/other.png);
   }
 }
+
+::ng-deep .date-time-container {
+  &.data-table-date-time {
+    position: fixed;
+    z-index: 9999;
+    .p-calendar .p-inputtext {
+      height: 1px;
+      width: 1px;
+      padding: 0;
+    }
+    .filter-button-container {
+      height: 50px;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      .toggleButton {
+        padding-left: var(--paddingSmall);
+        padding-right: var(--paddingSmall);
+        text-align: center;
+        background-color: var(--inputBorder);
+        color: var(--tableText);
+        width: unset;
+        height: 23px;
+        line-height: 23px;
+        font-size: 14px;
+        font-weight: 600;
+        position: relative;
+        float: left;
+        cursor: pointer;
+        border-radius: 4px;
+        margin-right: var(--marginSmall);
+        transition: .3s;
+        &:hover {
+          filter: brightness(90%);
+          transition: .3s;
+        }
+      }
+    }
+    .p-calendar {
+
+      .p-inputtext {
+        border-top-left-radius: 20px;
+        border-bottom-left-radius: 20px;
+        text-indent: 5px;
+      }
+
+      .p-button-icon-only {
+        border-top-right-radius: 20px;
+        border-bottom-right-radius: 20px;
+      }
+    }
+  }
+}

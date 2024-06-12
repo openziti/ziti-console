@@ -40,6 +40,7 @@ import {GrowlerModel} from "../../messaging/growler.model";
 import {SERVICE_EXTENSION_SERVICE, ServiceFormService} from './service-form.service';
 import {MatDialogRef} from "@angular/material/dialog";
 import {ExtensionService} from "../../extendable/extensions-noop.service";
+import {ConfigEditorComponent} from "../../config-editor/config-editor.component";
 
 @Component({
   selector: 'lib-service-form',
@@ -94,7 +95,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   settings: any = {};
   subscription: Subscription = new Subscription();
 
-  @ViewChild("dynamicform", {read: ViewContainerRef}) dynamicForm!: ViewContainerRef;
+  @ViewChild("configEditor", {read: ConfigEditorComponent}) configEditor!: ConfigEditorComponent;
   constructor(
       @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
       public svc: ServiceFormService,
@@ -138,6 +139,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     super.ngAfterViewInit();
     this.nameFieldInput.nativeElement.focus();
     this.resetTags();
+    this.svc.configEditor = this.configEditor;
     this.svc.getConfigTypes();
     this.svc.getConfigs().then(() => {
       this.svc.updatedAddedConfigs();
@@ -150,19 +152,30 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   }
 
   configChanged($event) {
-    this.svc.configChanged(this.dynamicForm);
+    if (this.svc.selectedConfigId === 'add-new') {
+      this.svc.newConfigName = '';
+    }
+    this.svc.configChanged();
   }
 
   configTypeChanged($event) {
-    this.svc.configTypeChanged(this.dynamicForm);
+    this.svc.selectedConfigId = '';
+    this.svc.newConfigName = '';
+    this.svc.configTypeChanged();
   }
 
   get showConfigData() {
     return this.svc.selectedConfigId === 'add-new' || this.svc.selectedConfigId === 'preview';
   }
 
+  attachConfig() {
+    this.configEditor.getConfigDataFromForm();
+    this.svc.attachConfig(this.svc.selectedConfigId);
+  }
+
   captureConfigEnterEvent(event) {
     event.stopPropagation();
+    this.configEditor.getConfigDataFromForm();
     this.svc.attachConfig(this.svc.selectedConfigId);
   }
 
@@ -172,6 +185,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
         this.save();
         break;
       case 'close':
+        this.resetForm();
         this.closeModal(true);
         break;
       case 'toggle-view':
@@ -227,6 +241,13 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     } else {
       return 'Complete and attach config definition, or remove before saving';
     }
+  }
+
+  resetForm() {
+    this.svc.selectedConfigId = '';
+    this.svc.selectedConfigTypeId = '';
+    this.errors = {};
+    this.svc.configErrors = {};
   }
 
   clear(): void {

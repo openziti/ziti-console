@@ -60,6 +60,7 @@ export class TableColumnFilterComponent implements OnInit, AfterViewInit, OnDest
             columnId: this.columnId,
             value: this.filterString,
             label: this.filterString,
+            type: this.type,
         };
         this.filterService.updateFilter(filterObj)
     }
