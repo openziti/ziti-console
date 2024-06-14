@@ -20,6 +20,7 @@ class Node {
     online;
     apiSession;
     routerConnection;
+    tunnelerEnabled;
     os;
     mfaEnabled;
     type;
@@ -44,7 +45,7 @@ class ServiceHostNode {
     status;
     type;
     usage;
-    alias;
+    intercept = [];
     configAddress;
     configPorts;
 }
@@ -68,6 +69,7 @@ export class IdentityServicePathHelper {
         bindIdnetities,
         edgerouters,
         selectedServiceOb,
+        serviceConfigs,
         filterText = ''
     ) {
         let endpointNodeOb = null;
@@ -100,11 +102,10 @@ export class IdentityServicePathHelper {
         let posy_for_group4 = 150;
         const group4Nodes = [];
         const serviceIPPorts = [];
-
            const srNode = new ServiceHostNode();
                        srNode.id = selectedServiceOb.id;
                        srNode.name = selectedServiceOb.name;
-                       srNode.alias = selectedServiceOb.name;
+                       srNode.intercept = serviceConfigAlias(serviceConfigs);
                        srNode.type = 'Config Service';
                        srNode.group = '4';
                        srNode.status = '1';
@@ -275,20 +276,45 @@ export class IdentityServicePathHelper {
             }
         }
 
+        function serviceConfigAlias(configs) {
+          let intercept = [];
+          configs.forEach( (conf) => {
+             let addresses = '';
+             let ports = '';
+            if (conf.data.addresses) {
+               addresses = conf.data.addresses.toString();
+            } else {
+               addresses = conf.data.address;
+            }
+
+            if (conf.data.portRanges) {
+                conf.data.portRanges.forEach( (portsJson) => {
+                  for (const key in portsJson) {
+                    ports = ports + key +':'+portsJson[key] +' ' ;
+                  }
+                   ports = ports + ';';
+                });
+            } else {
+                ports =  conf.data.port;
+            }
+            intercept.push(addresses);
+            intercept.push(ports);
+          });
+          return intercept;
+        }
+
         function findEndpoint(endpointId, endpoints) {
             let node = null;
             if (endpointId === null) {
                 return null;
             }
             const ePoint = endpoints.find( function (er) {
-               // if (er.id === endpointId ) {
-                    return er.id === endpointId;
-                // }
+                 return er.id === endpointId;
             });
 
             if (ePoint) {
                 node = createEndpoint(ePoint);
-                node.type = 'Hosted Endpoint';
+                node.type = 'Hosted Identity';
             }
             return node;
         } // end of findEndpoint
@@ -297,7 +323,7 @@ export class IdentityServicePathHelper {
             const node = new Node();
             node.id = ePoint.id;
             node.name = ePoint.name;
-            node.type = 'Endpoint';
+            node.type = 'Identity';
             node.apiSession = ePoint.hasApiSession === false ? 'No' : 'Yes';
             node.routerConnection = ePoint.hasEdgeRouterConnection === false ? 'No' : 'Yes';
             node.os = ePoint.envInfo? ePoint.envInfo.os : '';
@@ -310,9 +336,9 @@ export class IdentityServicePathHelper {
             const nodeOb = new Node();
             nodeOb.id = erouter.id;
             nodeOb.name = erouter.name;
-            nodeOb.provider = 'aws';
             nodeOb.status = erouter.isVerified === true? 'Registered':'Un-Registered';
             nodeOb.online = erouter.isOnline === false ? 'No' : 'Yes';
+            nodeOb.tunnelerEnabled = erouter.isTunnelerEnabled === false ? 'No' : 'Yes';
             nodeOb.type = 'EdgeRouter';
             return nodeOb;
         }
@@ -351,7 +377,7 @@ export class IdentityServicePathHelper {
 
         function getServiceToEndpointLinkState(endpointNode, serviceNode) {
             let linkstate = 0;
-            if (endpointNode.status === 'Un-Registered' || serviceNode.alias.includes('No')) {
+            if (endpointNode.status === 'Un-Registered' || serviceNode.intercept.includes('No')) {
                 linkstate = -1;
             } else if (endpointNode.apiSession === 'No') {
                 linkstate = 0;

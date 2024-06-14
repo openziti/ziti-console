@@ -322,7 +322,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
         return results.data.map((row) => {
             row.actionList = ['update', 'override', 'delete'];
 
-            if (row.typeId && row.typeId === 'Device' ) {
+            if (row.typeId && row.typeId === 'Device' || row.typeId === 'Default' ) {
               row.actionList.push('identity-service-path');
             }
 
