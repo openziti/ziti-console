@@ -620,7 +620,7 @@ export class IdentityServicePathComponent implements OnInit {
 
     function readKeyValues(d, endpointUtlizationJson) {
       let info =
-        "<span style='font-size:14px;font-family:Open Sans; font-weight: 600; font-color: var(--tableText);'>";
+        "<div class='tool-tip-container' style='font-size:14px;font-family:Open Sans; font-weight: 600; font-color: var(--tableText);'>";
       const keys = Object.keys(d);
 
       keys.forEach(function (k) {
@@ -646,38 +646,38 @@ export class IdentityServicePathComponent implements OnInit {
         } else if (k === 'children') {
           const kVal: any = d[k];
           if (kVal && kVal !== '') {
-            info = info + '  ' + k + '  :  ' + kVal.length + '<br>';
+            info = info + '<div class="prop-row"><div class="prop-name">' + k + ':</div><div class="prop-val">' + kVal.length + '</div></div>';
           }
         } else {
           if (isAnObject(d[k])) {
             const kVal: any = d[k];
             if (kVal && kVal !== '') {
-              info = info + '   ' + k + '  :  ' + kVal.name + '<br>';
+              info = info + '<div class="prop-row"><div class="prop-name">' + k + ':</div><div class="prop-val">' + kVal.name + '</div></div>';
             }
           } else if (d[k] instanceof Array) {
             info =
               info +
-              '   ' +
+              '<div class="prop-row"><div class="prop-name">' +
               k +
-              '  :  ' +
+              ':</div><div class="prop-val">' +
               d[k].join('<br> &nbsp;&nbsp; &nbsp;&nbsp;') +
-              '<br>';
+              '</div></div>';
           } else {
             const vo = d[k];
             if (vo && vo !== '') {
               info =
                 info +
-                '   ' +
+                '<div class="prop-row"><div class="prop-name">' +
                 k +
-                '  :  ' +
+                ':</div><div class="prop-val">' +
                 (vo !== null || vo !== '' ? d[k] : 'N/A') +
-                '<br>';
+                '</div></div>';
             }
           }
         }
       });
 
-      return info + '</span>';
+      return info + '</div>';
     }
 
     function isAnObject(o) {
