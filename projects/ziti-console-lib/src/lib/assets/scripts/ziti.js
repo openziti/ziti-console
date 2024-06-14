@@ -150,10 +150,10 @@ var app = {
 				for (let i=0; i<e.data.length; i++) {
 					let log = e.data[i];
 					if (log.type!=lastTitle) {
-						html += '<label>'+log.type+'</label>';
+						html += '<label>'+app.validate(log.type)+'</label>';
 						lastTitle = log.type;
 					}
-					html += '<div class="grid split"><div>'+log.name+'</div><div>'+log.id+'</div></div>';
+					html += '<div class="grid split"><div>'+app.validate(log.name)+'</div><div>'+app.validate(log.id)+'</div></div>';
 				}
 				$("#ServiceHappen").html(html);
 				$("#Service2").show();
@@ -236,6 +236,9 @@ var app = {
 	},
 	trim: function(e) {
 		$(e.currentTarget).val($(e.currentTarget).val().trim());
+	},
+	validate: function(val) {
+		return sanitizeHtml(val);
 	},
 	postLoad: function() {
 		$(".selector").off("click");

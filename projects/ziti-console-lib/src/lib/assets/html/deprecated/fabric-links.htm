@@ -140,9 +140,9 @@
                         element.attr("id","Row"+i);
                         var srcLat = (page.data[i].srcLatency*100000).toFixed(0);
                         var dstLat = (page.data[i].dstLatency*100000).toFixed(0);
-                        element.html(element.html().split("{{srcLatencyMS}}").join(srcLat));
-                        element.html(element.html().split("{{dstLatencyMS}}").join(dstLat));
-                        for (var prop in page.data[i]) element.html(element.html().split("{{"+prop+"}}").join(page.data[i][prop]));
+                        element.html(element.html().split("{{srcLatencyMS}}").join(app.validate(srcLat)));
+                        element.html(element.html().split("{{dstLatencyMS}}").join(app.validate(dstLat)));
+                        for (var prop in page.data[i]) element.html(element.html().split("{{"+prop+"}}").join(app.validate(page.data[i][prop])));
                         $(".rows").append(element);
                     }
                     page.pageLoaded();     

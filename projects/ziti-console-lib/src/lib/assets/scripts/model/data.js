@@ -188,9 +188,11 @@ var Data = function(name, context) {
 					}
 					for (var prop in obj) {
 						if (page.row) row.html(page.row(row.html(), obj));
-						row.html(row.html().split("{{"+prop+"}}").join(obj[prop]));
-						row.html(row.html().split("{{selector."+prop+"}}").join(SelectorStyles.format(obj[prop+"Display"])));
-						row.html(row.html().split("{{roles."+prop+"}}").join(SelectorStyles.format(obj[prop])));
+						var propVal = obj[prop];
+						propVal = app.validate(propVal);
+						row.html(row.html().split("{{"+prop+"}}").join(propVal));
+						row.html(row.html().split("{{selector."+prop+"}}").join(app.validate(SelectorStyles.format(obj[prop+"Display"]))));
+						row.html(row.html().split("{{roles."+prop+"}}").join(app.validate(SelectorStyles.format(propVal))));
 						if (row.html().indexOf("{{moment."+prop+"}}")>=0) row.html(row.html().split("{{moment."+prop+"}}").join(moment(obj[prop]).format("M/D/YYYY hh:mm A")));
 					}
 					row.attr("data-defined", "");
@@ -257,9 +259,9 @@ var Data = function(name, context) {
 					var obj = this.data[i];
 					for (var prop in obj) {
 						if (page.row) row.html(page.row(row.html(), obj));
-						row.html(row.html().split("{{"+prop+"}}").join(obj[prop]));
-						row.html(row.html().split("{{selector."+prop+"}}").join(SelectorStyles.format(obj[prop+"Display"])));
-						row.html(row.html().split("{{selector."+prop+"}}").join(SelectorStyles.format(obj[prop])));
+						row.html(row.html().split("{{"+prop+"}}").join(app.validate(obj[prop])));
+						row.html(row.html().split("{{selector."+prop+"}}").join(app.validate(SelectorStyles.format(obj[prop+"Display"]))));
+						row.html(row.html().split("{{selector."+prop+"}}").join(app.validate(SelectorStyles.format(obj[prop]))));
 						row.html(row.html().split("{{moment."+prop+"}}").join(moment(obj[prop]).format("M/D/YYYY hh:mm A")));
 					}
 					row.attr("data-defined", "");

@@ -206,7 +206,7 @@
                         }
                         element.html(element.html().split("{{profiles}}").join(tagList));
 
-                        for (var key in templates.data[i]) element.html(element.html().split("{{"+key+"}}").join(templates.data[i][key]));
+                        for (var key in templates.data[i]) element.html(element.html().split("{{"+key+"}}").join(app.validate(templates.data[i][key])));
                         $(".rows").append(element);
                     }
                     page.pageLoaded();  
@@ -324,7 +324,7 @@
                             var identity = result.data[i];
                             var html = "";
                             html += '<div class="idBox">';
-                            html += '<div class="title">'+identity.name+'</div>';
+                            html += '<div class="title">'+app.validate(identity.name)+'</div>';
                             html += '<div id="Qr_'+i+'" class="qrCode"></div>';
                             html += '<div class="dlButton linkButton" data-download="'+i+'">Download</div>';
                             html += '</div>';

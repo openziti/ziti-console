@@ -170,7 +170,7 @@
                     element.removeClass("template");
                     element.attr("id","Service"+i);
                     element.attr("data-router",page.data[i].egress);
-                    for (var prop in page.data[i]) element.html(element.html().split("{{"+prop+"}}").join(page.data[i][prop]));
+                    for (var prop in page.data[i]) element.html(element.html().split("{{"+prop+"}}").join(app.validate(page.data[i][prop])));
                     $("#Services").append(element);
                 }
                 for (var i=0; i<routers.data.length; i++) {
@@ -179,7 +179,7 @@
                     element.attr("id","Router"+i);
                     element.addClass("router");
                     element.attr("data-id",routers.data[i].id);
-                    for (var prop in routers.data[i]) element.html(element.html().split("{{"+prop+"}}").join(routers.data[i][prop]));
+                    for (var prop in routers.data[i]) element.html(element.html().split("{{"+prop+"}}").join(app.validate(routers.data[i][prop])));
                     $("#Routers").append(element);
                 }
                 for (var i=0; i<links.data.length; i++) {
@@ -192,7 +192,7 @@
                     element.attr("data-down",links.data[i].down);
                     if (links.data[i].down) element.addClass("red");
                     else element.addClass("green");
-                    for (var prop in links.data[i]) element.html(element.html().split("{{"+prop+"}}").join(links.data[i][prop]));
+                    for (var prop in links.data[i]) element.html(element.html().split("{{"+prop+"}}").join(app.validate(links.data[i][prop])));
                     $("#Links").append(element);
                 }
                 if (page.timeout) clearTimeout(page.timeout);
@@ -216,7 +216,7 @@
                         var element = $("#RowTemplate").clone();
                         element.removeClass("template");
                         element.attr("id","Row"+i);
-                        for (var prop in page.data[i]) element.html(element.html().split("{{"+prop+"}}").join(page.data[i][prop]));
+                        for (var prop in page.data[i]) element.html(element.html().split("{{"+prop+"}}").join(app.validate(page.data[i][prop])));
                         $(".rows").append(element);
                     }
                     page.pageLoaded();     
@@ -248,15 +248,15 @@
                         element.removeClass("template");
                         element.attr("id","Row"+i);
                         element.html(element.html().split("{{index}}").join(i));
-                        for (var prop in page.sessions[i]) element.html(element.html().split("{{"+prop+"}}").join(page.sessions[i][prop]));
+                        for (var prop in page.sessions[i]) element.html(element.html().split("{{"+prop+"}}").join(app.validate(page.sessions[i][prop])));
                         var path = "";
                         var col = 0;
                         for (var j=0; j<page.sessions[i].circuit.path.length; j++) {
-                            path += '<div id="Item'+i+'_'+page.sessions[i].circuit.path[j].split(' ').join('')+'" data-row="'+i+'" data-column="'+(++col)+'" class="bubble to stats path'+i+'" data-type="path" data-index="'+i+'" data-id="'+page.sessions[i].circuit.path[j]+'">'+page.sessions[i].circuit.path[j]+'<div class="floater blacken"></div></div>';
+                            path += '<div id="Item'+i+'_'+app.validate(page.sessions[i].circuit.path[j].split(' ').join(''))+'" data-row="'+i+'" data-column="'+(++col)+'" class="bubble to stats path'+i+'" data-type="path" data-index="'+i+'" data-id="'+app.validate(page.sessions[i].circuit.path[j])+'">'+app.validate(page.sessions[i].circuit.path[j])+'<div class="floater blacken"></div></div>';
                             if (j<page.sessions[i].circuit.links.length) {
-                                path += '<div class="bubble small src" data-row="'+i+'" data-column="'+(++col)+'">'+page.getLatencySource(page.sessions[i].circuit.links[j])+' ms</div>';
-                                path += '<div id="Item'+i+'_'+page.sessions[i].circuit.links[j].split(' ').join('')+'" class="bubble stats link'+i+'" data-type="link" data-index="'+i+'" data-id="'+page.sessions[i].circuit.links[j]+'">'+page.sessions[i].circuit.links[j]+'<div class="floater"></div></div>';
-                                path += '<div class="bubble small dst" data-row="'+i+'" data-column="'+(++col)+'">'+page.getLatencyDestination(page.sessions[i].circuit.links[j])+' ms</div>';
+                                path += '<div class="bubble small src" data-row="'+i+'" data-column="'+(++col)+'">'+page.getLatencySource(app.validate(page.sessions[i].circuit.links[j]))+' ms</div>';
+                                path += '<div id="Item'+i+'_'+page.sessions[i].circuit.links[j].split(' ').join('')+'" class="bubble stats link'+i+'" data-type="link" data-index="'+i+'" data-id="'+app.validate(page.sessions[i].circuit.links[j])+'">'+app.validate(page.sessions[i].circuit.links[j])+'<div class="floater"></div></div>';
+                                path += '<div class="bubble small dst" data-row="'+i+'" data-column="'+(++col)+'">'+page.getLatencyDestination(app.validate(page.sessions[i].circuit.links[j]))+' ms</div>';
                             }
                         }
 
@@ -268,7 +268,7 @@
                         element.removeClass("template");
                         element.attr("id","Row"+i);
                         element.html(element.html().split("{{index}}").join(i));
-                        element.html(element.html().split("{{id}}").join(page.clients[i]));
+                        element.html(element.html().split("{{id}}").join(app.validate(page.clients[i])));
                         $("#ClientsData").append(element);
                     }
                     //$(".stats").mouseover(page.stats);

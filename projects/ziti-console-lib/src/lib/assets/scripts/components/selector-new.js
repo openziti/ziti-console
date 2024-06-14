@@ -86,7 +86,7 @@ var Selector = function(id, label, atType, hashType) {
             for (var i=0; i<suggestItems.length; i++) {
                 var val = suggestItems[i];
                 if (val.name!=null) val = val.name;
-                this.suggests.append('<div class="suggest">'+val+'</div>');
+                this.suggests.append('<div class="suggest">'+app.validate(val)+'</div>');
             }
             this.suggests.addClass("open");
             $(".suggest").click(this.suggestClicked.bind(this));
@@ -120,13 +120,13 @@ var Selector = function(id, label, atType, hashType) {
             for (var i=0; i<vals.length; i++) {
                 var val = vals[i];
                 if (val.role) {
-                    if (val.role.indexOf("#")==0) selected.append('<div class="hashtag tagButton icon-close" data-id="'+val.role+'"><span class="label">'+val.name+'</span></div>');
-                    else if (val.role.indexOf("@")==0) selected.append('<div class="attag tagButton icon-close" data-id="'+val.role+'"><span class="label">'+val.name+'</span></div>');
-                    else selected.append('<div class="hashtag tagButton icon-close" data-id="'+val.role+'"><span class="label">'+val.name+'</span></div>');
+                    if (val.role.indexOf("#")==0) selected.append('<div class="hashtag tagButton icon-close" data-id="'+app.validate(val.role)+'"><span class="label">'+app.validate(val.name)+'</span></div>');
+                    else if (val.role.indexOf("@")==0) selected.append('<div class="attag tagButton icon-close" data-id="'+app.validate(val.role)+'"><span class="label">'+app.validate(val.name)+'</span></div>');
+                    else selected.append('<div class="hashtag tagButton icon-close" data-id="'+app.validate(val.role)+'"><span class="label">'+app.validate(val.name)+'</span></div>');
                 } else {
-                    if (val.indexOf("#")==0) selected.append('<div class="hashtag tagButton icon-close" data-id="'+val+'"><span class="label">'+val+'</span></div>');
-                    else if (val.indexOf("@")==0) selected.append('<div class="attag tagButton icon-close" data-id="'+val+'"><span class="label">'+val+'</span></div>');
-                    else selected.append('<div class="hashtag tagButton icon-close" data-id="'+val+'"><span class="label">'+val+'</span></div>');
+                    if (val.indexOf("#")==0) selected.append('<div class="hashtag tagButton icon-close" data-id="'+val+'"><span class="label">'+app.validate(val)+'</span></div>');
+                    else if (val.indexOf("@")==0) selected.append('<div class="attag tagButton icon-close" data-id="'+val+'"><span class="label">'+app.validate(val)+'</span></div>');
+                    else selected.append('<div class="hashtag tagButton icon-close" data-id="'+val+'"><span class="label">'+app.validate(val)+'</span></div>');
                 }
             }
             $("#"+this.id+"Search").val("");
@@ -150,9 +150,9 @@ var Selector = function(id, label, atType, hashType) {
             selected.html("");
             for (var i=0; i<vals.length; i++) {
                 var val = vals[i];
-                if (val.name.indexOf("#")==0) selected.append('<div class="hashtag tagButton icon-close" data-id="'+val.id+'"><span class="label">'+val.name+'</span></div>');
-                else if (val.name.indexOf("@")==0) selected.append('<div class="attag tagButton icon-close" data-id="'+val.id+'"><span class="label">'+val.name+'</span></div>');
-                else selected.append('<div class="hashtag tagButton icon-close" data-id="'+val.id+'"><span class="label">'+val.name+'</span></div>');
+                if (val.name.indexOf("#")==0) selected.append('<div class="hashtag tagButton icon-close" data-id="'+app.validate(val.id)+'"><span class="label">'+app.validate(val.name)+'</span></div>');
+                else if (val.name.indexOf("@")==0) selected.append('<div class="attag tagButton icon-close" data-id="'+app.validate(val.id)+'"><span class="label">'+app.validate(val.name)+'</span></div>');
+                else selected.append('<div class="hashtag tagButton icon-close" data-id="'+app.validate(val.id)+'"><span class="label">'+app.validate(val.name)+'</span></div>');
             }
             $("#"+this.id+"Search").val("");
             $(".tagButton").off("click", function(e) {
@@ -195,17 +195,17 @@ var Selector = function(id, label, atType, hashType) {
             }
             for (var i=0; i<this.atData.length; i++) {
                 if (this.atData[i].name==item.substr(1)) {
-                    input.parent().find(".tagArea").append('<div class="'+type+'tag tagButton icon-close" data-id="@'+this.atData[i].id+'"><span class="label">'+item+'</span></div>');
+                    input.parent().find(".tagArea").append('<div class="'+type+'tag tagButton icon-close" data-id="@'+app.validate(this.atData[i].id)+'"><span class="label">'+app.validate(item)+'</span></div>');
                     found = true;
                     break;
                 }
             }
             if (!found) {
                 if (item.indexOf("#")==0) {
-                    input.parent().find(".tagArea").append('<div class="'+type+'tag tagButton icon-close" data-id="'+item+'"><span class="label">'+item+'</span></div>');
+                    input.parent().find(".tagArea").append('<div class="'+app.validate(type)+'tag tagButton icon-close" data-id="'+app.validate(item)+'"><span class="label">'+app.validate(item)+'</span></div>');
                 } else {
-                    if (this.isForceHash) input.parent().find(".tagArea").append('<div class="'+type+'tag tagButton icon-close" data-id="#'+item+'"><span class="label">#'+item+'</span></div>');
-                    else input.parent().find(".tagArea").append('<div class="'+type+'tag tagButton icon-close" data-id="'+item+'"><span class="label">'+item+'</span></div>');
+                    if (this.isForceHash) input.parent().find(".tagArea").append('<div class="'+app.validate(type)+'tag tagButton icon-close" data-id="#'+app.validate(item)+'"><span class="label">#'+app.validate(item)+'</span></div>');
+                    else input.parent().find(".tagArea").append('<div class="'+app.validate(type)+'tag tagButton icon-close" data-id="'+app.validate(item)+'"><span class="label">'+app.validate(item)+'</span></div>');
                 }
             }
         }  
