@@ -103,7 +103,7 @@
     "z-schema": "^6.0.1",
     "ziti-console-lib": "file:dist/ziti-console-lib",
     "zone.js": "~0.13.0",
-    "d3": "~7.8.5",
+    "d3": "~7.9.0",
     "d3-hierarchy": "^2.0.0"
   },
   "devDependencies": {
