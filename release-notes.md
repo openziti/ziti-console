@@ -1,3 +1,14 @@
+# app-ziti-console-v3.2.1
+# ziti-console-lib-v0.2.1
+*
+## Feature/Improvements
+* [Issue #362](https://github.com/openziti/ziti-console/pull/362) - Mouse over event displays node information in tooltip box
+
+## Bug Fixes
+* [Issue #361](https://github.com/openziti/ziti-console/pull/361) - Fix editing and saving of configs on the Config Management page
+* [Issue #372](https://github.com/openziti/ziti-console/pull/372) - show the identity service path visualizer menu for all identities
+
+
 # app-ziti-console-v3.2.0
 # ziti-console-lib-v0.2.0
 *
