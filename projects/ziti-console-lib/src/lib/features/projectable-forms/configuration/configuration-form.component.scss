@@ -1,0 +1,15 @@
+.config-form-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  gap: var(--gapXL);
+}
+
+.config-type-select {
+  &.disabled {
+    opacity: .7;
+    pointer-events: none;
+  }
+}

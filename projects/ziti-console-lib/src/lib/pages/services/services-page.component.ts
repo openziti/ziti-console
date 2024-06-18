@@ -107,10 +107,7 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
 
   deleteItem(item: any) {
     this.openBulkDelete([item], 'service');
-    console.log('test');
   }
-
-
 
   getServiceRoleAttributes() {
     this.svc.getServiceRoleAttributes().then((result: any) => {

@@ -95,7 +95,7 @@ export class ZitiControllerDataService extends ZitiDataService {
         const apiVersions = this.settingsService.apiVersions || {};
         const prefix = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
         const url = this.settingsService.settings.selectedEdgeController;
-        const urlFilter = this.getUrlFilter(paging);
+        const urlFilter = this.getUrlFilter(paging, filters);
         const serviceUrl = url + prefix + "/" + type + urlFilter;
 
         return firstValueFrom(this.httpClient.get(serviceUrl,{}).pipe(
@@ -105,18 +105,6 @@ export class ZitiControllerDataService extends ZitiDataService {
                     throw({error: error});
                 }),
                 map((results: any) => {
-                    if(filters.length > 0) {
-                        filters.forEach((filter:FilterObj) => {
-                            let newData: any[] = [];
-                            if(filter.columnId !== 'name' && !isEmpty(filter.value )) {
-                                results.data.forEach(row => {
-                                    if(get(row, filter.columnId)?.indexOf(filter.value) >= 0)
-                                        newData.push(row);
-                                })
-                                results.data = newData;
-                            }
-                        });
-                    }
                     return results;
                 })
             )
@@ -238,25 +226,46 @@ export class ZitiControllerDataService extends ZitiDataService {
         );
     }
 
-    private getUrlFilter(paging: any) {
+    private getUrlFilter(paging, filters: any[]) {
         let urlFilter = '';
         let toSearchOn = "name";
-        let noSearch = false;
+        let noSearch = filters?.length <= 0;
+        if (isEmpty(paging)) {
+            paging = this.DEFAULT_PAGING;
+        }
         if (paging && paging.sort != null) {
             if (paging.searchOn) toSearchOn = paging.searchOn;
             if (paging.noSearch) noSearch = true;
             if (!paging.filter) paging.filter = "";
             paging.filter = paging.filter.split('#').join('');
-            if (noSearch) {
-                if (paging.page !== -1) urlFilter = "?limit=" + paging.total + "&offset=" + ((paging.page - 1) * paging.total)  + "&sort=" + paging.sort + " " + paging.order;
-            } else {
-                if (paging.page !== -1) urlFilter = "?filter=(" + toSearchOn + " contains \"" + paging.filter + "\")&limit=" + paging.total + "&offset=" + ((paging.page - 1) * paging.total) + "&sort=" + paging.sort + " " + paging.order;
-                if (paging.params) {
-                    for (const key in paging.params) {
-                        urlFilter += ((urlFilter.length === 0) ? "?" : "&") + key + "=" + paging.params[key];
-                    }
-                }
+        }
+        filters.forEach((filter, index) => {
+            let filterVal = '';
+            switch (filter.type) {
+                case 'TEXTINPUT':
+                    filterVal = `${filter.columnId} contains "${filter.value}"`;
+                    break;
+                case 'SELECT':
+                case 'COMBO':
+                    filterVal = `${filter.columnId} = "${filter.value}"`;
+                    break;
+                case 'DATETIME':
+                    filterVal = `${filter.columnId} >= datetime(${filter.value[0]}) and ${filter.columnId} <= datetime(${filter.value[1]})`;
+                    break;
+                default:
+                    filterVal = `${filter.columnId} contains "${filter.value}"`;
+                    break;
             }
+            if (index <= 0) {
+                urlFilter = `?filter= ${filterVal}`;
+            } else {
+                urlFilter += ` and ${filterVal}`
+            }
+        });
+        if (noSearch) {
+            if (paging.page !== -1) urlFilter = "?limit=" + paging.total + "&offset=" + ((paging.page - 1) * paging.total)  + "&sort=" + paging.sort + " " + paging.order;
+        } else {
+            urlFilter += `&limit=${paging.total}&offset=${((paging.page - 1) * paging.total)}&sort=${paging.sort}  ${paging.order}`
         }
         return urlFilter;
     }

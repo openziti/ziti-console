@@ -96,6 +96,7 @@ import { SimpleServiceComponent } from './features/projectable-forms/service/sim
 import { CardComponent } from './features/card/card.component';
 import { CreationSummaryDialogComponent } from './features/creation-summary-dialog/creation-summary-dialog.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { ConfigEditorComponent } from './features/config-editor/config-editor.component';
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -162,7 +163,8 @@ export function playerFactory() {
         CardListComponent,
         SimpleServiceComponent,
         CardComponent,
-        CreationSummaryDialogComponent
+        CreationSummaryDialogComponent,
+        ConfigEditorComponent
     ],
     imports: [
         CommonModule,

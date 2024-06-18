@@ -16,7 +16,7 @@
 
 import {Inject, Injectable} from '@angular/core';
 import {DataTableFilterService, FilterObj} from "../../features/data-table/data-table-filter.service";
-import _, {isEmpty} from "lodash";
+import _, {isEmpty, unset} from "lodash";
 import moment from "moment";
 import {ListPageServiceClass} from "../../shared/list-page-service.class";
 import {
@@ -27,6 +27,7 @@ import {SchemaService} from "../../services/schema.service";
 import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service";
 import {CsvDownloadService} from "../../services/csv-download.service";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
+import {Service} from "../../models/service";
 
 @Injectable({
     providedIn: 'root'
@@ -35,7 +36,14 @@ export class ConfigurationsPageService extends ListPageServiceClass {
 
     private paging = this.DEFAULT_PAGING;
 
-    resourceType = 'configurations';
+    resourceType = 'configs';
+    selectedConfig: any = {};
+    modalType = '';
+
+    override menuItems = [
+        {name: 'Edit', action: 'update'},
+        {name: 'Delete', action: 'delete'},
+    ]
 
     constructor(
         private schemaSvc: SchemaService,
@@ -52,6 +60,13 @@ export class ConfigurationsPageService extends ListPageServiceClass {
             return moment(row?.data?.createdAt).local().format('M/D/YYYY H:MM A');
         }
 
+        const typeRenderer = (row) => {
+            return row?.data?.configType?.name;
+        };
+
+        const createdAtHeaderComponentParams = {
+            filterType: 'DATETIME',
+        };
         return [
             {
                 colId: 'name',
@@ -59,6 +74,13 @@ export class ConfigurationsPageService extends ListPageServiceClass {
                 headerName: 'Name',
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
+                cellRenderer: this.nameColumnRenderer,
+                onCellClicked: (data) => {
+                    if (this.hasSelectedText()) {
+                        return;
+                    }
+                    this.openUpdate(data.data);
+                },
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
                 sortable: true,
@@ -67,27 +89,65 @@ export class ConfigurationsPageService extends ListPageServiceClass {
             },
             {
                 colId: 'type',
-                field: 'configType.name',
+                field: 'type',
                 headerName: 'Type',
                 headerComponent: TableColumnDefaultComponent,
-                headerComponentParams: this.headerComponentParams,
+                headerComponentParams: this.typeHeaderComponentParams,
+                cellRenderer: typeRenderer,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
                 sortable: true,
                 filter: true,
-                sortColumn: this.sort.bind(this)
+                sortColumn: this.sort.bind(this),
             },
             {
                 colId: 'createdAt',
                 field: 'createdAt',
                 headerName: 'Created At',
                 headerComponent: TableColumnDefaultComponent,
-                headerComponentParams: this.headerComponentParams,
+                headerComponentParams: createdAtHeaderComponentParams,
                 valueFormatter: createdAtFormatter,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
             }
         ];
+    }
+
+    _typeHeaderComponentParams = {
+        filterType: 'SELECT',
+        enableSorting: true,
+        filterOptions: [
+            { label: 'ALL', value: '' },
+        ],
+        getFilterOptions: () => {
+            return this.typeHeaderComponentParams.filterOptions;
+        }
+    };
+
+    get typeHeaderComponentParams() {
+        return this._typeHeaderComponentParams;
+    }
+
+    set typeHeaderComponentParams(params) {
+        this._typeHeaderComponentParams = params;
+    }
+
+    getConfigTypes() {
+        const sort = {
+            ordering: 'asc',
+            sortBy: 'name'
+        };
+        return super.getTableData('config-types', this.DEFAULT_PAGING, [], sort)
+            .then((results: any) => {
+                this.typeHeaderComponentParams.filterOptions = [{ label: 'ALL', value: '' }];
+                results.data.forEach((configType: any) => {
+                    this.typeHeaderComponentParams.filterOptions.push({
+                        label: configType.name,
+                        value: configType.id
+                    });
+                });
+                return this.typeHeaderComponentParams;
+            });
     }
 
     getData(filters?: FilterObj[], sort?: any) {
@@ -174,33 +234,22 @@ export class ConfigurationsPageService extends ListPageServiceClass {
         return results;
     }
 
-    private addActionsPerRow(results: any) {
+    private addActionsPerRow(results: any): any[] {
         return results.data.map((row) => {
-            row.actionList = ['update', 'override', 'delete'];
-            if (row?.enrollment?.ott) {
-                if (row?.enrollment?.ott?.expiresAt) {
-                    const difference = moment(row?.enrollment?.ott?.expiresAt).diff(moment(new Date()));
-                    if (difference > 0) {
-                        row.actionList.push('download-enrollment');
-                        row.actionList.push('qr-code');
-                    }
-                } else {
-                    row.actionList.push('download-enrollment');
-                    row.actionList.push('qr-code');
-                }
-            } else if (row?.enrollment?.updb) {
-                if (row?.enrollment?.updb?.expiresAt != null) {
-                    const difference = moment(row?.enrollment?.updb?.expiresAt).diff(moment(new Date()));
-                    if (difference > 0) {
-                        row.actionList.push('download-enrollment');
-                        row.actionList.push('qr-code');
-                    }
-                } else {
-                    row.actionList.push('download-enrollment');
-                    row.actionList.push('qr-code');
-                }
-            }
+            row.actionList = ['update', 'delete'];
             return row;
         });
+    }
+
+    public openUpdate(item?: any) {
+        this.modalType = 'config';
+        if (item) {
+            this.selectedConfig = item;
+            this.selectedConfig.badges = [];
+            unset(this.selectedConfig, '_links');
+        } else {
+            this.selectedConfig = new Service();
+        }
+        this.sideModalOpen = true;
     }
 }

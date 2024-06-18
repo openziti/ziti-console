@@ -1,22 +1,102 @@
-<div class="configform">
-    <label for="Name">Name</label>
-    <input id="Name" type="text" maxlength="500"
-           placeholder="enter a name...">
-    <label for="Types">Types</label>
-    <select id="Types" [(ngModel)]="configType" (change)="createForm()">
-        <option value="">Select A Type...</option>
-        <option *ngFor="let config of options"
-                [value]="config">{{config}}
-        </option>
-    </select>
-    <ng-container #dynamicform></ng-container>
-    <json-editor
-        #editor
-        (blur)="onJsonChange()"
-        (mouseout)="onJsonChange()"
-        (paste)="onJsonChangeDebounced()"
-        [data]="jsonData"
-        [options]="editorOptions"
-    >
-    </json-editor>
+<div class="projectable-form-wrapper"
+     (keyup.enter)="save($event)"
+     (keyup.escape)="closeModal(false)"
+     tabindex="0"
+>
+    <lib-form-header
+            [data]="formData"
+            [title]="(formData.id ? 'Edit Config' : 'Create Config')"
+            [moreActions]="formData.moreActions"
+            (actionRequested)="headerActionRequested($event)"
+            [(formView)]="formView"
+            [saveDisabled]="svc.saveDisabled || formDataInvalid"
+            [saveTooltip]="saveButtonTooltip"
+    ></lib-form-header>
+    <div class="config-form-container projectable-form-container">
+        <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
+            <div class="form-group-column three-fifths">
+                <lib-form-field-container [title]="'Config Name'" [label]="'Required'">
+                    <input
+                        id="ConfigName"
+                        type="text"
+                        maxlength="500"
+                        placeholder="Name this config"
+                        [ngClass]="{error: errors['name']}"
+                        [(ngModel)]="formData.name"
+                    >
+                </lib-form-field-container>
+                <lib-form-field-container [showHeader]="false">
+                    <div class="config-title-row">
+                        <span class="form-field-title">Configuration Data</span>
+                        <div class="form-header-toggle-container">
+                                        <span
+                                                class="toggle-option-text"
+                                                [ngClass]="{'toggle-option-selected': !svc.configJsonView}"
+                                                (click)="svc.toggleJSONView()"
+                                        >
+                                            FORM
+                                        </span>
+                            <div class="form-header-toggle" (click)="svc.toggleJSONView()">
+                                <div
+                                        class="form-toggle-switch"
+                                        [ngClass]="{'toggle-left': !svc.configJsonView, 'toggle-right': svc.configJsonView}"
+                                >
+                                    <div class="form-toggle-indicator"></div>
+                                    <div class="form-toggle-indicator"></div>
+                                </div>
+                            </div>
+                            <span
+                                    class="toggle-option-text"
+                                    [ngClass]="{'toggle-option-selected': svc.configJsonView}"
+                                    (click)="svc.toggleJSONView()"
+                            >
+                                            JSON
+                                        </span>
+                        </div>
+                    </div>
+                    <div class="form-field-input-group">
+                        <div class="config-title-row">
+                            <span class="form-field-title">{{isEditing ? 'Config Type' : 'Select a Config Type'}}</span>
+                        </div>
+                        <select
+                                id="ConfigTypes"
+                                class="config-type-select"
+                                [(ngModel)]="formData.configTypeId"
+                                (change)="getSchema()"
+                                [ngClass]="{disabled: isEditing, error: errors['configTypeId']}"
+                        >
+                            <option value="">Select A Type...</option>
+                            <option *ngFor="let config of options"
+                                    [value]="config.id">{{config.name}}
+                            </option>
+                        </select>
+                        <lib-config-editor
+                                [hidden]="configTypeEmpty"
+                                [schema]="selectedSchema"
+                                [(configData)]="formData.data"
+                                [showJsonView]="svc.configJsonView"
+                                [(configErrors)]="errors"
+                                #configEditor
+                        ></lib-config-editor>
+                    </div>
+                </lib-form-field-container>
+            </div>
+            <div class="form-group-column two-fifths">
+                <lib-form-field-container
+                        [title]="'API Calls'"
+                        [label]="''"
+                >
+                    <div class="form-row">
+                        <input class="form-field-input" [value]="apiCallURL" readonly/>
+                        <div class="url-copy icon-copy copy" (click)="copyToClipboard(apiCallURL)"></div>
+                    </div>
+                    <lib-json-view *ngIf="formData" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
+                </lib-form-field-container>
+            </div>
+        </div>
+        <div class="form-group-column" *ngIf="formView === 'raw'">
+            <lib-json-view *ngIf="formData" [(data)]="formData"></lib-json-view>
+        </div>
+    </div>
 </div>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

@@ -7,6 +7,7 @@ export type FilterObj = {
     columnId: string;
     value: any;
     label: string;
+    type?: string;
 }
 
 @Injectable({

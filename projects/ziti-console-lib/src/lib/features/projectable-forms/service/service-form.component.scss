@@ -119,36 +119,6 @@
   pointer-events: none;
 }
 
-::ng-deep .config-form-container {
-  label {
-    color: var(--white) !important;
-    margin-bottom: 0;
-  }
-  .invalid {
-    input {
-      border-color: var(--red);
-    }
-    .p-component {
-      &.p-input-wrapper {
-        border-color: var(--red);
-      }
-    }
-  }
-}
-
-.config-title-row {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-
-  .jsonButton {
-    color: var(--offWhite);
-    font-weight: 600;
-    opacity: 1;
-  }
-}
-
 .attach-config {
   display: flex;
   align-items: center;
@@ -173,24 +143,6 @@
     outline: 0;
     filter: brightness(90%);
     box-shadow: 0 2px 3px 0 var(--primaryColorOpaque);
-  }
-}
-
-.form-field-input-group {
-  gap: 10px;
-  display: flex;
-  flex-direction: column;
-
-  .form-field-title {
-    color: var(--offWhite);
-  }
-}
-
-.projectable-form-main-column {
-  &.form-group-row {
-    &[hidden] {
-      display: none;
-    }
   }
 }
 
@@ -267,5 +219,11 @@
         top: 1px;
       }
     }
+  }
+}
+
+::ng-deep .form-field-extended-fields {
+  .form-field-extended-fields {
+    padding: 0;
   }
 }

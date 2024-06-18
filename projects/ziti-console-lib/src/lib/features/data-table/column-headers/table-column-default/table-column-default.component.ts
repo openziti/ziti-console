@@ -136,11 +136,7 @@ export class TableColumnDefaultComponent implements IHeaderAngularComp, AfterVie
       this.columnDef.colId === 'name' &&
       (_.has(this.columnFilters, 'hasApiSession') || _.has(this.columnFilters, 'online'));
     this._showColumnMenu = headerParams.showColumnMenu;
-    this.filterOptions = _.map(this.headerParams.filterOptions, (option) => {
-      option.columnId = this.columnDef.colId;
-      option.filterName = this.headerName;
-      return option;
-    });
+    this.updateFilterOptions();
     headerParams.api.addEventListener('sortChanged', (event) => {
       const colId = _.get(event, 'columnDef.colId', '');
       if (colId !== this.columnDef.colId) {
@@ -152,11 +148,7 @@ export class TableColumnDefaultComponent implements IHeaderAngularComp, AfterVie
     headerParams.api.addEventListener('columnEverythingChanged', (event) => {
       _.forEach(event.columnApi.columnModel.columnDefs, colDef => {
         if (this.columnDef.colId === colDef.colId && colDef.headerComponentParams?.filterOptions) {
-          this.filterOptions = _.map(colDef.headerComponentParams?.filterOptions, (option) => {
-            option.columnId = this.columnDef.colId;
-            option.filterName = this.headerName;
-            return option;
-          });
+          this.updateFilterOptions();
         }
       });
     });
@@ -213,12 +205,14 @@ export class TableColumnDefaultComponent implements IHeaderAngularComp, AfterVie
     this.showFilter = !this.showFilter;
     if (this.filterType === 'SELECT' || this.filterType === 'COMBO' || this.filterType === 'DATETIME') {
       if (this.showFilter) {
-        _.invoke(this.headerParams, 'api.openHeaderFilter', event, this.filterOptions, this.filterType, this.columnDef?.colId);
+        this.updateFilterOptions();
+        _.invoke(this.headerParams, 'api.openHeaderFilter', event, this.filterOptions, this.filterType, this.columnDef?.colId, this.headerName);
       } else {
         _.invoke(this.headerParams, 'api.closeHeaderFilter', event);
       }
     } else if (this.filterType === 'CUSTOM') {
       if (this.showFilter) {
+        this.updateFilterOptions();
         _.invoke(this.headerParams, 'column.colDef.headerComponentParams.openHeaderFilter', event, this.filterOptions);
       } else {
         _.invoke(this.headerParams, 'column.colDef.headerComponentParams.closeHeaderFilter', event);
@@ -286,5 +280,20 @@ export class TableColumnDefaultComponent implements IHeaderAngularComp, AfterVie
       return;
     }
     this._showColumnMenu(this.menuButton.nativeElement);
+  }
+
+  updateFilterOptions() {
+    let options = [];
+    if (this.headerParams.getFilterOptions) {
+      options = this.headerParams.getFilterOptions();
+    } else {
+      options = this.headerParams.filterOptions;
+    }
+    this.filterOptions = _.map(options, (option) => {
+      option.columnId = this.columnDef.colId;
+      option.filterName = this.headerName;
+      option.type = this.filterType;
+      return option;
+    });
   }
 }

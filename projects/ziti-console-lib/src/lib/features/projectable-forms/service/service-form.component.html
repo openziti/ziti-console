@@ -41,7 +41,7 @@
                         [title]="'Add Configurations'"
                         [action]="false"
                         [actionLabel]="svc.attachLabel"
-                        (actionRequested)="svc.attachConfig(svc.selectedConfigId)"
+                        (actionRequested)="attachConfig()"
                         (keyup.enter)="captureConfigEnterEvent($event)"
                         [helpText]="'Configurations are used to define how to intercept and host a service. Ziti Networks come with built-in configuration types (ie. intercept.v1 and host.v1)'"
                 >
@@ -90,7 +90,7 @@
                                 <span class="form-field-title">Config Name</span>
                                 <div
                                         class="save-button"
-                                        (click)="svc.attachConfig(svc.selectedConfigId)"
+                                        (click)="attachConfig()"
                                         *ngIf="svc.selectedConfigId !== 'preview'"
                                 >{{svc.attachLabel}}
                                 </div>
@@ -131,13 +131,13 @@
                                     </span>
                                 </div>
                             </div>
-
-                            <!--<span class="form-field-title" [innerHTML]="configDataLabel"></span>-->
-                            <lib-json-view *ngIf="svc.configJsonView && !svc.hideConfigJSON" [(data)]="svc.configData"></lib-json-view>
-                            <lib-json-view *ngIf="svc.configJsonView && svc.hideConfigJSON" [(data)]="svc.configData"></lib-json-view>
-                            <div class="config-form-container" [hidden]="svc.configJsonView">
-                                <ng-container #dynamicform></ng-container>
-                            </div>
+                            <lib-config-editor
+                                [(configData)]="svc.configData"
+                                [schema]="svc.selectedSchema"
+                                [showJsonView]="svc.configJsonView"
+                                [(configErrors)]="svc.configErrors"
+                                #configEditor
+                            ></lib-config-editor>
                         </div>
                     </div>
                 </lib-form-field-container>
@@ -207,7 +207,7 @@
                         [clickable]="true"
                         [tooltip]="'View Config Data'"
                         (itemRemoved)="svc.removeConfig($event)"
-                        (itemSelected)="svc.previewConfig($event, dynamicForm)"
+                        (itemSelected)="svc.previewConfig($event)"
                     ></lib-preview-list>
                 </lib-form-field-container>
                 <lib-form-field-container

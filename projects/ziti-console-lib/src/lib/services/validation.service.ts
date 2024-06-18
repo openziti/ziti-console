@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {includes, isEmpty, isNumber} from "lodash";
+import {includes, isEmpty, isNil, isNumber} from "lodash";
 
 @Injectable({
     providedIn: 'root'
@@ -90,5 +90,27 @@ export class ValidationService {
 
     isValidInterceptHost(address) {
         return includes(address, '.');
+    }
+
+    redefineObject(obj) {
+        for (let prop in obj) {
+            if (Array.isArray(obj[prop]) && obj[prop].length==0) {
+                delete obj[prop];
+            } else {
+                if (typeof obj[prop] === "string" && obj[prop].trim().length==0) {
+                    delete obj[prop];
+                } else if (isNil(obj[prop])) {
+                    delete obj[prop];
+                } else {
+                    if (typeof obj[prop] === "object") {
+                        obj[prop] = this.redefineObject(obj[prop]);
+                        if (Object.keys(obj[prop]).length==0) {
+                            delete obj[prop];
+                        }
+                    }
+                }
+            }
+        }
+        return obj;
     }
 }

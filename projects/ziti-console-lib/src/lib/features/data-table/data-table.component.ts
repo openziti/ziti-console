@@ -91,6 +91,7 @@ export class DataTableComponent implements OnChanges, OnInit {
   showFilterOptions;
   showDateTimePicker;
   dateTimeColumn = '';
+  dateTimeFilterLabel = '';
   selectedRange = '';
   dateValue;
   menuLeft;
@@ -299,13 +300,14 @@ export class DataTableComponent implements OnChanges, OnInit {
     this.openHeaderMenu = false;
   }
 
-  openHeaderFilter(event, options, type, columnId): void {
+  openHeaderFilter(event, options, type, columnId, filterLabel): void {
     this.filterOptions = options;
     this.menuLeft = event.clientX;
     this.menuTop = event.clientY + 10;
     if (type === 'DATETIME') {
       this.showDateTimePicker = true;
       this.dateTimeColumn = columnId;
+      this.dateTimeFilterLabel = filterLabel || 'Date: ';
       _.delay(() => {
         this.calendar.toggle();
       }, 100);
@@ -355,8 +357,8 @@ export class DataTableComponent implements OnChanges, OnInit {
         label = 'Last Day';
         break;
     }
-    const startDateRange = encodeURIComponent('>=' + startDate.toISOString());
-    const endDateRange = encodeURIComponent('<=' + endDate.toISOString());
+    const startDateRange = encodeURIComponent(startDate.toISOString());
+    const endDateRange = encodeURIComponent(endDate.toISOString());
     this.columnFilters[this.dateTimeColumn] = [startDateRange, endDateRange];
 
     if (closeCalendar) {
@@ -369,7 +371,8 @@ export class DataTableComponent implements OnChanges, OnInit {
       columnId: this.dateTimeColumn,
       value: [startDateRange, endDateRange],
       label: label,
-      filterName: 'Last Seen'
+      filterName: this.dateTimeFilterLabel,
+      type: 'DATETIME'
     };
 
     this.tableFilterService.updateFilter(filterObj);

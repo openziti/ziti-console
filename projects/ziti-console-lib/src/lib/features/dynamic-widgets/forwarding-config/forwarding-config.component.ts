@@ -47,9 +47,6 @@ export class ForwardingConfigComponent {
   @Output() allowedProtocolsChange: EventEmitter<any> = new EventEmitter<any>();
 
   errors = {};
-  disableProtocol = false;
-  disableAddress = false;
-  disablePort = false;
 
   @ViewChild("papComponent") papComponent:ProtocolAddressPortInputComponent;
   constructor(private svc: ForwardingConfigService, private validationService: ValidationService) {}
@@ -60,7 +57,6 @@ export class ForwardingConfigComponent {
     } else {
       this.protocol = undefined;
     }
-    this.disableProtocol = this.forwardProtocol;
   }
 
   forwardAddressToggled(event) {
@@ -69,7 +65,6 @@ export class ForwardingConfigComponent {
     } else {
       this.address = undefined;
     }
-    this.disableAddress = this.forwardAddress;
   }
 
   forwardPortToggled(event) {
@@ -78,7 +73,6 @@ export class ForwardingConfigComponent {
     } else {
       this.port = undefined;
     }
-    this.disablePort = this.forwardPort;
   }
 
   setProperties(data: any) {
