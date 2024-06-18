@@ -113,9 +113,9 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
         override router: Router,
         override growlerService: GrowlerService,
         override loggerService: LoggerService,
-        private validationService: ValidationService
+        override validationService: ValidationService
     ) {
-        super(zitiDomainController, URLS, settingsService, http, router, growlerService, loggerService);
+        super(zitiDomainController, URLS, settingsService, http, router, growlerService, loggerService, validationService);
         this.getCurrentPage(this.router.url);
         this.initRouteListener();
     }
