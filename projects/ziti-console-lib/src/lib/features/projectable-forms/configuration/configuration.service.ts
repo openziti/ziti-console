@@ -8,6 +8,7 @@ import {GrowlerService} from "../../messaging/growler.service";
 import {Config} from "../../../models/config";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../../extendable/extensions-noop.service";
 import {SERVICE_EXTENSION_SERVICE} from "../service/service-form.service";
+import {ValidationService} from "../../../services/validation.service";
 
 @Injectable({
     providedIn: 'root'
@@ -25,7 +26,8 @@ export class ConfigurationService {
         @Inject(ZITI_DATA_SERVICE) private dataService: ZitiDataService,
         @Inject(SHAREDZ_EXTENSION)private extService: ExtensionService,
         private schemaSvc: SchemaService,
-        private growlerService: GrowlerService
+        private growlerService: GrowlerService,
+        private validationService: ValidationService
     ) {
     }
 
@@ -143,6 +145,7 @@ export class ConfigurationService {
                     saveModel[prop] = formData[prop];
             }
         });
+        saveModel.data = this.validationService.redefineObject(saveModel.data);
         return saveModel;
     }
 }

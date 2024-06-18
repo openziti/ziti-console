@@ -29,6 +29,7 @@ import {GrowlerService} from "../messaging/growler.service";
 import {GrowlerModel} from "../messaging/growler.model";
 import {LoggerService} from "../messaging/logger.service";
 import {VERSION} from "../../version";
+import {ValidationService} from "../../services/validation.service";
 
 // @ts-ignore
 const {modal, growler} = window;
@@ -111,7 +112,8 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
         override http: HttpClient,
         override router: Router,
         override growlerService: GrowlerService,
-        override loggerService: LoggerService
+        override loggerService: LoggerService,
+        private validationService: ValidationService
     ) {
         super(zitiDomainController, URLS, settingsService, http, router, growlerService, loggerService);
         this.getCurrentPage(this.router.url);
@@ -768,7 +770,7 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                 }
             }
         }
-        saveParams.data = this.redefineObject(saveParams.data);
+        saveParams.data = this.validationService.redefineObject(saveParams.data);
         for (const prop in saveParams.data) {
             if (Array.isArray(saveParams.data[prop]) && saveParams.data[prop].length == 0) {
                 delete saveParams.data[prop];

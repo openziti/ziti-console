@@ -230,6 +230,9 @@ export class ZitiControllerDataService extends ZitiDataService {
         let urlFilter = '';
         let toSearchOn = "name";
         let noSearch = filters?.length <= 0;
+        if (isEmpty(paging)) {
+            paging = this.DEFAULT_PAGING;
+        }
         if (paging && paging.sort != null) {
             if (paging.searchOn) toSearchOn = paging.searchOn;
             if (paging.noSearch) noSearch = true;

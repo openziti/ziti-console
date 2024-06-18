@@ -27,6 +27,7 @@ import dynamic from "ajv/dist/vocabularies/dynamic";
 import {SchemaService} from "../../../services/schema.service";
 import {Subscription} from "rxjs";
 import {ConfigEditorComponent} from "../../config-editor/config-editor.component";
+import {ValidationService} from "../../../services/validation.service";
 
 export const SERVICE_EXTENSION_SERVICE = new InjectionToken<any>('SERVICE_EXTENSION_SERVICE');
 
@@ -102,7 +103,8 @@ export class ServiceFormService {
         @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
         private growlerService: GrowlerService,
         @Inject(SERVICE_EXTENSION_SERVICE)private extService: ExtensionService,
-        private schemaSvc: SchemaService
+        private schemaSvc: SchemaService,
+        private validationService: ValidationService
     ) {}
 
     resetFormData() {
@@ -323,6 +325,7 @@ export class ServiceFormService {
                 data: this.configData,
                 name: this.newConfigName
             }
+            newConfig.data = this.validationService.redefineObject(newConfig.data);
             configId = await this.createConfig(newConfig)
                 .then((result) => {
                     const cfg = result?.data;

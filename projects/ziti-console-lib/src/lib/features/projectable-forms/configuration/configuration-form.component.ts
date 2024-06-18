@@ -58,6 +58,7 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
     associatedServiceNames = [];
     servicesLoading = false;
     settings: any = {};
+    selectedConfigTypeId = '';
 
     @ViewChild("configEditor", {read: ConfigEditorComponent}) configEditor!: ConfigEditorComponent;
     constructor(
@@ -74,6 +75,13 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
         this.settingsService.settingsChange.subscribe((results:any) => {
             this.settings = results;
         });
+        if (isEmpty(this.formData?.data)) {
+            this.formData.data = {};
+        }
+        if (isEmpty(this.formData?.configTypeId)) {
+            this.formData.configTypeId = '';
+        }
+        this.selectedConfigTypeId = this.formData.configTypeId;
         this.initData = cloneDeep(this.formData);
         this.svc.configJsonView = false;
         //this.getAssociatedServices();
@@ -193,9 +201,14 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
         }
     }
 
-    async getSchema() {
-        this.formData.data = {};
-        this.selectedSchema = await this.svc.getSchema(this.formData.configTypeId);
+    getSchema() {
+        if (this.selectedConfigTypeId !== this.formData.configTypeId) {
+            this.selectedConfigTypeId = this.formData.configTypeId;
+            this.formData.data = {};
+        }
+        this.svc.getSchema(this.formData.configTypeId).then((result) => {
+            this.selectedSchema = result;
+        });
     }
 
     get apiCallURL() {
