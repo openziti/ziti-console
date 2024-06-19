@@ -131,7 +131,9 @@ export class ControllerLoginService extends LoginServiceClass {
     }
 
     hasSession() {
-        return !isEmpty(this.settingsService?.settings?.session?.id);
+        const hasSessionId = !isEmpty(this.settingsService?.settings?.session?.id);
+        const sessionExpired = moment(this.settingsService?.settings?.session?.expiresAt).isBefore(new Date());
+        return hasSessionId && !sessionExpired;
     }
 
     logout() {
