@@ -16,11 +16,10 @@
 
 import {Injectable, Inject} from '@angular/core';
 import {BehaviorSubject, Observable, Subscription} from "rxjs";
-import {SettingsServiceClass, ZitiDomainControllerService, ZitiSessionData, SETTINGS_SERVICE} from "ziti-console-lib";
+import {GrowlerModel, GrowlerService, SettingsServiceClass, ZitiDomainControllerService, ZitiSessionData, SETTINGS_SERVICE} from "ziti-console-lib";
 import {HttpClient} from '@angular/common/http';
 
 import {isEmpty, unset} from 'lodash';
-import {GrowlerModel} from "../../../../ziti-console-lib/src/lib/features/messaging/growler.model";
 import {Router} from "@angular/router";
 
 @Injectable({
@@ -38,7 +37,7 @@ export class SimpleZitiDomainControllerService implements ZitiDomainControllerSe
     constructor(
         @Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
         private http: HttpClient,
-        private growlerService,
+        private growlerService: GrowlerService,
         private router: Router,
     ) {
 
