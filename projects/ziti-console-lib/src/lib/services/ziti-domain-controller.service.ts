@@ -9,4 +9,5 @@ export type ZitiSessionData = {
 }
 export interface ZitiDomainControllerService {
     zitiSettings: BehaviorSubject<ZitiSessionData>;
+    handleUnauthorized();
 }
