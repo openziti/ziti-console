@@ -1,3 +1,11 @@
+# app-ziti-console-v3.2.2
+# ziti-console-lib-v0.2.2
+*
+
+## Bug Fixes
+* [Issue #378](https://github.com/openziti/ziti-console/issues/378) - Can't add new attributes on service-polices page
+
+
 # app-ziti-console-v3.2.1
 # ziti-console-lib-v0.2.1
 *
