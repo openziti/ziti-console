@@ -205,7 +205,6 @@ var MultiSelect = function(id, max=10, freeform=false) {
         id = app.validate(id);
         name = app.validate(name);
         type = app.validate(type);
-        selected = app.validate(selected);
         if (name.charAt(0)=="@") type = "at";
         else if (name.charAt(0)=="#") type = "hash";
         if (type=="at" && id.charAt(0)!='@') id = "@"+id;
