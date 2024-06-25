@@ -120,6 +120,11 @@ export abstract class ListPageServiceClass {
             paging.sort = sort.sortBy;
             paging.order = sort.ordering;
         }
+        for (let idx = 0; idx < filters.length; idx++) {
+            paging.noSearch = false;
+            paging.searchOn = filters[idx].columnId;
+            paging.filter = filters[idx].value;
+        }
         return this.dataService.get(resourceType, paging, filters);
     }
 
