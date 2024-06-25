@@ -1,3 +1,13 @@
+# app-ziti-console-v3.2.3
+# ziti-console-lib-v0.2.3
+*
+## Feature/Improvements
+* [Issue #376](https://github.com/openziti/ziti-console/pull/376) - Improve handling of error responses from ziti controller
+
+## Bug Fixes
+* [Issue #381](https://github.com/openziti/ziti-console/issues/381) - Can't filter by name on the identities list page
+
+
 # app-ziti-console-v3.2.2
 # ziti-console-lib-v0.2.2
 *
