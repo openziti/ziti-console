@@ -30,6 +30,7 @@ import {GrowlerModel} from "../messaging/growler.model";
 import {LoggerService} from "../messaging/logger.service";
 import {VERSION} from "../../version";
 import {ValidationService} from "../../services/validation.service";
+import {ZITI_DATA_SERVICE, ZitiDataService} from "../../services/ziti-data.service";
 
 // @ts-ignore
 const {modal, growler} = window;
@@ -389,12 +390,12 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
         switch (name) {
             case 'data':
                 this.getZitiEntities(params.type, params.paging).then((result) => {
-                    returnTo(result);
+                    this.handleServiceResult(result, returnTo);
                 });
                 break;
             case 'subdata':
                 this.getZitiEntity(params).then((result) => {
-                    returnTo(result);
+                    this.handleServiceResult(result, returnTo);
                 });
                 break;
             case 'dataSave':
@@ -402,12 +403,12 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                 break;
             case 'identity':
                 this.createSimpleIdentity(params).then((result) => {
-                    returnTo(result);
+                    this.handleServiceResult(result, returnTo);
                 });
                 break;
             case 'service':
                 this.createSimpleService(params).then((result) => {
-                    returnTo(result);
+                    this.handleServiceResult(result, returnTo);
                 });
                 break;
             case 'subSave':
@@ -418,18 +419,18 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                 break;
             case 'call':
                 this.callZitiEdge(`${controllerDomain}/edge/management/v1/${params.url}`, {}).then((result) => {
-                    returnTo(result);
+                    this.handleServiceResult(result, returnTo);
                 });
                 break;
             case 'schema':
                 this.dereferenceJSONSchema(params.schema).then((schema) => {
-                    returnTo({data: schema});
+                    this.handleServiceResult({data: schema}, returnTo);
                 })
                 break;
             case 'template':
             case 'language':
                 this.getLocaleFile(params.locale).then((result) => {
-                    returnTo(result)
+                    this.handleServiceResult(result, returnTo);
                 });
                 break;
             case 'settings':
@@ -450,18 +451,25 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                 break;
             case 'controllerSave':
                 this.callZitiEdge("/api/controllerSave", {}).then((result) => {
-                    returnTo(result);
+                    this.handleServiceResult(result, returnTo);
                 });
                 break;
             case 'server':
                 this.callZitiEdge("/api/server", {}).then((result) => {
-                    returnTo(result);
+                    this.handleServiceResult(result, returnTo);
                 });
                 break;
             case 'tags':
-                // For no this is a no-op. Not relevant to cloud ziti
+                // For no this is a no-op
                 break;
         }
+    }
+
+    handleServiceResult(result, returnTo) {
+        if (result?.error) {
+            result = this.handleError(result);
+        }
+        returnTo(result);
     }
 
     async createSimpleIdentity(params) {
@@ -879,16 +887,7 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
         }
         return prom.catch((result) => {
             if (result?.error?.error?.code === 'UNAUTHORIZED') {
-                unset(this.settingsService.settings, 'session');
-                this.settingsService.set(this.settingsService.settings);
-                this.router.navigate(['/login']);
-                const model = new GrowlerModel(
-                    'error',
-                    'Error',
-                    `Unauthorized`,
-                    `Your current session is invalid. Returning to the login page.`,
-                );
-                this.growlerService.show(model);
+                this.zitiDomainController.handleUnauthorized();
             }
             return result?.error;
         });

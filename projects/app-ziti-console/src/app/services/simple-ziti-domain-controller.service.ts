@@ -16,10 +16,11 @@
 
 import {Injectable, Inject} from '@angular/core';
 import {BehaviorSubject, Observable, Subscription} from "rxjs";
-import {SettingsServiceClass, ZitiDomainControllerService, ZitiSessionData, SETTINGS_SERVICE} from "ziti-console-lib";
+import {GrowlerModel, GrowlerService, SettingsServiceClass, ZitiDomainControllerService, ZitiSessionData, SETTINGS_SERVICE} from "ziti-console-lib";
 import {HttpClient} from '@angular/common/http';
 
-import {isEmpty} from 'lodash';
+import {isEmpty, unset} from 'lodash';
+import {Router} from "@angular/router";
 
 @Injectable({
     providedIn: 'root'
@@ -33,7 +34,12 @@ export class SimpleZitiDomainControllerService implements ZitiDomainControllerSe
     }
     subscription: Subscription = new Subscription();
     zitiSettings = new BehaviorSubject(this.zitiSessionData);
-    constructor(@Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass, private http: HttpClient) {
+    constructor(
+        @Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
+        private http: HttpClient,
+        private growlerService: GrowlerService,
+        private router: Router,
+    ) {
 
         this.subscription.add(this.settingsService.settingsChange.subscribe((results: any) => {
             if (isEmpty(results)) {
@@ -43,5 +49,18 @@ export class SimpleZitiDomainControllerService implements ZitiDomainControllerSe
             this.zitiSessionData.zitiDomain = results.session.controllerDomain;
             this.zitiSettings.next({...this.zitiSessionData});
         }));
+    }
+
+    handleUnauthorized() {
+        unset(this.settingsService.settings, 'session');
+        this.settingsService.set(this.settingsService.settings);
+        this.router.navigate(['/login']);
+        const model = new GrowlerModel(
+            'error',
+            'Error',
+            `Unauthorized`,
+            `Your current session is invalid. Returning to the login page.`,
+        );
+        this.growlerService.show(model);
     }
 }

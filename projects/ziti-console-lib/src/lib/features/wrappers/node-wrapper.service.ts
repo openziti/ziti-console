@@ -11,6 +11,7 @@ import {get, set, isEmpty} from "lodash";
 import {GrowlerService} from "../messaging/growler.service";
 import {LoggerService} from "../messaging/logger.service";
 import {ValidationService} from "../../services/validation.service";
+import {ZITI_DATA_SERVICE, ZitiDataService} from "../../services/ziti-data.service";
 
 @Injectable({providedIn: 'root'})
 export class NodeWrapperService extends ZacWrapperService {
