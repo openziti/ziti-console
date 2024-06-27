@@ -203,10 +203,10 @@ export class TableColumnDefaultComponent implements IHeaderAngularComp, AfterVie
 
   toggleFilter(event) {
     this.showFilter = !this.showFilter;
-    if (this.filterType === 'SELECT' || this.filterType === 'COMBO' || this.filterType === 'DATETIME') {
+    if (this.filterType === 'SELECT' || this.filterType === 'COMBO' || this.filterType === 'DATETIME'|| this.filterType === 'ATTRIBUTE') {
       if (this.showFilter) {
         this.updateFilterOptions();
-        _.invoke(this.headerParams, 'api.openHeaderFilter', event, this.filterOptions, this.filterType, this.columnDef?.colId, this.headerName);
+        _.invoke(this.headerParams, 'api.openHeaderFilter', event, this.filterOptions, this.filterType, this.columnDef?.colId, this.headerName, this.columnDef?.headerComponentParams);
       } else {
         _.invoke(this.headerParams, 'api.closeHeaderFilter', event);
       }

@@ -76,3 +76,10 @@
   background-color: var(--primaryColor);
   color: var(--white);
 }
+
+::ng-deep .tag-selector-filter .select2-selection {
+  border: none !important;
+  .select2-search__field {
+    height: 35px !important;
+  }
+}

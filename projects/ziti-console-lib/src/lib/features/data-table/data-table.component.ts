@@ -90,6 +90,8 @@ export class DataTableComponent implements OnChanges, OnInit {
   filterOptions: any = [];
   showFilterOptions;
   showDateTimePicker;
+  showTagSelector;
+  attributesColumn = '';
   dateTimeColumn = '';
   dateTimeFilterLabel = '';
   selectedRange = '';
@@ -103,7 +105,8 @@ export class DataTableComponent implements OnChanges, OnInit {
   };
   entityTypeLabel = ''
   columnFilters:any = {};
-
+  roleAttributes: any[] = [];
+  selectedRoleAttributes: any[] = [];
   // appliedFilters = [];
   autoGroupColumnDef;
 
@@ -300,15 +303,25 @@ export class DataTableComponent implements OnChanges, OnInit {
     this.openHeaderMenu = false;
   }
 
-  openHeaderFilter(event, options, type, columnId, filterLabel): void {
+  openHeaderFilter(event, options, type, columnId, filterLabel, headerComponentParams): void {
     this.filterOptions = options;
     this.menuLeft = event.clientX;
     this.menuTop = event.clientY + 10;
     if (type === 'DATETIME') {
-      this.showDateTimePicker = true;
       this.dateTimeColumn = columnId;
       this.dateTimeFilterLabel = filterLabel || 'Date: ';
       _.delay(() => {
+        this.showDateTimePicker = true;
+      }, 10);
+      _.delay(() => {
+        this.calendar.toggle();
+      }, 100);
+    } else if (type === 'ATTRIBUTE') {
+      this.attributesColumn = columnId;
+      this.roleAttributes = headerComponentParams?.roleAttributes;
+      this.dateTimeFilterLabel = filterLabel;
+      _.delay(() => {
+        this.showTagSelector = true;
         this.calendar.toggle();
       }, 100);
     } else {
@@ -378,12 +391,45 @@ export class DataTableComponent implements OnChanges, OnInit {
     this.tableFilterService.updateFilter(filterObj);
   }
 
+  tagSelectionChanged(event) {
+    let label = '';
+    let value = '';
+    if (this.selectedRoleAttributes.length > 1) {
+      this.selectedRoleAttributes = [_.last(this.selectedRoleAttributes)];
+    }
+    this.selectedRoleAttributes.forEach((attr, index) => {
+      if (index > 0) {
+        label += ', ';
+        value += ', ';
+      }
+      label += '#' + attr;
+      value += '%23' + attr;
+    });
+    const filterObj: FilterObj = {
+      columnId: this.attributesColumn,
+      value: value,
+      label: label,
+      filterName: this.dateTimeFilterLabel,
+      type: 'ATTRIBUTE'
+    };
+
+    this.tableFilterService.updateFilter(filterObj);
+  }
+
   applyFilter(event, filter) {
     this.tableFilterService.updateFilter(filter);
   }
 
   closeHeaderFilter(event): void {
     this.showFilterOptions = false;
+  }
+
+  closeDateTime(event): void {
+    this.showDateTimePicker = false;
+  }
+
+  closeTagSelector(event): void {
+    this.showTagSelector = false;
   }
 
   openCreate() {

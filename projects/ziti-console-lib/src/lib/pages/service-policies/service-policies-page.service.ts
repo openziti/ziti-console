@@ -42,13 +42,14 @@ const CSV_COLUMNS = [
 @Injectable({
     providedIn: 'root'
 })
-export class ServicesPageService extends ListPageServiceClass {
+export class ServicePoliciesPageService extends ListPageServiceClass {
 
     private paging = this.DEFAULT_PAGING;
-    public modalType = 'service';
+    public modalType = 'service-policy';
 
     serviceType = '';
-    selectedService: any = new Service();
+    selectedServicePolicy: any = new Service();
+    serviceRoleAttributes = [];
     columnFilters: any = {
         name: '',
         os: '',
@@ -65,7 +66,7 @@ export class ServicesPageService extends ListPageServiceClass {
         {name: 'Download Selected', action: 'download-selected'},
     ]
 
-    resourceType = 'services';
+    resourceType = 'service-policies';
     constructor(
         @Inject(SETTINGS_SERVICE) settings: SettingsServiceClass,
         filterService: DataTableFilterService,
@@ -83,14 +84,17 @@ export class ServicesPageService extends ListPageServiceClass {
     }
 
     initTableColumns(): any {
-        const rolesRenderer = (row) => {
-            let roles = '';
-            row?.data?.roleAttributes?.forEach((attr) => {
-                roles += '<div class="hashtag">'+attr+'</div>';
-            });
-            return roles;
-        }
-
+        const createdAtHeaderComponentParams = {
+            filterType: 'DATETIME',
+        };
+        const self = this;
+        const serviceRolesHeaderComponentParams = {
+            filterType: 'ATTRIBUTE',
+            enableSorting: true,
+            get roleAttributes() {
+                return self.serviceRoleAttributes;
+            }
+        };
         return [
             {
                 colId: 'name',
@@ -115,9 +119,28 @@ export class ServicesPageService extends ListPageServiceClass {
                 width: 300,
             },
             {
-                colId: 'roles',
-                field: 'roleAttributes',
-                headerName: 'Roles',
+                colId: 'serviceRoles',
+                field: 'serviceRoles',
+                headerName: 'Service Attributes',
+                headerComponent: TableColumnDefaultComponent,
+                headerComponentParams: serviceRolesHeaderComponentParams,
+                onCellClicked: (data) => {
+                    if (this.hasSelectedText()) {
+                        return;
+                    }
+                    this.serviceType = '';
+                    this.openUpdate(data.data);
+                },
+                resizable: true,
+                cellRenderer: this.rolesRenderer,
+                cellClass: 'nf-cell-vert-align tCol',
+                sortable: false,
+                filter: false,
+            },
+            {
+                colId: 'identityRoles',
+                field: 'identityRoles',
+                headerName: 'Identity Attributes',
                 headerComponent: TableColumnDefaultComponent,
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
@@ -127,7 +150,25 @@ export class ServicesPageService extends ListPageServiceClass {
                     this.openUpdate(data.data);
                 },
                 resizable: true,
-                cellRenderer: rolesRenderer,
+                cellRenderer: this.rolesRenderer,
+                cellClass: 'nf-cell-vert-align tCol',
+                sortable: false,
+                filter: false,
+            },
+            {
+                colId: 'postureCheckRoles',
+                field: 'postureCheckRoles',
+                headerName: 'Posture Check Attributes',
+                headerComponent: TableColumnDefaultComponent,
+                onCellClicked: (data) => {
+                    if (this.hasSelectedText()) {
+                        return;
+                    }
+                    this.serviceType = '';
+                    this.openUpdate(data.data);
+                },
+                resizable: true,
+                cellRenderer: this.rolesRenderer,
                 cellClass: 'nf-cell-vert-align tCol',
                 sortable: false,
                 filter: false,
@@ -137,6 +178,7 @@ export class ServicesPageService extends ListPageServiceClass {
                 field: 'createdAt',
                 headerName: 'Created At',
                 headerComponent: TableColumnDefaultComponent,
+                headerComponentParams: createdAtHeaderComponentParams,
                 valueFormatter: this.createdAtFormatter,
                 resizable: true,
                 sortable: true,
@@ -156,7 +198,7 @@ export class ServicesPageService extends ListPageServiceClass {
     getData(filters?: FilterObj[], sort?: any, page?: any): Promise<any> {
         // we can customize filters or sorting here before moving on...
         this.paging.page = page || this.paging.page;
-        return super.getTableData('services', this.paging, filters, sort)
+        return super.getTableData('service-policies', this.paging, filters, sort)
             .then((results: any) => {
                 return this.processData(results);
             });
@@ -181,7 +223,10 @@ export class ServicesPageService extends ListPageServiceClass {
     }
 
     public getServiceRoleAttributes() {
-        return this.zitiService.get('service-role-attributes', {}, []);
+        return this.zitiService.get('service-role-attributes', {}, []).then((result) => {
+            this.serviceRoleAttributes = result.data;
+            return result;
+        });
     }
 
     public getIdentityNamedAttributes() {
@@ -200,7 +245,7 @@ export class ServicesPageService extends ListPageServiceClass {
     downloadAllItems() {
         const paging = cloneDeep(this.paging);
         paging.total = this.totalCount;
-        super.getTableData('services', paging, undefined, undefined)
+        super.getTableData('service-policies', paging, undefined, undefined)
             .then((results: any) => {
                 return this.downloadItems(results?.data);
             });
@@ -208,7 +253,7 @@ export class ServicesPageService extends ListPageServiceClass {
 
     downloadItems(selectedItems) {
         this.csvDownloadService.download(
-            'services',
+            'service-policies',
             selectedItems,
             CSV_COLUMNS,
             false,
@@ -219,13 +264,13 @@ export class ServicesPageService extends ListPageServiceClass {
     }
 
     public openUpdate(item?: any) {
-        this.modalType = 'service';
+        this.modalType = 'service-policies';
         if (item) {
-            this.selectedService = item;
-            this.selectedService.badges = [];
-            unset(this.selectedService, '_links');
+            this.selectedServicePolicy = item;
+            this.selectedServicePolicy.badges = [];
+            unset(this.selectedServicePolicy, '_links');
         } else {
-            this.selectedService = new Service();
+            this.selectedServicePolicy = new Service();
         }
         this.sideModalOpen = true;
     }

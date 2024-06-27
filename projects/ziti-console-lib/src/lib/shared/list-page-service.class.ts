@@ -27,6 +27,7 @@ import {isEmpty} from "lodash";
 import {CsvDownloadService} from "../services/csv-download.service";
 import {SettingsServiceClass} from "../services/settings-service.class";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../features/extendable/extensions-noop.service";
+import moment from "moment/moment";
 
 export abstract class ListPageServiceClass {
 
@@ -67,6 +68,19 @@ export abstract class ListPageServiceClass {
         return `<div class="col cell-name-renderer" data-id="${row?.data?.id}">
                 <strong>${row?.data?.name}</strong>
               </div>`
+    }
+
+    rolesRenderer = (row) => {
+        const colId = row.column.colId;
+        let roles = '';
+        row?.data?.[colId]?.forEach((attr) => {
+            roles += '<div class="hashtag">'+attr+'</div>';
+        });
+        return roles;
+    }
+
+    createdAtFormatter = (row) => {
+        return moment(row?.data?.createdAt).local().format('M/D/YYYY HH:mm A');
     }
 
     constructor(

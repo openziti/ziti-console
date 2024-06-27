@@ -117,14 +117,6 @@ export class IdentitiesPageService extends ListPageServiceClass {
               </div>`
         }
 
-        const rolesRenderer = (row) => {
-            let roles = '';
-            row?.data?.roleAttributes?.forEach((attr) => {
-                roles += '<div class="hashtag">'+attr+'</div>';
-            });
-            return roles;
-        }
-
         const osRenderer = (row) => {
             let os = "other";
             let osDetails = "";
@@ -162,10 +154,6 @@ export class IdentitiesPageService extends ListPageServiceClass {
             return`<div class="col desktop" data-id="${row?.data?.id}" style="overflow: unset;" data-balloon-pos="up" aria-label="${sdk}">
                 <span class="oneline">${version}</span>
              </div>`;
-        }
-
-        const createdAtFormatter = (row) => {
-            return moment(row?.data?.createdAt).local().format('M/D/YYYY h:mm A');
         }
 
         const columnFilters = this.columnFilters;
@@ -217,7 +205,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
                     this.openUpdate(data.data);
                 },
                 resizable: true,
-                cellRenderer: rolesRenderer,
+                cellRenderer: this.rolesRenderer,
                 cellClass: 'nf-cell-vert-align tCol',
                 sortable: false,
                 filter: false,
@@ -273,7 +261,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 field: 'createdAt',
                 headerName: 'Created At',
                 headerComponent: TableColumnDefaultComponent,
-                valueFormatter: createdAtFormatter,
+                valueFormatter: this.createdAtFormatter,
                 resizable: true,
                 sortable: true,
                 sortColumn: this.sort.bind(this),

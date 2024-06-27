@@ -28,7 +28,7 @@ export class TableColumnFilterComponent implements OnInit, AfterViewInit, OnDest
     @Input() type = 'TEXTINPUT';
     @Input() filterString = '';
     @Input() filterName = '';
-    @Input() columnId;
+    @Input() columnDef;
     @Input() openStatusMenu;
     @Input() dateFilter: any = '24h';
 
@@ -45,7 +45,7 @@ export class TableColumnFilterComponent implements OnInit, AfterViewInit, OnDest
             this.filterService.filtersChanged.subscribe((filters) => {
                 let tmp = '';
                 for (let idx = 0; idx < filters.length; idx++) {
-                    if (filters[idx].columnId === this.columnId) {
+                    if (filters[idx].columnId === this.columnDef?.colId) {
                         tmp = filters[idx].value;
                         break;
                     }
@@ -57,7 +57,7 @@ export class TableColumnFilterComponent implements OnInit, AfterViewInit, OnDest
     setFilter(): void {
         const filterObj = {
             filterName: this.filterName,
-            columnId: this.columnId,
+            columnId: this.columnDef?.colId,
             value: this.filterString,
             label: this.filterString,
             type: this.type,
@@ -77,7 +77,11 @@ export class TableColumnFilterComponent implements OnInit, AfterViewInit, OnDest
         }
     }
 
-  ngOnDestroy(): void {
-      if(this.subscription) this.subscription.unsubscribe();
-  }
+    ngOnDestroy(): void {
+        if(this.subscription) this.subscription.unsubscribe();
+    }
+
+    get availableRoleAttributes() {
+        return this.columnDef?.headerComponentParams?.roleAttributes;
+    }
 }

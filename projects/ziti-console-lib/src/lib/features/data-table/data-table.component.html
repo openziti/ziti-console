@@ -88,7 +88,7 @@
     </div>
 </div>
 
-<div *ngIf="showDateTimePicker" class="date-time-container data-table-date-time" [ngStyle]="{ left: menuLeft + 'px', top: menuTop + 'px' }" (clickOutside)="closeHeaderFilter($event)">
+<div *ngIf="showDateTimePicker" class="date-time-container data-table-date-time" [ngStyle]="{ left: menuLeft + 'px', top: menuTop + 'px' }" (clickOutside)="closeDateTime($event)">
     <p-calendar
             [(ngModel)]="dateValue"
             (onSelect)="setDateRangeFilter('custom')"
@@ -132,6 +132,17 @@
     </p-calendar>
 </div>
 
+<div *ngIf="showTagSelector" class="tag-selector-container data-table-tag-selector" [ngStyle]="{ left: menuLeft + 'px', top: menuTop + 'px' }" (clickOutside)="closeTagSelector($event)">
+    <div class="tag-selector-label">
+        <span>Select Attributes:</span>
+    </div>
+    <lib-tag-selector
+        [availableRoleAttributes]="roleAttributes"
+        [(selectedRoleAttributes)]="selectedRoleAttributes"
+        (selectedNamedAttributesChange)="tagSelectionChanged($event)"
+        (selectedRoleAttributesChange)="tagSelectionChanged($event)"
+    ></lib-tag-selector>
+</div>
 <ng-template #nodata>
     <lib-no-items
         (clickEmit)="openCreate()"

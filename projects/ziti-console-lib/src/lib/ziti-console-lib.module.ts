@@ -97,6 +97,7 @@ import { CardComponent } from './features/card/card.component';
 import { CreationSummaryDialogComponent } from './features/creation-summary-dialog/creation-summary-dialog.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ConfigEditorComponent } from './features/config-editor/config-editor.component';
+import { ServicePoliciesPageComponent } from './pages/service-policies/service-policies-page.component';
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -164,7 +165,8 @@ export function playerFactory() {
         SimpleServiceComponent,
         CardComponent,
         CreationSummaryDialogComponent,
-        ConfigEditorComponent
+        ConfigEditorComponent,
+        ServicePoliciesPageComponent
     ],
     imports: [
         CommonModule,
@@ -211,7 +213,8 @@ export function playerFactory() {
         GrowlerModule,
         FormFieldContainerComponent,
         FormFieldToggleComponent,
-        ServiceFormComponent
+        ServiceFormComponent,
+        ServicePoliciesPageComponent
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},

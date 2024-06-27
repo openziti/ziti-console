@@ -126,10 +126,6 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
               </div>`
         }
 
-        const createdAtFormatter = (row) => {
-            return moment(row?.data?.createdAt).local().format('M/D/YYYY H:MM A');
-        }
-
         const enrollmentTokenFormatter = (row) => {
             const token = row?.data?.enrollmentToken;
             if (token) {
@@ -233,7 +229,7 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
                 field: 'createdAt',
                 headerName: 'Created At',
                 headerComponent: TableColumnDefaultComponent,
-                valueFormatter: createdAtFormatter,
+                valueFormatter: this.createdAtFormatter,
                 resizable: true,
                 sortable: true,
                 sortColumn: this.sort.bind(this),
