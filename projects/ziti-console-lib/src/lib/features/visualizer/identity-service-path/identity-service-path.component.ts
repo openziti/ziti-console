@@ -86,8 +86,12 @@ export class IdentityServicePathComponent implements OnInit {
     this.hostConfigApiUrl = `${this.controllerDomain}/edge/management/v1/configs`;
     this.dialPolicyApiUrl = `${this.controllerDomain}/edge/management/v1/service-policies`;
     this.bindPolicyApiUrl = `${this.controllerDomain}/edge/management/v1/service-policies`;
-    this.getEndpointNetworkAsCode();
 
+    try {
+       this.getEndpointNetworkAsCode();
+    } catch (err:any) {
+      console.log(err);
+    }
     this.autocompleteOptions = [];
     this.isLoading = true;
   }
@@ -199,30 +203,36 @@ export class IdentityServicePathComponent implements OnInit {
   }
 
   serviceChanged() {
-    this.isLoading = true;
-    const allPromises = [];
-    let serviceOb = null;
-    let service_configs = [];
-    this.services.forEach((rec) => {
+
+    if (this.selectedService === 'NO SERVICES' || this.selectedService === '') {
+      this.isLoading = false;
+      return;
+    }
+   try{
+     this.isLoading = true;
+     const allPromises = [];
+     let serviceOb = null;
+     let service_configs = [];
+     this.services.forEach((rec) => {
       if (rec.name === this.selectedService) {
         serviceOb = rec;
       }
-    });
-    const configs_url = this.getLinkForResource(serviceOb, 'configs'); // host ip:port , intercept ip:port
+     });
+     const configs_url = this.getLinkForResource(serviceOb, 'configs'); // host ip:port , intercept ip:port
 
-    const configPromise = this.zitiService
+     const configPromise = this.zitiService
       .get(configs_url, {}, [])
       .then((configs) => {
         service_configs = configs && configs.data ? configs.data : [];
       });
-    const service_edge_router_policies_url = this.getLinkForResource(
+     const service_edge_router_policies_url = this.getLinkForResource(
       serviceOb,
       'service-edge-router-policies'
-    );
-    const service_policies_url = this.getLinkForResource(
+     );
+     const service_policies_url = this.getLinkForResource(
       serviceOb,
       'service-policies'
-    ).replace('./', ''); // dial, Bind info
+     ).replace('./', ''); // dial, Bind info
 
     let bindPolicies = [];
     let bindIdnetities = [];
@@ -255,6 +265,10 @@ export class IdentityServicePathComponent implements OnInit {
           this.isLoading = false;
         });
       });
+    } catch (err:any) {
+      this.isLoading = false;
+      console.log(err);
+    }
   }
 
   addItemToArray(bindIdnetities, ob) {
