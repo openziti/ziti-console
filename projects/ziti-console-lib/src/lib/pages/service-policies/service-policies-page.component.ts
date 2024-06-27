@@ -53,7 +53,7 @@ export class ServicePoliciesPageComponent extends ListPageComponent implements O
 
   override ngOnInit() {
     super.ngOnInit();
-    this.getServiceRoleAttributes();
+    this.getRoleAttributes();
     this.tabs = this.tabNames.getTabs('services');
   }
 
@@ -104,13 +104,16 @@ export class ServicePoliciesPageComponent extends ListPageComponent implements O
     }
   }
 
-  getServiceRoleAttributes() {
+  getRoleAttributes() {
     this.svc.getServiceRoleAttributes().then((result: any) => {
       this.serviceRoleAttributes = result.data;
     });
     this.svc.getIdentityRoleAttributes().then((result: any) => {
       this.identityRoleAttributes = result.data;
     });
+    this.svc.getServiceNamedAttributes();
+    this.svc.getIdentityNamedAttributes();
+    this.svc.getPostureNamedAttributes();
   }
 
   deleteItem(item: any) {

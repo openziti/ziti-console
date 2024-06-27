@@ -41,6 +41,12 @@ input {
   font-family: 'Open Sans';
   font-size: 15px;
   font-weight: 700;
+
+  >span {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+  }
 }
 
 .header-text-container.text-input-filter {

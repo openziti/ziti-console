@@ -133,14 +133,18 @@
 </div>
 
 <div *ngIf="showTagSelector" class="tag-selector-container data-table-tag-selector" [ngStyle]="{ left: menuLeft + 'px', top: menuTop + 'px' }" (clickOutside)="closeTagSelector($event)">
+    <div class="buttonBall icon-close" (click)="closeTagSelector($event)"></div>
     <div class="tag-selector-label">
-        <span>Select Attributes:</span>
+        <span>Select an Attribute:</span>
     </div>
     <lib-tag-selector
+        [focusOnInit]="true"
         [availableRoleAttributes]="roleAttributes"
+        [availableNamedAttributes]="namedAttributes"
         [(selectedRoleAttributes)]="selectedRoleAttributes"
-        (selectedNamedAttributesChange)="tagSelectionChanged($event)"
-        (selectedRoleAttributesChange)="tagSelectionChanged($event)"
+        [(selectedNamedAttributes)]="selectedNamedAttributes"
+        (selectedNamedAttributesChange)="tagSelectionChanged($event, false)"
+        (selectedRoleAttributesChange)="tagSelectionChanged($event, true)"
     ></lib-tag-selector>
 </div>
 <ng-template #nodata>

@@ -73,9 +73,17 @@ export abstract class ListPageServiceClass {
     rolesRenderer = (row) => {
         const colId = row.column.colId;
         let roles = '';
-        row?.data?.[colId]?.forEach((attr) => {
-            roles += '<div class="hashtag">'+attr+'</div>';
-        });
+        if (row?.data?.[colId + 'Display']) {
+            row?.data?.[colId + 'Display'].forEach((attr) => {
+                const className = attr?.name?.indexOf('@') === 0 ? 'attag' : 'hashtag';
+                roles += `<div class="${className}">${attr.name}</div>`;
+            });
+        } else {
+            row?.data?.[colId]?.forEach((attr) => {
+                const className = attr.indexOf('@') === 0 ? 'attag' : 'hashtag';
+                roles += `<div class="${className}">${attr}</div>`;
+            });
+        }
         return roles;
     }
 

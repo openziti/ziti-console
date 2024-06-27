@@ -49,7 +49,25 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
 
     serviceType = '';
     selectedServicePolicy: any = new Service();
+
     serviceRoleAttributes = [];
+    serviceNamedAttributes = [];
+    serviceNamedAttributesMap = {};
+    selectedServiceRoleAttributes = [];
+    selectedServiceNamedAttributes = [];
+
+    identityRoleAttributes = [];
+    identityNamedAttributes = [];
+    identityNamedAttributesMap = {};
+    selectedIdentityRoleAttributes = [];
+    selectedIdentityNamedAttributes = [];
+
+    postureRoleAttributes = [];
+    postureNamedAttributes = [];
+    postureNamedAttributesMap = {};
+    selectedPostureRoleAttributes = [];
+    selectedPostureNamedAttributes = [];
+
     columnFilters: any = {
         name: '',
         os: '',
@@ -77,6 +95,30 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
         @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService
     ) {
         super(settings, filterService, csvDownloadService, extService);
+        this.filterService.filtersChanged.subscribe(filters => {
+            let serviceFilter, identityFilter, postureFilter;
+            filters.forEach((filter) => {
+                switch (filter.columnId) {
+                    case 'serviceRoles':
+                        serviceFilter = true;
+                        break;
+                    case 'identityRoles':
+                        identityFilter = true;
+                        break;
+                    case 'postureRoles':
+                        postureFilter = true;
+                        break;
+                }
+            });
+            if (!serviceFilter) {
+                this.selectedServiceRoleAttributes = [];
+                this.selectedServiceNamedAttributes = [];
+            }
+            if (!identityFilter) {
+                this.selectedIdentityRoleAttributes = [];
+                this.selectedIdentityNamedAttributes = [];
+            }
+        });
     }
 
     validate = (formData): Promise<CallbackResults> => {
@@ -91,10 +133,104 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
         const serviceRolesHeaderComponentParams = {
             filterType: 'ATTRIBUTE',
             enableSorting: true,
-            get roleAttributes() {
+            getRoleAttributes: () => {
                 return self.serviceRoleAttributes;
+            },
+            getNamedAttributes: () => {
+                return self.serviceNamedAttributes;
+            },
+            getSelectedRoleAttributes: () => {
+                return self.selectedServiceRoleAttributes;
+            },
+            getSelectedNamedAttributes: () => {
+                return self.selectedServiceNamedAttributes;
+            },
+            setSelectedRoleAttributes: (attributes) => {
+                self.selectedServiceRoleAttributes = attributes;
+            },
+            setSelectedNamedAttributes: (attributes) => {
+                self.selectedServiceNamedAttributes = attributes;
+            },
+            getNamedAttributesMap: () => {
+                return self.serviceNamedAttributesMap;
             }
         };
+        const identityRolesHeaderComponentParams = {
+            filterType: 'ATTRIBUTE',
+            enableSorting: true,
+            getRoleAttributes: () => {
+                return self.identityRoleAttributes;
+            },
+            getNamedAttributes: () => {
+                return self.identityNamedAttributes;
+            },
+            getSelectedRoleAttributes: () => {
+                return self.selectedIdentityRoleAttributes;
+            },
+            getSelectedNamedAttributes: () => {
+                return self.selectedIdentityNamedAttributes;
+            },
+            setSelectedRoleAttributes: (attributes) => {
+                self.selectedIdentityRoleAttributes = attributes;
+            },
+            setSelectedNamedAttributes: (attributes) => {
+                self.selectedIdentityNamedAttributes = attributes;
+            },
+            getNamedAttributesMap: () => {
+                return self.identityNamedAttributesMap;
+            }
+        };
+
+        const postureRolesHeaderComponentParams = {
+            filterType: 'ATTRIBUTE',
+            enableSorting: true,
+            getRoleAttributes: () => {
+                return self.postureRoleAttributes;
+            },
+            getNamedAttributes: () => {
+                return self.postureNamedAttributes;
+            },
+            getSelectedRoleAttributes: () => {
+                return self.selectedPostureRoleAttributes;
+            },
+            getSelectedNamedAttributes: () => {
+                return self.selectedPostureNamedAttributes;
+            },
+            setSelectedRoleAttributes: (attributes) => {
+                self.selectedPostureRoleAttributes = attributes;
+            },
+            setSelectedNamedAttributes: (attributes) => {
+                self.selectedPostureNamedAttributes = attributes;
+            },
+            getNamedAttributesMap: () => {
+                return self.postureNamedAttributesMap;
+            }
+        };
+
+        const semanticHeaderComponentParams = {
+            filterType: 'SELECT',
+            enableSorting: true,
+            filterOptions: [
+                { label: 'Any Of', value: 'AnyOf', columnId: 'semantic'},
+                { label: 'All Of', value: 'AllOf', columnId: 'semantic' },
+            ],
+            getFilterOptions: () => {
+                return semanticHeaderComponentParams.filterOptions;
+            }
+        };
+
+        const typeHeaderComponentParams = {
+            filterType: 'SELECT',
+            enableSorting: true,
+            filterOptions: [
+                { label: 'Dial', value: 'Dial', columnId: 'type' },
+                { label: 'Bind', value: 'Bind', columnId: 'type' },
+            ],
+            getFilterOptions: () => {
+                return typeHeaderComponentParams.filterOptions;
+            }
+        };
+
         return [
             {
                 colId: 'name',
@@ -142,6 +278,7 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
                 field: 'identityRoles',
                 headerName: 'Identity Attributes',
                 headerComponent: TableColumnDefaultComponent,
+                headerComponentParams: identityRolesHeaderComponentParams,
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
                         return;
@@ -160,6 +297,7 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
                 field: 'postureCheckRoles',
                 headerName: 'Posture Check Attributes',
                 headerComponent: TableColumnDefaultComponent,
+                headerComponentParams: postureRolesHeaderComponentParams,
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
                         return;
@@ -172,6 +310,46 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
                 cellClass: 'nf-cell-vert-align tCol',
                 sortable: false,
                 filter: false,
+            },
+            {
+                colId: 'semantic',
+                field: 'semantic',
+                headerName: 'Semantic',
+                headerComponent: TableColumnDefaultComponent,
+                headerComponentParams: semanticHeaderComponentParams,
+                onCellClicked: (data) => {
+                    if (this.hasSelectedText()) {
+                        return;
+                    }
+                    this.serviceType = '';
+                    this.openUpdate(data.data);
+                },
+                resizable: true,
+                cellRenderer: (row) => {
+                    return row.data?.semantic === 'AnyOf' ? 'Any Of' : 'All Of';
+                },
+                cellClass: 'nf-cell-vert-align tCol',
+                width: 100,
+            },
+            {
+                colId: 'type',
+                field: 'type',
+                headerName: 'Type',
+                headerComponent: TableColumnDefaultComponent,
+                //headerComponentParams: typeHeaderComponentParams,
+                onCellClicked: (data) => {
+                    if (this.hasSelectedText()) {
+                        return;
+                    }
+                    this.serviceType = '';
+                    this.openUpdate(data.data);
+                },
+                resizable: true,
+                cellRenderer: (row) => {
+                    return row.data?.type;
+                },
+                cellClass: 'nf-cell-vert-align tCol',
+                width: 100,
             },
             {
                 colId: 'createdAt',
@@ -191,6 +369,7 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
                     this.serviceType = '';
                     this.openUpdate(data.data);
                 },
+                hide: true
             }
         ];
     }
@@ -232,14 +411,41 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
     public getIdentityNamedAttributes() {
         return this.zitiService.get('identities', {}, []).then((result) => {
             const namedAttributes = result.data.map((identity) => {
+                this.identityNamedAttributesMap[identity.name] = identity.id;
                 return identity.name;
             });
+            this.identityNamedAttributes = namedAttributes;
+            return namedAttributes;
+        });
+    }
+
+    public getServiceNamedAttributes() {
+        return this.zitiService.get('services', {}, []).then((result) => {
+            const namedAttributes = result.data.map((service) => {
+                this.serviceNamedAttributesMap[service.name] = service.id;
+                return service.name;
+            });
+            this.serviceNamedAttributes = namedAttributes;
             return namedAttributes;
         });
     }
 
     public getIdentityRoleAttributes() {
-        return this.zitiService.get('identity-role-attributes', {}, []);
+        return this.zitiService.get('identity-role-attributes', {}, []).then((result) => {
+            this.identityRoleAttributes = result.data;
+            return result;
+        });
+    }
+
+    public getPostureNamedAttributes() {
+        return this.zitiService.get('posture-checks', {}, []).then((result) => {
+            const namedAttributes = result.data.map((postureCheck) => {
+                this.postureNamedAttributesMap[postureCheck.name] = postureCheck.id;
+                return postureCheck.name;
+            });
+            this.postureNamedAttributes = namedAttributes;
+            return namedAttributes;
+        });
     }
 
     downloadAllItems() {

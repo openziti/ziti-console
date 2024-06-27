@@ -65,9 +65,8 @@ export class TableColumnFilterComponent implements OnInit, AfterViewInit, OnDest
         this.filterService.updateFilter(filterObj)
     }
 
-
     ngAfterViewInit() {
-        this.filterInput.nativeElement.focus();
+        this.filterInput?.nativeElement?.focus();
     }
 
     statusClicked(event) {

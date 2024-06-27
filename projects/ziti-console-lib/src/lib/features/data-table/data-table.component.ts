@@ -29,6 +29,7 @@ import {TableCellMenuComponent} from "./cells/table-cell-menu/table-cell-menu.co
 import {DataTableService} from "./data-table.service";
 import {TableCellTokenComponent} from "./cells/table-cell-token/table-cell-token.component";
 import {DataTableFilterService, FilterObj} from "./data-table-filter.service";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'lib-data-table',
@@ -106,9 +107,13 @@ export class DataTableComponent implements OnChanges, OnInit {
   entityTypeLabel = ''
   columnFilters:any = {};
   roleAttributes: any[] = [];
+  namedAttributes: any[] = [];
   selectedRoleAttributes: any[] = [];
+  selectedNamedAttributes: any[] = [];
   // appliedFilters = [];
   autoGroupColumnDef;
+  currentHeaderComponentParams: any = {};
+  subscription: Subscription = new Subscription();
 
   public menuColumnDefinition = {
     colId: 'ziti-ag-menu',
@@ -318,11 +323,14 @@ export class DataTableComponent implements OnChanges, OnInit {
       }, 100);
     } else if (type === 'ATTRIBUTE') {
       this.attributesColumn = columnId;
-      this.roleAttributes = headerComponentParams?.roleAttributes;
+      this.roleAttributes = headerComponentParams?.getRoleAttributes();
+      this.namedAttributes = headerComponentParams?.getNamedAttributes();
+      this.selectedRoleAttributes = headerComponentParams.getSelectedRoleAttributes();
+      this.selectedNamedAttributes = headerComponentParams.getSelectedNamedAttributes();
       this.dateTimeFilterLabel = filterLabel;
+      this.currentHeaderComponentParams = headerComponentParams;
       _.delay(() => {
         this.showTagSelector = true;
-        this.calendar.toggle();
       }, 100);
     } else {
       _.defer(() => {
@@ -391,20 +399,37 @@ export class DataTableComponent implements OnChanges, OnInit {
     this.tableFilterService.updateFilter(filterObj);
   }
 
-  tagSelectionChanged(event) {
+  tagSelectionChanged(event, isRole) {
     let label = '';
     let value = '';
-    if (this.selectedRoleAttributes.length > 1) {
-      this.selectedRoleAttributes = [_.last(this.selectedRoleAttributes)];
-    }
-    this.selectedRoleAttributes.forEach((attr, index) => {
-      if (index > 0) {
-        label += ', ';
-        value += ', ';
+    if (isRole) {
+      this.selectedNamedAttributes = [];
+      if (this.selectedRoleAttributes.length > 1) {
+        this.selectedRoleAttributes = [_.last(this.selectedRoleAttributes)];
       }
-      label += '#' + attr;
-      value += '%23' + attr;
-    });
+      this.selectedRoleAttributes.forEach((attr, index) => {
+        if (index > 0) {
+          label += ', ';
+          value += ', ';
+        }
+        label += '#' + attr;
+        value += '%23' + attr;
+      });
+    } else {
+      this.selectedRoleAttributes = [];
+      const attrIdMap = this.currentHeaderComponentParams.getNamedAttributesMap();
+      if (this.selectedNamedAttributes.length > 1) {
+        this.selectedNamedAttributes = [_.last(this.selectedNamedAttributes)];
+      }
+      this.selectedNamedAttributes.forEach((attr, index) => {
+        if (index > 0) {
+          label += ', ';
+          value += ', ';
+        }
+        label += '@' + attr;
+        value += '%40' + attrIdMap[attr];
+      });
+    }
     const filterObj: FilterObj = {
       columnId: this.attributesColumn,
       value: value,
@@ -412,7 +437,8 @@ export class DataTableComponent implements OnChanges, OnInit {
       filterName: this.dateTimeFilterLabel,
       type: 'ATTRIBUTE'
     };
-
+    this.currentHeaderComponentParams.setSelectedRoleAttributes(this.selectedRoleAttributes);
+    this.currentHeaderComponentParams.setSelectedNamedAttributes(this.selectedNamedAttributes);
     this.tableFilterService.updateFilter(filterObj);
   }
 
