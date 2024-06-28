@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
+import _ from 'lodash';
 
 class Link {
     source;
@@ -84,7 +85,7 @@ export class IdentityServicePathHelper {
         }
         let publicRouterNodes = [];
         let posy = 0;
-        edgerouters.forEach((nd) => {
+        _.isArray(edgerouters) && edgerouters.forEach((nd) => {
             const nodeOb = createERNode(nd);
             nodeOb.group = '2a';
             nodeOb.posx = 250;
@@ -111,7 +112,7 @@ export class IdentityServicePathHelper {
                        srNode.status = '1';
                        group4Nodes.push(srNode);
                        rootOb.addNode(srNode);
-                    bindIdnetities.forEach((ePoint) => {
+                    _.isArray(bindIdnetities) && bindIdnetities.forEach((ePoint) => {
                          if (group3Ids.indexOf(ePoint.id) < 0) {
                             group3Ids.push(ePoint.id);
                          }
@@ -278,7 +279,7 @@ export class IdentityServicePathHelper {
 
         function serviceConfigAlias(configs) {
           let intercept = [];
-          configs.forEach( (conf) => {
+          _.isArray(configs) && configs.forEach( (conf) => {
              let addresses = '';
              let ports = '';
             if (conf.data.addresses) {
@@ -287,7 +288,7 @@ export class IdentityServicePathHelper {
                addresses = conf.data.address;
             }
 
-            if (conf.data.portRanges) {
+            if (_.isArray(conf.data.portRanges) ) {
                 conf.data.portRanges.forEach( (portsJson) => {
                   for (const key in portsJson) {
                     ports = ports + key +':'+portsJson[key] +' ' ;
