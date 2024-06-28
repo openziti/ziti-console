@@ -36,7 +36,6 @@ export class IdentityServicePathComponent implements OnInit {
   refreshRotate = false;
   closeRotate = true;
   filterText = 'fetching services..';
-  rangeDateTime = [];
   noSearchResults = false;
   autocompleteOptions = [];
   fullScreen = false;
@@ -55,13 +54,6 @@ export class IdentityServicePathComponent implements OnInit {
   isLoading = false;
   countGrp2Nds = 0;
   countGrp3Nds = 0;
-  controllerDomain;
-  zitiSessionId;
-  serviceApiUrl;
-  interceptConfigApiUrl;
-  hostConfigApiUrl;
-  dialPolicyApiUrl;
-  bindPolicyApiUrl;
 
   constructor(
     private identityServicePathHelper: IdentityServicePathHelper,
@@ -72,22 +64,10 @@ export class IdentityServicePathComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.endpointData = data.identity;
-    const dtNow = new Date();
-    this.rangeDateTime[0] = new Date(dtNow.getTime() - 24 * 60 * 60 * 1000);
-    this.rangeDateTime[1] = dtNow;
   }
 
   ngOnInit(): void {
-    this.controllerDomain =
-      this.settingsService?.settings?.selectedEdgeController;
-    this.zitiSessionId = this.settingsService?.settings?.session?.id;
-    this.serviceApiUrl = `${this.controllerDomain}/edge/management/v1/identities/${this.endpointData.id}/services`;
-    this.interceptConfigApiUrl = `${this.controllerDomain}/edge/management/v1/configs`;
-    this.hostConfigApiUrl = `${this.controllerDomain}/edge/management/v1/configs`;
-    this.dialPolicyApiUrl = `${this.controllerDomain}/edge/management/v1/service-policies`;
-    this.bindPolicyApiUrl = `${this.controllerDomain}/edge/management/v1/service-policies`;
     this.getEndpointNetworkAsCode();
-
     this.autocompleteOptions = [];
     this.isLoading = true;
   }
@@ -160,7 +140,7 @@ export class IdentityServicePathComponent implements OnInit {
     function createServiceOptions(_services) {
       const options = [];
       const serviceNames = [];
-      _services.find((srvice) => {
+      _services?.find((srvice) => {
         if (!serviceNames.includes(srvice.name)) {
           serviceNames.push(srvice.name);
           const sd = new ServiceData();
@@ -194,35 +174,39 @@ export class IdentityServicePathComponent implements OnInit {
   }
 
   autocompleteSearch(event) {
-    const str = event ? event.option.value : '';
     this.serviceChanged();
   }
 
   serviceChanged() {
-    this.isLoading = true;
-    const allPromises = [];
-    let serviceOb = null;
-    let service_configs = [];
-    this.services.forEach((rec) => {
-      if (rec.name === this.selectedService) {
-        serviceOb = rec;
-      }
-    });
-    const configs_url = this.getLinkForResource(serviceOb, 'configs'); // host ip:port , intercept ip:port
+     this.isLoading = true;
+     const allPromises = [];
+     let serviceOb = null;
+     let service_configs = [];
 
-    const configPromise = this.zitiService
+     serviceOb = this.services && this.services.find((rec) => {
+      return  (rec.name === this.selectedService);
+     });
+
+     if (!serviceOb) {
+       this.isLoading = false;
+       return;
+     }
+
+     const configs_url = this.getLinkForResource(serviceOb, 'configs');
+
+     const configPromise = this.zitiService
       .get(configs_url, {}, [])
       .then((configs) => {
         service_configs = configs && configs.data ? configs.data : [];
       });
-    const service_edge_router_policies_url = this.getLinkForResource(
+     const service_edge_router_policies_url = this.getLinkForResource(
       serviceOb,
       'service-edge-router-policies'
-    );
-    const service_policies_url = this.getLinkForResource(
+     );
+     const service_policies_url = this.getLinkForResource(
       serviceOb,
       'service-policies'
-    ).replace('./', ''); // dial, Bind info
+     ).replace('./', ''); // dial, Bind info
 
     let bindPolicies = [];
     let bindIdnetities = [];
@@ -230,7 +214,7 @@ export class IdentityServicePathComponent implements OnInit {
       .get(service_policies_url, {}, [])
       .then((policies) => {
         const identityPromises = [];
-        policies.data.forEach((policy) => {
+        _.isArray(policies.data) && policies.data.forEach((policy) => {
           if (policy.type === 'Bind') {
             const bindIdentitiesUrl = this.getLinkForResource(
               policy,
@@ -284,14 +268,15 @@ export class IdentityServicePathComponent implements OnInit {
         serviceConfigs
       );
     } catch (err) {
-      console.log(err);
+      console.log('Error in creating graph', err);
+      return;
     }
 
     let countGrp1Nds = 0;
     this.doEndpointHasServicesInPrivateNw = false;
     this.doEndpointHasPublicRouters = false;
     this.doEndpointHasAppwans = false;
-    this.graphJsonObj.nodes.find((nd) => {
+    this.graphJsonObj.nodes.forEach((nd) => {
       if (nd.group === '3') {
         this.countGrp3Nds++;
       }
