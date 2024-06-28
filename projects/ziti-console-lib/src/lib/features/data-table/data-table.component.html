@@ -88,7 +88,7 @@
     </div>
 </div>
 
-<div *ngIf="showDateTimePicker" class="date-time-container data-table-date-time" [ngStyle]="{ left: menuLeft + 'px', top: menuTop + 'px' }" (clickOutside)="closeHeaderFilter($event)">
+<div *ngIf="showDateTimePicker" class="date-time-container data-table-date-time" [ngStyle]="{ left: menuLeft + 'px', top: menuTop + 'px' }" (clickOutside)="closeDateTime($event)">
     <p-calendar
             [(ngModel)]="dateValue"
             (onSelect)="setDateRangeFilter('custom')"
@@ -132,6 +132,21 @@
     </p-calendar>
 </div>
 
+<div *ngIf="showTagSelector" class="tag-selector-container data-table-tag-selector" [ngStyle]="{ left: menuLeft + 'px', top: menuTop + 'px' }" (clickOutside)="closeTagSelector($event)">
+    <div class="buttonBall icon-close" (click)="closeTagSelector($event)"></div>
+    <div class="tag-selector-label">
+        <span>Select an Attribute:</span>
+    </div>
+    <lib-tag-selector
+        [focusOnInit]="true"
+        [availableRoleAttributes]="roleAttributes"
+        [availableNamedAttributes]="namedAttributes"
+        [(selectedRoleAttributes)]="selectedRoleAttributes"
+        [(selectedNamedAttributes)]="selectedNamedAttributes"
+        (selectedNamedAttributesChange)="tagSelectionChanged($event, false)"
+        (selectedRoleAttributesChange)="tagSelectionChanged($event, true)"
+    ></lib-tag-selector>
+</div>
 <ng-template #nodata>
     <lib-no-items
         (clickEmit)="openCreate()"

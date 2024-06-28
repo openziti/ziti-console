@@ -74,7 +74,7 @@
             </span>
       <app-table-column-filter
         *ngIf="((showFilter || comboActive) && !(filterType === 'COMBO' && !comboActive)) && filterType !== 'SELECT' && filterType !== 'CUSTOM'"
-        [columnId]="columnDef.field"
+        [columnDef]="columnDef"
         [filterName]="headerName"
         [filterString]="''"
         [openStatusMenu]="toggleSecondaryFilter.bind(this)"

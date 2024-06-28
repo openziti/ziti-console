@@ -56,9 +56,6 @@ export class ConfigurationsPageService extends ListPageServiceClass {
     }
 
     initTableColumns(): any {
-        const createdAtFormatter = (row) => {
-            return moment(row?.data?.createdAt).local().format('M/D/YYYY H:MM A');
-        }
 
         const typeRenderer = (row) => {
             return row?.data?.configType?.name;
@@ -106,7 +103,7 @@ export class ConfigurationsPageService extends ListPageServiceClass {
                 headerName: 'Created At',
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: createdAtHeaderComponentParams,
-                valueFormatter: createdAtFormatter,
+                valueFormatter: this.createdAtFormatter,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
             }

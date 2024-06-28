@@ -1,4 +1,4 @@
-<div class="ziti-page-container ziti-configs-container">
+<div class="ziti-page-container ziti-service-policies-container">
     <lib-list-page-header [title]="title"
                           [tabs]="tabs"
                           [showAdd]="!itemsSelected"
@@ -11,7 +11,7 @@
                     [startCount]="startCount"
                     [endCount]="endCount"
                     [totalCount]="totalCount"
-                    [emptyMsg]="'No Configurations defined, Click the plus to add a Configuration.'"
+                    [emptyMsg]="'No Service Policies defined, Click the plus to add a Service Policy.'"
                     [filterApplied]="filterApplied"
                     [menuItems]="svc.menuItems"
                     (gridReady)="gridReady($event)"
@@ -21,7 +21,7 @@
     <lib-side-modal [(open)]="svc.sideModalOpen" [showClose]="false">
         <lib-configuration
                 *ngIf="svc.sideModalOpen"
-                [formData]="svc.selectedConfig"
+                [formData]="svc.selectedServicePolicy"
                 (close)="closeModal($event)"
                 (dataChange)="dataChanged($event)">
         </lib-configuration>

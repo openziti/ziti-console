@@ -24,7 +24,7 @@ import {catchError} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
 import {FilterObj} from "../features/data-table/data-table-filter.service";
 import {ZitiDataService} from "./ziti-data.service";
-import {isEmpty, get} from "lodash";
+import {isEmpty, isArray, isNumber} from "lodash";
 import {Resolver} from "@stoplight/json-ref-resolver";
 import moment from "moment";
 
@@ -237,7 +237,9 @@ export class ZitiControllerDataService extends ZitiDataService {
             if (paging.searchOn) toSearchOn = paging.searchOn;
             if (paging.noSearch) noSearch = true;
             if (!paging.filter) paging.filter = "";
-            paging.filter = paging.filter.split('#').join('');
+            if (!isArray(paging.filter) && isNaN(paging.filter)) {
+                paging.filter = paging.filter.split('#').join('');
+            }
         }
         filters.forEach((filter, index) => {
             let filterVal = '';
@@ -247,10 +249,14 @@ export class ZitiControllerDataService extends ZitiDataService {
                     break;
                 case 'SELECT':
                 case 'COMBO':
-                    filterVal = `${filter.columnId} = "${filter.value}"`;
+                    const val = isNumber(filter.value) ? `${filter.value}` : `"${filter.value}"`;
+                    filterVal = `${filter.columnId} = ${val}`;
                     break;
                 case 'DATETIME':
                     filterVal = `${filter.columnId} >= datetime(${filter.value[0]}) and ${filter.columnId} <= datetime(${filter.value[1]})`;
+                    break;
+                case 'ATTRIBUTE':
+                    filterVal = `anyOf(${filter.columnId}) = "${filter.value}"`;
                     break;
                 default:
                     filterVal = `${filter.columnId} contains "${filter.value}"`;

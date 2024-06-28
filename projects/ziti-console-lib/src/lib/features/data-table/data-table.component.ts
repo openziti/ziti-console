@@ -29,6 +29,7 @@ import {TableCellMenuComponent} from "./cells/table-cell-menu/table-cell-menu.co
 import {DataTableService} from "./data-table.service";
 import {TableCellTokenComponent} from "./cells/table-cell-token/table-cell-token.component";
 import {DataTableFilterService, FilterObj} from "./data-table-filter.service";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'lib-data-table',
@@ -90,6 +91,8 @@ export class DataTableComponent implements OnChanges, OnInit {
   filterOptions: any = [];
   showFilterOptions;
   showDateTimePicker;
+  showTagSelector;
+  attributesColumn = '';
   dateTimeColumn = '';
   dateTimeFilterLabel = '';
   selectedRange = '';
@@ -103,9 +106,14 @@ export class DataTableComponent implements OnChanges, OnInit {
   };
   entityTypeLabel = ''
   columnFilters:any = {};
-
+  roleAttributes: any[] = [];
+  namedAttributes: any[] = [];
+  selectedRoleAttributes: any[] = [];
+  selectedNamedAttributes: any[] = [];
   // appliedFilters = [];
   autoGroupColumnDef;
+  currentHeaderComponentParams: any = {};
+  subscription: Subscription = new Subscription();
 
   public menuColumnDefinition = {
     colId: 'ziti-ag-menu',
@@ -300,16 +308,29 @@ export class DataTableComponent implements OnChanges, OnInit {
     this.openHeaderMenu = false;
   }
 
-  openHeaderFilter(event, options, type, columnId, filterLabel): void {
+  openHeaderFilter(event, options, type, columnId, filterLabel, headerComponentParams): void {
     this.filterOptions = options;
     this.menuLeft = event.clientX;
     this.menuTop = event.clientY + 10;
     if (type === 'DATETIME') {
-      this.showDateTimePicker = true;
       this.dateTimeColumn = columnId;
       this.dateTimeFilterLabel = filterLabel || 'Date: ';
       _.delay(() => {
+        this.showDateTimePicker = true;
+      }, 10);
+      _.delay(() => {
         this.calendar.toggle();
+      }, 100);
+    } else if (type === 'ATTRIBUTE') {
+      this.attributesColumn = columnId;
+      this.roleAttributes = headerComponentParams?.getRoleAttributes();
+      this.namedAttributes = headerComponentParams?.getNamedAttributes();
+      this.selectedRoleAttributes = headerComponentParams.getSelectedRoleAttributes();
+      this.selectedNamedAttributes = headerComponentParams.getSelectedNamedAttributes();
+      this.dateTimeFilterLabel = filterLabel;
+      this.currentHeaderComponentParams = headerComponentParams;
+      _.delay(() => {
+        this.showTagSelector = true;
       }, 100);
     } else {
       _.defer(() => {
@@ -378,12 +399,63 @@ export class DataTableComponent implements OnChanges, OnInit {
     this.tableFilterService.updateFilter(filterObj);
   }
 
+  tagSelectionChanged(event, isRole) {
+    let label = '';
+    let value = '';
+    if (isRole) {
+      this.selectedNamedAttributes = [];
+      if (this.selectedRoleAttributes.length > 1) {
+        this.selectedRoleAttributes = [_.last(this.selectedRoleAttributes)];
+      }
+      this.selectedRoleAttributes.forEach((attr, index) => {
+        if (index > 0) {
+          label += ', ';
+          value += ', ';
+        }
+        label += '#' + attr;
+        value += '%23' + attr;
+      });
+    } else {
+      this.selectedRoleAttributes = [];
+      const attrIdMap = this.currentHeaderComponentParams.getNamedAttributesMap();
+      if (this.selectedNamedAttributes.length > 1) {
+        this.selectedNamedAttributes = [_.last(this.selectedNamedAttributes)];
+      }
+      this.selectedNamedAttributes.forEach((attr, index) => {
+        if (index > 0) {
+          label += ', ';
+          value += ', ';
+        }
+        label += '@' + attr;
+        value += '%40' + attrIdMap[attr];
+      });
+    }
+    const filterObj: FilterObj = {
+      columnId: this.attributesColumn,
+      value: value,
+      label: label,
+      filterName: this.dateTimeFilterLabel,
+      type: 'ATTRIBUTE'
+    };
+    this.currentHeaderComponentParams.setSelectedRoleAttributes(this.selectedRoleAttributes);
+    this.currentHeaderComponentParams.setSelectedNamedAttributes(this.selectedNamedAttributes);
+    this.tableFilterService.updateFilter(filterObj);
+  }
+
   applyFilter(event, filter) {
     this.tableFilterService.updateFilter(filter);
   }
 
   closeHeaderFilter(event): void {
     this.showFilterOptions = false;
+  }
+
+  closeDateTime(event): void {
+    this.showDateTimePicker = false;
+  }
+
+  closeTagSelector(event): void {
+    this.showTagSelector = false;
   }
 
   openCreate() {

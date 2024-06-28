@@ -91,10 +91,6 @@ export class ServicesPageService extends ListPageServiceClass {
             return roles;
         }
 
-        const createdAtFormatter = (row) => {
-            return moment(row?.data?.createdAt).local().format('M/D/YYYY H:MM A');
-        }
-
         return [
             {
                 colId: 'name',
@@ -141,7 +137,7 @@ export class ServicesPageService extends ListPageServiceClass {
                 field: 'createdAt',
                 headerName: 'Created At',
                 headerComponent: TableColumnDefaultComponent,
-                valueFormatter: createdAtFormatter,
+                valueFormatter: this.createdAtFormatter,
                 resizable: true,
                 sortable: true,
                 sortColumn: this.sort.bind(this),

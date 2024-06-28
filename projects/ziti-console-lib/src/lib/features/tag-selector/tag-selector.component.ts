@@ -1,11 +1,11 @@
-import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 
 @Component({
   selector: 'lib-tag-selector',
   templateUrl: './tag-selector.component.html',
   styleUrls: ['./tag-selector.component.scss'],
 })
-export class TagSelectorComponent {
+export class TagSelectorComponent implements AfterViewInit {
   _availableRoleAttributes: any[] = [];
   _availableNamedAttributes: any[] = [];
 
@@ -15,6 +15,7 @@ export class TagSelectorComponent {
   @Input() hideOption = '';
   @Input() isLoading = false;
   @Input() errorMessage = '';
+  @Input() focusOnInit = false;
   @Output() addRoleAttribute = new EventEmitter<any>();
   @Output() addNamedAttribute = new EventEmitter<any>();
   @Output() roleAttributeRemoved = new EventEmitter<any>();
@@ -33,6 +34,12 @@ export class TagSelectorComponent {
   @ViewChild('dropdownWrapper') dropdownWrapper: ElementRef;
 
   constructor() {
+  }
+
+  ngAfterViewInit() {
+    if (this.focusOnInit) {
+        this.search.nativeElement.focus();
+    }
   }
 
   _selectedRoleAttributes: any[] = [];

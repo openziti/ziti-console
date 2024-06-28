@@ -951,3 +951,45 @@
     }
   }
 }
+
+::ng-deep .tag-selector-container {
+  &.data-table-tag-selector {
+    position: fixed;
+    z-index: 9999;
+    width: 350px;
+    height: fit-content;
+    background: var(--formBackground);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 10px;
+    border-radius: 7px;
+    box-shadow: var(--shadowLarge);
+    margin-top: -20px;
+    border-color: var(--stroke);
+    border-style: solid;
+    .tag-selector-label {
+      margin-bottom: 5px;
+      margin-left: 2px;
+      font-weight: 600;
+      color: var(--menu);
+    }
+    .select2-search__field {
+      height: 35px;
+    }
+    .nf-select2-dropdown {
+      width: calc(100% - 20px) !important;
+    }
+  }
+  .icon-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    cursor: pointer;
+    color: var(--icon);
+    font-weight: 600;
+    &:hover {
+      filter: brightness(50%);
+    }
+  }
+}
