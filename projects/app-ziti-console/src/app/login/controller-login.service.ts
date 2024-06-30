@@ -76,8 +76,7 @@ export class ControllerLoginService extends LoginServiceClass {
         return this.httpClient.post(endpoint + queryParams, requestBody, {
             headers: {
                 "content-type": "application/json",
-            },
-            rejectUnauthorized: false
+            }
         })
             .pipe(
                 switchMap((body: any) => {
