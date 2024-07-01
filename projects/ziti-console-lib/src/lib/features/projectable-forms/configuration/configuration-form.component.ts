@@ -195,7 +195,7 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
     }
     get saveButtonTooltip() {
         if (this.formDataInvalid) {
-            return 'Service data is invalid. Please update and try again.'
+            return 'Config data is invalid. Please update and try again.'
         } else {
             return 'Complete and attach config definition, or remove before saving';
         }

@@ -144,7 +144,7 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
   }
 
   get apiCallURL() {
-    return this.settings.selectedEdgeController + '/edge/management/v1/identities' + (this.formData.id ? `/${this.formData.id}` : '');
+    return this.settings.selectedEdgeController + '/edge/management/v1/edge-routers' + (this.formData.id ? `/${this.formData.id}` : '');
   }
 
   get apiData() {
