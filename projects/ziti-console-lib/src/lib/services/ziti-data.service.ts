@@ -23,12 +23,26 @@ import {HttpClient} from "@angular/common/http";
 import {FilterObj} from "../features/data-table/data-table-filter.service";
 import { LoginServiceClass } from './login-service.class';
 
+import {cloneDeep} from "lodash";
+
 export const ZITI_DATA_SERVICE = new InjectionToken<ZitiDataService>('ZITI_DATA_SERVICE');
 
 @Injectable({
   providedIn: 'root'
 })
 export abstract class ZitiDataService {
+
+  public get DEFAULT_PAGING() {
+    return cloneDeep({
+      filter: "",
+      noSearch: true,
+      order: "asc",
+      page: 1,
+      searchOn: "name",
+      sort: "name",
+      total: 100
+    })
+  }
 
   constructor(protected logger: LoggerService,
               protected growler: GrowlerService,

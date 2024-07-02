@@ -33,16 +33,6 @@ import moment from "moment";
 })
 export class NodeDataService extends ZitiDataService {
 
-    DEFAULT_PAGING: any = {
-        filter: "",
-        noSearch: true,
-        order: "asc",
-        page: 1,
-        searchOn: "name",
-        sort: "name",
-        total: 100
-    }
-
     constructor(override logger: LoggerService,
                 override growler: GrowlerService,
                 @Inject(SETTINGS_SERVICE) override settingsService: SettingsService,

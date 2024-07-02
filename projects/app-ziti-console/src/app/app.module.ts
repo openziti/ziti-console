@@ -48,7 +48,8 @@ import {
     EDGE_ROUTER_EXTENSION_SERVICE,
     SERVICE_EXTENSION_SERVICE,
     ExtensionsNoopService,
-    IDENTITY_EXTENSION_SERVICE
+    IDENTITY_EXTENSION_SERVICE,
+    SERVICE_POLICY_EXTENSION_SERVICE
 } from "ziti-console-lib";
 
 import {AppRoutingModule} from "./app-routing.module";
@@ -115,6 +116,7 @@ if (environment.nodeIntegration) {
         {provide: EDGE_ROUTER_EXTENSION_SERVICE, useClass: ExtensionsNoopService},
         {provide: IDENTITY_EXTENSION_SERVICE, useClass: ExtensionsNoopService},
         {provide: SERVICE_EXTENSION_SERVICE, useClass: ExtensionsNoopService},
+        {provide: SERVICE_POLICY_EXTENSION_SERVICE, useClass: ExtensionsNoopService}
     ],
     bootstrap: [AppComponent]
 })

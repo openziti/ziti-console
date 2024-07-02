@@ -33,16 +33,6 @@ import moment from "moment";
 })
 export class ZitiControllerDataService extends ZitiDataService {
 
-    DEFAULT_PAGING: any = {
-        filter: "",
-        noSearch: true,
-        order: "asc",
-        page: 1,
-        searchOn: "name",
-        sort: "name",
-        total: 100
-    }
-
     constructor(override logger: LoggerService,
                 override growler: GrowlerService,
                 @Inject(SETTINGS_SERVICE) settingsService: SettingsService,
@@ -256,7 +246,7 @@ export class ZitiControllerDataService extends ZitiDataService {
                     filterVal = `${filter.columnId} >= datetime(${filter.value[0]}) and ${filter.columnId} <= datetime(${filter.value[1]})`;
                     break;
                 case 'ATTRIBUTE':
-                    filterVal = `anyOf(${filter.columnId}) = "${filter.value}"`;
+                    filterVal = this.getAttributeFilter(filter.value, filter.columnId);
                     break;
                 default:
                     filterVal = `${filter.columnId} contains "${filter.value}"`;
@@ -284,5 +274,20 @@ export class ZitiControllerDataService extends ZitiDataService {
         const resolver = new Resolver();
         const schema = await resolver.resolve(data);
         return schema.result;
+    }
+
+    getAttributeFilter(val, columnId) {
+        let filter = '';
+        if (isArray(val)) {
+            val.forEach((attr, index) => {
+                if (index > 0) {
+                    filter += ' or ';
+                }
+                filter += `anyOf(${columnId}) = "${attr}"`;
+            });
+        } else {
+            filter = `anyOf(${columnId}) = "${val}"`;
+        }
+        return filter;
     }
 }
