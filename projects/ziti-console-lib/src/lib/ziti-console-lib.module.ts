@@ -18,7 +18,7 @@ import {APP_INITIALIZER, InjectionToken, Injector, NgModule} from '@angular/core
 import {ZacWrapperComponent} from "./features/wrappers/zac-wrapper.component";
 import {SafePipe} from "./safe.pipe";
 import {HttpClientModule, HttpClient} from "@angular/common/http";
-import {CommonModule, APP_BASE_HREF} from "@angular/common";
+import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {ZacRoutingModule} from "./zac-routing.module";
 import {ExtendableComponent} from "./features/extendable/extendable.component";
@@ -225,7 +225,6 @@ export function playerFactory() {
             deps: [Injector],
             multi: true
         },
-        {provide: APP_BASE_HREF, useValue: '/zac/'}
     ],
 })
 export class OpenZitiConsoleLibModule {

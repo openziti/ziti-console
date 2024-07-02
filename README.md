@@ -64,7 +64,7 @@ This is the recommended approach.
 1. You must host the static files with a web server. 
    See [the deployment guide](https://openziti.io/docs/guides/deployments/linux/console) for details on configuring the controller to host these files.
    
-1. Access the console at the controller's address: https://localhost:1280/zac
+1. Access the console at the controller's address: https://localhost:1280/zac/
 
         
 ### Build the Standalone Node Server
