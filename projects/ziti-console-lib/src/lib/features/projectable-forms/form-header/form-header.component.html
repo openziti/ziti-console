@@ -1,4 +1,4 @@
-<div class="form-header-container" [ngClass]="{'show-more-actions': moreActions && moreActions.length > 0}">
+<div class="form-header-container" [ngClass]="{'show-more-actions': (moreActions && moreActions.length > 0 && data.id)}">
     <div class="form-header-group">
         <div class="form-title-container">
             <div class="form-title-back-button" (click)="requestAction({name: 'close'})">

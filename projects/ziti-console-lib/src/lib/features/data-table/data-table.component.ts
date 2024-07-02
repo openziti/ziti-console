@@ -444,6 +444,7 @@ export class DataTableComponent implements OnChanges, OnInit {
 
   applyFilter(event, filter) {
     this.tableFilterService.updateFilter(filter);
+    this.closeHeaderFilter(event);
   }
 
   closeHeaderFilter(event): void {

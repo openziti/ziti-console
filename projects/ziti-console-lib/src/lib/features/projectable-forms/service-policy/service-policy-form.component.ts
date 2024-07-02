@@ -128,21 +128,21 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
     this.selectedIdentityNamedAttributes = [];
     this.selectedPostureRoleAttributes = [];
     this.selectedPostureNamedAttributes = [];
-    this.formData.serviceRoles.forEach(attr => {
+    this.formData.serviceRoles?.forEach(attr => {
       if (attr.indexOf('@') === 0) {
         this.selectedServiceNamedAttributes.push(serviceIdAttributesMap[attr.substring(1)]);
       } else {
         this.selectedServiceRoleAttributes.push(attr.substring(1));
       }
     });
-    this.formData.identityRoles.forEach(attr => {
+    this.formData.identityRoles?.forEach(attr => {
       if (attr.indexOf('@') === 0) {
         this.selectedIdentityNamedAttributes.push(identityIdAttributesMap[attr.substring(1)]);
       } else {
         this.selectedIdentityRoleAttributes.push(attr.substring(1));
       }
     });
-    this.formData.postureCheckRoles.forEach(attr => {
+    this.formData.postureCheckRoles?.forEach(attr => {
       if (attr.indexOf('@') === 0) {
         this.selectedPostureNamedAttributes.push(postureIdAttributesMap[attr.substring(1)]);
       } else {

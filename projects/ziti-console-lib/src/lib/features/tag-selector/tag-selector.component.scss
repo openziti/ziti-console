@@ -26,6 +26,16 @@
   }
 }
 
+.select2-container--default {
+  .select2-selection--multiple {
+    .select2-selection__choice {
+      &.attag {
+        background-color: var(--secondary);
+      }
+    }
+  }
+}
+
 .select2-results__option,
 .select2-selection__choice {
   &.attag,
