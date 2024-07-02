@@ -14,6 +14,8 @@
     "Recipe": "Recipe",
     "Recipes": "Recipes",
     "Services": "Services",
+    "Network": "Network",
+    "Visualizer": "Visualizer",
     "Service": "Service",
     "EdgeService": "Edge Service",
     "EdgeServices": "Edge Services",

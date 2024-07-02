@@ -40,5 +40,6 @@ export const URLS = {
     ZITI_SERVERS: '/servers',
     ZITI_SETTINGS: '/settings',
     ZITI_CUSTOM_FIELDS: '/custom-fields',
-    ZAC_LOGIN: '/login'
+    ZAC_LOGIN: '/login',
+    NETWORK_VISUALIZER: '/network-visualizer'
 };

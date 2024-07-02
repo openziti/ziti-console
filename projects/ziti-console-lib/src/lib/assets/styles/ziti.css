@@ -1075,11 +1075,17 @@ aside .icon {
 .downloads {
     background-image: url(../svgs/downloads.svg);
     background-size: contain;
-    width: 100%;
+    width: 90%;
     height: 56px;
     background-position: center;
 }
-
+.network-visualizer {
+    background-image: url(../svgs/v8visualizer.svg);
+    background-size: contain;
+    width: 50px;
+    height: 50px;
+    background-position: center;
+}
 .dial {
     background-image: url(../svgs/dial.svg);
     background-size: contain;
@@ -1089,7 +1095,7 @@ aside .icon {
 }
 
 .totalPod {
-    width: 100%;
+    width: 80%;
     height: 60px;
     color: var(--black);
     padding: 12px;

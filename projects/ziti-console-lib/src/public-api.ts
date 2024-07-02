@@ -65,3 +65,6 @@ export * from './lib/shared/list-page-service.class';
 export * from './lib/features/projectable-forms/form-field-container/form-field-container.component';
 export * from './lib/features/projectable-forms/form-field-toggle/form-field-toggle.component';
 export * from './lib/version';
+export * from './lib/features/visualizer/visualizer-service.class';
+export * from './lib/features/visualizer/identity-service-path/identity-service-path.component';
+export * from './lib/features/visualizer/network-visualizer/network-visualizer.component';

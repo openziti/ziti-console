@@ -37,8 +37,8 @@
 
 .split {
 	display: grid;
-	grid-gap: 10px;
-	grid-template-columns: auto 50%;
+	grid-gap: 5px;
+	grid-template-columns: auto 40%;
 }
 
 .grid.aside {
@@ -146,8 +146,8 @@
 }
 
 .grid.split.wide {
-	grid-template-columns: auto 49%;  
-	column-gap: 20px;
+	grid-template-columns: auto auto auto;
+	column-gap: 10px;
     z-index: 10;
 }
 
@@ -178,14 +178,14 @@
 
 .grid.dashboard {
 	margin-top: 20px;
-	grid-template-columns: auto 20%;
-	column-gap: 20px;
+	grid-template-columns: auto 25%;
+	column-gap: 10px;
 	row-gap: 20px;
 }
 
 .grid.numbers {
     grid-template-columns: 50px 15% auto 15% 15% 15% 15%;
-    column-gap: 20px;
+    column-gap: 10px;
     border-width: 3px;
 	border-style: solid;
     border-color: var(--white);
