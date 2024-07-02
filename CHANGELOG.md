@@ -3,9 +3,9 @@
 
 ## v3.2.4
 
-- Try client certificate authentication method if login form submitted without a username or password
-- stop using build time `--deploy-url` and use alternative APP_BASE_HREF to compute relative paths if 
-  `ng build ziti-console --base-href ${BASE_HREF}`, else `/zac/`
+FEATURE: Try client certificate authentication method if login form submitted without a username or password
+
+FIX: docker build - stop using build time `--deploy-url` and set tag `<base href="/zac/">` in index.html with `ng build ziti-console --base-href='/zac/'`
 
 ## v3.2.0
 
