@@ -78,8 +78,10 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           push: true
+          # ziti controller always binds at /zac and trailing slash is necessary to qualify Angular runtime paths in index.html
           build-args: |
             NODE_VERSION=${{ env.NODE_VERSION }}
+            BASE_HREF='/zac/'
 
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1

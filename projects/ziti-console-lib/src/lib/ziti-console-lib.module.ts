@@ -227,7 +227,7 @@ export function playerFactory() {
             useFactory: onAppInit,
             deps: [Injector],
             multi: true
-        }
+        },
     ],
 })
 export class OpenZitiConsoleLibModule {

@@ -68,12 +68,12 @@ export class ControllerLoginService extends LoginServiceClass {
         });
     }
 
-    observeLogin(serviceUrl: string, username: string, password: string) {
-        return this.httpClient.post(serviceUrl + "/authenticate?method=password", {
-            username,
-            password,
-            rejectUnauthorized: false
-        }, {
+    observeLogin(serviceUrl: string, username?: string, password?: string) {
+        const queryParams = username && password ? '?method=password' : '?method=cert';
+        const requestBody = username && password ? { username, password } : undefined;
+        const endpoint = serviceUrl + '/authenticate';
+
+        return this.httpClient.post(endpoint + queryParams, requestBody, {
             headers: {
                 "content-type": "application/json",
             }

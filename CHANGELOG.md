@@ -1,6 +1,12 @@
 
 # CHANGELOG
 
+## v3.2.4
+
+FEATURE: Try client certificate authentication method if login form submitted without a username or password
+
+FIX: docker build - stop using build time `--deploy-url` and set tag `<base href="/zac/">` in index.html with `ng build ziti-console --base-href='/zac/'`
+
 ## v3.2.0
 
 ### What's New?
