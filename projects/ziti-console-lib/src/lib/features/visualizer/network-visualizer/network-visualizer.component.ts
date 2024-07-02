@@ -106,11 +106,10 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
   }
 
   override ngOnInit(): void {
-   this.getNetworkObjects();
+     this.getNetworkObjects();
   }
 
     getPagingObject(pagesize) {
-
       const paging = {
         searchOn: 'name',
         noSearch: false,
@@ -123,49 +122,47 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
       return  paging;
     }
 
-  getNetworkObjects() {
-    const pagesize = 10;
-    const identities_paging = this.getPagingObject(pagesize);
+  async getNetworkObjects() {
+     await this.readAllObjects();
+     this.processFirstNetworkGraph();
+  }
 
-   let networkVisPromises =[];
-
-   const identityPromise = this.zitiService
+   async fetchIdentities (pagesize) {
+      const identities_paging = this.getPagingObject(pagesize);
+      return await this.zitiService
       .get(`identities`, identities_paging, [])
-      .then((result) => {
-        this.identities = result.data;
-       if (!this.identities || this.identities.length === 0) {
-          this.identities = [];
-          this.isLoading = false;
-        } else {
-          const pages = Math.ceil(result.meta.pagination.totalCount / pagesize);
-          const promises = [];
-          for (let page = 2; page <= pages; page++) {
-            identities_paging.page = page;
-            const tmp_promise = this.zitiService
+      .then(async (result) => {
+         this.identities = result.data;
+         if (!this.identities || this.identities.length === 0) {
+            this.identities = [];
+            this.isLoading = false;
+         } else {
+           const pages = Math.ceil(result.meta.pagination.totalCount / pagesize);
+           const promises = [];
+           for (let page = 2; page <= pages; page++) {
+             identities_paging.page = page;
+             const tmp_promise = await this.zitiService
               .get(
                 `identities`,
                  identities_paging,
                 []
-              )
-              .then((pageResult) => {
+              ).then((pageResult) => {
                 pageResult.data.forEach((serv) => {
                   this.identities.push(serv);
                 });
               });
-            promises.push(tmp_promise);
-          }
-
-          Promise.all(promises).then(() => {
-            // console.log(this.identities);
-          });
+             promises.push(tmp_promise);
+           }
+           Promise.all(promises).then(() => {});
         }
     });  // identity promises
-    networkVisPromises.push(identityPromise);
+  }
 
-     const services_paging = this.getPagingObject(pagesize);
-    const servicesPromise = this.zitiService
+  async fetchServices(pagesize) {
+   const services_paging = this.getPagingObject(pagesize);
+    return await this.zitiService
           .get(`services`, services_paging, [])
-          .then((result) => {
+          .then( async (result) => {
             this.services = result.data;
 
             if (!this.services || this.services.length === 0) {
@@ -176,7 +173,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
               const s_promises = [];
               for (let page = 2; page <= pages; page++) {
                 services_paging.page = page;
-                const tmp_promise = this.zitiService
+                const tmp_promise = await this.zitiService
                   .get(
                     `services`,
                      services_paging,
@@ -189,18 +186,16 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                   });
                 s_promises.push(tmp_promise);
               }
-
-              Promise.all(s_promises).then(() => {
-                // console.log(this.services);
-              });
+              Promise.all(s_promises).then(() => { });
             }
         });
-       networkVisPromises.push(servicesPromise);
+  }
 
-        const servicesPolicies_paging = this.getPagingObject(pagesize);
-       const servicePoliciesPromise = this.zitiService
+  async fetchServicePolicies(pagesize) {
+       const servicesPolicies_paging = this.getPagingObject(pagesize);
+      return await this.zitiService
           .get(`service-policies`, servicesPolicies_paging, [])
-          .then((result) => {
+          .then( async (result) => {
             this.service_policies = result.data;
 
             if (!this.service_policies || this.service_policies.length === 0) {
@@ -211,7 +206,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
               const sp_promises = [];
               for (let page = 2; page <= pages; page++) {
                 servicesPolicies_paging.page = page;
-                const tmp_promise = this.zitiService
+                const tmp_promise = await this.zitiService
                   .get(
                     `service-policies`,
                      servicesPolicies_paging,
@@ -225,18 +220,17 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                 sp_promises.push(tmp_promise);
               }
 
-              Promise.all(sp_promises).then(() => {
-                // console.log(this.service_policies);
-              });
+              Promise.all(sp_promises).then(() => { });
             }
        });
-       networkVisPromises.push(servicePoliciesPromise);
-        const routers_paging = this.getPagingObject(pagesize);
-       const routerPromise = this.zitiService
-          .get(`edge-routers`, routers_paging, [])
-          .then((result) => {
-            this.edgerouters = result.data;
+  }
 
+  async fetchEdgeRouters(pagesize) {
+       const routers_paging = this.getPagingObject(pagesize);
+       return await this.zitiService
+          .get(`edge-routers`, routers_paging, [])
+          .then( async (result) => {
+            this.edgerouters = result.data;
             if (!this.edgerouters || this.edgerouters.length === 0) {
               this.edgerouters = [];
               this.isLoading = false;
@@ -245,7 +239,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
               const r_promises = [];
               for (let page = 2; page <= pages; page++) {
                 routers_paging.page = page;
-                const tmp_promise = this.zitiService
+                const tmp_promise = await this.zitiService
                   .get(
                     `edge-routers`,
                      routers_paging,
@@ -258,20 +252,17 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                   });
                 r_promises.push(tmp_promise);
               }
-
-              Promise.all(r_promises).then(() => {
-                // console.log(this.edgerouters);
-              });
+              Promise.all(r_promises).then(() => { });
             }
        });
-    networkVisPromises.push(routerPromise);
+  }
 
+ async findEdgeRouterPolicies(pagesize) {
       const erpolicies_paging = this.getPagingObject(pagesize);
-      const routerPoliciesPromise = this.zitiService
+      return await this.zitiService
           .get(`edge-router-policies`, erpolicies_paging, [])
-          .then((result) => {
+          .then(async (result) => {
             this.router_policies = result.data;
-
             if (!this.router_policies || this.router_policies.length === 0) {
               this.router_policies = [];
               this.isLoading = false;
@@ -280,7 +271,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
               const r_promises = [];
               for (let page = 2; page <= pages; page++) {
                 erpolicies_paging.page = page;
-                const tmp_promise = this.zitiService
+                const tmp_promise = await this.zitiService
                   .get(
                     `edge-router-policies`,
                      erpolicies_paging,
@@ -294,17 +285,15 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                 r_promises.push(tmp_promise);
               }
 
-              Promise.all(r_promises).then(() => {
-                // console.log(this.router_policies);
-              });
+              Promise.all(r_promises).then(() => { });
             }
        });
-       networkVisPromises.push(routerPoliciesPromise);
-
-      const serp_paging = this.getPagingObject(pagesize);
-      const serviceRouterPoliciesPromise = this.zitiService
+ }
+ async fetchServiceEdgeRouterPolicies(pagesize) {
+     const serp_paging = this.getPagingObject(pagesize);
+     return await this.zitiService
           .get(`service-edge-router-policies`, serp_paging, [])
-          .then((result) => {
+          .then(async (result) => {
             this.service_router_policies = result.data;
 
             if (!this.service_router_policies || this.service_router_policies.length === 0) {
@@ -315,7 +304,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
               const r_promises = [];
               for (let page = 2; page <= pages; page++) {
                 serp_paging.page = page;
-                const tmp_promise = this.zitiService
+                const tmp_promise = await this.zitiService
                   .get(
                     `service-edge-router-policies`,
                      serp_paging,
@@ -328,18 +317,15 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                   });
                 r_promises.push(tmp_promise);
               }
-
-              Promise.all(r_promises).then(() => {
-                // console.log(this.router_policies);
-              });
+              Promise.all(r_promises).then(() => { });
             }
       });
-      networkVisPromises.push(serviceRouterPoliciesPromise);
-
-     const configs_paging = this.getPagingObject(20);
-     const configsPromise = this.zitiService
+ }
+ async fetchConfigs(pagesize) {
+    const configs_paging = this.getPagingObject(pagesize);
+    return await this.zitiService
           .get(`configs`, configs_paging, [])
-          .then((result) => {
+          .then(async (result) => {
             this.configs = result.data;
 
             if (!this.configs || this.configs.length === 0) {
@@ -349,7 +335,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
               const r_promises = [];
               for (let page = 2; page <= pages; page++) {
                 configs_paging.page = page;
-                const tmp_promise = this.zitiService
+                const tmp_promise = await this.zitiService
                   .get(
                     `configs`,
                      configs_paging,
@@ -362,19 +348,29 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                   });
                 r_promises.push(tmp_promise);
               }
-
-              Promise.all(r_promises).then(() => {
-                // console.log(this.router_policies);
-              });
+              Promise.all(r_promises).then(() => { });
             }
       });
-      networkVisPromises.push(serviceRouterPoliciesPromise);
+ }
 
-     Promise.all(networkVisPromises).then(() => {
-       this.processFirstNetworkGraph();
+ async readAllObjects() {
+   const myPromise =  await new Promise(  (resolve, reject) => {
+     let networkVisPromises =[];
+     const pagesize = 500;
+     const eps = this.fetchIdentities(pagesize);
+     const ss = this.fetchServices(pagesize);
+     const sps = this.fetchServicePolicies(pagesize);
+     const ers = this.fetchEdgeRouters(pagesize);
+     const erps = this.findEdgeRouterPolicies(pagesize);
+     const serps = this.fetchServiceEdgeRouterPolicies(pagesize);
+     const cfg = this.fetchConfigs(pagesize);
+     Promise.all([eps, ss, sps, ers, erps, erps, serps, cfg]).then(() => {
+      resolve('end');
      });
+   });
 
-  } //getNetworkObjects
+ }
+
 
   processFirstNetworkGraph() {
         try {

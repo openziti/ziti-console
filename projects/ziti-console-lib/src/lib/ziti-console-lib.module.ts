@@ -125,6 +125,8 @@ export function playerFactory() {
         FilterBarComponent,
         ListPageFormComponent,
         IdentitiesPageComponent,
+        NetworkVisualizerComponent,
+        IdentityServicePathComponent,
         EdgeRoutersPageComponent,
         DataTableComponent,
         TableCellSelectComponent,

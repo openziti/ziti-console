@@ -417,130 +417,6 @@ export class NetworkVisualizerHelper {
 
           } );
 
-          /*
-            const abcdGrp = new Group(createId(), 'ServicePolicies [A-D]', 'Service Policy name starts with A to D');
-            const efghGrp = new Group(createId(), 'ServicePolicies Policy [E-H]', 'Service Policy name starts with E to H');
-            const ijklGrp = new Group(createId(), 'ServicePolicies Policy [I-L]', 'Service Policy name starts with I to L');
-            const mnopGrp = new Group(createId(), 'ServicePolicies Policy [M-P]', 'Service Policy name starts with M to P');
-            const qrstGrp = new Group(createId(), 'ServicePolicies Policy [Q-T]', 'Service Policy name starts with Q to T');
-            const uvwxGrp = new Group(createId(), 'ServicePolicies Policy [U-X]', 'Service Policy name starts with U to X');
-            const yzGrp = new Group(createId(), 'ServicePolicies Policy [Y-Z]', 'Service Policy name starts with Y and Z');
-            const oneTo9Grp = new Group(createId(), 'ServicePolicies [1-9]', 'Service Policy name starts with 0 to 9');
-            const specialChatGrp = new Group(
-                createId(),
-                'ServicePolicies [others]',
-                'Service Policy name starts with special characters'
-            );
-
-            for (let i = nx; i < ny; i++) {
-                const spolicy = new ServicePolicy();
-                spolicy.id = createId();
-                spolicy.uuid = appwans[i].id;
-                spolicy.name = appwans[i].name;
-                spolicy.type = 'ServicePolicy';
-                spolicy.rootNode = 'Yes';
-
-                if (ny > 25) {
-                    const cha = appwan.name.charAt(0).toLowerCase();
-                    if (cha === 'a' || cha === 'b' || cha === 'c' || cha === 'd') {
-                        abcdGrp.children.push(appwan);
-                    } else if (cha === 'e' || cha === 'f' || cha === 'g' || cha === 'h') {
-                        efghGrp.children.push(appwan);
-                    } else if (cha === 'i' || cha === 'j' || cha === 'k' || cha === 'l') {
-                        ijklGrp.children.push(appwan);
-                    } else if (cha === 'm' || cha === 'n' || cha === 'o' || cha === 'p') {
-                        mnopGrp.children.push(appwan);
-                    } else if (cha === 'q' || cha === 'r' || cha === 's' || cha === 't') {
-                        qrstGrp.children.push(appwan);
-                    } else if (cha === 'u' || cha === 'v' || cha === 'w' || cha === 'x') {
-                        uvwxGrp.children.push(appwan);
-                    } else if (cha === 'y' || cha === 'z') {
-                        yzGrp.children.push(appwan);
-                    } else if (
-                        cha === '0' ||
-                        cha === '1' ||
-                        cha === '2' ||
-                        cha === '3' ||
-                        cha === '4' ||
-                        cha === '5' ||
-                        cha === '6' ||
-                        cha === '7' ||
-                        cha === '8' ||
-                        cha === '9'
-                    ) {
-                        oneTo9Grp.children.push(appwan);
-                    } else {
-                        specialChatGrp.children.push(appwan);
-                    }
-                } else {
-                    appwanChildren.children.push(appwan);
-                }
-            }
-
-            if (ny > 25) {
-                if (abcdGrp.children.length > 0) {
-                    abcdGrp.children.sort(function (a, b) {
-                        return a.name.localeCompare(b.name);
-                    });
-                    abcdGrp.name = abcdGrp.name + ' (' + abcdGrp.children.length + ')';
-                    appwanChildren.children.push(abcdGrp);
-                }
-
-                if (efghGrp.children.length > 0) {
-                    efghGrp.children.sort(function (a, b) {
-                        return a.name.localeCompare(b.name);
-                    });
-                    efghGrp.name = efghGrp.name + ' (' + efghGrp.children.length + ')';
-                    appwanChildren.children.push(efghGrp);
-                }
-                if (ijklGrp.children.length > 0) {
-                    ijklGrp.children.sort(function (a, b) {
-                        return a.name.localeCompare(b.name);
-                    });
-                    ijklGrp.name = ijklGrp.name + ' (' + ijklGrp.children.length + ')';
-                    appwanChildren.children.push(ijklGrp);
-                }
-                if (mnopGrp.children.length > 0) {
-                    mnopGrp.children.sort(function (a, b) {
-                        return a.name.localeCompare(b.name);
-                    });
-                    mnopGrp.name = mnopGrp.name + ' (' + mnopGrp.children.length + ')';
-                    appwanChildren.children.push(mnopGrp);
-                }
-                if (qrstGrp.children.length > 0) {
-                    qrstGrp.children.sort(function (a, b) {
-                        return a.name.localeCompare(b.name);
-                    });
-                    qrstGrp.name = qrstGrp.name + ' (' + qrstGrp.children.length + ')';
-                    appwanChildren.children.push(qrstGrp);
-                }
-                if (uvwxGrp.children.length > 0) {
-                    uvwxGrp.children.sort(function (a, b) {
-                        return a.name.localeCompare(b.name);
-                    });
-                    uvwxGrp.name = uvwxGrp.name + ' (' + uvwxGrp.children.length + ')';
-                    appwanChildren.children.push(uvwxGrp);
-                }
-                if (yzGrp.children.length > 0) {
-                    yzGrp.children.sort(function (a, b) {
-                        return a.name.localeCompare(b.name);
-                    });
-                    yzGrp.name = yzGrp.name + ' (' + yzGrp.children.length + ')';
-                    appwanChildren.children.push(yzGrp);
-                }
-                if (oneTo9Grp.children.length > 0) {
-                    oneTo9Grp.children.sort(function (a, b) {
-                        return a.name.localeCompare(b.name);
-                    });
-                    oneTo9Grp.name = oneTo9Grp.name + ' (' + oneTo9Grp.children.length + ')';
-                    appwanChildren.children.push(oneTo9Grp);
-                }
-                if (specialChatGrp.children.length > 0) {
-                    specialChatGrp.name = specialChatGrp.name + ' (' + specialChatGrp.children.length + ')';
-                    appwanChildren.children.push(specialChatGrp);
-                }
-            }
-          */
           bindGrp.name = bindGrp.name + '('+ bindGrp.children.length +')';
           servicePolicyChildren.children.push(bindGrp);
           dialGrp.name = dialGrp.name + '('+ dialGrp.children.length +')';
@@ -548,7 +424,6 @@ export class NetworkVisualizerHelper {
             servicePolicyChildren.name = servicePolicyChildren.name + ' (' + (bindGrp.children.length + dialGrp.children.length) + ')';
             return servicePolicyChildren;
         }
-
 
         function serviceGrouping(servicesChildren, servicestree) {
             const protocolRDPGrp = new Group(

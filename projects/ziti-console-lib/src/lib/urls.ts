@@ -26,5 +26,5 @@ export const URLS = {
   ZITI_SETTINGS: '/settings',
   ZITI_CUSTOM_FIELDS: '/custom-fields',
   ZAC_LOGIN: '/login',
-  NETWORK_VISUALIZER: '/network-visualizer',
+  ZITI_NETWORK_VISUALIZER: '/network-visualizer',
 };
