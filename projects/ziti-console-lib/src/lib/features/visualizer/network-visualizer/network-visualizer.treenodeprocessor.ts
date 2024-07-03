@@ -8,23 +8,31 @@ import { ServicePolicy, Attribute, Children, Identity, ERouter, ERPolicy, Group,
 })
 export class TreeNodeProcessor {
     uniqId = 0;
+    getPagingObject(pagesize) {
+      const paging = {
+        searchOn: 'name',
+        noSearch: false,
+        filter: '',
+        total: pagesize,
+        page: 1,
+        sort: 'name',
+        order: 'asc',
+      };
+      return  paging;
+    }
 
     async processIdentitiesForNodeClick(
-        endpointNode,
+        identityNode,
         networkGraph,
         rawEndpoints,
-        rawServices,
-        rawEdgeRouters,
-        rawRouterPolicies,
-        servicePolicies,
         uniqId,
         zitiService,
         configs
     ) {
-    const myPromise = await new Promise((resolve, reject) => {
+    const myPromise = await new Promise( async (resolve, reject) => {
        const wait_promises = [];
         this.uniqId = uniqId;
-        const rawEp = this.findRawEndpoint(endpointNode.data.name, rawEndpoints);
+        const rawEp = this.findRawEndpoint(identityNode.data.name, rawEndpoints);
         let rawEpAttributes = [];
         if (rawEp.roleAttributes) {rawEpAttributes = rawEp.roleAttributes};
         rawEpAttributes.push('@' + rawEp.name);
@@ -32,8 +40,8 @@ export class TreeNodeProcessor {
                     const attribute = new Attribute();
                     attribute.id = this.createId();
                     attribute.name = rawEpAttributes[i];
-                    attribute.type = 'Endpoint Attribute';
-                    endpointNode.data.children.push(attribute);
+                    attribute.type = 'Identity Attribute';
+                    identityNode.data.children.push(attribute);
                 }
 
       const bindServices = new Children();
@@ -42,24 +50,17 @@ export class TreeNodeProcessor {
       const services_url = this.getLinkForResource(rawEp, 'service-policies').replace('./', '');
 
       const pagesize = 500;
-          const services_paging = {
-            searchOn: 'name',
-            filter: '',
-            total: pagesize,
-            page: 1,
-            sort: 'name',
-            order: 'asc',
-          };
+      const services_paging = this.getPagingObject(pagesize);
 
-       const firstPromise =  zitiService
+       const firstPromise =  await zitiService
               .get(services_url, services_paging, [])
-              .then((result) => {
+              .then( async (result) => {
                 identityServicePolicies = result.data;
                   const pages = Math.ceil(result.meta.pagination.totalCount / pagesize);
                   const promises = [];
                   for (let page = 2; page <= pages; page++) {
                     services_paging.page = page;
-                    const tmp_promise = zitiService
+                    const tmp_promise = await zitiService
                       .get(
                         services_url,
                         services_paging,
@@ -73,12 +74,13 @@ export class TreeNodeProcessor {
                     promises.push(tmp_promise);
                     wait_promises.push(tmp_promise);
                   }
-                  Promise.all(promises).then(() => {
+                  Promise.all(promises).then( () => {
                     const sub_promises = [];
-                    identityServicePolicies.find( (isp) => {
+                    identityServicePolicies.find( async (isp) => {
+                      const pagingOb = this.getPagingObject(pagesize);
                       const ser_url = this.getLinkForResource(isp, 'services').replace('./', '');
-                       const tmpPromise = zitiService
-                           .get(ser_url, services_paging, [])
+                       const tmpPromise = await zitiService
+                           .get(ser_url, pagingOb, [])
                            .then((result) => {
                                const tmp_services = [];
                                  result.data.find( (re) => {
@@ -100,18 +102,16 @@ export class TreeNodeProcessor {
                          wait_promises.push(tmpPromise);
 
                     }); // loop
-
-                       Promise.all(sub_promises).then(() => {
-                               if(bindServices.children.length>0) {
-                                 bindServices.name = 'Bind-Services('+bindServices.children.length+')';
-                                 endpointNode.data.children.push(bindServices);
-                                }
-                               if(dialServices.children.length>0) {
-                                 dialServices.name = 'Dial-Services('+dialServices.children.length+')';
-                                 endpointNode.data.children.push(dialServices);
-                               }
-
-                       });
+                      Promise.all(sub_promises).then(() => {
+                        if(bindServices.children.length>0) {
+                           bindServices.name = 'Bind-Services('+bindServices.children.length+')';
+                           identityNode.data.children.push(bindServices);
+                        }
+                        if(dialServices.children.length>0) {
+                           dialServices.name = 'Dial-Services('+dialServices.children.length+')';
+                           identityNode.data.children.push(dialServices);
+                        }
+                      });
                   });
               });
       wait_promises.push(firstPromise);
@@ -258,56 +258,15 @@ export class TreeNodeProcessor {
    }
 
     findRawEndpoint(epName, endpoints) {
-        return endpoints.find((ep) => ep.name === epName);
+       return endpoints.find((ep) => ep.name === epName);
     }
 
-    async processServicesForNodeClick(serviceNode, networkGraph, services, uniqId, zitiService) {
-     const myPromise = await new Promise((resolve, reject) => {
+  async processServicesForNodeClick(serviceNode, networkGraph, services, uniqId, zitiService) {
+     const myPromise = await new Promise( async (resolve, reject) => {
         const wait_promises = [];
         this.uniqId = uniqId;
         const rawServiceObj = services.find((s) => s.name === serviceNode.data.name);
-       /*
-        if (_.get(rawServiceObj, 'model.edgeRouterHosts')) {
-            const hostedERs = new Children();
-            rawServiceObj.model.edgeRouterHosts.find((ehost) => {
-                const erOb = this.findEdgeRouterForId(ehost.edgeRouterId, edgerouters);
-                if (erOb) {
-                    if (ehost && ehost.serverEgress) {
-                        erOb.serverEgressProtocol = ehost.serverEgress.protocol;
-                        erOb.serverEgressHost = ehost.serverEgress.host;
-                        erOb.serverEgressPort = ehost.serverEgress.port;
-                    }
-                    hostedERs.children.push(erOb);
-                }
-            });
-            if (hostedERs.children.length > 0) {
-                hostedERs.name = 'Hosted Edge Routers(' + hostedERs.children.length + ')';
-                hostedERs.type = 'Edge Routers';
-                serviceNode.data.children.push(hostedERs);
-            }
-        }
 
-        if (_.get(rawServiceObj, 'model.bindEndpointAttributes')) {
-            const hostedEps = new Children();
-
-            rawServiceObj.model.bindEndpointAttributes.find((endpointStr) => {
-                const hostedEp = this.findEndpoint(endpointStr, endpoints);
-                if (hostedEp) {
-                    hostedEp.type = 'Endpoint';
-                    const serverEgress = _.get(rawServiceObj, 'model.serverEgress', {});
-                    hostedEp.serverEgressProtocol = serverEgress.protocol;
-                    hostedEp.serverEgressHost = serverEgress.host;
-                    hostedEp.serverEgressPort = serverEgress.port;
-                    hostedEps.children.push(hostedEp);
-                }
-            });
-            if (hostedEps.children.length > 0) {
-                hostedEps.name = 'Hosted Endpoints(' + hostedEps.children.length + ')';
-                hostedEps.type = 'Endpoints';
-                serviceNode.data.children.push(hostedEps);
-            }
-        }
-      */
         const attributeswithName = [];
         attributeswithName.push('@' + rawServiceObj.name);
         rawServiceObj.roleAttributes && rawServiceObj.roleAttributes.find((srattr) => {
@@ -330,9 +289,10 @@ export class TreeNodeProcessor {
 
         let service_configs = [];
         const configs_url = this.getLinkForResource(rawServiceObj, 'configs');
-
-        const configPromise = zitiService
-         .get(configs_url, {}, [])
+        const pagesize = 500;
+        const pagingOb = this.getPagingObject(pagesize);
+        const configPromise = await zitiService
+         .get(configs_url, pagingOb, [])
          .then((configs) => {
            service_configs = configs && configs.data ? configs.data : [];
         });
@@ -348,19 +308,19 @@ export class TreeNodeProcessor {
 
        let bindPolicies = [];
        let bindIdnetities = [];
-       const promise2 = zitiService
-       .get(service_policies_url, {}, [])
+       const promise2 = await zitiService
+       .get(service_policies_url, pagingOb, [])
        .then((policies) => {
          const identityPromises = [];
-         policies.data.forEach((policy) => {
-          if (policy.type === 'Bind') {
+         policies.data.forEach( async (policy) => {
+          if (policy.type === 'Bind')  {
             const bindIdentitiesUrl = this.getLinkForResource(
               policy,
               'identities'
             );
 
-             const promse = zitiService
-              .get(bindIdentitiesUrl.replace('./', ''), {}, [])
+             const promse = await zitiService
+              .get(bindIdentitiesUrl.replace('./', ''), pagingOb, [])
               .then((res) => {
                 if (res && res.data.length > 0) {
                   res.data.forEach((rs) => {
@@ -381,13 +341,12 @@ export class TreeNodeProcessor {
              tmp.type = "Identities";
              tmp.children = bindIdnetities;
              serviceNode.data.children.push(tmp);
-            resolve('this is a promise');
         });
       });
 
        wait_promises.push(promise2);
        Promise.all(wait_promises).then( () => {
-
+         resolve('this is a promise');
        });
     }); // end of mypromise
 
@@ -395,26 +354,19 @@ export class TreeNodeProcessor {
         return nd.children;
      });
       return [networkGraph, this.uniqId];
-    } // end of processServicesForTree
+  } // end of processServicesForNodeClick
 
 
-    async processServicePoliciesForNodeClick(policyNode, networkGraph,  servicePolicies, uniqId, zitiService) {
+  async processServicePoliciesForNodeClick(policyNode, networkGraph,  servicePolicies, uniqId, zitiService) {
 
-     const myPromise = await new Promise((resolve, reject) => {
+     const myPromise = await new Promise( async (resolve, reject) => {
         const wait_promises = [];
         this.uniqId = uniqId;
         const rawSPolicy = servicePolicies.find((s) => s.name === policyNode.data.name);
           const pagesize = 500;
-          const services_paging = {
-            searchOn: 'name',
-            filter: '',
-            total: pagesize,
-            page: 1,
-            sort: 'name',
-            order: 'asc',
-          };
+          const services_paging = this.getPagingObject(pagesize);
        const bindIdentitiesUrl = this.getLinkForResource( rawSPolicy, 'identities' );
-      const sp_promise = zitiService.get(bindIdentitiesUrl, services_paging, [])
+       const sp_promise = await zitiService.get(bindIdentitiesUrl, services_paging, [])
        .then((ids) => {
          const childs =new Children()
              childs.name = rawSPolicy.type+ 'Identities';
@@ -430,9 +382,6 @@ export class TreeNodeProcessor {
          policyNode.data.children.push(childs);
        });
        wait_promises.push(sp_promise);
-
-
-       //  wait_promises.push(promise2);
         Promise.all(wait_promises).then( () => {
            resolve('resolve.');
         });
@@ -453,7 +402,7 @@ export class TreeNodeProcessor {
         zitiService
     )
     {
-     const mainPromise = await new Promise( (resolve, reject) => {
+     const mainPromise = await new Promise( async (resolve, reject) => {
         const wait_promises = [];
         this.uniqId = uniqId;
         const er = edgerouters.find((s) => s.name === edgerouterNode.data.name);
@@ -467,24 +416,17 @@ export class TreeNodeProcessor {
             edgerouterNode.data.children.push(att);
          });
           const pagesize = 500;
-          const services_paging = {
-            searchOn: 'name',
-            filter: '',
-            total: pagesize,
-            page: 1,
-            sort: 'name',
-            order: 'asc',
-          };
+          const services_paging = this.getPagingObject(pagesize);
        const erpoliciesUrl = this.getLinkForResource(er, 'edge-router-policies');
        let erpoliciesForER = [];
-       const erpoliciespromise = zitiService.get(erpoliciesUrl, services_paging, [])
-       .then((result) => {
+       const erpoliciespromise = await zitiService.get(erpoliciesUrl, services_paging, [])
+       .then( async (result) => {
           erpoliciesForER = result.data;
           const pages = Math.ceil(result.meta.pagination.totalCount / pagesize);
           const promises = [];
            for (let page = 2; page <= pages; page++) {
               services_paging.page = page;
-              const tmp_promise = zitiService.get(
+              const tmp_promise = await zitiService.get(
                                erpoliciesUrl,
                                services_paging,
                                []
@@ -697,14 +639,7 @@ export class TreeNodeProcessor {
           this.uniqId = uniqId;
           const rawERPolicy = edgeRouterPolicies.find((s) => s.name === erPolicyNode.data.name);
           const pagesize = 500;
-          const services_paging = {
-            searchOn: 'name',
-            filter: '',
-            total: pagesize,
-            page: 1,
-            sort: 'name',
-            order: 'asc',
-          };
+          const services_paging = this.getPagingObject(pagesize);
           const url = this.getLinkForResource(rawERPolicy, 'identities');
           let ids = [];
           const idpromise = zitiService.get(url, services_paging, [])
@@ -767,14 +702,7 @@ export class TreeNodeProcessor {
           const wait_promises = [];
           const rawServiceERPolicy = serviceEdgeRouterPolicies.find((s) => s.name === serviceErPolicyNode.data.name);
           const pagesize = 500;
-          const services_paging = {
-            searchOn: 'name',
-            filter: '',
-            total: pagesize,
-            page: 1,
-            sort: 'name',
-            order: 'asc',
-          };
+          const services_paging = this.getPagingObject(pagesize);
           const url = this.getLinkForResource(rawServiceERPolicy, 'edge-routers');
           let routers = [];
           const erpromise = zitiService.get(url, services_paging, [])
@@ -813,14 +741,7 @@ export class TreeNodeProcessor {
           });
          wait_promises.push(erpromise);
 
-          const services_pagingB = {
-            searchOn: 'name',
-            filter: '',
-            total: pagesize,
-            page: 1,
-            sort: 'name',
-            order: 'asc',
-          };
+          const services_pagingB = this.getPagingObject(pagesize);
 
           const urlB = this.getLinkForResource(rawServiceERPolicy, 'services');
           let serArray = [];

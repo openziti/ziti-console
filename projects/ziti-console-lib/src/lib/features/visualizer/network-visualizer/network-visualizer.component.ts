@@ -30,12 +30,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { HttpClient} from '@angular/common/http';
 import { TreeNodeProcessor } from './network-visualizer.treenodeprocessor';
 import { NetworkVisualizerHelper } from './network-visualizer.helper';
-// import { ServicePolicy } from '../models/service-policy';
-// import { EdgeRouterPolicyV2 }  from '../models/edge-router-policy';
-// import { EdgeRouterV2 }  from '../models/edge-router';
-// import { Identity }  from '../models/identity';
-// import { PlatformService}  from '../models/platform-service';
-// import { ServiceEdgeRouterPolicy}  from '../models/service-edge-router-policy';
+import {LoggerService} from "../../messaging/logger.service";
 
 @Component({
   selector: 'app-network-visualizer',
@@ -98,6 +93,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
      @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
      @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
      private httpClient: HttpClient,
+     private logger: LoggerService,
      public treeNodeProcessor: TreeNodeProcessor,
      public topologyHelper: NetworkVisualizerHelper,
   ) {
@@ -123,6 +119,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
     }
 
   async getNetworkObjects() {
+    this.isLoading = true;
      await this.readAllObjects();
      this.processFirstNetworkGraph();
   }
@@ -155,7 +152,9 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
            }
            Promise.all(promises).then(() => {});
         }
-    });  // identity promises
+    }).catch(error => {
+        this.logger.error('Error in fetching Identities', error.message);
+     });  // identity promises
   }
 
   async fetchServices(pagesize) {
@@ -188,6 +187,8 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
               }
               Promise.all(s_promises).then(() => { });
             }
+        }).catch(error => {
+           this.logger.error('Error in fetching services', error.message);
         });
   }
 
@@ -222,7 +223,9 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
 
               Promise.all(sp_promises).then(() => { });
             }
-       });
+       }).catch(error => {
+          this.logger.error('Error in fetching service-policies', error.message);
+        });
   }
 
   async fetchEdgeRouters(pagesize) {
@@ -254,17 +257,19 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
               }
               Promise.all(r_promises).then(() => { });
             }
+       }).catch(error => {
+         this.logger.error('Error in fetching edge-routers', error.message);
        });
   }
 
  async findEdgeRouterPolicies(pagesize) {
+      this.router_policies = [];
       const erpolicies_paging = this.getPagingObject(pagesize);
       return await this.zitiService
           .get(`edge-router-policies`, erpolicies_paging, [])
           .then(async (result) => {
             this.router_policies = result.data;
             if (!this.router_policies || this.router_policies.length === 0) {
-              this.router_policies = [];
               this.isLoading = false;
             } else {
               const pages = Math.ceil(result.meta.pagination.totalCount / pagesize);
@@ -287,9 +292,12 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
 
               Promise.all(r_promises).then(() => { });
             }
+       }).catch(error => {
+           this.logger.error('Error in fetching edge-router-policies', error);
        });
  }
  async fetchServiceEdgeRouterPolicies(pagesize) {
+     this.service_router_policies = [];
      const serp_paging = this.getPagingObject(pagesize);
      return await this.zitiService
           .get(`service-edge-router-policies`, serp_paging, [])
@@ -297,7 +305,6 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
             this.service_router_policies = result.data;
 
             if (!this.service_router_policies || this.service_router_policies.length === 0) {
-              this.service_router_policies = [];
               this.isLoading = false;
             } else {
               const pages = Math.ceil(result.meta.pagination.totalCount / pagesize);
@@ -319,9 +326,12 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
               }
               Promise.all(r_promises).then(() => { });
             }
-      });
+       }).catch(error => {
+           this.logger.error('Error in fetching service-edge-router-policies', error);
+       });
  }
  async fetchConfigs(pagesize) {
+    this.configs = [];
     const configs_paging = this.getPagingObject(pagesize);
     return await this.zitiService
           .get(`configs`, configs_paging, [])
@@ -350,7 +360,10 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
               }
               Promise.all(r_promises).then(() => { });
             }
-      });
+         }).catch(error => {
+          this.logger.error('Error in fetching configs', error);
+          });
+
  }
 
  async readAllObjects() {
@@ -371,7 +384,6 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
 
  }
 
-
   processFirstNetworkGraph() {
         try {
             const treeObj = this.topologyHelper.getResourceTreeObj(
@@ -383,7 +395,8 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                 this.edgerouters,
                 this.router_policies,
                 this.service_router_policies,
-                this.uniqId
+                this.uniqId,
+                this.logger
             );
 
             this.uniqId = treeObj.lastId;
@@ -431,8 +444,8 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
             );
 
             this.initTopoView();
-        } catch (err) {
-            console.log('error',err);
+        } catch (err:any) {
+            this.logger.error(err.message);
         }
 
         this.isLoading = false;
@@ -461,10 +474,12 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
 
   initTopoView() {
         this.autocompleteOptions = [];
-        // const duration = 750;
-        const margin = { top: 20, right: 90, bottom: 30, left: 0 };
-        const width = 1600 - margin.left - margin.right;
-        const height = 1600 - margin.top - margin.bottom;
+        const margin = { top: 20, right: 190, bottom: 30, left: 0 };
+        // const width = 1600 - margin.left - margin.right;
+        const width = window.innerWidth -  margin.right;
+        // const height = 1600 - margin.top - margin.bottom;
+        const height = window.innerHeight - margin.bottom;
+
         this.treetooltip = d3.select('#tooltip');
 
         this.resourceTypeError = false;
@@ -481,9 +496,9 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
             .attr('width', '100%')
             .attr('height', '100%')
             .call(this.zoom)
-            .attr('viewBox', '0 ' + (-1 * (height - margin.top - margin.bottom)) / 3 + ' ' + width + ' ' + height)
+            .attr('viewBox', '-20 -450 ' + (width - margin.top*2 - margin.bottom) + ' ' + +(height*2 -margin.bottom))
             .append('g')
-            .attr('transform', 'translate(' + -300 + ',' + 225 + ')');
+            .attr('transform', 'translate(' + -20 + ',' + 200 + ')');
 
         d3.select('body').on('click', function () {
             d3.select('#topocontextmenu').style('display', 'none');
@@ -491,18 +506,17 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
 
         d3.selectAll('g > *').remove();
 
-        // this.treemap = d3.tree().nodeSize([140, 40]);
         this.treemap = d3.tree().nodeSize([100, 20]);
 
-        this.networkGraph.x = height / 4;
+        this.networkGraph.x = 100; // height / 4;
         this.networkGraph.y = 100;
         this.networkGraph.children.forEach(collapse);
         this.updateTree(this.networkGraph);
 
         _.delay(() => {
             this.transform = d3.zoomIdentity;
-            this.transform.x = -300;
-            this.transform.y = 225;
+            this.transform.x = -200;
+            this.transform.y = 205;
             this.transform.k = 1;
             this.svg.transition().duration(750).attr('transform', this.transform);
         }, 600);
@@ -527,8 +541,8 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
             this.treeData = this.treemap(this.networkGraph);
             this.nodes = this.treeData.descendants();
             this.links = this.treeData.descendants().slice(1);
-        } catch (e) {
-          console.log('Error:', e);
+        } catch (e:any) {
+          this.logger.error('Error in building tree object: '+ e.message);
         }
         const svgDefs = this.svg.append('defs');
         const linearGradient = svgDefs.append('linearGradient').attr('id', 'NodeGradient');
@@ -824,10 +838,6 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                                 d,
                                 this.networkGraph,
                                 this.identities,
-                                this.services,
-                                this.edgerouters,
-                                this.router_policies,
-                                this.service_policies,
                                 this.uniqId,
                                 this.zitiService,
                                 this.configs

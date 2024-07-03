@@ -185,7 +185,8 @@ export class NetworkVisualizerHelper {
         edgeRouterPolicies,
         serviceEdgeRouterPolicies,
         // networkProductVersion,
-        uniqId
+        uniqId,
+        logger
     ) {
         function createId() {
             ++uniqId;
