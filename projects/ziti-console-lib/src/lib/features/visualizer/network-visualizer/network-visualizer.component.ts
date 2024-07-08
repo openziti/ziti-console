@@ -47,6 +47,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
   treetooltip;
   fullScreen = false;
   isLoading = true;
+  noSearchResults = false;
   services;
   identities;
   edgerouters;
@@ -54,12 +55,14 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
   router_policies;
   service_router_policies;
   configs;
+  baseNetworkGraph;
   networkGraph;
   currentNetwork;
+  searchRootNode;
 
-  appwanstreeNodes = [];
+  servicePoliciesTreeNodes = [];
   servicesTreeNodes = [];
-  endpointsTreeNodes = [];
+  identitiesTreeNodes = [];
   edgeroutersTreeNodes = [];
   erPoliciesTreeNodes = [];
   serviceEdgeRouterPolicyTreeNodes = [];
@@ -403,27 +406,27 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
             this.networkGraph = d3.hierarchy(treeObj, function (d) {
                 return d.children;
             });
-
-            this.appwanstreeNodes = [];
+            this.baseNetworkGraph = this.networkGraph;
+            this.servicePoliciesTreeNodes = [];
             this.servicesTreeNodes = [];
-            this.endpointsTreeNodes = [];
+            this.identitiesTreeNodes = [];
             this.edgeroutersTreeNodes = [];
             this.erPoliciesTreeNodes = [];
             this.serviceEdgeRouterPolicyTreeNodes = [];
 
-            this.appwanstreeNodes = this.fillAutoCompleteTreeNodes(
+            this.servicePoliciesTreeNodes = this.fillAutoCompleteTreeNodes(
                 this.networkGraph.children[0],
-                this.appwanstreeNodes,
-                'Service Policy'
+                this.servicePoliciesTreeNodes,
+                'ServicePolicy'
             );
             this.servicesTreeNodes = this.fillAutoCompleteTreeNodes(
                 this.networkGraph.children[1],
                 this.servicesTreeNodes,
                 'Service'
             );
-            this.endpointsTreeNodes = this.fillAutoCompleteTreeNodes(
+            this.identitiesTreeNodes = this.fillAutoCompleteTreeNodes(
                 this.networkGraph.children[2],
-                this.endpointsTreeNodes,
+                this.identitiesTreeNodes,
                 'Identity'
             );
             this.edgeroutersTreeNodes = this.fillAutoCompleteTreeNodes(
@@ -471,6 +474,370 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
 
         return arr;
     }
+
+    autocompleteSearch(event) {
+        const str = event ? event.option.value : '';
+        this.searchResourceConditionCheck(str);
+    }
+
+    resourceTypeChanged() {
+        this.resetSearchNode();
+        this.clearSearchLinkColors();
+        if (_.isEmpty(this.resourceType)) {
+            this.autocompleteOptions = [];
+            this.clearSearchFilter();
+            this.resourceTypeError = !_.isEmpty(this.filterText);
+            return;
+        }
+        this.filterText = '';
+        this.resourceTypeError = false;
+
+        if (this.resourceType === 'service-policies') {
+            this.autocompleteOptions = this.servicePoliciesTreeNodes;
+        } else if (this.resourceType === 'services') {
+            this.autocompleteOptions = this.servicesTreeNodes;
+        } else if (this.resourceType === 'identities') {
+            this.autocompleteOptions = this.identitiesTreeNodes;
+        } else if (this.resourceType === 'edge-routers') {
+            this.autocompleteOptions = this.edgeroutersTreeNodes;
+        } else if (this.resourceType === 'edge-router-policies') {
+            this.autocompleteOptions = this.erPoliciesTreeNodes;
+        } else if (this.resourceType === 'service-edge-router-policies') {
+            this.autocompleteOptions = this.serviceEdgeRouterPolicyTreeNodes;
+        }
+
+        if (!_.isEmpty(this.filterText)) {
+            this.searchResourceConditionCheck(this.filterText);
+        }
+    }
+    searchResourceConditionCheck(searchTxt) {
+      if (this.resourceType === '' && searchTxt !== '') {
+          // if (searchTxt !== '') {
+               this.resourceTypeError = true;
+              return;
+      } else {
+           this.searchResourceInTree(searchTxt);
+      }
+
+    }
+    searchResourceInTree(searchTxt) {
+      //  this.closeTable();
+        this.noSearchResults = false;
+
+        this.resourceTypeError = false;
+        this.resetTree(null);
+        if (searchTxt === '') {
+            this.clearSearchLinkColors();
+        } else {
+            this.resetSearchNode();
+            this.clearSearchLinkColors();
+            let paths = [];
+            let targetNodes = [];
+            const nodeIds = [];
+            if (this.resourceType === 'service-policies') {
+                targetNodes = this.processSearchInPreorder(this.nodes[1], searchTxt, paths, targetNodes);
+            } else if (this.resourceType === 'edge-routers') {
+                targetNodes = this.processSearchInPreorder(this.nodes[4], searchTxt, paths, targetNodes);
+            } else if (this.resourceType === 'services') {
+                targetNodes = this.processSearchInPreorder(this.nodes[2], searchTxt, paths, targetNodes);
+            } else if (this.resourceType === 'identities') {
+                targetNodes = this.processSearchInPreorder(this.nodes[3], searchTxt, paths, targetNodes);
+            } else if (this.resourceType === 'edge-router-policies') {
+                targetNodes = this.processSearchInPreorder(this.nodes[5], searchTxt, paths, targetNodes);
+            } else if (this.resourceType === 'service-edge-router-policies') {
+                targetNodes = this.processSearchInPreorder(this.nodes[6], searchTxt, paths, targetNodes);
+            }
+            paths = this.explorePathsForSearchedNodes(targetNodes, paths, nodeIds);
+            if (targetNodes && targetNodes.length <= 0) {
+                this.noSearchResults = true;
+                this.clearSearchLinkColors();
+               // return false;
+            } else {
+            //if (targetNodes) {
+                this.openPaths(paths);
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                d3.selectAll('circle').filter(function (d: any) {
+                    const dataName = _.get(d, 'data.name', '');
+                    // const dataId = _.get(d, 'data.id', '');
+                    const nodeName = _.get(targetNodes[0], 'data.name', '');
+                    if (dataName.toLowerCase() === searchTxt.toLowerCase() && nodeName === dataName) {
+                        d3.select(this).style('fill', 'red');
+                    }
+                });
+            }
+            // else {
+             //   this.noSearchResults = true;
+              //  this.clearSearchLinkColors();
+             // }
+        }
+    }
+    explorePathsForSearchedNodes(targetNodes, paths, nodeIds) {
+        for (let i = 0; targetNodes && i < targetNodes.length; i++) {
+            let nd = targetNodes[i];
+            paths.push(nd);
+            while (nd.parent) {
+                const nodeId = _.get(nd.parent, 'data.id');
+                if (nodeIds.indexOf(nodeId) < 0) {
+                    nodeIds.push(nodeId);
+                    paths.push(nd.parent);
+                }
+                nd = nd.parent;
+            }
+        }
+        return paths;
+    }
+    processSearchInPreorder(nodeObj, searchTxt, paths, targetNodes) {
+        const name = _.get(nodeObj, 'data.name');
+        // const nodeId = _.get(nodeObj, 'data.id');
+        const isRootNode = _.get(nodeObj, 'data.rootNode');
+        if (!name) {
+            return;
+        }
+        if (isRootNode && isRootNode === 'Yes' && name.toLowerCase() === searchTxt.toLowerCase()) {
+            targetNodes.push(nodeObj);
+        }
+        const childNodes = nodeObj.children ? nodeObj.children : nodeObj._children;
+        for (let i = 0; childNodes && i < childNodes.length; i++) {
+            this.processSearchInPreorder(childNodes[i], searchTxt, paths, targetNodes);
+        }
+        return targetNodes;
+    }
+    clearSearchLinkColors() {
+        this.svg.selectAll('path.link').each( function (this: any,  d:any) {
+            d3.select(this).style('stroke', 'white');
+        });
+        this.svg.selectAll('circle').style('fill', function (d:any) {
+            return d._children ? 'var(--tableText)' : '#fff';
+        });
+    }
+
+    openPaths(paths) {
+        const pathIds = [];
+        for (let i = paths.length - 1; i >= 0; i--) {
+            const l = paths[i];
+            if (this.openNodes.indexOf(l.data.id) < 0) {
+                this.openNodes.push(l.data.id);
+            }
+            this.expand(paths[i]);
+            if (i > 0) {
+                this.updateTree(l);
+            }
+            pathIds.push(l.data.id);
+        }
+        pathIds.push(paths[1].data.id);
+        pathIds.push(paths[0].data.id);
+
+        let childreng = null; // get 2nd level data nodes.
+        if (this.resourceType === 'service-policies') {
+            childreng = this.networkGraph.children[0];
+        } else if (this.resourceType === 'services') {
+            childreng = this.networkGraph.children[1];
+        } else if (this.resourceType === 'identities') {
+            childreng = this.networkGraph.children[2];
+        } else if (this.resourceType === 'edge-routers') {
+            childreng = this.networkGraph.children[3];
+        } else if (this.resourceType === 'edge-router-policies') {
+            childreng = this.networkGraph.children[4];
+        } else if (this.resourceType === 'service-edge-router-policies') {
+            childreng = this.networkGraph.children[5];
+        }
+        const ndd_childs = childreng.children ? childreng.children : childreng._children; // 2nd level chailds. groups/childrens
+        for (let i = 0; i < ndd_childs.length; i++) {
+            // 2st level
+            //  if (this.resourceType === 'endpoints' || this.resourceType === 'services') {
+            if (ndd_childs[i].data.type === 'Group') {
+                // process groups
+                const d1 = ndd_childs[i]; //get group
+                if (d1 && paths[1].data.id === d1.data.id) {
+                    const children0 = d1.children ? d1.children : d1._children; // 3rd level childs
+                    const arr = children0.filter(function (replOb) {
+                        return replOb.data.id === paths[0].data.id;
+                    });
+                    d1.children = arr;
+                    d1._children = null;
+                    const arrgrp = ndd_childs.filter(function (replObj) {
+                        return replObj.data.id === d1.data.id;
+                    });
+                    childreng.children = arrgrp;
+                    this.updateTree(this.networkGraph);
+                    break;
+                }
+            } else {
+                if (childreng.data.id === paths[1].data.id) {
+                    const arr = ndd_childs.filter(function (replOb) {
+                        return replOb.data.id === paths[0].data.id;
+                    });
+                    childreng.children = arr;
+                    childreng._children = null;
+                    this.updateTree(this.networkGraph);
+                    break;
+                }
+            }
+        }
+        let datanodes = null; // get 2nd level data nodes.
+        if (this.resourceType === 'service-policies') {
+            datanodes = this.networkGraph.data.children[0];
+        } else if (this.resourceType === 'services') {
+            datanodes = this.networkGraph.data.children[1];
+        } else if (this.resourceType === 'identities') {
+            datanodes = this.networkGraph.data.children[2];
+        } else if (this.resourceType === 'edge-routers') {
+            datanodes = this.networkGraph.data.children[3];
+        } else if (this.resourceType === 'edge-router-policies') {
+            datanodes = this.networkGraph.data.children[4];
+        } else if (this.resourceType === 'service-edge-router-policies') {
+            datanodes = this.networkGraph.data.children[5];
+        }
+        if (datanodes.id === paths[1].data.id) {
+            const arr = datanodes.children.filter(function (replOb) {
+                return replOb.id === paths[0].data.id;
+            });
+            datanodes.children = arr;
+            this.updateTree(this.networkGraph);
+        } else {
+            const groupNodes = datanodes.children;
+            for (let k = 0; k < groupNodes.length; k++) {
+                if (groupNodes[k].id === paths[1].data.id) {
+                    // check searched group node
+                    const arr = groupNodes[k].children.filter(function (replOb) {
+                        return replOb.id === paths[0].data.id;
+                    });
+                    groupNodes[k].children = arr;
+                    const arrgrp = groupNodes.filter(function (replObj) {
+                        return replObj.id === paths[1].data.id;
+                    });
+                    datanodes.children = arrgrp;
+                    this.updateTree(this.networkGraph);
+                    break;
+                }
+            }
+        }
+
+        this.updateTree(this.networkGraph);
+        this.searchRootNode = paths[1];
+
+        this.svg.selectAll('.link').each(function (this:any, d:any) {
+            if (pathIds.indexOf(d.data.id) >= 0) {
+                d3.select(this).style('stroke', 'red');
+            } else {
+                d3.select(this).style('stroke', 'white');
+            }
+        });
+    }
+
+    resetSearchNode() {
+        if (this.searchRootNode) {
+            this.networkGraph = _.cloneDeep(this.baseNetworkGraph);
+            this.updateTree(this.networkGraph);
+        }
+    }
+
+    resetTree(clearSearch) {
+        this.resetSearchNode();
+        if (clearSearch) {
+            this.clearSearchFilter();
+            this.clearSearchType();
+        }
+        for (let i = this.openNodes.length - 1; i > 0; i--) {
+            const d = this.openNodes[i];
+            if (d && d.children) {
+                d._children = d.children;
+                d.children = null;
+                this.updateTree(d);
+            }
+        }
+        for (let i = this.nodes.length - 1; i > 0; i--) {
+            const d = this.nodes[i];
+            if (d && d.children) {
+                d._children = d.children;
+                d.children = null;
+                this.updateTree(d);
+            }
+        }
+
+        this.clearSearchLinkColors();
+        this.openNodes = [];
+        this.sizeToFit();
+        this.resetZoom();
+    }
+    expand(d) {
+        if (d._children) {
+            d.children = d._children;
+            d._children = null;
+        }
+    }
+
+    collapse() {
+        for (let i = this.openNodes.length - 1; i > 0; i--) {
+            const d = this.nodes[i];
+            if (d.children) {
+                d._children = d.children;
+                d.children = null;
+                this.updateTree(d);
+            }
+        }
+    }
+
+   filterSearchArray() {
+        if (_.isEmpty(this.resourceType)) {
+            this.autocompleteOptions = [];
+            this.resourceTypeError = !_.isEmpty(this.filterText);
+            return;
+        }
+        this.autocompleteOptions = [];
+        if (this.resourceType === 'service-policies') {
+            this.autocompleteOptions = this.servicePoliciesTreeNodes.filter((option) =>
+                option.toLowerCase().includes(this.filterText.toLowerCase())
+            );
+        } else if (this.resourceType === 'services') {
+            this.autocompleteOptions = this.servicesTreeNodes.filter((option) =>
+                option.toLowerCase().includes(this.filterText.toLowerCase())
+            );
+        } else if (this.resourceType === 'identities') {
+            this.autocompleteOptions = this.identitiesTreeNodes.filter((option) =>
+                option.toLowerCase().includes(this.filterText.toLowerCase())
+            );
+        } else if (this.resourceType === 'edge-routers') {
+            this.autocompleteOptions = this.edgeroutersTreeNodes.filter((option) =>
+                option.toLowerCase().includes(this.filterText.toLowerCase())
+            );
+        } else if (this.resourceType === 'edge-router-policies') {
+            this.autocompleteOptions = this.erPoliciesTreeNodes.filter((option) =>
+                option.toLowerCase().includes(this.filterText.toLowerCase())
+            );
+        } else if (this.resourceType === 'service-edge-router-policies') {
+            this.autocompleteOptions = this.serviceEdgeRouterPolicyTreeNodes.filter((option) =>
+                option.toLowerCase().includes(this.filterText.toLowerCase())
+            );
+        }
+   }
+   zoomIn() {
+
+   }
+   zoomOut() {
+
+   }
+    clearSearchFilter() {
+        this.resourceTypeError = false;
+        this.filterText = '';
+        this.filterSearchArray();
+        this.resetSearchNode();
+        this.collapse();
+        this.clearSearchLinkColors();
+    }
+
+    clearSearchType() {
+        this.resourceType = '';
+        this.autocompleteOptions = [];
+    }
+
+   resetZoom() {
+       // const currentZoom = this.getZoomScale();
+       const transform: any = this.transform || _.cloneDeep(d3.zoomIdentity);
+       transform.k = 1;
+       this.svg.attr('transform', transform);
+   }
 
   initTopoView() {
         this.autocompleteOptions = [];

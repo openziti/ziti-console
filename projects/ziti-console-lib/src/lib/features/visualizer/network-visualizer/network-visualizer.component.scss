@@ -90,15 +90,16 @@ select {
     stroke-opacity: 1.6;
 }
 
-.nf-topology-controls-header {
+.nf-net-vis-controls-header {
     display: flex;
     flex-direction: row;
     position: absolute;
     z-index: 99999;
     flex: 1 0 auto;
+    top:50px;
 }
 
-.nf-topology-filter-container {
+.nf-net-vis-filter-container {
     max-width: 300px;
     margin-top: 20px;
     margin-left: 10px;
@@ -228,6 +229,59 @@ select:focus {
     flex: 1 0 auto;
 }
 
+.nf-topology-zoom-button {
+    height: 50px;
+    width: 50px;
+    margin-right: 10px;
+    border-radius: 55px;
+    border: unset;
+    font-size: 40px;
+    font-family: 'icomoon' !important;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: var(--primaryColor);
+    line-height: 49px;
+    background-color: var(--navigation);
+    cursor: pointer;
+    overflow: hidden;
+    z-index: 24;
+    box-shadow: 0px 20px 23px 0px var(--shadow);
+    transition: background-color 0.5s;
+}
+
+.nf-topology-zoom-button.plus:before {
+    content: '\e937';
+}
+
+.nf-topology-zoom-button.minus {
+    height: 50px;
+    width: 50px;
+    margin-right: 10px;
+    border-radius: 55px;
+    border: unset;
+    font-size: 40px;
+    font-family: 'icomoon' !important;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: var(--primaryColor);
+    line-height: 49px;
+    background-color: var(--navigation);
+    cursor: pointer;
+    overflow: hidden;
+    z-index: 24;
+    box-shadow: 0px 20px 23px 0px var(--shadow);
+    transition: background-color 0.5s;
+    background-image: url(/assets/images/Icon_Minus.png);
+    background-size: 40%;
+    background-color: var(--red);
+    -webkit-box-shadow: 0px 6px 10px 0px var(--redShadow);
+    -moz-box-shadow: 0px 6px 10px 0px var(--redShadow);
+    box-shadow: 0px 6px 10px 0px var(--redShadow);
+}
 .nf-topology-zoom-label {
     padding-right: 10px;
 }
