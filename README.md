@@ -1,3 +1,52 @@
+![Ziggy using the ziti-console](https://raw.githubusercontent.com/openziti/ziti-console/main/projects/ziti-console-lib/src/lib/assets/banners/ZAC.jpg)
+
+<p align="center" width="100%">
+OpenZiti is a free and open source project focused on bringing zero trust to any application.
+     <br>
+The project provides all the pieces required to implement or integrate zero trust into your solutions.
+<br/>
+<br/>
+     <br>
+</p>
+
+<p align="center" width="100%">
+<a href="https://openziti.io"><img src="https://github.com/openziti/ziti-console/blob/main/projects/ziti-console-lib/src/lib/assets/icons/android-icon-192x192.png?raw=true" width="100"></a>
+</p>
+
+<p align="center">
+    <b>
+    <a>@openziti/ziti-console</a>
+    <br>
+    <br>
+    </b>
+    This repo hosts the Ziti Admin Console, and is designed to provide a user interface to help you administrate an <a href="https://openziti.io">OpenZiti Network</a> via the <a href="https://openziti.io/docs/reference/developer/api/">Ziti Edge API</a>
+    <br>
+    <br>
+    <b>Part of the <a href="https://openziti.io/about">OpenZiti</a> ecosystem</b>
+</p>
+
+<p align="center">
+    <br>
+    <b>Interested in knowing how to easily embed programmable, high performance, zero trust networking into your application without VPNs?</b>
+    <br>
+    Learn more about <a href="https://openziti.io/about">OpenZiti</a> project.</b>
+    <br>
+    Also, checkout core project on <a href="https://github.com/openziti">github</a>
+<br/>
+<br/>
+Please star us!
+<br/>
+<a href="https://github.com/openziti/ziti/stargazers"><img src="https://img.shields.io/github/stars/openziti/ziti?style=flat" ></a>
+    </p>
+
+---
+[![Issues](https://img.shields.io/github/issues-raw/openziti/ziti-console)]()
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=rounded)](CONTRIBUTING.md)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
+
+---
+
 
 # OpenZiti Console
 
@@ -33,8 +82,8 @@ This repository houses two projects.
 
 1. [ziti-console-lib](./projects/ziti-console-lib) - Angular library used by the console UI.
 1. [app-ziti-console](./projects/app-ziti-console) - console UI with two deployment modes.
-  1. Single page application mode (recommended) 
-  1. Node.js server mode (`server.js`, deprecated)
+1. Single page application mode (recommended)
+1. Node.js server mode (`server.js`, deprecated)
 
 ## Build
 
@@ -61,12 +110,12 @@ This is the recommended approach.
     ng build ziti-console
     ```
 
-1. You must host the static files with a web server. 
+1. You must host the static files with a web server.
    See [the deployment guide](https://openziti.io/docs/guides/deployments/linux/console) for details on configuring the controller to host these files.
-   
+
 1. Access the console at the controller's address: https://localhost:1280/zac/
 
-        
+
 ### Build the Standalone Node Server
 
 This deployment mode is deprecated by the SPA mode.
@@ -104,8 +153,8 @@ From project Root:
     ng build ziti-console-lib --watch
     ```
 
-    * Note: The NPM library is referenced/linked in package.json as "ziti-console-lib": "file:dist/ziti-console-lib".
-    This library includes the pure javascript code it shared with ziti-console, and the Angular code it shares with other apps.
+   * Note: The NPM library is referenced/linked in package.json as "ziti-console-lib": "file:dist/ziti-console-lib".
+     This library includes the pure javascript code it shared with ziti-console, and the Angular code it shares with other apps.
 
 1. Then in a separate window run & watch changes in the main application **app-ziti-console**
 
@@ -113,5 +162,5 @@ From project Root:
     ng build ziti-console-node --watch
     ```
 
-  This ensures changes made to the NPM library get pulled into the Angular app as you are developing
+This ensures changes made to the NPM library get pulled into the Angular app as you are developing
 
