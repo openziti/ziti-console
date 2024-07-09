@@ -1,0 +1,38 @@
+<div class="ziti-page-container edge-router-policies-container">
+    <lib-list-page-header [title]="title"
+                          [tabs]="tabs"
+                          [showAdd]="!itemsSelected"
+                          (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
+
+    <lib-data-table [tableId]="'edge-router-policies'"
+                    [rowData]="rowData"
+                    [columnDefinitions]="columnDefs"
+                    (actionRequested)="tableAction($event)"
+                    [startCount]="startCount"
+                    [endCount]="endCount"
+                    [totalCount]="totalCount"
+                    [emptyMsg]="'No Edge Router Policies defined, Click the plus to add a Edge Router Policy.'"
+                    [filterApplied]="filterApplied"
+                    [menuItems]="svc.menuItems"
+                    (gridReady)="gridReady($event)"
+    >
+    </lib-data-table>
+
+    <lib-side-modal [(open)]="svc.sideModalOpen" [showClose]="false">
+        <lib-service-policy-form
+                *ngIf="svc.sideModalOpen"
+                [formData]="svc.selectedServicePolicy"
+                [serviceRoleAttributes]="svc.routerRoleAttributes"
+                [serviceNamedAttributes]="svc.routerNamedAttributes"
+                [serviceNamedAttributesMap]="svc.routerNamedAttributesMap"
+                [identityRoleAttributes]="svc.identityRoleAttributes"
+                [identityNamedAttributes]="svc.identityNamedAttributes"
+                [identityNamedAttributesMap]="svc.identityNamedAttributesMap"
+                [postureRoleAttributes]="svc.postureRoleAttributes"
+                [postureNamedAttributes]="svc.postureNamedAttributes"
+                [postureNamedAttributesMap]="svc.postureNamedAttributesMap"
+                (close)="closeModal($event)"
+                (dataChange)="dataChanged($event)">
+        </lib-service-policy-form>
+    </lib-side-modal>
+</div>
