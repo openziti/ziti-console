@@ -12,6 +12,8 @@ export * from './lib/pages/identities/identities-page.component';
 export * from './lib/pages/identities/identities-page.service';
 export * from './lib/pages/edge-routers/edge-routers-page.component';
 export * from './lib/pages/edge-routers/edge-routers-page.service';
+export * from './lib/pages/edge-router-policies/edge-router-policies-page.component';
+export * from './lib/pages/edge-router-policies/edge-router-policies-page.service';
 export * from './lib/pages/services/services-page.component';
 export * from './lib/pages/services/services-page.service';
 export * from './lib/pages/service-policies/service-policies-page.component';

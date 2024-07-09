@@ -97,6 +97,7 @@ import { CardComponent } from './features/card/card.component';
 import { CreationSummaryDialogComponent } from './features/creation-summary-dialog/creation-summary-dialog.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ConfigEditorComponent } from './features/config-editor/config-editor.component';
+import { EdgeRouterPoliciesPageComponent } from './pages/edge-router-policies/edge-router-policies-page.component';
 import { ServicePoliciesPageComponent } from './pages/service-policies/service-policies-page.component';
 import { ServicePolicyFormComponent } from './features/projectable-forms/service-policy/service-policy-form.component';
 
@@ -168,7 +169,8 @@ export function playerFactory() {
         CreationSummaryDialogComponent,
         ConfigEditorComponent,
         ServicePoliciesPageComponent,
-        ServicePolicyFormComponent
+        ServicePolicyFormComponent,
+        EdgeRouterPoliciesPageComponent
     ],
     imports: [
         CommonModule,
@@ -217,7 +219,8 @@ export function playerFactory() {
         FormFieldToggleComponent,
         ServiceFormComponent,
         ServicePoliciesPageComponent,
-        ServicePolicyFormComponent
+        ServicePolicyFormComponent,
+        EdgeRouterPoliciesPageComponent
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},
