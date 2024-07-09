@@ -1,3 +1,15 @@
+# app-ziti-console-v3.3.0
+# ziti-console-lib-v0.3.0
+*
+## Feature/Improvements
+* [Issue #384](https://github.com/openziti/ziti-console/issues/384) - New Service Policy List Page
+* [Issue #390](https://github.com/openziti/ziti-console/issues/390) - New Service Policy Create/Edit Form
+* [Issue #388](https://github.com/openziti/ziti-console/issues/388) - Cert auth and runtime base href
+
+## Bug Fixes
+* [Issue #385](https://github.com/openziti/ziti-console/issues/385) - Identity Service Path Visualizer: Improved error handling to prevent unresponsive rendering
+
+
 # app-ziti-console-v3.2.3
 # ziti-console-lib-v0.2.3
 *
