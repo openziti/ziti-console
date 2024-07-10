@@ -1,5 +1,5 @@
-# app-ziti-console-v3.3.0
-# ziti-console-lib-v0.3.0
+# app-ziti-console-v3.3.1
+# ziti-console-lib-v0.3.1
 *
 ## Feature/Improvements
 * Updated README.md files with new banner descriptions and assets
