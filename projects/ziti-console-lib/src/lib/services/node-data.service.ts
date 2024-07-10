@@ -23,7 +23,7 @@ import {firstValueFrom, map} from "rxjs";
 import {catchError} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
 import {FilterObj} from "../features/data-table/data-table-filter.service";
-import {isEmpty, get} from "lodash";
+import {isEmpty, get, isArray, isNumber} from "lodash";
 import {ZitiDataService} from "./ziti-data.service";
 import {Resolver} from "@stoplight/json-ref-resolver";
 import moment from "moment";
@@ -89,6 +89,8 @@ export class NodeDataService extends ZitiDataService {
     get(type: string, paging: any, filters: FilterObj[] = [], url?) {
         const nodeServerURL = window.location.origin;
         const serviceUrl = nodeServerURL + '/api/data';
+        const urlFilter = this.getUrlFilter(paging, filters);
+        paging.filter = urlFilter;
         const body = {paging: paging, type: type, url: url};
 
         return firstValueFrom(this.httpClient.post(serviceUrl,body,{}).pipe(
@@ -98,18 +100,7 @@ export class NodeDataService extends ZitiDataService {
                     throw({error: error});
                 }),
                 map((results: any) => {
-                    if(filters.length > 0) {
-                        filters.forEach((filter:FilterObj) => {
-                            let newData: any[] = [];
-                            if(filter.columnId !== 'name' && !isEmpty(filter.value )) {
-                                results.data.forEach(row => {
-                                    if(get(row, filter.columnId)?.indexOf(filter.value) >= 0)
-                                        newData.push(row);
-                                })
-                                results.data = newData;
-                            }
-                        });
-                    } else if (results.error) {
+                    if (results.error) {
                         this.handleError(results)
                     }
                     return results;
@@ -289,27 +280,67 @@ export class NodeDataService extends ZitiDataService {
         });
     }
 
-    private getUrlFilter(paging: any) {
+    private getUrlFilter(paging, filters: any[]) {
         let urlFilter = '';
         let toSearchOn = "name";
-        let noSearch = false;
+        let noSearch = filters?.length <= 0;
+        if (isEmpty(paging)) {
+            paging = {};
+        }
         if (paging && paging.sort != null) {
             if (paging.searchOn) toSearchOn = paging.searchOn;
             if (paging.noSearch) noSearch = true;
             if (!paging.filter) paging.filter = "";
-            paging.filter = paging.filter.split('#').join('');
-            if (noSearch) {
-                if (paging.page !== -1) urlFilter = "?limit=" + paging.total + "&offset=" + ((paging.page - 1) * paging.total)  + "&sort=" + paging.sort + " " + paging.order;
-            } else {
-                if (paging.page !== -1) urlFilter = "?filter=(" + toSearchOn + " contains \"" + paging.filter + "\")&limit=" + paging.total + "&offset=" + ((paging.page - 1) * paging.total) + "&sort=" + paging.sort + " " + paging.order;
-                if (paging.params) {
-                    for (const key in paging.params) {
-                        urlFilter += ((urlFilter.length === 0) ? "?" : "&") + key + "=" + paging.params[key];
-                    }
-                }
+            if (!isArray(paging.filter) && isNaN(paging.filter)) {
+                paging.filter = paging.filter.split('#').join('');
             }
         }
+        filters.forEach((filter, index) => {
+            let filterVal = '';
+            switch (filter.type) {
+                case 'TEXTINPUT':
+                    filterVal = `${filter.columnId} contains "${filter.value}"`;
+                    break;
+                case 'SELECT':
+                case 'COMBO':
+                    const val = isNumber(filter.value) ? `${filter.value}` : `"${filter.value}"`;
+                    filterVal = `${filter.columnId} = ${val}`;
+                    break;
+                case 'DATETIME':
+                    paging.rawFilter = true;
+                    filterVal = `${filter.columnId} >= datetime(${filter.value[0]}) and ${filter.columnId} <= datetime(${filter.value[1]})`;
+                    break;
+                case 'ATTRIBUTE':
+                    paging.rawFilter = true;
+                    filterVal = this.getAttributeFilter(filter.value, filter.columnId);
+                    break;
+                default:
+                    filterVal = `${filter.columnId} contains "${filter.value}"`;
+                    break;
+            }
+            if (index <= 0) {
+                urlFilter = `${filterVal}`;
+            } else {
+                urlFilter += ` and ${filterVal}`
+            }
+        });
+
         return urlFilter;
+    }
+
+    getAttributeFilter(val, columnId) {
+        let filter = '';
+        if (isArray(val)) {
+            val.forEach((attr, index) => {
+                if (index > 0) {
+                    filter += ' or ';
+                }
+                filter += `anyOf(${columnId}) = "${attr}"`;
+            });
+        } else {
+            filter = `anyOf(${columnId}) = "${val}"`;
+        }
+        return filter;
     }
 
     handleError(results) {

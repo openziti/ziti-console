@@ -146,6 +146,7 @@ export abstract class ListPageServiceClass {
             paging.noSearch = false;
             paging.searchOn = filters[idx].columnId;
             paging.filter = filters[idx].value;
+            paging.rawFilter = true;
         }
         return this.dataService.get(resourceType, paging, filters);
     }
