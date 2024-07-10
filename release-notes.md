@@ -1,3 +1,13 @@
+# app-ziti-console-v3.3.1
+# ziti-console-lib-v0.3.1
+*
+## Feature/Improvements
+* Updated README.md files with new banner descriptions and assets
+
+## Bug Fixes
+* [Issue #403](https://github.com/openziti/ziti-console/issues/403) - Can't filter by attribute on Service Policies page
+
+
 # app-ziti-console-v3.3.0
 # ziti-console-lib-v0.3.0
 *
