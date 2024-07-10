@@ -845,11 +845,22 @@ function GetItems(type, paging, request, response, cli, serviceCall) {
 			if (paging.searchOn) toSearchOn = paging.searchOn;
 			if (paging.noSearch) noSearch = true;
 			if (!paging.filter) paging.filter = "";
-			paging.filter = paging.filter.split('#').join('');
+			if (!paging.rawFilter) paging.filter = paging.filter.split('#').join('');
 			if (noSearch) {
 				if (paging.page!=-1) urlFilter = "?limit="+paging.total+"&offset="+((paging.page-1)*paging.total);
 			} else {
-				if (paging.page!=-1) urlFilter = "?filter=("+toSearchOn+" contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
+				if (paging.rawFilter) {
+					urlFilter = "?filter=" + paging.filter.trim();
+					if (paging.total) {
+						urlFilter += "&limit="+paging.total;
+					}
+					if (paging.page) {
+						urlFilter += "&offset="+((paging.page-1)*paging.total);
+					}
+					if (paging.sort) {
+						urlFilter += "&sort="+paging.sort+" "+paging.order;
+					}
+				} else if (paging.page!=-1) urlFilter = "?filter=("+toSearchOn+" contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
 				if (paging.params) {
 					for (var key in paging.params) {
 						urlFilter += ((urlFilter.length==0)?"?":"&")+key+"="+paging.params[key];

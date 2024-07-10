@@ -409,7 +409,7 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
     }
 
     public getIdentityNamedAttributes() {
-        return this.zitiService.get('identities', {}, []).then((result) => {
+        return this.zitiService.get('identities', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
             const namedAttributes = result.data.map((identity) => {
                 this.identityNamedAttributesMap[identity.name] = identity.id;
                 return identity.name;
@@ -420,7 +420,7 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
     }
 
     public getServiceNamedAttributes() {
-        return this.zitiService.get('services', {}, []).then((result) => {
+        return this.zitiService.get('services', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
             const namedAttributes = result.data.map((service) => {
                 this.serviceNamedAttributesMap[service.name] = service.id;
                 return service.name;
