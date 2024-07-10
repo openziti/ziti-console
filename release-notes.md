@@ -2,6 +2,16 @@
 # ziti-console-lib-v0.3.0
 *
 ## Feature/Improvements
+* Updated README.md files with new banner descriptions and assets
+
+## Bug Fixes
+* [Issue #403](https://github.com/openziti/ziti-console/issues/403) - Can't filter by attribute on Service Policies page
+
+
+# app-ziti-console-v3.3.0
+# ziti-console-lib-v0.3.0
+*
+## Feature/Improvements
 * [Issue #384](https://github.com/openziti/ziti-console/issues/384) - New Service Policy List Page
 * [Issue #390](https://github.com/openziti/ziti-console/issues/390) - New Service Policy Create/Edit Form
 * [Issue #388](https://github.com/openziti/ziti-console/issues/388) - Cert auth and runtime base href
