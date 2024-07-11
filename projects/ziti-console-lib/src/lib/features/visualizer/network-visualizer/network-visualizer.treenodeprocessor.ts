@@ -46,6 +46,8 @@ export class TreeNodeProcessor {
 
       const bindServices = new Children();
       const dialServices = new Children();
+      bindServices.id = this.createId();
+      dialServices.id = this.createId();
       let identityServicePolicies = [];
       const services_url = this.getLinkForResource(rawEp, 'service-policies').replace('./', '');
 
@@ -176,6 +178,9 @@ export class TreeNodeProcessor {
         const dialPolicies = new Children();
             dialPolicies.name = 'Dial-Policies';
 
+        bindPolicies.id = this.createId();
+        dialPolicies.id = this.createId();
+
         servicePolicies.find( (sp) => {
           sp.identityRoles.find( (attr) => {
               if (endpointAttr.includes(attr) ) {
@@ -273,7 +278,8 @@ export class TreeNodeProcessor {
             attributeswithName.push(srattr);
         });
         const serviceAttributes = new Children();
-          serviceAttributes.type = 'ServiceAttributes';
+        serviceAttributes.type = 'ServiceAttributes';
+        serviceAttributes.id = this.createId();
         for (let k = 0; k < attributeswithName.length; k++) {
             const attrOb = new Attribute();
             attrOb.id = this.createId();
@@ -340,6 +346,7 @@ export class TreeNodeProcessor {
              tmp.name = "Bind Identities(" + bindIdnetities.length +')';
              tmp.type = "Identities";
              tmp.children = bindIdnetities;
+             tmp.id = this.createId();
              serviceNode.data.children.push(tmp);
         });
       });
@@ -370,7 +377,7 @@ export class TreeNodeProcessor {
        .then((ids) => {
          const childs =new Children()
              childs.name = rawSPolicy.type+ 'Identities';
-
+         childs.id = this.createId();
          ids.data.forEach( (idOb) => {
            const ep = new Identity();
             ep.id = idOb.id;
@@ -440,7 +447,7 @@ export class TreeNodeProcessor {
            } // end for loop
            Promise.all(promises).then(() => {
              const erpolChilds = new Children();
-
+             erpolChilds.id = this.createId();
              erpoliciesForER.forEach( (pol) => {
                 const policy = new ERPolicy();
                 policy.id = this.createId();
@@ -663,7 +670,7 @@ export class TreeNodeProcessor {
             } // end for loop
             Promise.all(promises).then(() => {
              const idChilds = new Children();
-
+             idChilds.id = this.createId();
              ids.forEach( (er) => {
                 const idOb = new Identity();
                 idOb.id = this.createId();
@@ -726,7 +733,7 @@ export class TreeNodeProcessor {
             } // end for loop
             Promise.all(promises).then(() => {
              const erChilds = new Children();
-
+             erChilds.id = this.createId();
              routers.forEach( (er) => {
                 const idOb = new ERouter();
                 idOb.id = this.createId();
@@ -766,7 +773,7 @@ export class TreeNodeProcessor {
             } // end for loop
             Promise.all(promisesB).then(() => {
              const srChilds = new Children();
-
+             srChilds.id = this.createId();
              serArray.forEach( (sr) => {
                 const srOb = new Service();
                 srOb.id = this.createId();

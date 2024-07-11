@@ -178,7 +178,7 @@
 
 .grid.dashboard {
 	margin-top: 20px;
-	grid-template-columns: auto 25%;
+	grid-template-columns: auto 30%;
 	column-gap: 10px;
 	row-gap: 20px;
 }
