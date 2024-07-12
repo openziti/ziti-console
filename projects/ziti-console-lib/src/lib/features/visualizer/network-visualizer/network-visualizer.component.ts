@@ -554,7 +554,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                // return false;
             } else {
             //if (targetNodes) {
-                this.openPaths(paths);
+                this.openPaths(paths, true);
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 d3.selectAll('circle').filter(function (d: any) {
@@ -612,7 +612,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
         });
     }
 
-    openPaths(paths) {
+    openPaths(paths, doReset = false) {
         const pathIds = [];
         for (let i = paths.length - 1; i >= 0; i--) {
             const l = paths[i];
@@ -621,7 +621,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
             }
             this.expand(paths[i]);
             if (i > 0) {
-                this.updateTree(l);
+                this.updateTree(l, doReset);
             }
             pathIds.push(l.data.id);
         }
@@ -660,7 +660,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                         return replObj.data.id === d1.data.id;
                     });
                     childreng.children = arrgrp;
-                    this.updateTree(this.networkGraph);
+                    this.updateTree(this.networkGraph, doReset);
                     break;
                 }
             } else {
@@ -670,7 +670,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                     });
                     childreng.children = arr;
                     childreng._children = null;
-                    this.updateTree(this.networkGraph);
+                    this.updateTree(this.networkGraph, doReset);
                     break;
                 }
             }
@@ -694,7 +694,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                 return replOb.id === paths[0].data.id;
             });
             datanodes.children = arr;
-            this.updateTree(this.networkGraph);
+            this.updateTree(this.networkGraph, doReset);
         } else {
             const groupNodes = datanodes.children;
             for (let k = 0; k < groupNodes.length; k++) {
@@ -708,13 +708,13 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                         return replObj.id === paths[1].data.id;
                     });
                     datanodes.children = arrgrp;
-                    this.updateTree(this.networkGraph);
+                    this.updateTree(this.networkGraph, doReset);
                     break;
                 }
             }
         }
 
-        this.updateTree(this.networkGraph);
+        this.updateTree(this.networkGraph, doReset);
         this.searchRootNode = paths[1];
 
         this.svg.selectAll('.link').each(function (this:any, d:any) {
@@ -901,8 +901,10 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
         }
   }
 
-    updateTree(source) {
-        d3.selectAll('g > *').remove();
+    updateTree(source, doReset = false) {
+        if (doReset) {
+            d3.selectAll('g > *').remove();
+        }
         const duration = 750;
         try {
             this.treeData = this.treemap(this.networkGraph);
@@ -1421,7 +1423,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
             .duration(duration)
             .attr('d', function (d) {
                 let o;
-                if (o && o.x) {
+                if (source && source.x) {
                     o = { x: source.x, y: source.y };
                 } else {
                     o = { x: d.x, y: d.y };
