@@ -1,0 +1,86 @@
+<div class="ziti-page-container ziti-identities-container">
+
+    <div class="nf-network-topology-container" >
+
+      <div class="css-header">{{title}} </div><br>
+
+      <div  class="nf-net-vis-controls-header">
+        <div class="nf-topology-zoom-container">
+          <!--button (click)="zoomOut()" class="nf-topology-zoom-button minus"></button>
+          <button (click)="zoomIn()" class="nf-topology-zoom-button plus"></button-->
+          <div (click)="resetTree('Yes')" class="reset-button" title="Reset"></div>
+        </div>
+        <select
+            (change)="resourceTypeChanged()"
+            [(ngModel)]="resourceType"
+            [ngClass]="{ 'resource-type-error': resourceTypeError }"
+            class="resource-type-select"
+            id="ResourceTypeSelect"
+        >
+          <option value="">Select Resource Type</option>
+          <option value="service-policies">Service Policies</option>
+          <option value="services">Services</option>
+          <option value="identities">Identities</option>
+          <option value="edge-routers">Edge Routers</option>
+          <option value="edge-router-policies">Edge Router Policies</option>
+          <option value="service-edge-router-policies">Service Edge Router Policies</option>
+        </select>
+        <div class="nf-net-vis-filter-container listBox row">
+          <input
+              (keyup)="filterSearchArray()"
+              [(ngModel)]="filterText"
+              [matAutocomplete]="auto"
+              class="nf-topology-filter-input"
+              id="filterText"
+              matInput
+              placeholder="Type to Filter"
+          />
+
+          <div
+              (click)="clearSearchFilter()"
+              *ngIf="filterText !== ''"
+              class="buttonBall close"
+              id="ClearSearchFilter"
+          ></div>
+          <div [hidden]="!noSearchResults" class="no-results-warning">No Results Found</div>
+          <mat-autocomplete #auto="matAutocomplete" (optionSelected)="autocompleteSearch($event)">
+            <mat-option *ngFor="let option of autocompleteOptions" [value]="option">
+              {{ option }}
+            </mat-option>
+          </mat-autocomplete>
+        </div>
+      </div>
+
+      <div class="nf-topology-legend">
+        <div class="legend-item">
+          <div class="legend-circle servicepolicies"></div>
+          <div class="legend-text">Service Policies</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-circle services"></div>
+          <div class="legend-text">Services</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-circle endpoints"></div>
+          <div class="legend-text">Identities</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-circle edgerouters"></div>
+          <div class="legend-text">Edge Routers</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-circle erpolicies"></div>
+          <div class="legend-text">Edge Router Policies</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-circle serviceerpolicies"></div>
+          <div class="legend-text">Service Router Policies</div>
+        </div>
+      </div>
+
+      <div class="topotip" id="tooltip"></div>
+      <svg style='pointer-events:all' id="NetworkVisualizerSVG"></svg>
+      <lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
+    </div>
+
+</div>

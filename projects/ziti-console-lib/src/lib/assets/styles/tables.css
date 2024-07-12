@@ -41,6 +41,12 @@
 	grid-template-columns: auto 50%;
 }
 
+.split.exp {
+	display: grid;
+	grid-gap: 5px;
+	grid-template-columns: auto 40%;
+}
+
 .grid.aside {
 	display: grid;
 	grid-gap: 10px;
@@ -146,9 +152,21 @@
 }
 
 .grid.split.wide {
-	grid-template-columns: auto 49%;  
+	grid-template-columns: auto 49%;
 	column-gap: 20px;
     z-index: 10;
+}
+
+.grid.split.wide {
+    grid-template-columns: auto 49%;
+    column-gap: 20px;
+    z-index: 10;
+}
+
+.grid.split.wide.exp {
+	grid-template-columns: auto auto auto;
+	column-gap: 10px;
+	z-index: 10;
 }
 
 .grid.fived {
@@ -183,11 +201,18 @@
 	row-gap: 20px;
 }
 
+.grid.dashboard.exp {
+	margin-top: 20px;
+	grid-template-columns: auto 30%;
+	column-gap: 20px;
+	row-gap: 20px;
+}
+
 .grid.numbers {
     grid-template-columns: 50px 15% auto 15% 15% 15% 15%;
-    column-gap: 20px;
+	column-gap: 20px;
     border-width: 3px;
-	border-style: solid;
+    border-style: solid;
     border-color: var(--white);
     background-color: rgba(255,255,255,0.5);
     padding: 22px;

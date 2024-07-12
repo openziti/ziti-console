@@ -85,6 +85,7 @@ import {SDKTooltipComponent} from "./features/data-table/tooltips/sdk-tooltip.co
 import { OverridesComponent } from './features/overrides/overrides.component';
 import { ResetEnrollmentComponent } from './features/reset-enrollment/reset-enrollment.component';
 import {IdentityServicePathComponent} from "./features/visualizer/identity-service-path/identity-service-path.component";
+import {NetworkVisualizerComponent} from "./features/visualizer/network-visualizer/network-visualizer.component";
 import { CustomTagsComponent } from './features/custom-tags/custom-tags.component';
 import {EdgeRouterFormComponent} from "./features/projectable-forms/edge-router/edge-router-form.component";
 
@@ -158,6 +159,7 @@ export function playerFactory() {
         OverridesComponent,
         ResetEnrollmentComponent,
         IdentityServicePathComponent,
+        NetworkVisualizerComponent,
         CustomTagsComponent,
         ServicesPageComponent,
         ServiceFormComponent,
@@ -202,6 +204,8 @@ export function playerFactory() {
         BooleanToggleInputComponent,
         ObjectComponent,
         TextListInputComponent,
+        IdentityServicePathComponent,
+        NetworkVisualizerComponent,
         CheckboxListInputComponent,
         ProtocolAddressPortInputComponent,
         ConfigurationsPageComponent,
