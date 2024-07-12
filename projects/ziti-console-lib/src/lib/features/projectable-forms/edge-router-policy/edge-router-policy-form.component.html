@@ -1,0 +1,113 @@
+<div class="projectable-form-wrapper"
+     (keyup.enter)="save($event)"
+     (keyup.escape)="closeModal(false)"
+>
+    <lib-form-header
+            [data]="formData"
+            [title]="formData.id ? 'Edit Edge Router Policy: ' : 'Create New Edge Router Policy'"
+            [moreActions]="moreActions"
+            (actionRequested)="headerActionRequested($event)"
+            [(formView)]="formView"
+    ></lib-form-header>
+    <div class="edge-router-policy-form-container projectable-form-container">
+        <div class="projectable-form-main-column form-group-row" *ngIf="formView === 'simple'">
+            <div class="form-group-column three-fifths">
+                <lib-form-field-container [title]="'Edge Router Policy Name'" [label]="'REQUIRED'">
+                    <input
+                            class="form-field-input"
+                            placeholder="Name this edge edge router policy"
+                            [ngClass]="{error: errors['name']}"
+                            [(ngModel)]="formData.name"
+                            autofocus
+                            #nameFieldInput
+                    />
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Select Edge Router Attributes'"
+                        [label]="'OPTIONAL'"
+                        [contentStyle]="'z-index: 100003'"
+                        [helpText]="'Choose which edge router to associate to this policy by picking from the list of available attributes'"
+                >
+                    <lib-tag-selector
+                            [(selectedRoleAttributes)]="selectedEdgeRouterRoleAttributes"
+                            [(selectedNamedAttributes)]="selectedEdgeRouterNamedAttributes"
+                            [availableRoleAttributes]="edgeRouterRoleAttributes"
+                            [availableNamedAttributes]="edgeRouterNamedAttributes"
+                            (selectedNamedAttributesChange)="svc.getAssociatedEdgeRoutersByAttribute(selectedEdgeRouterRoleAttributes, selectedEdgeRouterNamedAttributes)"
+                            (selectedRoleAttributesChange)="svc.getAssociatedEdgeRoutersByAttribute(selectedEdgeRouterRoleAttributes, selectedEdgeRouterNamedAttributes)"
+                            [placeholder]="'Select edge router attributes'"
+                    ></lib-tag-selector>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Select Identity Attributes'"
+                        [label]="'OPTIONAL'"
+                        [contentStyle]="'z-index: 100002'"
+                        [helpText]="'Choose which identities to associate to this policy by picking from the list of available attributes'"
+                >
+                    <lib-tag-selector
+                            [(selectedRoleAttributes)]="selectedIdentityRoleAttributes"
+                            [(selectedNamedAttributes)]="selectedIdentityNamedAttributes"
+                            [availableRoleAttributes]="identityRoleAttributes"
+                            [availableNamedAttributes]="identityNamedAttributes"
+                            (selectedNamedAttributesChange)="svc.getAssociatedIdentitiesByAttribute(selectedIdentityRoleAttributes, selectedIdentityNamedAttributes)"
+                            (selectedRoleAttributesChange)="svc.getAssociatedIdentitiesByAttribute(selectedIdentityRoleAttributes, selectedIdentityNamedAttributes)"
+                            [placeholder]="'Select identity attributes'"
+                    ></lib-tag-selector>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Semantic'"
+                        [layout]="'row'"
+                >
+                    <select
+                            [(ngModel)]="formData.semantic"
+                            id="PolicySemantic"
+                            class="form-field-dropdown"
+                    >
+                        <option value="AnyOf">AnyOf</option>
+                        <option value="AllOf">AllOf</option>
+                    </select>
+                </lib-form-field-container>
+            </div>
+            <div class="form-group-column two-fifths">
+                <lib-form-field-container
+                        [title]="'Associated Edge Routers'"
+                        [count]="svc.associatedEdgeRouterNames.length"
+                        [class]="'hide-overflow'"
+                        [helpText]="'Preview list of all Edge Routers that this Edge Router Policy is associated with.'"
+                >
+                    <lib-preview-list
+                            [clickable]="false"
+                            [isLoading]="edgeRoutersLoading"
+                            [allNames]="svc.associatedEdgeRouterNames"
+                    ></lib-preview-list>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Associated Identities'"
+                        [count]="svc.associatedIdentityNames.length"
+                        [helpText]="'Preview list of all Identities that this Edge Router Policy is associated with.'"
+                >
+                    <lib-preview-list
+                            [clickable]="false"
+                            [isLoading]="identitiesLoading"
+                            [allNames]="svc.associatedIdentityNames"
+                    ></lib-preview-list>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'API Calls'"
+                        [headerActions]="apiOptions"
+                        (actionRequested)="apiActionRequested($event)"
+                >
+                    <div class="form-row">
+                        <input class="form-field-input" [value]="apiCallURL"/>
+                        <div class="icon-copy copy" (click)="copyToClipboard(apiCallURL)"></div>
+                    </div>
+                    <lib-json-view *ngIf="formData" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
+                </lib-form-field-container>
+            </div>
+        </div>
+        <div class="form-group-column" *ngIf="formView === 'raw'">
+            <lib-json-view *ngIf="formData" [(data)]="formData"></lib-json-view>
+        </div>
+    </div>
+</div>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

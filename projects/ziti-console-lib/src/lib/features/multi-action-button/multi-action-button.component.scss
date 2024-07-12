@@ -1,0 +1,96 @@
+.multi-action-button-container {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    z-index: 999999;
+
+    .form-field-action {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 0;
+        height: 25px;
+
+        .primary-action-button {
+            padding-left: 10px;
+            padding-right: 10px;
+            border-right-style: solid;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            background: var(--primary);
+            color: var(--white);
+            cursor: pointer;
+            border-top-left-radius: 7px;
+            border-bottom-left-radius: 7px;
+            border-color: var(--stroke);
+            box-shadow: 0 3px 9px 0 var(--primaryColorOpaque);
+
+            &:hover {
+                outline: 0;
+                filter: brightness(90%);
+                box-shadow: 0 2px 3px 0 var(--primaryColorOpaque);
+            }
+            &:active {
+                background: #648293;
+                box-shadow: none;
+                transform: translateY(1px);
+            }
+        }
+        .secondary-action-button {
+            height: 100%;
+            width: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+            background: var(--primary);
+            color: var(--white);
+            cursor: pointer;
+            border-top-right-radius: 7px;
+            border-bottom-right-radius: 7px;
+            border-color: var(--stroke);
+            box-shadow: 0 3px 9px 0 var(--primaryColorOpaque);
+
+            &:hover {
+                outline: 0;
+                filter: brightness(90%);
+                box-shadow: 0 2px 3px 0 var(--primaryColorOpaque);
+            }
+            &:active {
+                background: #648293;
+                box-shadow: none;
+                transform: translateY(1px);
+            }
+            .secondary-actions-arrow {
+                transform: rotate(270deg);
+            }
+        }
+    }
+    .multi-action-button-dropdown {
+        position: absolute;
+        background: var(--background);
+        width: 100%;
+
+        ul {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+
+            li {
+                list-style-type: none;
+                padding: 5px;
+                padding-left: 10px;
+                cursor: pointer;
+
+                &:hover {
+                  background-color: var(--inputBorder);
+                }
+            }
+        }
+    }
+}
