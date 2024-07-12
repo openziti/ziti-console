@@ -15,7 +15,7 @@
         <span data-i18n="Dashboard"></span> 
     </div>
 </div>
-<div class="grid dashboard">
+<div id="DashHeader" class="grid dashboard">
     <div class="grid numbers">
         <div class="dial"></div>
         <a href="./identities">
@@ -55,8 +55,8 @@
             </div>
         </a>
     </div>
-    <div class="grid split wide">
-        <a href="./network-visualizer">
+    <div id="NavLinks" class="grid split wide">
+        <a id="NetVisualizer" href="./network-visualizer" style="display: none">
             <div class="iconLink">
                 <div class="network-visualizer"></div>
                 <div class="label" data-i18n="Network" ></div>
@@ -123,6 +123,7 @@
 
                 page.idsObject.init(true);
                 summary.get();
+                page.showVisualizer();
             }, 
             events: function() {
                 context.addListener(page.idsObject.name, page.idsLoaded);
@@ -163,6 +164,16 @@
                 $("#Host").val("localhost");
                 $("#Port").val("80");
                 $("#HowToPort").val("80");
+            },
+            showVisualizer: function(e) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const feature = urlParams.get('feature');
+                if (feature === 'visualizer') {
+                    $('#NetVisualizer').show();
+                    $('.grid.split.wide').addClass('exp');
+                    $('.grid.dashboard').addClass('exp');
+                    $('.grid.numbers').addClass('exp');
+                }
             }
         }
     </script>

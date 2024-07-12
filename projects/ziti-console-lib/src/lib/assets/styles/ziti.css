@@ -1078,7 +1078,7 @@ aside .icon {
 .downloads {
     background-image: url(../svgs/downloads.svg);
     background-size: contain;
-    width: 90%;
+    width: 100%;
     height: 56px;
     background-position: center;
 }
@@ -1098,7 +1098,7 @@ aside .icon {
 }
 
 .totalPod {
-    width: 80%;
+    width: 100%;
     height: 60px;
     color: var(--black);
     padding: 12px;
