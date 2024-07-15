@@ -36,14 +36,14 @@
                     JSON
                 </span>
             </div>
-            <div class="more-actions-container" *ngIf="hasMoreActions" (click)="showMoreActions()" (clickOutside)="closeActionsMoreActions()">
+            <div class="more-actions-container" [ngClass]="{'more-actions-open': showActionsDropDown}"  *ngIf="hasMoreActions" (click)="showMoreActions()">
                 <div class="more-actions-button">
                     <div class="more-actions-label">
                         <div class="more-actions-text">{{moreActionsText}}</div>
                         <div class="more-actions-arrow"></div>
                     </div>
                 </div>
-                <div class="more-actions-list" *ngIf="showActionsDropDown">
+                <div class="more-actions-list" *ngIf="showActionsDropDown" (clickOutside)="closeActionsMoreActions()">
                     <div
                         *ngFor="let action of moreActions"
                         class="more-actions-item"

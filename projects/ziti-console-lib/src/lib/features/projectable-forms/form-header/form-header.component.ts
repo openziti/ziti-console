@@ -15,7 +15,7 @@
 */
 
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {isFunction} from 'lodash';
+import {isFunction, defer} from 'lodash';
 
 @Component({
   selector: 'lib-form-header',
@@ -66,10 +66,14 @@ export class FormHeaderComponent {
   }
 
   showMoreActions() {
-    this.showActionsDropDown = true;
+    defer(() => {
+      this.showActionsDropDown = true;
+    });
   }
 
   closeActionsMoreActions() {
-    this.showActionsDropDown = false;
+    defer(() => {
+      this.showActionsDropDown = false;
+    });
   }
 }

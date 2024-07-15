@@ -2062,6 +2062,20 @@ path.green {
     padding-left: 10px;
     padding-right: 10px;
     background-color: var(--primary);
+    color: transparent;
+    position: absolute;
+    float: left;
+    line-height: 30px;
+    border-radius: 7px;
+    margin-left: 2px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    transition: var(--transition);
+}
+
+.tag-name {
+    padding-left: 10px;
+    padding-right: 10px;
     color: #FFF;
     position: relative;
     float: left;
@@ -2075,6 +2089,8 @@ path.green {
 
 .attag {
     background-color: var(--secondary);
+    filter: brightness(90%);
+    position: absolute;
 }
 
 .tagButton {

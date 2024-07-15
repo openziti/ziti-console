@@ -4,18 +4,18 @@
 >
     <lib-form-header
             [data]="formData"
-            [title]="formData.id ? 'Edit Service Policy: ' : 'Create New Service Policy'"
+            [title]="formData.id ? 'Edit Edge Router Policy: ' : 'Create New Edge Router Policy'"
             [moreActions]="moreActions"
             (actionRequested)="headerActionRequested($event)"
             [(formView)]="formView"
     ></lib-form-header>
-    <div class="service-policy-form-container projectable-form-container">
+    <div class="edge-router-policy-form-container projectable-form-container">
         <div class="projectable-form-main-column form-group-row" *ngIf="formView === 'simple'">
             <div class="form-group-column three-fifths">
-                <lib-form-field-container [title]="'Service Policy Name'" [label]="'REQUIRED'">
+                <lib-form-field-container [title]="'Edge Router Policy Name'" [label]="'REQUIRED'">
                     <input
                             class="form-field-input"
-                            placeholder="Name this edge service policy"
+                            placeholder="Name this edge edge router policy"
                             [ngClass]="{error: errors['name']}"
                             [(ngModel)]="formData.name"
                             autofocus
@@ -23,19 +23,19 @@
                     />
                 </lib-form-field-container>
                 <lib-form-field-container
-                        [title]="'Select Service Attributes'"
+                        [title]="'Select Edge Router Attributes'"
                         [label]="'OPTIONAL'"
                         [contentStyle]="'z-index: 100003'"
-                        [helpText]="'Choose which services to associate to this policy by picking from the list of available attributes'"
+                        [helpText]="'Choose which edge router to associate to this policy by picking from the list of available attributes'"
                 >
                     <lib-tag-selector
-                            [(selectedRoleAttributes)]="selectedServiceRoleAttributes"
-                            [(selectedNamedAttributes)]="selectedServiceNamedAttributes"
-                            [availableRoleAttributes]="serviceRoleAttributes"
-                            [availableNamedAttributes]="serviceNamedAttributes"
-                            (selectedNamedAttributesChange)="svc.getAssociatedServicesByAttribute(selectedServiceRoleAttributes, selectedServiceNamedAttributes)"
-                            (selectedRoleAttributesChange)="svc.getAssociatedServicesByAttribute(selectedServiceRoleAttributes, selectedServiceNamedAttributes)"
-                            [placeholder]="'Select service attributes'"
+                            [(selectedRoleAttributes)]="selectedEdgeRouterRoleAttributes"
+                            [(selectedNamedAttributes)]="selectedEdgeRouterNamedAttributes"
+                            [availableRoleAttributes]="edgeRouterRoleAttributes"
+                            [availableNamedAttributes]="edgeRouterNamedAttributes"
+                            (selectedNamedAttributesChange)="svc.getAssociatedEdgeRoutersByAttribute(selectedEdgeRouterRoleAttributes, selectedEdgeRouterNamedAttributes)"
+                            (selectedRoleAttributesChange)="svc.getAssociatedEdgeRoutersByAttribute(selectedEdgeRouterRoleAttributes, selectedEdgeRouterNamedAttributes)"
+                            [placeholder]="'Select edge router attributes'"
                     ></lib-tag-selector>
                 </lib-form-field-container>
                 <lib-form-field-container
@@ -55,34 +55,9 @@
                     ></lib-tag-selector>
                 </lib-form-field-container>
                 <lib-form-field-container
-                        [title]="'Select Posture Check Attributes'"
-                        [label]="'OPTIONAL'"
-                        [contentStyle]="'z-index: 100001'"
-                        [helpText]="'Choose which posture checks to associate to this policy by picking from the list of available attributes'"
-                >
-                    <lib-tag-selector
-                            [(selectedRoleAttributes)]="selectedPostureRoleAttributes"
-                            [(selectedNamedAttributes)]="selectedPostureNamedAttributes"
-                            [(selectedRoleAttributes)]="postureRoleAttributes"
-                            [availableNamedAttributes]="postureNamedAttributes"
-                            (selectedNamedAttributesChange)="svc.getAssociatedPostureChecksByAttribute(selectedPostureRoleAttributes, selectedPostureNamedAttributes)"
-                            (selectedRoleAttributesChange)="svc.getAssociatedPostureChecksByAttribute(selectedPostureRoleAttributes, selectedPostureNamedAttributes)"
-                            [placeholder]="'Select posture check attributes'"
-                    ></lib-tag-selector>
-                </lib-form-field-container>
-                <lib-form-field-container
-                        [title]="'Type'"
-                        [title2]="'Semantic'"
+                        [title]="'Semantic'"
                         [layout]="'row'"
                 >
-                    <select
-                            [(ngModel)]="formData.type"
-                            id="PolicyType"
-                            class="form-field-dropdown"
-                    >
-                        <option value="Bind">Bind</option>
-                        <option value="Dial">Dial</option>
-                    </select>
                     <select
                             [(ngModel)]="formData.semantic"
                             id="PolicySemantic"
@@ -95,37 +70,26 @@
             </div>
             <div class="form-group-column two-fifths">
                 <lib-form-field-container
-                        [title]="'Associated Services'"
-                        [count]="svc.associatedServiceNames.length"
+                        [title]="'Associated Edge Routers'"
+                        [count]="svc.associatedEdgeRouterNames.length"
                         [class]="'hide-overflow'"
-                        [helpText]="'Preview list of all services that this Service Policy is associated with.'"
+                        [helpText]="'Preview list of all Edge Routers that this Edge Router Policy is associated with.'"
                 >
                     <lib-preview-list
                             [clickable]="false"
-                            [isLoading]="servicesLoading"
-                            [allNames]="svc.associatedServiceNames"
+                            [isLoading]="edgeRoutersLoading"
+                            [allNames]="svc.associatedEdgeRouterNames"
                     ></lib-preview-list>
                 </lib-form-field-container>
                 <lib-form-field-container
                         [title]="'Associated Identities'"
                         [count]="svc.associatedIdentityNames.length"
-                        [helpText]="'Preview list of all Identities that this Service Policy is associated with.'"
+                        [helpText]="'Preview list of all Identities that this Edge Router Policy is associated with.'"
                 >
                     <lib-preview-list
                             [clickable]="false"
                             [isLoading]="identitiesLoading"
                             [allNames]="svc.associatedIdentityNames"
-                    ></lib-preview-list>
-                </lib-form-field-container>
-                <lib-form-field-container
-                        [title]="'Associated Posture Checks'"
-                        [count]="svc.associatedPostureCheckNames.length"
-                        [helpText]="'Preview list of all Posture Checks that this Service Policy is associated with.'"
-                >
-                    <lib-preview-list
-                            [clickable]="false"
-                            [isLoading]="postureChecksLoading"
-                            [allNames]="svc.associatedPostureCheckNames"
                     ></lib-preview-list>
                 </lib-form-field-container>
                 <lib-form-field-container

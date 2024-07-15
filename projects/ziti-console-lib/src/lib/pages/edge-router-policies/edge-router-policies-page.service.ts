@@ -26,7 +26,7 @@ import {CallbackResults} from "../../features/list-page-features/list-page-form/
 import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service";
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../services/ziti-data.service";
 import {CsvDownloadService} from "../../services/csv-download.service";
-import {Service} from "../../models/service";
+import {EdgeRouterPolicy} from "../../models/edge-router-policy";
 import {unset} from "lodash";
 import {GrowlerModel} from "../../features/messaging/growler.model";
 import {GrowlerService} from "../../features/messaging/growler.service";
@@ -48,7 +48,7 @@ export class EdgeRouterPoliciesPageService extends ListPageServiceClass {
     public modalType = 'edge-router-policy';
 
     serviceType = '';
-    selectedServicePolicy: any = new Service();
+    selectedEdgeRouterPolicy: any = new EdgeRouterPolicy();
 
     routerRoleAttributes = [];
     routerNamedAttributes = [];
@@ -433,11 +433,11 @@ export class EdgeRouterPoliciesPageService extends ListPageServiceClass {
     public openUpdate(item?: any) {
         this.modalType = 'edge-router-policies';
         if (item) {
-            this.selectedServicePolicy = item;
-            this.selectedServicePolicy.badges = [];
-            unset(this.selectedServicePolicy, '_links');
+            this.selectedEdgeRouterPolicy = item;
+            this.selectedEdgeRouterPolicy.badges = [];
+            unset(this.selectedEdgeRouterPolicy, '_links');
         } else {
-            this.selectedServicePolicy = new Service();
+            this.selectedEdgeRouterPolicy = new EdgeRouterPolicy();
         }
         this.sideModalOpen = true;
     }

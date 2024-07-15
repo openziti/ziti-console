@@ -17,22 +17,22 @@
                     (gridReady)="gridReady($event)"
     >
     </lib-data-table>
-
-    <lib-side-modal [(open)]="svc.sideModalOpen" [showClose]="false">
-        <lib-service-policy-form
-                *ngIf="svc.sideModalOpen"
-                [formData]="svc.selectedServicePolicy"
-                [serviceRoleAttributes]="svc.serviceRoleAttributes"
-                [serviceNamedAttributes]="svc.serviceNamedAttributes"
-                [serviceNamedAttributesMap]="svc.serviceNamedAttributesMap"
-                [identityRoleAttributes]="svc.identityRoleAttributes"
-                [identityNamedAttributes]="svc.identityNamedAttributes"
-                [identityNamedAttributesMap]="svc.identityNamedAttributesMap"
-                [postureRoleAttributes]="svc.postureRoleAttributes"
-                [postureNamedAttributes]="svc.postureNamedAttributes"
-                [postureNamedAttributesMap]="svc.postureNamedAttributesMap"
-                (close)="closeModal($event)"
-                (dataChange)="dataChanged($event)">
-        </lib-service-policy-form>
-    </lib-side-modal>
 </div>
+<lib-side-modal [(open)]="svc.sideModalOpen" [showClose]="false">
+    <lib-service-policy-form
+            *ngIf="svc.sideModalOpen"
+            [formData]="svc.selectedServicePolicy"
+            [serviceRoleAttributes]="svc.serviceRoleAttributes"
+            [serviceNamedAttributes]="svc.serviceNamedAttributes"
+            [serviceNamedAttributesMap]="svc.serviceNamedAttributesMap"
+            [identityRoleAttributes]="svc.identityRoleAttributes"
+            [identityNamedAttributes]="svc.identityNamedAttributes"
+            [identityNamedAttributesMap]="svc.identityNamedAttributesMap"
+            [postureRoleAttributes]="svc.postureRoleAttributes"
+            [postureNamedAttributes]="svc.postureNamedAttributes"
+            [postureNamedAttributesMap]="svc.postureNamedAttributesMap"
+            (close)="closeModal($event)"
+            (dataChange)="dataChanged($event)">
+    </lib-service-policy-form>
+</lib-side-modal>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

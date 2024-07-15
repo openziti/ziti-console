@@ -1,0 +1,17 @@
+<div class="multi-action-button-container">
+    <div class="form-field-action"
+         *ngIf="actions"
+         (clickOutside)="closeMoreActionsMenu()"
+    >
+        <div class="primary-action-button" (click)="actionClicked(actions[0])">{{actions[0].label}}</div>
+        <div class="secondary-action-button"
+             *ngIf="actions.length > 1"
+             (click)="showMoreActionsMenu()"
+        ><div class="secondary-actions-arrow icon-prev"></div></div>
+    </div>
+    <div class="multi-action-button-dropdown" *ngIf="showMoreActions">
+        <ul>
+            <li *ngFor="let action of actions" class="confirm-item-name" (click)="actionClicked(action)">{{action.label}}</li>
+        </ul>
+    </div>
+</div>
