@@ -1082,7 +1082,13 @@ aside .icon {
     height: 56px;
     background-position: center;
 }
-
+.network-visualizer {
+    background-image: url(../svgs/v8visualizer.svg);
+    background-size: contain;
+    width: 50px;
+    height: 50px;
+    background-position: center;
+}
 .dial {
     background-image: url(../svgs/dial.svg);
     background-size: contain;
@@ -1109,13 +1115,18 @@ aside .icon {
     border-width: 3px;
     border-style: solid;
     border-color: var(--white);
-    background-color: rgba(255,255,255,0.6);
+    background-color: rgba(255, 255, 255, 0.6);
     padding: 13px;
     border-radius: 12px;
     z-index: 10;
     box-shadow: var(--shadowLarge);
     transition: var(--transition);
     cursor: pointer;
+    height: 110px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .iconLink:hover {
@@ -2051,6 +2062,20 @@ path.green {
     padding-left: 10px;
     padding-right: 10px;
     background-color: var(--primary);
+    color: transparent;
+    position: absolute;
+    float: left;
+    line-height: 30px;
+    border-radius: 7px;
+    margin-left: 2px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    transition: var(--transition);
+}
+
+.tag-name {
+    padding-left: 10px;
+    padding-right: 10px;
     color: #FFF;
     position: relative;
     float: left;
@@ -2064,6 +2089,8 @@ path.green {
 
 .attag {
     background-color: var(--secondary);
+    filter: brightness(90%);
+    position: absolute;
 }
 
 .tagButton {

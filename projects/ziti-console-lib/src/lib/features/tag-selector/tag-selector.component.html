@@ -57,15 +57,22 @@
                         (click)="$event.stopPropagation()"
                         *ngFor="let item of _selectedNamedAttributes"
                         [hidden]="item === this.hideOption"
-                        class="attag select2-selection__choice"
-                        title="@{{ item }}"
                     >
-                        <span
-                            (click)="removeNamedAttribute(item); $event.stopPropagation()"
-                            class="select2-selection__choice__remove"
-                            role="presentation"
-                        >×</span
-                        ><span class="select2-selection__choice__text">@{{ item }}</span>
+                        <div class="attag select2-selection__choice" title="@{{ item }}">
+                            <span
+                                    class="select2-selection__choice__remove"
+                                    role="presentation"
+                            >×</span
+                            ><span class="select2-selection__choice__text">@{{ item }}</span>
+                        </div>
+                        <div class="tag-name select2-selection__choice" title="@{{ item }}">
+                            <span
+                                    (click)="removeNamedAttribute(item); $event.stopPropagation()"
+                                    class="select2-selection__choice__remove"
+                                    role="presentation"
+                            >×</span
+                            ><span class="select2-selection__choice__text">@{{ item }}</span>
+                        </div>
                     </li>
                 </ul>
             </span>
@@ -115,10 +122,13 @@
                     *ngFor="let option of displayedNamedOptions"
                     [hidden]="option === this.hideOption || isSelected(option)"
                     aria-selected="false"
-                    class="attag select2-results__option"
-                    role="treeitem"
                 >
-                    @{{ option }}
+                    <div class="attag select2-results__option" title="@{{ option }}" role="treeitem">
+                        @{{ option }}
+                    </div>
+                    <div class="tag-name select2-results__option" title="@{{ option }}" role="treeitem">
+                        @{{ option }}
+                    </div>
                 </li>
             </ul>
         </span>

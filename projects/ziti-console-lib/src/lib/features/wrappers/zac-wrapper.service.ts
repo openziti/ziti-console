@@ -240,6 +240,11 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                 this.page = 'sessions';
                 route = this.URLS.ZITI_SESSIONS;
                 break;
+            case '/network-visualizer':
+            case 'network-visualizer':
+                 this.page = 'network-visualizer';
+                 route = this.URLS.NETWORK_VISUALIZER;
+                 break;
             case '/api-sessions':
             case 'api-sessions':
                 this.page = 'api-sessions';

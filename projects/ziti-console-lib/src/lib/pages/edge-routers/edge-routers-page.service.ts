@@ -189,7 +189,7 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
                 cellClass: 'nf-cell-vert-align tCol',
             },
             {
-                colId: 'roles',
+                colId: 'roleAttributes',
                 field: 'roleAttributes',
                 headerName: 'Roles',
                 headerComponent: TableColumnDefaultComponent,
@@ -200,7 +200,7 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
                     this.openUpdate(data.data);
                 },
                 resizable: true,
-                cellRenderer: rolesRenderer,
+                cellRenderer: this.rolesRenderer,
                 cellClass: 'nf-cell-vert-align tCol',
                 sortable: false,
                 filter: false,

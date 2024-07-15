@@ -347,5 +347,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }

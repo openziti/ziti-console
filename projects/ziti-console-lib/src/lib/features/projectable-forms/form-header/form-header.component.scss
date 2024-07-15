@@ -175,6 +175,7 @@
       background-size: 20px 10px;
       width: 20px;
       height: 10px;
+      transition: 0.3s;
     }
 
     .more-actions-text {
@@ -204,6 +205,12 @@
     cursor: pointer;
     &:hover {
       background-color: var(--inputBorder);
+    }
+  }
+
+  &.more-actions-open {
+    .more-actions-arrow {
+      transform: rotate(180deg);
     }
   }
 }

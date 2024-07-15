@@ -26,6 +26,7 @@ import {
   EdgeRoutersPageComponent,
   ServicesPageComponent,
   ServicePoliciesPageComponent,
+  NetworkVisualizerComponent,
   EdgeRouterPoliciesPageComponent
 } from "ziti-console-lib";
 import {environment} from "./environments/environment";
@@ -171,6 +172,12 @@ const routes: Routes = [
   {
     path: 'servers',
     component: ZacWrapperComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'network-visualizer',
+    component: NetworkVisualizerComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
   },

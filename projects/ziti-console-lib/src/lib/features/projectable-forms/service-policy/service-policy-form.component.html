@@ -130,7 +130,8 @@
                 </lib-form-field-container>
                 <lib-form-field-container
                         [title]="'API Calls'"
-                        [label]="'OPTIONAL'"
+                        [headerActions]="apiOptions"
+                        (actionRequested)="apiActionRequested($event)"
                 >
                     <div class="form-row">
                         <input class="form-field-input" [value]="apiCallURL"/>

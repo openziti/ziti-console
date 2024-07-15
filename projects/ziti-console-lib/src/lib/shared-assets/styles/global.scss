@@ -888,3 +888,20 @@ lib-tag-selector {
     }
   }
 }
+
+.attag,
+.hashtag {
+  .tag-name {
+    padding-left: 10px;
+    padding-right: 10px;
+    color: #FFF;
+    position: relative;
+    float: left;
+    line-height: 30px;
+    border-radius: 7px;
+    margin-left: 2px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    transition: var(--transition);
+  }
+}

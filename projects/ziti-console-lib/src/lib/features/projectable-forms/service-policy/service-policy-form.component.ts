@@ -214,6 +214,61 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
     return isEmpty(this.errors);
   }
 
+  apiActionRequested(action) {
+    switch (action.id) {
+      case 'cli':
+        this.copyCLICommand();
+        break;
+      case 'curl':
+        this.copyCURLCommand();
+        break;
+    }
+  }
+
+  copyCLICommand() {
+    const serviceRoles = this.svc.getSelectedRoles(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.serviceNamedAttributesMap);
+    const serviceRolesVar = this.getRolesCLIVariable(serviceRoles);
+
+    const identityRoles = this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.identityNamedAttributesMap);
+    const identityRolesVar = this.getRolesCLIVariable(identityRoles);
+
+    const pcRoles = this.svc.getSelectedRoles(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes, this.postureNamedAttributesMap);
+    const pcRolesVar = this.getRolesCLIVariable(pcRoles);
+
+    const command = `ziti edge ${this.formData.id ? 'update' : 'create'} service-policy ${this.formData.id ? `'${this.formData.id}'` : ''} ${this.formData.id ? '--name' : ''} '${this.formData.name}' ${this.formData.id ? '' : this.formData.type}${this.formData.id ? '' : ` --semantic '${this.formData.semantic}'`} --service-roles '${serviceRolesVar}' --identity-roles '${identityRolesVar}' --posture-check-roles '${pcRolesVar}'`;
+
+    navigator.clipboard.writeText(command);
+    const growlerData = new GrowlerModel(
+        'success',
+        'Success',
+        `Text Copied`,
+        `CLI command copied to clipboard`,
+    );
+    this.growlerService.show(growlerData);
+  }
+
+  copyCURLCommand() {
+    const serviceRoles = this.svc.getSelectedRoles(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.serviceNamedAttributesMap);
+    const serviceRolesVar = this.getRolesCURLVariable(serviceRoles);
+
+    const identityRoles = this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.identityNamedAttributesMap);
+    const identityRolesVar = this.getRolesCURLVariable(identityRoles);
+
+    const pcRoles = this.svc.getSelectedRoles(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes, this.postureNamedAttributesMap);
+    const pcRolesVar = this.getRolesCURLVariable(pcRoles);
+
+    const command = `curl '${this.apiCallURL}' \\ ${this.formData.id ? '--request PATCH \\' : '\\'} -H 'accept: application/json' \\ -H 'content-type: application/json' \\ -H 'zt-session: ${this.settings.session.id}' \\ --data-raw '{"name":"${this.formData.name}","serviceRoles":${serviceRolesVar},"identityRoles":${identityRolesVar},"postureCheckRoles":${pcRolesVar},"semantic":"${this.formData.semantic}","type":"${this.formData.type}"}'`;
+
+    navigator.clipboard.writeText(command);
+    const growlerData = new GrowlerModel(
+        'success',
+        'Success',
+        `Text Copied`,
+        `CURL command copied to clipboard`,
+    );
+    this.growlerService.show(growlerData);
+  }
+
   get apiCallURL() {
     return this.settings.selectedEdgeController + '/edge/management/v1/service-policies' + (this.formData.id ? `/${this.formData.id}` : '');
   }
