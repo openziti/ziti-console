@@ -66,8 +66,8 @@ export abstract class ListPageServiceClass {
 
     nameColumnRenderer = (row) => {
         return `<div class="col cell-name-renderer" data-id="${row?.data?.id}">
-                <strong>${row?.data?.name}</strong>
-              </div>`
+                    <strong>${row?.data?.name}</strong>
+                </div>`
     }
 
     rolesRenderer = (row) => {
@@ -76,12 +76,18 @@ export abstract class ListPageServiceClass {
         if (row?.data?.[colId + 'Display']) {
             row?.data?.[colId + 'Display'].forEach((attr) => {
                 const className = attr?.name?.indexOf('@') === 0 ? 'attag' : 'hashtag';
-                roles += `<div class="${className}">${attr.name}</div>`;
+                roles += `<div>
+                            <div class="${className}">${attr.name}</div>
+                            <div class="tag-name">${attr.name}</div>
+                          </div>`;
             });
         } else {
             row?.data?.[colId]?.forEach((attr) => {
                 const className = attr.indexOf('@') === 0 ? 'attag' : 'hashtag';
-                roles += `<div class="${className}">${attr}</div>`;
+                roles += `<div>
+                            <div class="${className}">${attr}</div>
+                            <div class="tag-name">${attr}</div>
+                          </div>`;
             });
         }
         return roles;

@@ -31,6 +31,11 @@
     .select2-selection__choice {
       &.attag {
         background-color: var(--secondary);
+        color: transparent;
+        position: absolute;
+      }
+      &.tag-name {
+        background-color: transparent;
       }
     }
   }
@@ -38,6 +43,7 @@
 
 .select2-results__option,
 .select2-selection__choice {
+  &.tag-name,
   &.attag,
   &.hashtag {
     margin-bottom: 0px;
@@ -46,8 +52,6 @@
     font-weight: 600;
     line-height: unset;
     padding: 5px 10px;
-    color: var(--white);
-    position: relative;
     float: left;
     border-radius: 7px;
     margin-left: 2px;
@@ -55,9 +59,18 @@
   }
   &.hashtag {
     background-color: var(--primary);
+    position: relative;
+    color: var(--white);
   }
   &.attag {
     background-color: var(--secondary);
+    color: transparent;
+    position: absolute;
+  }
+  &.tag-name {
+    background-color: transparent;
+    position: relative;
+    color: var(--white);
   }
 }
 

@@ -47,6 +47,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     hideTags = false;
     initData: any = {};
     _dataChange = false;
+    apiOptions = [{id: 'cli', label: 'Copy as CLI'}, {id: 'curl', label: 'Copy as CURL'}];
 
     checkDataChangeDebounced = debounce(this.checkDataChange, 100, {maxWait: 100});
 
@@ -177,5 +178,28 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
             `API call URL copied to clipboard`,
         );
         this.growlerService.show(growlerData);
+    }
+
+    getRolesCLIVariable(selectedRoles) {
+        let rolesVar = '';
+        selectedRoles.forEach((role, index)=> {
+            if (index > 0) {
+                rolesVar += ',';
+            }
+            rolesVar += role;
+        });
+        return rolesVar;
+    }
+
+    getRolesCURLVariable(selectedRoles) {
+        let rolesVar = '';
+        selectedRoles.forEach((role, index)=> {
+            if (index > 0) {
+                rolesVar += ', ';
+            }
+            rolesVar += `"${role}"`;
+        });
+        rolesVar = `[${rolesVar}]`;
+        return rolesVar;
     }
 }

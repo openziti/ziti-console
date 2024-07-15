@@ -35,11 +35,12 @@ export class FormFieldContainerComponent {
   @Input() class = '';
   @Input() contentStyle: any = '';
   @Input() showHeader: any = true;
+  @Input() headerActions: any[];
 
   @Output() actionRequested: EventEmitter<any> = new EventEmitter<any>();
   constructor() {}
 
-  actionClicked() {
-    this.actionRequested.emit({action: this.action});
+  actionClicked(action) {
+    this.actionRequested.emit(action);
   }
 }

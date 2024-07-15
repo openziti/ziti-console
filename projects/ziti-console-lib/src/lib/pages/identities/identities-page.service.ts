@@ -194,7 +194,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 width: 300,
             },
             {
-                colId: 'roles',
+                colId: 'roleAttributes',
                 field: 'roleAttributes',
                 headerName: 'Roles',
                 headerComponent: TableColumnDefaultComponent,

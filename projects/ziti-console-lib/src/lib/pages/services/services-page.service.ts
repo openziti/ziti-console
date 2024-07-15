@@ -115,7 +115,7 @@ export class ServicesPageService extends ListPageServiceClass {
                 width: 300,
             },
             {
-                colId: 'roles',
+                colId: 'roleAttributes',
                 field: 'roleAttributes',
                 headerName: 'Roles',
                 headerComponent: TableColumnDefaultComponent,
@@ -127,7 +127,7 @@ export class ServicesPageService extends ListPageServiceClass {
                     this.openUpdate(data.data);
                 },
                 resizable: true,
-                cellRenderer: rolesRenderer,
+                cellRenderer: this.rolesRenderer,
                 cellClass: 'nf-cell-vert-align tCol',
                 sortable: false,
                 filter: false,

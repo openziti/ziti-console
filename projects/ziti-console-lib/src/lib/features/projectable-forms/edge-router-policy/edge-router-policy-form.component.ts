@@ -17,16 +17,16 @@ import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.serv
 import {isEmpty, cloneDeep, invert} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
-import {ServicePolicyFormService, SERVICE_POLICY_EXTENSION_SERVICE} from './service-policy-form.service';
+import {EdgeRouterPolicyFormService, EDGE_ROUTER_POLICY_EXTENSION_SERVICE} from './edge-router-policy-form.service';
 import {MatDialogRef} from "@angular/material/dialog";
 import {ExtensionService} from "../../extendable/extensions-noop.service";
-import {ServicePolicy} from "../../../models/service-policy";
 import {GrowlerModel} from "../../messaging/growler.model";
+import {EdgeRouterPolicy} from "../../../models/edge-router-policy";
 
 @Component({
-  selector: 'lib-service-policy-form',
-  templateUrl: './service-policy-form.component.html',
-  styleUrls: ['./service-policy-form.component.scss'],
+  selector: 'lib-edge-router-policy-form',
+  templateUrl: './edge-router-policy-form.component.html',
+  styleUrls: ['./edge-router-policy-form.component.scss'],
   providers: [
     {
       provide: MatDialogRef,
@@ -34,30 +34,25 @@ import {GrowlerModel} from "../../messaging/growler.model";
     }
   ]
 })
-export class ServicePolicyFormComponent extends ProjectableForm implements OnInit, OnChanges, OnDestroy, AfterViewInit {
-  @Input() formData: ServicePolicy | any = {};
-  @Input() serviceRoleAttributes: any[] = [];
-  @Input() serviceNamedAttributes: any[] = [];
-  @Input() serviceNamedAttributesMap = {};
+export class EdgeRouterPolicyFormComponent extends ProjectableForm implements OnInit, OnChanges, OnDestroy, AfterViewInit {
+  @Input() formData: EdgeRouterPolicy | any = {};
+  @Input() edgeRouterRoleAttributes: any[] = [];
+  @Input() edgeRouterNamedAttributes: any[] = [];
+  @Input() edgeRouterNamedAttributesMap = {};
   @Input() identityRoleAttributes: any[] = [];
   @Input() identityNamedAttributes: any[] = [];
   @Input() identityNamedAttributesMap = {};
-  @Input() postureRoleAttributes: any[] = [];
-  @Input() postureNamedAttributes: any[] = [];
-  @Input() postureNamedAttributesMap = {};
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
-  selectedServiceRoleAttributes = [];
-  selectedServiceNamedAttributes = [];
+  selectedEdgeRouterRoleAttributes = [];
+  selectedEdgeRouterNamedAttributes = [];
   selectedIdentityRoleAttributes = [];
   selectedIdentityNamedAttributes = [];
-  selectedPostureRoleAttributes = [];
-  selectedPostureNamedAttributes = [];
 
   formView = 'simple';
   isEditing = false;
   isLoading = false;
-  servicesLoading = false;
+  edgeRoutersLoading = false;
   identitiesLoading = false;
   postureChecksLoading = false;
 
@@ -67,10 +62,10 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
 
   constructor(
       @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
-      public svc: ServicePolicyFormService,
+      public svc: EdgeRouterPolicyFormService,
       @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
       growlerService: GrowlerService,
-      @Inject(SERVICE_POLICY_EXTENSION_SERVICE) extService: ExtensionService
+      @Inject(EDGE_ROUTER_POLICY_EXTENSION_SERVICE) extService: ExtensionService
   ) {
     super(growlerService, extService);
   }
@@ -82,7 +77,7 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
         })
     );
     if (isEmpty(this.formData.id)) {
-      this.formData = new ServicePolicy();
+      this.formData = new EdgeRouterPolicy();
     }
     this.initData = cloneDeep(this.formData);
     this.initSelectedAttributes();
@@ -95,7 +90,7 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
           this.formData = data;
         })
     );
-    this.svc.serviceNamedAttributesMap = this.serviceNamedAttributesMap;
+    this.svc.edgeRouterNamedAttributesMap = this.edgeRouterNamedAttributesMap;
     this.svc.identityNamedAttributesMap = this.identityNamedAttributesMap;
     this.initData = cloneDeep(this.formData);
   }
@@ -111,28 +106,23 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
 
   initSelectedAttributes() {
     if (isEmpty(this.formData.id)) {
-      this.svc.associatedServices = [];
-      this.svc.associatedServiceNames = [];
+      this.svc.associatedEdgeRouters = [];
+      this.svc.associatedEdgeRouterNames = [];
       this.svc.associatedIdentities = [];
       this.svc.associatedIdentityNames = [];
-      this.svc.associatedPostureChecks = [];
-      this.svc.associatedPostureCheckNames = [];
       return;
     }
-    const serviceIdAttributesMap = invert(this.serviceNamedAttributesMap);
+    const edgeRouterIdAttributesMap = invert(this.edgeRouterNamedAttributesMap);
     const identityIdAttributesMap = invert(this.identityNamedAttributesMap);
-    const postureIdAttributesMap = invert(this.postureNamedAttributesMap);
-    this.selectedServiceRoleAttributes = [];
-    this.selectedServiceNamedAttributes = [];
+    this.selectedEdgeRouterRoleAttributes = [];
+    this.selectedEdgeRouterNamedAttributes = [];
     this.selectedIdentityRoleAttributes = [];
     this.selectedIdentityNamedAttributes = [];
-    this.selectedPostureRoleAttributes = [];
-    this.selectedPostureNamedAttributes = [];
-    this.formData.serviceRoles?.forEach(attr => {
+    this.formData.edgeRouterRoles?.forEach(attr => {
       if (attr.indexOf('@') === 0) {
-        this.selectedServiceNamedAttributes.push(serviceIdAttributesMap[attr.substring(1)]);
+        this.selectedEdgeRouterNamedAttributes.push(edgeRouterIdAttributesMap[attr.substring(1)]);
       } else {
-        this.selectedServiceRoleAttributes.push(attr.substring(1));
+        this.selectedEdgeRouterRoleAttributes.push(attr.substring(1));
       }
     });
     this.formData.identityRoles?.forEach(attr => {
@@ -142,16 +132,9 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
         this.selectedIdentityRoleAttributes.push(attr.substring(1));
       }
     });
-    this.formData.postureCheckRoles?.forEach(attr => {
-      if (attr.indexOf('@') === 0) {
-        this.selectedPostureNamedAttributes.push(postureIdAttributesMap[attr.substring(1)]);
-      } else {
-        this.selectedPostureRoleAttributes.push(attr.substring(1));
-      }
-    });
-    this.svc.getAssociatedServicesByAttribute(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes);
+
+    this.svc.getAssociatedEdgeRoutersByAttribute(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes);
     this.svc.getAssociatedIdentitiesByAttribute(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes);
-    this.svc.getAssociatedPostureChecksByAttribute(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes);
   }
 
   headerActionRequested(action) {
@@ -176,7 +159,7 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
           'error',
           'Error',
           `Data Invalid`,
-          `Service Policy data is invalid. Please update the highlighted fields and try again.`,
+          `Edge Router Policy data is invalid. Please update the highlighted fields and try again.`,
       );
       this.growlerService.show(growlerData);
       return;
@@ -201,9 +184,8 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
   }
 
   applySelectedAttributes() {
-    this.formData.serviceRoles = this.svc.getSelectedRoles(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.serviceNamedAttributesMap);
+    this.formData.edgeRouterRoles = this.svc.getSelectedRoles(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes, this.edgeRouterNamedAttributesMap);
     this.formData.identityRoles = this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.identityNamedAttributesMap);
-    this.formData.postureCheckRoles = this.svc.getSelectedRoles(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes, this.postureNamedAttributesMap);
   }
 
   validate() {
@@ -226,16 +208,13 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
   }
 
   copyCLICommand() {
-    const serviceRoles = this.svc.getSelectedRoles(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.serviceNamedAttributesMap);
-    const serviceRolesVar = this.getRolesCLIVariable(serviceRoles);
+    const erRoles = this.svc.getSelectedRoles(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes, this.edgeRouterNamedAttributesMap);
+    let erRolesVar = this.getRolesCLIVariable(erRoles);
 
     const identityRoles = this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.identityNamedAttributesMap);
-    const identityRolesVar = this.getRolesCLIVariable(identityRoles);
+    let identityRolesVar = this.getRolesCLIVariable(identityRoles);
 
-    const pcRoles = this.svc.getSelectedRoles(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes, this.postureNamedAttributesMap);
-    const pcRolesVar = this.getRolesCLIVariable(pcRoles);
-
-    const command = `ziti edge ${this.formData.id ? 'update' : 'create'} service-policy ${this.formData.id ? `'${this.formData.id}'` : ''} ${this.formData.id ? '--name' : ''} '${this.formData.name}' ${this.formData.id ? '' : this.formData.type}${this.formData.id ? '' : ` --semantic '${this.formData.semantic}'`} --service-roles '${serviceRolesVar}' --identity-roles '${identityRolesVar}' --posture-check-roles '${pcRolesVar}'`;
+    const command = `ziti edge ${this.formData.id ? 'update' : 'create'} edge-router-policy ${this.formData.id ? `'${this.formData.id}'` : ''} ${this.formData.id ? '--name' : ''} '${this.formData.name}'${this.formData.id ? '' : ` --semantic '${this.formData.semantic}`} --edge-router-roles '${erRolesVar}' --identity-roles '${identityRolesVar}'`;
 
     navigator.clipboard.writeText(command);
     const growlerData = new GrowlerModel(
@@ -248,16 +227,18 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
   }
 
   copyCURLCommand() {
-    const serviceRoles = this.svc.getSelectedRoles(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.serviceNamedAttributesMap);
-    const serviceRolesVar = this.getRolesCURLVariable(serviceRoles);
+    const erRoles = this.svc.getSelectedRoles(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes, this.edgeRouterNamedAttributesMap);
+    let erRolesVar = this.getRolesCURLVariable(erRoles);
 
     const identityRoles = this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.identityNamedAttributesMap);
-    const identityRolesVar = this.getRolesCURLVariable(identityRoles);
+    let identityRolesVar = this.getRolesCURLVariable(identityRoles);
 
-    const pcRoles = this.svc.getSelectedRoles(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes, this.postureNamedAttributesMap);
-    const pcRolesVar = this.getRolesCURLVariable(pcRoles);
-
-    const command = `curl '${this.apiCallURL}' \\ ${this.formData.id ? '--request PATCH \\' : '\\'} -H 'accept: application/json' \\ -H 'content-type: application/json' \\ -H 'zt-session: ${this.settings.session.id}' \\ --data-raw '{"name":"${this.formData.name}","serviceRoles":${serviceRolesVar},"identityRoles":${identityRolesVar},"postureCheckRoles":${pcRolesVar},"semantic":"${this.formData.semantic}","type":"${this.formData.type}"}'`;
+    const command = `curl '${this.apiCallURL}' \\
+${this.formData.id ? '--request PATCH \\' : ''}
+  -H 'accept: application/json' \\
+  -H 'content-type: application/json' \\
+  -H 'zt-session: ${this.settings.session.id}' \\
+  --data-raw '{"name":"${this.formData.name}","edgeRouterRoles":${erRolesVar},"identityRoles":${identityRolesVar},"semantic":"${this.formData.semantic}"}'`;
 
     navigator.clipboard.writeText(command);
     const growlerData = new GrowlerModel(
@@ -270,16 +251,15 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
   }
 
   get apiCallURL() {
-    return this.settings.selectedEdgeController + '/edge/management/v1/service-policies' + (this.formData.id ? `/${this.formData.id}` : '');
+    return this.settings.selectedEdgeController + '/edge/management/v1/edge-router-policies' + (this.formData.id ? `/${this.formData.id}` : '');
   }
 
   get apiData() {
     const data: any = {
       name: this.formData?.name || '',
       appData: this.formData?.appData || '',
-      serviceRoles: this.svc.getSelectedRoles(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.serviceNamedAttributesMap),
+      edgeRouterRoles: this.svc.getSelectedRoles(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes, this.edgeRouterNamedAttributesMap),
       identityRoles: this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.identityNamedAttributesMap),
-      postureCheckRoles: this.svc.getSelectedRoles(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes, this.postureNamedAttributesMap),
       semantic: this.formData.semantic,
       type: this.formData.type
     }
