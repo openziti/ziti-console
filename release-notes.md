@@ -1,3 +1,13 @@
+# app-ziti-console-v3.4.0
+# ziti-console-lib-v0.4.0
+*
+## Feature/Improvements
+* [Issue #399](https://github.com/openziti/ziti-console/issues/399) - New Edge Router Policy List Page
+* [Issue #409](https://github.com/openziti/ziti-console/issues/409) - New Edge Router Policy Create/Edit Form
+
+## Bug Fixes
+* [Issue #410](https://github.com/openziti/ziti-console/issues/410) - Clicking outside the "More Actions" drop down does not close the menu
+
 # app-ziti-console-v3.3.1
 # ziti-console-lib-v0.3.1
 *
