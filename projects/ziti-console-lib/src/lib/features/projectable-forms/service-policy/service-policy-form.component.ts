@@ -56,26 +56,25 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
 
   formView = 'simple';
   isEditing = false;
-  isLoading = false;
   servicesLoading = false;
   identitiesLoading = false;
   postureChecksLoading = false;
 
   showMore = false;
   settings: any = {};
-  subscription: Subscription = new Subscription();
 
   constructor(
       @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
       public svc: ServicePolicyFormService,
-      @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
+      @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
       growlerService: GrowlerService,
       @Inject(SERVICE_POLICY_EXTENSION_SERVICE) extService: ExtensionService
   ) {
-    super(growlerService, extService);
+    super(growlerService, extService, zitiService);
   }
 
-  ngOnInit(): void {
+  override ngOnInit(): void {
+    super.ngOnInit();
     this.subscription.add(
         this.settingsService.settingsChange.subscribe((results:any) => {
           this.settings = results;
@@ -257,7 +256,12 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
     const pcRoles = this.svc.getSelectedRoles(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes, this.postureNamedAttributesMap);
     const pcRolesVar = this.getRolesCURLVariable(pcRoles);
 
-    const command = `curl '${this.apiCallURL}' \\ ${this.formData.id ? '--request PATCH \\' : '\\'} -H 'accept: application/json' \\ -H 'content-type: application/json' \\ -H 'zt-session: ${this.settings.session.id}' \\ --data-raw '{"name":"${this.formData.name}","serviceRoles":${serviceRolesVar},"identityRoles":${identityRolesVar},"postureCheckRoles":${pcRolesVar},"semantic":"${this.formData.semantic}","type":"${this.formData.type}"}'`;
+    const command = `curl '${this.apiCallURL}' \\
+    ${this.formData.id ? '--request PATCH \\' : '\\'}
+    -H 'accept: application/json' \\
+    -H 'content-type: application/json' \\
+    -H 'zt-session: ${this.settings.session.id}' \\
+    --data-raw '{"name":"${this.formData.name}","serviceRoles":${serviceRolesVar},"identityRoles":${identityRolesVar},"postureCheckRoles":${pcRolesVar},"semantic":"${this.formData.semantic}","type":"${this.formData.type}"}'`;
 
     navigator.clipboard.writeText(command);
     const growlerData = new GrowlerModel(

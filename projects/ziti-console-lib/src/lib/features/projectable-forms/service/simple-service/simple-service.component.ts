@@ -116,17 +116,18 @@ export class SimpleServiceComponent extends ProjectableForm {
   constructor(
       @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
       public svc: ServiceFormService,
-      @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
+      @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
       growlerService: GrowlerService,
       @Inject(SERVICE_EXTENSION_SERVICE) extService: ExtensionService,
       private dialogForm: MatDialog,
       private validationService: ValidationService,
-      private servicesPageService: ServicesPageService
+      private servicesPageService: ServicesPageService,
   ) {
-    super(growlerService, extService);
+    super(growlerService, extService, zitiService);
   }
 
-  ngOnInit() {
+  override ngOnInit() {
+    super.ngOnInit();
     this.controllerDomain = this.settingsService?.settings?.selectedEdgeController;
     this.zitiSessionId = this.settingsService?.settings?.session?.id;
     this.initFormData();

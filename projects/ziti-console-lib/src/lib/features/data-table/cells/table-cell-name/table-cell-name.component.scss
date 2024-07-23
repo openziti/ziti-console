@@ -1,0 +1,19 @@
+.cell-name-renderer {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+}
+
+.cell-name-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.cell-status-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}

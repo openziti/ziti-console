@@ -72,7 +72,6 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   enrollmentExpiration: any;
   jwt: any;
   token: any;
-  isLoading = false;
   strategies = [
     {id: 'smartrouting', label: 'Smart Routing'},
     {id: 'weighted', label: 'Weighted'},
@@ -93,20 +92,20 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   formView = 'simple';
   formDataInvalid = false;
   settings: any = {};
-  subscription: Subscription = new Subscription();
 
   @ViewChild("configEditor", {read: ConfigEditorComponent}) configEditor!: ConfigEditorComponent;
   constructor(
       @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
       public svc: ServiceFormService,
-      @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
+      @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
       growlerService: GrowlerService,
       @Inject(SERVICE_EXTENSION_SERVICE) extService: ExtensionService
   ) {
-    super(growlerService, extService);
+    super(growlerService, extService, zitiService);
   }
 
-  ngOnInit(): void {
+  override ngOnInit(): void {
+    super.ngOnInit();
     this.subscription.add(
       this.settingsService.settingsChange.subscribe((results:any) => {
         this.settings = results;

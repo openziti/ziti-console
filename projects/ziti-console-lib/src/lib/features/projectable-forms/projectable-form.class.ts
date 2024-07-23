@@ -15,21 +15,42 @@
 */
 
 import {ExtendableComponent} from "../extendable/extendable.component";
-import {Component, DoCheck, ElementRef, EventEmitter, Inject, Input, OnInit, Output, ViewChild} from "@angular/core";
+import {
+    Component,
+    DoCheck,
+    ElementRef,
+    EventEmitter,
+    Inject,
+    Input,
+    OnDestroy,
+    OnInit,
+    Output,
+    ViewChild
+} from "@angular/core";
 
-import {defer, isEqual, unset, debounce} from "lodash";
+import {defer, isEqual, unset, debounce, cloneDeep, isEmpty} from "lodash";
 import {GrowlerModel} from "../messaging/growler.model";
 import {GrowlerService} from "../messaging/growler.service";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../extendable/extensions-noop.service";
+import {Identity} from "../../models/identity";
+import {ZITI_DATA_SERVICE, ZitiDataService} from "../../services/ziti-data.service";
+import {ActivatedRoute, Router} from "@angular/router";
+import {Subscription} from "rxjs";
 
 // @ts-ignore
 const {context, tags, resources, service, app} = window;
+
+export class Entity {
+    name: ''
+}
 
 @Component({
     template: '',
     styleUrls: ['./projectable-form.class.scss']
 })
-export abstract class ProjectableForm extends ExtendableComponent implements DoCheck {
+export abstract class ProjectableForm extends ExtendableComponent implements DoCheck, OnInit {
+    @Input() isModal = false;
+    @Input() entityId: String;
     @Input() abstract formData: any;
     @Output() abstract close: EventEmitter<any>;
     @Output() dataChange: EventEmitter<any> = new EventEmitter<any>();
@@ -39,8 +60,9 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     abstract save(): void;
 
     public errors: any = {};
-    protected entityType = 'identity';
-
+    protected entityType = 'identities';
+    protected entityClass: any = Entity;
+    protected isLoading = false;
     moreActions: any[] = [];
     tagElements: any = [];
     tagData: any = [];
@@ -51,11 +73,24 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
 
     checkDataChangeDebounced = debounce(this.checkDataChange, 100, {maxWait: 100});
 
+    subscription: Subscription = new Subscription();
+
     protected constructor(
         protected growlerService: GrowlerService,
-        @Inject(SHAREDZ_EXTENSION) protected extService: ExtensionService
+        @Inject(SHAREDZ_EXTENSION) protected extService: ExtensionService,
+        @Inject(ZITI_DATA_SERVICE) protected zitiService: ZitiDataService,
+        protected router?: Router,
+        protected route?: ActivatedRoute
     ) {
         super();
+        this.subscription.add(
+            this.route?.params?.subscribe(params => {
+                const id = params['id'];
+                if (!isEmpty(id)) {
+                    this.entityId = id;
+                }
+            })
+        );
     }
 
     override ngAfterViewInit() {
@@ -64,6 +99,25 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         this.nameFieldInput.nativeElement.focus();
         if (this.extService?.moreActions) {
             this.moreActions = [...this.moreActions, ...this.extService.moreActions];
+        }
+    }
+
+    ngOnInit() {
+        if (this.entityId) {
+            if (this.entityId === 'create') {
+                this.formData = new this.entityClass();
+                this.initData = cloneDeep(this.formData);
+                this.entityUpdated();
+                return;
+            }
+            this.isLoading = true;
+            this.zitiService.getSubdata(this.entityType, this.entityId, '').then((entity: any) => {
+                this.formData = entity?.data;
+                this.initData = cloneDeep(this.formData);
+                this.entityUpdated();
+            }).finally(() => {
+                this.isLoading = false;
+            });
         }
     }
 
@@ -143,17 +197,29 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         return tags.val();
     }
 
-    closeModal(refresh = true, ignoreChanges = false, data?, event?): void {
+    closeForm(refresh = true, ignoreChanges = false, data?, event?) {
         if (!ignoreChanges && this._dataChange) {
             const confirmed = confirm('You have unsaved changes. Do you want to leave this page and discard your changes or stay on this page?');
             if (!confirmed) {
                 return;
             }
         }
+        if (this.isModal) {
+            this.closeModal(refresh, ignoreChanges);
+        } else {
+            this.returnToListPage();
+        }
+    }
+
+    closeModal(refresh = true, ignoreChanges = false, data?, event?): void {
         this.close.emit({refresh: refresh});
         if (event) {
             event.stopPropagation();
         }
+    }
+
+    returnToListPage() {
+        this.router?.navigateByUrl(`/${this.entityType}`);
     }
 
     ngDoCheck() {
@@ -201,5 +267,22 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         });
         rolesVar = `[${rolesVar}]`;
         return rolesVar;
+    }
+
+    canDeactivate() {
+        if (this._dataChange) {
+            return confirm('You have unsaved changes. Do you want to leave this page and discard your changes or stay on this page?');
+        }
+        return true;
+    }
+
+    protected entityUpdated() {
+        //no-op
+    }
+
+    getRoleAttributes(type: string) {
+        return this.zitiService.get(type, {}, []).then((results) => {
+            return results.data;
+        });
     }
 }

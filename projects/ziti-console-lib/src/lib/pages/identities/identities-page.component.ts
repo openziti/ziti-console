@@ -15,7 +15,7 @@
 */
 
 import {Component, Inject, OnInit, OnDestroy} from '@angular/core';
-import {Router, NavigationEnd} from '@angular/router'
+import {Router, NavigationEnd, ActivatedRoute} from '@angular/router'
 import {IdentitiesPageService} from "./identities-page.service";
 import {DataTableFilterService} from "../../features/data-table/data-table-filter.service";
 import {ListPageComponent} from "../../shared/list-page-component.class";
@@ -50,7 +50,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperServiceClass,
       private router: Router,
       consoleEvents: ConsoleEventsService,
-      @Inject(IDENTITY_EXTENSION_SERVICE) private extService: ExtensionService
+      @Inject(IDENTITY_EXTENSION_SERVICE) private extService: ExtensionService,
   ) {
     super(filterService, svc, consoleEvents, dialogForm);
   }
@@ -78,7 +78,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   headerActionClicked(action: string) {
     switch(action) {
       case 'add':
-        this.svc.openUpdate();
+        this.svc.openEditForm();
         break;
       case 'edit':
         this.svc.openUpdate();
@@ -125,10 +125,10 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
         this.itemToggled(event.item)
         break;
       case 'update':
-        this.svc.openUpdate(event.item);
+        this.svc.openEditForm(event?.item?.id);
         break;
       case 'create':
-        this.svc.openUpdate();
+        this.svc.openEditForm();
         break;
       case 'override':
         this.svc.openOverridesModal(event.item);

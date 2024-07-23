@@ -28,12 +28,14 @@ import {CsvDownloadService} from "../services/csv-download.service";
 import {SettingsServiceClass} from "../services/settings-service.class";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../features/extendable/extensions-noop.service";
 import moment from "moment/moment";
+import {Router} from "@angular/router";
 
 export abstract class ListPageServiceClass {
 
     abstract initTableColumns(): any[];
-    abstract getData(filters?: FilterObj[], sort?: any, page?: any): Promise<any[]>
+    abstract getData(filters?: FilterObj[], sort?: any, page?: any): Promise<any[]>;
     abstract validate: ValidatorCallback;
+    abstract openUpdate(entity?: any);
     abstract resourceType: string;
 
     headerComponentParams = {
@@ -54,6 +56,7 @@ export abstract class ListPageServiceClass {
     dataService: ZitiDataService;
     refreshData: (sort?: {sortBy: string, ordering: string}) => void | undefined;
 
+    selectedEntityId: String;
     menuItems: any = [];
     tableHeaderActions: any = [];
     currentSettings: any = {};
@@ -101,7 +104,8 @@ export abstract class ListPageServiceClass {
         @Inject(SETTINGS_SERVICE) protected settings: SettingsServiceClass,
         protected filterService: DataTableFilterService,
         protected csvDownloadService: CsvDownloadService,
-        @Inject(SHAREDZ_EXTENSION) protected extensionService: ExtensionService
+        @Inject(SHAREDZ_EXTENSION) protected extensionService: ExtensionService,
+        protected router?: Router
     ) {
         this.dataService = inject(ZITI_DATA_SERVICE);
         this.settings.settingsChange.subscribe((settings) => {
@@ -177,5 +181,12 @@ export abstract class ListPageServiceClass {
             text = window.getSelection().toString();
         }
         return text?.length > 0;
+    }
+
+    public openEditForm(itemId = '') {
+        if (isEmpty(itemId)) {
+            itemId = 'create';
+        }
+        this.router?.navigateByUrl(`/${this.resourceType}/${itemId}`)
     }
 }

@@ -27,7 +27,8 @@ import {
   ServicesPageComponent,
   ServicePoliciesPageComponent,
   NetworkVisualizerComponent,
-  EdgeRouterPoliciesPageComponent
+  EdgeRouterPoliciesPageComponent,
+  IdentityFormComponent
 } from "ziti-console-lib";
 import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
@@ -63,6 +64,13 @@ const routes: Routes = [
   {
     path: 'identities',
     component: IdentitiesPageComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    canDeactivate: [DeactivateGuardService],
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'identities/:id',
+    component: IdentityFormComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     canDeactivate: [DeactivateGuardService],
     runGuardsAndResolvers: 'always',
