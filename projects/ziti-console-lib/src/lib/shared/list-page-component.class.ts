@@ -22,7 +22,8 @@ import {ConsoleEventsService} from "../services/console-events.service";
 import {ConfirmComponent} from "../features/confirm/confirm.component";
 import {MatDialog} from "@angular/material/dialog";
 
-import {defer} from "lodash";
+import {defer, isEmpty} from "lodash";
+import {ActivatedRoute} from "@angular/router";
 
 @Injectable()
 export abstract class ListPageComponent {
@@ -52,7 +53,7 @@ export abstract class ListPageComponent {
         protected filterService: DataTableFilterService,
         public svc: ListPageServiceClass,
         protected consoleEvents: ConsoleEventsService,
-        protected dialogForm: MatDialog,
+        protected dialogForm: MatDialog
     ) {}
 
     ngOnInit() {

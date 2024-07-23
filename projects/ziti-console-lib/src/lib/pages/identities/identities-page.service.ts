@@ -39,6 +39,8 @@ import {MatDialog} from "@angular/material/dialog";
 import {SettingsServiceClass} from "../../services/settings-service.class";
 import {ExtensionService} from "../../features/extendable/extensions-noop.service";
 import {IDENTITY_EXTENSION_SERVICE} from "../../features/projectable-forms/identity/identity-form.service";
+import {Router} from "@angular/router";
+import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 
 const CSV_COLUMNS = [
     {label: 'Name', path: 'name'},
@@ -97,9 +99,10 @@ export class IdentitiesPageService extends ListPageServiceClass {
         override csvDownloadService: CsvDownloadService,
         private growlerService: GrowlerService,
         private dialogForm: MatDialog,
-        @Inject(IDENTITY_EXTENSION_SERVICE) extService: ExtensionService
+        @Inject(IDENTITY_EXTENSION_SERVICE) extService: ExtensionService,
+        protected override router: Router
     ) {
-        super(settings, filterService, csvDownloadService, extService);
+        super(settings, filterService, csvDownloadService, extService, router);
     }
 
     validate = (formData): Promise<CallbackResults> => {
@@ -110,11 +113,13 @@ export class IdentitiesPageService extends ListPageServiceClass {
         this.initMenuActions();
 
         const nameRenderer = (row) => {
-            return `<div class="col cell-name-renderer" data-id="${row?.data?.id}">
-                <span class="circle ${row?.data?.hasApiSession}" title="Api Session"></span>
-                <span class="circle ${row?.data?.hasEdgeRouterConnection}" title="Edge Router Connected"></span>
-                <strong>${row?.data?.name}</strong>
-              </div>`
+            return `<a href="./identities/${row?.data?.id}">
+                        <div class="col cell-name-renderer" data-id="${row?.data?.id}">
+                            <span class="circle ${row?.data?.hasApiSession}" title="Api Session"></span>
+                            <span class="circle ${row?.data?.hasEdgeRouterConnection}" title="Edge Router Connected"></span>
+                            <strong>${row?.data?.name}</strong>
+                        </div>
+                    </a>`;
         }
 
         const osRenderer = (row) => {
@@ -178,14 +183,15 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 headerName: 'Name',
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
+                cellRenderer: TableCellNameComponent,
+                cellRendererParams: { pathRoot: 'identities', showStatusIcons: true },
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
                         return;
                     }
-                    this.openUpdate(data.data);
+                    this.openEditForm(data?.data?.id);
                 },
                 resizable: true,
-                cellRenderer: nameRenderer,
                 cellClass: 'nf-cell-vert-align tCol',
                 sortable: true,
                 filter: true,
@@ -202,7 +208,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
                     if (this.hasSelectedText()) {
                         return;
                     }
-                    this.openUpdate(data.data);
+                    this.openEditForm(data?.data?.id);
                 },
                 resizable: true,
                 cellRenderer: this.rolesRenderer,
@@ -485,29 +491,8 @@ export class IdentitiesPageService extends ListPageServiceClass {
         );
     }
 
-    public openUpdate(item?: any) {
+    public openUpdate(itemId?: any) {
         this.modalType = 'identity';
-        if (item) {
-            this.selectedIdentity = item;
-            this.selectedIdentity.badges = [];
-            if (this.selectedIdentity.hasApiSession || this.selectedIdentity.hasEdgeRouterConnection) {
-                this.selectedIdentity.badges.push({label: 'Online', class: 'online', circle: 'true'});
-            } else {
-                this.selectedIdentity.badges.push({label: 'Offline', class: 'offline', circle: 'false'});
-            }
-            if (this.selectedIdentity.enrollment?.ott) {
-                this.selectedIdentity.badges.push({label: 'Unregistered', class: 'unreg'});
-            }
-            // TODO: implement when metrics and dialog features are available
-            /*this.selectedIdentity.moreActions = [
-                {name: 'open-metrics', label: 'Open Metrics'},
-                {name: 'dial-logs', label: 'Dial Logs'},
-                {name: 'dial-logs', label: 'View Events'},
-            ];*/
-            unset(this.selectedIdentity, '_links');
-        } else {
-            this.selectedIdentity = new Identity();
-        }
         this.sideModalOpen = true;
     }
 

@@ -28,14 +28,15 @@ import {
 import {ProjectableForm} from "../projectable-form.class";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 
-import {isEmpty, isNil, forOwn, cloneDeep, set} from 'lodash';
+import {isEmpty, isNil, forOwn, cloneDeep, set, unset} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {IDENTITY_EXTENSION_SERVICE, IdentityFormService} from './identity-form.service';
 import {MatDialogRef} from "@angular/material/dialog";
 import {IdentitiesPageService} from "../../../pages/identities/identities-page.service";
 import {ExtensionService} from "../../extendable/extensions-noop.service";
-
+import {ActivatedRoute, Router} from "@angular/router";
+import {Identity} from "../../../models/identity";
 
 @Component({
   selector: 'lib-identity-form',
@@ -46,19 +47,19 @@ import {ExtensionService} from "../../extendable/extensions-noop.service";
       provide: MatDialogRef,
       useValue: {}
     }
-  ]
+  ],
 })
 export class IdentityFormComponent extends ProjectableForm implements OnInit, OnChanges, AfterViewInit {
   @Input() formData: any = {};
   @Input() identityRoleAttributes: any[] = [];
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
-  override entityType = 'identity';
+  override entityType = 'identities';
+  override entityClass = Identity;
 
   isEditing = false;
   enrollmentExpiration: any;
   jwt: any;
-  isLoading = false;
   associatedServicePolicies: any = [];
   associatedServicePolicyNames: any = [];
   associatedServices: any = [];
@@ -82,28 +83,21 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
       public svc: IdentityFormService,
       public identitiesService: IdentitiesPageService,
-      @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
+      @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
       growlerService: GrowlerService,
-      @Inject(IDENTITY_EXTENSION_SERVICE) extService: ExtensionService
+      @Inject(IDENTITY_EXTENSION_SERVICE) extService: ExtensionService,
+      protected override router: Router,
+      protected override route: ActivatedRoute,
   ) {
-    super(growlerService, extService);
+    super(growlerService, extService, zitiService, router, route);
     this.identityRoleAttributes = [];
   }
 
-  ngOnInit(): void {
+  override ngOnInit(): void {
+    super.ngOnInit();
     this.settingsService.settingsChange.subscribe((results:any) => {
       this.settings = results;
     });
-    this.jwt = this.identitiesService.getJWT(this.formData);
-    this.enrollmentExpiration = this.identitiesService.getEnrollmentExpiration(this.formData);
-    this.initEnrollmentType();
-    this.getAssociatedServices();
-    this.getAssociatedServicePolicies();
-    this.getAuthPolicies();
-    this.getCertificateAuthorities();
-    this.initData = cloneDeep(this.formData);
-    this.loadTags();
-    this.extService.updateFormData(this.formData);
   }
 
   override ngAfterViewInit() {
@@ -114,6 +108,32 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
 
   ngOnChanges(changes: SimpleChanges) {
     this.isEditing = !isEmpty(this.formData.id);
+  }
+
+  override entityUpdated() {
+    if (this.formData.id) {
+      this.formData.badges = [];
+      if (this.formData.hasApiSession || this.formData.hasEdgeRouterConnection) {
+        this.formData.badges.push({label: 'Online', class: 'online', circle: 'true'});
+      } else {
+        this.formData.badges.push({label: 'Offline', class: 'offline', circle: 'false'});
+      }
+      if (this.formData.enrollment?.ott) {
+        this.formData.badges.push({label: 'Unregistered', class: 'unreg'});
+      }
+      this.jwt = this.identitiesService.getJWT(this.formData);
+      this.enrollmentExpiration = this.identitiesService.getEnrollmentExpiration(this.formData);
+    }
+    this.initEnrollmentType();
+    this.getIdentityRoleAttributes();
+    this.getAssociatedServices();
+    this.getAssociatedServicePolicies();
+    this.getAuthPolicies();
+    this.getCertificateAuthorities();
+    this.loadTags();
+    unset(this.formData, '_links');
+    this.initData = cloneDeep(this.formData);
+    this.extService.updateFormData(this.formData);
   }
 
   refreshIdentity() {
@@ -134,6 +154,12 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     } else if (this.formData?.enrollment?.ottca) {
       this.enrollmentType = 'CA';
     }
+  }
+
+  getIdentityRoleAttributes() {
+      this.getRoleAttributes('identity-role-attributes').then((attributes) => {
+          this.identityRoleAttributes = attributes;
+      });
   }
 
   getAssociatedServices() {
@@ -205,7 +231,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
         this.save();
         break;
       case 'close':
-        this.closeModal();
+        this.closeForm();
         break;
       case 'toggle-view':
         this.formView = action.data;
@@ -243,7 +269,13 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     }
     this.isLoading = true;
     this.svc.save(this.formData).then((result) => {
-      this.closeModal(true, true);
+      if (this.isModal) {
+        this.closeModal(true, true);
+        return;
+      }
+      this.initData = this.formData;
+      this._dataChange = false;
+      this.returnToListPage();
     }).finally(() => {
       this.isLoading = false;
     });

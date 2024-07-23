@@ -20,11 +20,11 @@ export class CardListComponent extends ProjectableForm {
   constructor(
       @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
       public svc: ServiceFormService,
-      @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
+      @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
       growlerService: GrowlerService,
       @Inject(SERVICE_EXTENSION_SERVICE) extService: ExtensionService
   ) {
-    super(growlerService, extService);
+    super(growlerService, extService, zitiService);
   }
   clear(): void {
   }

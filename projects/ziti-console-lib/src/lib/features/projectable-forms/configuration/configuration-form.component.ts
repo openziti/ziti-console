@@ -33,6 +33,7 @@ import {ConfigEditorComponent} from "../../config-editor/config-editor.component
 import {cloneDeep, defer, isEmpty} from 'lodash';
 import {GrowlerModel} from "../../messaging/growler.model";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
+import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 
 @Component({
     selector: 'lib-configuration',
@@ -45,14 +46,12 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
     @Input() override errors: any = {};
     @Output() close: EventEmitter<void> = new EventEmitter<void>();
 
-    isLoading = false;
     options: any[] = [];
     isEditing = !isEmpty(this.formData.id);
     formView = 'simple';
     formDataInvalid = false;
     editMode = false;
     items: any = [];
-    subscription = new Subscription();
     selectedSchema: any = '';
     associatedServices = [];
     associatedServiceNames = [];
@@ -67,11 +66,13 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
         growlerService: GrowlerService,
         @Inject(SHAREDZ_EXTENSION) extService: ExtensionService,
         @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
+        @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
     ) {
-        super(growlerService, extService);
+        super(growlerService, extService, zitiService);
     }
 
-    ngOnInit(): void {
+    override ngOnInit(): void {
+        super.ngOnInit();
         this.settingsService.settingsChange.subscribe((results:any) => {
             this.settings = results;
         });

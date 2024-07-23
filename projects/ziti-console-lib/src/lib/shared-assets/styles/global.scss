@@ -116,9 +116,16 @@ input {
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: absolute;
+  top: 0px;
+  left: 0;
   height: 100%;
   width: 100%;
   min-width: 675px;
+  padding-top: 14px;
+  padding-left: 20px;
+  padding-right: 20px;
+  background-color: var(--formBackground);
   overflow: hidden;
 
   .projectable-form-container {
@@ -587,7 +594,7 @@ lib-form-field-container {
 }
 
 .cdk-overlay-container {
-  z-index: 999999 !important;
+  z-index: 99999999 !important;
 }
 
 .zac-wrapper-container .dots {

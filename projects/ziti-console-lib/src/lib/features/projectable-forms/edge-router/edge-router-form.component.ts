@@ -39,7 +39,6 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
 
   formView = 'simple';
   isEditing = false;
-  isLoading = false;
   servicesLoading = false;
   identitiesLoading = false;
   authPolicies: any = [
@@ -48,19 +47,19 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
 
   showMore = false;
   settings: any = {};
-  subscription: Subscription = new Subscription();
 
   constructor(
       @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
       public svc: EdgeRouterFormService,
-      @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
+      @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
       growlerService: GrowlerService,
       @Inject(EDGE_ROUTER_EXTENSION_SERVICE) extService: ExtensionService
   ) {
-    super(growlerService, extService);
+    super(growlerService, extService, zitiService);
   }
 
-  ngOnInit(): void {
+  override ngOnInit(): void {
+    super.ngOnInit();
     this.subscription.add(
       this.settingsService.settingsChange.subscribe((results:any) => {
         this.settings = results;
