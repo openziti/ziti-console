@@ -18,7 +18,9 @@ export class Identity {
     children;
     contextMenu;
     online;
-
+    osVersion;
+    createdAt;
+    updatedAt;
     constructor() {
         this.rootNode = 'No';
         this.children = [];
@@ -43,14 +45,29 @@ export class Service {
     attributes;
     utilization;
     contextMenu;
-
+    createdAt;
+    updatedAt;
+    intercept;
     constructor() {
         this.rootNode = 'No';
         this.children = [];
         this.contextMenu = 'Yes';
     }
 }
-
+export class Config {
+  uuid;
+  id;
+  name;
+  data;
+  children;
+  contextMenu;
+  rootNode;
+  constructor() {
+      this.rootNode = 'No';
+      this.children = [];
+      this.contextMenu = 'Yes';
+  }
+}
 export class Group {
     id;
     name;
@@ -75,6 +92,8 @@ export class ServicePolicy {
     rootNode;
     children;
     contextMenu;
+    createdAt;
+    updatedAt;
 
     constructor() {
         this.rootNode = 'No';
@@ -101,10 +120,14 @@ export class ERPolicy {
     status;
     size;
     type;
+    semantic;
+    isSystem;
     rootNode;
     children;
     contextMenu;
-
+    createdAt;
+    updatedAt;
+    data;
     constructor() {
         this.rootNode = 'No';
         this.children = [];
@@ -122,6 +145,8 @@ export class ServiceERPolicy {
     rootNode;
     children;
     contextMenu;
+    createdAt;
+    updatedAt;
 
     constructor() {
         this.rootNode = 'No';
@@ -148,6 +173,10 @@ export class ERouter {
     online;
     disabled;
     version;
+    tunnelerEnabled;
+    syncStatus;
+    createdAt;
+    updatedAt;
 
     constructor() {
         this.rootNode = 'No';
@@ -163,6 +192,7 @@ export class Children {
     size;
     type;
     children;
+    data:Children;
 
     constructor() {
         this.type = 'Children';
@@ -180,10 +210,10 @@ export class NetworkVisualizerHelper {
         networkStatus,
         services,
         endpoints,
-        appwans,
-        edgerouters,
-        edgeRouterPolicies,
-        serviceEdgeRouterPolicies,
+        servicePolicies,
+        routers,
+        routerPolicies,
+        serviceRouterPolicies,
         // networkProductVersion,
         uniqId,
         logger
@@ -210,11 +240,11 @@ export class NetworkVisualizerHelper {
 
         function processIdentitiesForTree(
             identitiesChildren,
-            edgerouters,
+            routers,
             endpoints,
             appwans,
             services,
-            edgeRouterPolicies,
+            routerPolicies,
             nx,
             ny
         ) {
@@ -230,7 +260,7 @@ export class NetworkVisualizerHelper {
             const mnopGrp = new Group(createId(), 'Identities [M-P]', 'Identity name starts with M to P');
             const qrstGrp = new Group(createId(), 'Identities [Q-T]', 'Identity name starts with Q to T');
             const uvwxGrp = new Group(createId(), 'Identities [U-X]', 'Identity name starts with U to X');
-            const yzGrp = new Group(createId(), 'Identities [Y-Z]', 'Identity name starts with Y and Z');
+            const yzGrp   = new Group(createId(), 'Identities [Y-Z]', 'Identity name starts with Y and Z');
             const oneTo9Grp = new Group(createId(), 'Identities [1-9]', 'Identity name starts with 0 to 9');
             const specialCharGrp = new Group(
                 createId(),
@@ -246,12 +276,16 @@ export class NetworkVisualizerHelper {
                 endpoint.name = endpoints[j].name;
                 endpoint.online = endpoints[j].hasApiSession === true ? 'Yes' : 'No';
                 endpoint.type = 'Identity';
-                endpoint.status = endpoints[j].osRelease !== null ? 'Registered' : 'Not Registered';
-                if (endpoints[j].osRelease === null && endpoints[j].type && endpoints[j].type.includes('browzer')) {
-                    endpoint.status = 'Registered';
-                    // endpoint.type = 'Browzer Endpoint';
+                endpoint.createdAt = endpoints[j].createdAt;
+                endpoint.updatedAt = endpoints[j].updatedAt;
+                endpoint.status = endpoints[j].sdkInfo !== null ? 'Registered' : 'Not Registered';
+                if (endpoints[j].sdkInfo) {
+                    endpoint.os = endpoints[j].sdkInfo.type? endpoints[j].sdkInfo.type: endpoints[j].sdkInfo.appId;
+                    endpoint.osVersion = endpoints[j].sdkInfo.version;
                 }
-                endpoint.os = endpoints[j].os;
+                if (endpoints[j].authPolicy && endpoints[j].authPolicy.name.includes("BrowZer")) {
+                   endpoint.type = 'BrowZer Identity';
+                }
 
                 const cha = endpoint.name.charAt(0).toLowerCase();
                 if (endpoint.status === 'Not Registered') {
@@ -391,16 +425,14 @@ export class NetworkVisualizerHelper {
 
         function processServicePoliciesForTree(
             servicePolicyChildren,
-            edgerouters,
             identities,
             servicePolicies,
             services,
-            edgeRouterPolicies,
             nx,
             ny
         ) {
-          const bindGrp = new Group(createId(), 'BindPolicies', 'Bind Service Policy');
-          const dialGrp = new Group(createId(), 'DialPolicies', 'Dial Service Policy');
+          const bindGrp = new Group(createId(), 'Bind-Policies', 'Bind Service Policy');
+          const dialGrp = new Group(createId(), 'Dial-Policies', 'Dial Service Policy');
 
           servicePolicies.forEach( (sp) => {
 
@@ -408,7 +440,7 @@ export class NetworkVisualizerHelper {
                 spolicy.id = createId();
                 spolicy.uuid = sp.id;
                 spolicy.name = sp.name;
-                spolicy.type = 'ServicePolicy';
+                spolicy.type = 'Service Policy';
                 spolicy.rootNode = 'Yes';
                 if(sp.type==='Bind') {
                   bindGrp.children.push(spolicy);
@@ -596,11 +628,11 @@ export class NetworkVisualizerHelper {
 
         function processServicesForTree(
             servicesChildren,
-            edgerouters,
+            routers,
             endpoints,
-            appwans,
+            servicePolicies,
             services,
-            edgeRouterPolicies,
+            outerPolicies,
             nx,
             ny
         ) {
@@ -655,64 +687,65 @@ export class NetworkVisualizerHelper {
         } // end of processServicesForTree
 
         function processEdgeRouterPoliciesForTree(
-            edgeRouterPoliciesChildren,
-            edgerouters,
+            routerPoliciesChildren,
+            routers,
             endpoints,
             appwans,
             services,
-            edgeRouterPolicies,
+            routerPolicies,
             nx,
             ny
         ) {
             for (let i = nx; i < ny; i++) {
                 const erpolicy = new ERPolicy();
                 erpolicy.id = createId();
-                erpolicy.uuid = edgeRouterPolicies[i].id;
-                erpolicy.name = edgeRouterPolicies[i].name;
+                erpolicy.uuid = routerPolicies[i].id;
+                erpolicy.name = routerPolicies[i].name;
                 erpolicy.type = 'Router Policy';
                 erpolicy.rootNode = 'Yes';
-                edgeRouterPoliciesChildren.children.push(erpolicy);
+                erpolicy.isSystem = routerPolicies[i].isSystem;
+                erpolicy.semantic = routerPolicies[i].semantic;
+                routerPoliciesChildren.children.push(erpolicy);
             } // end of main for loop
-            return edgeRouterPoliciesChildren;
+            return routerPoliciesChildren;
         } // end
 
         function processServiceEdgeRouterPoliciesForTree(
-            serviceEdgeRouterPoliciesChildren,
-            edgerouters,
+            serviceRouterPoliciesChildren,
+            routers,
             endpoints,
-            appwans,
             services,
-            edgeRouterPolicies,
-            serviceEdgeRouterPolicies,
+            routerPolicies,
+            serviceRouterPolicies,
             nx,
             ny
         ) {
             for (let i = nx; i < ny; i++) {
                 const serviceerpolicy = new ServiceERPolicy();
                 serviceerpolicy.id = createId();
-                serviceerpolicy.uuid = serviceEdgeRouterPolicies[i].id;
-                serviceerpolicy.name = serviceEdgeRouterPolicies[i].name;
+                serviceerpolicy.uuid = serviceRouterPolicies[i].id;
+                serviceerpolicy.name = serviceRouterPolicies[i].name;
                 serviceerpolicy.type = 'Service Router Policy';
                 serviceerpolicy.rootNode = 'Yes';
-                serviceEdgeRouterPoliciesChildren.children.push(serviceerpolicy);
+                serviceRouterPoliciesChildren.children.push(serviceerpolicy);
             } // end of main for loop
-            return serviceEdgeRouterPoliciesChildren;
+            return serviceRouterPoliciesChildren;
         } // end
 
-        function processEdgeroutersForTree(
-            edgerouterChildren,
-            edgerouters,
+        function processRoutersForTree(
+            routerChildren,
+            routers,
             endpoints,
-            appwans,
+            servicePolicies,
             services,
-            edgeRouterPolicies,
+            routerPolicies,
             nx,
             ny
         ) {
             for (let i = nx; i < ny; i++) {
                 const erOb = new ERouter();
                 erOb.id = createId();
-                const er = edgerouters[i];
+                const er = routers[i];
                 if (er) {
                     erOb.uuid = er.id;
                     erOb.name = er.name;
@@ -720,26 +753,23 @@ export class NetworkVisualizerHelper {
                     //erOb.version = er.productVersion;
                     erOb.online = er.isOnline? 'Yes': 'No';
                     erOb.disabled = er.disabled? 'Yes': 'No';
-                    erOb.type = 'Edge Router';
+                    erOb.type = 'Router';
                     erOb.rootNode = 'Yes';
-                    if (er.hostId !== null) {
-                       // erOb.provider = findProviderNameForHostId(er.hostId);
-                    } else if (er.status === 'ERROR') {
-                        erOb.provider = 'N/A';
-                    } else {
-                        erOb.provider = 'Private DC';
-                    }
+                    erOb.tunnelerEnabled = er.tunnelerEnabled? er.tunnelerEnabled: 'No';
+                    erOb.syncStatus = er.syncStatus? er.syncStatus:'No';
+                    erOb.createdAt = er.createdAt;
+                    erOb.updatedAt = er.updatedAt;
 
-                    edgerouterChildren.children.push(erOb);
+                    routerChildren.children.push(erOb);
                 }
             } // end main for loop
-            return edgerouterChildren;
+            return routerChildren;
         }
 
         // createId() generates node Id 1,2,3,4,5 for the following five nodes. this id is used to search capability.
-        let appwansChildren = new Children();
-        appwansChildren.id = createId();
-        appwansChildren.name = 'Service Policies';
+        let servicPoliciesChildren = new Children();
+        servicPoliciesChildren.id = createId();
+        servicPoliciesChildren.name = 'Service Policies';
 
         let servicesChildren = new Children();
         servicesChildren.id = createId();
@@ -749,105 +779,102 @@ export class NetworkVisualizerHelper {
         endpointsChildren.id = createId();
         endpointsChildren.name = 'Identities';
 
-        let edgerouterChildren = new Children();
-        edgerouterChildren.id = createId();
-        edgerouterChildren.name = 'Edge Routers';
+        let routerChildren = new Children();
+        routerChildren.id = createId();
+        routerChildren.name = 'Routers';
 
-        let edgeRouterPoliciesChildren = new Children();
-        edgeRouterPoliciesChildren.id = createId();
-        edgeRouterPoliciesChildren.name = 'Edge Router Policies';
+        let routerPoliciesChildren = new Children();
+        routerPoliciesChildren.id = createId();
+        routerPoliciesChildren.name = 'Router Policies';
 
         let serviceEdgeRouterPolicesChildren = new Children();
         serviceEdgeRouterPolicesChildren.id = createId();
-        serviceEdgeRouterPolicesChildren.name = 'Service Edge Router Policies';
+        serviceEdgeRouterPolicesChildren.name = 'Service Router Policies';
 
         servicesChildren = processServicesForTree(
             servicesChildren,
-            edgerouters,
+            routers,
             endpoints,
-            appwans,
+            servicePolicies,
             services,
-            edgeRouterPolicies,
+            routerPolicies,
             0,
             services.length
         );
 
-        edgerouterChildren = processEdgeroutersForTree(
-            edgerouterChildren,
-            edgerouters,
+        routerChildren = processRoutersForTree(
+            routerChildren,
+            routers,
             endpoints,
-            appwans,
+            servicePolicies,
             services,
-            edgeRouterPolicies,
+            routerPolicies,
             0,
-            edgerouters.length
+            routers.length
         );
 
-        if (edgerouterChildren) {
-            edgerouterChildren.name = edgerouterChildren.name + ' (' + edgerouterChildren.children.length + ')';
+        if (routerChildren) {
+            routerChildren.name = routerChildren.name + ' (' + routerChildren.children.length + ')';
         }
 
-        appwansChildren = processServicePoliciesForTree(
-            appwansChildren,
-            edgerouters,
+        servicPoliciesChildren = processServicePoliciesForTree(
+            servicPoliciesChildren,
             endpoints,
-            appwans,
+            servicePolicies,
             services,
-            edgeRouterPolicies,
             0,
-            appwans.length
+            servicePolicies.length
         );
 
-        edgeRouterPoliciesChildren = processEdgeRouterPoliciesForTree(
-            edgeRouterPoliciesChildren,
-            edgerouters,
+        routerPoliciesChildren = processEdgeRouterPoliciesForTree(
+            routerPoliciesChildren,
+            routers,
             endpoints,
-            appwans,
+            servicePolicies,
             services,
-            edgeRouterPolicies,
+            routerPolicies,
             0,
-            edgeRouterPolicies.length
+            routerPolicies.length
         );
 
-        if (edgeRouterPoliciesChildren) {
-            edgeRouterPoliciesChildren.name =
-                'Edge Router Policies (' + edgeRouterPoliciesChildren.children.length + ')';
+        if (routerPoliciesChildren) {
+            routerPoliciesChildren.name =
+                'Router Policies (' + routerPoliciesChildren.children.length + ')';
         }
 
         endpointsChildren = processIdentitiesForTree(
             endpointsChildren,
-            edgerouters,
+            routers,
             endpoints,
-            appwans,
+            servicePolicies,
             services,
-            edgeRouterPolicies,
+            routerPolicies,
             0,
             endpoints.length
         );
 
-        //serviceEdgeRouterPolicies
+        //serviceRouterPolicies
         serviceEdgeRouterPolicesChildren = processServiceEdgeRouterPoliciesForTree(
             serviceEdgeRouterPolicesChildren,
-            edgerouters,
+            routers,
             endpoints,
-            appwans,
             services,
-            edgeRouterPolicies,
-            serviceEdgeRouterPolicies,
+            routerPolicies,
+            serviceRouterPolicies,
             0,
-            serviceEdgeRouterPolicies.length
+            serviceRouterPolicies.length
         );
 
-        if (edgeRouterPoliciesChildren) {
+        if (routerPoliciesChildren) {
             serviceEdgeRouterPolicesChildren.name =
-                'Service Edge Router Policies (' + serviceEdgeRouterPolicesChildren.children.length + ')';
+                'Service Router Policies (' + serviceEdgeRouterPolicesChildren.children.length + ')';
         }
 
-        rootJson.children.push(appwansChildren);
+        rootJson.children.push(servicPoliciesChildren);
         rootJson.children.push(servicesChildren);
         rootJson.children.push(endpointsChildren);
-        rootJson.children.push(edgerouterChildren);
-        rootJson.children.push(edgeRouterPoliciesChildren);
+        rootJson.children.push(routerChildren);
+        rootJson.children.push(routerPoliciesChildren);
         rootJson.children.push(serviceEdgeRouterPolicesChildren);
         rootJson.lastId = uniqId;
 
