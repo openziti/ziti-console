@@ -187,6 +187,18 @@ export abstract class ListPageServiceClass {
         if (isEmpty(itemId)) {
             itemId = 'create';
         }
-        this.router?.navigateByUrl(`/${this.resourceType}/${itemId}`)
+        const baseUrl = this.getBaseURLPath();
+        this.router?.navigateByUrl(`${baseUrl}${itemId}`);
+    }
+
+    public getBaseURLPath() {
+        let path = '';
+        window.location.pathname.split('/').forEach(segment => {
+            if (isEmpty(segment)) {
+                return;
+            }
+            path += `${segment}/`;
+        });
+        return path;
     }
 }

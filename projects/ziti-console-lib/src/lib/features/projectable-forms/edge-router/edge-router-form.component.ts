@@ -14,12 +14,14 @@ import {Subscription} from 'rxjs';
 import {ProjectableForm} from "../projectable-form.class";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 
-import {isEmpty, delay, cloneDeep, isEqual, set} from 'lodash';
+import {isEmpty, delay, cloneDeep, isEqual, set, unset} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {EDGE_ROUTER_EXTENSION_SERVICE, EdgeRouterFormService} from './edge-router-form.service';
 import {MatDialogRef} from "@angular/material/dialog";
 import {ExtensionService} from "../../extendable/extensions-noop.service";
+import {ActivatedRoute, Router} from "@angular/router";
+import {EdgeRouter} from "../../../models/edge-router";
 
 @Component({
   selector: 'lib-edge-router-form',
@@ -37,6 +39,9 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
   @Input() edgeRouterRoleAttributes: any[] = [];
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
+  override entityType = 'edge-routers';
+  override entityClass = EdgeRouter;
+
   formView = 'simple';
   isEditing = false;
   servicesLoading = false;
@@ -53,9 +58,12 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
       public svc: EdgeRouterFormService,
       @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
       growlerService: GrowlerService,
-      @Inject(EDGE_ROUTER_EXTENSION_SERVICE) extService: ExtensionService
+      @Inject(EDGE_ROUTER_EXTENSION_SERVICE) extService: ExtensionService,
+      protected override router: Router,
+      protected override route: ActivatedRoute,
   ) {
-    super(growlerService, extService, zitiService);
+    super(growlerService, extService, zitiService, router, route);
+    this.edgeRouterRoleAttributes = [];
   }
 
   override ngOnInit(): void {
@@ -65,13 +73,6 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
         this.settings = results;
       })
     );
-    this.svc.getAssociatedServices(this.formData.id);
-    this.svc.getAssociatedIdentities(this.formData.id);
-    this.svc.getAuthPolicies().then(result => {
-      this.authPolicies = result;
-    });
-    this.initData = cloneDeep(this.formData);
-    this.extService.updateFormData(this.formData);
     this.subscription.add(
       this.extService.formDataChanged.subscribe((data) => {
         if (data.isEmpty) {
@@ -80,7 +81,37 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
         this.formData = data;
       })
     );
+  }
+
+  override entityUpdated() {
+    if (this.formData.id) {
+      this.formData.badges = [];
+      this.formData.badges = [];
+      if (this.formData.isOnline) {
+        this.formData.badges.push({label: 'Online', class: 'online', circle: 'true'});
+      } else {
+        this.formData.badges.push({label: 'Offline', class: 'offline', circle: 'false'});
+      }
+      if (!this.formData.isVerified) {
+        this.formData.badges.push({label: 'Unverified', class: 'unreg'});
+      }
+    }
+    this.getEdgeRouterRoleAttributes();
+    this.svc.getAssociatedServices(this.formData.id);
+    this.svc.getAssociatedIdentities(this.formData.id);
+    this.svc.getAuthPolicies().then(result => {
+      this.authPolicies = result;
+    });
+    this.loadTags();
+    unset(this.formData, '_links');
     this.initData = cloneDeep(this.formData);
+    this.extService.updateFormData(this.formData);
+  }
+
+  getEdgeRouterRoleAttributes() {
+    this.getRoleAttributes('edge-router-role-attributes').then((attributes) => {
+      this.edgeRouterRoleAttributes = attributes;
+    });
   }
 
   ngOnDestroy() {
@@ -102,7 +133,7 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
         this.save();
         break;
       case 'close':
-        this.closeModal(true);
+        this.closeForm();
         break;
       case 'toggle-view':
         this.formView = action.data;
@@ -120,7 +151,14 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
     this.isLoading = true;
     this.svc.save(this.formData).then((result) => {
       if (result?.close) {
-        this.closeModal(true, true);
+        if (this.isModal) {
+          this.closeModal(true, true);
+          return;
+        }
+        this.initData = this.formData;
+        this._dataChange = false;
+        this.returnToListPage();
+        return;
       }
       const data = result?.data?.id ? result.data : result;
       if (!isEmpty(data.id)) {

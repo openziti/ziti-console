@@ -22,6 +22,8 @@ import {SettingsServiceClass} from "../../services/settings-service.class";
 import {EDGE_ROUTER_EXTENSION_SERVICE} from "../../features/projectable-forms/edge-router/edge-router-form.service";
 import {ExtensionService} from "../../features/extendable/extensions-noop.service";
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
+import {Router} from "@angular/router";
+import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 
 const CSV_COLUMNS = [
     {label: 'Name', path: 'name'},
@@ -79,9 +81,10 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
         override csvDownloadService: CsvDownloadService,
         private growlerService: GrowlerService,
         private dialogForm: MatDialog,
-        @Inject(EDGE_ROUTER_EXTENSION_SERVICE) private extService: ExtensionService
+        @Inject(EDGE_ROUTER_EXTENSION_SERVICE) private extService: ExtensionService,
+        protected override router: Router
     ) {
-        super(settings, filterService, csvDownloadService, extService);
+        super(settings, filterService, csvDownloadService, extService, router);
     }
 
     validate = (formData): Promise<CallbackResults> => {
@@ -96,7 +99,7 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
                 <span class="circle ${row?.data?.isVerified}" title="Verified Status"></span>
                 <span class="circle ${row?.data?.isOnline}" title="Online Status"></span>
                 <strong>${row?.data?.name}</strong>
-              </div>`
+              </div>`;
         }
 
         const rolesRenderer = (row) => {
@@ -161,14 +164,15 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
                 headerName: 'Name',
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
+                cellRenderer: TableCellNameComponent,
+                cellRendererParams: { pathRoot: this.getBaseURLPath(), showRouterIcons: true },
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
                         return;
                     }
-                    this.openUpdate(data.data);
+                    this.openEditForm(data?.data?.id);
                 },
                 resizable: true,
-                cellRenderer: nameRenderer,
                 cellClass: 'nf-cell-vert-align tCol',
                 sortable: true,
                 filter: true,
@@ -197,7 +201,7 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
                     if (this.hasSelectedText()) {
                         return;
                     }
-                    this.openUpdate(data.data);
+                    this.openEditForm(data?.data?.id);
                 },
                 resizable: true,
                 cellRenderer: this.rolesRenderer,
