@@ -1,9 +1,13 @@
 <span class="cell-name-container">
-    <a href="./{{cellParams.pathRoot}}/{{item.id}}" (click)="linkClicked($event)">
+    <a href="./{{cellParams.pathRoot}}{{item.id}}" (click)="linkClicked($event)">
         <div class="col cell-name-renderer" data-id="{{item.id}}">
-            <div *ngIf="cellParams.showStatusIcons" class="cell-status-container">
+            <div *ngIf="cellParams.showIdentityIcons" class="cell-status-container">
                 <span class="circle {{item.hasApiSession}}" title="Api Session"></span>
                 <span class="circle {{item.hasEdgeRouterConnection}}" title="Edge Router Connected"></span>
+            </div>
+            <div *ngIf="cellParams.showRouterIcons" class="cell-status-container">
+                <span class="circle {{item.isVerified}}" title="Api Session"></span>
+                <span class="circle {{item.isOnline}}" title="Edge Router Connected"></span>
             </div>
             <strong>{{item.name}}</strong>
         </div>

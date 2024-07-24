@@ -28,7 +28,7 @@ import {
     ViewChild
 } from "@angular/core";
 
-import {defer, isEqual, unset, debounce, cloneDeep, isEmpty} from "lodash";
+import {defer, isEqual, unset, debounce, cloneDeep, isEmpty, slice} from "lodash";
 import {GrowlerModel} from "../messaging/growler.model";
 import {GrowlerService} from "../messaging/growler.service";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../extendable/extensions-noop.service";
@@ -219,7 +219,8 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     }
 
     returnToListPage() {
-        this.router?.navigateByUrl(`/${this.entityType}`);
+        const baseUrl = this.getBaseURLPath();
+        this.router?.navigateByUrl(`${baseUrl}`);
     }
 
     ngDoCheck() {
@@ -284,5 +285,18 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         return this.zitiService.get(type, {}, []).then((results) => {
             return results.data;
         });
+    }
+
+    public getBaseURLPath() {
+        let path = '';
+        const urlSegments = window.location.pathname.split('/');
+        const baseSegments: string[] = slice(urlSegments, 0, urlSegments.length - 1);
+        baseSegments.forEach(segment => {
+            if (isEmpty(segment)) {
+                return;
+            }
+            path += `/${segment}`;
+        });
+        return path;
     }
 }

@@ -61,7 +61,7 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
   headerActionClicked(action: string) {
     switch(action) {
       case 'add':
-        this.svc.openUpdate();
+        this.svc.openEditForm();
         break;
       case 'edit':
         this.svc.openUpdate();
@@ -108,10 +108,10 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
         this.itemToggled(event.item)
         break;
       case 'update':
-        this.svc.openUpdate(event.item);
+        this.svc.openEditForm(event?.item?.id);
         break;
       case 'create':
-        this.svc.openUpdate();
+        this.svc.openEditForm();
         break;
       case 'delete':
         this.deleteItem(event.item)
