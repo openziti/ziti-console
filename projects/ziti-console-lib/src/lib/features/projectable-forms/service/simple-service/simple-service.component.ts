@@ -11,6 +11,7 @@ import {CreationSummaryDialogComponent} from "../../../creation-summary-dialog/c
 import {isEmpty, isNil, isNaN, unset, cloneDeep, isEqual} from 'lodash';
 import {ValidationService} from '../../../../services/validation.service';
 import {ServicesPageService} from "../../../../pages/services/services-page.service";
+import {ActivatedRoute, Router} from "@angular/router";
 
 // @ts-ignore
 const {app} = window;
@@ -122,8 +123,10 @@ export class SimpleServiceComponent extends ProjectableForm {
       private dialogForm: MatDialog,
       private validationService: ValidationService,
       private servicesPageService: ServicesPageService,
+      protected override router: Router,
+      protected override route: ActivatedRoute,
   ) {
-    super(growlerService, extService, zitiService);
+    super(growlerService, extService, zitiService, router, route);
   }
 
   override ngOnInit() {
@@ -189,7 +192,7 @@ export class SimpleServiceComponent extends ProjectableForm {
         this.save();
         break;
       case 'close':
-        this.closeModal(true, true, 'cards')
+        this.router?.navigateByUrl(`/services/select`);
         break;
       case 'toggle-view':
         this.formView = action.data;

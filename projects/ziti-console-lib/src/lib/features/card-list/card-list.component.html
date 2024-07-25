@@ -1,4 +1,4 @@
-<div class="card-list-wrapper fullModal opened">
+<div class="card-list-wrapper ziti-page-container fullModal opened">
     <div class="title" style="filter: brightness(50%)">Create a service</div>
     <div class="subtitle">Choose a service type</div>
     <div class="card-list-container">
@@ -9,17 +9,19 @@
             [content]="'Simple services required fewer details, only asking for the most commonly used fields.'"
             [buttonText]="'Create Simple Service'"
             [id]="'SimpleServiceCard'"
+            [href]="'services/simple'"
         ></lib-card>
         <lib-card
-                (click)="cardSelected('advanced')"
-                [imageUrl]="'/assets/svgs/Advanced.svg'"
-                [title]="'Advanced'"
-                [content]="'Advanced services allow you to configure any option supported by the controller but are subsequently a bit more complex.'"
-                [buttonText]="'Create Advanced Service'"
-                [id]="'AdvancedServiceCard'"
+            (click)="cardSelected('advanced')"
+            [imageUrl]="'/assets/svgs/Advanced.svg'"
+            [title]="'Advanced'"
+            [content]="'Advanced services allow you to configure any option supported by the controller but are subsequently a bit more complex.'"
+            [buttonText]="'Create Advanced Service'"
+            [id]="'AdvancedServiceCard'"
+            [href]="'services/advanced'"
         ></lib-card>
     </div>
-    <div (click)="closeModal()" class="buttonBall close" id="EscZitiAWClose">
+    <div (click)="returnToListPage()" class="buttonBall close" id="EscZitiAWClose">
         <div class="buttonLabel">ESC</div>
     </div>
 

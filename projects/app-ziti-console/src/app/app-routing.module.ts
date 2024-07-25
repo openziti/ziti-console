@@ -29,7 +29,10 @@ import {
   NetworkVisualizerComponent,
   EdgeRouterPoliciesPageComponent,
   IdentityFormComponent,
-  EdgeRouterFormComponent
+  EdgeRouterFormComponent,
+  CardListComponent,
+  ServiceFormComponent,
+  SimpleServiceComponent
 } from "ziti-console-lib";
 import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
@@ -85,6 +88,29 @@ const routes: Routes = [
   {
     path: 'services',
     component: ServicesPageComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'services/simple',
+    component: SimpleServiceComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'services/select',
+    component: CardListComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'services/advanced',
+    redirectTo: 'services/advanced/create',
+    pathMatch: 'full'
+  },
+  {
+    path: 'services/advanced/:id',
+    component: ServiceFormComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
   },
