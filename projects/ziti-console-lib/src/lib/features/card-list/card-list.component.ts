@@ -5,6 +5,7 @@ import {SERVICE_EXTENSION_SERVICE, ServiceFormService} from "../projectable-form
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../services/ziti-data.service";
 import {GrowlerService} from "../messaging/growler.service";
 import {ExtensionService} from "../extendable/extensions-noop.service";
+import {ActivatedRoute, Router} from "@angular/router";
 
 @Component({
   selector: 'lib-card-list',
@@ -22,9 +23,11 @@ export class CardListComponent extends ProjectableForm {
       public svc: ServiceFormService,
       @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
       growlerService: GrowlerService,
-      @Inject(SERVICE_EXTENSION_SERVICE) extService: ExtensionService
+      @Inject(SERVICE_EXTENSION_SERVICE) extService: ExtensionService,
+      protected override router: Router,
+      protected override route: ActivatedRoute,
   ) {
-    super(growlerService, extService, zitiService);
+    super(growlerService, extService, zitiService, router, route);
   }
   clear(): void {
   }
@@ -33,6 +36,6 @@ export class CardListComponent extends ProjectableForm {
   }
 
   cardSelected(type) {
-    this.selected.emit(type)
+    this.router.navigateByUrl(`/services/${type}`);
   }
 }

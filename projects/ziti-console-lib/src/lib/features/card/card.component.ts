@@ -12,4 +12,9 @@ export class CardComponent {
   @Input() content = '';
   @Input() buttonText = '';
   @Input() id = '';
+  @Input() href = '';
+
+  linkClicked(event) {
+    event.preventDefault();
+  }
 }

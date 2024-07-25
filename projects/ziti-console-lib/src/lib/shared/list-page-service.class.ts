@@ -183,11 +183,11 @@ export abstract class ListPageServiceClass {
         return text?.length > 0;
     }
 
-    public openEditForm(itemId = '') {
+    public openEditForm(itemId = '', baseUrl?) {
         if (isEmpty(itemId)) {
             itemId = 'create';
         }
-        const baseUrl = this.getBaseURLPath();
+        baseUrl = baseUrl ? baseUrl : this.getBaseURLPath();
         this.router?.navigateByUrl(`${baseUrl}${itemId}`);
     }
 

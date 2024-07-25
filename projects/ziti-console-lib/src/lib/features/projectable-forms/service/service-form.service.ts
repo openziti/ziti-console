@@ -46,7 +46,7 @@ export class ServiceFormService {
         total: 100
     }
 
-    formData: any;
+    formData: any = {};
     configData: any;
     selectedConfigId: any = '';
     configs: any = [];

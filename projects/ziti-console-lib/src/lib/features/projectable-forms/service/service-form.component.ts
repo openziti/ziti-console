@@ -41,6 +41,8 @@ import {SERVICE_EXTENSION_SERVICE, ServiceFormService} from './service-form.serv
 import {MatDialogRef} from "@angular/material/dialog";
 import {ExtensionService} from "../../extendable/extensions-noop.service";
 import {ConfigEditorComponent} from "../../config-editor/config-editor.component";
+import {Service} from "../../../models/service";
+import {ActivatedRoute, Router} from "@angular/router";
 
 @Component({
   selector: 'lib-service-form',
@@ -93,15 +95,21 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   formDataInvalid = false;
   settings: any = {};
 
+  override entityType = 'services';
+  override entityClass = Service;
+
   @ViewChild("configEditor", {read: ConfigEditorComponent}) configEditor!: ConfigEditorComponent;
   constructor(
       @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
       public svc: ServiceFormService,
       @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
       growlerService: GrowlerService,
-      @Inject(SERVICE_EXTENSION_SERVICE) extService: ExtensionService
+      @Inject(SERVICE_EXTENSION_SERVICE) extService: ExtensionService,
+      protected override router: Router,
+      protected override route: ActivatedRoute,
   ) {
-    super(growlerService, extService, zitiService);
+    super(growlerService, extService, zitiService, router, route);
+    this.formData = {};
   }
 
   override ngOnInit(): void {
@@ -111,9 +119,10 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
         this.settings = results;
       })
     );
-    this.jwt = this.formData.enrollmentJwt;
-    this.token = this.formData.enrollmentToken;
-    this.enrollmentExpiration = this.formData?.enrollmentExpiresAt;
+  }
+
+  override entityUpdated() {
+    this.getServiceRoleAttributes();
     this.svc.resetFormData();
     this.svc.getAssociatedConfigs();
     this.svc.getAssociatedTerminators();
@@ -121,12 +130,22 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     this.svc.errors = {};
     this.initData = cloneDeep(this.formData);
     this.subscription.add(
-      this.extService.formDataChanged.subscribe((data) => {
-        if (data.isEmpty) {
-          return;
-        }
-      })
+        this.extService.formDataChanged.subscribe((data) => {
+          if (data.isEmpty) {
+            return;
+          }
+        })
     );
+    this.loadTags();
+    unset(this.formData, '_links');
+    this.initData = cloneDeep(this.formData);
+    this.extService.updateFormData(this.formData);
+  }
+
+  getServiceRoleAttributes() {
+    this.getRoleAttributes('service-role-attributes').then((attributes) => {
+      this.serviceRoleAttributes = attributes;
+    });
   }
 
   ngOnDestroy() {
@@ -185,7 +204,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
         break;
       case 'close':
         this.resetForm();
-        this.closeModal(true);
+        this.router?.navigateByUrl(`/services`);
         break;
       case 'toggle-view':
         this.formView = action.data;

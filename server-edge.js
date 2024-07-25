@@ -53,6 +53,7 @@ app.use(helmet(helmetOptions));
 app.use('/', express.static('dist/app-ziti-console'));
 app.use('/:name', express.static('dist/app-ziti-console'));
 app.use('/:name/:id', express.static('dist/app-ziti-console'));
+app.use('/:name/:type/:id', express.static('dist/app-ziti-console'));
 
 let maxAttempts = 100;
 StartServer(port);
