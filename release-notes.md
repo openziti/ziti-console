@@ -1,3 +1,10 @@
+# app-ziti-console-v3.4.1
+# ziti-console-lib-v0.4.1
+*
+## Feature/Improvements
+* [Issue #416](https://github.com/openziti/ziti-console/issues/416) - Enable "deep routes" for create/edit pages
+
+
 # app-ziti-console-v3.4.0
 # ziti-console-lib-v0.4.0
 *
