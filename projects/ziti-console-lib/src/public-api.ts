@@ -31,6 +31,7 @@ export * from './lib/services/deactivate-guard.service';
 export * from './lib/services/csv-download.service';
 export * from './lib/features/projectable-forms/configuration/configuration-form.component';
 export * from './lib/features/extendable/extendable.component';
+export * from './lib/features/card-list/card-list.component';
 export * from './lib/features/sidebars/side-toolbar/side-toolbar.component';
 export * from './lib/features/sidebars/side-navbar/side-navbar.component';
 export * from './lib/features/sidebars/side-banner/side-banner.component';
@@ -57,6 +58,7 @@ export * from './lib/features/projectable-forms/edge-router/edge-router-form.com
 export * from './lib/features/projectable-forms/edge-router/edge-router-form.service';
 export * from './lib/features/projectable-forms/service/service-form.component';
 export * from './lib/features/projectable-forms/service/service-form.service';
+export * from './lib/features/projectable-forms/service/simple-service/simple-service.component';
 export * from './lib/features/projectable-forms/service-policy/service-policy-form.service';
 export * from './lib/features/projectable-forms/service-policy/service-policy-form.component';
 export * from './lib/features/projectable-forms/edge-router-policy/edge-router-policy-form.service';

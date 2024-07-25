@@ -23,14 +23,6 @@
     </lib-data-table>
 </div>
 <lib-side-modal [(open)]="svc.sideModalOpen" [showClose]="false">
-    <lib-identity-form
-        *ngIf="svc.modalType === 'identity' && svc.sideModalOpen"
-        [isModal]="true"
-        [entityId]="svc.selectedEntityId"
-        [identityRoleAttributes]="identityRoleAttributes"
-        (close)="closeModal($event)"
-        (dataChange)="dataChanged($event)"
-    ></lib-identity-form>
     <lib-overrides
             *ngIf="svc.modalType === 'overrides' && svc.sideModalOpen"
             [identity]="svc.selectedIdentity"

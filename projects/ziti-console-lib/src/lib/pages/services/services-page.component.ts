@@ -61,11 +61,10 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
   headerActionClicked(action: string) {
     switch(action) {
       case 'add':
-        this.svc.serviceType = '';
-        this.svc.openUpdate();
+        this.svc.openSelection();
         break;
       case 'edit':
-        this.svc.openUpdate();
+        this.svc.openAdvanced();
         break;
       case 'delete':
         const selectedItems = this.rowData.filter((row) => {
@@ -82,14 +81,13 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
     switch(event?.action) {
       case 'toggleAll':
       case 'toggleItem':
-        this.itemToggled(event.item)
+        this.itemToggled(event.item);
         break;
       case 'update':
-        this.svc.serviceType = 'advanced';
-        this.svc.openUpdate(event.item);
+        this.svc.openAdvanced(event.item.id);
         break;
       case 'create':
-        this.svc.openUpdate();
+        this.svc.openSelection();
         break;
       case 'delete':
         this.deleteItem(event.item)

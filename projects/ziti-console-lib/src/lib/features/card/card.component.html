@@ -1,12 +1,14 @@
-<div class="service-card-container">
-    <div class="buttonCard selectType" [id]="id">
-        <div style="background-image: url({{imageUrl}})" class="icon"></div>
-        <div class="title">{{title}}</div>
-        <div class="content">
-            {{ content }}
-        </div>
-        <div class="row center buttonArea">
-            <button class="save">{{buttonText}}</button>
+<a href="/{{href}}" (click)="linkClicked($event)">
+    <div class="service-card-container">
+        <div class="buttonCard selectType" [id]="id">
+            <div style="background-image: url({{imageUrl}})" class="icon"></div>
+            <div class="title">{{title}}</div>
+            <div class="content">
+                {{ content }}
+            </div>
+            <div class="row center buttonArea">
+                <button class="save">{{buttonText}}</button>
+            </div>
         </div>
     </div>
-</div>
+</a>
