@@ -47,19 +47,16 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
     override ngOnInit() {
         this.tabs = this.tabNames.getTabs('services');
         this.svc.refreshData = this.refreshData;
-        this.svc.getConfigTypes().then((result) => {
-            console.log(result);
-        });
         super.ngOnInit();
     }
 
     headerActionClicked(action: string) {
         switch (action) {
             case 'add':
-                this.svc.openUpdate();
+                this.svc.openEditForm();
                 break;
             case 'edit':
-                this.svc.openUpdate(action);
+                this.svc.openEditForm();
                 break;
             case 'delete':
                 const selectedItems = this.rowData.filter((row) => {
@@ -79,10 +76,10 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
                 this.itemToggled(event.item)
                 break;
             case 'update':
-                this.svc.openUpdate(event.item);
+                this.svc.openEditForm(event.item?.id);
                 break;
             case 'create':
-                this.svc.openUpdate();
+                this.svc.openEditForm();
                 break;
             case 'delete':
                 this.deleteItem(event.item)
