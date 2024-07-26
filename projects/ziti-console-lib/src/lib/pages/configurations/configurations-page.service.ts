@@ -28,6 +28,8 @@ import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service
 import {CsvDownloadService} from "../../services/csv-download.service";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
 import {Service} from "../../models/service";
+import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
+import {Router} from "@angular/router";
 
 @Injectable({
     providedIn: 'root'
@@ -50,9 +52,10 @@ export class ConfigurationsPageService extends ListPageServiceClass {
         @Inject(SETTINGS_SERVICE) settings: SettingsService,
         filterService: DataTableFilterService,
         csvDownloadService: CsvDownloadService,
-        @Inject(SHAREDZ_EXTENSION) extService: ExtensionService
+        @Inject(SHAREDZ_EXTENSION) extService: ExtensionService,
+        protected override router: Router
     ) {
-        super(settings, filterService, csvDownloadService, extService);
+        super(settings, filterService, csvDownloadService, extService, router);
     }
 
     initTableColumns(): any {
@@ -71,12 +74,13 @@ export class ConfigurationsPageService extends ListPageServiceClass {
                 headerName: 'Name',
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
-                cellRenderer: this.nameColumnRenderer,
+                cellRenderer: TableCellNameComponent,
+                cellRendererParams: { pathRoot: 'configs/' },
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
                         return;
                     }
-                    this.openUpdate(data.data);
+                    this.openEditForm(data?.data?.id);
                 },
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
