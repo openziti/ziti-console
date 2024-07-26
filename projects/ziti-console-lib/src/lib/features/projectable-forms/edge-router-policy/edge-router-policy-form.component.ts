@@ -22,6 +22,7 @@ import {MatDialogRef} from "@angular/material/dialog";
 import {ExtensionService} from "../../extendable/extensions-noop.service";
 import {GrowlerModel} from "../../messaging/growler.model";
 import {EdgeRouterPolicy} from "../../../models/edge-router-policy";
+import {ActivatedRoute, Router} from "@angular/router";
 
 @Component({
   selector: 'lib-edge-router-policy-form',
@@ -36,12 +37,6 @@ import {EdgeRouterPolicy} from "../../../models/edge-router-policy";
 })
 export class EdgeRouterPolicyFormComponent extends ProjectableForm implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @Input() formData: EdgeRouterPolicy | any = {};
-  @Input() edgeRouterRoleAttributes: any[] = [];
-  @Input() edgeRouterNamedAttributes: any[] = [];
-  @Input() edgeRouterNamedAttributesMap = {};
-  @Input() identityRoleAttributes: any[] = [];
-  @Input() identityNamedAttributes: any[] = [];
-  @Input() identityNamedAttributesMap = {};
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
   selectedEdgeRouterRoleAttributes = [];
@@ -58,14 +53,19 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
   showMore = false;
   settings: any = {};
 
+  override entityType = 'edge-router-policies';
+  override entityClass = EdgeRouterPolicy;
+
   constructor(
       @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
       public svc: EdgeRouterPolicyFormService,
       @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
       growlerService: GrowlerService,
-      @Inject(EDGE_ROUTER_POLICY_EXTENSION_SERVICE) extService: ExtensionService
+      @Inject(EDGE_ROUTER_POLICY_EXTENSION_SERVICE) extService: ExtensionService,
+      protected override router: Router,
+      protected override route: ActivatedRoute,
   ) {
-    super(growlerService, extService, zitiService);
+    super(growlerService, extService, zitiService, router, route);
   }
 
   override ngOnInit(): void {
@@ -89,8 +89,29 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
           this.formData = data;
         })
     );
-    this.svc.edgeRouterNamedAttributesMap = this.edgeRouterNamedAttributesMap;
-    this.svc.identityNamedAttributesMap = this.identityNamedAttributesMap;
+    this.svc.edgeRouterNamedAttributesMap = this.svc.edgeRouterNamedAttributesMap;
+    this.svc.identityNamedAttributesMap = this.svc.identityNamedAttributesMap;
+    this.initData = cloneDeep(this.formData);
+  }
+
+  override entityUpdated() {
+    this.loadAttributes();
+    if (isEmpty(this.formData.id)) {
+      this.formData = new EdgeRouterPolicy();
+    }
+    this.initData = cloneDeep(this.formData);
+    this.initSelectedAttributes();
+    this.extService.updateFormData(this.formData);
+    this.subscription.add(
+        this.extService.formDataChanged.subscribe((data) => {
+          if (data.isEmpty) {
+            return;
+          }
+          this.formData = data;
+        })
+    );
+    this.svc.edgeRouterNamedAttributesMap = this.svc.edgeRouterNamedAttributesMap;
+    this.svc.identityNamedAttributesMap = this.svc.identityNamedAttributesMap;
     this.initData = cloneDeep(this.formData);
   }
 
@@ -103,6 +124,17 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
     this.isEditing = !isEmpty(this.formData.id);
   }
 
+  loadAttributes() {
+    const promises = [];
+    promises.push(this.svc.getEdgeRouterRoleAttributes());
+    promises.push(this.svc.getIdentityRoleAttributes());
+    promises.push(this.svc.getEdgeRouterNamedAttributes());
+    promises.push(this.svc.getIdentityNamedAttributes());
+    Promise.all(promises).then(() => {
+      this.initSelectedAttributes();
+    });
+  }
+
   initSelectedAttributes() {
     if (isEmpty(this.formData.id)) {
       this.svc.associatedEdgeRouters = [];
@@ -111,8 +143,8 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
       this.svc.associatedIdentityNames = [];
       return;
     }
-    const edgeRouterIdAttributesMap = invert(this.edgeRouterNamedAttributesMap);
-    const identityIdAttributesMap = invert(this.identityNamedAttributesMap);
+    const edgeRouterIdAttributesMap = invert(this.svc.edgeRouterNamedAttributesMap);
+    const identityIdAttributesMap = invert(this.svc.identityNamedAttributesMap);
     this.selectedEdgeRouterRoleAttributes = [];
     this.selectedEdgeRouterNamedAttributes = [];
     this.selectedIdentityRoleAttributes = [];
@@ -142,7 +174,7 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
         this.save();
         break;
       case 'close':
-        this.closeModal(true);
+        this.returnToListPage();
         break;
       case 'toggle-view':
         this.formView = action.data;
@@ -169,6 +201,7 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
     this.svc.save(this.formData).then((result) => {
       if (result?.close) {
         this.closeModal(true, true);
+        this.returnToListPage();
       }
       const data = result?.data?.id ? result.data : result;
       if (!isEmpty(data.id)) {
@@ -183,8 +216,8 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
   }
 
   applySelectedAttributes() {
-    this.formData.edgeRouterRoles = this.svc.getSelectedRoles(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes, this.edgeRouterNamedAttributesMap);
-    this.formData.identityRoles = this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.identityNamedAttributesMap);
+    this.formData.edgeRouterRoles = this.svc.getSelectedRoles(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes, this.svc.edgeRouterNamedAttributesMap);
+    this.formData.identityRoles = this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.svc.identityNamedAttributesMap);
   }
 
   validate() {
@@ -207,10 +240,10 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
   }
 
   copyCLICommand() {
-    const erRoles = this.svc.getSelectedRoles(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes, this.edgeRouterNamedAttributesMap);
+    const erRoles = this.svc.getSelectedRoles(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes, this.svc.edgeRouterNamedAttributesMap);
     let erRolesVar = this.getRolesCLIVariable(erRoles);
 
-    const identityRoles = this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.identityNamedAttributesMap);
+    const identityRoles = this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.svc.identityNamedAttributesMap);
     let identityRolesVar = this.getRolesCLIVariable(identityRoles);
 
     const command = `ziti edge ${this.formData.id ? 'update' : 'create'} edge-router-policy ${this.formData.id ? `'${this.formData.id}'` : ''} ${this.formData.id ? '--name' : ''} '${this.formData.name}'${this.formData.id ? '' : ` --semantic '${this.formData.semantic}`} --edge-router-roles '${erRolesVar}' --identity-roles '${identityRolesVar}'`;
@@ -226,10 +259,10 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
   }
 
   copyCURLCommand() {
-    const erRoles = this.svc.getSelectedRoles(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes, this.edgeRouterNamedAttributesMap);
+    const erRoles = this.svc.getSelectedRoles(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes, this.svc.edgeRouterNamedAttributesMap);
     let erRolesVar = this.getRolesCURLVariable(erRoles);
 
-    const identityRoles = this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.identityNamedAttributesMap);
+    const identityRoles = this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.svc.identityNamedAttributesMap);
     let identityRolesVar = this.getRolesCURLVariable(identityRoles);
 
     const command = `curl '${this.apiCallURL}' \\
@@ -257,8 +290,8 @@ ${this.formData.id ? '--request PATCH \\' : ''}
     const data: any = {
       name: this.formData?.name || '',
       appData: this.formData?.appData || '',
-      edgeRouterRoles: this.svc.getSelectedRoles(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes, this.edgeRouterNamedAttributesMap),
-      identityRoles: this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.identityNamedAttributesMap),
+      edgeRouterRoles: this.svc.getSelectedRoles(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes, this.svc.edgeRouterNamedAttributesMap),
+      identityRoles: this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.svc.identityNamedAttributesMap),
       semantic: this.formData.semantic,
       type: this.formData.type
     }
