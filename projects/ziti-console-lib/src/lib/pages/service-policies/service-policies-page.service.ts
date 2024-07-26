@@ -33,6 +33,8 @@ import {GrowlerService} from "../../features/messaging/growler.service";
 import {MatDialog} from "@angular/material/dialog";
 import {SettingsServiceClass} from "../../services/settings-service.class";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
+import {Router} from "@angular/router";
+import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 
 const CSV_COLUMNS = [
     {label: 'Name', path: 'name'},
@@ -92,9 +94,10 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
         override csvDownloadService: CsvDownloadService,
         private growlerService: GrowlerService,
         private dialogForm: MatDialog,
-        @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService
+        @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService,
+        protected override router: Router
     ) {
-        super(settings, filterService, csvDownloadService, extService);
+        super(settings, filterService, csvDownloadService, extService, router);
         this.filterService.filtersChanged.subscribe(filters => {
             let serviceFilter, identityFilter, postureFilter;
             filters.forEach((filter) => {
@@ -238,15 +241,16 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
                 headerName: 'Name',
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
+                cellRenderer: TableCellNameComponent,
+                cellRendererParams: { pathRoot: 'service-policies/' },
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
                         return;
                     }
                     this.serviceType = 'advanced';
-                    this.openUpdate(data.data);
+                    this.openEditForm(data?.data.id);
                 },
                 resizable: true,
-                cellRenderer: this.nameColumnRenderer,
                 cellClass: 'nf-cell-vert-align tCol',
                 sortable: true,
                 filter: true,
@@ -265,7 +269,7 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
                         return;
                     }
                     this.serviceType = '';
-                    this.openUpdate(data.data);
+                    this.openEditForm(data.data.id);
                 },
                 resizable: true,
                 cellRenderer: this.rolesRenderer,
@@ -284,7 +288,7 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
                         return;
                     }
                     this.serviceType = '';
-                    this.openUpdate(data.data);
+                    this.openEditForm(data.data.id);
                 },
                 resizable: true,
                 cellRenderer: this.rolesRenderer,
@@ -303,7 +307,7 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
                         return;
                     }
                     this.serviceType = '';
-                    this.openUpdate(data.data);
+                    this.openEditForm(data.data.id);
                 },
                 resizable: true,
                 cellRenderer: this.rolesRenderer,
@@ -322,7 +326,7 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
                         return;
                     }
                     this.serviceType = '';
-                    this.openUpdate(data.data);
+                    this.openEditForm(data.data.id);
                 },
                 resizable: true,
                 cellRenderer: (row) => {
@@ -342,7 +346,7 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
                         return;
                     }
                     this.serviceType = '';
-                    this.openUpdate(data.data);
+                    this.openEditForm(data.data.id);
                 },
                 resizable: true,
                 cellRenderer: (row) => {
@@ -367,7 +371,7 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
                         return;
                     }
                     this.serviceType = '';
-                    this.openUpdate(data.data);
+                    this.openEditForm(data.data.id);
                 },
                 hide: true
             }

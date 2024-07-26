@@ -22,6 +22,7 @@ import {MatDialogRef} from "@angular/material/dialog";
 import {ExtensionService} from "../../extendable/extensions-noop.service";
 import {ServicePolicy} from "../../../models/service-policy";
 import {GrowlerModel} from "../../messaging/growler.model";
+import {ActivatedRoute, Router} from "@angular/router";
 
 @Component({
   selector: 'lib-service-policy-form',
@@ -36,15 +37,6 @@ import {GrowlerModel} from "../../messaging/growler.model";
 })
 export class ServicePolicyFormComponent extends ProjectableForm implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @Input() formData: ServicePolicy | any = {};
-  @Input() serviceRoleAttributes: any[] = [];
-  @Input() serviceNamedAttributes: any[] = [];
-  @Input() serviceNamedAttributesMap = {};
-  @Input() identityRoleAttributes: any[] = [];
-  @Input() identityNamedAttributes: any[] = [];
-  @Input() identityNamedAttributesMap = {};
-  @Input() postureRoleAttributes: any[] = [];
-  @Input() postureNamedAttributes: any[] = [];
-  @Input() postureNamedAttributesMap = {};
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
   selectedServiceRoleAttributes = [];
@@ -63,14 +55,19 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
   showMore = false;
   settings: any = {};
 
+  override entityType = 'service-policies';
+  override entityClass = ServicePolicy;
+
   constructor(
       @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
       public svc: ServicePolicyFormService,
       @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
       growlerService: GrowlerService,
-      @Inject(SERVICE_POLICY_EXTENSION_SERVICE) extService: ExtensionService
+      @Inject(SERVICE_POLICY_EXTENSION_SERVICE) extService: ExtensionService,
+      protected override router: Router,
+      protected override route: ActivatedRoute,
   ) {
-    super(growlerService, extService, zitiService);
+    super(growlerService, extService, zitiService, router, route);
   }
 
   override ngOnInit(): void {
@@ -80,11 +77,22 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
           this.settings = results;
         })
     );
+  }
+
+  override entityUpdated() {
+    const promises = [];
+    promises.push(this.svc.getServiceRoleAttributes());
+    promises.push(this.svc.getIdentityRoleAttributes());
+    promises.push(this.svc.getServiceNamedAttributes());
+    promises.push(this.svc.getIdentityNamedAttributes());
+    promises.push(this.svc.getPostureNamedAttributes());
+    Promise.all(promises).then(() => {
+      this.initSelectedAttributes();
+    });
     if (isEmpty(this.formData.id)) {
       this.formData = new ServicePolicy();
     }
     this.initData = cloneDeep(this.formData);
-    this.initSelectedAttributes();
     this.extService.updateFormData(this.formData);
     this.subscription.add(
         this.extService.formDataChanged.subscribe((data) => {
@@ -94,8 +102,6 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
           this.formData = data;
         })
     );
-    this.svc.serviceNamedAttributesMap = this.serviceNamedAttributesMap;
-    this.svc.identityNamedAttributesMap = this.identityNamedAttributesMap;
     this.initData = cloneDeep(this.formData);
   }
 
@@ -118,9 +124,9 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
       this.svc.associatedPostureCheckNames = [];
       return;
     }
-    const serviceIdAttributesMap = invert(this.serviceNamedAttributesMap);
-    const identityIdAttributesMap = invert(this.identityNamedAttributesMap);
-    const postureIdAttributesMap = invert(this.postureNamedAttributesMap);
+    const serviceIdAttributesMap = invert(this.svc.serviceNamedAttributesMap);
+    const identityIdAttributesMap = invert(this.svc.identityNamedAttributesMap);
+    const postureIdAttributesMap = invert(this.svc.postureNamedAttributesMap);
     this.selectedServiceRoleAttributes = [];
     this.selectedServiceNamedAttributes = [];
     this.selectedIdentityRoleAttributes = [];
@@ -159,7 +165,7 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
         this.save();
         break;
       case 'close':
-        this.closeModal(true);
+        this.returnToListPage();
         break;
       case 'toggle-view':
         this.formView = action.data;
@@ -194,15 +200,16 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
       } else {
         this.initData = this.formData;
       }
+      this.returnToListPage();
     }).finally(() => {
       this.isLoading = false;
     });
   }
 
   applySelectedAttributes() {
-    this.formData.serviceRoles = this.svc.getSelectedRoles(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.serviceNamedAttributesMap);
-    this.formData.identityRoles = this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.identityNamedAttributesMap);
-    this.formData.postureCheckRoles = this.svc.getSelectedRoles(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes, this.postureNamedAttributesMap);
+    this.formData.serviceRoles = this.svc.getSelectedRoles(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.svc.serviceNamedAttributesMap);
+    this.formData.identityRoles = this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.svc.identityNamedAttributesMap);
+    this.formData.postureCheckRoles = this.svc.getSelectedRoles(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes, this.svc.postureNamedAttributesMap);
   }
 
   validate() {
@@ -225,13 +232,13 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
   }
 
   copyCLICommand() {
-    const serviceRoles = this.svc.getSelectedRoles(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.serviceNamedAttributesMap);
+    const serviceRoles = this.svc.getSelectedRoles(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.svc.serviceNamedAttributesMap);
     const serviceRolesVar = this.getRolesCLIVariable(serviceRoles);
 
-    const identityRoles = this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.identityNamedAttributesMap);
+    const identityRoles = this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.svc.identityNamedAttributesMap);
     const identityRolesVar = this.getRolesCLIVariable(identityRoles);
 
-    const pcRoles = this.svc.getSelectedRoles(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes, this.postureNamedAttributesMap);
+    const pcRoles = this.svc.getSelectedRoles(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes, this.svc.postureNamedAttributesMap);
     const pcRolesVar = this.getRolesCLIVariable(pcRoles);
 
     const command = `ziti edge ${this.formData.id ? 'update' : 'create'} service-policy ${this.formData.id ? `'${this.formData.id}'` : ''} ${this.formData.id ? '--name' : ''} '${this.formData.name}' ${this.formData.id ? '' : this.formData.type}${this.formData.id ? '' : ` --semantic '${this.formData.semantic}'`} --service-roles '${serviceRolesVar}' --identity-roles '${identityRolesVar}' --posture-check-roles '${pcRolesVar}'`;
@@ -247,13 +254,13 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
   }
 
   copyCURLCommand() {
-    const serviceRoles = this.svc.getSelectedRoles(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.serviceNamedAttributesMap);
+    const serviceRoles = this.svc.getSelectedRoles(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.svc.serviceNamedAttributesMap);
     const serviceRolesVar = this.getRolesCURLVariable(serviceRoles);
 
-    const identityRoles = this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.identityNamedAttributesMap);
+    const identityRoles = this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.svc.identityNamedAttributesMap);
     const identityRolesVar = this.getRolesCURLVariable(identityRoles);
 
-    const pcRoles = this.svc.getSelectedRoles(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes, this.postureNamedAttributesMap);
+    const pcRoles = this.svc.getSelectedRoles(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes, this.svc.postureNamedAttributesMap);
     const pcRolesVar = this.getRolesCURLVariable(pcRoles);
 
     const command = `curl '${this.apiCallURL}' \\
@@ -281,9 +288,9 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
     const data: any = {
       name: this.formData?.name || '',
       appData: this.formData?.appData || '',
-      serviceRoles: this.svc.getSelectedRoles(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.serviceNamedAttributesMap),
-      identityRoles: this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.identityNamedAttributesMap),
-      postureCheckRoles: this.svc.getSelectedRoles(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes, this.postureNamedAttributesMap),
+      serviceRoles: this.svc.getSelectedRoles(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.svc.serviceNamedAttributesMap),
+      identityRoles: this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.svc.identityNamedAttributesMap),
+      postureCheckRoles: this.svc.getSelectedRoles(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes, this.svc.postureNamedAttributesMap),
       semantic: this.formData.semantic,
       type: this.formData.type
     }
