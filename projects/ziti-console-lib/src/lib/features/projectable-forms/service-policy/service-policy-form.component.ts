@@ -168,6 +168,7 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
   }
 
   async save(event?) {
+    this.formData.name = this.formData.name.trim();
     const isValid = this.validate();
     const isExtValid = await this.extService.validateData();
     if(!isValid || !isExtValid) {
