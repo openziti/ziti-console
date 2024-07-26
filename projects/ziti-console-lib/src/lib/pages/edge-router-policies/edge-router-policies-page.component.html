@@ -18,18 +18,4 @@
     >
     </lib-data-table>
 </div>
-<lib-side-modal [(open)]="svc.sideModalOpen" [showClose]="false">
-    <lib-edge-router-policy-form
-            *ngIf="svc.sideModalOpen"
-            [formData]="svc.selectedEdgeRouterPolicy"
-            [edgeRouterRoleAttributes]="svc.routerRoleAttributes"
-            [edgeRouterNamedAttributes]="svc.routerNamedAttributes"
-            [edgeRouterNamedAttributesMap]="svc.routerNamedAttributesMap"
-            [identityRoleAttributes]="svc.identityRoleAttributes"
-            [identityNamedAttributes]="svc.identityNamedAttributes"
-            [identityNamedAttributesMap]="svc.identityNamedAttributesMap"
-            (close)="closeModal($event)"
-            (dataChange)="dataChanged($event)">
-    </lib-edge-router-policy-form>
-</lib-side-modal>
 <lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

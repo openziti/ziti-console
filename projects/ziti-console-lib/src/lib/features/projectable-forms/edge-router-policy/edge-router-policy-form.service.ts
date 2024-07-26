@@ -25,6 +25,12 @@ export class EdgeRouterPolicyFormService {
     edgeRouterNamedAttributesMap: any = {};
     identityNamedAttributesMap: any = {};
 
+    identityNamedAttributes: any = [];
+    edgeRouterNamedAttributes: any = [];
+
+    edgeRouterRoleAttributes: any = [];
+    identityRoleAttributes: any = [];
+
     constructor(
         @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
         @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
@@ -148,6 +154,42 @@ export class EdgeRouterPolicyFormService {
             });
             this.associatedIdentityNames = [...this.associatedIdentityNames, ...namedAttributes];
             this.associatedIdentityNames = sortedUniq(this.associatedIdentityNames);
+        });
+    }
+
+    public getEdgeRouterRoleAttributes() {
+        return this.zitiService.get('edge-router-role-attributes', {}, []).then((result) => {
+            this.edgeRouterRoleAttributes = result.data;
+            return result;
+        });
+    }
+
+    public getIdentityNamedAttributes() {
+        return this.zitiService.get('identities', {}, []).then((result) => {
+            const namedAttributes = result.data.map((identity) => {
+                this.identityNamedAttributesMap[identity.name] = identity.id;
+                return identity.name;
+            });
+            this.identityNamedAttributes = namedAttributes;
+            return namedAttributes;
+        });
+    }
+
+    public getEdgeRouterNamedAttributes() {
+        return this.zitiService.get('edge-routers', {}, []).then((result) => {
+            const namedAttributes = result.data.map((router) => {
+                this.edgeRouterNamedAttributesMap[router.name] = router.id;
+                return router.name;
+            });
+            this.edgeRouterNamedAttributes = namedAttributes;
+            return namedAttributes;
+        });
+    }
+
+    public getIdentityRoleAttributes() {
+        return this.zitiService.get('identity-role-attributes', {}, []).then((result) => {
+            this.identityRoleAttributes = result.data;
+            return result;
         });
     }
 
