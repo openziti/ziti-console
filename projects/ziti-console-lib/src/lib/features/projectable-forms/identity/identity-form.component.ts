@@ -258,6 +258,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   }
 
   save(event?) {
+    this.formData.name = this.formData.name.trim();
     if(!this.validate()) {
       return;
     }
