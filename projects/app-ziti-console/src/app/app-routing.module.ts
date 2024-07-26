@@ -32,7 +32,8 @@ import {
   EdgeRouterFormComponent,
   CardListComponent,
   ServiceFormComponent,
-  SimpleServiceComponent
+  SimpleServiceComponent,
+  ConfigurationFormComponent
 } from "ziti-console-lib";
 import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
@@ -142,6 +143,12 @@ const routes: Routes = [
   {
     path: 'configs',
     component: ConfigurationsPageComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'configs/:id',
+    component: ConfigurationFormComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
   },

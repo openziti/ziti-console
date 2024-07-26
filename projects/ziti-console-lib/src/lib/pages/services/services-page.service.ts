@@ -78,7 +78,7 @@ export class ServicesPageService extends ListPageServiceClass {
         @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService,
         protected override router: Router
     ) {
-        super(settings, filterService, csvDownloadService, extService);
+        super(settings, filterService, csvDownloadService, extService, router);
     }
 
     validate = (formData): Promise<CallbackResults> => {

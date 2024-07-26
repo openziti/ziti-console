@@ -30,10 +30,12 @@ import {GrowlerService} from "../../messaging/growler.service";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../../extendable/extensions-noop.service";
 import {ConfigEditorComponent} from "../../config-editor/config-editor.component";
 
-import {cloneDeep, defer, isEmpty} from 'lodash';
+import {cloneDeep, defer, isEmpty, unset} from 'lodash';
 import {GrowlerModel} from "../../messaging/growler.model";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
+import {ActivatedRoute, Router} from "@angular/router";
+import {Config} from "../../../models/config";
 
 @Component({
     selector: 'lib-configuration',
@@ -59,6 +61,9 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
     settings: any = {};
     selectedConfigTypeId = '';
 
+    override entityType = 'configs';
+    override entityClass = Config;
+
     @ViewChild("configEditor", {read: ConfigEditorComponent}) configEditor!: ConfigEditorComponent;
     constructor(
         public svc: ConfigurationService,
@@ -67,8 +72,10 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
         @Inject(SHAREDZ_EXTENSION) extService: ExtensionService,
         @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
         @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
+        protected override router: Router,
+        protected override route: ActivatedRoute,
     ) {
-        super(growlerService, extService, zitiService);
+        super(growlerService, extService, zitiService, router, route);
     }
 
     override ngOnInit(): void {
@@ -76,6 +83,9 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
         this.settingsService.settingsChange.subscribe((results:any) => {
             this.settings = results;
         });
+    }
+
+    override entityUpdated() {
         if (isEmpty(this.formData?.data)) {
             this.formData.data = {};
         }
@@ -118,7 +128,7 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
                 this.save(event);
                 break;
             case 'close':
-                this.closeModal(true);
+                this.returnToListPage();
                 break;
             case 'toggle-view':
                 this.formView = event.data;

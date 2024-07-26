@@ -17,13 +17,4 @@
                     (gridReady)="gridReady($event)"
     >
     </lib-data-table>
-
-    <lib-side-modal [(open)]="svc.sideModalOpen" [showClose]="false">
-        <lib-configuration
-                *ngIf="svc.sideModalOpen"
-                [formData]="svc.selectedConfig"
-                (close)="closeModal($event)"
-                (dataChange)="dataChanged($event)">
-        </lib-configuration>
-    </lib-side-modal>
 </div>
