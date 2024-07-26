@@ -31,8 +31,8 @@
                     <lib-tag-selector
                             [(selectedRoleAttributes)]="selectedEdgeRouterRoleAttributes"
                             [(selectedNamedAttributes)]="selectedEdgeRouterNamedAttributes"
-                            [availableRoleAttributes]="edgeRouterRoleAttributes"
-                            [availableNamedAttributes]="edgeRouterNamedAttributes"
+                            [availableRoleAttributes]="svc.edgeRouterRoleAttributes"
+                            [availableNamedAttributes]="svc.edgeRouterNamedAttributes"
                             (selectedNamedAttributesChange)="svc.getAssociatedEdgeRoutersByAttribute(selectedEdgeRouterRoleAttributes, selectedEdgeRouterNamedAttributes)"
                             (selectedRoleAttributesChange)="svc.getAssociatedEdgeRoutersByAttribute(selectedEdgeRouterRoleAttributes, selectedEdgeRouterNamedAttributes)"
                             [placeholder]="'Select edge router attributes'"
@@ -47,8 +47,8 @@
                     <lib-tag-selector
                             [(selectedRoleAttributes)]="selectedIdentityRoleAttributes"
                             [(selectedNamedAttributes)]="selectedIdentityNamedAttributes"
-                            [availableRoleAttributes]="identityRoleAttributes"
-                            [availableNamedAttributes]="identityNamedAttributes"
+                            [availableRoleAttributes]="svc.identityRoleAttributes"
+                            [availableNamedAttributes]="svc.identityNamedAttributes"
                             (selectedNamedAttributesChange)="svc.getAssociatedIdentitiesByAttribute(selectedIdentityRoleAttributes, selectedIdentityNamedAttributes)"
                             (selectedRoleAttributesChange)="svc.getAssociatedIdentitiesByAttribute(selectedIdentityRoleAttributes, selectedIdentityNamedAttributes)"
                             [placeholder]="'Select identity attributes'"
