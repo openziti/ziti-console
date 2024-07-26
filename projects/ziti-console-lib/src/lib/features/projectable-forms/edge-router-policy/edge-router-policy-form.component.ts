@@ -151,7 +151,7 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
   }
 
   async save(event?) {
-    this.formData.name.trim();
+    this.formData.name = this.formData.name.trim();
     const isValid = this.validate();
     const isExtValid = await this.extService.validateData();
     if(!isValid || !isExtValid) {
