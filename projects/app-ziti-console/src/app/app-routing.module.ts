@@ -33,7 +33,8 @@ import {
   CardListComponent,
   ServiceFormComponent,
   SimpleServiceComponent,
-  ConfigurationFormComponent
+  ConfigurationFormComponent,
+  ServicePolicyFormComponent
 } from "ziti-console-lib";
 import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
@@ -167,6 +168,12 @@ const routes: Routes = [
   {
     path: 'service-policies',
     component: ServicePoliciesPageComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'service-policies/:id',
+    component: ServicePolicyFormComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
   },

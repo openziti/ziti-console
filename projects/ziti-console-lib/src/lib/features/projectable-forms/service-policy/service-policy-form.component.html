@@ -31,8 +31,8 @@
                     <lib-tag-selector
                             [(selectedRoleAttributes)]="selectedServiceRoleAttributes"
                             [(selectedNamedAttributes)]="selectedServiceNamedAttributes"
-                            [availableRoleAttributes]="serviceRoleAttributes"
-                            [availableNamedAttributes]="serviceNamedAttributes"
+                            [availableRoleAttributes]="svc.serviceRoleAttributes"
+                            [availableNamedAttributes]="svc.serviceNamedAttributes"
                             (selectedNamedAttributesChange)="svc.getAssociatedServicesByAttribute(selectedServiceRoleAttributes, selectedServiceNamedAttributes)"
                             (selectedRoleAttributesChange)="svc.getAssociatedServicesByAttribute(selectedServiceRoleAttributes, selectedServiceNamedAttributes)"
                             [placeholder]="'Select service attributes'"
@@ -47,8 +47,8 @@
                     <lib-tag-selector
                             [(selectedRoleAttributes)]="selectedIdentityRoleAttributes"
                             [(selectedNamedAttributes)]="selectedIdentityNamedAttributes"
-                            [availableRoleAttributes]="identityRoleAttributes"
-                            [availableNamedAttributes]="identityNamedAttributes"
+                            [availableRoleAttributes]="svc.identityRoleAttributes"
+                            [availableNamedAttributes]="svc.identityNamedAttributes"
                             (selectedNamedAttributesChange)="svc.getAssociatedIdentitiesByAttribute(selectedIdentityRoleAttributes, selectedIdentityNamedAttributes)"
                             (selectedRoleAttributesChange)="svc.getAssociatedIdentitiesByAttribute(selectedIdentityRoleAttributes, selectedIdentityNamedAttributes)"
                             [placeholder]="'Select identity attributes'"
@@ -63,8 +63,8 @@
                     <lib-tag-selector
                             [(selectedRoleAttributes)]="selectedPostureRoleAttributes"
                             [(selectedNamedAttributes)]="selectedPostureNamedAttributes"
-                            [(selectedRoleAttributes)]="postureRoleAttributes"
-                            [availableNamedAttributes]="postureNamedAttributes"
+                            [(selectedRoleAttributes)]="svc.postureRoleAttributes"
+                            [availableNamedAttributes]="svc.postureNamedAttributes"
                             (selectedNamedAttributesChange)="svc.getAssociatedPostureChecksByAttribute(selectedPostureRoleAttributes, selectedPostureNamedAttributes)"
                             (selectedRoleAttributesChange)="svc.getAssociatedPostureChecksByAttribute(selectedPostureRoleAttributes, selectedPostureNamedAttributes)"
                             [placeholder]="'Select posture check attributes'"

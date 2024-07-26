@@ -61,10 +61,10 @@ export class ServicePoliciesPageComponent extends ListPageComponent implements O
     switch(action) {
       case 'add':
         this.svc.serviceType = '';
-        this.svc.openUpdate();
+        this.svc.openEditForm();
         break;
       case 'edit':
-        this.svc.openUpdate();
+        this.svc.openEditForm();
         break;
       case 'delete':
         const selectedItems = this.rowData.filter((row) => {
@@ -85,10 +85,10 @@ export class ServicePoliciesPageComponent extends ListPageComponent implements O
         break;
       case 'update':
         this.svc.serviceType = 'advanced';
-        this.svc.openUpdate(event.item);
+        this.svc.openEditForm(event.item.id);
         break;
       case 'create':
-        this.svc.openUpdate();
+        this.svc.openEditForm();
         break;
       case 'delete':
         this.deleteItem(event.item)

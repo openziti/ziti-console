@@ -245,6 +245,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     }
     if (serviceId) {
       this.closeModal(true, true);
+      this.returnToListPage();
     }
   }
 
