@@ -104,6 +104,8 @@ import { ServicePolicyFormComponent } from './features/projectable-forms/service
 import { EdgeRouterPolicyFormComponent } from './features/projectable-forms/edge-router-policy/edge-router-policy-form.component';
 import { MultiActionButtonComponent } from './features/multi-action-button/multi-action-button.component';
 import { TableCellNameComponent } from './features/data-table/cells/table-cell-name/table-cell-name.component';
+import { ServiceEdgeRouterPoliciesPageComponent } from './pages/service-edge-router-policies/service-edge-router-policies-page.component';
+import { ServiceEdgeRouterPolicyFormComponent } from './features/projectable-forms/service-edge-router-policy/service-edge-router-policy-form.component';
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -178,7 +180,9 @@ export function playerFactory() {
         EdgeRouterPoliciesPageComponent,
         EdgeRouterPolicyFormComponent,
         MultiActionButtonComponent,
-        TableCellNameComponent
+        TableCellNameComponent,
+        ServiceEdgeRouterPoliciesPageComponent,
+        ServiceEdgeRouterPolicyFormComponent
     ],
     imports: [
         CommonModule,

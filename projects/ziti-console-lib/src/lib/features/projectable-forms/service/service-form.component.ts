@@ -213,8 +213,6 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   }
 
   async save(event?) {
-    debugger;
-    console.log(this.formData);
     this.formData.name = this.formData.name.trim();
     const isValid = this.svc.validate();
     const isExtValid = await this.extService.validateData();

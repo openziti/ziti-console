@@ -1,0 +1,21 @@
+<div class="ziti-page-container service-edge-router-policies-container">
+    <lib-list-page-header [title]="title"
+                          [tabs]="tabs"
+                          [showAdd]="!itemsSelected"
+                          (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
+
+    <lib-data-table [tableId]="'service-edge-router-policies'"
+                    [rowData]="rowData"
+                    [columnDefinitions]="columnDefs"
+                    (actionRequested)="tableAction($event)"
+                    [startCount]="startCount"
+                    [endCount]="endCount"
+                    [totalCount]="totalCount"
+                    [emptyMsg]="'No Service Edge Router Policies defined, Click the plus to add a Service Edge Router Policy.'"
+                    [filterApplied]="filterApplied"
+                    [menuItems]="svc.menuItems"
+                    (gridReady)="gridReady($event)"
+    >
+    </lib-data-table>
+</div>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

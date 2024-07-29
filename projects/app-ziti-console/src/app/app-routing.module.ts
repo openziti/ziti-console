@@ -35,7 +35,9 @@ import {
   SimpleServiceComponent,
   ConfigurationFormComponent,
   ServicePolicyFormComponent,
-  EdgeRouterPolicyFormComponent
+  EdgeRouterPolicyFormComponent,
+  ServiceEdgeRouterPoliciesPageComponent,
+  ServiceEdgeRouterPolicyFormComponent
 } from "ziti-console-lib";
 import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
@@ -204,7 +206,13 @@ const routes: Routes = [
   },
   {
     path: 'service-router-policies',
-    component: ZacWrapperComponent,
+    component: ServiceEdgeRouterPoliciesPageComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'service-router-policies/:id',
+    component: ServiceEdgeRouterPolicyFormComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
   },

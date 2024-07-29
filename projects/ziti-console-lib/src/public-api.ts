@@ -14,6 +14,8 @@ export * from './lib/pages/edge-routers/edge-routers-page.component';
 export * from './lib/pages/edge-routers/edge-routers-page.service';
 export * from './lib/pages/edge-router-policies/edge-router-policies-page.component';
 export * from './lib/pages/edge-router-policies/edge-router-policies-page.service';
+export * from './lib/pages/service-edge-router-policies/service-edge-router-policies-page.component';
+export * from './lib/pages/service-edge-router-policies/service-edge-router-policies-page.service';
 export * from './lib/pages/services/services-page.component';
 export * from './lib/pages/services/services-page.service';
 export * from './lib/pages/service-policies/service-policies-page.component';
@@ -63,6 +65,8 @@ export * from './lib/features/projectable-forms/service-policy/service-policy-fo
 export * from './lib/features/projectable-forms/service-policy/service-policy-form.component';
 export * from './lib/features/projectable-forms/edge-router-policy/edge-router-policy-form.service';
 export * from './lib/features/projectable-forms/edge-router-policy/edge-router-policy-form.component';
+export * from './lib/features/projectable-forms/service-edge-router-policy/service-edge-router-policy-form.service';
+export * from './lib/features/projectable-forms/service-edge-router-policy/service-edge-router-policy-form.component';
 export * from './lib/features/reset-enrollment/reset-enrollment.service';
 export * from './lib/features/extendable/extensions-noop.service';
 export * from './lib/features/projectable-forms/form-header/form-header.component';
