@@ -193,6 +193,10 @@ export class JsonViewComponent implements AfterViewInit, OnChanges {
     event.preventDefault();
   }
 
+  jsonChanged(event) {
+    this.dataChange.emit(this.data);
+  }
+
   copyToClipboad() {
     var clipData = JSON.stringify(JSON.parse(JSON.stringify(this.data)),null,2);
     navigator.clipboard.writeText(clipData);

@@ -1,6 +1,6 @@
 import {Component, ComponentRef, EventEmitter, Input, OnInit, Output, ViewChild, ViewContainerRef} from '@angular/core';
 import {JsonEditorComponent, JsonEditorOptions} from "ang-jsoneditor";
-import {defer, isBoolean, isEmpty, isNil, keys} from "lodash";
+import {debounce, defer, delay, isBoolean, isEmpty, isNil, keys} from "lodash";
 import {SchemaService} from "../../services/schema.service";
 
 @Component({
@@ -57,6 +57,8 @@ export class ConfigEditorComponent implements OnInit {
     return this._schema;
   }
 
+  formDataChangedDebounced: any = debounce(this.formDataChanged.bind(this), 350);
+  jsonDataChangedDebounced: any = debounce(this.jsonDataChanged.bind(this), 350);
   @ViewChild("dynamicform", {read: ViewContainerRef}) dynamicForm!: ViewContainerRef;
   @ViewChild(JsonEditorComponent, {static: false}) editor!: JsonEditorComponent;
   constructor(private schemaSvc: SchemaService) {
@@ -64,6 +66,9 @@ export class ConfigEditorComponent implements OnInit {
 
   ngOnInit() {
     this.createForm();
+    defer(() => {
+      this.formDataChanged();
+    });
   }
 
   createForm() {
@@ -220,5 +225,17 @@ export class ConfigEditorComponent implements OnInit {
       }
     });
     return isValid;
+  }
+
+  formDataChanged() {
+    delay(() => {
+      this.getConfigDataFromForm();
+    }, 200);
+  }
+
+  jsonDataChanged(event) {
+    defer(() => {
+      this.configDataChange.emit(this.configData);
+    });
   }
 }

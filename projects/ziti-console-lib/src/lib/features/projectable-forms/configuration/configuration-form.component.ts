@@ -232,11 +232,16 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
             configTypeId: this.formData?.configTypeId || '',
             data: this.formData?.data || {},
         };
-        return data;
+        this._apiData = data;
+        return this._apiData;
     }
 
-    _apiData = {};
+    _apiData: any = {};
     set apiData(data) {
         this._apiData = data;
+    }
+
+    dataChanged(event) {
+        this._apiData.data = this.formData.data;
     }
 }

@@ -76,6 +76,7 @@
                                 [(configData)]="formData.data"
                                 [showJsonView]="svc.configJsonView"
                                 [(configErrors)]="errors"
+                                (configDataChange)="dataChanged($event)"
                                 #configEditor
                         ></lib-config-editor>
                     </div>
@@ -90,7 +91,7 @@
                         <input class="form-field-input" [value]="apiCallURL" readonly/>
                         <div class="url-copy icon-copy copy" (click)="copyToClipboard(apiCallURL)"></div>
                     </div>
-                    <lib-json-view *ngIf="formData" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
+                    <lib-json-view *ngIf="formData" [(data)]="_apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
                 </lib-form-field-container>
             </div>
         </div>
