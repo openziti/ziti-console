@@ -1,3 +1,14 @@
+# app-ziti-console-v3.4.2
+# ziti-console-lib-v0.4.2
+*
+## Feature/Improvements
+* [Issue #430](https://github.com/openziti/ziti-console/issues/416) - New Service Edge Router Policies List Page and Form
+* [Issue #416](https://github.com/openziti/ziti-console/issues/416) - Enable "deep routes" for create/edit pages (Configs, Service Policies, Edge Router Policies)
+
+## Bug Fixes
+* [Issue #424](https://github.com/openziti/ziti-console/issues/424) - Trim names on form data to get rid of white spaces
+
+
 # app-ziti-console-v3.4.1
 # ziti-console-lib-v0.4.1
 *
