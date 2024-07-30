@@ -50,7 +50,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
   noSearchResults = false;
   services;
   identities;
-  routers;
+  edgerouters;
   service_policies;
   router_policies;
   service_router_policies;
@@ -63,7 +63,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
   servicePoliciesTreeNodes = [];
   servicesTreeNodes = [];
   identitiesTreeNodes = [];
-  routersTreeNodes = [];
+  edgeroutersTreeNodes = [];
   erPoliciesTreeNodes = [];
   serviceEdgeRouterPolicyTreeNodes = [];
 
@@ -236,9 +236,9 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
        return await this.zitiService
           .get(`edge-routers`, routers_paging, [])
           .then( async (result) => {
-            this.routers = result.data;
-            if (!this.routers || this.routers.length === 0) {
-              this.routers = [];
+            this.edgerouters = result.data;
+            if (!this.edgerouters || this.edgerouters.length === 0) {
+              this.edgerouters = [];
               this.isLoading = false;
             } else {
               const pages = Math.ceil(result.meta.pagination.totalCount / pagesize);
@@ -253,7 +253,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                   )
                   .then((pageResult) => {
                     pageResult.data.forEach((serv) => {
-                      this.routers.push(serv);
+                      this.edgerouters.push(serv);
                     });
                   });
                 r_promises.push(tmp_promise);
@@ -395,7 +395,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                 this.services,
                 this.identities,
                 this.service_policies,
-                this.routers,
+                this.edgerouters,
                 this.router_policies,
                 this.service_router_policies,
                 this.uniqId,
@@ -410,18 +410,16 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
             this.servicePoliciesTreeNodes = [];
             this.servicesTreeNodes = [];
             this.identitiesTreeNodes = [];
-            this.routersTreeNodes = [];
+            this.edgeroutersTreeNodes = [];
             this.erPoliciesTreeNodes = [];
             this.serviceEdgeRouterPolicyTreeNodes = [];
 
             this.servicePoliciesTreeNodes = this.fillAutoCompleteTreeNodes(
-                // this.networkGraph.children[0],
                 this.service_policies,
                 this.servicePoliciesTreeNodes,
                 'ServicePolicy'
             );
             this.servicesTreeNodes = this.fillAutoCompleteTreeNodes(
-                // this.networkGraph.children[1],
                 this.services,
                 this.servicesTreeNodes,
                 'Service'
@@ -431,9 +429,9 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                 this.identitiesTreeNodes,
                 'Identity'
             );
-            this.routersTreeNodes = this.fillAutoCompleteTreeNodes(
-                this.routers,
-                this.routersTreeNodes,
+            this.edgeroutersTreeNodes = this.fillAutoCompleteTreeNodes(
+                this.edgerouters,
+                this.edgeroutersTreeNodes,
                 'Router'
             );
             this.erPoliciesTreeNodes = this.fillAutoCompleteTreeNodes(
@@ -463,27 +461,6 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
      });
     return arr;
    }
-    fillAutoCompleteTreeNodes1(nodeObj, arr, typeName) {
-        const name = nodeObj.data.name;
-        // const id = nodeObj.data.id;
-        if (!name) {
-            return;
-        }
-        if (typeof nodeObj.data.type === 'undefined') {
-            //      //
-        } else {
-            if (arr.indexOf(name) < 0 && nodeObj.data.type === typeName) {
-                arr.push(name);
-            }
-        }
-
-        const childNodes = nodeObj.children ? nodeObj.children : nodeObj._children;
-        for (let i = 0; childNodes && i < childNodes.length; i++) {
-            this.fillAutoCompleteTreeNodes(childNodes[i], arr, typeName);
-        }
-
-        return arr;
-    }
 
     autocompleteSearch(event) {
         const str = event ? event.option.value : '';
@@ -508,11 +485,11 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
             this.autocompleteOptions = this.servicesTreeNodes;
         } else if (this.resourceType === 'identities') {
             this.autocompleteOptions = this.identitiesTreeNodes;
-        } else if (this.resourceType === 'routers') {
-            this.autocompleteOptions = this.routersTreeNodes;
-        } else if (this.resourceType === 'router-policies') {
+        } else if (this.resourceType === 'edge-routers') {
+            this.autocompleteOptions = this.edgeroutersTreeNodes;
+        } else if (this.resourceType === 'edge-router-policies') {
             this.autocompleteOptions = this.erPoliciesTreeNodes;
-        } else if (this.resourceType === 'service-router-policies') {
+        } else if (this.resourceType === 'service-edge-router-policies') {
             this.autocompleteOptions = this.serviceEdgeRouterPolicyTreeNodes;
         }
 
@@ -546,15 +523,15 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
             const nodeIds = [];
             if (this.resourceType === 'service-policies') {
                 targetNodes = this.processSearchInPreorder(this.nodes[1], searchTxt, paths, targetNodes);
-            } else if (this.resourceType === 'routers') {
+            } else if (this.resourceType === 'edge-routers') {
                 targetNodes = this.processSearchInPreorder(this.nodes[4], searchTxt, paths, targetNodes);
             } else if (this.resourceType === 'services') {
                 targetNodes = this.processSearchInPreorder(this.nodes[2], searchTxt, paths, targetNodes);
             } else if (this.resourceType === 'identities') {
                 targetNodes = this.processSearchInPreorder(this.nodes[3], searchTxt, paths, targetNodes);
-            } else if (this.resourceType === 'router-policies') {
+            } else if (this.resourceType === 'edge-router-policies') {
                 targetNodes = this.processSearchInPreorder(this.nodes[5], searchTxt, paths, targetNodes);
-            } else if (this.resourceType === 'service-router-policies') {
+            } else if (this.resourceType === 'service-edge-router-policies') {
                 targetNodes = this.processSearchInPreorder(this.nodes[6], searchTxt, paths, targetNodes);
             }
             paths = this.explorePathsForSearchedNodes(targetNodes, paths, nodeIds);
@@ -645,11 +622,11 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
             childreng = this.networkGraph.children[1];
         } else if (this.resourceType === 'identities') {
             childreng = this.networkGraph.children[2];
-        } else if (this.resourceType === 'routers') {
+        } else if (this.resourceType === 'edge-routers') {
             childreng = this.networkGraph.children[3];
-        } else if (this.resourceType === 'router-policies') {
+        } else if (this.resourceType === 'edge-router-policies') {
             childreng = this.networkGraph.children[4];
-        } else if (this.resourceType === 'service-router-policies') {
+        } else if (this.resourceType === 'service-edge-router-policies') {
             childreng = this.networkGraph.children[5];
         }
         const ndd_childs = childreng.children ? childreng.children : childreng._children; // 2nd level chailds. groups/childrens
@@ -692,11 +669,11 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
             datanodes = this.networkGraph.data.children[1];
         } else if (this.resourceType === 'identities') {
             datanodes = this.networkGraph.data.children[2];
-        } else if (this.resourceType === 'routers') {
+        } else if (this.resourceType === 'edge-routers') {
             datanodes = this.networkGraph.data.children[3];
-        } else if (this.resourceType === 'router-policies') {
+        } else if (this.resourceType === 'edge-router-policies') {
             datanodes = this.networkGraph.data.children[4];
-        } else if (this.resourceType === 'service-router-policies') {
+        } else if (this.resourceType === 'service-edge-router-policies') {
             datanodes = this.networkGraph.data.children[5];
         }
         if (datanodes.id === paths[1].data.id) {
@@ -808,15 +785,15 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
             this.autocompleteOptions = this.identitiesTreeNodes.filter((option) =>
                 option.toLowerCase().includes(this.filterText.toLowerCase())
             );
-        } else if (this.resourceType === 'routers') {
-            this.autocompleteOptions = this.routersTreeNodes.filter((option) =>
+        } else if (this.resourceType === 'edge-routers') {
+            this.autocompleteOptions = this.edgeroutersTreeNodes.filter((option) =>
                 option.toLowerCase().includes(this.filterText.toLowerCase())
             );
-        } else if (this.resourceType === 'router-policies') {
+        } else if (this.resourceType === 'edge-router-policies') {
             this.autocompleteOptions = this.erPoliciesTreeNodes.filter((option) =>
                 option.toLowerCase().includes(this.filterText.toLowerCase())
             );
-        } else if (this.resourceType === 'service-router-policies') {
+        } else if (this.resourceType === 'service-edge-router-policies') {
             this.autocompleteOptions = this.serviceEdgeRouterPolicyTreeNodes.filter((option) =>
                 option.toLowerCase().includes(this.filterText.toLowerCase())
             );
@@ -947,7 +924,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
             .attr('class', (d) => {
                 let className = '';
 
-                if (_.startsWith(d.data.name, 'Routers') || _.startsWith(d.data.name, 'Associated Routers') || _.includes(d.data.type, 'Router')) {
+                if (_.startsWith(d.data.name, 'Edge Routers') || _.includes(d.data.type, 'Edge Router')) {
                     className = 'edge-router';
                 }
                 if (_.includes(d.data.name, 'Identities') || _.includes(d.data.name, 'Associated Identities') || _.includes(d.data.type, 'Identity') || _.includes(d.data.type, 'BrowZer Identity')) {
@@ -965,14 +942,14 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                 if (_.includes(d.data.name, 'Service Policies') || _.includes(d.data.type, 'Service Policy')) {
                     className = 'service-policy';
                 }
-                if (_.startsWith(d.data.name, 'Router Policies') || _.startsWith(d.data.type, 'Router Policy')) {
+                if (_.startsWith(d.data.name, 'Edge Router Policies') || _.startsWith(d.data.type, 'Router Policy')) {
                     className = 'edge-router-policy';
                 }
                 if (
-                    _.startsWith(d.data.name, 'Service Router Policies') ||
+                    _.startsWith(d.data.name, 'Service Edge Router Policies') ||
                     _.startsWith(d.data.type, 'Service Router Policy')
                 ) {
-                    className = 'service-router-policy';
+                    className = 'service-edge-router-policy';
                 }
 
                 className = d._children ? 'node ' + className : 'node terminate ' + className;
@@ -991,7 +968,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
             event.preventDefault();
             d3.select('#tooltip').style('display', 'none');
             const nw = this.currentNetwork;
-            const rawEdgerouters = this.routers;
+            const rawEdgerouters = this.edgerouters;
             const rawEndpoints = this.identities;
             const rawAppwans = this.service_policies;
             const edgeRouterPolicies = this.router_policies;
@@ -1036,7 +1013,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                 }
                 */
                 this.contextmenuNodeType = 'identity';
-            } else if (d && d.data && d.data.type === 'Router') {
+            } else if (d && d.data && d.data.type === 'Edge Router') {
               if(d.data.status === "PROVISIONED") {
                 enableLi('#liSingleUT');
                 enableLi('#liFLSingleRouter');
@@ -1056,7 +1033,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
 
                 disableLi('#liCL');
                 disableLi('#liLT');
-                this.contextmenuNodeType = 'router';
+                this.contextmenuNodeType = 'edge-router';
                 /*
                 obj = new EdgeRouterV2();
                 for (let i = 0; i < rawEdgerouters.length; i++) {
@@ -1278,14 +1255,14 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                             d.data &&
                             d.data.rootNode &&
                             d.data.rootNode === 'Yes' &&
-                            d.data.type === 'Router' &&
+                            d.data.type === 'Edge Router' &&
                             !d.children &&
                             !d._children
                         ) {
                             const arr = await this.treeNodeProcessor.processEdgeroutersForNodeClick(
                                 d,
                                 this.networkGraph,
-                                this.routers,
+                                this.edgerouters,
                                 this.uniqId,
                                 this.zitiService
                             );

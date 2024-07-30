@@ -557,9 +557,9 @@ export class TreeNodeProcessor {
    }
 
    async processEdgeroutersForNodeClick(
-        routerNode,
+        edgerouterNode,
         networkGraph,
-        routers,
+        edgerouters,
         uniqId,
         zitiService
     )
@@ -567,7 +567,7 @@ export class TreeNodeProcessor {
      const mainPromise = await new Promise( async (resolve, reject) => {
         const wait_promises = [];
         this.uniqId = uniqId;
-        const er = routers.find((s) => s.name === routerNode.data.name);
+        const er = edgerouters.find((s) => s.name === edgerouterNode.data.name);
         const erAttributes = er.roleAttributes? er.roleAttributes: [];
 
          erAttributes.find((attr) => {
@@ -575,7 +575,7 @@ export class TreeNodeProcessor {
             att.id = this.createId();
             att.name = attr;
             att.type = 'Edge Router Attribute';
-            routerNode.data.children.push(att);
+            edgerouterNode.data.children.push(att);
          });
           const pagesize = 500;
           const services_paging = this.getPagingObject(pagesize);
@@ -614,8 +614,8 @@ export class TreeNodeProcessor {
                 policy.rootNode = 'No';
                 erpolChilds.children.push(policy);
              });
-               erpolChilds.name = "Router Policies("+ erpolChilds.children.length +')';
-               routerNode.data.children.push(erpolChilds);
+               erpolChilds.name = "Edge Router Policies("+ erpolChilds.children.length +')';
+               edgerouterNode.data.children.push(erpolChilds);
            });
        });
        wait_promises.push(erpoliciespromise);
@@ -795,14 +795,14 @@ export class TreeNodeProcessor {
     async processEdgeRouterPoliciesForNodeClick(
         erPolicyNode,
         networkGraph,
-        routerPolicies,
+        edgeRouterPolicies,
         uniqId,
         zitiService
     ) {
        const myPromise = await new Promise(async (resolve, reject) => {
           const wait_promises = [];
           this.uniqId = uniqId;
-          const rawERPolicy = routerPolicies.find((s) => s.name === erPolicyNode.data.name);
+          const rawERPolicy = edgeRouterPolicies.find((s) => s.name === erPolicyNode.data.name);
           const pagesize = 500;
 
       const er_url = this.getLinkForResource(rawERPolicy, 'edge-routers').replace('./', '');
