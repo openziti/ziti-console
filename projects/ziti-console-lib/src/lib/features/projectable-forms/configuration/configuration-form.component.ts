@@ -242,6 +242,6 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
     }
 
     dataChanged(event) {
-        this._apiData.data = this.formData.data;
+        this._apiData = cloneDeep(this.apiData);
     }
 }

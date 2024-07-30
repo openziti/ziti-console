@@ -23,6 +23,7 @@
                         placeholder="Name this config"
                         [ngClass]="{error: errors['name']}"
                         [(ngModel)]="formData.name"
+                        (keyup)="apiData()"
                     >
                 </lib-form-field-container>
                 <lib-form-field-container [showHeader]="false">
