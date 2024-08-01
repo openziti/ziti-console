@@ -242,7 +242,7 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
                 cellRenderer: TableCellNameComponent,
-                cellRendererParams: { pathRoot: 'service-policies/' },
+                cellRendererParams: { pathRoot: this.basePath },
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
                         return;

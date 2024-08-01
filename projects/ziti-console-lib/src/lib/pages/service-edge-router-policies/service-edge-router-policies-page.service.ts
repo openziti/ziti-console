@@ -210,7 +210,7 @@ export class ServiceEdgeRouterPoliciesPageService extends ListPageServiceClass {
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
                 cellRenderer: TableCellNameComponent,
-                cellRendererParams: { pathRoot: 'service-router-policies/' },
+                cellRendererParams: { pathRoot: this.basePath },
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
                         return;

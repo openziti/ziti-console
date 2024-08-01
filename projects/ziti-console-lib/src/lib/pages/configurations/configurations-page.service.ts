@@ -75,7 +75,7 @@ export class ConfigurationsPageService extends ListPageServiceClass {
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
                 cellRenderer: TableCellNameComponent,
-                cellRendererParams: { pathRoot: 'configs/' },
+                cellRendererParams: { pathRoot: this.basePath },
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
                         return;

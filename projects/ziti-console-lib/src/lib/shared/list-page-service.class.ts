@@ -28,7 +28,7 @@ import {CsvDownloadService} from "../services/csv-download.service";
 import {SettingsServiceClass} from "../services/settings-service.class";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../features/extendable/extensions-noop.service";
 import moment from "moment/moment";
-import {Router} from "@angular/router";
+import {NavigationEnd, Router} from "@angular/router";
 
 export abstract class ListPageServiceClass {
 
@@ -37,6 +37,8 @@ export abstract class ListPageServiceClass {
     abstract validate: ValidatorCallback;
     abstract openUpdate(entity?: any);
     abstract resourceType: string;
+
+    basePath: string = '';
 
     headerComponentParams = {
         filterType: 'TEXTINPUT',
@@ -116,6 +118,15 @@ export abstract class ListPageServiceClass {
                 }
             }
         });
+        router.events.subscribe((event: any) => {
+            if (event => event instanceof NavigationEnd) {
+                if (!event?.snapshot?.routeConfig?.path) {
+                    return;
+                }
+                const pathSegments = event.snapshot.routeConfig.path.split('/');
+                this.basePath = pathSegments[0];
+            }
+        });
     }
 
     initMenuActions() {
@@ -183,22 +194,11 @@ export abstract class ListPageServiceClass {
         return text?.length > 0;
     }
 
-    public openEditForm(itemId = '', baseUrl?) {
+    public openEditForm(itemId = '', basePath?) {
         if (isEmpty(itemId)) {
             itemId = 'create';
         }
-        baseUrl = baseUrl ? baseUrl : this.getBaseURLPath();
-        this.router?.navigateByUrl(`${baseUrl}${itemId}`);
-    }
-
-    public getBaseURLPath() {
-        let path = '';
-        window.location.pathname.split('/').forEach(segment => {
-            if (isEmpty(segment)) {
-                return;
-            }
-            path += `${segment}/`;
-        });
-        return path;
+        basePath = basePath ? basePath : this.basePath;
+        this.router?.navigateByUrl(`${basePath}${itemId}`);
     }
 }

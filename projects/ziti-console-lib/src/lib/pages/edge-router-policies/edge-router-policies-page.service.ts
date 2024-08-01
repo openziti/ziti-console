@@ -242,7 +242,7 @@ export class EdgeRouterPoliciesPageService extends ListPageServiceClass {
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
                 cellRenderer: TableCellNameComponent,
-                cellRendererParams: { pathRoot: 'router-policies/' },
+                cellRendererParams: { pathRoot: this.basePath },
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
                         return;
