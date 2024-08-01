@@ -1,14 +1,24 @@
-<div class="hidden-columns-list" id="ColumnVisibilityHeader">
-    <div
-            (click)="setColumnVisibilityColumn(col, true)"
-            *ngFor="let col of hiddenColumns"
-            class="hidden-column-item ag-dnd-ghost ag-unselectable ag-theme-alpine"
-            id="ColumnVisibility_{{ col.headerName }}"
-            title="Show column"
-    >
+<div class="hidden-columns-bar-container">
+    <div class="hidden-columns-list" id="ColumnVisibilityHeader">
+        <div
+                (click)="setColumnVisibilityColumn(col, true)"
+                *ngFor="let col of hiddenColumns"
+                class="hidden-column-item ag-dnd-ghost ag-unselectable ag-theme-alpine"
+                id="ColumnVisibility_{{ col.headerName }}"
+                title="Show column"
+        >
         <span class="ag-dnd-ghost-icon">
             <span class="ag-icon ag-icon-eye-slash"></span>
         </span>
-        <div class="ag-dnd-ghost-label">{{ col.headerName }}</div>
+            <div class="ag-dnd-ghost-label">{{ col.headerName }}</div>
+        </div>
+    </div>
+    <div class="table-toggle" *ngIf="showToggle">
+        <span class="toggle-text">{{toggleLabel}}</span>
+        <div class="toggle" [ngClass]="{ on: toggleOn }" (click)="toggled()">
+            <span [hidden]="!toggleOn" class="on-label">SHOW</span>
+            <span [hidden]="toggleOn" class="off-label">HIDE</span>
+            <div class="switch"></div>
+        </div>
     </div>
 </div>
