@@ -1,3 +1,10 @@
+# app-ziti-console-v3.4.3
+# ziti-console-lib-v0.4.3
+
+## Bug Fixes
+* [Issue #432](https://github.com/openziti/ziti-console/issues/432) - Persist changes to config when editing in JSON view
+* [Issue #437](https://github.com/openziti/ziti-console/issues/437) - Enable "deep link" navigation for dynamic routes
+
 # app-ziti-console-v3.4.2
 # ziti-console-lib-v0.4.2
 *
