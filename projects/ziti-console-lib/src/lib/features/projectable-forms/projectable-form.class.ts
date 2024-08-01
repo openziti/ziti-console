@@ -283,7 +283,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
 
     canDeactivate() {
         if (this._dataChange) {
-            //return confirm('You have unsaved changes. Do you want to leave this page and discard your changes or stay on this page?');
+            return confirm('You have unsaved changes. Do you want to leave this page and discard your changes or stay on this page?');
         }
         return true;
     }
