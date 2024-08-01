@@ -34,7 +34,7 @@ import {GrowlerService} from "../messaging/growler.service";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../extendable/extensions-noop.service";
 import {Identity} from "../../models/identity";
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../services/ziti-data.service";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute, NavigationEnd, Router} from "@angular/router";
 import {Subscription} from "rxjs";
 
 // @ts-ignore
@@ -70,6 +70,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     initData: any = {};
     _dataChange = false;
     apiOptions = [{id: 'cli', label: 'Copy as CLI'}, {id: 'curl', label: 'Copy as CURL'}];
+    basePath = '';
 
     checkDataChangeDebounced = debounce(this.checkDataChange, 100, {maxWait: 100});
 
@@ -88,6 +89,17 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
                 const id = params['id'];
                 if (!isEmpty(id)) {
                     this.entityId = id;
+                }
+            })
+        );
+        this.subscription.add(
+            router.events.subscribe((event: any) => {
+                if (event => event instanceof NavigationEnd) {
+                    if (!event?.snapshot?.routeConfig?.path) {
+                        return;
+                    }
+                    const pathSegments = event.snapshot.routeConfig.path.split('/');
+                    this.basePath = pathSegments[0];
                 }
             })
         );
@@ -219,8 +231,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     }
 
     returnToListPage() {
-        const baseUrl = this.getBaseURLPath();
-        this.router?.navigateByUrl(`${baseUrl}`);
+        this.router?.navigateByUrl(`${this.basePath}`);
     }
 
     ngDoCheck() {
@@ -285,18 +296,5 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         return this.zitiService.get(type, {}, []).then((results) => {
             return results.data;
         });
-    }
-
-    public getBaseURLPath() {
-        let path = '';
-        const urlSegments = window.location.pathname.split('/');
-        const baseSegments: string[] = slice(urlSegments, 0, urlSegments.length - 1);
-        baseSegments.forEach(segment => {
-            if (isEmpty(segment)) {
-                return;
-            }
-            path += `/${segment}`;
-        });
-        return path;
     }
 }

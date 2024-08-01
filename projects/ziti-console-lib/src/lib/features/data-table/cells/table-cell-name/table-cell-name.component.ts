@@ -30,7 +30,7 @@ export class TableCellNameComponent  implements ICellRendererAngularComp {
   }
 
   linkClicked(event) {
-    this.router.navigateByUrl(`${this.cellParams.pathRoot}${this.item.id}`);
+    this.router.navigateByUrl(`${this.cellParams.pathRoot}/${this.item.id}`);
     event.stopPropagation();
     event.preventDefault();
   }

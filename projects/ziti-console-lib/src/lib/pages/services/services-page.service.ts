@@ -68,6 +68,8 @@ export class ServicesPageService extends ListPageServiceClass {
     ]
 
     resourceType = 'services';
+    override basePath = '/services/advanced';
+
     constructor(
         @Inject(SETTINGS_SERVICE) settings: SettingsServiceClass,
         filterService: DataTableFilterService,
@@ -102,7 +104,7 @@ export class ServicesPageService extends ListPageServiceClass {
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
                 cellRenderer: TableCellNameComponent,
-                cellRendererParams: { pathRoot: 'services/advanced/' },
+                cellRendererParams: { pathRoot: '/services/advanced' },
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
                         return;
