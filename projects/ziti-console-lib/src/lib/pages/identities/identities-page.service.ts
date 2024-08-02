@@ -184,7 +184,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
                 cellRenderer: TableCellNameComponent,
-                cellRendererParams: { pathRoot: this.getBaseURLPath(), showIdentityIcons: true },
+                cellRendererParams: { pathRoot: this.basePath, showIdentityIcons: true },
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
                         return;

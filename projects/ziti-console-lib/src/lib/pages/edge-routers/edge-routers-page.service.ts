@@ -165,7 +165,7 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
                 cellRenderer: TableCellNameComponent,
-                cellRendererParams: { pathRoot: this.getBaseURLPath(), showRouterIcons: true },
+                cellRendererParams: { pathRoot: this.basePath, showRouterIcons: true },
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
                         return;
