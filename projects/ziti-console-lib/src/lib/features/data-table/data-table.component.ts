@@ -70,6 +70,8 @@ export class DataTableComponent implements OnChanges, OnInit {
   @Input() showNoItemsAdd = true;
   @Input() currentPage = 1;
   @Input() noItemsImage = 'nodata';
+  @Input() showToggle = false;
+  @Input() toggleLabel = '';
   @Output() actionRequested = new EventEmitter<{ action: string; item?: any }>();
   // @Output() filterChanged = new EventEmitter();
   @Output() gridReady = new EventEmitter();
@@ -78,6 +80,7 @@ export class DataTableComponent implements OnChanges, OnInit {
   @Output() pageChanged = new EventEmitter();
 
   _view = 'list';
+  toggleOn = false;
   frameworkComponents;
   gridModules;
   gridOptions;
@@ -737,6 +740,10 @@ export class DataTableComponent implements OnChanges, OnInit {
     _.defer(() => {
       this.updateColumnVisibility(column.colId, visible);
     });
+  }
+
+  tableToggled() {
+    this.actionRequested.emit({action: 'tableToggle', item: this.toggleOn});
   }
 
   _updateHiddenColumns() {
