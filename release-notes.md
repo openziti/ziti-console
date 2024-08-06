@@ -1,3 +1,9 @@
+# app-ziti-console-v3.4.4
+
+## Bug Fixes
+* [Issue #441](https://github.com/openziti/ziti-console/issues/441) - Unable to Add resources on Identities, routers, router policies, or service router policies
+
+
 # app-ziti-console-v3.4.3
 # ziti-console-lib-v0.4.3
 
