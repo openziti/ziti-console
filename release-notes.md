@@ -1,3 +1,7 @@
+# app-ziti-console-v3.4.5
+* [Issue #444](https://github.com/openziti/ziti-console/issues/444) - BASE_HREF is wrongly quoted
+
+
 # app-ziti-console-v3.4.4
 # ziti-console-lib-v0.4.4
 
