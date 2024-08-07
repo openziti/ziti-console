@@ -7,7 +7,7 @@ This image is only for embedding the console in the controller container image. 
 
 ## Deploy
 
-[Link to console deployment guide](https://openziti.io/docs/guides/deployments/docker/console) shows how enable the console in the controller image.
+[Here's a link to the console deployment guide](https://openziti.io/docs/guides/deployments/docker/console) that shows how to enable the console in the controller image.
 
 ## Build
 
