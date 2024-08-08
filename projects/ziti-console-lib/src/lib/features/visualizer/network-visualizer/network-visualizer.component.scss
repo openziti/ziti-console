@@ -27,7 +27,7 @@
     padding-left: 3px;
     padding-right: 3px;
     background: #f5e9f2;
-    background-image: linear-gradient(#ecd3e6 0.5px, transparent 0), linear-gradient(90deg, #ecd3e6 1px, transparent 0), linear-gradient(#ecd3e6 0.2px, transparent 0), linear-gradient(90deg, #ecd3e6 0.5px, transparent 0);
+    background-image: linear-gradient(#ecd3e6 0.1pt, transparent 0), linear-gradient(90deg, #ecd3e6 0.5pt, transparent 0), linear-gradient(#ecd3e6 0.5pt, transparent 0), linear-gradient(90deg, #ecd3e6 0.075pt, transparent 0);
     background-size: 40px 40px, 40px 40px, 10px 10px, 10px 10px;
 }
 
@@ -49,12 +49,12 @@
     }
 
 .resource-type-select {
-    width: 300px;
+    width: 270px;
     flex-shrink: 0;
     border-radius: 27px;
     height: 51px;
     margin-top: 20px;
-    margin-left: 20px;
+    margin-left: 5px;
     backdrop-filter: saturate(110%) blur(15px);
     background-color: rgba(255, 255, 255, 0.5) !important;
     border-color: var(--navigation);
@@ -72,12 +72,13 @@ select {
 }
 
 .no-results-warning {
-    bottom: -20px;
-    left: 20px;
+    left: 440px;
     font-size: 15px;
     color: var(--tableText);
     padding-left: 20px;
-    padding-top: 5px;
+    padding-top: 0px;
+    height: fit-content;
+    top: 1px;
 }
 
 .resource-type-error {
@@ -100,8 +101,8 @@ select {
 }
 
 .nf-net-vis-filter-container {
-    max-width: 300px;
-    margin-top: 20px;
+    max-width: 490px;
+    margin-top: 0px;
     margin-left: 10px;
     flex: 1 0 auto;
 }
@@ -115,8 +116,8 @@ select {
 
 #ClearSearchFilter {
     position: absolute;
-    right: -45px;
-    top: 2px;
+    right: 5px;
+    top: 24px;
     width: 20px;
     height: 20px;
     font-size: 25px;
@@ -184,13 +185,13 @@ select {
 
 .nf-topology-filter-input {
     height: 50px;
-    width: 370px;
+    width: 485px;
     border-radius: 25px;
     border-color: var(--navigation);
     border-color: var(--navigation);
     box-shadow: 0px 20px 23px 0px var(--shadow);
-    padding-left: 20px;
-    padding-right: 35px;
+    padding-left: 10px;
+    padding-right: 15px;
 }
 
 .nf-topology-select-container {
@@ -451,9 +452,16 @@ select:focus {
     cursor: pointer;
 }
 
-.text-container {
-    cursor: pointer;
-}
+.node-text-container {
+    color: var(--tableText);
+    font-size: 24px;
+    font-weight: 600;
+    margin-left: 2px;
+    margin-top: 4px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+ }
 
 .link {
     fill: none;
@@ -463,17 +471,17 @@ select:focus {
 }
 
 .nf-topology-legend {
-    width: 210px;
+    width: 230px;
     border-radius: 12px;
     margin-top: 10px;
-    margin-right: 20px;
-    position: fixed;
+    margin-right: 10px;
+    position: absolute;
     top: 0px;
     right: 0px;
     background: var(--navigation);
     display: inline-block;
     box-shadow: 0px 20px 23px 0px var(--shadow);
-    padding: 12px;
+    padding: 5px;
     padding-top: 5px;
     padding-bottom: 7px;
 }
@@ -491,7 +499,12 @@ select:focus {
     height: 100%;
     display: inline-block;
 }
-
+.legend-itemA {
+    width: 100%;
+    height: 100%;
+    margin-left: -3px;
+    display: inline-block;
+}
 .legend-circle {
     height: 12px;
     width: 12px;
@@ -532,7 +545,22 @@ select:focus {
     padding-left: 7px;
     padding-bottom: 4px;
 }
-
+.legend-icon-text {
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tableText);
+    padding-left: 22px;
+    padding-bottom: 4px;
+}
+.legend-icon-textA {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tableText);
+    padding-left: 20px;
+    padding-bottom: 4px;
+}
 .reset-button {
     height: 50px;
     width: 50px;
@@ -546,7 +574,18 @@ select:focus {
     box-shadow: 0px 20px 23px 0px var(--shadow);
     transition: 0.3s;
 }
-
+.node-expand-help {
+    height: 25px;
+    width: 25px;
+    background-image: url(/assets/images/visualizer/node-click.png);
+    position:absolute;
+}
+.node-expand-help2 {
+    height: 25px;
+    width: 25px;
+    background-image: url(/assets/images/visualizer/node-click2.png);
+    position:absolute;
+}
 .reset-button:hover {
     filter: brightness(90%);
     transform: scale(0.97);
@@ -908,12 +947,16 @@ path:not(.loader path, .highcharts-root path) {
     stroke-width: 12px;
 }
 
-.node.edge-router-policy circle {
-    stroke: #ff8400 !important;
+.node.edge-router circle {
+    stroke: #ffc000 !important;
     stroke-width: 12px;
 }
+.node.edge-router-policy circle {
+     stroke: #ff8400 !important;
+     stroke-width: 12px;
+}
 
-.node.service-router-policy circle {
+.node.service-edge-router-policy circle {
     stroke: #ff5900 !important;
     stroke-width: 12px;
 }

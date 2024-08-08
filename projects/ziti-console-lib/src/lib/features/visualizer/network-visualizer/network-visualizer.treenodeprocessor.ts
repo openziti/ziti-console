@@ -35,7 +35,7 @@ export class TreeNodeProcessor {
         const rawEp = this.findRawEndpoint(identityNode.data.name, rawEndpoints);
         let rawEpAttributes = [];
         if (rawEp.roleAttributes) {rawEpAttributes = rawEp.roleAttributes};
-        // rawEpAttributes.push('@' + rawEp.name);
+
         for (let i = 0; i < rawEpAttributes.length; i++) {
                     const attribute = new Attribute();
                     attribute.id = this.createId();
@@ -55,6 +55,7 @@ export class TreeNodeProcessor {
       let associatedRouters = [];
       const paging = this.getPagingObject(pagesize);
       const erChailds = new Children();
+        erChailds.id = this.createId();
         erChailds.name= 'Associated Routers';
         erChailds.type= 'Associated Routers';
       const associatedRoutersPromise =  await zitiService.get(url, paging, [])
@@ -340,16 +341,21 @@ export class TreeNodeProcessor {
          .then((configs) => {
            service_configs = configs && configs.data ? configs.data : [];
            const childs = new Children();
+           childs.id = this.createId();
            childs.name = 'Service Configs';
            childs.type = 'Service Configs';
+           const service_configs_Arr = [];
            service_configs.forEach( (cfg) => {
              const obj = new Config();
+             obj.id = this.createId();
              obj.name = cfg.name;
              obj.uuid = cfg.uuid;
              obj.data = JSON.stringify(cfg.data);
-             childs.children.push(obj);
+             service_configs_Arr.push(obj);
            } );
-           if (childs.children.length >0 ) {
+
+           if (service_configs_Arr.length >0 ) {
+              childs.children = service_configs_Arr;
               childs.name = childs.name +'('+childs.children.length + ')';
               serviceNode.data.children.push(childs);
               serviceNode.data.intercept = this.serviceConfigAlias(service_configs);
@@ -383,6 +389,7 @@ export class TreeNodeProcessor {
              if (res && res.data.length > 0) {
                 res.data.forEach( (er)=> {
                   const erOb = new ERouter();
+                        erOb.id = this.createId();
                         erOb.name =   er.name;
                         er.type = 'Router';
                   associatedRouters.push(erOb);
@@ -468,23 +475,25 @@ export class TreeNodeProcessor {
 
 
   async processServicePoliciesForNodeClick(policyNode, networkGraph,  servicePolicies, uniqId, zitiService) {
-
      const myPromise = await new Promise( async (resolve, reject) => {
         const wait_promises = [];
         this.uniqId = uniqId;
         const rawSPolicy = servicePolicies.find((s) => s.name === policyNode.data.name);
         const childs = new Children();
          childs.name = "Attributes";
+         childs.id = this.createId();
 
         rawSPolicy.serviceRoles && rawSPolicy.serviceRoles.forEach( (ob) => {
           const attr = new Attribute();
             attr.name = ob;
+            attr.id = this.createId();
             attr.type = "Service Attribute";
           childs.children.push(attr);
         });
         rawSPolicy.identityRoles && rawSPolicy.identityRoles.forEach( (ob) => {
           const attr = new Attribute();
            attr.name = ob;
+           attr.id = this.createId();
            attr.type = "Identity Attribute";
           childs.children.push(attr);
         });
@@ -494,6 +503,7 @@ export class TreeNodeProcessor {
         const pagesize = 500;
         const identities_paging = this.getPagingObject(pagesize);
         const bindIdentitiesUrl = this.getLinkForResource( rawSPolicy, 'identities' );
+        // this.logger.info('bindIdentitiesUrl',bindIdentitiesUrl);
         const sp_promise = await zitiService.get(bindIdentitiesUrl, identities_paging, [])
        .then((ids) => {
          const childs =new Children()
@@ -512,7 +522,7 @@ export class TreeNodeProcessor {
        const _promise = await zitiService.get(bindServicesUrl, services_paging, [])
        .then((result) => {
          const childs =new Children()
-             childs.name = rawSPolicy.type+ '-Services';
+         childs.name = rawSPolicy.type+ '-Services';
          childs.id = this.createId();
          result.data.forEach( (idOb) => {
            const sp = new Service();
@@ -535,7 +545,6 @@ export class TreeNodeProcessor {
         networkGraph = d3.hierarchy(networkGraph.data, function (nd) {
             return nd.children;
         });
-
         return [networkGraph, this.uniqId];
     }
 
@@ -547,7 +556,8 @@ export class TreeNodeProcessor {
        .then((result) => {
          result.data.forEach( (idOb) => {
            const sp = new Service();
-            sp.id = idOb.id;
+            sp.id = this.createId();
+            sp.uuid = idOb.id;
             sp.name = idOb.name;
             sp.type = 'Service';
             childs.push(sp);
@@ -811,6 +821,7 @@ export class TreeNodeProcessor {
       const erChailds = new Children();
         erChailds.name= 'Associated Routers';
         erChailds.type= 'Associated Routers';
+        erChailds.id = this.createId();
       const associatedRoutersPromise =  await zitiService.get(er_url, paging, [])
            .then( (result) => {
              result.data.forEach( (er) => {
@@ -832,7 +843,6 @@ export class TreeNodeProcessor {
            erPolicyNode.data.children.push(erChailds);
       });
           wait_promises.push(associatedRoutersPromise);
-
 
           const services_paging = this.getPagingObject(pagesize);
           const url = this.getLinkForResource(rawERPolicy, 'identities');
@@ -929,7 +939,7 @@ export class TreeNodeProcessor {
                serviceErPolicyNode.data.children.push(erChilds);
              });
           });
-         wait_promises.push(erpromise);
+          wait_promises.push(erpromise);
 
           const services_pagingB = this.getPagingObject(pagesize);
 

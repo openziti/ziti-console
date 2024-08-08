@@ -192,8 +192,9 @@ export class Children {
     size;
     type;
     children;
-    data:Children;
-
+    data: Children;
+    rootNode = 'No';
+    firstChild = 'No';
     constructor() {
         this.type = 'Children';
         this.children = [];
@@ -205,6 +206,104 @@ export class Children {
 })
 export class NetworkVisualizerHelper {
 
+   uniqIId:any =0;
+
+ createUniqId() {
+   return ++this.uniqIId;
+ }
+  public createEdgeRouterNode(er, isRootNode = 'Yes') {
+      const erOb = new ERouter();
+      // erOb.id = createId();
+         erOb.uuid = er.id;
+         erOb.name = er.name;
+         erOb.verified = er.isVerified? 'Yes': 'No';
+         //erOb.version = er.productVersion;
+         erOb.online = er.isOnline? 'Yes': 'No';
+         erOb.disabled = er.disabled? 'Yes': 'No';
+         erOb.type = 'Edge Router';
+         erOb.rootNode = isRootNode;
+         erOb.tunnelerEnabled = er.tunnelerEnabled? er.tunnelerEnabled: 'No';
+         erOb.syncStatus = er.syncStatus? er.syncStatus:'No';
+         erOb.createdAt = er.createdAt;
+         erOb.updatedAt = er.updatedAt;
+   return erOb;
+  }
+  public createServiceEdgeRouterPolicyNode(rawObj, isRootNode = 'Yes') {
+     const serviceerpolicy = new ServiceERPolicy();
+     // serviceerpolicy.id = createId();
+     serviceerpolicy.uuid = rawObj.id;
+     serviceerpolicy.name = rawObj.name;
+     serviceerpolicy.type = 'Service Router Policy';
+     serviceerpolicy.rootNode = isRootNode;
+    return serviceerpolicy;
+  }
+  public createEdgeRouterPolicyNode(rawObj, isRootNode = 'Yes') {
+    const erpolicy = new ERPolicy();
+     // erpolicy.id = createId();
+      erpolicy.uuid = rawObj.id;
+      erpolicy.name = rawObj.name;
+      erpolicy.type = 'Router Policy';
+      erpolicy.rootNode = isRootNode;
+      erpolicy.isSystem = rawObj.isSystem;
+      erpolicy.semantic = rawObj.semantic;
+   return erpolicy;
+  }
+  public createServicePolicyNode(rawObj, isRootNode = 'Yes') {
+    const bindGrp = new Group(43423, 'Bind-Policies', 'Bind Service Policy');
+    const dialGrp = new Group(43545, 'Dial-Policies', 'Dial Service Policy');
+
+    const spolicy:any = new ServicePolicy();
+       // spolicy.id = createId();
+       spolicy.id = 87956;
+        spolicy.uuid = rawObj.id;
+        spolicy.name = rawObj.name;
+        spolicy.type = 'Service Policy';
+        spolicy.rootNode = isRootNode;
+        spolicy.clickProcess = "Not Yet";
+      if(rawObj.type==='Bind') {
+        bindGrp.children.push(spolicy);
+        return bindGrp;
+      } else {
+        dialGrp.children.push(spolicy);
+        return dialGrp;
+      }
+  }
+  public createIdentityNode(rawObj, isRootNode = 'Yes') {
+    const endpoint = new Identity();
+            endpoint.rootNode = isRootNode;
+           // endpoint.id = createId();
+            endpoint.id = 5432;
+            endpoint.uuid = rawObj.id;
+            endpoint.name = rawObj.name;
+            endpoint.online = rawObj.hasApiSession === true ? 'Yes' : 'No';
+            endpoint.type = 'Identity';
+            endpoint.createdAt = rawObj.createdAt;
+            endpoint.updatedAt = rawObj.updatedAt;
+            endpoint.status = rawObj.sdkInfo !== null ? 'Registered' : 'Not Registered';
+              if (rawObj.sdkInfo) {
+                  endpoint.os = rawObj.sdkInfo.type? rawObj.sdkInfo.type: rawObj.sdkInfo.appId;
+                  endpoint.osVersion = rawObj.sdkInfo.version;
+              }
+              if (rawObj.authPolicy && rawObj.authPolicy.name.includes("BrowZer")) {
+                 endpoint.type = 'BrowZer Identity';
+              }
+    return   endpoint;
+  }
+  public createServiceNode(rawObj, isRootNode = 'Yes') {
+      const serviceobj = new Service();
+       // serviceobj.id = createId();
+        serviceobj.name = rawObj.name;
+        serviceobj.uuid = rawObj.id;
+        serviceobj.type = 'Service';
+        serviceobj.rootNode = isRootNode;
+        const attributeswithName = [];
+       //   attributeswithName.push('@' + rawObj.name);
+        rawObj && rawObj.roleAttributes && rawObj.roleAttributes.find((srattr) => {
+           attributeswithName.push(srattr);
+        });
+    return serviceobj;
+  }
+
     public getResourceTreeObj(
         networkName,
         networkStatus,
@@ -215,11 +314,18 @@ export class NetworkVisualizerHelper {
         edgeRouterPolicies,
         serviceEdgeRouterPolicies,
         // networkProductVersion,
+        services_totalCount, identities_totalCount, edgerouters_totalCount,
+        service_policies_totalCount, edge_router_policies_totalCount,
+        service_router_policies_totalCount,
         uniqId,
-        logger
+        logger,
+        ...args: any
     ) {
+       this.uniqIId = uniqId;
+
         function createId() {
             ++uniqId;
+          //  ++this.uniqIId;
             return uniqId;
         }
 
@@ -230,6 +336,7 @@ export class NetworkVisualizerHelper {
             children = [];
             contextMenu = 'Yes';
             type = 'Network';
+            rootNode = 'No';
            // version = networkProductVersion;
             status;
         }
@@ -237,14 +344,14 @@ export class NetworkVisualizerHelper {
         const rootJson = new RootJson();
         rootJson.name = 'Network';
         rootJson.status = 'Provisioned';
-
         function processIdentitiesForTree(
             identitiesChildren,
             identities,
             nx,
             ny
         ) {
-            identitiesChildren.name = identitiesChildren.name + ' (' + ny + ')';
+          if(args[2]===false) return identitiesChildren;
+           // identitiesChildren.name = identitiesChildren.name + ' (' + ny + ')';
             const unregisteredGrp = new Group(
                 createId(),
                 'Identities[Unregistered]',
@@ -410,7 +517,7 @@ export class NetworkVisualizerHelper {
                     for (let j = i; j < lastElement; j++) {
                         chld.children.push(oneTo9Grp.children[j]);
                     }
-                    chld.name = chld.name + ' (' + chld.children.length + ')';
+                   // chld.name = chld.name + ' (' + chld.children.length + ')';
                     identitiesChildren.children.push(chld);
                     i = i + 80;
                 }
@@ -425,6 +532,8 @@ export class NetworkVisualizerHelper {
             nx,
             ny
         ) {
+          if(args[0]===false) return servicePolicyChildren;
+
           const bindGrp = new Group(createId(), 'Bind-Policies', 'Bind Service Policy');
           const dialGrp = new Group(createId(), 'Dial-Policies', 'Dial Service Policy');
 
@@ -444,12 +553,11 @@ export class NetworkVisualizerHelper {
 
           } );
 
-          bindGrp.name = bindGrp.name + '('+ bindGrp.children.length +')';
-          servicePolicyChildren.children.push(bindGrp);
-          dialGrp.name = dialGrp.name + '('+ dialGrp.children.length +')';
-          servicePolicyChildren.children.push(dialGrp);
-            servicePolicyChildren.name = servicePolicyChildren.name + ' (' + (bindGrp.children.length + dialGrp.children.length) + ')';
-            return servicePolicyChildren;
+           bindGrp.name = bindGrp.name + '('+ bindGrp.children.length +')';
+           servicePolicyChildren.children.push(bindGrp);
+           dialGrp.name = dialGrp.name + '('+ dialGrp.children.length +')';
+           servicePolicyChildren.children.push(dialGrp);
+          return servicePolicyChildren;
         }
 
         function serviceGrouping(servicesChildren, servicestree) {
@@ -616,7 +724,7 @@ export class NetworkVisualizerHelper {
                 oneTo9Grp.name = oneTo9Grp.name + '(' + oneTo9Grp.children.length + ')';
                 servicesChildren.children.push(oneTo9Grp);
             }
-            servicesChildren.name = servicesChildren.name + '(' + servicestree.length + ')';
+           //  servicesChildren.name = servicesChildren.name + '(' + servicestree.length + ')';
             return servicesChildren;
         }
 
@@ -626,6 +734,7 @@ export class NetworkVisualizerHelper {
             nx,
             ny
         ) {
+          if(args[1]===false) return servicesChildren;
             const servicestree = [];
             for (let i = nx; i < ny; i++) {
                 const serviceobj = new Service();
@@ -682,6 +791,7 @@ export class NetworkVisualizerHelper {
             nx,
             ny
         ) {
+          if(args[4]===false) return edgeRouterPoliciesChildren;
             for (let i = nx; i < ny; i++) {
                 const erpolicy = new ERPolicy();
                 erpolicy.id = createId();
@@ -702,6 +812,7 @@ export class NetworkVisualizerHelper {
             nx,
             ny
         ) {
+        if(args[5]===false) return serviceEdgeRouterPoliciesChildren;
             for (let i = nx; i < ny; i++) {
                 const serviceerpolicy = new ServiceERPolicy();
                 serviceerpolicy.id = createId();
@@ -720,6 +831,7 @@ export class NetworkVisualizerHelper {
             nx,
             ny
         ) {
+        if(args[3]===false) return edgerouterChildren;
             for (let i = nx; i < ny; i++) {
                 const erOb = new ERouter();
                 erOb.id = createId();
@@ -747,27 +859,33 @@ export class NetworkVisualizerHelper {
         // createId() generates node Id 1,2,3,4,5 for the following five nodes. this id is used to search capability.
         let servicPoliciesChildren = new Children();
         servicPoliciesChildren.id = createId();
-        servicPoliciesChildren.name = 'Service Policies';
+        servicPoliciesChildren.firstChild = 'Yes';
+        servicPoliciesChildren.name = 'Service Policies('+ service_policies_totalCount +')';
 
         let servicesChildren = new Children();
         servicesChildren.id = createId();
-        servicesChildren.name = 'Services';
+        servicesChildren.firstChild = 'Yes';
+        servicesChildren.name = 'Services('+ services_totalCount +')';
 
         let identitiesChildren = new Children();
         identitiesChildren.id = createId();
-        identitiesChildren.name = 'Identities';
+        identitiesChildren.firstChild = 'Yes';
+        identitiesChildren.name = 'Identities('+ identities_totalCount +')';
 
         let edgerouterChildren = new Children();
         edgerouterChildren.id = createId();
-        edgerouterChildren.name = 'Edge Routers';
+        edgerouterChildren.firstChild = 'Yes';
+        edgerouterChildren.name = 'Edge Routers('+ edgerouters_totalCount +')';
 
         let edgeRouterPoliciesChildren = new Children();
         edgeRouterPoliciesChildren.id = createId();
-        edgeRouterPoliciesChildren.name = 'Edge Router Policies';
+        edgeRouterPoliciesChildren.firstChild = 'Yes';
+        edgeRouterPoliciesChildren.name = 'Edge Router Policies('+ edge_router_policies_totalCount +')';
 
         let serviceEdgeRouterPolicesChildren = new Children();
         serviceEdgeRouterPolicesChildren.id = createId();
-        serviceEdgeRouterPolicesChildren.name = 'Service Edge Router Policies';
+        serviceEdgeRouterPolicesChildren.firstChild = 'Yes';
+        serviceEdgeRouterPolicesChildren.name = 'Service Edge Router Policies('+ service_router_policies_totalCount +')';
 
         servicesChildren = processServicesForTree(
             servicesChildren,
@@ -783,10 +901,6 @@ export class NetworkVisualizerHelper {
             edgerouters.length
         );
 
-        if (edgerouterChildren) {
-            edgerouterChildren.name = edgerouterChildren.name + ' (' + edgerouterChildren.children.length + ')';
-        }
-
         servicPoliciesChildren = processServicePoliciesForTree(
             servicPoliciesChildren,
             servicePolicies,
@@ -801,10 +915,6 @@ export class NetworkVisualizerHelper {
             edgeRouterPolicies.length
         );
 
-        if (edgeRouterPoliciesChildren) {
-            edgeRouterPoliciesChildren.name =
-                'Edge Router Policies (' + edgeRouterPoliciesChildren.children.length + ')';
-        }
 
         identitiesChildren = processIdentitiesForTree(
             identitiesChildren,
@@ -820,11 +930,6 @@ export class NetworkVisualizerHelper {
             0,
             serviceEdgeRouterPolicies.length
         );
-
-        if (edgeRouterPoliciesChildren) {
-            serviceEdgeRouterPolicesChildren.name =
-                'Service Edge Router Policies (' + serviceEdgeRouterPolicesChildren.children.length + ')';
-        }
 
         rootJson.children.push(servicPoliciesChildren);
         rootJson.children.push(servicesChildren);
