@@ -1446,7 +1446,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                             !d.children &&
                             !d._children
                         ) {
-                           d.data.clickProcess = 'Completed';
+                            d.data.clickProcess = 'Completed';
                             const arr =  await this.treeNodeProcessor.processIdentitiesForNodeClick(
                                 d,
                                 this.networkGraph,
@@ -1479,7 +1479,6 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                             );
                             this.uniqId = arr[1];
                             this.networkGraph = arr[0];
-
                             this.networkGraph.children.find((nd) => {
                                 collapseFew(nd, this.openNodes);
                             });
@@ -1492,7 +1491,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                             !d.children &&
                             !d._children
                         ) {
-                           d.data.clickProcess = 'Completed';
+                            d.data.clickProcess = 'Completed';
                             const arr = await this.treeNodeProcessor.processServicePoliciesForNodeClick(
                                 d,
                                 this.networkGraph,
@@ -1502,7 +1501,6 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                             );
                             this.uniqId = arr[1];
                             this.networkGraph = arr[0];
-
                             this.networkGraph.children.find((nd) => {
                                 collapseFew(nd, this.openNodes);
                             });
@@ -1515,7 +1513,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                             !d.children &&
                             !d._children
                         ) {
-                            d.data.clickProcess = 'Completed';
+                           d.data.clickProcess = 'Completed';
                             const arr = await this.treeNodeProcessor.processEdgeroutersForNodeClick(
                                 d,
                                 this.networkGraph,
@@ -1525,7 +1523,6 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                             );
                             this.uniqId = arr[1];
                             this.networkGraph = arr[0];
-
                             this.networkGraph.children.find((nd) => {
                                 collapseFew(nd, this.openNodes);
                             });
@@ -1538,7 +1535,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                             !d.children &&
                             !d._children
                         ) {
-                            d.data.clickProcess = 'Completed';
+                           d.data.clickProcess = 'Completed';
                             const arr = await this.treeNodeProcessor.processEdgeRouterPoliciesForNodeClick(
                                 d,
                                 this.networkGraph,
@@ -1548,7 +1545,6 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                             );
                             this.uniqId = arr[1];
                             this.networkGraph = arr[0];
-
                             this.networkGraph.children.find((nd) => {
                                 collapseFew(nd, this.openNodes);
                             });
@@ -1572,7 +1568,6 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
 
                             this.uniqId = arr[1];
                             this.networkGraph = arr[0];
-
                             this.networkGraph.children.find((nd) => {
                                 collapseFew(nd, this.openNodes);
                             });
