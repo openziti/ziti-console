@@ -199,6 +199,6 @@ export abstract class ListPageServiceClass {
             itemId = '/create';
         }
         basePath = basePath ? basePath : this.basePath;
-        this.router?.navigateByUrl(`${basePath}${itemId}`);
+        this.router?.navigateByUrl(`${basePath}/${itemId}`);
     }
 }
