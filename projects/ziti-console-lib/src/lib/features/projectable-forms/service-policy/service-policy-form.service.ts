@@ -123,24 +123,7 @@ export class ServicePolicyFormService {
             this.associatedServiceNames = [...namedAttributes];
             return;
         }
-        let hasAll = false;
-        roleAttributes.forEach((attr) => {
-            if (attr === 'all') {
-                hasAll = true;
-            }
-        });
-        let filters = [];
-        if (!hasAll) {
-            filters = [
-                {
-                    columnId: "roleAttributes",
-                    filterName: "Service Attributes",
-                    label: "",
-                    type: "ATTRIBUTE",
-                    value: roleAttributes
-                }
-            ];
-        }
+        const filters = this.zitiService.getRoleFilter(roleAttributes);
         const paging = this.zitiService.DEFAULT_PAGING;
         paging.noSearch = false;
         this.zitiService.get('services', paging, filters).then((result: any) => {
@@ -159,24 +142,7 @@ export class ServicePolicyFormService {
             this.associatedIdentityNames = [...namedAttributes];
             return;
         }
-        let hasAll = false;
-        roleAttributes.forEach((attr) => {
-            if (attr === 'all') {
-                hasAll = true;
-            }
-        });
-        let filters = [];
-        if (!hasAll) {
-            filters = [
-                {
-                    columnId: "roleAttributes",
-                    filterName: "Identity Attributes",
-                    label: "",
-                    type: "ATTRIBUTE",
-                    value: roleAttributes
-                }
-            ];
-        }
+        const filters = this.zitiService.getRoleFilter(roleAttributes);
         const paging = this.zitiService.DEFAULT_PAGING;
         paging.noSearch = false;
         this.zitiService.get('identities', paging, filters).then((result: any) => {
@@ -195,24 +161,7 @@ export class ServicePolicyFormService {
             this.associatedPostureCheckNames = [...namedAttributes];
             return;
         }
-        let hasAll = false;
-        roleAttributes.forEach((attr) => {
-            if (attr === 'all') {
-                hasAll = true;
-            }
-        });
-        let filters = [];
-        if (!hasAll) {
-            filters = [
-                {
-                    columnId: "roleAttributes",
-                    filterName: "Posture Check Attributes",
-                    label: "",
-                    type: "ATTRIBUTE",
-                    value: roleAttributes
-                }
-            ];
-        }
+        const filters = this.zitiService.getRoleFilter(roleAttributes);
         const paging = this.zitiService.DEFAULT_PAGING;
         paging.noSearch = false;
         this.zitiService.get('posture-checks', paging, filters).then((result: any) => {
