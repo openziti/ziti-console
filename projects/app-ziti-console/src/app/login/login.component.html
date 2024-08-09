@@ -18,7 +18,7 @@
 
         <ng-template #userLogin>
             <lib-selector-input
-                        *ngIf="!originIsController"
+                        *ngIf="!svc.originIsController"
                         [fieldName]="'Edge Controller'"
                         [(fieldValue)]="selectedEdgeController"
                         [error]="edgeNameError"
