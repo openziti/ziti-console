@@ -16,7 +16,13 @@
 
 import {CanActivateFn, Router} from '@angular/router';
 import {Inject, Injectable, InjectionToken} from "@angular/core";
-import {SettingsService, LoginServiceClass, SETTINGS_SERVICE, ZAC_LOGIN_SERVICE} from "ziti-console-lib";
+import {
+  SettingsService,
+  LoginServiceClass,
+  SETTINGS_SERVICE,
+  ZAC_LOGIN_SERVICE,
+  GrowlerService, GrowlerModel
+} from "ziti-console-lib";
 // @ts-ignore
 const {growler} = window;
 
@@ -27,7 +33,8 @@ export class AuthenticationGuard {
   constructor(
       @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass,
       @Inject(SETTINGS_SERVICE) private settingsSvc: SettingsService,
-      private router: Router
+      private router: Router,
+      private growlerService: GrowlerService
   ) {
   }
 
@@ -35,6 +42,9 @@ export class AuthenticationGuard {
     const isAuthorized = this.loginService.hasSession();
     if (!isAuthorized) {
       // messaging.error('not authorized');
+      this.settingsSvc.set(this.settingsSvc.settings);
+      const gorwlerData: GrowlerModel = new GrowlerModel('warning', 'Invalid Session', 'Session Expired', 'Your session is no longer valid. Please login to continue.');
+      this.growlerService.show(gorwlerData);
       this.router.navigate(['/login']);
     }
 
