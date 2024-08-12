@@ -57,6 +57,7 @@
                         (click)="$event.stopPropagation()"
                         *ngFor="let item of _selectedNamedAttributes"
                         [hidden]="item === this.hideOption"
+                        class="select2-selection_choice_item"
                     >
                         <div class="attag select2-selection__choice" title="@{{ item }}">
                             <span
