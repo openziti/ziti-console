@@ -180,7 +180,11 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
             this.isLoading = false;
         });
         if (configId) {
-            this.closeModal(true, true);
+            if (this.isModal) {
+                this.closeModal(true, true);
+            } else {
+                this.returnToListPage();
+            }
         };
     }
 
