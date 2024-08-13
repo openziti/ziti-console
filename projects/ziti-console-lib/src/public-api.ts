@@ -33,6 +33,7 @@ export * from './lib/services/deactivate-guard.service';
 export * from './lib/services/csv-download.service';
 export * from './lib/features/projectable-forms/configuration/configuration-form.component';
 export * from './lib/features/extendable/extendable.component';
+export * from './lib/features/data-table/data-table-filter.service';
 export * from './lib/features/card-list/card-list.component';
 export * from './lib/features/sidebars/side-toolbar/side-toolbar.component';
 export * from './lib/features/sidebars/side-navbar/side-navbar.component';

@@ -24,6 +24,7 @@ import {MatDialog} from "@angular/material/dialog";
 
 import {defer, isEmpty} from "lodash";
 import {ActivatedRoute} from "@angular/router";
+import {ExtensionService} from "../features/extendable/extensions-noop.service";
 
 @Injectable()
 export abstract class ListPageComponent {
@@ -53,7 +54,8 @@ export abstract class ListPageComponent {
         protected filterService: DataTableFilterService,
         public svc: ListPageServiceClass,
         protected consoleEvents: ConsoleEventsService,
-        protected dialogForm: MatDialog
+        protected dialogForm: MatDialog,
+        protected extensionService?: ExtensionService
     ) {}
 
     ngOnInit() {
@@ -61,6 +63,7 @@ export abstract class ListPageComponent {
         this.svc.refreshData = this.refreshData.bind(this);
         this.columnDefs = this.svc.initTableColumns();
         this.filterService.clearFilters();
+        this.extensionService?.extendOnInit();
         this.subscription.add(
             this.filterService.filtersChanged.subscribe(filters => {
                 this.filterApplied = filters && filters.length > 0;

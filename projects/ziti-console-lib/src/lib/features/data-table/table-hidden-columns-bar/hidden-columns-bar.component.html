@@ -13,12 +13,4 @@
             <div class="ag-dnd-ghost-label">{{ col.headerName }}</div>
         </div>
     </div>
-    <div class="table-toggle" *ngIf="showToggle">
-        <span class="toggle-text">{{toggleLabel}}</span>
-        <div class="toggle" [ngClass]="{ on: toggleOn }" (click)="toggled()">
-            <span [hidden]="!toggleOn" class="on-label">SHOW</span>
-            <span [hidden]="toggleOn" class="off-label">HIDE</span>
-            <div class="switch"></div>
-        </div>
-    </div>
 </div>

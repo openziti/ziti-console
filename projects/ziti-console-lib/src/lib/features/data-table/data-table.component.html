@@ -9,9 +9,6 @@
             *ngIf="gridRendered && showFilterBar"
             [hiddenColumns]="hiddenColumns"
             (columnVisibilityChanged)="columnVisibilityChanged($event)"
-            [showToggle]="showToggle"
-            [toggleLabel]="toggleLabel"
-            (onToggle)="tableToggled()"
     ></lib-table-hidden-columns-bar>
     <div (resize)="resizeGridColumnsDebounced($event)" class="ziti-ag-grid" id="ItemTable">
         <ag-grid-angular
