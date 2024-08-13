@@ -37,22 +37,24 @@ export class LoginComponent implements OnInit, OnDestroy {
     edgeCreate = false;
     userLogin = false;
     selectedEdgeController: any;
+    controllerHostname = '';
     edgeNameError = '';
     edgeUrlError = '';
     backToLogin = false;
     showEdge = false;
-    originIsController = false;
     isLoading = false;
     private subscription = new Subscription();
 
     constructor(
-        @Inject(ZAC_LOGIN_SERVICE) private svc: LoginServiceClass,
+        @Inject(ZAC_LOGIN_SERVICE) public svc: LoginServiceClass,
         @Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
         private router: Router,
         ) { }
 
     ngOnInit() {
-        this.checkOriginForController();
+        if (this.svc.originIsController !== false && this.svc.originIsController !== true) {
+            this.checkOriginForController();
+        }
         if (this.svc.hasSession()) {
             this.router.navigate(['/dashboard']);
         }
@@ -62,19 +64,23 @@ export class LoginComponent implements OnInit, OnDestroy {
         }));
     }
 
-    async checkOriginForController() {
+    checkOriginForController() {
         this.isLoading = true;
-        this.originIsController = await this.svc.checkOriginForController();
-        if (this.originIsController) {
-            this.originIsController = true;
-            this.edgeCreate = false;
-            this.selectedEdgeController = window.location.origin;
-            this.settingsService.addContoller(this.edgeName, window.location.hostname);
-        } else {
-            this.edgeChanged();
-            this.initSettings();
-        }
-        this.isLoading = false;
+        this.svc.checkOriginForController().then((result) => {
+            this.svc.originIsController = result;
+            if (this.svc.originIsController) {
+                this.svc.originIsController = true;
+                this.edgeCreate = false;
+                this.selectedEdgeController = window.location.origin;
+                this.controllerHostname = window.location.hostname;
+                this.settingsService.addContoller(this.controllerHostname, this.selectedEdgeController);
+            } else {
+                this.edgeChanged();
+                this.initSettings();
+            }
+        }).finally(() => {
+            this.isLoading = false;
+        });
     }
 
     async login() {
@@ -161,8 +167,9 @@ export class LoginComponent implements OnInit, OnDestroy {
             this.userLogin = false;
         }
         const serviceUrl = localStorage.getItem("ziti-serviceUrl-value");
-        if (this.originIsController) {
+        if (this.svc.originIsController) {
             // the origin is already selected as the target ziti controller so no need to set it again.
+            this.selectedEdgeController = settings.selectedEdgeController;
             return;
         }
         if (!isEmpty(serviceUrl)) {

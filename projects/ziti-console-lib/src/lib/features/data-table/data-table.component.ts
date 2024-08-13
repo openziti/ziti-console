@@ -14,7 +14,17 @@
     limitations under the License.
 */
 
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 
 // Import the resized event model
 import $ from 'jquery';
@@ -102,6 +112,7 @@ export class DataTableComponent implements OnChanges, OnInit {
   menuLeft;
   menuTop;
   gridRendered;
+  resizeHandlerInit = false;
   resizeGridColumnsDebounced;
   selectedItem: any = {
     actionList: [],
@@ -195,6 +206,7 @@ export class DataTableComponent implements OnChanges, OnInit {
 
   @ViewChild('calendar', { static: false }) calendar: any;
   @ViewChild('contextMenu') contextMenu;
+  @ViewChild('tableContainer') tableContainer: ElementRef;
 
   constructor(public svc: DataTableService, private tableFilterService: DataTableFilterService) {
     this.resizeGridColumnsDebounced = _.debounce(this.svc.resizeGridColumns.bind(this.svc), 20, {leading: true});
@@ -222,6 +234,14 @@ export class DataTableComponent implements OnChanges, OnInit {
       this.svc.gridObj.api.redrawRows();
       this.svc.gridObj.api.refreshCells({force: true});
     });
+  }
+
+  get showTable() {
+    const _showTable = this.isLoading || this.filterApplied || this.rowData?.length > 0;
+    if (_showTable && !this.resizeHandlerInit) {
+      this._initGridResizeHandler();
+    }
+    return _showTable;
   }
 
   ngOnInit() {
@@ -471,6 +491,17 @@ export class DataTableComponent implements OnChanges, OnInit {
 
   showDownload() {
     return this.allowDownload && this._view !== 'process';
+  }
+
+  _initGridResizeHandler() {
+    if (!this.tableContainer) {
+      return;
+    }
+    const observer = new ResizeObserver(entries => {
+      this.resizeGridColumnsDebounced();
+    });
+    observer.observe(this.tableContainer.nativeElement);
+    this.resizeHandlerInit = true;
   }
 
   _initGridOptions() {
