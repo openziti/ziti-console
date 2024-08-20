@@ -24,7 +24,7 @@ import {catchError} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
 import {FilterObj} from "../features/data-table/data-table-filter.service";
 import {ZitiDataService} from "./ziti-data.service";
-import {isEmpty, isArray, isNumber} from "lodash";
+import {isEmpty, isArray, isNumber, isBoolean} from "lodash";
 import {Resolver} from "@stoplight/json-ref-resolver";
 import moment from "moment";
 
@@ -239,7 +239,7 @@ export class ZitiControllerDataService extends ZitiDataService {
                     break;
                 case 'SELECT':
                 case 'COMBO':
-                    const val = isNumber(filter.value) ? `${filter.value}` : `"${filter.value}"`;
+                    const val = (isNumber(filter.value) || isBoolean(filter.value)) ? `${filter.value}` : `"${filter.value}"`;
                     filterVal = `${filter.columnId} = ${val}`;
                     break;
                 case 'DATETIME':
