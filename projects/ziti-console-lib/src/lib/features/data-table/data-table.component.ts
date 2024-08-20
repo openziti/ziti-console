@@ -70,8 +70,6 @@ export class DataTableComponent implements OnChanges, OnInit {
   @Input() showNoItemsAdd = true;
   @Input() currentPage = 1;
   @Input() noItemsImage = 'nodata';
-  @Input() showToggle = false;
-  @Input() toggleLabel = '';
   @Output() actionRequested = new EventEmitter<{ action: string; item?: any }>();
   // @Output() filterChanged = new EventEmitter();
   @Output() gridReady = new EventEmitter();
