@@ -56,6 +56,7 @@ export class ConfigurationsPageService extends ListPageServiceClass {
         protected override router: Router
     ) {
         super(settings, filterService, csvDownloadService, extService, router);
+        this.getConfigTypes();
     }
 
     initTableColumns(): any {

@@ -176,6 +176,16 @@ export class IdentitiesPageService extends ListPageServiceClass {
             columnFilters,
         };
 
+        const isAdminHeaderComponentParams = {
+            filterType: 'SELECT',
+            enableSorting: true,
+            filterOptions: [
+                { label: 'All', value: '' },
+                { label: 'Admins', value: true },
+                { label: 'Non-Admins', value: false },
+            ]
+        };
+
         return [
             {
                 colId: 'name',
@@ -256,6 +266,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 field: 'isAdmin',
                 headerName: 'Is Admin',
                 headerComponent: TableColumnDefaultComponent,
+                headerComponentParams: isAdminHeaderComponentParams,
                 resizable: true,
                 sortable: true,
                 sortColumn: this.sort.bind(this),

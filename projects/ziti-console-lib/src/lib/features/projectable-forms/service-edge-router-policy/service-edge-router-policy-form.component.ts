@@ -199,16 +199,16 @@ export class ServiceEdgeRouterPolicyFormComponent extends ProjectableForm implem
     this.isLoading = true;
     this.applySelectedAttributes();
     this.svc.save(this.formData).then((result) => {
-      if (result?.close) {
-        this.closeModal(true, true);
-        this.returnToListPage();
-      }
       const data = result?.data?.id ? result.data : result;
       if (!isEmpty(data.id)) {
         this.formData = data || this.formData;
         this.initData = this.formData;
       } else {
         this.initData = this.formData;
+      }
+      if (result?.close) {
+        this.closeModal(true, true);
+        this.returnToListPage();
       }
     }).finally(() => {
       this.isLoading = false;
