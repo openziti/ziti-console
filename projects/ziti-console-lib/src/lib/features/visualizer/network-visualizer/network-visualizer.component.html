@@ -27,7 +27,6 @@
         </select>
 
         <div class="nf-net-vis-filter-container listBox row">
-          <div  class="no-results-warning">{{filerResponseMessage}}</div>
           <input
               (keyup)="nwSearchChange($event)"
               [(ngModel)]="filterText"
@@ -79,9 +78,10 @@
           <div class="legend-text">Service Router Policies</div>
         </div>
 
-        <div class="legend-itemA">
+        <div class="legend-item">
           <div class="node-expand-help"></div>
-          <div class="legend-icon-textA">View Associated Nodes On Click</div>
+          <div class="legend-icon-text legend-associated-nodes">View Associated Nodes</div>
+          <div class="legend-icon-pointer"></div>
         </div>
       </div>
 

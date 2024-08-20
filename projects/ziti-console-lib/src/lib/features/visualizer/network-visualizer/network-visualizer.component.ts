@@ -1850,7 +1850,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
       const startIndex = d.data.name.indexOf('(');
       const finIndex = d.data.name.indexOf(')');
       const countStr:number = startIndex >0? d.data.name.substring(startIndex + 1, finIndex): 0;
-        let info = '<span>';
+        let info = `<div class='tool-tip-container'>`;
         const keys = Object.keys(d.data); // mp.keys();
         keys.forEach(function (k) {
             if (
@@ -1873,23 +1873,24 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
             ) {
                 // continue;
             } else if (d[k] instanceof Array) {
-               info =
+                info =
                     info +
                     '<div class="prop-row"><div class="prop-name">' +
                     k +
                     ':</div><div class="prop-val">' +
-                     d[k].join('<br> &nbsp;&nbsp; &nbsp;&nbsp;') +
-                     '</div></div>';
+                    d[k].join('<br> &nbsp;&nbsp; &nbsp;&nbsp;') +
+                    '</div></div>';
             } else {
-                info = info + '   ' + k + '  :  ' + d.data[k] + '<br>';
+                const propVal = d.data[k] || '';
+                info = info + '<div class="prop-row"><div class="prop-name">' + k + ':</div><div class="prop-val">' + propVal + '</div></div>';
             }
         });
         if (d.data.firstChild && d.data.firstChild === 'Yes' && countStr > this.maxObjectsPerNode-1) {
-             info = info + 'Note: Expand Node Disabled, Use Search Filter <br>';
+             info = info + '<span class="tooltip-help-text">Note: expand node disabled. Use search filter.</span>';
         } else if (d.data.firstChild && d.data.firstChild === 'Yes' && countStr < this.maxObjectsPerNode){
-             info = info + 'Note: Click Here, To View Child Nodes <br>';
+             info = info + '<span class="tooltip-help-text">Note: click to expand child nodes </span>';
         }
-        return info + '</span>';
+        return info + '</div>';
     }
 
 }
