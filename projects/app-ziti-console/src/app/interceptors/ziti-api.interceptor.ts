@@ -18,10 +18,19 @@ import {Injectable, Inject} from '@angular/core';
 import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
 import {map} from 'rxjs/operators';
 
-import {BehaviorSubject, filter, finalize, Observable, of, switchMap, take} from 'rxjs';
-import {SettingsServiceClass, LoginServiceClass, SETTINGS_SERVICE, ZAC_LOGIN_SERVICE} from "ziti-console-lib";
+import {BehaviorSubject, filter, finalize, Observable, of, switchMap, take, EMPTY} from 'rxjs';
+import {
+    SettingsServiceClass,
+    LoginServiceClass,
+    SETTINGS_SERVICE,
+    ZAC_LOGIN_SERVICE,
+    GrowlerModel, GrowlerService
+} from "ziti-console-lib";
 import moment from "moment/moment";
 import {Router} from "@angular/router";
+import {MatDialog} from "@angular/material/dialog";
+
+import {defer} from 'lodash';
 
 /** Pass untouched request through to the next request handler. */
 @Injectable({
@@ -33,7 +42,10 @@ export class ZitiApiInterceptor implements HttpInterceptor {
 
     constructor(@Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
                 @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass,
-                private router: Router) {
+                private router: Router,
+                private growlerService: GrowlerService,
+                private dialogRef: MatDialog
+                ) {
 
     }
 
@@ -61,25 +73,15 @@ export class ZitiApiInterceptor implements HttpInterceptor {
                     switchMap(() => next.handle(this.addAuthToken(req)))
                 );
             } else {
-                // I need to request a new token
-                this.refreshTokenInProgress = true;
-                this.refreshTokenSubject.next(null);
-                return this.refreshAuthToken().pipe(
-                    switchMap((token) => {
-                        if (token) {
-                            this.refreshTokenSubject.next(token);
-                            return next.handle(this.addAuthToken(req));
-                        } else {
-                            throw ('Error refreshing token');
-                        }
-                    }),
-                    finalize(() => (this.refreshTokenInProgress = false))
-                );
+                this.handleUnauthorized();
+                return EMPTY;
             }
         }
     }
 
     private refreshAuthToken() {
+        this.refreshTokenInProgress = true;
+        this.refreshTokenSubject.next(null);
         const apiVersions = this.settingsService.apiVersions;
         const prefix = apiVersions["edge-management"].v1.path;
         const url = this.settingsService.settings.selectedEdgeController;
@@ -91,6 +93,15 @@ export class ZitiApiInterceptor implements HttpInterceptor {
         }
         this.router.navigate(['/login']);
         return of(null);
+    }
+
+    private handleUnauthorized() {
+        const gorwlerData: GrowlerModel = new GrowlerModel('warning', 'Invalid Session', 'Session Expired', 'Your session is no longer valid. Please login to continue.');
+        this.growlerService.show(gorwlerData);
+        defer(() => {
+            this.dialogRef.closeAll();
+        });
+        this.router.navigate(['/login']);
     }
 
     private addAuthToken(request: any) {

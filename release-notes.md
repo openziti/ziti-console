@@ -1,3 +1,25 @@
+# app-ziti-console-v3.4.6
+# ziti-console-lib-v0.4.6
+
+## Bug Fixes
+* [Issue #450](https://github.com/openziti/ziti-console/issues/450) - Hide the navigation bar when session expires and routing to login page
+* [Issue #452](https://github.com/openziti/ziti-console/issues/452) - Correctly show associated entities when using the #all attribute
+* [Issue #453](https://github.com/openziti/ziti-console/issues/453) - AppData is not persisting when adding via the JSON editor on edit forms
+* [Issue #455](https://github.com/openziti/ziti-console/issues/455) - Prevent overflow of attribute items with long names in tag selector component
+* [Issue #457](https://github.com/openziti/ziti-console/issues/457) - Table is not resized when browzer size changes
+
+# app-ziti-console-v3.4.5
+## Bug Fixes
+* [Issue #444](https://github.com/openziti/ziti-console/issues/444) - BASE_HREF is wrongly quoted
+
+
+# app-ziti-console-v3.4.4
+# ziti-console-lib-v0.4.4
+
+## Bug Fixes
+* [Issue #441](https://github.com/openziti/ziti-console/issues/441) - Unable to Add resources on Identities, routers, router policies, or service router policies
+
+
 # app-ziti-console-v3.4.3
 # ziti-console-lib-v0.4.3
 

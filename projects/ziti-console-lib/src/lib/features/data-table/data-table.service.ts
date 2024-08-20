@@ -38,28 +38,28 @@ export class DataTableService {
     localStorage.setItem(`ziti_${this.tableId}_table_state`, tableStateCookie);
   }
 
-  onColumnsResized(tableId, gridObj, column) {
-    this.saveColumnWidths(tableId, gridObj, column);
+  onColumnsResized(column) {
+    this.saveColumnWidths(column);
   }
-  private saveColumnWidths(tableId, gridObj, column) {
+  private saveColumnWidths(column) {
     if (!column) {
       return;
     }
     const columnId = column.colId;
     const columnWidth = column.actualWidth;
-    let colWidthsCookie = localStorage.getItem(`ziti_${tableId}_column_widths`);
+    let colWidthsCookie = localStorage.getItem(`ziti_${this.tableId}_column_widths`);
     let colWidths: any = {};
     if (!_.isEmpty(colWidthsCookie)) {
       colWidths = JSON.parse(colWidthsCookie);
     }
     colWidths[columnId] = columnWidth;
     colWidthsCookie = JSON.stringify(colWidths);
-    localStorage.setItem(`ziti_${tableId}_column_widths`, colWidthsCookie);
+    localStorage.setItem(`ziti_${this.tableId}_column_widths`, colWidthsCookie);
 
-    let tableStateCookie = localStorage.getItem(`ziti_${tableId}_table_state`);
+    let tableStateCookie = localStorage.getItem(`ziti_${this.tableId}_table_state`);
     let tableState;
     if (_.isEmpty(tableStateCookie)) {
-      tableState = gridObj.columnApi.getColumnState();
+      tableState = this.gridObj.columnApi.getColumnState();
     } else {
       tableState = JSON.parse(tableStateCookie);
     }
@@ -70,8 +70,8 @@ export class DataTableService {
       }
     });
     tableStateCookie = JSON.stringify(tableState);
-    localStorage.setItem(`ziti_${tableId}_table_state`, tableStateCookie);
-    _.forEach(gridObj.columnApi.columnModel.columnDefs, (colDef) => {
+    localStorage.setItem(`ziti_${this.tableId}_table_state`, tableStateCookie);
+    _.forEach(this.gridObj.columnApi.columnModel.columnDefs, (colDef) => {
       if (colDef.colId === columnId) {
         colDef.suppressSizeToFit = true;
       }

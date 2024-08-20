@@ -236,6 +236,7 @@ export class ConfigEditorComponent implements OnInit {
   jsonDataChanged(event) {
     defer(() => {
       this.configDataChange.emit(this.configData);
+      this.updateFormView(this.items, this.configData);
     });
   }
 }

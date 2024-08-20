@@ -55,6 +55,8 @@ export class JsonViewComponent implements AfterViewInit, OnChanges {
   private schemaDefinitions: any;
   oldData: any;
   currentData: any;
+  editorInit = false;
+
   constructor(private growlerService: GrowlerService) {
     this.onChangeDebounced = _.debounce(this.onChange.bind(this), 400);
   }
@@ -74,10 +76,13 @@ export class JsonViewComponent implements AfterViewInit, OnChanges {
   }
 
   initEditor() {
+    if (!this.editorDiv || !this.data || this.editorInit) {
+      return;
+    }
     this.currentData = this.data;
     this.content = {
       text: undefined,
-      json: this.data
+      json: this.data || {}
     };
     this.editor = new JSONEditor({
       target: this.editorDiv.nativeElement,
@@ -109,6 +114,7 @@ export class JsonViewComponent implements AfterViewInit, OnChanges {
         }
       }
     });
+    this.editorInit = true;
   }
 
   updateEditor() {
@@ -117,7 +123,7 @@ export class JsonViewComponent implements AfterViewInit, OnChanges {
     }
     this.oldData = _.cloneDeep(this.data);
     this.content = {
-      json: this.oldData
+      json: this.oldData || {}
     };
     this.editor.update(this.content);
   }
@@ -180,6 +186,10 @@ export class JsonViewComponent implements AfterViewInit, OnChanges {
             ajvOptions: {}
           });
         }
+      }
+    } else if (changes['data']) {
+      if (!this.editorInit) {
+        this.initEditor();
       }
     }
   }
