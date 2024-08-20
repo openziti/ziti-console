@@ -25,6 +25,7 @@ export interface ExtensionService {
   closeAfterSave: boolean;
   moreActions?: any[];
   listActions?: any[];
+  extendOnInit(): void;
   extendAfterViewInits(extentionPoints: any): void;
   updateFormData(data: any): void;
   validateData(): Promise<any>;
@@ -43,6 +44,9 @@ export class ExtensionsNoopService implements ExtensionService {
   moreActions = [];
 
   constructor() { }
+
+  extendOnInit(): void {
+  }
 
   extendAfterViewInits(extentionPoints: any): void {
   }

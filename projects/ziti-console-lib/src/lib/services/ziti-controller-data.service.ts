@@ -248,6 +248,9 @@ export class ZitiControllerDataService extends ZitiDataService {
                 case 'ATTRIBUTE':
                     filterVal = this.getAttributeFilter(filter.value, filter.columnId);
                     break;
+                case 'BOOLEAN':
+                    filterVal = `${filter.columnId}=${filter.value}`;
+                    break;
                 default:
                     filterVal = `${filter.columnId} contains "${filter.value}"`;
                     break;

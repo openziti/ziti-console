@@ -17,7 +17,7 @@
 import {Component, Inject, OnInit, OnDestroy} from '@angular/core';
 import {Router, NavigationEnd, ActivatedRoute} from '@angular/router'
 import {IdentitiesPageService} from "./identities-page.service";
-import {DataTableFilterService} from "../../features/data-table/data-table-filter.service";
+import {DataTableFilterService, FilterObj} from "../../features/data-table/data-table-filter.service";
 import {ListPageComponent} from "../../shared/list-page-component.class";
 import {TabNameService} from "../../services/tab-name.service";
 import {MatDialog} from "@angular/material/dialog";
@@ -52,7 +52,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       consoleEvents: ConsoleEventsService,
       @Inject(IDENTITY_EXTENSION_SERVICE) private extService: ExtensionService,
   ) {
-    super(filterService, svc, consoleEvents, dialogForm);
+    super(filterService, svc, consoleEvents, dialogForm, extService);
   }
 
   override ngOnInit() {

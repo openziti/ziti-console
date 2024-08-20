@@ -3,7 +3,7 @@
                           [tabs]="tabs"
                           [showAdd]="!itemsSelected"
                           (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
-
+    <ng-content select="[slot=list-page-subheader]"></ng-content>
     <lib-data-table [tableId]="'identities'"
                     [rowData]="rowData"
                     [isLoading]="isLoading"
@@ -18,6 +18,8 @@
                     [menuItems]="svc.menuItems"
                     [headerActions]="svc.tableHeaderActions"
                     [noItemsImage]="'No_Clients'"
+                    [showToggle]="true"
+                    [toggleLabel]="'Show Admin Identities'"
                     (gridReady)="gridReady($event)"
     >
     </lib-data-table>

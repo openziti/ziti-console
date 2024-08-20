@@ -8,6 +8,7 @@ export type FilterObj = {
     value: any;
     label: string;
     type?: string;
+    hidden?: boolean;
 }
 
 @Injectable({

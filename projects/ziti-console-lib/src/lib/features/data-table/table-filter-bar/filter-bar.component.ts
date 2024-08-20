@@ -37,7 +37,9 @@ export class FilterBarComponent {
 
   constructor(public filterService: DataTableFilterService) {
     this.filterService.filtersChanged.subscribe(filters => {
-      this._filters = [...filters];
+      this._filters = filters.filter((filter: any) => {
+        return filter.hidden !== true;
+      });
       let tmp = '';
       for (let idx = 0; idx < filters.length; idx++) {
         if (filters[idx].columnId === 'name') {
