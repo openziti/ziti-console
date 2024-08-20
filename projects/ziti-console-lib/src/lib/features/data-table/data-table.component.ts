@@ -759,6 +759,18 @@ export class DataTableComponent implements OnChanges, OnInit {
       case 'services':
         this.entityTypeLabel = 'Services';
         break;
+      case 'configurations':
+        this.entityTypeLabel = 'Configs';
+        break;
+      case 'service-policies':
+        this.entityTypeLabel = 'Service Policies';
+        break;
+      case 'edge-router-policies':
+        this.entityTypeLabel = 'Edge Router Policies';
+        break;
+      case 'service-edge-router-policies':
+        this.entityTypeLabel = 'Service Edge Router Policies';
+        break;
     }
   }
 
