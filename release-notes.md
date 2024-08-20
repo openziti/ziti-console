@@ -1,4 +1,14 @@
 # app-ziti-console-v3.4.6
+# ziti-console-lib-v0.4.7
+
+## Feature/Improvements
+* [Issue #459](https://github.com/openziti/ziti-console/issues/459) - Enable extension of data-table filters via the ExtensionService class
+* [Issue #434](https://github.com/openziti/ziti-console/issues/434) - Allow filtering of Identities list page via "isAdmin"
+
+## Bug Fixes
+* [Issue #457](https://github.com/openziti/ziti-console/issues/457) - Table is not resized when browzer size changes
+
+
 # ziti-console-lib-v0.4.6
 
 ## Bug Fixes
