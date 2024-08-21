@@ -55,6 +55,11 @@ jobs:
             # set (e.g., "v1") major version tag on releases
             type=match,pattern=app-ziti-console-(v\d+)\..*,group=1,enable=${{startsWith(github.ref_name, 'app-ziti-console-v')}}
 
+      - name: Set Up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: amd64,arm64
+
       - name: Set Up Docker BuildKit
         id: buildx
         uses: docker/setup-buildx-action@v3
