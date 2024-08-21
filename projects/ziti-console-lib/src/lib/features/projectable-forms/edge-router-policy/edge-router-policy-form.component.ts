@@ -23,6 +23,7 @@ import {ExtensionService} from "../../extendable/extensions-noop.service";
 import {GrowlerModel} from "../../messaging/growler.model";
 import {EdgeRouterPolicy} from "../../../models/edge-router-policy";
 import {ActivatedRoute, Router} from "@angular/router";
+import {Location} from "@angular/common";
 
 @Component({
   selector: 'lib-edge-router-policy-form',
@@ -64,8 +65,9 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
       @Inject(EDGE_ROUTER_POLICY_EXTENSION_SERVICE) extService: ExtensionService,
       protected override router: Router,
       protected override route: ActivatedRoute,
+      location: Location
   ) {
-    super(growlerService, extService, zitiService, router, route);
+    super(growlerService, extService, zitiService, router, route, location);
   }
 
   override ngOnInit(): void {

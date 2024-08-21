@@ -148,12 +148,14 @@ const routes: Routes = [
     path: 'configs',
     component: ConfigurationsPageComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
+    canDeactivate: [DeactivateGuardService],
     runGuardsAndResolvers: 'always',
   },
   {
     path: 'configs/:id',
     component: ConfigurationFormComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
+    canDeactivate: [DeactivateGuardService],
     runGuardsAndResolvers: 'always',
   },
   {

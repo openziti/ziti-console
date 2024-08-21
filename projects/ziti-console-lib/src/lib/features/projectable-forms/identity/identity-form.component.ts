@@ -37,6 +37,7 @@ import {IdentitiesPageService} from "../../../pages/identities/identities-page.s
 import {ExtensionService} from "../../extendable/extensions-noop.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {Identity} from "../../../models/identity";
+import {Location} from "@angular/common";
 
 @Component({
   selector: 'lib-identity-form',
@@ -88,8 +89,9 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       @Inject(IDENTITY_EXTENSION_SERVICE) extService: ExtensionService,
       protected override router: Router,
       protected override route: ActivatedRoute,
+      location: Location
   ) {
-    super(growlerService, extService, zitiService, router, route);
+    super(growlerService, extService, zitiService, router, route, location);
     this.identityRoleAttributes = [];
   }
 

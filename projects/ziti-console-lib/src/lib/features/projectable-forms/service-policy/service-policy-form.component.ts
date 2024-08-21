@@ -23,6 +23,7 @@ import {ExtensionService} from "../../extendable/extensions-noop.service";
 import {ServicePolicy} from "../../../models/service-policy";
 import {GrowlerModel} from "../../messaging/growler.model";
 import {ActivatedRoute, Router} from "@angular/router";
+import {Location} from "@angular/common";
 
 @Component({
   selector: 'lib-service-policy-form',
@@ -66,8 +67,9 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
       @Inject(SERVICE_POLICY_EXTENSION_SERVICE) extService: ExtensionService,
       protected override router: Router,
       protected override route: ActivatedRoute,
+      location: Location
   ) {
-    super(growlerService, extService, zitiService, router, route);
+    super(growlerService, extService, zitiService, router, route, location);
   }
 
   override ngOnInit(): void {

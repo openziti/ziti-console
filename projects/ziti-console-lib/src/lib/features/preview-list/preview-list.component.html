@@ -3,9 +3,10 @@
     <span *ngIf="isLoading" class="spinner"></span>
 
     <div class="text row">
-        <div (click)="selected(name)" *ngFor="let name of names" [ngClass]="{ clickable: clickable }" class="listText">
-            <div *ngIf="allowRemove" class="icon-clear" (click)="remove(name)"></div>
-            <span class="preview-name" matTooltip="{{tooltip}}" matTooltipPosition="above">{{ name }}</span>
+        <div (click)="selected(item)" *ngFor="let item of previewItems" [ngClass]="{ clickable: clickable }" class="listText">
+            <div *ngIf="allowRemove" class="icon-clear" (click)="remove(item)"></div>
+            <span *ngIf="!item.href" class="preview-name" matTooltip="{{tooltip}}" matTooltipPosition="below" matTooltipShowDelay="1000">{{ item }}</span>
+            <a *ngIf="item.href" [href]="'./' + item.href" (click)="linkClicked($event, item)" matTooltip="{{tooltip}}" matTooltipShowDelay="1000" matTooltipPosition="below"><span *ngIf="item.name" class="preview-name">{{ item.name }}</span></a>
         </div>
     </div>
 </div>
