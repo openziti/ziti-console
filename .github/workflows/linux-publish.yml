@@ -109,7 +109,7 @@ jobs:
 
       - name: Build Package
         id: nfpm
-        uses: burningalchemist/action-gh-nfpm@v1
+        uses: burningalchemist/action-gh-nfpm@eeac96f42da23d091eec0d0088bf05cac0ceb9f3
         with:
           nfpm_version: "2.38.0"
           packager: ${{ matrix.nfpm_packager }}
