@@ -91,7 +91,7 @@ jobs:
       ZAC_VERSION: ${{ needs.parse-version.outputs.version }}
       ZITI_MAINTAINER: "OpenZiti Maintainers <developers@openziti.org>"
       ZITI_HOMEPAGE: "https://openziti.io"
-      ZITI_VENDOR: "NetFoundry"
+      ZITI_VENDOR: "NetFoundry, Inc."
       GOARCH: ${{ matrix.arch.goreleaser }}
       ZITI_DEB_TEST_REPO: ${{ vars.ZITI_DEB_TEST_REPO || 'zitipax-openziti-deb-test' }}
       ZITI_RPM_TEST_REPO: ${{ vars.ZITI_RPM_TEST_REPO || 'zitipax-openziti-rpm-test' }}

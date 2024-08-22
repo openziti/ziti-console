@@ -7,7 +7,7 @@ arch: ${GOARCH}
 platform: linux
 version: ${ZAC_VERSION}
 maintainer: ${ZITI_MAINTAINER}
-description: Web console static files for OpenZiti Controller
+description: A single-page web application for managing an OpenZiti overlay network
 vendor: ${ZITI_VENDOR}
 homepage: ${ZITI_HOMEPAGE}
 license: Apache-2.0
