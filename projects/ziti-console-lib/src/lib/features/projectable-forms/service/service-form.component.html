@@ -189,16 +189,16 @@
             <div class="form-group-column two-fifths">
                 <lib-form-field-container
                     [title]="'Selected Configurations'"
-                    [count]="svc.addedConfigNames ? svc.addedConfigNames.length : 0"
+                    [count]="svc.addedConfigs ? svc.addedConfigs.length : 0"
                     [helpText]="'Preview list of all service configurations that this service is associated with.'"
                 >
                     <lib-preview-list
-                        [allNames]="svc.addedConfigNames"
+                        [allNames]="svc.addedConfigs"
                         [allowRemove]="true"
                         [clickable]="true"
-                        [tooltip]="'View Config Data'"
+                        [tooltip]="'View Config'"
                         (itemRemoved)="svc.removeConfig($event)"
-                        (itemSelected)="svc.previewConfig($event)"
+                        (itemSelected)="svc.previewConfig($event, router)"
                     ></lib-preview-list>
                 </lib-form-field-container>
                 <lib-form-field-container
@@ -208,7 +208,9 @@
                         [helpText]="'Preview list of all service policies that this service is associated with.'"
                 >
                     <lib-preview-list
-                            [clickable]="false"
+                            [clickable]="true"
+                            (itemSelected)="svc.previewPolicy($event, router)"
+                            [tooltip]="'View Service Policy'"
                             [allNames]="svc.associatedServicePolicyNames"
                     ></lib-preview-list>
                 </lib-form-field-container>

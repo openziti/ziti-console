@@ -43,6 +43,7 @@ import {ExtensionService} from "../../extendable/extensions-noop.service";
 import {ConfigEditorComponent} from "../../config-editor/config-editor.component";
 import {Service} from "../../../models/service";
 import {ActivatedRoute, Router} from "@angular/router";
+import {Location} from "@angular/common";
 
 @Component({
   selector: 'lib-service-form',
@@ -107,8 +108,9 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
       @Inject(SERVICE_EXTENSION_SERVICE) extService: ExtensionService,
       protected override router: Router,
       protected override route: ActivatedRoute,
+      location: Location
   ) {
-    super(growlerService, extService, zitiService, router, route);
+    super(growlerService, extService, zitiService, router, route, location);
     this.formData = {};
   }
 
@@ -204,7 +206,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
         break;
       case 'close':
         this.resetForm();
-        this.router?.navigateByUrl(`/services`);
+        this.returnToListPage();
         break;
       case 'toggle-view':
         this.formView = action.data;
