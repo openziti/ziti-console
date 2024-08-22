@@ -7,7 +7,7 @@
                 <span class="confirm-subtitle">{{dataObj.subtitle}}</span>
             </div>
             <div class="confirm-modal-main">
-                <div class="confirm-modal-icon"></div>
+                <div class="confirm-modal-icon" style="background-image: url({{dataObj.imageUrl}})"></div>
                 <div>
                     <div class="confirm-message-content">
                         <span [innerHTML]="dataObj.message"></span>
@@ -16,6 +16,9 @@
                         <ul>
                             <li *ngFor="let item of dataObj.bulletList" class="confirm-item-name">{{item}}</li>
                         </ul>
+                    </div>
+                    <div *ngIf="dataObj.submessage && dataObj.submessage.length > 0" class="confirm-message-sub-content">
+                        <span [innerHTML]="dataObj.submessage"></span>
                     </div>
                 </div>
             </div>

@@ -9,6 +9,7 @@ export type FilterObj = {
     label: string;
     type?: string;
     hidden?: boolean;
+    verb?: string
 }
 
 @Injectable({

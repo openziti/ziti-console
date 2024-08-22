@@ -8,10 +8,12 @@ import {ExtensionService} from "../../../extendable/extensions-noop.service";
 import {GrowlerModel} from "../../../messaging/growler.model";
 import {MatDialog} from "@angular/material/dialog";
 import {CreationSummaryDialogComponent} from "../../../creation-summary-dialog/creation-summary-dialog.component";
-import {isEmpty, isNil, isNaN, unset, cloneDeep, isEqual} from 'lodash';
+import {isEmpty, isNil, isNaN, unset, cloneDeep, isEqual, forEach} from 'lodash';
 import {ValidationService} from '../../../../services/validation.service';
 import {ServicesPageService} from "../../../../pages/services/services-page.service";
 import {ActivatedRoute, Router} from "@angular/router";
+import {FilterObj} from "../../../data-table/data-table-filter.service";
+import {ConfirmComponent} from "../../../confirm/confirm.component";
 
 // @ts-ignore
 const {app} = window;
@@ -242,6 +244,10 @@ export class SimpleServiceComponent extends ProjectableForm {
     if (!this.validate()) {
       return;
     }
+    const hasConflicts: any = await this.checkNameConflicts();
+    if (hasConflicts) {
+      return;
+    }
     const summaryData = this.showSummary();
     this.serviceApiData.configs = [];
     await this.createInterceptConfig(summaryData);
@@ -376,12 +382,98 @@ export class SimpleServiceComponent extends ProjectableForm {
       } else if (result === 'cancel') {
         /// Do nothing, stay on page
       } else {
-        this.closeModal(true, true, '');
+        this.router?.navigateByUrl(`${this.basePath}`);
       }
     });
     return summaryData;
   }
 
+  async checkNameConflicts() {
+    const filter: FilterObj = {
+      filterName: 'name',
+      columnId: 'name',
+      value: this.serviceApiData.name,
+      label: '',
+      type: 'TEXTINPUT',
+      hidden: false,
+      verb: '='
+    }
+
+    const results: any = {
+      serviceConflict: false,
+      interceptConflict: false,
+      hostConflict: false,
+      dialPolicyConflict: false,
+      bindPolicyConflict: false,
+      names: []
+    };
+    const paging = cloneDeep(this.zitiService.DEFAULT_PAGING);
+    paging.noSearch = false;
+    const serviceProm = this.zitiService.get('services', paging, [filter]).then((result) => {
+      if (result.data?.length > 0) {
+        results.serviceConflict = true;
+        results.names.push(this.serviceApiData.name);
+      }
+    });
+    filter.value = this.interceptConfigApiData.name;
+    const interceptProm = this.zitiService.get('configs', paging, [filter]).then((result) => {
+      if (result.data?.length > 0) {
+        results.interceptConflict = true;
+        results.names.push(this.interceptConfigApiData.name);
+      }
+    });
+    filter.value = this.hostConfigApiData.name;
+    const hostProm = this.zitiService.get('configs', paging, [filter]).then((result) => {
+      if (result.data?.length > 0) {
+        results.hostConflict = true;
+        results.names.push(this.hostConfigApiData.name);
+      }
+    });
+    filter.value = this.dialPolicyApiData.name;
+    const dialProm = this.zitiService.get('service-policies', paging, [filter]).then((result) => {
+      if (result.data?.length > 0) {
+        results.dialPolicyConflict = true;
+        results.names.push(this.dialPolicyApiData.name);
+      }
+    });
+    filter.value = this.bindPolicyApiData.name;
+    const bindProm = this.zitiService.get('service-policies', paging, [filter]).then((result) => {
+      if (result.data?.length > 0) {
+        results.bindPolicyConflict = true;
+        results.names.push(this.bindPolicyApiData.name);
+      }
+    });
+
+    return Promise.all([serviceProm, interceptProm, hostProm, dialProm, bindProm]).then(() => {
+      let hasConflict = results.names.length > 0;
+      if (hasConflict) {
+        this.errors.name = true;
+        this.showConflictWarning(results);
+      }
+      return hasConflict;
+    });
+  }
+
+  showConflictWarning(conflictData) {
+
+    const data = {
+      appendId: 'SimpleServiceConflicts',
+      title: 'Name Conflict',
+      message: `The name you have entered has conflicts for the following entities`,
+      bulletList: conflictData.names,
+      submessage: `Please update the entered name and try again.`,
+      confirmLabel: 'Return',
+      showCancelLink: false,
+      imageUrl: '../../assets/svgs/Growl_Error.svg'
+    };
+    this.dialogRef = this.dialogForm.open(ConfirmComponent, {
+      data: data,
+      autoFocus: false,
+    });
+    this.dialogRef.afterClosed(() => {
+      this.nameFieldInput.nativeElement.focus();
+    })
+  }
   async createInterceptConfig(summaryData) {
     if (this.sdkOnlyDial) {
       return;

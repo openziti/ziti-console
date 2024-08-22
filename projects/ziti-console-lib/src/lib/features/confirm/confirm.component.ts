@@ -35,8 +35,10 @@ export class ConfirmComponent {
     confirmLabel: '',
     cancelLabel: '',
     bulletList: [],
+    submessage: '',
     showCancelButton: false,
-    showCancelLink: false
+    showCancelLink: false,
+    imageUrl: '../../assets/svgs/Confirm_Trash.svg'
   }
 
   constructor(private dialogRef: MatDialogRef<ConfirmComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
