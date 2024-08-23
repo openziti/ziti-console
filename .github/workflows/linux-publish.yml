@@ -97,6 +97,8 @@ jobs:
       ZITI_RPM_TEST_REPO: ${{ vars.ZITI_RPM_TEST_REPO || 'zitipax-openziti-rpm-test' }}
       ZITI_DEB_PROD_REPO: ${{ vars.ZITI_DEB_PROD_REPO || 'zitipax-openziti-deb-stable' }}
       ZITI_RPM_PROD_REPO: ${{ vars.ZITI_RPM_PROD_REPO || 'zitipax-openziti-rpm-stable' }}
+      NFPM_VERSION: "2.38.0"
+      JFROG_CLI_VERSION: "2.63.0"
     steps:
       - name: Checkout Workspace
         uses: actions/checkout@v4
@@ -111,7 +113,7 @@ jobs:
         id: nfpm
         uses: burningalchemist/action-gh-nfpm@eeac96f42da23d091eec0d0088bf05cac0ceb9f3
         with:
-          nfpm_version: "2.38.0"
+          nfpm_version: ${{ env.NFPM_VERSION }}
           packager: ${{ matrix.nfpm_packager }}
           config: ./linux-packages/openziti-console/nfpm-${{ matrix.package_name }}.yaml
           target: ./dist/
@@ -128,7 +130,7 @@ jobs:
         env:
           JF_ENV_1: ${{ secrets.ZITI_ARTIFACTORY_CLI_CONFIG_PACKAGE_UPLOAD }}
         with:
-          version: 2.63.0
+          version: ${{ env.JFROG_CLI_VERSION }}
 
       - name: Upload RPM to Artifactory testing repo
         if: matrix.nfpm_packager == 'rpm'
