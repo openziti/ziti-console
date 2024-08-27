@@ -197,6 +197,7 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
         this.closeModal(true, true);
       }
       const data = result?.data?.id ? result.data : result;
+      this._dataChange = false;
       if (!isEmpty(data.id)) {
         this.formData = data || this.formData;
         this.initData = this.formData;
