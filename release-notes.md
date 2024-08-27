@@ -1,3 +1,8 @@
+# ziti-console-lib-v0.4.8
+* [Issue #469](https://github.com/openziti/ziti-console/issues/469) - Validation for the names on simple service summary screen
+* [Issue #434](https://github.com/openziti/ziti-console/issues/467) - Allow users to navigate to the config edit page via the "Associated Configs" pod
+
+
 # app-ziti-console-v3.4.6
 # ziti-console-lib-v0.4.7
 
