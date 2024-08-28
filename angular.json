@@ -78,7 +78,13 @@
                 "scripts": true,
                 "styles": true,
                 "vendor": true
-              }
+              },
+              "aot": true,
+              "optimization": true,
+              "sourceMap": false,
+              "extractLicenses": true,
+              "vendorChunk": true,
+              "buildOptimizer": true
             },
             "development": {
               "buildOptimizer": false,
