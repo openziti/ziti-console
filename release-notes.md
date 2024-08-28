@@ -1,3 +1,8 @@
+# app-ziti-console-v3.4.7
+# ziti-console-lib-v0.4.9
+* [Issue #476](https://github.com/openziti/ziti-console/issues/476) - Reduce application bundle size using production configuration
+* [Issue #478](https://github.com/openziti/ziti-console/issues/478) - Fix display of identity "role" attributes on simple service form
+
 # ziti-console-lib-v0.4.8
 * [Issue #469](https://github.com/openziti/ziti-console/issues/469) - Validation for the names on simple service summary screen
 * [Issue #434](https://github.com/openziti/ziti-console/issues/467) - Allow users to navigate to the config edit page via the "Associated Configs" pod
