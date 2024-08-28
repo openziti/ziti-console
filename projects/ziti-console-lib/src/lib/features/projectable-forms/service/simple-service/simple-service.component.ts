@@ -168,6 +168,9 @@ export class SimpleServiceComponent extends ProjectableForm {
     this.servicesPageService.getServiceRoleAttributes().then((result) => {
       this.serviceRoleAttributes = result.data;
     });
+    this.servicesPageService.getIdentityRoleAttributes().then((result) => {
+      this.identityRoleAttributes = result.data;
+    });
   }
 
   getIdentityNamedAttributes(filter?) {
@@ -382,6 +385,8 @@ export class SimpleServiceComponent extends ProjectableForm {
       } else if (result === 'cancel') {
         /// Do nothing, stay on page
       } else {
+        this.initDataModels();
+        this._dataChange = false;
         this.router?.navigateByUrl(`${this.basePath}`);
       }
     });
@@ -750,6 +755,14 @@ export class SimpleServiceComponent extends ProjectableForm {
       -H 'content-type: application/json' \\
       -H 'zt-session: ${this.zitiSessionId}' \\
       --data-raw '${JSON.stringify(this.bindPolicyApiData)}' \\`;
+  }
+
+  initDataModels() {
+    this.serviceApiData = this.initServiceApiData;
+    this.interceptConfigApiData.data = this.initInterceptConfigApiData.data;
+    this.hostConfigApiData.data = this.initHostConfigApiData.data;
+    this.dialPolicyApiData = this.initDialPolicyApiData;
+    this.bindPolicyApiData = this.initBindPolicyApiData;
   }
 
   override checkDataChange() {

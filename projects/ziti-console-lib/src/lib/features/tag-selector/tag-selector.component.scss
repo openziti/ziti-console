@@ -538,3 +538,9 @@ input {
   -webkit-animation: loading 0.5s infinite linear;
   animation: loading 0.5s infinite linear;
 }
+
+.tagsSelector {
+  &.clickOutside {
+    position: relative;
+  }
+}
