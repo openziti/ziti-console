@@ -17,7 +17,7 @@ RUN npm install --omit=optional
 
 COPY . .
 RUN ng build ziti-console-lib
-RUN ng build ziti-console --base-href ${BASE_HREF}
+RUN ng build ziti-console --base-href ${BASE_HREF} --configuration "production"
 
 ARG NODE_VERSION=${NODE_VERSION}
 FROM node:${NODE_VERSION}-bookworm-slim
