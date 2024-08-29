@@ -1,0 +1,162 @@
+name: Publish Linux Packages
+
+on:
+  push:
+    tags: 
+      # Publish semver tags as releases.
+      - app-ziti-console-v*.*.*
+
+jobs:
+  parse-version:
+    name: Find Console Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.parse.outputs.version }}
+    steps:
+      - name: Checkout Workspace
+        uses: actions/checkout@v4
+
+      - name: Derive version from tag or package
+        id: parse
+        shell: bash
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: |
+          set -o pipefail
+          echo "version=${GITHUB_REF_NAME#app-ziti-console-v}" | tee -a $GITHUB_OUTPUT
+
+  build-and-upload-app-ziti-console:
+    needs: parse-version
+    name: Build Console ZIP
+    runs-on: ubuntu-latest
+    env:
+      BUILD_CONFIG: "Release"
+    steps:
+      - name: Checkout Workspace
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          registry-url: https://npm.pkg.github.com/
+
+      - name: build app-ziti-console
+        shell: bash
+        run: ./build.sh /zac/
+
+      - name: upload app-ziti-console
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-ziti-console
+          path: ./dist/app-ziti-console/
+
+  publish-linux-packages:
+    needs:
+      - parse-version
+      - build-and-upload-app-ziti-console
+    name: ${{ matrix.package_name }} ${{ matrix.arch.rpm }} ${{ matrix.nfpm_packager }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package_name:
+          - openziti-console
+        arch:
+          - goreleaser: amd64
+            deb: amd64
+            rpm: x86_64
+          - goreleaser: arm64
+            deb: arm64
+            rpm: aarch64
+          - goreleaser: armv7
+            deb: armv7
+            rpm: armv7
+        nfpm_packager:
+          - rpm
+          - deb
+          # - archlinux #  (pacman)
+    env:
+      ZAC_VERSION: ${{ needs.parse-version.outputs.version }}
+      ZITI_MAINTAINER: "OpenZiti Maintainers <developers@openziti.org>"
+      ZITI_HOMEPAGE: "https://openziti.io"
+      ZITI_VENDOR: "NetFoundry, Inc."
+      GOARCH: ${{ matrix.arch.goreleaser }}
+      ZITI_DEB_TEST_REPO: ${{ vars.ZITI_DEB_TEST_REPO || 'zitipax-openziti-deb-test' }}
+      ZITI_RPM_TEST_REPO: ${{ vars.ZITI_RPM_TEST_REPO || 'zitipax-openziti-rpm-test' }}
+      ZITI_DEB_PROD_REPO: ${{ vars.ZITI_DEB_PROD_REPO || 'zitipax-openziti-deb-stable' }}
+      ZITI_RPM_PROD_REPO: ${{ vars.ZITI_RPM_PROD_REPO || 'zitipax-openziti-rpm-stable' }}
+      NFPM_VERSION: "2.38.0"
+      JFROG_CLI_VERSION: "2.63.0"
+    steps:
+      - name: Checkout Workspace
+        uses: actions/checkout@v4
+
+      - name: Download app-ziti-console
+        uses: actions/download-artifact@v4
+        with:
+          name: app-ziti-console
+          path: ./dist/app-ziti-console
+
+      - name: Build Package
+        id: nfpm
+        uses: burningalchemist/action-gh-nfpm@eeac96f42da23d091eec0d0088bf05cac0ceb9f3
+        with:
+          nfpm_version: ${{ env.NFPM_VERSION }}
+          packager: ${{ matrix.nfpm_packager }}
+          config: ./linux-packages/openziti-console/nfpm-${{ matrix.package_name }}.yaml
+          target: ./dist/
+
+      - name: upload package artifact to build summary page
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.package_name }}-${{ matrix.arch.goreleaser }}-${{ matrix.nfpm_packager }}
+          path: ./dist/${{ matrix.package_name }}*.${{ matrix.nfpm_packager }}
+          if-no-files-found: error
+
+      - name: Configure jFrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+        env:
+          JF_ENV_1: ${{ secrets.ZITI_ARTIFACTORY_CLI_CONFIG_PACKAGE_UPLOAD }}
+        with:
+          version: ${{ env.JFROG_CLI_VERSION }}
+
+      - name: Upload RPM to Artifactory testing repo
+        if: matrix.nfpm_packager == 'rpm'
+        shell: bash
+        run: >
+          jf rt upload
+          ./dist/${{ matrix.package_name }}*.rpm
+          ${{ env.ZITI_RPM_TEST_REPO }}/redhat/${{ matrix.arch.rpm }}/
+          --recursive=false
+          --flat=true 
+
+      - name: Upload DEB to Artifactory testing repo
+        if: matrix.nfpm_packager == 'deb'
+        shell: bash
+        run: >
+          jf rt upload
+          ./dist/${{ matrix.package_name }}*.deb
+          ${{ env.ZITI_DEB_TEST_REPO }}/pool/${{ matrix.package_name }}/${{ matrix.arch.deb }}/
+          --deb=debian/main/${{ matrix.arch.deb }}
+          --recursive=false
+          --flat=true 
+
+      - name: Copy DEB from test repo to stable repo with jFrog CLI
+        if: matrix.nfpm_packager == 'deb'
+        shell: bash
+        run: >
+          jf rt copy
+          --recursive=false
+          --flat=true
+          ${{ env.ZITI_DEB_TEST_REPO }}/pool/${{ matrix.package_name }}/${{ matrix.arch.deb }}/${{ matrix.package_name }}_${{ needs.parse-version.outputs.version }}_*.deb
+          ${{ env.ZITI_DEB_PROD_REPO }}/pool/${{ matrix.package_name }}/${{ matrix.arch.deb }}/
+
+      - name: Copy RPM from test repo to stable repo with jFrog CLI
+        if: matrix.nfpm_packager == 'rpm'
+        shell: bash
+        run: >
+          jf rt copy
+          --recursive=false
+          --flat=true
+          ${{ env.ZITI_RPM_TEST_REPO }}/redhat/${{ matrix.arch.rpm }}/${{ matrix.package_name }}-${{ needs.parse-version.outputs.version }}-*.${{ matrix.arch.rpm }}.rpm
+          ${{ env.ZITI_RPM_PROD_REPO }}/redhat/${{ matrix.arch.rpm }}/
