@@ -2,7 +2,6 @@ name: Publish Linux Packages
 
 on:
   push:
-    branches: [ "main" ]
     tags: 
       # Publish semver tags as releases.
       - app-ziti-console-v*.*.*
@@ -25,18 +24,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
           set -o pipefail
-          if [[ "${GITHUB_REF_NAME}" == main ]]
-          then
-            if PACKAGE_VERSION=$(jq -r .version package.json)
-            then
-              echo "version=${PACKAGE_VERSION#v}-${GITHUB_RUN_ID}" | tee -a $GITHUB_OUTPUT
-            else
-              echo "ERROR: Could not find version in package.json"
-              exit 1
-            fi
-          else
-            echo "version=${GITHUB_REF_NAME#app-ziti-console-v}" | tee -a $GITHUB_OUTPUT
-          fi
+          echo "version=${GITHUB_REF_NAME#app-ziti-console-v}" | tee -a $GITHUB_OUTPUT
 
   build-and-upload-app-ziti-console:
     needs: parse-version
@@ -154,7 +142,7 @@ jobs:
           --flat=true 
 
       - name: Copy DEB from test repo to stable repo with jFrog CLI
-        if: github.ref_name != 'main' && matrix.nfpm_packager == 'deb'
+        if: matrix.nfpm_packager == 'deb'
         shell: bash
         run: >
           jf rt copy
@@ -164,7 +152,7 @@ jobs:
           ${{ env.ZITI_DEB_PROD_REPO }}/pool/${{ matrix.package_name }}/${{ matrix.arch.deb }}/
 
       - name: Copy RPM from test repo to stable repo with jFrog CLI
-        if: github.ref_name != 'main' && matrix.nfpm_packager == 'rpm'
+        if: matrix.nfpm_packager == 'rpm'
         shell: bash
         run: >
           jf rt copy
