@@ -91,15 +91,7 @@ export class ServiceEdgeRouterPolicyFormService {
             this.associatedEdgeRouterNames = [...namedAttributes];
             return;
         }
-        const filters = [
-            {
-                columnId: "roleAttributes",
-                filterName: "Edge Router Attributes",
-                label: "",
-                type: "ATTRIBUTE",
-                value: roleAttributes
-            }
-        ];
+        const filters = this.zitiService.getRoleFilter(roleAttributes);
         const paging = this.zitiService.DEFAULT_PAGING;
         paging.noSearch = false;
         this.zitiService.get('edge-routers', paging, filters).then((result: any) => {
@@ -118,15 +110,7 @@ export class ServiceEdgeRouterPolicyFormService {
             this.associatedServiceNames = [...namedAttributes];
             return;
         }
-        const filters = [
-            {
-                columnId: "roleAttributes",
-                filterName: "Service Attributes",
-                label: "",
-                type: "ATTRIBUTE",
-                value: roleAttributes
-            }
-        ];
+        const filters = this.zitiService.getRoleFilter(roleAttributes);
         const paging = this.zitiService.DEFAULT_PAGING;
         paging.noSearch = false;
         this.zitiService.get('services', paging, filters).then((result: any) => {

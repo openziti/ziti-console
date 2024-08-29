@@ -26,9 +26,9 @@ export class ForwardingConfigService {
 
     getProperties(protocol, address, port, forwardProtocol, forwardAddress, forwardPort, allowedProtocols, allowedAddresses, allowedPortRanges) {
         const props = [
-            {key: 'protocol', value: protocol},
-            {key: 'address', value: address},
-            {key: 'port', value: port},
+            {key: 'protocol', value: forwardProtocol ? undefined : protocol},
+            {key: 'address', value: forwardAddress ? undefined : address},
+            {key: 'port', value: forwardPort ? undefined : port},
             {key: 'forwardProtocol', value: forwardProtocol ? forwardProtocol : undefined},
             {key: 'forwardAddress', value: forwardAddress ? forwardAddress : undefined},
             {key: 'forwardPort', value: forwardPort ? forwardPort : undefined},

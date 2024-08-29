@@ -36,6 +36,7 @@ import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.serv
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {Config} from "../../../models/config";
+import {Location} from "@angular/common";
 
 @Component({
     selector: 'lib-configuration',
@@ -74,8 +75,9 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
         @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
         protected override router: Router,
         protected override route: ActivatedRoute,
+        location: Location
     ) {
-        super(growlerService, extService, zitiService, router, route);
+        super(growlerService, extService, zitiService, router, route, location);
     }
 
     override ngOnInit(): void {
@@ -180,7 +182,13 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
             this.isLoading = false;
         });
         if (configId) {
-            this.closeModal(true, true);
+            this.initData = this.formData;
+            this._dataChange = false;
+            if (this.isModal) {
+                this.closeModal(true, true);
+            } else {
+                this.returnToListPage();
+            }
         };
     }
 

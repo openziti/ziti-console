@@ -196,9 +196,9 @@ export abstract class ListPageServiceClass {
 
     public openEditForm(itemId = '', basePath?) {
         if (isEmpty(itemId)) {
-            itemId = '/create';
+            itemId = 'create';
         }
         basePath = basePath ? basePath : this.basePath;
-        this.router?.navigateByUrl(`${basePath}${itemId}`);
+        this.router?.navigateByUrl(`${basePath}/${itemId}`);
     }
 }

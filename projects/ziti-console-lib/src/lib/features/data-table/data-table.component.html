@@ -1,4 +1,4 @@
-<div class="data-table-container" *ngIf="isLoading || filterApplied || rowData?.length > 0;else nodata">
+<div #tableContainer class="data-table-container" *ngIf="showTable;else nodata">
     <lib-table-filter-bar
             [startCount]="startCount"
             [endCount]="endCount"

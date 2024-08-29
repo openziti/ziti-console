@@ -20,7 +20,6 @@
     .confirm-modal-icon {
       width: 120px;
       height: 120px;
-      background-image: url(../../assets/svgs/Confirm_Trash.svg);
       background-size: contain;
       z-index: 20;
       box-sizing: var(--shadow);
@@ -46,6 +45,7 @@
       filter: brightness(50%);
     }
   }
+  .confirm-message-sub-content,
   .confirm-message-content {
     color: var(--text);
     font-size: 14px;
@@ -58,7 +58,7 @@
     overflow: auto;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     color: var(--tableText);
     max-width: 400px;
   }

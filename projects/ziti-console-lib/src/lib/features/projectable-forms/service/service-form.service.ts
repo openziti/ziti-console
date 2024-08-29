@@ -47,6 +47,7 @@ export class ServiceFormService {
     }
 
     formData: any = {};
+    selectedConfig: any = {};
     configData: any;
     selectedConfigId: any = '';
     configs: any = [];
@@ -56,7 +57,7 @@ export class ServiceFormService {
     selectedConfigName: any = '';
     selectedConfigTypeId: any = '';
     selectedConfigType: any = {};
-    addedConfigNames: any = [];
+    addedConfigs: any = [];
     addedTerminatorNames: any = [];
     addedTerminators: any = [];
     configJsonView = false;
@@ -82,6 +83,7 @@ export class ServiceFormService {
     associatedTerminators: any = [];
     associatedServicePolicies: any = [];
     associatedServicePolicyNames: any = [];
+    associatedServicePoliciesMap: any = {};
 
     lColorArray = [
         'white',
@@ -173,23 +175,24 @@ export class ServiceFormService {
         this.zitiService.getSubdata('services', this.formData.id, 'service-policies').then((result: any) => {
             this.associatedServicePolicies = result.data;
             this.associatedServicePolicyNames = this.associatedServicePolicies.map((policy) => {
+                this.associatedServicePoliciesMap[policy.name] = policy;
                 return policy.name;
             });
         });
     }
 
-    previewConfig(configName) {
+    previewConfig(configName, router) {
         this.showCfgPreviewOption = true;
-        this.configData = this.associatedConfigsMap[configName].data;
-        this.selectedConfigName = this.associatedConfigsMap[configName].name;
-        this.selectedConfigId = 'preview';
-        this.selectedConfigTypeId = this.associatedConfigsMap[configName].configTypeId;
-        this.configTypeChanged(false);
-        this.selectedConfigId = 'preview';
-        this.newConfigName = this.selectedConfigName;
-        defer(() => {
-            this.selectedConfigId = 'preview';
-        })
+        this.selectedConfig = this.associatedConfigsMap[configName];
+        router.navigate(['/configs/' + this.selectedConfig.id]);
+        return;
+    }
+
+    previewPolicy(policyName, router) {
+        this.showCfgPreviewOption = true;
+        this.selectedConfig = this.associatedServicePoliciesMap[policyName];
+        router.navigate(['/service-policies/' + this.selectedConfig.id]);
+        return;
     }
 
     addTerminators(serviceId) {
@@ -235,9 +238,10 @@ export class ServiceFormService {
         this.zitiService.getSubdata('services', this.formData.id, 'configs').then((result: any) => {
             this.associatedConfigs = result.data;
             this.associatedConfigsMap = {};
-            this.addedConfigNames = this.associatedConfigs.map((cfg) => {
+            this.addedConfigs = this.associatedConfigs.map((cfg) => {
                 this.associatedConfigsMap[cfg.name] = cfg;
-                return cfg.name;
+                cfg.href = '/configs/' + cfg.id;
+                return cfg;
             });
         });
     }
@@ -287,14 +291,15 @@ export class ServiceFormService {
     }
 
     updatedAddedConfigs() {
-        this.addedConfigNames = [];
+        this.addedConfigs = [];
         this.configs.forEach((availableConfig) => {
             const cfgExists = some(this.formData.configs, configId => {
                 return availableConfig.id == configId;
             });
             if (cfgExists) {
-                this.addedConfigNames.push(availableConfig.name);
-                this.addedConfigNames = [...this.addedConfigNames];
+                availableConfig.href = '/configs/' + availableConfig.id;
+                this.addedConfigs.push(availableConfig);
+                this.addedConfigs = [...this.addedConfigs];
             }
         })
     }
@@ -330,6 +335,7 @@ export class ServiceFormService {
                 .then((result) => {
                     const cfg = result?.data;
                     newConfig.id = result?.id ? result.id : result?.data?.id;
+                    newConfig.href = '/configs/' + newConfig.id;
                     this.associatedConfigsMap[newConfig.name] = {data: newConfig.data, name: newConfig.name, configTypeId: newConfig.configTypeId};
                     return newConfig.id;
                 })
@@ -351,8 +357,8 @@ export class ServiceFormService {
             if (!isEmpty(configId)) {
                 this.saveDisabled = false;
                 this.formData.configs.push(configId);
-                this.addedConfigNames.push(this.newConfigName);
-                this.addedConfigNames = [...this.addedConfigNames];
+                this.addedConfigs.push(newConfig);
+                this.addedConfigs = [...this.addedConfigs];
                 this.getConfigs();
                 const growlerData = new GrowlerModel(
                     'success',
@@ -376,15 +382,16 @@ export class ServiceFormService {
                 }
             });
             if (!configAdded) {
-                let configName = '';
+                let newConfig;
                 this.configs.forEach((config) => {
                     if (config.id === addedConfigId) {
-                        configName = config.name;
+                        newConfig = config;
                     }
                 });
-                if (!isEmpty(configName)) {
-                    this.addedConfigNames.push(configName);
-                    this.addedConfigNames = [...this.addedConfigNames];
+                if (newConfig) {
+                    newConfig.href = '/configs/' + newConfig.id;
+                    this.addedConfigs.push(newConfig);
+                    this.addedConfigs = [...this.addedConfigs];
                 }
                 this.formData.configs.push(addedConfigId);
                 this.selectedConfigTypeId = '';
@@ -402,10 +409,10 @@ export class ServiceFormService {
         }
     }
 
-    removeConfig(nameToRemove) {
+    removeConfig(configToRemove) {
         let configIdToRemove;
         this.configs.forEach((availableConfig) => {
-            if (availableConfig.name === nameToRemove) {
+            if (availableConfig.name === configToRemove.name) {
                 configIdToRemove = availableConfig.id;
             }
         });
@@ -413,12 +420,12 @@ export class ServiceFormService {
             const newConfigs = filter(this.formData.configs, configId => {
                 return configId !== configIdToRemove;
             });
-            const newConfigNames = filter(this.addedConfigNames, (configName) => {
-                return configName !== nameToRemove;
+            const newConfigItems = filter(this.addedConfigs, (config) => {
+                return config.name !== configToRemove.name;
             });
             this.formData.configs = newConfigs;
-            this.addedConfigNames = newConfigNames;
-            if (this.selectedConfigId === 'preview' && nameToRemove === this.selectedConfigName) {
+            this.addedConfigs = newConfigItems;
+            if (this.selectedConfigId === 'preview' && configToRemove.name === this.selectedConfigName) {
                 this.selectedConfigId = '';
                 this.selectedConfigTypeId = '';
             }

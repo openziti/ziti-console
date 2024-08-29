@@ -8,6 +8,8 @@ export type FilterObj = {
     value: any;
     label: string;
     type?: string;
+    hidden?: boolean;
+    verb?: string
 }
 
 @Injectable({
@@ -26,7 +28,7 @@ export class DataTableFilterService {
     }
 
     updateFilter(filterObj: FilterObj) {
-        if(isEmpty(filterObj.value) && isNaN(filterObj.value)) this.removeFilter(filterObj);
+        if(isEmpty(filterObj.value) && (isNaN(filterObj.value) || filterObj.value === '')) this.removeFilter(filterObj);
         else {
             let isFound = false;
             for (let idx = 0; idx < this.filters.length; idx++) {

@@ -22,6 +22,7 @@ import {MatDialogRef} from "@angular/material/dialog";
 import {ExtensionService} from "../../extendable/extensions-noop.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {EdgeRouter} from "../../../models/edge-router";
+import {Location} from "@angular/common";
 
 @Component({
   selector: 'lib-edge-router-form',
@@ -61,8 +62,9 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
       @Inject(EDGE_ROUTER_EXTENSION_SERVICE) extService: ExtensionService,
       protected override router: Router,
       protected override route: ActivatedRoute,
+      location: Location
   ) {
-    super(growlerService, extService, zitiService, router, route);
+    super(growlerService, extService, zitiService, router, route, location);
     this.edgeRouterRoleAttributes = [];
   }
 

@@ -23,6 +23,7 @@ import {ExtensionService} from "../../extendable/extensions-noop.service";
 import {GrowlerModel} from "../../messaging/growler.model";
 import {ServiceEdgeRouterPolicy} from "../../../models/service-edge-router-policy";
 import {ActivatedRoute, Router} from "@angular/router";
+import {Location} from "@angular/common";
 
 @Component({
   selector: 'lib-service-edge-router-policy-form',
@@ -63,8 +64,9 @@ export class ServiceEdgeRouterPolicyFormComponent extends ProjectableForm implem
       @Inject(SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE) extService: ExtensionService,
       protected override router: Router,
       protected override route: ActivatedRoute,
+      location: Location
   ) {
-    super(growlerService, extService, zitiService, router, route);
+    super(growlerService, extService, zitiService, router, route, location);
   }
 
   override ngOnInit(): void {
@@ -199,16 +201,17 @@ export class ServiceEdgeRouterPolicyFormComponent extends ProjectableForm implem
     this.isLoading = true;
     this.applySelectedAttributes();
     this.svc.save(this.formData).then((result) => {
-      if (result?.close) {
-        this.closeModal(true, true);
-        this.returnToListPage();
-      }
       const data = result?.data?.id ? result.data : result;
+      this._dataChange = false;
       if (!isEmpty(data.id)) {
         this.formData = data || this.formData;
         this.initData = this.formData;
       } else {
         this.initData = this.formData;
+      }
+      if (result?.close) {
+        this.closeModal(true, true);
+        this.returnToListPage();
       }
     }).finally(() => {
       this.isLoading = false;

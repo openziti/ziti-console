@@ -53,6 +53,10 @@
     align-items: center;
     gap: 5px;
 
+    a {
+        color: var(--primary);
+    }
+
     .icon-clear {
         margin-top: 2px;
         &:hover {

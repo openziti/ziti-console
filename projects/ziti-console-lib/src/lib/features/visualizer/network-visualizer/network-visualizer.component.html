@@ -25,9 +25,10 @@
           <option value="edge-router-policies">Edge Router Policies</option>
           <option value="service-edge-router-policies">Service Edge Router Policies</option>
         </select>
+
         <div class="nf-net-vis-filter-container listBox row">
           <input
-              (keyup)="filterSearchArray()"
+              (keyup)="nwSearchChange($event)"
               [(ngModel)]="filterText"
               [matAutocomplete]="auto"
               class="nf-topology-filter-input"
@@ -39,10 +40,10 @@
           <div
               (click)="clearSearchFilter()"
               *ngIf="filterText !== ''"
-              class="buttonBall close"
+              class="buttonBall close icon-close"
               id="ClearSearchFilter"
           ></div>
-          <div [hidden]="!noSearchResults" class="no-results-warning">No Results Found</div>
+
           <mat-autocomplete #auto="matAutocomplete" (optionSelected)="autocompleteSearch($event)">
             <mat-option *ngFor="let option of autocompleteOptions" [value]="option">
               {{ option }}
@@ -75,6 +76,12 @@
         <div class="legend-item">
           <div class="legend-circle serviceerpolicies"></div>
           <div class="legend-text">Service Router Policies</div>
+        </div>
+
+        <div class="legend-item">
+          <div class="node-expand-help"></div>
+          <div class="legend-icon-text legend-associated-nodes">View Associated Nodes</div>
+          <div class="legend-icon-pointer"></div>
         </div>
       </div>
 
