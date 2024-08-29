@@ -1,4 +1,35 @@
+# app-ziti-console-v3.4.7
+# ziti-console-lib-v0.4.9
+* [Issue #476](https://github.com/openziti/ziti-console/issues/476) - Reduce application bundle size using production configuration
+* [Issue #478](https://github.com/openziti/ziti-console/issues/478) - Fix display of identity "role" attributes on simple service form
+
+# ziti-console-lib-v0.4.8
+* [Issue #469](https://github.com/openziti/ziti-console/issues/469) - Validation for the names on simple service summary screen
+* [Issue #434](https://github.com/openziti/ziti-console/issues/467) - Allow users to navigate to the config edit page via the "Associated Configs" pod
+
+
+# app-ziti-console-v3.4.6
+# ziti-console-lib-v0.4.7
+
+## Feature/Improvements
+* [Issue #459](https://github.com/openziti/ziti-console/issues/459) - Enable extension of data-table filters via the ExtensionService class
+* [Issue #434](https://github.com/openziti/ziti-console/issues/434) - Allow filtering of Identities list page via "isAdmin"
+
+## Bug Fixes
+* [Issue #457](https://github.com/openziti/ziti-console/issues/457) - Table is not resized when browzer size changes
+
+
+# ziti-console-lib-v0.4.6
+
+## Bug Fixes
+* [Issue #450](https://github.com/openziti/ziti-console/issues/450) - Hide the navigation bar when session expires and routing to login page
+* [Issue #452](https://github.com/openziti/ziti-console/issues/452) - Correctly show associated entities when using the #all attribute
+* [Issue #453](https://github.com/openziti/ziti-console/issues/453) - AppData is not persisting when adding via the JSON editor on edit forms
+* [Issue #455](https://github.com/openziti/ziti-console/issues/455) - Prevent overflow of attribute items with long names in tag selector component
+* [Issue #457](https://github.com/openziti/ziti-console/issues/457) - Table is not resized when browzer size changes
+
 # app-ziti-console-v3.4.5
+## Bug Fixes
 * [Issue #444](https://github.com/openziti/ziti-console/issues/444) - BASE_HREF is wrongly quoted
 
 

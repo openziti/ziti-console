@@ -28,7 +28,7 @@ import {
     ViewChild
 } from "@angular/core";
 
-import {defer, isEqual, unset, debounce, cloneDeep, isEmpty, slice} from "lodash";
+import {defer, isEqual, unset, debounce, cloneDeep, forEach, isArray, isEmpty, isObject, isNil, map, omitBy, slice} from "lodash";
 import {GrowlerModel} from "../messaging/growler.model";
 import {GrowlerService} from "../messaging/growler.service";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../extendable/extensions-noop.service";
@@ -36,6 +36,7 @@ import {Identity} from "../../models/identity";
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../services/ziti-data.service";
 import {ActivatedRoute, NavigationEnd, Router} from "@angular/router";
 import {Subscription} from "rxjs";
+import {Location} from "@angular/common";
 
 // @ts-ignore
 const {context, tags, resources, service, app} = window;
@@ -71,6 +72,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     _dataChange = false;
     apiOptions = [{id: 'cli', label: 'Copy as CLI'}, {id: 'curl', label: 'Copy as CURL'}];
     basePath = '';
+    previousRoute;
 
     checkDataChangeDebounced = debounce(this.checkDataChange, 100, {maxWait: 100});
 
@@ -81,9 +83,11 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         @Inject(SHAREDZ_EXTENSION) protected extService: ExtensionService,
         @Inject(ZITI_DATA_SERVICE) protected zitiService: ZitiDataService,
         protected router?: Router,
-        protected route?: ActivatedRoute
+        protected route?: ActivatedRoute,
+        protected location?: Location
     ) {
         super();
+        this.previousRoute = this.router.getCurrentNavigation().previousNavigation?.finalUrl?.toString();
         this.subscription.add(
             this.route?.params?.subscribe(params => {
                 const id = params['id'];
@@ -231,7 +235,11 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     }
 
     returnToListPage() {
-        this.router?.navigateByUrl(`${this.basePath}`);
+        if (this.location && this.previousRoute) {
+            this.location.back();
+        } else {
+            this.router?.navigateByUrl(`${this.basePath}`);
+        }
     }
 
     ngDoCheck() {
@@ -239,12 +247,31 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     }
 
     protected checkDataChange() {
-        const dataChange = !isEqual(this.initData, this.formData);
+        let initData = cloneDeep(this.initData);
+        initData = this.omitEmptyData(initData);
+        let formData = cloneDeep(this.formData);
+        formData = this.omitEmptyData(formData);
+        const dataChange = !isEqual(initData, formData);
         if (dataChange !== this._dataChange) {
             this.dataChange.emit(dataChange);
         }
         this._dataChange = dataChange;
         app.isDirty = false;
+    }
+
+    omitEmptyData(object) {
+        forEach(object, (val, key) => {
+            if(this.omitDataIteratee(val)) {
+                unset(object, key);
+            } else if(isObject(val)) {
+                this.omitEmptyData(val);
+            }
+        });
+        return object;
+    }
+
+    omitDataIteratee(val) {
+        return isNil(val) || (isArray(val) && isEmpty(val));
     }
 
     copyToClipboard(val) {

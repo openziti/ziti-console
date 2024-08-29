@@ -23,7 +23,7 @@ import {HttpClient} from "@angular/common/http";
 import {FilterObj} from "../features/data-table/data-table-filter.service";
 import { LoginServiceClass } from './login-service.class';
 
-import {cloneDeep} from "lodash";
+import {cloneDeep, isEmpty, sortedUniq} from "lodash";
 
 export const ZITI_DATA_SERVICE = new InjectionToken<ZitiDataService>('ZITI_DATA_SERVICE');
 
@@ -62,4 +62,26 @@ export abstract class ZitiDataService {
   abstract resetEnrollment(id: string, date: string): Promise<any>;
   abstract reissueEnrollment(id: string, date: string): Promise<any>;
   abstract schema(data: any): Promise<any>;
+
+  getRoleFilter(roleAttributes) {
+    let hasAll = false;
+    roleAttributes.forEach((attr) => {
+      if (attr === 'all') {
+        hasAll = true;
+      }
+    });
+    let filters = [];
+    if (!hasAll) {
+      filters = [
+        {
+          columnId: "roleAttributes",
+          filterName: "Attributes",
+          label: "",
+          type: "ATTRIBUTE",
+          value: roleAttributes
+        }
+      ];
+    }
+    return filters;
+  }
 }
