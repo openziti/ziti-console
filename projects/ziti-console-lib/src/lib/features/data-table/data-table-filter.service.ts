@@ -1,6 +1,9 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from "rxjs";
-import {isEmpty} from "lodash";
+import {forEach, isEmpty} from "lodash";
+import {HttpParams} from "@angular/common/http";
+import {ActivatedRoute, Router} from "@angular/router";
+import {Location} from "@angular/common";
 
 export type FilterObj = {
     filterName: string;
@@ -24,7 +27,9 @@ export class DataTableFilterService {
 
     pageChanged = new BehaviorSubject<any>(this.currentPage);
 
-    constructor() {
+    currentQueryParams = [];
+
+    constructor(private location: Location, private router: Router, private activatedRoute: ActivatedRoute) {
     }
 
     updateFilter(filterObj: FilterObj) {
@@ -42,6 +47,7 @@ export class DataTableFilterService {
                 this.filters.push(filterObj);
             }
         }
+        this.updateUrlParameters();
         this.filtersChanged.next(this.filters);
     }
 
@@ -52,6 +58,7 @@ export class DataTableFilterService {
                 break;
             }
         }
+        this.updateUrlParameters([filterObj]);
         this.filtersChanged.next(this.filters);
     }
 
@@ -72,6 +79,63 @@ export class DataTableFilterService {
 
     clearFilters() {
         this.filters = [];
+        this.updateUrlParameters();
         this.filtersChanged.next(this.filters);
     }
+
+    storeFilters() {
+        localStorage.setItem('search_filters', JSON.stringify(this.filters));
+    }
+
+    getStoredFilters() {
+        const storageItem = localStorage.getItem('search_filters');
+        const filters = storageItem ? JSON.parse(storageItem) : [];
+        return filters;
+    }
+
+    updateUrlParameters(filtersToRemove: any[] = []) {
+        const urlFiltersMap = this.getUrlFiltersMap();
+        let params: HttpParams = new HttpParams();
+        this.filters.forEach(filter => {
+            urlFiltersMap[filter.columnId] = filter;
+        });
+        const newFilters = [];
+        forEach(urlFiltersMap, (value, key) => {
+            const filterRemoved = filtersToRemove.some((removed) => {
+                return removed.columnId === key;
+            })
+            if (!filterRemoved) {
+                params = params.append(key, value.value);
+                newFilters.push(value);
+            }
+        });
+        this.filters = newFilters;
+        const path = this.router.url.split("?")[0];
+        this.location.replaceState(path, params.toString());
+        this.storeFilters();
+    }
+
+    getUrlFiltersMap(): any {
+        const paramString = window.location.href.split("?")[1];
+        const params: HttpParams = new HttpParams({ fromString: paramString });
+        const storedFilters = this.getStoredFilters();
+        const appliedFiltersMap = {};
+
+        params.keys().forEach((key) => {
+            const storedFilter = storedFilters.find((filter) => {
+                return filter.columnId === key;
+            });
+            if (storedFilter) {
+                appliedFiltersMap[key] = storedFilter;
+            } else {
+                appliedFiltersMap[key] = {
+                    columnId: key,
+                    value: params.get(key),
+                    label: key
+                };
+            }
+        });
+        return appliedFiltersMap;
+    }
+
 }
