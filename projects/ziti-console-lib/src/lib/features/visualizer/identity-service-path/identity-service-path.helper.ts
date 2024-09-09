@@ -263,12 +263,11 @@ export class IdentityServicePathHelper {
                 lnk.targetName = group4Nodes[k0].name;
                 lnk.weight = 1;
                 const foundNd = rootOb.nodes.find( function (rnd) {
-                   // if (rnd.id === group3Nodes[k1].id) {
-                        return rnd.id === group3Nodes[k1].id;
-                   // }
+                     return rnd.id === group3Nodes[k1].id;
                 });
+
                 if (foundNd.type.includes('Router')) {
-                    lnk.status = foundNd.status === 'PROVISIONED' && foundNd.online === 'Yes' ? 1 : 0;
+                    lnk.status =  foundNd.online === 'Yes' ? 1 : 0;
                 } else {
                     lnk.status = getServiceToEndpointLinkState(group3Nodes[k1], group4Nodes[k0]);
                     lnk.weight = getWeight(lnk.status);
