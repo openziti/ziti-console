@@ -128,10 +128,20 @@ export class DataTableFilterService {
             if (storedFilter) {
                 appliedFiltersMap[key] = storedFilter;
             } else {
+                let val: any = params.get(key);
+                let type = 'TEXTINPUT'
+                let label = val;
+                if (val?.split(',')?.length > 1) {
+                    val = val?.split(',');
+                    label = val[0];
+                    type = 'ATTRIBUTE'
+                }
                 appliedFiltersMap[key] = {
                     columnId: key,
-                    value: params.get(key),
-                    label: key
+                    value: val,
+                    label: decodeURIComponent(label),
+                    filterName: key,
+                    type: type
                 };
             }
         });

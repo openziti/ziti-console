@@ -44,7 +44,7 @@ import {PasswordInputComponent} from './features/dynamic-widgets/password/passwo
 import {ConfigurationsPageComponent} from './pages/configurations/configurations-page.component';
 import {ListPageHeaderComponent} from './features/list-page-features/list-page-header/list-page-header.component';
 import {MatDialogModule} from "@angular/material/dialog";
-import {ConfigurationFormComponent} from "./features/projectable-forms/configuration/configuration-form.component";
+import {TerminatorFormComponent} from "./features/projectable-forms/terminator/terminator-form.component";
 import {ListPageFormComponent} from './features/list-page-features/list-page-form/list-page-form.component';
 import {DataTableComponent} from "./features/data-table/data-table.component";
 import {TableCellSelectComponent} from "./features/data-table/cells/table-cell-select/table-cell-select.component";
@@ -106,6 +106,8 @@ import { MultiActionButtonComponent } from './features/multi-action-button/multi
 import { TableCellNameComponent } from './features/data-table/cells/table-cell-name/table-cell-name.component';
 import { ServiceEdgeRouterPoliciesPageComponent } from './pages/service-edge-router-policies/service-edge-router-policies-page.component';
 import { ServiceEdgeRouterPolicyFormComponent } from './features/projectable-forms/service-edge-router-policy/service-edge-router-policy-form.component';
+import {TerminatorsPageComponent} from "./pages/terminators/terminators-page.component";
+import {ConfigurationFormComponent} from "./features/projectable-forms/configuration/configuration-form.component";
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -128,7 +130,7 @@ export function playerFactory() {
         SideNavbarComponent,
         SideBannerComponent,
         PasswordInputComponent,
-        ConfigurationFormComponent,
+        TerminatorFormComponent,
         ConfigurationsPageComponent,
         ListPageHeaderComponent,
         FilterBarComponent,
@@ -182,7 +184,10 @@ export function playerFactory() {
         MultiActionButtonComponent,
         TableCellNameComponent,
         ServiceEdgeRouterPoliciesPageComponent,
-        ServiceEdgeRouterPolicyFormComponent
+        ServiceEdgeRouterPolicyFormComponent,
+        TerminatorsPageComponent,
+        TerminatorFormComponent,
+        ConfigurationFormComponent
     ],
     imports: [
         CommonModule,
@@ -234,7 +239,9 @@ export function playerFactory() {
         ServiceFormComponent,
         ServicePoliciesPageComponent,
         ServicePolicyFormComponent,
-        EdgeRouterPoliciesPageComponent
+        EdgeRouterPoliciesPageComponent,
+        TerminatorsPageComponent,
+        TerminatorFormComponent
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},

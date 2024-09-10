@@ -32,6 +32,7 @@ export class PreviewListComponent {
   @Input() items = [];
   @Input() allowRemove = false
   @Input() tooltip = '';
+  @Input() showfilter = true;
   @Output() itemSelected = new EventEmitter<string>();
   @Output() itemRemoved = new EventEmitter<string>();
   public previewItems = [];
@@ -75,7 +76,17 @@ export class PreviewListComponent {
   }
 
   sort() {
-    this.previewItems.sort((item1, item2) => (item1.name ? item1.name.localeCompare(item2.name) : item1.localeCompare(item2)));
+    this.previewItems.sort((item1, item2) =>  {
+      if (item1.skipSort) {
+        return item1.name;
+      } else if (item2.skipSort) {
+        return  item2.name;
+      } else if (item1.name) {
+        return item1.name.localeCompare(item2.name)
+      } else {
+        return item1.localeCompare(item2)
+      }
+    });
   }
 
   selected(item: string) {

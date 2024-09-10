@@ -1,0 +1,110 @@
+<div class="projectable-form-wrapper"
+     (keyup.enter)="save($event)"
+     (keyup.escape)="closeModal(false)"
+     tabindex="0"
+>
+    <lib-form-header
+            [data]="formData"
+            [title]="(formData.id ? 'Edit Terminator' : 'Create Terminator')"
+            [moreActions]="formData.moreActions"
+            (actionRequested)="headerActionRequested($event)"
+            [(formView)]="formView"
+            [saveDisabled]="svc.saveDisabled || formDataInvalid"
+    ></lib-form-header>
+    <div class="terminator-form-container projectable-form-container">
+        <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
+            <div class="form-group-column three-fifths">
+                <lib-form-field-container
+                        [title]="'Service'"
+                        [contentStyle]="'z-index: 10003'"
+                        [helpText]="'Select the service to use for this terminator'"
+                        [label]="'Required'"
+                >
+                    <lib-tag-selector
+                            [(selectedNamedAttributes)]="svc.selectedServiceNamedAttributes"
+                            [availableNamedAttributes]="svc.serviceNamedAttributes"
+                            [placeholder]="'Select a service'"
+                            (addNamedAttribute)="serviceAttributeChanged($event)"
+                            (namedAttributeRemoved)="serviceAttributeChanged()"
+                    ></lib-tag-selector>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Router'"
+                        [contentStyle]="'z-index: 10002'"
+                        [helpText]="'Select the router to use for this terminator'"
+                        [label]="'Required'"
+                >
+                    <lib-tag-selector
+                            [(selectedNamedAttributes)]="svc.selectedRouterNamedAttributes"
+                            [availableNamedAttributes]="svc.routerNamedAttributes"
+                            [placeholder]="'Select a router'"
+                            (addNamedAttribute)="routerAttributeChanged($event)"
+                            (namedAttributeRemoved)="routerAttributeChanged()"
+                    ></lib-tag-selector>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Identity'"
+                        [label]="'Optional'"
+                        [contentStyle]="'z-index: 10001'"
+                        [helpText]="'Select the identity to use for this terminator'"
+                >
+                    <lib-tag-selector
+                            [(selectedNamedAttributes)]="svc.selectedIdentityNamedAttributes"
+                            [availableNamedAttributes]="svc.identityNamedAttributes"
+                            [placeholder]="'Select an identity'"
+                            (addNamedAttribute)="identityAttributeChanged($event)"
+                            (namedAttributeRemoved)="identityAttributeChanged()"
+                    ></lib-tag-selector>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Binding'"
+                        [contentStyle]="'z-index: 1001'"
+                        [helpText]="'Select the identity to use for this terminator'"
+                >
+                    <input class="form-field-input" [(ngModel)]="formData.binding"/>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Address'"
+                        [contentStyle]="'z-index: 1001'"
+                        [helpText]="'Select the identity to use for this terminator'"
+                >
+                    <input class="form-field-input" [(ngModel)]="formData.address"/>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Hosting Cost'"
+                        [title2]="'Precedence'"
+                        [layout]="'row'"
+                        class="form-field-advanced"
+                >
+                    <input class="form-field-input" [(ngModel)]="formData.cost" type="number"/>
+                    <select
+                            [(ngModel)]="formData.precedence"
+                            id="hostingPrecedence"
+                            class="form-field-dropdown"
+                    >
+                        <option value="default">Default</option>
+                        <option value="required">Required</option>
+                        <option value="failed">Failed</option>
+                    </select>
+                </lib-form-field-container>
+            </div>
+            <div class="form-group-column two-fifths">
+                <lib-form-field-container
+                        [title]="'API Calls'"
+                        [headerActions]="apiOptions"
+                        (actionRequested)="apiActionRequested($event)"
+                >
+                    <div class="form-row">
+                        <input class="form-field-input" [value]="apiCallURL"/>
+                        <div class="icon-copy copy" (click)="copyToClipboard(apiCallURL)"></div>
+                    </div>
+                    <lib-json-view *ngIf="formData" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
+                </lib-form-field-container>
+            </div>
+        </div>
+        <div class="form-group-column" *ngIf="formView === 'raw'">
+            <lib-json-view *ngIf="formData" [(data)]="formData"></lib-json-view>
+        </div>
+    </div>
+</div>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

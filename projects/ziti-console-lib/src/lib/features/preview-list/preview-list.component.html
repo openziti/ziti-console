@@ -1,12 +1,14 @@
 <div class="listBox row">
-    <input (keyup)="onKeydownEvent()" [(ngModel)]="filterFor" placeholder="Type to Filter"/>
+    <input *ngIf="showfilter" (keyup)="onKeydownEvent()" [(ngModel)]="filterFor" placeholder="Type to Filter"/>
     <span *ngIf="isLoading" class="spinner"></span>
 
     <div class="text row">
         <div (click)="selected(item)" *ngFor="let item of previewItems" [ngClass]="{ clickable: clickable }" class="listText">
             <div *ngIf="allowRemove" class="icon-clear" (click)="remove(item)"></div>
             <span *ngIf="!item.href" class="preview-name" matTooltip="{{tooltip}}" matTooltipPosition="below" matTooltipShowDelay="1000">{{ item }}</span>
-            <a *ngIf="item.href" [href]="'./' + item.href" (click)="linkClicked($event, item)" matTooltip="{{tooltip}}" matTooltipShowDelay="1000" matTooltipPosition="below"><span *ngIf="item.name" class="preview-name">{{ item.name }}</span></a>
+            <a *ngIf="item.href" [href]="'./' + item.href" (click)="linkClicked($event, item)" class="{{item.linkClass ? item.linkClass : ''}}" matTooltip="{{tooltip}}" matTooltipShowDelay="1000" matTooltipPosition="below">
+                <span *ngIf="item.name" class="preview-name">{{ item.name }}<div *ngIf="item.iconClass" class="preview-item-icon {{item.iconClass}}" (click)="remove(item)"></div></span>
+            </a>
         </div>
     </div>
 </div>

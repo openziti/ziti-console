@@ -22,6 +22,12 @@
         }
     }
 
+    &.no-gap {
+        .form-field-content {
+            gap: 0;
+        }
+    }
+
     .form-field-content {
         display: flex;
         flex-direction: column;

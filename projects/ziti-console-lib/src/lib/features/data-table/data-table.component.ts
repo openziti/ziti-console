@@ -80,6 +80,7 @@ export class DataTableComponent implements OnChanges, OnInit {
   @Input() showNoItemsAdd = true;
   @Input() currentPage = 1;
   @Input() noItemsImage = 'nodata';
+  @Input() rowHeight = 50;
   @Output() actionRequested = new EventEmitter<{ action: string; item?: any }>();
   // @Output() filterChanged = new EventEmitter();
   @Output() gridReady = new EventEmitter();
@@ -507,7 +508,7 @@ export class DataTableComponent implements OnChanges, OnInit {
       pagination: false,
       rowSelection: 'single',
       rowClass: 'ziti-table-row',
-      rowHeight: 50,
+      rowHeight: this.rowHeight,
       immutableData: true,
       suppressRowClickSelection: true,
       suppressHorizontalScroll: false,

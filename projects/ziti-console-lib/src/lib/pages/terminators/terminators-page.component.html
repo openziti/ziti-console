@@ -1,0 +1,20 @@
+<div class="ziti-page-container ziti-terminators-container">
+    <lib-list-page-header [title]="title"
+                          [tabs]="tabs"
+                          [showAdd]="!itemsSelected"
+                          (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
+
+    <lib-data-table [tableId]="'terminators'"
+                    [rowData]="rowData"
+                    [columnDefinitions]="columnDefs"
+                    (actionRequested)="tableAction($event)"
+                    [startCount]="startCount"
+                    [endCount]="endCount"
+                    [totalCount]="totalCount"
+                    [emptyMsg]="'No terminators defined, Click the plus to add a terminator.'"
+                    [filterApplied]="filterApplied"
+                    [menuItems]="svc.menuItems"
+                    (gridReady)="gridReady($event)"
+    >
+    </lib-data-table>
+</div>
