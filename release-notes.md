@@ -1,3 +1,9 @@
+# ziti-console-lib-v0.4.10
+## Bug Fixes
+* [Issue #482](https://github.com/openziti/ziti-console/issues/482) - Save search filters when navigating between the list page and edit screen
+* [Issue #487](https://github.com/openziti/ziti-console/issues/487) - Visualizer: router hosted service link showing error state.
+* [Issue #477](https://github.com/openziti/ziti-console/issues/477) - Identity role attributes aren't showing for the host/accessing configurations on the simple service form
+
 # app-ziti-console-v3.4.7
 # ziti-console-lib-v0.4.9
 * [Issue #476](https://github.com/openziti/ziti-console/issues/476) - Reduce application bundle size using production configuration
