@@ -1,4 +1,4 @@
-.config-form-container {
+.terminator-form-container {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -11,5 +11,15 @@
   &.disabled {
     opacity: .7;
     pointer-events: none;
+  }
+}
+
+::ng-deep .terminator-form-container {
+  select,
+  input {
+    &:disabled {
+      opacity: 0.75 !important;
+      cursor: text;
+    }
   }
 }

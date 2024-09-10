@@ -353,6 +353,17 @@ input {
     width: calc(40% - 15px);
     min-width: 280px;
   }
+  &.one-half {
+    width: calc(50% - 15px);
+    min-width: 280px;
+  }
+}
+
+.form-field-label-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
 }
 
 .form-row {

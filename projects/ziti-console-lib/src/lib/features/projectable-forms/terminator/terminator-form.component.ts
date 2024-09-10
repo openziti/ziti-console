@@ -215,17 +215,6 @@ export class TerminatorFormComponent extends ProjectableForm implements OnInit, 
         }
     }
 
-    apiActionRequested(action) {
-        switch (action.id) {
-            case 'cli':
-                this.copyCLICommand();
-                break;
-            case 'curl':
-                this.copyCURLCommand();
-                break;
-        }
-    }
-
     serviceAttributeChanged(event?) {
         let selectedNamedAttributes = [];
         if (isEmpty(event)) {
@@ -266,36 +255,5 @@ export class TerminatorFormComponent extends ProjectableForm implements OnInit, 
         defer(() => {
             this.svc.selectedRouterNamedAttributes = selectedNamedAttributes;
         });
-    }
-
-    copyCLICommand() {
-        const command = `ziti edge ${this.formData.id ? 'update' : 'create'} terminator ${this.formData.id ? `'${this.formData.id}'` : ''} ${this.selectedIdentityId ? `--service ${this.selectedServiceId}` : ''} ${this.selectedIdentityId ? `--identity ${this.selectedIdentityId}` : ''} ${this.selectedRouterId ? `--router ${this.selectedRouterId}` : ''}`;
-
-        navigator.clipboard.writeText(command);
-        const growlerData = new GrowlerModel(
-            'success',
-            'Success',
-            `Text Copied`,
-            `CLI command copied to clipboard`,
-        );
-        this.growlerService.show(growlerData);
-    }
-
-    copyCURLCommand() {
-        const command = `curl '${this.apiCallURL}' \\
-    ${this.formData.id ? '--request PATCH \\' : '\\'}
-    -H 'accept: application/json' \\
-    -H 'content-type: application/json' \\
-    -H 'zt-session: ${this.settings.session.id}' \\
-    --data-raw '{"service":"${this.selectedServiceId}","identity":"${this.selectedIdentityId}","router":"${this.selectedRouterId}","address":"${this.formData.address}","binding":"${this.formData.binding}","cost":"${this.formData.cost}","precedence":"${this.formData.precedence}"}'`;
-
-        navigator.clipboard.writeText(command);
-        const growlerData = new GrowlerModel(
-            'success',
-            'Success',
-            `Text Copied`,
-            `CURL command copied to clipboard`,
-        );
-        this.growlerService.show(growlerData);
     }
 }

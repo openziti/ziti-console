@@ -1,9 +1,8 @@
 <div class="ziti-page-container ziti-terminators-container">
     <lib-list-page-header [title]="title"
                           [tabs]="tabs"
-                          [showAdd]="!itemsSelected"
+                          [hideAction]="true"
                           (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
-
     <lib-data-table [tableId]="'terminators'"
                     [rowData]="rowData"
                     [columnDefinitions]="columnDefs"
@@ -17,6 +16,7 @@
                     [filterColumn]="'address'"
                     [menuItems]="svc.menuItems"
                     (gridReady)="gridReady($event)"
+                    [options]="{noSelect: true, noMenu: true}"
     >
     </lib-data-table>
 </div>
