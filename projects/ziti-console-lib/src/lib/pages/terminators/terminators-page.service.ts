@@ -69,6 +69,26 @@ export class TerminatorsPageService extends ListPageServiceClass {
         };
         return [
             {
+                colId: 'address',
+                field: 'address',
+                headerName: 'Address',
+                headerComponent: TableColumnDefaultComponent,
+                headerComponentParams: this.headerComponentParams,
+                cellRenderer: TableCellNameComponent,
+                cellRendererParams: { pathRoot: this.basePath },
+                onCellClicked: (data) => {
+                    if (this.hasSelectedText()) {
+                        return;
+                    }
+                    this.openEditForm(data?.data?.id);
+                },
+                resizable: true,
+                cellClass: 'nf-cell-vert-align tCol',
+                sortable: true,
+                filter: true,
+                sortColumn: this.sort.bind(this)
+            },
+            {
                 colId: 'router.name',
                 field: 'router.name',
                 headerName: 'Router',
@@ -92,26 +112,6 @@ export class TerminatorsPageService extends ListPageServiceClass {
                 colId: 'service.name',
                 field: 'service.name',
                 headerName: 'Service',
-                headerComponent: TableColumnDefaultComponent,
-                headerComponentParams: this.headerComponentParams,
-                cellRenderer: TableCellNameComponent,
-                cellRendererParams: { pathRoot: this.basePath },
-                onCellClicked: (data) => {
-                    if (this.hasSelectedText()) {
-                        return;
-                    }
-                    this.openEditForm(data?.data?.id);
-                },
-                resizable: true,
-                cellClass: 'nf-cell-vert-align tCol',
-                sortable: true,
-                filter: true,
-                sortColumn: this.sort.bind(this)
-            },
-            {
-                colId: 'address',
-                field: 'address',
-                headerName: 'Address',
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
                 cellRenderer: TableCellNameComponent,
