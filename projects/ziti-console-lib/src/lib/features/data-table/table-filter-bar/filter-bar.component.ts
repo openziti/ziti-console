@@ -27,6 +27,9 @@ export class FilterBarComponent {
 
   _filters = [];
 
+  @Input() filterName: string = 'name';
+  @Input() filterColumn: string = 'name';
+
   @Input() startCount: string = '-';
   @Input() endCount: string = '-';
   @Input() totalCount: string = '-';
@@ -80,8 +83,8 @@ export class FilterBarComponent {
 
   inputChanged() {
     const filterObj: FilterObj = {
-      filterName: 'name',
-      columnId: 'name',
+      filterName: this.filterName,
+      columnId: this.filterColumn,
       value: this.filterString,
       label: this.filterString,
     };

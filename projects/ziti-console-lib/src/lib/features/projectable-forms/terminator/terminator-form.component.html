@@ -1,0 +1,107 @@
+<div class="projectable-form-wrapper"
+     (keyup.enter)="save($event)"
+     (keyup.escape)="closeModal(false)"
+     tabindex="0"
+>
+    <lib-form-header
+            [data]="formData"
+            [title]="(formData.id ? 'Terminator Details' : 'Create Terminator')"
+            [moreActions]="formData.moreActions"
+            (actionRequested)="headerActionRequested($event)"
+            [(formView)]="formView"
+            [saveDisabled]="svc.saveDisabled || formDataInvalid"
+    ></lib-form-header>
+    <div class="terminator-form-container projectable-form-container">
+        <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
+            <div class="form-group-column one-half">
+                <lib-form-field-container
+                        [title]="'Service'"
+                        [contentStyle]="'z-index: 10003'"
+                >
+                    <input class="form-field-input read-only" [(ngModel)]="selectedServiceNamedAttribute" [disabled]="true"/>
+                    <!--<lib-tag-selector
+                            [(selectedNamedAttributes)]="svc.selectedServiceNamedAttributes"
+                            [availableNamedAttributes]="svc.serviceNamedAttributes"
+                            [placeholder]="'Select a service'"
+                            (addNamedAttribute)="serviceAttributeChanged($event)"
+                            (namedAttributeRemoved)="serviceAttributeChanged()"
+                    ></lib-tag-selector>-->
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Router'"
+                        [contentStyle]="'z-index: 10002'"
+                >
+                    <input class="form-field-input read-only" [(ngModel)]="selectedRouterNamedAttribute" [disabled]="true"/>
+                    <!--<lib-tag-selector
+                            [(selectedNamedAttributes)]="svc.selectedRouterNamedAttributes"
+                            [availableNamedAttributes]="svc.routerNamedAttributes"
+                            [placeholder]="'Select a router'"
+                            (addNamedAttribute)="routerAttributeChanged($event)"
+                            (namedAttributeRemoved)="routerAttributeChanged()"
+                    ></lib-tag-selector>-->
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Identity'"
+                        [contentStyle]="'z-index: 10001'"
+                >
+                    <input class="form-field-input read-only" [(ngModel)]="selectedIdentityNamedAttribute" [disabled]="true"/>
+                    <!--<lib-tag-selector
+                            [(selectedNamedAttributes)]="svc.selectedIdentityNamedAttributes"
+                            [availableNamedAttributes]="svc.identityNamedAttributes"
+                            [placeholder]="'Select an identity'"
+                            (addNamedAttribute)="identityAttributeChanged($event)"
+                            (namedAttributeRemoved)="identityAttributeChanged()"
+                    ></lib-tag-selector>-->
+                </lib-form-field-container>
+            </div>
+            <div class="form-group-column one-half">
+                <lib-form-field-container
+                        [title]="'Address'"
+                        [contentStyle]="'z-index: 1001'"
+                >
+                    <input class="form-field-input read-only" [disabled]="true" [(ngModel)]="formData.address"/>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [showHeader]="false"
+                        [layout]="'row'"
+                        [contentStyle]="'z-index: 1001'"
+                >
+                    <div class="form-field-label-container">
+                        <span class="form-field-title">Binding</span>
+                        <input class="form-field-input" [disabled]="true" [(ngModel)]="formData.binding"/>
+                    </div>
+                    <div class="form-field-label-container">
+                        <span class="form-field-title">Identity Secret</span>
+                        <input class="form-field-input" [disabled]="true" [(ngModel)]="formData.identitySecret"/>
+                    </div>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [layout]="'row'"
+                        [showHeader]="false"
+                >
+                    <div class="form-field-label-container">
+                        <span class="form-field-title">Hosting Cost</span>
+                        <input class="form-field-input" [disabled]="true" [(ngModel)]="formData.cost" type="number"/>
+                    </div>
+                    <div class="form-field-label-container">
+                        <span class="form-field-title">Precedence</span>
+                        <select
+                                [(ngModel)]="formData.precedence"
+                                [disabled]="true"
+                                id="hostingPrecedence"
+                                class="form-field-dropdown read-only"
+                        >
+                            <option value="default">Default</option>
+                            <option value="required">Required</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                    </div>
+                </lib-form-field-container>
+            </div>
+        </div>
+        <div class="form-group-column" *ngIf="formView === 'raw'">
+            <lib-json-view *ngIf="formData" [(data)]="formData"></lib-json-view>
+        </div>
+    </div>
+</div>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

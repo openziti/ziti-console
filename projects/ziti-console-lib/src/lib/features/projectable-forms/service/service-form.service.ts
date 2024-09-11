@@ -28,6 +28,11 @@ import {SchemaService} from "../../../services/schema.service";
 import {Subscription} from "rxjs";
 import {ConfigEditorComponent} from "../../config-editor/config-editor.component";
 import {ValidationService} from "../../../services/validation.service";
+import {
+    TableColumnDefaultComponent
+} from "../../data-table/column-headers/table-column-default/table-column-default.component";
+import {TableCellNameComponent} from "../../data-table/cells/table-cell-name/table-cell-name.component";
+import {Router} from "@angular/router";
 
 export const SERVICE_EXTENSION_SERVICE = new InjectionToken<any>('SERVICE_EXTENSION_SERVICE');
 
@@ -81,9 +86,18 @@ export class ServiceFormService {
     associatedConfigs: any = [];
     associatedConfigsMap: any = {};
     associatedTerminators: any = [];
+    associatedTerminatorNames: any = [];
+    associatedTerminatorsMap: any = {};
+    associatedTerminatorsTotal = 0;
     associatedServicePolicies: any = [];
     associatedServicePolicyNames: any = [];
     associatedServicePoliciesMap: any = {};
+    associatedServicePoliciesTotal = 0;
+
+    headerComponentParams = {
+        filterType: 'TEXTINPUT',
+        enableSorting: true
+    };
 
     lColorArray = [
         'white',
@@ -106,7 +120,8 @@ export class ServiceFormService {
         private growlerService: GrowlerService,
         @Inject(SERVICE_EXTENSION_SERVICE)private extService: ExtensionService,
         private schemaSvc: SchemaService,
-        private validationService: ValidationService
+        private validationService: ValidationService,
+        private router: Router
     ) {}
 
     resetFormData() {
@@ -172,26 +187,98 @@ export class ServiceFormService {
     }
 
     getAssociatedServicePolicies() {
-        this.zitiService.getSubdata('services', this.formData.id, 'service-policies').then((result: any) => {
+        const paging = this.zitiService.DEFAULT_PAGING;
+        paging.total = 5;
+        this.zitiService.getSubdata('services', this.formData.id, 'service-policies', paging).then((result: any) => {
             this.associatedServicePolicies = result.data;
+            this.associatedServicePoliciesTotal = result.meta?.pagination.totalCount || 0;
             this.associatedServicePolicyNames = this.associatedServicePolicies.map((policy) => {
                 this.associatedServicePoliciesMap[policy.name] = policy;
+                policy.href = '/service-policies/' + policy.id;
                 return policy.name;
             });
+            if (this.associatedServicePoliciesTotal > 5) {
+                let roleAttributes = cloneDeep(this.formData.roleAttributes);
+
+                roleAttributes = roleAttributes.map((attribute) => {
+                    return '%23' + attribute;
+                });
+                roleAttributes.push('%40' + this.formData.id);
+                let urlParam = '';
+                roleAttributes.forEach((param, index) => {
+                    if (index > 0) {
+                        urlParam += ',';
+                    }
+                    urlParam += param
+                });
+                const searchFilter = {
+                    columnId: 'serviceRoles',
+                    value: roleAttributes,
+                    label: '@' + this.formData.name,
+                    filterName: 'Service Attributes',
+                    type: 'ATTRIBUTE'
+                };
+                localStorage.setItem('search_filters', JSON.stringify([searchFilter]));
+                this.associatedServicePolicies.push({
+                    name: 'show more results...',
+                    href: '/service-policies?serviceRoles=' + urlParam,
+                    linkClass: 'preview-more-results',
+                    //iconClass: 'icon-open',
+                    skipSort: true
+                });
+            }
+        });
+    }
+
+    getAssociatedTerminators() {
+        this.zitiService.getSubdata('services', this.formData.id, 'terminators').then((result: any) => {
+            this.associatedTerminators = result.data;
+            this.associatedTerminatorsTotal = result.meta?.pagination.totalCount || 0;
+            this.associatedTerminatorNames = this.associatedTerminators.map((terminator) => {
+                this.associatedTerminatorsMap[terminator.id] = terminator.binding + ':      ' + terminator.address;
+                terminator.name = terminator.router.name + ':       ' + terminator.address;
+                terminator.href = '/terminators/' + terminator.id;
+                return terminator.binding + ':      ' + terminator.address;
+            });
+            if (this.associatedTerminatorsTotal > 5) {
+                const searchFilter = {
+                    columnId: 'service',
+                    value: this.formData.id,
+                    label: this.formData.name,
+                    filterName: 'Service',
+                    type: 'TEXTINPUT',
+                    verb: '='
+                };
+                localStorage.setItem('search_filters', JSON.stringify([searchFilter]));
+                this.associatedTerminators.push({
+                    name: 'show more results...',
+                    href: '/terminators?service=' + this.formData.id,
+                    linkClass: 'preview-more-results',
+                    //iconClass: 'icon-open',
+                    skipSort: true
+                });
+            }
         });
     }
 
     previewConfig(configName, router) {
         this.showCfgPreviewOption = true;
-        this.selectedConfig = this.associatedConfigsMap[configName];
-        router.navigate(['/configs/' + this.selectedConfig.id]);
+        const selectedConfig = this.associatedConfigsMap[configName];
+        router.navigate(['/configs/' + selectedConfig.id]);
         return;
     }
 
     previewPolicy(policyName, router) {
         this.showCfgPreviewOption = true;
-        this.selectedConfig = this.associatedServicePoliciesMap[policyName];
-        router.navigate(['/service-policies/' + this.selectedConfig.id]);
+        const selectedPolicy = this.associatedServicePoliciesMap[policyName];
+        router.navigate(['/service-policies/' + selectedPolicy.id]);
+        return;
+    }
+
+    previewTerminator(policyName, router) {
+        this.showCfgPreviewOption = true;
+        const selectedTerminator = this.associatedTerminatorsMap[policyName];
+        router.navigate(['/terminators/' + selectedTerminator.id]);
         return;
     }
 
@@ -242,15 +329,6 @@ export class ServiceFormService {
                 this.associatedConfigsMap[cfg.name] = cfg;
                 cfg.href = '/configs/' + cfg.id;
                 return cfg;
-            });
-        });
-    }
-
-    getAssociatedTerminators() {
-        this.zitiService.getSubdata('services', this.formData.id, 'terminators').then((result: any) => {
-            this.associatedTerminators = result.data;
-            this.addedTerminatorNames = this.associatedTerminators.map((cfg) => {
-                return cfg.router?.name;
             });
         });
     }
@@ -503,4 +581,20 @@ export class ServiceFormService {
         return data;
     }
 
+    openTerminatorEditForm(id) {
+        this.router.navigate(['terminator/' + id])
+    }
+
+    sort(sortBy, ordering= 'asc') {
+        const terminatorSort = {sortBy, ordering};
+        this.getAssociatedTerminators();
+    }
+
+    hasSelectedText() {
+        let text = '';
+        if (window.getSelection) {
+            text = window.getSelection().toString();
+        }
+        return text?.length > 0;
+    }
 }

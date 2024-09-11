@@ -1,0 +1,34 @@
+.terminator-form-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  gap: var(--gapXL);
+}
+
+.config-type-select {
+  &.disabled {
+    opacity: .7;
+    pointer-events: none;
+  }
+}
+
+::ng-deep .terminator-form-container {
+  select,
+  input {
+    &:disabled {
+      opacity: 0.75 !important;
+      cursor: text;
+      background-color: var(--stroke) !important;
+    }
+  }
+}
+
+@media (max-width:1524px) {
+  .terminator-form-container {
+    .projectable-form-main-column {
+      max-width: 620px;
+    }
+  }
+}

@@ -188,32 +188,60 @@
             </div>
             <div class="form-group-column two-fifths">
                 <lib-form-field-container
-                    [title]="'Selected Configurations'"
-                    [count]="svc.addedConfigs ? svc.addedConfigs.length : 0"
-                    [helpText]="'Preview list of all service configurations that this service is associated with.'"
+                    [title]="'Associated Entities'"
+                    [label]="'Click for detailed view'"
+                    [helpText]="'List the configs, policies, and terminators that are associated with this service. Click on the entity name to navigate to the entity\'s detailed view.'"
+                    [class]="'no-gap'"
                 >
+                    <div class="form-row space-between" style="margin-top: 0;">
+                        <div class="config-title-row">
+                            <span class="form-field-title">Configurations</span>
+                        </div>
+                        <span class="form-field-count">{{svc.addedConfigs ? svc.addedConfigs.length : 0}}</span>
+                    </div>
                     <lib-preview-list
                         [allNames]="svc.addedConfigs"
                         [allowRemove]="true"
                         [clickable]="true"
+                        [showfilter]="false"
                         [tooltip]="'View Config'"
                         (itemRemoved)="svc.removeConfig($event)"
                         (itemSelected)="svc.previewConfig($event, router)"
                     ></lib-preview-list>
+                    <div class="form-row space-between">
+                        <div class="config-title-row">
+                            <span class="form-field-title">Service Policies</span>
+                        </div>
+                        <span class="form-field-count">{{svc.associatedServicePoliciesTotal}}</span>
+                    </div>
+                    <lib-preview-list
+                            [clickable]="true"
+                            (itemSelected)="svc.previewPolicy($event, router)"
+                            [tooltip]="'View Service Policy'"
+                            [allNames]="svc.associatedServicePolicies"
+                            [showfilter]="false"
+                    ></lib-preview-list>
+                    <div class="form-row space-between">
+                        <div class="config-title-row">
+                            <span class="form-field-title">Terminators</span>
+                        </div>
+                        <span class="form-field-count">{{svc.associatedTerminators ? svc.associatedTerminators.length : 0}}</span>
+                    </div>
+                    <lib-preview-list
+                            [clickable]="true"
+                            (itemSelected)="svc.previewTerminator($event, router)"
+                            [tooltip]="'View Terminator'"
+                            [allNames]="svc.associatedTerminators"
+                            [showfilter]="false"
+                    ></lib-preview-list>
                 </lib-form-field-container>
-                <lib-form-field-container
+<!--                <lib-form-field-container
                         *ngIf="formData.id"
                         [title]="'Associated Service Policies'"
                         [count]="svc.associatedServicePolicies.length"
                         [helpText]="'Preview list of all service policies that this service is associated with.'"
                 >
-                    <lib-preview-list
-                            [clickable]="true"
-                            (itemSelected)="svc.previewPolicy($event, router)"
-                            [tooltip]="'View Service Policy'"
-                            [allNames]="svc.associatedServicePolicyNames"
-                    ></lib-preview-list>
-                </lib-form-field-container>
+                </lib-form-field-container>-->
                 <lib-form-field-container
                         [title]="'API Calls'"
                         [label]="''"

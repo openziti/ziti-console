@@ -232,6 +232,19 @@ input {
   height: 14px;
 }
 
+.form-field-count {
+  background-color: #4c5566;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  border-radius: 14px;
+  height: 24px;
+  padding-left: 13px;
+  padding-right: 13px;
+  font-size: 13px;
+}
+
 .button-row-right {
   width: 100%;
   display: flex;
@@ -340,6 +353,17 @@ input {
     width: calc(40% - 15px);
     min-width: 280px;
   }
+  &.one-half {
+    width: calc(50% - 15px);
+    min-width: 420px;
+  }
+}
+
+.form-field-label-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
 }
 
 .form-row {
@@ -348,6 +372,12 @@ input {
   flex-wrap: wrap;
   position: relative;
   width: 100%;
+
+  &.space-between {
+    justify-content: space-between;
+    margin-top: 10px;
+    margin-bottom: 5px;
+  }
 }
 
 .form-column {

@@ -37,7 +37,9 @@ import {
   ServicePolicyFormComponent,
   EdgeRouterPolicyFormComponent,
   ServiceEdgeRouterPoliciesPageComponent,
-  ServiceEdgeRouterPolicyFormComponent
+  ServiceEdgeRouterPolicyFormComponent,
+  TerminatorsPageComponent,
+  TerminatorFormComponent
 } from "ziti-console-lib";
 import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
@@ -159,6 +161,20 @@ const routes: Routes = [
     runGuardsAndResolvers: 'always',
   },
   {
+    path: 'terminators',
+    component: TerminatorsPageComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    canDeactivate: [DeactivateGuardService],
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'terminators/:id',
+    component: TerminatorFormComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    canDeactivate: [DeactivateGuardService],
+    runGuardsAndResolvers: 'always',
+  },
+  {
     path: 'recipies',
     component: ZacWrapperComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
@@ -166,6 +182,12 @@ const routes: Routes = [
   },
   {
     path: 'terminators',
+    component: ZacWrapperComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'terminators/:id',
     component: ZacWrapperComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
