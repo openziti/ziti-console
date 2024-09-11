@@ -182,7 +182,14 @@ export class SimpleServiceComponent extends ProjectableForm {
       sort: 'name',
       order: 'asc'
     };
-    this.zitiService.get('identities', paging, []).then((result) => {
+    const filterObj: FilterObj = {
+      filterName: 'name',
+      columnId: 'name',
+      value: filter || '%',
+      label: '',
+      type: 'TEXTINPUT',
+    };
+    this.zitiService.get('identities', paging, [filterObj]).then((result) => {
       const namedAttributes = result.data.map((identity) => {
         this.identitiesNameIdMap[identity.name] = identity.id;
         return identity.name;
