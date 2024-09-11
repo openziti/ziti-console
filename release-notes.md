@@ -1,3 +1,13 @@
+# app-ziti-console-v3.5.0
+# ziti-console-lib-v0.5.0
+
+## Feature/Improvements
+* [Issue #486](https://github.com/openziti/ziti-console/issues/486) - New Terminators List Page and Edit Form
+
+## Bug Fixes
+* [Issue #492](https://github.com/openziti/ziti-console/issues/492) - Simple service form is limited to only 30 identities
+
+
 # ziti-console-lib-v0.4.10
 ## Bug Fixes
 * [Issue #482](https://github.com/openziti/ziti-console/issues/482) - Save search filters when navigating between the list page and edit screen
