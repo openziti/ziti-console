@@ -5,7 +5,7 @@
 >
     <lib-form-header
             [data]="formData"
-            [title]="(formData.id ? 'View Terminator' : 'Create Terminator')"
+            [title]="(formData.id ? 'Terminator Details' : 'Create Terminator')"
             [moreActions]="formData.moreActions"
             (actionRequested)="headerActionRequested($event)"
             [(formView)]="formView"
@@ -56,25 +56,29 @@
             </div>
             <div class="form-group-column one-half">
                 <lib-form-field-container
-                        [title]="'Binding'"
-                        [contentStyle]="'z-index: 1001'"
-                >
-                    <input class="form-field-input" [disabled]="true" [(ngModel)]="formData.binding"/>
-                </lib-form-field-container>
-                <lib-form-field-container
                         [title]="'Address'"
                         [contentStyle]="'z-index: 1001'"
                 >
                     <input class="form-field-input read-only" [disabled]="true" [(ngModel)]="formData.address"/>
                 </lib-form-field-container>
                 <lib-form-field-container
-                        [layout]="'row'"
                         [showHeader]="false"
+                        [layout]="'row'"
+                        [contentStyle]="'z-index: 1001'"
                 >
+                    <div class="form-field-label-container">
+                        <span class="form-field-title">Binding</span>
+                        <input class="form-field-input" [disabled]="true" [(ngModel)]="formData.binding"/>
+                    </div>
                     <div class="form-field-label-container">
                         <span class="form-field-title">Identity Secret</span>
                         <input class="form-field-input" [disabled]="true" [(ngModel)]="formData.identitySecret"/>
                     </div>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [layout]="'row'"
+                        [showHeader]="false"
+                >
                     <div class="form-field-label-container">
                         <span class="form-field-title">Hosting Cost</span>
                         <input class="form-field-input" [disabled]="true" [(ngModel)]="formData.cost" type="number"/>

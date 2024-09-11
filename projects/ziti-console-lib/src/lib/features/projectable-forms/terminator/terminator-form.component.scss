@@ -20,6 +20,15 @@
     &:disabled {
       opacity: 0.75 !important;
       cursor: text;
+      background-color: var(--stroke) !important;
+    }
+  }
+}
+
+@media (max-width:1524px) {
+  .terminator-form-container {
+    .projectable-form-main-column {
+      max-width: 620px;
     }
   }
 }
