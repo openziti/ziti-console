@@ -129,7 +129,7 @@ export abstract class ListPageComponent {
                 if (this.startCount + data.meta.pagination.limit > this.totalCount) {
                     this.endCount = this.totalCount;
                 } else {
-                    this.endCount = data.meta.pagination.limit;
+                    this.endCount = data.meta.pagination.offset + data.meta.pagination.limit;
                 }
                 this.updateSelectedItems();
                 this.refreshCells();
