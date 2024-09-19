@@ -44,6 +44,8 @@ export abstract class ZacWrapperServiceClass {
     initZACPersonalSettings() {
         if (!this.settingsService?.supportedFeatures?.tags) {
             localStorage.setItem("hideTags", "yes");
+        } else {
+            localStorage.removeItem("hideTags")
         }
         if (localStorage.getItem("primaryColor")!=null) {
             document.documentElement.style.setProperty("--primary", localStorage.getItem("primaryColor"));

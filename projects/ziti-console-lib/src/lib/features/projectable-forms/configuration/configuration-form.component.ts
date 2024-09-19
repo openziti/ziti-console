@@ -239,6 +239,7 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
             name: this.formData?.name || '',
             configTypeId: this.formData?.configTypeId || '',
             data: this.formData?.data || {},
+            tags: this.formData?.tags
         };
         this._apiData = data;
         return this._apiData;

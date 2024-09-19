@@ -66,7 +66,7 @@ export abstract class SettingsServiceClass {
 
     public supportedFeatures: any = {
         organization: false,
-        tags: false,
+        tags: true,
         customFields: false,
         mailer: false,
         recipes: false

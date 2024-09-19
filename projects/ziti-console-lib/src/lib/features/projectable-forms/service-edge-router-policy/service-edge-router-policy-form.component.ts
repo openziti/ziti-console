@@ -50,7 +50,6 @@ export class ServiceEdgeRouterPolicyFormComponent extends ProjectableForm implem
   edgeRoutersLoading = false;
   servicesLoading = false;
 
-  showMore = false;
   settings: any = {};
 
   override entityType = 'service-edge-router-policies';
@@ -295,7 +294,8 @@ ${this.formData.id ? '--request PATCH \\' : ''}
       appData: this.formData?.appData || '',
       edgeRouterRoles: this.svc.getSelectedRoles(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes, this.svc.edgeRouterNamedAttributesMap),
       serviceRoles: this.svc.getSelectedRoles(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.svc.serviceNamedAttributesMap),
-      semantic: this.formData.semantic,
+      semantic: this.formData?.semantic,
+      tags: this.formData?.tags
     }
     return data;
   }

@@ -936,13 +936,13 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
 
     handleError(result: any) {
         this.loggerService.error(result);
-        const error = result;
+        const error = result.error ? result.error : result;
         let message = '';
         if (error.cause&&error.causeMessage&&error.causeMessage.length>0) message = error.causeMessage;
         else if (error.cause&&error.cause.message&&error.cause.message.length>0) message = error.cause.message;
         else if (error.cause&&error.cause.reason&&error.cause.reason.length>0) message = error.cause.reason;
         else if (error.message&&error.message.length>0) message = error.message;
         else message = error;
-        return {error: message};
+        return {error: message, data: []};
     }
 }

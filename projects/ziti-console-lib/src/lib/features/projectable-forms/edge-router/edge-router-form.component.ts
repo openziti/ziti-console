@@ -51,7 +51,6 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
     {id: 'default', name: 'Default'}
   ];
 
-  showMore = false;
   settings: any = {};
 
   constructor(

@@ -69,7 +69,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   servicePoliciesLoading = false;
   authPolicies: any = [];
 
-  showMore = false;
   formView = 'simple';
   enrollmentType = 'ott';
   enrollmentCA;
@@ -311,12 +310,12 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       type: this.formData?.type?.name || this.formData?.type || '',
       appData: this.formData?.appData || '',
       isAdmin: this.formData?.isAdmin || '',
-      roleAttributes: this.formData.roleAttributes || '',
-      authPolicyId: this.formData.authPolicyId || '',
-      externalId: this.formData.externalId || '',
-      defaultHostingCost: this.formData.defaultHostingCost || '0',
-      defaultHostingPrecedence: this.formData.defaultHostingPrecedence || 'defaultHostingPrecedence',
-      tags: this.formData.tags || ''
+      roleAttributes: this.formData?.roleAttributes || '',
+      authPolicyId: this.formData?.authPolicyId || '',
+      externalId: this.formData?.externalId || '',
+      defaultHostingCost: this.formData?.defaultHostingCost || '0',
+      defaultHostingPrecedence: this.formData?.defaultHostingPrecedence || 'defaultHostingPrecedence',
+      tags: this.formData?.tags
     };
     if (!this.isEditing) {
       data.enrollment = this.formData.enrollment || {ott: true};

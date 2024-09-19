@@ -91,7 +91,6 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     {id: 'tcp', name: 'TCP'}
   ];
 
-  showMore = false;
   formView = 'simple';
   formDataInvalid = false;
   settings: any = {};

@@ -5,4 +5,5 @@ export class ServicePolicy {
     postureCheckRoles: any[] = [];
     semantic = 'AnyOf';
     type = 'Bind';
+    tags: any = {};
 };
