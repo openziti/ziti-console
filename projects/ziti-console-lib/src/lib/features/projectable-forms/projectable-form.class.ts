@@ -73,6 +73,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     apiOptions = [{id: 'cli', label: 'Copy as CLI'}, {id: 'curl', label: 'Copy as CURL'}];
     basePath = '';
     previousRoute;
+    showMore = false;
 
     checkDataChangeDebounced = debounce(this.checkDataChange, 100, {maxWait: 100});
 

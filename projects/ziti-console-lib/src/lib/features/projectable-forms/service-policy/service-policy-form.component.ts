@@ -53,7 +53,6 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
   identitiesLoading = false;
   postureChecksLoading = false;
 
-  showMore = false;
   settings: any = {};
 
   override entityType = 'service-policies';
@@ -295,8 +294,9 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
       serviceRoles: this.svc.getSelectedRoles(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.svc.serviceNamedAttributesMap),
       identityRoles: this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.svc.identityNamedAttributesMap),
       postureCheckRoles: this.svc.getSelectedRoles(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes, this.svc.postureNamedAttributesMap),
-      semantic: this.formData.semantic,
-      type: this.formData.type
+      semantic: this.formData?.semantic,
+      type: this.formData?.type,
+      tags: this.formData?.tags
     }
     return data;
   }

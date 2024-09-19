@@ -17,7 +17,7 @@
 import {Component, Inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Router, NavigationEnd} from '@angular/router';
 import {ZAC_WRAPPER_SERVICE, ZacWrapperServiceClass} from "./zac-wrapper-service.class";
-import {delay, invoke, isEmpty, defer, set, get} from 'lodash';
+import {cloneDeep, delay, invoke, isEmpty, defer, set, get} from 'lodash';
 import {Subscription} from "rxjs";
 import {SettingsService, SETTINGS_SERVICE} from "../../services/settings.service";
 import {LoggerService} from "../messaging/logger.service";
@@ -71,8 +71,9 @@ export class ZacWrapperComponent implements OnInit, OnDestroy {
     );
     this.subscription.add(
       this.settingsService.settingsChange.subscribe(async (results:any) => {
+        const hasSession = !isEmpty(results?.session?.id);
         const controllerChanged = this.settings?.session?.controllerDomain !== results?.session?.controllerDomain;
-        if ((this.waitingForSession && !this.pageLoading) || controllerChanged) {
+        if (hasSession && (!this.pageLoading || controllerChanged)) {
           this.pageLoading = true;
           this.pageHtml = undefined;
           defer(async () => {
@@ -81,7 +82,7 @@ export class ZacWrapperComponent implements OnInit, OnDestroy {
             this.pageLoading = false;
           });
         }
-        this.settings = results;
+        this.settings = cloneDeep(results);
       })
     );
     this.subscription.add(

@@ -51,7 +51,6 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
   identitiesLoading = false;
   postureChecksLoading = false;
 
-  showMore = false;
   settings: any = {};
 
   override entityType = 'edge-router-policies';
@@ -297,7 +296,8 @@ ${this.formData.id ? '--request PATCH \\' : ''}
       edgeRouterRoles: this.svc.getSelectedRoles(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes, this.svc.edgeRouterNamedAttributesMap),
       identityRoles: this.svc.getSelectedRoles(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.svc.identityNamedAttributesMap),
       semantic: this.formData.semantic,
-      type: this.formData.type
+      type: this.formData.type,
+      tags: this.formData.tags
     }
     return data;
   }

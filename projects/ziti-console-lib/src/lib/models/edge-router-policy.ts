@@ -3,4 +3,5 @@ export class EdgeRouterPolicy {
     edgeRouterRoles: any[] = [];
     identityRoles: any[] = [];
     semantic = 'AnyOf';
+    tags: any = {}
 };

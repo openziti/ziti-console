@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {isEmpty, map, unset} from "lodash";
 
 @Component({
@@ -22,7 +22,7 @@ import {isEmpty, map, unset} from "lodash";
   templateUrl: './custom-tags.component.html',
   styleUrls: ['./custom-tags.component.scss']
 })
-export class CustomTagsComponent implements OnInit {
+export class CustomTagsComponent implements OnInit, OnChanges {
 
   @Input() tags: any = {};
   @Output() tagsChange: EventEmitter<any> = new EventEmitter<any>();
@@ -37,6 +37,10 @@ export class CustomTagsComponent implements OnInit {
 
   ngOnInit() {
     this.updateTagsArray();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    this.updateTagsArray()
   }
 
   updateTagsArray() {
