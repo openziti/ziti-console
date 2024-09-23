@@ -30,10 +30,10 @@ import {
   ViewContainerRef
 } from '@angular/core';
 import {Subscription} from 'rxjs';
-import {ProjectableForm} from "../projectable-form.class";
+import {ProjectableForm, KEY_CODES} from "../projectable-form.class";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 
-import {isEmpty, forEach, delay, unset, keys, defer, cloneDeep, isEqual, some, filter} from 'lodash';
+import {isEmpty, forEach, debounce, delay, unset, keys, defer, cloneDeep, isEqual, some, filter} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
@@ -94,6 +94,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   formView = 'simple';
   formDataInvalid = false;
   settings: any = {};
+  configFilterChangedDebounced: any = debounce(this.configFilterChanged.bind(this), 300, {trailing: true});
 
   override entityType = 'services';
   override entityClass = Service;
@@ -115,6 +116,8 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
 
   override ngOnInit(): void {
     super.ngOnInit();
+    this.svc.saveDisabled = false;
+    this.svc.selectedConfigId = undefined;
     this.subscription.add(
       this.settingsService.settingsChange.subscribe((results:any) => {
         this.settings = results;
@@ -160,9 +163,6 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     this.resetTags();
     this.svc.configEditor = this.configEditor;
     this.svc.getConfigTypes();
-    this.svc.getConfigs().then(() => {
-      this.svc.updatedAddedConfigs();
-    });
     this.svc.getRouters();
   }
 
@@ -177,10 +177,69 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     this.svc.configChanged();
   }
 
+  clearConfigFilter(event) {
+    const filters = [];
+    if (this.svc.selectedConfigTypeId) {
+      filters.push({
+        columnId: 'type',
+        value: this.svc.selectedConfigTypeId,
+        label: this.svc.selectedConfigTypeId,
+        filterName: 'Config Type',
+        type: 'TEXTINPUT',
+        verb: '='
+      });
+    }
+    this.svc.getConfigs(filters,1);
+  }
+
+  configFilterChanged(event) {
+    if (event?.keyCode === KEY_CODES.LEFT_ARROW || event?.keyCode === KEY_CODES.RIGHT_ARROW || event?.keyCode === KEY_CODES.UP_ARROW || event?.keyCode === KEY_CODES.DOWN_ARROW) {
+      return;
+    }
+    let filters = [];
+    if (event?.target?.value) {
+      filters.push({
+        columnId: 'name',
+        value: event.target.value,
+        label: event.target.value,
+        filterName: 'Name',
+        type: 'TEXTINPUT',
+      });
+    }
+    if (this.svc.selectedConfigTypeId) {
+      filters.push({
+        columnId: 'type',
+        value: this.svc.selectedConfigTypeId,
+        label: this.svc.selectedConfigTypeId,
+        filterName: 'Config Type',
+        type: 'TEXTINPUT',
+        verb: '='
+      });
+    }
+    this.svc.getConfigs(filters,1);
+  }
+
   configTypeChanged($event) {
     this.svc.selectedConfigId = '';
     this.svc.newConfigName = '';
-    this.svc.configTypeChanged();
+    const filters = [];
+    if (isEmpty(this.svc.selectedConfigTypeId)) {
+      this.svc.configTypeChanged();
+      return;
+    }
+    if (this.svc.selectedConfigTypeId) {
+      filters.push({
+        columnId: 'type',
+        value: this.svc.selectedConfigTypeId,
+        label: this.svc.selectedConfigTypeId,
+        filterName: 'Config Type',
+        type: 'TEXTINPUT',
+        verb: '='
+      });
+    }
+    this.svc.getConfigs(filters,1).then(() => {
+      this.svc.configTypeChanged();
+    });
   }
 
   get showConfigData() {
@@ -273,4 +332,5 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
 
   clear(): void {
   }
+
 }

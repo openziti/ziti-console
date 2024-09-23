@@ -58,6 +58,7 @@ export class ServiceFormService {
     configs: any = [];
     configTypes: any = [];
     filteredConfigs: any = [];
+    configsLoading = false;
     showCfgPreviewOption = false;
     selectedConfigName: any = '';
     selectedConfigTypeId: any = '';
@@ -93,6 +94,9 @@ export class ServiceFormService {
     associatedServicePolicyNames: any = [];
     associatedServicePoliciesMap: any = {};
     associatedServicePoliciesTotal = 0;
+    associatedConfigsLoading = false;
+    associatedServicePoliciesLoading = false;
+    associatedTerminatorsLoading = false;
 
     headerComponentParams = {
         filterType: 'TEXTINPUT',
@@ -189,6 +193,7 @@ export class ServiceFormService {
     getAssociatedServicePolicies() {
         const paging = this.zitiService.DEFAULT_PAGING;
         paging.total = 5;
+        this.associatedServicePoliciesLoading = true;
         this.zitiService.getSubdata('services', this.formData.id, 'service-policies', paging).then((result: any) => {
             this.associatedServicePolicies = result.data;
             this.associatedServicePoliciesTotal = result.meta?.pagination.totalCount || 0;
@@ -227,10 +232,13 @@ export class ServiceFormService {
                     skipSort: true
                 });
             }
+        }).finally(() => {
+            this.associatedServicePoliciesLoading = false;
         });
     }
 
     getAssociatedTerminators() {
+        this.associatedTerminatorsLoading = true;
         this.zitiService.getSubdata('services', this.formData.id, 'terminators').then((result: any) => {
             this.associatedTerminators = result.data;
             this.associatedTerminatorsTotal = result.meta?.pagination.totalCount || 0;
@@ -258,6 +266,8 @@ export class ServiceFormService {
                     skipSort: true
                 });
             }
+        }).finally(() => {
+            this.associatedTerminatorsLoading = false;
         });
     }
 
@@ -308,10 +318,17 @@ export class ServiceFormService {
         });
     }
 
-    getConfigs() {
-        return this.zitiService.get('configs', this.paging, []).then((result: any) => {
+    getConfigs(filters = [], page = 1) {
+        this.configsLoading = true;
+        const paging = cloneDeep(this.paging);
+        if (filters.length > 0) {
+            paging.noSearch = false;
+        }
+        return this.zitiService.get('configs', paging, filters).then((result: any) => {
             this.configs = result.data;
             this.configTypeChanged();
+        }).finally(() => {
+            this.configsLoading = false;
         });
     }
 
@@ -322,6 +339,7 @@ export class ServiceFormService {
     }
 
     getAssociatedConfigs() {
+        this.associatedConfigsLoading = true;
         this.zitiService.getSubdata('services', this.formData.id, 'configs').then((result: any) => {
             this.associatedConfigs = result.data;
             this.associatedConfigsMap = {};
@@ -330,6 +348,8 @@ export class ServiceFormService {
                 cfg.href = '/configs/' + cfg.id;
                 return cfg;
             });
+        }).finally(() => {
+            this.associatedConfigsLoading = false;
         });
     }
 
@@ -357,6 +377,13 @@ export class ServiceFormService {
         this.filteredConfigs = this.configs.filter((config) => {
             return config.configTypeId === this.selectedConfigTypeId;
         });
+        const defaultOptions = [
+            {
+                name: 'Add a New Config',
+                id: 'add-new'
+            }
+        ];
+        this.filteredConfigs = [...defaultOptions, ...this.filteredConfigs];
         this.configTypes.forEach((configType) => {
             if (this.selectedConfigTypeId === configType.id) {
                 this.selectedConfigType = configType;
@@ -488,15 +515,9 @@ export class ServiceFormService {
     }
 
     removeConfig(configToRemove) {
-        let configIdToRemove;
-        this.configs.forEach((availableConfig) => {
-            if (availableConfig.name === configToRemove.name) {
-                configIdToRemove = availableConfig.id;
-            }
-        });
-        if (configIdToRemove) {
+        if (configToRemove.id) {
             const newConfigs = filter(this.formData.configs, configId => {
-                return configId !== configIdToRemove;
+                return configId !== configToRemove.id;
             });
             const newConfigItems = filter(this.addedConfigs, (config) => {
                 return config.name !== configToRemove.name;

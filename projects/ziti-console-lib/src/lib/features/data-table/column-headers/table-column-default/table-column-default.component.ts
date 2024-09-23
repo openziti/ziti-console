@@ -146,7 +146,7 @@ export class TableColumnDefaultComponent implements IHeaderAngularComp, AfterVie
       }
     });
     headerParams.api.addEventListener('columnEverythingChanged', (event) => {
-      _.forEach(event.columnApi.columnModel.columnDefs, colDef => {
+      _.forEach(event.api?.columnModel?.columnDefs, colDef => {
         if (this.columnDef.colId === colDef.colId && colDef.headerComponentParams?.filterOptions) {
           this.updateFilterOptions();
         }
