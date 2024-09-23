@@ -43,6 +43,13 @@ body {
     --gapXL: 15px;
     --defaultInputHeight: 43px;
     --defaultLineHeight: 15px;
+    --inputBorderRadius: 7px;
+    --inputBorderWidth: 2px;
+    --spinnerSizeMedium: 20px;
+    --spinerBorderTopMedium: 2px solid var(--stroke);
+    --spinerBorderRightMedium: 2px solid var(--stroke);
+    --spinerBorderBottomMedium: 2px solid transparent;
+    --spinerBorderLeftMedium: 2px solid transparent;
 }
 
 ::placeholder {

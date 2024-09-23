@@ -515,15 +515,9 @@ export class ServiceFormService {
     }
 
     removeConfig(configToRemove) {
-        let configIdToRemove;
-        this.configs.forEach((availableConfig) => {
-            if (availableConfig.name === configToRemove.name) {
-                configIdToRemove = availableConfig.id;
-            }
-        });
-        if (configIdToRemove) {
+        if (configToRemove.id) {
             const newConfigs = filter(this.formData.configs, configId => {
-                return configId !== configIdToRemove;
+                return configId !== configToRemove.id;
             });
             const newConfigItems = filter(this.addedConfigs, (config) => {
                 return config.name !== configToRemove.name;

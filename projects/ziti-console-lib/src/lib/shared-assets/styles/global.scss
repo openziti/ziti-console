@@ -959,24 +959,24 @@ p-dropdown {
   .p-dropdown {
     &.p-component {
       width: 100%;
-      border-radius: 7px;
-      height: 43px;
+      border-radius: var(--inputBorderRadius);
+      height: var(--defaultInputHeight);
       font-family: 'Open Sans', Arial, sans-serif;
       border-color: var(--stroke);
       border-style: solid;
-      border-width: 2px;
+      border-width: var(--inputBorderWidth);
 
       .p-inputtext {
         font-size: 14px;
         font-family: 'Open Sans', Arial, sans-serif;
         padding: 7px;
-        border-radius: 7px;
+        border-radius: var(--inputBorderRadius);
       }
 
       &.p-focus {
         box-shadow: none;
         border-color: var(--primary);
-        border-width: 2px;
+        border-width: var(--inputBorderWidth);
       }
 
       .p-dropdown-header {
@@ -985,7 +985,7 @@ p-dropdown {
         .p-dropdown-filter {
           box-shadow: none;
           border-style: solid;
-          border-width: 2px;
+          border-width: var(--inputBorderWidth);
           border-color: var(--stroke);
 
           &:focus {
@@ -1007,7 +1007,7 @@ p-dropdown {
           height: 43px;
           line-height: 40px;
           padding: 0;
-          padding-left: 7px;
+          padding-left: var(--inputBorderRadius);
         }
       }
 

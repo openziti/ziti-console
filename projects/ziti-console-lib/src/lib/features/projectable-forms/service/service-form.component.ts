@@ -30,10 +30,10 @@ import {
   ViewContainerRef
 } from '@angular/core';
 import {Subscription} from 'rxjs';
-import {ProjectableForm} from "../projectable-form.class";
+import {ProjectableForm, KEY_CODES} from "../projectable-form.class";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 
-import {isEmpty, forEach, delay, unset, keys, defer, cloneDeep, isEqual, some, filter} from 'lodash';
+import {isEmpty, forEach, debounce, delay, unset, keys, defer, cloneDeep, isEqual, some, filter} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
@@ -94,6 +94,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   formView = 'simple';
   formDataInvalid = false;
   settings: any = {};
+  configFilterChangedDebounced: any = debounce(this.configFilterChanged.bind(this), 300, {trailing: true});
 
   override entityType = 'services';
   override entityClass = Service;
@@ -174,8 +175,23 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     this.svc.configChanged();
   }
 
+  clearConfigFilter(event) {
+    const filters = [];
+    if (this.svc.selectedConfigTypeId) {
+      filters.push({
+        columnId: 'type',
+        value: this.svc.selectedConfigTypeId,
+        label: this.svc.selectedConfigTypeId,
+        filterName: 'Config Type',
+        type: 'TEXTINPUT',
+        verb: '='
+      });
+    }
+    this.svc.getConfigs(filters,1);
+  }
+
   configFilterChanged(event) {
-    if (event?.keyCode === 37 || event?.keyCode === 38 || event?.keyCode === 39 || event?.keyCode === 40) {
+    if (event?.keyCode === KEY_CODES.LEFT_ARROW || event?.keyCode === KEY_CODES.RIGHT_ARROW || event?.keyCode === KEY_CODES.UP_ARROW || event?.keyCode === KEY_CODES.DOWN_ARROW) {
       return;
     }
     let filters = [];
