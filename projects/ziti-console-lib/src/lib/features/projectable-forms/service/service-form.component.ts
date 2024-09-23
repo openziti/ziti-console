@@ -116,6 +116,8 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
 
   override ngOnInit(): void {
     super.ngOnInit();
+    this.svc.saveDisabled = false;
+    this.svc.selectedConfigId = undefined;
     this.subscription.add(
       this.settingsService.settingsChange.subscribe((results:any) => {
         this.settings = results;
