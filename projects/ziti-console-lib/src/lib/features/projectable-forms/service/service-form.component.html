@@ -61,23 +61,23 @@
                                 {{ type.name }}
                             </option>
                         </select>
-                        <select
-                                [(ngModel)]="svc.selectedConfigId"
-                                (change)="configChanged($event)"
-                                id="SelectedConfig"
-                                class="form-field-dropdown"
-                                [ngClass]="{'disabled': !svc.selectedConfigTypeId || svc.selectedConfigTypeId === ''}"
-                        >
-                            <option value="">Select configuration...</option>
-                            <option value="add-new">Add a New  Config</option>
-                            <option value="preview" *ngIf="svc.selectedConfigId === 'preview'">View Config Data</option>
-                            <option
-                                    *ngFor="let config of svc.filteredConfigs"
-                                    [value]="config.id"
+                        <div class="dropdown-container" [ngClass]="{'dropdown-loading': svc.configsLoading}">
+                            <p-dropdown
+                                    placeholder="Select configuration..."
+                                    optionLabel="name"
+                                    optionValue="id"
+                                    filterBy="name"
+                                    [options]="svc.filteredConfigs"
+                                    [filter]="true"
+                                    [showClear]="true"
+                                    [disabled]="!svc.selectedConfigTypeId || svc.selectedConfigTypeId === ''"
+                                    (change)="configChanged($event)"
+                                    (keyup)="configFilterChanged($event)"
+                                    [(ngModel)]="svc.selectedConfigId"
                             >
-                                {{ config.name }}
-                            </option>
-                        </select>
+                            </p-dropdown>
+                            <div class="spinner" *ngIf="svc.configsLoading"></div>
+                        </div>
                         <div *ngIf="!showConfigData && svc.selectedConfigId && svc.selectedConfigId !== '' && svc.selectedConfigId !== 'preview'" class="button-row-right" >
                             <div class="save-button" (click)="svc.attachConfig(svc.selectedConfigId)">
                                 {{svc.attachLabel}}
@@ -200,6 +200,7 @@
                         <span class="form-field-count">{{svc.addedConfigs ? svc.addedConfigs.length : 0}}</span>
                     </div>
                     <lib-preview-list
+                        [isLoading]="svc.associatedConfigsLoading"
                         [allNames]="svc.addedConfigs"
                         [allowRemove]="true"
                         [clickable]="true"
@@ -215,6 +216,7 @@
                         <span class="form-field-count">{{svc.associatedServicePoliciesTotal}}</span>
                     </div>
                     <lib-preview-list
+                            [isLoading]="svc.associatedServicePoliciesLoading"
                             [clickable]="true"
                             (itemSelected)="svc.previewPolicy($event, router)"
                             [tooltip]="'View Service Policy'"
@@ -228,6 +230,7 @@
                         <span class="form-field-count">{{svc.associatedTerminators ? svc.associatedTerminators.length : 0}}</span>
                     </div>
                     <lib-preview-list
+                            [isLoading]="svc.associatedTerminatorsLoading"
                             [clickable]="true"
                             (itemSelected)="svc.previewTerminator($event, router)"
                             [tooltip]="'View Terminator'"

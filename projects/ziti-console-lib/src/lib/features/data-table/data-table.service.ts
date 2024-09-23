@@ -22,7 +22,7 @@ export class DataTableService {
   }
 
   pinColumn(column, pinned) {
-    this.gridObj.columnApi.setColumnPinned(column, pinned);
+    this.gridObj.api.setColumnPinned(column, pinned);
   }
   resizeGridColumns(event = {}) {
     if (!this.gridObj) {
@@ -33,7 +33,7 @@ export class DataTableService {
     });
   }
   saveColumnState() {
-    const tableState = this.gridObj.columnApi.getColumnState();
+    const tableState = this.gridObj.api.getColumnState();
     const tableStateCookie = JSON.stringify(tableState);
     localStorage.setItem(`ziti_${this.tableId}_table_state`, tableStateCookie);
   }
@@ -59,7 +59,7 @@ export class DataTableService {
     let tableStateCookie = localStorage.getItem(`ziti_${this.tableId}_table_state`);
     let tableState;
     if (_.isEmpty(tableStateCookie)) {
-      tableState = this.gridObj.columnApi.getColumnState();
+      tableState = this.gridObj.api.getColumnState();
     } else {
       tableState = JSON.parse(tableStateCookie);
     }
@@ -71,7 +71,7 @@ export class DataTableService {
     });
     tableStateCookie = JSON.stringify(tableState);
     localStorage.setItem(`ziti_${this.tableId}_table_state`, tableStateCookie);
-    _.forEach(this.gridObj.columnApi.columnModel.columnDefs, (colDef) => {
+    _.forEach(this.gridObj.api?.columnModel?.columnDefs, (colDef) => {
       if (colDef.colId === columnId) {
         colDef.suppressSizeToFit = true;
       }

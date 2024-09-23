@@ -160,9 +160,6 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     this.resetTags();
     this.svc.configEditor = this.configEditor;
     this.svc.getConfigTypes();
-    this.svc.getConfigs().then(() => {
-      this.svc.updatedAddedConfigs();
-    });
     this.svc.getRouters();
   }
 
@@ -177,10 +174,54 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     this.svc.configChanged();
   }
 
+  configFilterChanged(event) {
+    if (event?.keyCode === 37 || event?.keyCode === 38 || event?.keyCode === 39 || event?.keyCode === 40) {
+      return;
+    }
+    let filters = [];
+    if (event?.target?.value) {
+      filters.push({
+        columnId: 'name',
+        value: event.target.value,
+        label: event.target.value,
+        filterName: 'Name',
+        type: 'TEXTINPUT',
+      });
+    }
+    if (this.svc.selectedConfigTypeId) {
+      filters.push({
+        columnId: 'type',
+        value: this.svc.selectedConfigTypeId,
+        label: this.svc.selectedConfigTypeId,
+        filterName: 'Config Type',
+        type: 'TEXTINPUT',
+        verb: '='
+      });
+    }
+    this.svc.getConfigs(filters,1);
+  }
+
   configTypeChanged($event) {
     this.svc.selectedConfigId = '';
     this.svc.newConfigName = '';
-    this.svc.configTypeChanged();
+    const filters = [];
+    if (isEmpty(this.svc.selectedConfigTypeId)) {
+      this.svc.configTypeChanged();
+      return;
+    }
+    if (this.svc.selectedConfigTypeId) {
+      filters.push({
+        columnId: 'type',
+        value: this.svc.selectedConfigTypeId,
+        label: this.svc.selectedConfigTypeId,
+        filterName: 'Config Type',
+        type: 'TEXTINPUT',
+        verb: '='
+      });
+    }
+    this.svc.getConfigs(filters,1).then(() => {
+      this.svc.configTypeChanged();
+    });
   }
 
   get showConfigData() {
@@ -273,4 +314,5 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
 
   clear(): void {
   }
+
 }

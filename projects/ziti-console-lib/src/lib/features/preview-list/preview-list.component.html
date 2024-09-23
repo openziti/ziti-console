@@ -1,7 +1,5 @@
 <div class="listBox row">
     <input *ngIf="showfilter" (keyup)="onKeydownEvent()" [(ngModel)]="filterFor" placeholder="Type to Filter"/>
-    <span *ngIf="isLoading" class="spinner"></span>
-
     <div class="text row">
         <div (click)="selected(item)" *ngFor="let item of previewItems" [ngClass]="{ clickable: clickable }" class="listText">
             <div *ngIf="allowRemove" class="icon-clear" (click)="remove(item)"></div>
@@ -11,4 +9,7 @@
             </a>
         </div>
     </div>
+</div>
+<div *ngIf="isLoading" class="spinner-container">
+    <span class="spinner"></span>
 </div>

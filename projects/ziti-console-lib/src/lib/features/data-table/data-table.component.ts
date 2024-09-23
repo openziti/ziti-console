@@ -308,7 +308,7 @@ export class DataTableComponent implements OnChanges, OnInit {
     this.mergedColumnDefinitions = _.cloneDeep(this._initialColumnDefs);
     this.svc.gridObj.api.setColumnDefs(this.mergedColumnDefinitions);
     this.svc.resetCookieConfig();
-    this.svc.gridObj.columnApi.resetColumnState();
+    this.svc.gridObj.api.resetColumnState();
     _.defer(() => {
       this._updateHiddenColumns();
       this.svc.resizeGridColumns();
@@ -649,8 +649,8 @@ export class DataTableComponent implements OnChanges, OnInit {
         }
         this.updateColumnVisibility(eventObj.column.colDef.colId, eventObj.visible);
         if (eventObj.visible) {
-          this.svc.gridObj.columnApi.moveColumn(
-              eventObj.column.colDef.colId,
+          this.svc.gridObj.api.moveColumns(
+              [eventObj.column.colDef.colId],
               this.mergedColumnDefinitions.length - 1
           );
           _.defer(() => {
@@ -708,7 +708,7 @@ export class DataTableComponent implements OnChanges, OnInit {
     const tableStateCookie = localStorage.getItem(`ziti_${this.svc.tableId}_table_state`);
     const tableState = JSON.parse(tableStateCookie);
     if (tableState) {
-      this.svc.gridObj.columnApi.applyColumnState({state: tableState});
+      this.svc.gridObj.api.applyColumnState({state: tableState});
       this._updateHiddenColumns();
     }
   }
@@ -778,7 +778,7 @@ export class DataTableComponent implements OnChanges, OnInit {
   }
 
   setColumnVisibilityColumn(column, visible) {
-    this.svc.gridObj.columnApi.setColumnVisible(column.colId, visible);
+    this.svc.gridObj.api.setColumnsVisible([column.colId], visible);
     this.svc.gridObj.api.refreshHeader();
     _.defer(() => {
       this.updateColumnVisibility(column.colId, visible);
@@ -786,7 +786,7 @@ export class DataTableComponent implements OnChanges, OnInit {
   }
 
   _updateHiddenColumns() {
-    const gridColumnDefs = this.svc.gridObj.columnApi.columnModel.gridColumns;
+    const gridColumnDefs = this.svc.gridObj?.api?.columnModel?.gridColumns;
     const visibleGridColumns = gridColumnDefs.filter((col) => col.visible);
     const hiddenGridColumns = gridColumnDefs.filter((col) => !col.visible);
     this.visibleColumns = _.map(visibleGridColumns, 'colDef');
