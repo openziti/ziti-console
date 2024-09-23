@@ -1,3 +1,53 @@
+body {
+  --highlighted: #f5a93d;
+  --red: #ff104b;
+  --green: #00db48;
+  --white: #FFF;
+  --menu: #434c5e;
+  --stroke: #d4d9e2;
+  --black: #000;
+  --shaded: #f6f7fb;
+  --formBackground: #f6f7fb;
+  --visualizerBackground: #ffffff80;
+  --background: #ffffff;
+  --placeholder: #CDCDCD;
+  --text: #000;
+  --tableText: #000;
+  --table: #ffffff;
+  --shadow: 0px 0px 8px 2px rgba(0,0,0,0.08);
+  --shadowLarge: 0 12px 23px 0 rgba(0, 0, 0, .07);
+  --shadowColor: rgba(0,0,0,0.08);
+  --transition: 0.5s;
+  --offWhite: #FCFCFC;
+  --dark: #28292B;
+  --formBase: #919ca5;
+  --formGroup: #232f3e;
+  --formSubGroup: #5e7088;
+  --modalBorderRadius: 15px;
+  --paddingSmall: 5px;
+  --paddingMedium: 10px;
+  --paddingLarge: 10px;
+  --paddingXL: 15px;
+  --paddingXXL: 20px;
+  --marginSmall: 5px;
+  --marginMedium: 10px;
+  --marginLarge: 10px;
+  --marginXL: 15px;
+  --marginXXL: 20px;
+  --gapSmall: 5px;
+  --gapMedium: 10px;
+  --gapLarge: 10px;
+  --gapXL: 15px;
+  --defaultInputHeight: 43px;
+  --defaultLineHeight: 15px;
+  --inputBorderRadius: 7px;
+  --inputBorderWidth: 2px;
+  --spinnerSizeMedium: 20px;
+  --spinerBorderTopMedium: 2px solid var(--stroke);
+  --spinerBorderRightMedium: 2px solid var(--stroke);
+  --spinerBorderBottomMedium: 2px solid transparent;
+  --spinerBorderLeftMedium: 2px solid transparent;
+}
 
 body {
   overflow: hidden;
