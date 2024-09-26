@@ -26,8 +26,8 @@ input, select, textarea {
     width: 100%;
     border-color: var(--stroke);
     border-style: solid;
-    border-width: 2px;
-    border-radius: 7px;
+    border-width: var(--inputBorderWidth);
+    border-radius: var(--inputBorderRadius);
     padding-left: 7px;
     padding-right: 7px;
     outline: none;
@@ -94,7 +94,7 @@ input:disabled, select:disabled, textarea:disabled {
 }
 
 div.errors {
-	border-width: 2px;
+	border-width: var(--inputBorderWidth);
 	border-style: solid;
 	border-color: var(--red);
 }
@@ -114,11 +114,11 @@ select {
 .check {
     width: 20px;
     height: 20px;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     position: relative;
     margin-right: 10px;
     float: left;
-    border-width: 2px;
+    border-width: var(--inputBorderWidth);
     border-style: solid;
     border-color: var(--primary);
     background-color: var(--navigation) !important;
@@ -135,7 +135,7 @@ select {
 .subform {
 	background-color: var(--primary);
 	padding: 20px;
-	border-radius: 7px;
+	border-radius: var(--inputBorderRadius);
 	display: grid;
 	column-gap: 20px;
 	padding-top: 10px;
@@ -335,7 +335,7 @@ label .note:hover {
 	width: fit-content;
 	text-transform: uppercase;
 	text-align: center;
-	border-radius: 7px;
+	border-radius: var(--inputBorderRadius);
 	line-height: 25px;
 	position: relative;
 	border: 0;

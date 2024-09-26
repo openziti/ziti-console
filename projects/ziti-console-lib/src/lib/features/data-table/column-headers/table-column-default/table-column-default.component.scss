@@ -21,7 +21,7 @@
   &:hover {
     border-color: var(--primaryColor) !important;
     border-style: solid;
-    border-width: 2px;
+    border-width: var(--inputBorderWidth);
     height: 10px !important;
     width: 10px !important;
   }

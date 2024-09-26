@@ -279,7 +279,7 @@ main.table {
   position: absolute;
   width: 150px;
   background-color: var(--menu);
-  border-radius: 7px;
+  border-radius: var(--inputBorderRadius);
   right: -20px;
   top: 30px;
   box-shadow: 0 0 0 1px var(--shadow), 0 8px 16px var(--shadow);
@@ -469,19 +469,19 @@ main.table {
 
 .borderBottom {
   border-bottom-color: var(--inputBorder);
-  border-bottom-width: 2px;
+  border-bottom-width: var(--inputBorderWidth);
   border-bottom-style: solid;
 }
 
 .borderRight {
   border-right-color: var(--inputBorder);
-  border-right-width: 2px;
+  border-right-width: var(--inputBorderWidth);
   border-right-style: solid;
 }
 
 .borderLeft {
   border-left-color: var(--inputBorder);
-  border-left-width: 2px;
+  border-left-width: var(--inputBorderWidth);
   border-left-style: solid;
 }
 
@@ -500,7 +500,7 @@ main.table {
   color: var(--tableText);
   border-bottom-style: solid;
   border-bottom-color: var(--primary);
-  border-bottom-width: 2px;
+  border-bottom-width: var(--inputBorderWidth);
 }
 
 .tableGrid.four {

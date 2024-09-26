@@ -480,7 +480,7 @@ select:focus {
     backdrop-filter: saturate(110%) blur(15px);
     border-color: var(--navigation);
     border-style: solid;
-    border-width: 2px;
+    border-width: var(--inputBorderWidth);
     display: inline-block;
     box-shadow: 0px 20px 23px 0px var(--shadow);
     padding: 5px;
@@ -1040,7 +1040,7 @@ p-chips {
         .p-chips.p-component {
             .p-chips-multiple-container {
                 border-color: var(--red);
-                border-width: 2px;
+                border-width: var(--inputBorderWidth);
             }
         }
     }

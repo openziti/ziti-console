@@ -11,7 +11,7 @@
     background-color: transparent;
     transition: var(--transition);
     line-height: 13px;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
   }
 }
 

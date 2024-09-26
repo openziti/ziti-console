@@ -165,7 +165,7 @@ header #ProfileButton .icon {
 
 .menu {
 	background-color: var(--menu);
-	border-radius: 7px;
+	border-radius: var(--inputBorderRadius);
     box-shadow: 0 0 0 1px var(--shadow), 0 8px 16px var(--shadow);
 	font-size: 14px;
 	font-weight: 600;

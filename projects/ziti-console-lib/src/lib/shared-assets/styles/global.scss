@@ -255,7 +255,7 @@ input {
 .form-field-input-group {
   padding: 15px;
   background-color: var(--formGroup);
-  border-radius: 7px;
+  border-radius: var(--inputBorderRadius);
 
   &[hidden] {
     display: none !important;
@@ -266,7 +266,7 @@ input {
   padding: var(--paddingXL);
   padding-top: var(--paddingSmall);
   background-color: var(--formSubGroup);
-  border-radius: 7px;
+  border-radius: var(--inputBorderRadius);
   &[hidden] {
     display: none !important;
   }
@@ -314,7 +314,7 @@ input {
     font-size: 14px;
     background: var(--primary);
     padding: 7px;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     color: var(--white);
     cursor: pointer;
     box-shadow: 0 3px 9px 0 var(--primaryColorOpaque);
@@ -338,7 +338,7 @@ input {
   font-size: 14px;
   background: var(--primary);
   padding: 7px;
-  border-radius: 7px;
+  border-radius: var(--inputBorderRadius);
   color: var(--white);
   cursor: pointer;
   box-shadow: 0 3px 9px 0 var(--primaryColorOpaque);
@@ -521,7 +521,7 @@ lib-form-field-container {
   font-size: 14px;
   font-weight: 600;
   text-align: center;
-  border-radius: 7px;
+  border-radius: var(--inputBorderRadius);
   cursor: pointer;
   transition: .5s;
   height: 50px;
@@ -614,14 +614,14 @@ lib-form-field-container {
 
     &:hover {
       background-color: #ffffff;
-      border-radius: 7px;
+      border-radius: var(--inputBorderRadius);
       filter: brightness(90%);
       transition: 0.3s;
     }
 
     &:active {
       background-color: #ffffff;
-      border-radius: 7px;
+      border-radius: var(--inputBorderRadius);
       filter: brightness(80%);
       transition: 0.3s;
     }
@@ -689,7 +689,7 @@ lib-form-field-container {
   background-color: var(--transparent);
   transition: var(--transition);
   line-height: 13px;
-  border-radius: 7px;
+  border-radius: var(--inputBorderRadius);
 }
 
 .config-item {
@@ -861,7 +861,7 @@ lib-tag-selector {
     border-radius: 10px;
     border-color: var(--inputBorder);
     border-style: solid;
-    border-width: 2px;
+    border-width: var(--inputBorderWidth);
     margin-left: 5px;
     margin-right: 5px;
     cursor: pointer;
@@ -985,7 +985,7 @@ lib-tag-selector {
     position: relative;
     float: left;
     line-height: 30px;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     margin-left: 2px;
     margin-bottom: 10px;
     margin-top: 10px;

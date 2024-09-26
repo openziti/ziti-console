@@ -68,7 +68,7 @@
     line-height: unset;
     padding: 5px 10px;
     float: left;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     margin-left: 2px;
     transition: var(--transition);
     overflow: hidden;
@@ -97,8 +97,8 @@
 }
 
 .select2-selection {
-  border-radius: 7px;
-  border-width: 2px;
+  border-radius: var(--inputBorderRadius);
+  border-width: var(--inputBorderWidth);
   border-color: var(--inputBorder);
   border-style: solid;
   color: var(--white);
@@ -145,7 +145,7 @@
   min-height: 32px;
   user-select: none;
   -webkit-user-select: none;
-  border-radius: 7px;
+  border-radius: var(--inputBorderRadius);
   border: 2px solid var(--stroke);
   color: var(--white);
   padding-left: 0;
@@ -408,7 +408,7 @@
 }
 
 .fullModal .select2-container--default.select2-container--focus .select2-selection--multiple {
-  border-radius: 7px;
+  border-radius: var(--inputBorderRadius);
   border: 2px solid var(--inputBorder);
   color: var(--white);
   padding-left: 0;
@@ -449,7 +449,7 @@
 .nf-select2-dropdown {
   background-color: var(--menu);
   border-top: 0px;
-  border-radius: 7px;
+  border-radius: var(--inputBorderRadius);
   color: var(--white);
   box-sizing: border-box;
   display: flex;
