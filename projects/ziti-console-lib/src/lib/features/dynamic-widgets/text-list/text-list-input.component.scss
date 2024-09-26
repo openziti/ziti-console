@@ -7,8 +7,8 @@
     height: var(--defaultInputHeight);
     border-color: var(--stroke);
     border-style: solid;
-    border-width: 2px;
-    border-radius: 7px;
+    border-width: var(--inputBorderWidth);
+    border-radius: var(--inputBorderRadius);
     padding-left: 10px;
     padding-right: 10px;
     outline: none;
@@ -21,7 +21,7 @@
     .p-inputtext.p-chips-multiple-container {
       width: 100%;
       padding: 0;
-      border-width: 2px;
+      border-width: var(--inputBorderWidth);
 
       &.p-focus {
         border-color: var(--primaryColor) !important;
@@ -56,7 +56,7 @@
     margin-bottom: 5px;
     background: var(--primary);
     color: var(--white);
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     cursor: default;
     display: inline-flex;
     align-items: center;

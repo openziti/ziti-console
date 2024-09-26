@@ -77,7 +77,7 @@
 
   .object-list-items-container {
     background-color: rgb(255 255 255 / 30%);
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     display: flex;
     flex-direction: column;
     padding: 5px;

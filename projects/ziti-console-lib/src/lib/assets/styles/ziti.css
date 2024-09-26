@@ -70,8 +70,8 @@ body {
     min-height: 34px;
     border: 4px solid rgba(0, 0, 0, 0);
     background-clip: padding-box;
-    -webkit-border-radius: 7px;
-    border-radius: 7px;
+    -webkit-border-radius: var(--inputBorderRadius);
+    border-radius: var(--inputBorderRadius);
     background-color: var(--stroke);
     -webkit-box-shadow: inset -1px -1px 0px rgba(0, 0, 0, 0.05), inset 1px 1px 0px rgba(0, 0, 0, 0.05);
     box-shadow: inset -1px -1px 0px rgba(0, 0, 0, 0.05), inset 1px 1px 0px rgba(0, 0, 0, 0.05);
@@ -464,9 +464,9 @@ aside .icon {
 .blurb {
     padding: 10px;
     background-color: #ffcc33;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     border-color: #cc3300;
-    border-width: 2px;
+    border-width: var(--inputBorderWidth);
     border-style: solid;
     margin-top: 8px;
 }
@@ -695,7 +695,7 @@ aside .icon {
 
 .configureBox {
     background-color: var(--stroke);
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     padding: 20px;
     margin-bottom: 10px;
     position: relative;
@@ -708,7 +708,7 @@ aside .icon {
 
 .configBox {
     background-color: var(--stroke);
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     padding: 20px;
     margin-bottom: 10px;
     position: relative;
@@ -721,7 +721,7 @@ aside .icon {
 .lightBox {
     color: #FFF;
     background-color: var(--menu);
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     padding: 10px;
     margin-top: 10px;
     position: relative;
@@ -774,7 +774,7 @@ aside .icon {
     padding-top: 5px;
     font-size: 12px;
     padding-bottom: 5px;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     color: var(--black);
     transition: var(--transition);
     z-index: 10;
@@ -1021,10 +1021,10 @@ aside .icon {
 }
 
 .selectable {
-    border-width: 2px;
+    border-width: var(--inputBorderWidth);
     border-style: solid;
     border-color: var(--menu);
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     background-color: var(--menu);
     padding:0px;
     height: 130px;
@@ -1039,7 +1039,7 @@ aside .icon {
     height: 40px;
     line-height: 40px;
     padding-left: 5px;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     margin-bottom: 10px;
     background-color: var(--stroke);
     cursor: pointer;
@@ -1072,7 +1072,7 @@ aside .icon {
     background-color: transparent;
     transition: var(--transition);
     line-height: 13px;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
 }
 
 .docs {
@@ -1240,10 +1240,10 @@ aside .icon {
 }
 
 .tagSelect {
-    border-width: 2px;
+    border-width: var(--inputBorderWidth);
     border-style: solid;
     border-color: var(--menu);
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     background-color: var(--menu);
     padding: 0px;
     height: 130px;
@@ -1434,7 +1434,7 @@ aside .icon {
     position: absolute;
     width: 150px;
     background-color: var(--menu);
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     right: 0px;
     top: 20px;
     box-shadow: 0 0 0 1px var(--shadowColor), 0 8px 16px var(--shadowColor);
@@ -1492,7 +1492,7 @@ aside .icon {
 .cardStack {
     background-color: var(--primary);
     overflow: visable;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     height: 120px;
     width: 100%;
     float: left;
@@ -1600,7 +1600,7 @@ aside .icon {
     gap: 30px;
     box-shadow: 0px 0px 19px -8px rgba(0, 0, 0, 0.2);
     padding: 10px;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     cursor: pointer;
     transition: 0.3s;
 }
@@ -1635,7 +1635,7 @@ aside .icon {
     height: 150px;
     position: relative;
     background-color: var(--white);
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     box-sizing: var(--shadow);
     cursor: pointer;
 }
@@ -1688,8 +1688,8 @@ aside .icon {
 }
 
 .card {
-    border-radius: 7px;
-    border-width: 2px;
+    border-radius: var(--inputBorderRadius);
+    border-width: var(--inputBorderWidth);
     border-style: solid;
     border-color: var(--offWhite);
     background-color: var(--offWhite);
@@ -1787,7 +1787,7 @@ aside .icon {
 .idBox {
     width: 48%;
     margin: 6px;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     background-color: var(--stroke);
     position: relative;
     display: inline-block;
@@ -1850,8 +1850,8 @@ aside .icon {
     opacity: 0.0;
     transition: var(--transition);
     background-color: #fCFCFC;
-    border-radius: 7px;
-    border-width: 2px;
+    border-radius: var(--inputBorderRadius);
+    border-width: var(--inputBorderWidth);
     border-color: var(--placeholder);
     overflow: hidden;
 }
@@ -1865,7 +1865,7 @@ aside .icon {
     position: relative;
     display: inline-block;
     cursor: pointer;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     transition: var(--transition);
 }
 
@@ -2074,7 +2074,7 @@ path.green {
     position: absolute;
     float: left;
     line-height: 30px;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     margin-left: 2px;
     margin-bottom: 10px;
     margin-top: 10px;
@@ -2088,7 +2088,7 @@ path.green {
     position: relative;
     float: left;
     line-height: 30px;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     margin-left: 2px;
     margin-bottom: 10px;
     margin-top: 10px;
@@ -2133,7 +2133,7 @@ path.green {
     position: relative;
     float: left;
     line-height: 30px;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     margin-left: 10px;
     margin-bottom: 10px;
     transition: var(--transition);
@@ -2158,15 +2158,15 @@ path.green {
     position: relative;
     float: left;
     line-height: 30px;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     margin-left: 10px;
     margin-bottom: 10px;
     transition: var(--transition);
 }
 
 .searchSelector {
-    border-radius: 7px;
-    border-width: 2px;
+    border-radius: var(--inputBorderRadius);
+    border-width: var(--inputBorderWidth);
     border-color: var(--stroke);
     border-style: solid;
     width: 100%;
@@ -2200,8 +2200,8 @@ path.green {
     margin-top: -7px;
     margin-bottom: 10px;
     opacity: 1.0;
-    border-bottom-left-radius: 7px;
-    border-bottom-right-radius: 7px;
+    border-bottom-left-radius: var(--inputBorderRadius);
+    border-bottom-right-radius: var(--inputBorderRadius);
     background-color: rgba(0,0,0,0.6);
     padding-top: 25px;
     padding-left: 10px;
@@ -2581,7 +2581,7 @@ div:focus {
 .pod .button {
     margin-top: 10px;
     width: 100%;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     line-height: 30px;
 }
 
@@ -2897,10 +2897,10 @@ svg {
 }
 
 .list {
-    border-width: 2px;
+    border-width: var(--inputBorderWidth);
     border-style: solid;
     border-color: var(--menu);
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     background-color: var(--menu);
     padding: 0px;
     height: 260px;
@@ -2912,7 +2912,7 @@ svg {
 .list .listItem {
     position: relative;
     width: 100%;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     height: 30px;
     background-color: var(--white);
     color: var(--black);
@@ -3147,7 +3147,7 @@ button[aria-label][data-balloon-pos] {
     opacity: 0;
     background-color: var(--black);
     color: var(--white);
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     padding: 20px;
     transition: var(--transition);
     margin-top: 15px;
@@ -3169,9 +3169,9 @@ button[aria-label][data-balloon-pos] {
 
 .modal .CodeMirror {
     height: 150px;
-    border-radius: 7px;
-    border-top-left-radius: 7px;
-    border-bottom-left-radius: 7px;
+    border-radius: var(--inputBorderRadius);
+    border-top-left-radius: var(--inputBorderRadius);
+    border-bottom-left-radius: var(--inputBorderRadius);
     margin-top: 10px;
 }
 

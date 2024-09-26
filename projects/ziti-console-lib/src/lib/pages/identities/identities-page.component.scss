@@ -49,7 +49,7 @@
   align-items: flex-start;
   margin-top: 10px;
   padding-left: 20px;
-  border-radius: 7px;
+  border-radius: var(--inputBorderRadius);
   padding-bottom: 0;
   padding-right: 0;
   padding-top: 0;
@@ -346,7 +346,7 @@
 
 ::ng-deep p-togglebutton {
   .p-togglebutton.p-button {
-    border-radius: 7px !important;
+    border-radius: var(--inputBorderRadius) !important;
     box-shadow: 0 5px 20px 0 rgb(0 0 0 / 5%) !important;
     margin-top: -2px !important;
   }
@@ -374,7 +374,7 @@
 }
 
 ::ng-deep .p-inputtext {
-  border-radius: 7px;
+  border-radius: var(--inputBorderRadius);
 }
 
 .calendar {
@@ -441,7 +441,7 @@
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  border-radius: 7px;
+  border-radius: var(--inputBorderRadius);
 }
 
 ::ng-deep .p-datepicker:not(.p-datepicker-inline) .p-datepicker-header {
@@ -488,7 +488,7 @@
   padding: 0.495rem 1rem;
   font-size: 1rem;
   transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
-  border-radius: 7px;
+  border-radius: var(--inputBorderRadius);
 }
 
 ::ng-deep .p-togglebutton.p-button.p-highlight {

@@ -376,8 +376,8 @@
     .ag-header-cell-resize {
       border-left-color: var(--stroke);
       border-right-color: var(--stroke);
-      border-left-width: 2px;
-      border-right-width: 2px;
+      border-left-width: var(--inputBorderWidth);
+      border-right-width: var(--inputBorderWidth);
       border-left-style: solid;
       border-right-style: solid;
       width: 5px;
@@ -963,7 +963,7 @@
     flex-direction: column;
     justify-content: flex-end;
     padding: 10px;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     box-shadow: var(--shadowLarge);
     margin-top: -20px;
     border-color: var(--stroke);

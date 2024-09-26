@@ -11,7 +11,7 @@
   min-height: 200px;
   border-color: var(--inputBorder);
   border-style: solid;
-  border-radius: 7px;
+  border-radius: var(--inputBorderRadius);
   overflow: hidden;
 
   &.read-only {

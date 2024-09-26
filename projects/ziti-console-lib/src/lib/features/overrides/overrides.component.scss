@@ -46,8 +46,8 @@
     width: 100%;
     border-color: var(--stroke);
     border-style: solid;
-    border-width: 2px;
-    border-radius: 7px;
+    border-width: var(--inputBorderWidth);
+    border-radius: var(--inputBorderRadius);
     padding-left: 10px;
     padding-right: 10px;
     outline: none;
@@ -58,7 +58,7 @@
     -webkit-appearance: none;
   }
   .p-inputtext {
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     border-color: transparent !important;
     height: 46px;
     &:hover {

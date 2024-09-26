@@ -150,7 +150,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        border-width: 2px;
+        border-width: var(--inputBorderWidth);
         flex: 1 0 auto;
         border-style: solid;
         font-size: 35px;
@@ -243,8 +243,8 @@
 
   .networks {
     border-color: var(--inputBorder);
-    border-width: 2px;
-    border-radius: 7px;
+    border-width: var(--inputBorderWidth);
+    border-radius: var(--inputBorderRadius);
     border-style: solid;
     width: 271px;
     height: 40px;
@@ -273,7 +273,7 @@
   }
 
   #Networks {
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     height: 0;
     width: 101.5%;
     overflow: hidden;

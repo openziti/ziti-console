@@ -39,7 +39,7 @@
     width: fit-content;
     text-transform: uppercase;
     text-align: center;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     position: relative;
     border: 0;
     background: var(--primaryColor);
@@ -81,7 +81,7 @@
     -ms-transition: box-shadow 0.3s;
     -o-transition: box-shadow 0.3s;
     transition: box-shadow 0.3s;
-    border-radius: 7px;
+    border-radius: var(--inputBorderRadius);
     min-height: 405px;
     display: flex;
     flex-direction: column;
