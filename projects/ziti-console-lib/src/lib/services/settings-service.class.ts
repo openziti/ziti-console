@@ -80,6 +80,7 @@ export abstract class SettingsServiceClass {
     public abstract controllerSave(name: string, url: string);
     public abstract initApiVersions(url);
     public abstract loadSettings();
+    public abstract hasSession();
 
     public get() {
         const tmp = localStorage.getItem('ziti.settings');

@@ -16,7 +16,6 @@ export abstract class LoginServiceClass {
     abstract init();
     abstract login(prefix: string, url: string, username: string, password: string);
     abstract observeLogin(serviceUrl: string, username: string, password: string);
-    abstract hasSession(): boolean;
     abstract clearSession();
     abstract checkOriginForController(): Promise<any>;
     abstract logout();

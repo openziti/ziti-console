@@ -55,7 +55,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         if (this.svc.originIsController !== false && this.svc.originIsController !== true) {
             this.checkOriginForController();
         }
-        if (this.svc.hasSession()) {
+        if (this.settingsService.hasSession()) {
             this.router.navigate(['/dashboard']);
         }
         this.subscription.add(

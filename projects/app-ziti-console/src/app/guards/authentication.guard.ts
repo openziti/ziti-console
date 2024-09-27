@@ -39,7 +39,7 @@ export class AuthenticationGuard {
   }
 
   canActivate(next, state) {
-    const isAuthorized = this.loginService.hasSession();
+    const isAuthorized = this.settingsSvc.hasSession();
     if (!isAuthorized) {
       // messaging.error('not authorized');
       this.settingsSvc.set(this.settingsSvc.settings);

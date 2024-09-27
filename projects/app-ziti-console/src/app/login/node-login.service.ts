@@ -123,6 +123,8 @@ export class NodeLoginService extends LoginServiceClass {
         return this.httpClient.post(apiUrl, body, options).toPromise().then((resp: any) => {
             //just checking for a non-error response to see if there is a valid session with the node server
             this.hasNodeSession = isEmpty(resp?.error);
+            this.settingsService.hasNodeSession = this.hasNodeSession;
+            this.settingsService.set(this.settingsService.settings);
             return this.hasNodeSession;
         }).catch((resp) => {
             this.hasNodeSession = false;

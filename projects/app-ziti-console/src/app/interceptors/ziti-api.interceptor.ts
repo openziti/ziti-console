@@ -18,7 +18,7 @@ import {Injectable, Inject} from '@angular/core';
 import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
 import {map} from 'rxjs/operators';
 
-import {BehaviorSubject, filter, finalize, Observable, of, switchMap, take, EMPTY} from 'rxjs';
+import {BehaviorSubject, filter, finalize, Observable, of, switchMap, take, EMPTY, catchError, throwError} from 'rxjs';
 import {
     SettingsServiceClass,
     LoginServiceClass,
@@ -32,13 +32,14 @@ import {MatDialog} from "@angular/material/dialog";
 
 import {defer} from 'lodash';
 
+// @ts-ignore
+const {growler} = window;
+
 /** Pass untouched request through to the next request handler. */
 @Injectable({
     providedIn: 'root'
 })
 export class ZitiApiInterceptor implements HttpInterceptor {
-    private refreshTokenInProgress = false;
-    private refreshTokenSubject = new BehaviorSubject(null);
 
     constructor(@Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
                 @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass,
@@ -47,6 +48,27 @@ export class ZitiApiInterceptor implements HttpInterceptor {
                 private dialogRef: MatDialog
                 ) {
 
+    }
+
+    private handleErrorResponse(err: HttpErrorResponse): Observable<any> {
+        if (err.status === 401) {
+            // User is unauthorized. Show growler/warning and redirect user back to login page
+            const gorwlerData: GrowlerModel = new GrowlerModel('warning', 'Invalid Session', 'Session Expired', 'Your session is no longer valid. Please login to continue.');
+            growler.disabled = true;
+            defer(() => {
+                this.dialogRef.closeAll();
+                this.growlerService.show(gorwlerData);
+                growler.disabled = false;
+            });
+            if (this.settingsService?.settings?.session) {
+                this.settingsService.settings.session.id = undefined;
+                this.settingsService.settings.session.expiresAt = undefined;
+                this.settingsService.set(this.settingsService.settings);
+            }
+            this.router.navigate(['/login']);
+            return of(err.message); // or EMPTY may be appropriate here
+        }
+        return throwError(() => err);
     }
 
     intercept(req: HttpRequest<any>, next: HttpHandler):
@@ -58,50 +80,8 @@ export class ZitiApiInterceptor implements HttpInterceptor {
         ) {
             return next.handle(req);
         } else {
-            const session = this.settingsService.settings.session;
-            const tokenExpirationDate = moment(session.expiresAt);
-            const expTime = tokenExpirationDate.diff(moment(), 'seconds');
-            if (session?.id && expTime > 10) {
-                // I have everything. add token and continue
-                return next.handle(this.addAuthToken(req));
-            } else if (this.refreshTokenInProgress) {
-                // I have already requested a new token,
-                // when its finished, continue this request
-                return this.refreshTokenSubject.pipe(
-                    filter((result) => result),
-                    take(1),
-                    switchMap(() => next.handle(this.addAuthToken(req)))
-                );
-            } else {
-                this.handleUnauthorized();
-                return EMPTY;
-            }
+            return next.handle(this.addAuthToken(req)).pipe(catchError(err=> this.handleErrorResponse(err)));
         }
-    }
-
-    private refreshAuthToken() {
-        this.refreshTokenInProgress = true;
-        this.refreshTokenSubject.next(null);
-        const apiVersions = this.settingsService.apiVersions;
-        const prefix = apiVersions["edge-management"].v1.path;
-        const url = this.settingsService.settings.selectedEdgeController;
-        const controllerId = this.settingsService.settings.session.username.trim();
-        const controllerPassword = this.settingsService.settings.session.password;
-        if (prefix && url && controllerId && controllerPassword) {
-            const serviceUrl = url + prefix;
-            return this.loginService.observeLogin(serviceUrl, controllerId, controllerPassword);
-        }
-        this.router.navigate(['/login']);
-        return of(null);
-    }
-
-    private handleUnauthorized() {
-        const gorwlerData: GrowlerModel = new GrowlerModel('warning', 'Invalid Session', 'Session Expired', 'Your session is no longer valid. Please login to continue.');
-        this.growlerService.show(gorwlerData);
-        defer(() => {
-            this.dialogRef.closeAll();
-        });
-        this.router.navigate(['/login']);
     }
 
     private addAuthToken(request: any) {
