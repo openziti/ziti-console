@@ -15,6 +15,7 @@
 */
 
 var growler = {
+  disabled: false,
   isDebugging: true,
   showId: -1,
   data: [],
@@ -77,6 +78,9 @@ var growler = {
     }
   },
 	show: function(type, title, subtitle, message) {
+    if (growler.disabled) {
+      return;
+    }
     if (growler.showId!=-1) clearTimeout(growler.showId);
     $("#Growler").removeClass("open");
     $("#Growler").removeClass("success");

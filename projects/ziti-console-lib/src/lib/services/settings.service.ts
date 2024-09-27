@@ -22,6 +22,7 @@ import {HttpBackend, HttpClient} from "@angular/common/http";
 import {SettingsServiceClass} from "./settings-service.class";
 import {GrowlerService} from "../features/messaging/growler.service";
 import {GrowlerModel} from "../features/messaging/growler.model";
+import moment from "moment/moment";
 
 export const SETTINGS_SERVICE = new InjectionToken<SettingsServiceClass>('SETTINGS_SERVICE');
 
@@ -100,6 +101,11 @@ export class SettingsService extends SettingsServiceClass {
 
     override loadSettings() {
         //this is a no-op for the default settings service
+    }
+
+    override hasSession() {
+        const hasSessionId = !isEmpty(this.settings?.session?.id);
+        return hasSessionId;
     }
 
     override controllerSave(name: string, url: string) {

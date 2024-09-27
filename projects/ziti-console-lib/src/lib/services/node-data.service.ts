@@ -23,7 +23,7 @@ import {firstValueFrom, map} from "rxjs";
 import {catchError} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
 import {FilterObj} from "../features/data-table/data-table-filter.service";
-import {isEmpty, get, isArray, isNumber} from "lodash";
+import {isEmpty, get, isArray, isNumber, set} from "lodash";
 import {ZitiDataService} from "./ziti-data.service";
 import {Resolver} from "@stoplight/json-ref-resolver";
 import moment from "moment";
@@ -346,7 +346,10 @@ export class NodeDataService extends ZitiDataService {
     handleError(results) {
         if (results?.errorObj?.code === 'UNAUTHORIZED') {
             localStorage.removeItem('ziti.settings');
-            window.location.href = '/login';
+            //window.location.href = '/login';
+            this.router.navigate(['/login']);
+            set(this.settingsService, 'hasNodeSession', false);
+            this.settingsService.set(this.settingsService.settings);
         } else {
             this.logger.error(results?.error)
         }

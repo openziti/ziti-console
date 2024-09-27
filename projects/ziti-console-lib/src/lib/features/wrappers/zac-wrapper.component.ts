@@ -71,7 +71,7 @@ export class ZacWrapperComponent implements OnInit, OnDestroy {
     );
     this.subscription.add(
       this.settingsService.settingsChange.subscribe(async (results:any) => {
-        const hasSession = !isEmpty(results?.session?.id);
+        const hasSession = this.settingsService.hasSession();
         const controllerChanged = this.settings?.session?.controllerDomain !== results?.session?.controllerDomain;
         if (hasSession && (!this.pageLoading || controllerChanged)) {
           this.pageLoading = true;

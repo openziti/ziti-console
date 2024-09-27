@@ -25,10 +25,6 @@ export class NoopLoginService extends LoginServiceClass {
     clearSession() {
     }
 
-    hasSession(): boolean {
-        return false;
-    }
-
     login(prefix: string, url: string, username: string, password: string) {
     }
 

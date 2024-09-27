@@ -54,15 +54,11 @@ export class AppComponent implements OnInit {
     }
 
     async checkSession() {
-        if (this.loginService.hasSession()) {
-            this.isAuthorized = true;
-            return Promise.resolve();
-        } else {
-            this.isAuthorized = false;
+        this.isAuthorized = this.settingsService.hasSession();
+        if (!this.isAuthorized) {
             this.router.navigate(['/login']);
-            this.isAuthorized = false;
-            return Promise.resolve();
         }
+        return Promise.resolve();
     }
  
     handleUserSettings() {

@@ -24,6 +24,7 @@ import {FilterObj} from "../features/data-table/data-table-filter.service";
 import { LoginServiceClass } from './login-service.class';
 
 import {cloneDeep, isEmpty, sortedUniq} from "lodash";
+import {SettingsServiceClass} from "./settings-service.class";
 
 export const ZITI_DATA_SERVICE = new InjectionToken<ZitiDataService>('ZITI_DATA_SERVICE');
 
@@ -46,7 +47,7 @@ export abstract class ZitiDataService {
 
   constructor(protected logger: LoggerService,
               protected growler: GrowlerService,
-              protected settingsService: SettingsService,
+              protected settingsService: SettingsServiceClass,
               protected httpClient: HttpClient,
               protected router: Router
   ) {}

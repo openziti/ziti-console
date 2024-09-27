@@ -122,6 +122,7 @@ export class ControllerLoginService extends LoginServiceClass {
                 controllerDomain: this.domain,
                 authorization: 100,
                 expiresAt: body.data.expiresAt,
+                expirationSeconds: body.data.expirationSeconds,
                 username,
                 password
             }
@@ -130,11 +131,6 @@ export class ControllerLoginService extends LoginServiceClass {
         return of([body.data?.token]);
     }
 
-    hasSession() {
-        const hasSessionId = !isEmpty(this.settingsService?.settings?.session?.id);
-        const sessionExpired = moment(this.settingsService?.settings?.session?.expiresAt).isBefore(new Date());
-        return hasSessionId && !sessionExpired;
-    }
 
     logout() {
         localStorage.removeItem('ziti.settings');
