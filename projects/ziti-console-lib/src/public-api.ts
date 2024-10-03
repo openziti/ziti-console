@@ -20,6 +20,8 @@ export * from './lib/pages/services/services-page.component';
 export * from './lib/pages/services/services-page.service';
 export * from './lib/pages/service-policies/service-policies-page.component';
 export * from './lib/pages/service-policies/service-policies-page.service';
+export * from './lib/pages/jwt-signers/jwt-signers-page.component';
+export * from './lib/pages/jwt-signers/jwt-signers-page.service';
 export * from './lib/services/login-service.class';
 export * from './lib/services/noop-login.service';
 export * from './lib/services/settings-service.class';
