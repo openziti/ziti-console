@@ -40,7 +40,8 @@ import {
   ServiceEdgeRouterPolicyFormComponent,
   TerminatorsPageComponent,
   TerminatorFormComponent,
-  JwtSignersPageComponent
+  JwtSignersPageComponent,
+  JwtSignerFormComponent
 } from "ziti-console-lib";
 import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
@@ -90,6 +91,13 @@ const routes: Routes = [
   {
     path: 'jwt-signers',
     component: JwtSignersPageComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    canDeactivate: [DeactivateGuardService],
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'jwt-signers/:id',
+    component: JwtSignerFormComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     canDeactivate: [DeactivateGuardService],
     runGuardsAndResolvers: 'always',

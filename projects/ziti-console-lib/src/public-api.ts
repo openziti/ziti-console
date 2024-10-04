@@ -75,6 +75,8 @@ export * from './lib/features/projectable-forms/service-edge-router-policy/servi
 export * from './lib/features/projectable-forms/service-edge-router-policy/service-edge-router-policy-form.component';
 export * from './lib/features/projectable-forms/terminator/terminator-form.service';
 export * from './lib/features/projectable-forms/terminator/terminator-form.component';
+export * from './lib/features/projectable-forms/jwt-signer/jwt-signer-form.service';
+export * from './lib/features/projectable-forms/jwt-signer/jwt-signer-form.component';
 export * from './lib/features/reset-enrollment/reset-enrollment.service';
 export * from './lib/features/extendable/extensions-noop.service';
 export * from './lib/features/projectable-forms/form-header/form-header.component';

@@ -109,6 +109,7 @@ import { ServiceEdgeRouterPolicyFormComponent } from './features/projectable-for
 import {TerminatorsPageComponent} from "./pages/terminators/terminators-page.component";
 import {ConfigurationFormComponent} from "./features/projectable-forms/configuration/configuration-form.component";
 import {JwtSignersPageComponent} from "./pages/jwt-signers/jwt-signers-page.component";
+import {JwtSignerFormComponent} from "./features/projectable-forms/jwt-signer/jwt-signer-form.component";
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -189,7 +190,8 @@ export function playerFactory() {
         TerminatorsPageComponent,
         TerminatorFormComponent,
         ConfigurationFormComponent,
-        JwtSignersPageComponent
+        JwtSignersPageComponent,
+        JwtSignerFormComponent
     ],
     imports: [
         CommonModule,
@@ -244,7 +246,8 @@ export function playerFactory() {
         EdgeRouterPoliciesPageComponent,
         TerminatorsPageComponent,
         TerminatorFormComponent,
-        JwtSignersPageComponent
+        JwtSignersPageComponent,
+        JwtSignerFormComponent
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},

@@ -1,6 +1,7 @@
 body {
   --highlighted: #f5a93d;
   --red: #ff104b;
+  --lightRed: #ffedf1;
   --green: #00db48;
   --white: #FFF;
   --menu: #434c5e;
@@ -53,10 +54,25 @@ body {
   overflow: hidden;
 }
 
+textarea,
 select,
 input {
   &.error {
     border-color: var(--red);
+    background-color: var(--lightRed) !important;
+
+    &::placeholder {
+      color: var(--formBase);
+    }
+  }
+}
+
+.tagError {
+  border-color: var(--red);
+  background-color: var(--lightRed) !important;
+
+  &::placeholder {
+    color: var(--formBase) !important;
   }
 }
 
@@ -210,14 +226,6 @@ input {
   border-width: 1px;
   border-color: var(--stroke);
 }
-.form-field-label {
-  color: var(--stroke);
-  font-size: 18px;
-  font-weight: 700;
-  display: flex;
-  flex: 1 0 auto;
-  flex-wrap: nowrap;
-}
 .form-field-row {
   display: flex;
   flex-direction: row;
@@ -248,6 +256,13 @@ input {
   }
 }
 
+.form-field-content {
+  textarea {
+    padding-top: initial;
+    margin-top: initial;
+  }
+}
+
 .form-field-input {
   min-height: var(--defaultInputHeight);
 }
@@ -272,6 +287,24 @@ input {
   }
 }
 
+.form-field-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  height: 14px;
+  z-index: 10000;
+}
+
+.form-field-title-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 1 1 auto;
+  width: 100%;
+}
+
 .form-field-title {
   display: flex;
   align-items: center;
@@ -280,6 +313,15 @@ input {
   color: var(--tableText);
   text-transform: uppercase;
   height: 14px;
+}
+
+.form-field-label {
+  color: var(--stroke);
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  flex: 1 0 auto;
+  flex-wrap: nowrap;
 }
 
 .form-field-count {
@@ -412,7 +454,7 @@ input {
 .form-field-label-container {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: var(--paddingSmall);
   width: 100%;
 }
 

@@ -1,0 +1,175 @@
+<div class="projectable-form-wrapper"
+     (keyup.enter)="save($event)"
+     (keyup.escape)="closeModal(false)"
+     tabindex="0"
+>
+    <lib-form-header
+            [data]="formData"
+            [title]="(formData.id ? 'JWT Signer Details' : 'Create JWT Signer')"
+            [moreActions]="formData.moreActions"
+            (actionRequested)="headerActionRequested($event)"
+            [(formView)]="formView"
+            [saveDisabled]="svc.saveDisabled || formDataInvalid"
+    ></lib-form-header>
+    <div class="jwt-signer-form-container projectable-form-container">
+        <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
+            <div class="form-group-column three-fifths">
+                <lib-form-field-container
+                        [title]="'Name'"
+                        [label]="'Required'"
+                >
+                    <input class="form-field-input read-only" [(ngModel)]="formData.name" [ngClass]="{error: errors['name']}" placeholder="Name this JWT Signer"/>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [layout]="'column'"
+                        [showHeader]="false"
+                >
+                    <div class="form-field-label-container">
+                        <div class="form-field-header">
+                            <div class="form-field-title-container">
+                                <span class="form-field-title">Issuer</span>
+                                <div
+                                    class="form-field-info infoicon"
+                                    matTooltip="The &quot;issuer&quot; field on the JWT Signer must match the &quot;iss&quot; field on the JWT"
+                                    matTooltipPosition="below"
+                                ></div>
+                            </div>
+                            <span class="form-field-label" >Required</span>
+                        </div>
+                        <input class="form-field-input" placeholder="Enter issuer" [(ngModel)]="formData.issuer" [ngClass]="{error: errors['issuer']}"/>
+                    </div>
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">Claims Property</span>
+                            <div
+                                    class="form-field-info infoicon"
+                                    matTooltip="The &quot;claimsProperty&quot; must match the &quot;id&quot; field on a ziti identity (or externalId if &quot;Use External ID&quot; is enabled)"
+                                    matTooltipPosition="below"
+                            ></div>
+                        </div>
+                        <input class="form-field-input" placeholder="Enter claims property, defaults to &quot;sub&quot;" [(ngModel)]="formData.claimsProperty"/>
+                    </div>
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">Audience</span>
+                            <div
+                                    class="form-field-info infoicon"
+                                    matTooltip="The &quot;audience&quot; field on the JWT Signer must match the &quot;aud&quot; field on the JWT"
+                                    matTooltipPosition="below"
+                            ></div>
+                        </div>
+                        <input class="form-field-input" placeholder="Enter audience" [(ngModel)]="formData.audience"/>
+                    </div>
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">External Auth Url</span>
+                            <div
+                                    class="form-field-info infoicon"
+                                    matTooltip="Unauthenticated clients can enumerate External JWT Signers that have an &quot;externalAuthUrl&quot; property. Clients will receive the name of the External JWT Signer and the &quot;externalAuthUrl&quot; only. This information can allow clients to initiate client authentication to the target identity provider."
+                                    matTooltipPosition="below"
+                            ></div>
+                        </div>
+                        <input class="form-field-input" placeholder="Enter external auth URL" [(ngModel)]="formData.externalAuthUrl"/>
+                    </div>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [showHeader]="false"
+                        [layout]="'row'"
+                >
+                    <div class="config-item">
+                        <div class="config-container toggle-container">
+                            <div class="config-container-label">ENABLED</div>
+                            <div
+                                    (click)="toggleEnabled()"
+                                    [ngClass]="{ on: formData.enabled }"
+                                    class="toggle"
+                            >
+                                <span [hidden]="!formData.enabled" class="on-label">YES</span>
+                                <span [hidden]="formData.enabled" class="off-label">NO</span>
+                                <div class="switch"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="config-item">
+                        <div class="config-container toggle-container">
+                            <div class="config-container-label">Use External ID</div>
+                            <div
+                                    (click)="toggleUseExternalId()"
+                                    [ngClass]="{ on: !formData.useExternalId }"
+                                    class="toggle"
+                            >
+                                <span [hidden]="formData.useExternalId" class="on-label">YES</span>
+                                <span [hidden]="!formData.useExternalId" class="off-label">NO</span>
+                                <div class="switch"></div>
+                            </div>
+                        </div>
+                    </div>
+                </lib-form-field-container>
+                <lib-form-field-toggle [(toggleOn)]="showMore" (toggleOnChange)="showMoreChanged($event)" style="margin: 0px 10px"></lib-form-field-toggle>
+                <div [hidden]="!showMore" class="form-group-column">
+                    <lib-form-field-container
+                            [title]="'Custom Tags'"
+                            [label]="'OPTIONAL'"
+                            class="form-field-advanced"
+                    >
+                        <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
+                    </lib-form-field-container>
+                </div>
+            </div>
+            <div class="form-group-column two-fifths">
+                <lib-form-field-container
+                        [title]="'Certificate Definition'"
+                        [label]="'REQUIRED'"
+                >
+                    <div class="form-field-input-group">
+                        <div class="form-field-label-container select-file-label-container">
+                            <div class="form-field-header">
+                                <div class="form-field-title-container">
+                                    <span class="form-field-title">PEM</span>
+                                </div>
+                                <span class="select-file-button" (click)="openFileSelect($event)">
+                                    Select File
+                                    <div class="spinner" *ngIf="fileSelectOpening"></div>
+                                </span>
+                                <input #fileSelect type="file" style="display:none" (change)="selectPemFile($event)">
+                            </div>
+                            <textarea placeholder="Paste pem contents or select file" [(ngModel)]="formData.certPem" [ngClass]="{error: errors['certPem']}"></textarea>
+                        </div>
+                        <div class="form-field-label-container">
+                            <div class="form-field-header">
+                                <div class="form-field-title-container">
+                                    <span class="form-field-title">KID</span>
+                                </div>
+                                <span class="form-field-label" >Optional</span>
+                            </div>
+                            <input class="form-field-input" placeholder="Enter KID" [(ngModel)]="formData.kid"/>
+                        </div>
+                    </div>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'JWKS Endpoint'"
+                        [label]="'Optional'"
+                >
+                    <input class="form-field-input read-only" placeholder="Enter endpoint URL" [(ngModel)]="formData.jwksEndpoint"/>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'API Calls'"
+                        [headerActions]="apiOptions"
+                        (actionRequested)="apiActionRequested($event)"
+                        [class]="'api-data-no-wrap'"
+                >
+                    <div class="form-row">
+                        <input class="form-field-input" [value]="apiCallURL"/>
+                        <div class="icon-copy copy" (click)="copyToClipboard(apiCallURL)"></div>
+                    </div>
+                    <lib-json-view *ngIf="formData" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
+                </lib-form-field-container>
+            </div>
+        </div>
+        <div class="form-group-column" *ngIf="formView === 'raw'">
+            <lib-json-view *ngIf="formData" [(data)]="formData"></lib-json-view>
+        </div>
+    </div>
+</div>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
