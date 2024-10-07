@@ -20,6 +20,8 @@ export * from './lib/pages/services/services-page.component';
 export * from './lib/pages/services/services-page.service';
 export * from './lib/pages/service-policies/service-policies-page.component';
 export * from './lib/pages/service-policies/service-policies-page.service';
+export * from './lib/pages/jwt-signers/jwt-signers-page.component';
+export * from './lib/pages/jwt-signers/jwt-signers-page.service';
 export * from './lib/services/login-service.class';
 export * from './lib/services/noop-login.service';
 export * from './lib/services/settings-service.class';
@@ -73,6 +75,8 @@ export * from './lib/features/projectable-forms/service-edge-router-policy/servi
 export * from './lib/features/projectable-forms/service-edge-router-policy/service-edge-router-policy-form.component';
 export * from './lib/features/projectable-forms/terminator/terminator-form.service';
 export * from './lib/features/projectable-forms/terminator/terminator-form.component';
+export * from './lib/features/projectable-forms/jwt-signer/jwt-signer-form.service';
+export * from './lib/features/projectable-forms/jwt-signer/jwt-signer-form.component';
 export * from './lib/features/reset-enrollment/reset-enrollment.service';
 export * from './lib/features/extendable/extensions-noop.service';
 export * from './lib/features/projectable-forms/form-header/form-header.component';
