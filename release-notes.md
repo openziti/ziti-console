@@ -1,3 +1,7 @@
+# ziti-console-lib-v0.6.0
+## Feature/Improvements
+* [Issue #512](https://github.com/openziti/ziti-console/issues/512) - New JWT Signers List Page and Edit Form
+
 # app-ziti-console-v3.5.0
 # ziti-console-lib-v0.5.0
 

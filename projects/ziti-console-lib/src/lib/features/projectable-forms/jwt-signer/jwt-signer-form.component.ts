@@ -201,9 +201,14 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
             useExternalId: this.formData.useExternalId,
             externalAuthUrl: this.formData.externalAuthUrl || '',
             kid: this.formData.kid || '',
-            jwksEndpoint: this.formData.jwksEndpoint,
             tags: this.formData.tags || {}
         };
+        if (!isEmpty(this.formData.jwksEndpoint)) {
+            data.jwksEndpoint = this.formData.jwksEndpoint;
+        }
+        if (!isEmpty(this.formData.id)) {
+            data.id = this.formData.id;
+        }
         if (this.formData.id) {
             data.id = this.formData.id;
         }
@@ -275,7 +280,7 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
     }
 
     copyCLICommand() {
-        const command = `ziti edge ${this.formData.id ? 'update' : 'create'} external-jwt-signer ${this.formData.id ? `'${this.formData.id}'` : ''} ${this.formData.id ? '--name' : ''} '${this.formData.name}' --enabled '${this.formData.enabled}' --useExternalId '${this.formData.useExternalId}' --audience '${this.formData.audience}' --issuer '${this.formData.issuer}' --certPem '${this.formData.certPem}' --claimsProperty '${this.formData.claimsProperty}' --externalAuthUrl '${this.formData.externalAuthUrl}' --kid '${this.formData.kid}' --jwksEndpoint '${this.formData.jwksEndpoint}'`;
+        const command = `ziti edge ${this.formData.id ? 'update' : 'create'} ext-jwt-signer ${this.formData.id ? `'${this.formData.id}'` : ''} ${this.formData.id ? '--name' : ''} '${this.formData.name}' ${this.formData.id ? '--issuer' : ''} '${this.formData.issuer}' --audience '${this.formData.audience}' --cert-pem '${this.formData.certPem}' --claims-property '${this.formData.claimsProperty}' --external-auth-url '${this.formData.externalAuthUrl}' --kid '${this.formData.kid}'`;
 
         navigator.clipboard.writeText(command);
         const growlerData = new GrowlerModel(
@@ -293,7 +298,7 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
     -H 'accept: application/json' \\
     -H 'content-type: application/json' \\
     -H 'zt-session: ${this.settings.session.id}' \\
-    --data-raw '{"name":"${this.apiData.name}","audience":${this.apiData.audience},"issuer":${this.apiData.issuer},"certPem":${this.apiData.certPem},"claimsProperty":"${this.apiData.claimsProperty}","enabled":"${this.apiData.enabled}","useExternalId":"${this.apiData.useExternalId}","externalAuthUrl":"${this.apiData.externalAuthUrl}","kid":"${this.apiData.kid}","jwksEndpoint":"${this.apiData.jwksEndpoint}","tags":"${this.apiData.tags}"}'`;
+    --data-raw '${JSON.stringify(this.apiData)}'`;
 
         navigator.clipboard.writeText(command);
         const growlerData = new GrowlerModel(

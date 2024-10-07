@@ -96,11 +96,11 @@
                             <div class="config-container-label">Use External ID</div>
                             <div
                                     (click)="toggleUseExternalId()"
-                                    [ngClass]="{ on: !formData.useExternalId }"
+                                    [ngClass]="{ on: formData.useExternalId }"
                                     class="toggle"
                             >
-                                <span [hidden]="formData.useExternalId" class="on-label">YES</span>
-                                <span [hidden]="!formData.useExternalId" class="off-label">NO</span>
+                                <span [hidden]="!formData.useExternalId" class="on-label">YES</span>
+                                <span [hidden]="formData.useExternalId" class="off-label">NO</span>
                                 <div class="switch"></div>
                             </div>
                         </div>
