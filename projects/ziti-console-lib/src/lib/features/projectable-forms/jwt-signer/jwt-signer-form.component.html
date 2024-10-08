@@ -146,12 +146,23 @@
                             <input class="form-field-input" placeholder="Enter KID" [(ngModel)]="formData.kid"/>
                         </div>
                     </div>
-                </lib-form-field-container>
-                <lib-form-field-container
-                        [title]="'JWKS Endpoint'"
-                        [label]="'Optional'"
-                >
-                    <input class="form-field-input read-only" placeholder="Enter endpoint URL" [(ngModel)]="formData.jwksEndpoint"/>
+                    <div class="form-field-label-container select-file-label-container">
+                        <div class="form-field-header">
+                            <div class="form-field-title-container">
+                                <span class="form-field-title">OR</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-field-input-group">
+                        <div class="form-field-label-container select-file-label-container">
+                            <div class="form-field-header">
+                                <div class="form-field-title-container">
+                                    <span class="form-field-title">JWKS Endpoint</span>
+                                </div>
+                            </div>
+                            <input class="form-field-input read-only" placeholder="Enter endpoint URL" [(ngModel)]="formData.jwksEndpoint" [ngClass]="{error: errors['certPem']}"/>
+                        </div>
+                    </div>
                 </lib-form-field-container>
                 <lib-form-field-container
                         [title]="'API Calls'"
