@@ -110,6 +110,15 @@ export class ValidationService {
         return isBase64(base64Content);
     }
 
+    isValidURI(uri) {
+        try {
+            new URL(uri);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
     redefineObject(obj) {
         for (let prop in obj) {
             if (Array.isArray(obj[prop]) && obj[prop].length==0) {

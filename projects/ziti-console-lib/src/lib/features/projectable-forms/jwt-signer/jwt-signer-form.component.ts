@@ -157,9 +157,10 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
             this.errors.issuer = true;
             labels.push('Issuer');
         }
-        if (isEmpty(this.formData.certPem)) {
+        if (isEmpty(this.formData.certPem) && isEmpty(this.formData.jwksEndpoint)) {
             this.errors.certPem = true;
-            labels.push('Cert PEM');
+            this.errors.jwksEndpoint = true;
+            labels.push('Cert PEM or JWKS Endpoint');
         }
         if (!isEmpty(this.errors)) {
             let missingFields = labels.join(', ');
@@ -170,6 +171,16 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
                 `Please enter a value for the highlighted fields: ${missingFields}`,
             ));
         }
+        if (!isEmpty(this.formData.certPem) && !isEmpty(this.formData.jwksEndpoint)) {
+            this.errors.certPem = true;
+            this.errors.jwksEndpoint = true;
+            growlers.push(new GrowlerModel(
+                'error',
+                'Invalid',
+                `Cert PEM or JWKS Endpoint`,
+                `Only one of Cert PEM or JWKS Endpoint are allowed. Remove one and try again.`,
+            ));
+        }
         if (!isEmpty(this.formData.certPem?.trim()) && !this.validationService.isValidPEM(this.formData.certPem?.trim())) {
             this.errors.certPem = true;
             growlers.push(new GrowlerModel(
@@ -177,6 +188,16 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
                 'Invalid',
                 `Cert PEM Invalid`,
                 `The value you have entered for the Cert PEM field is invalid. Please check your input and try again.`,
+            ));
+        }
+
+        if (!isEmpty(this.formData.jwksEndpoint) && !this.validationService.isValidURI(this.formData.jwksEndpoint)) {
+            this.errors.certPem = true;
+            growlers.push(new GrowlerModel(
+                'error',
+                'Invalid',
+                `JWKS Endpoint Invalid`,
+                `The value you have entered for the JWKS Endpoint field is invalid. Please check your input and try again.`,
             ));
         }
 
