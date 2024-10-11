@@ -89,28 +89,26 @@
                             class="form-field-advanced"
                     >
                         <div class="form-field-label-container">
-                            <div class="form-field-label-container">
-                                <div class="form-field-title-container">
-                                    <span class="form-field-title">Client ID</span>
-                                    <div
-                                            class="form-field-info infoicon"
-                                            matTooltip="The client id to use when authenticating to the IDP"
-                                            matTooltipPosition="below"
-                                    ></div>
-                                </div>
-                                <input class="form-field-input" placeholder="Enter external auth URL" [(ngModel)]="formData.clientId"/>
+                            <div class="form-field-title-container">
+                                <span class="form-field-title">Client ID</span>
+                                <div
+                                        class="form-field-info infoicon"
+                                        matTooltip="The client id to use when authenticating to the IDP"
+                                        matTooltipPosition="below"
+                                ></div>
                             </div>
-                            <div class="form-field-label-container">
-                                <div class="form-field-title-container">
-                                    <span class="form-field-title">External Auth Url</span>
-                                    <div
-                                            class="form-field-info infoicon"
-                                            matTooltip="The URL that users are directed to, to obtain a JWT"
-                                            matTooltipPosition="below"
-                                    ></div>
-                                </div>
-                                <input class="form-field-input" placeholder="Enter external auth URL" [(ngModel)]="formData.externalAuthUrl"/>
+                            <input class="form-field-input" placeholder="Enter external auth URL" [(ngModel)]="formData.clientId"/>
+                        </div>
+                        <div class="form-field-label-container">
+                            <div class="form-field-title-container">
+                                <span class="form-field-title">External Auth Url</span>
+                                <div
+                                        class="form-field-info infoicon"
+                                        matTooltip="The URL that users are directed to, to obtain a JWT"
+                                        matTooltipPosition="below"
+                                ></div>
                             </div>
+                            <input class="form-field-input" placeholder="Enter external auth URL" [(ngModel)]="formData.externalAuthUrl"/>
                         </div>
                         <div class="form-field-label-container">
                             <div class="form-field-title-container">
