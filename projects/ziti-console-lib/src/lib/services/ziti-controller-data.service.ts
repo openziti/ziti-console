@@ -61,6 +61,26 @@ export class ZitiControllerDataService extends ZitiDataService {
         );
     }
 
+    put(type, model, id, chained = false): Promise<any> {
+        const apiVersions = this.settingsService.apiVersions || {};
+        const prefix = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
+        const url = this.settingsService.settings.selectedEdgeController;
+        const serviceUrl = url + prefix + "/" + type + '/' + id;
+        this.httpClient.patch(serviceUrl, model, {});
+
+        return firstValueFrom(this.httpClient.put(serviceUrl, model, {}).pipe(
+                catchError((err: any) => {
+                    const error = "Server Not Accessible";
+                    if (err.code !== "ECONNREFUSED") throw(err);
+                    throw({error: error});
+                }),
+                map((result: any) => {
+                    return result;
+                })
+            )
+        );
+    }
+
     patch(type, model, id, chained = false): Promise<any> {
         const apiVersions = this.settingsService.apiVersions || {};
         const prefix = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';

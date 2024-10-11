@@ -64,6 +64,28 @@ export class NodeDataService extends ZitiDataService {
         );
     }
 
+    put(type, model, id, chained = false) {
+        let clientSub;
+        const nodeServerURL = window.location.origin;
+        const serviceUrl = nodeServerURL + '/api/dataSave';
+        const body = {paging: this.DEFAULT_PAGING, type: type, save: model, id: id, chained: chained};
+
+        return firstValueFrom(this.httpClient.post(serviceUrl,body,{}).pipe(
+                catchError((err: any) => {
+                    const error = "Server Not Accessible";
+                    if (err.code !== "ECONNREFUSED") throw(err);
+                    throw({error: error});
+                }),
+                map((results: any) => {
+                    if(!isEmpty(results.error)) {
+                        throw({error: results.error});
+                    }
+                    return results;
+                })
+            )
+        );
+    }
+
     patch(type, model, id, chained = false) {
         let clientSub;
         const nodeServerURL = window.location.origin;

@@ -53,6 +53,7 @@ export abstract class ZitiDataService {
   ) {}
 
   abstract post(type, model, chained?): Promise<any>;
+  abstract put(type, model, id, chained?): Promise<any>;
   abstract patch(type, model, id, chained?): Promise<any>;
   abstract get(type: string, paging: any, filters: FilterObj[], url?): Promise<any>;
   abstract getSubdata(entityType: string, id: any, dataType: string, paging?: any): Promise<any>;

@@ -29,7 +29,7 @@ export class JwtSignerFormService {
         const data: any = this.getJwtSignerDataModel(formData, isUpdate);
         let prom;
         if (isUpdate) {
-            prom = this.dataService.patch('external-jwt-signers', data, formData.id, true);
+            prom = this.dataService.put('external-jwt-signers', data, formData.id, true);
         } else {
             prom = this.dataService.post('external-jwt-signers', data, true);
         }
