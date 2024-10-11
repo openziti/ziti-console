@@ -44,6 +44,7 @@ import {PasswordInputComponent} from './features/dynamic-widgets/password/passwo
 import {ConfigurationsPageComponent} from './pages/configurations/configurations-page.component';
 import {ListPageHeaderComponent} from './features/list-page-features/list-page-header/list-page-header.component';
 import {MatDialogModule} from "@angular/material/dialog";
+import {MatRadioModule} from '@angular/material/radio';
 import {TerminatorFormComponent} from "./features/projectable-forms/terminator/terminator-form.component";
 import {ListPageFormComponent} from './features/list-page-features/list-page-form/list-page-form.component';
 import {DataTableComponent} from "./features/data-table/data-table.component";
@@ -197,6 +198,7 @@ export function playerFactory() {
         CommonModule,
         FormsModule,
         MatDialogModule,
+        MatRadioModule,
         HttpClientModule,
         ZacRoutingModule,
         ChipsModule,

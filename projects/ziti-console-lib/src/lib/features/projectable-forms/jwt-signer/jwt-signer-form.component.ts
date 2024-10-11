@@ -56,6 +56,7 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
     items: any = [];
     settings: any = {};
     fileSelectOpening = false;
+    signatureMethod = "JWKS_ENDPOINT";
     override entityType = 'external-jwt-signers';
     override entityClass = JwtSigner;
 
@@ -171,34 +172,48 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
                 `Please enter a value for the highlighted fields: ${missingFields}`,
             ));
         }
-        if (!isEmpty(this.formData.certPem) && !isEmpty(this.formData.jwksEndpoint)) {
-            this.errors.certPem = true;
-            this.errors.jwksEndpoint = true;
-            growlers.push(new GrowlerModel(
-                'error',
-                'Invalid',
-                `Cert PEM or JWKS Endpoint`,
-                `Only one of Cert PEM or JWKS Endpoint are allowed. Remove one and try again.`,
-            ));
+        if (!isEmpty(growlers)) {
+            growlers.forEach((growlerData) => {
+                this.growlerService.show(growlerData);
+            });
+            return isEmpty(this.errors);
         }
-        if (!isEmpty(this.formData.certPem?.trim()) && !this.validationService.isValidPEM(this.formData.certPem?.trim())) {
-            this.errors.certPem = true;
-            growlers.push(new GrowlerModel(
-                'error',
-                'Invalid',
-                `Cert PEM Invalid`,
-                `The value you have entered for the Cert PEM field is invalid. Please check your input and try again.`,
-            ));
-        }
-
-        if (!isEmpty(this.formData.jwksEndpoint) && !this.validationService.isValidURI(this.formData.jwksEndpoint)) {
-            this.errors.certPem = true;
-            growlers.push(new GrowlerModel(
-                'error',
-                'Invalid',
-                `JWKS Endpoint Invalid`,
-                `The value you have entered for the JWKS Endpoint field is invalid. Please check your input and try again.`,
-            ));
+        if (this.signatureMethod === 'JWKS_ENDPOINT') {
+            if (isEmpty(this.formData.jwksEndpoint)) {
+                this.errors.jwksEndpoint = true;
+                growlers.push(new GrowlerModel(
+                    'error',
+                    'Invalid',
+                    `Missing JWKS Endpoint`,
+                    `Please enter a URI for the JWKS Endpoint.`,
+                ));
+            } else if (!this.validationService.isValidURI(this.formData.jwksEndpoint)) {
+                this.errors.jwksEndpoint = true;
+                growlers.push(new GrowlerModel(
+                    'error',
+                    'Invalid',
+                    `JWKS Endpoint Invalid`,
+                    `The value you have entered for the JWKS Endpoint field is invalid. Please check your input and try again.`,
+                ));
+            }
+        } else if (this.signatureMethod === 'CERT_PEM') {
+            if (isEmpty(this.formData.certPem)) {
+                this.errors.certPem = true;
+                growlers.push(new GrowlerModel(
+                    'error',
+                    'Invalid',
+                    `Missing Cert PEM`,
+                    `Please enter a URI for the JWKS Endpoint.`,
+                ));
+            } else if (!this.validationService.isValidPEM(this.formData.certPem?.trim())) {
+                this.errors.certPem = true;
+                growlers.push(new GrowlerModel(
+                    'error',
+                    'Invalid',
+                    `Cert PEM Invalid`,
+                    `The Cert PEM you entered is invalid. Please check your input and try again.`,
+                ));
+            }
         }
 
         growlers.forEach((growlerData) => {
@@ -216,12 +231,14 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
             name: this.formData.name || '',
             audience: this.formData.audience || '',
             issuer: this.formData.issuer || '',
+            clientId: this.formData.clientId || '',
             certPem: this.formData.certPem || '',
             claimsProperty: this.formData.claimsProperty || '',
             enabled: this.formData.enabled,
             useExternalId: this.formData.useExternalId,
-            externalAuthUrl: this.formData.externalAuthUrl || '',
             kid: this.formData.kid || '',
+            externalAuthUrl: this.formData.externalAuthUrl || '',
+            scopes: this.formData.scopes || [],
             tags: this.formData.tags || {}
         };
         if (!isEmpty(this.formData.jwksEndpoint)) {
@@ -232,6 +249,11 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         }
         if (this.formData.id) {
             data.id = this.formData.id;
+        }
+        if (this.signatureMethod === 'JWKS_ENDPOINT') {
+            data.certPem = undefined;
+        } else {
+            data.jwksEndpoint = undefined;
         }
         this._apiData = data;
         return this._apiData;
@@ -252,6 +274,23 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
 
     toggleUseExternalId() {
         this.formData.useExternalId = !this.formData.useExternalId;
+    }
+
+    radioKeyDownHandler(event: any) {
+        switch (event.key) {
+            case 'ArrowLeft':
+                this.signatureMethod = 'JWKS_ENDPOINT';
+                break;
+            case 'ArrowRight':
+                this.signatureMethod = 'CERT_PEM';
+                break;
+            default:
+                break;
+        }
+    }
+
+    selectSignatureMethod(method) {
+        this.signatureMethod = method;
     }
 
     openFileSelect(event: any) {
@@ -329,5 +368,16 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
             `CURL command copied to clipboard`,
         );
         this.growlerService.show(growlerData);
+    }
+
+    scopesOnKeyup(event: any) {
+        const key = event.key?.toLowerCase();
+        if (key === " " || key === 'enter') {
+            event.preventDefault();
+            event.stopPropagation();
+            const element = event.target as HTMLElement;
+            element.blur();
+            element.focus();
+        }
     }
 }
