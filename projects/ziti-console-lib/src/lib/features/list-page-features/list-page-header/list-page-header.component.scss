@@ -68,6 +68,12 @@
       &:hover {
         border-bottom-color: var(--inputBorder);
       }
+      &.selected {
+        border-bottom-color: var(--primaryColor);
+        &:hover {
+          border-bottom-color: var(--primaryColor);
+        }
+      }
     }
   }
 

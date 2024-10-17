@@ -31,4 +31,24 @@ export class ListPageHeaderComponent {
     clickAction(value: string) {
         this.actionClicked.emit(value);
     }
+
+    tabSelected(tab) {
+        const parsedUrl = new URL(window.location.href);
+        let path = parsedUrl.pathname;
+        if (document.baseURI) {
+            const base = new URL(document.baseURI).pathname;
+            if (path.startsWith(base)) {
+                path = path.slice(base.length);
+            }
+        }
+        let tabUrl = tab.url;
+        if (tab.url.startsWith('/')) {
+            tabUrl = tab.url.slice(1);
+        }
+        if (path.startsWith('/')) {
+            path = path.slice(1);
+        }
+        // Return the path without parameters
+        return tabUrl === path;
+    }
 }
