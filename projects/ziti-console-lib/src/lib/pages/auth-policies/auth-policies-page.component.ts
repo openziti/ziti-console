@@ -16,26 +16,28 @@
 
 import {Component, OnInit} from '@angular/core';
 import {DataTableFilterService} from "../../features/data-table/data-table-filter.service";
-import {JwtSignersPageService} from "./jwt-signers-page.service";
+import {AuthPoliciesPageService} from "./auth-policies-page.service";
 import {TabNameService} from "../../services/tab-name.service";
 import {ListPageComponent} from "../../shared/list-page-component.class";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {MatDialog} from "@angular/material/dialog";
+import {ConfirmComponent} from "../../features/confirm/confirm.component";
+import {firstValueFrom} from "rxjs";
 
 
 @Component({
-    selector: 'lib-jwt-signers',
-    templateUrl: './jwt-signers-page.component.html',
-    styleUrls: ['./jwt-signers-page.component.scss']
+    selector: 'lib-auth-policies',
+    templateUrl: './auth-policies-page.component.html',
+    styleUrls: ['./auth-policies-page.component.scss']
 })
-export class JwtSignersPageComponent extends ListPageComponent implements OnInit {
-    title = 'JWT Signers Management'
+export class AuthPoliciesPageComponent extends ListPageComponent implements OnInit {
+    title = 'Auth Policies Management'
     tabs: { url: string, label: string }[] ;
     isLoading: boolean;
     formDataChanged = false;
 
     constructor(
-        override svc: JwtSignersPageService,
+        override svc: AuthPoliciesPageService,
         filterService: DataTableFilterService,
         private tabNames: TabNameService,
         consoleEvents: ConsoleEventsService,
@@ -59,11 +61,20 @@ export class JwtSignersPageComponent extends ListPageComponent implements OnInit
                 this.svc.openEditForm();
                 break;
             case 'delete':
+                let defaultPolicy;
                 const selectedItems = this.rowData.filter((row) => {
+                    if (row.id === 'default') {
+                        defaultPolicy = row;
+                    }
                     return row.selected;
                 });
-                const label = selectedItems.length > 1 ? 'configurations' : 'configuration';
-                this.openBulkDelete(selectedItems, label);
+                this.svc.checkDefaultAuthPolicy(defaultPolicy).then((result) => {
+                    if (!result) {
+                        return;
+                    }
+                    const label = selectedItems.length > 1 ? 'auth policies' : 'auth policy';
+                    this.openBulkDelete(selectedItems, label);
+                });
                 break;
             default:
         }
@@ -76,13 +87,23 @@ export class JwtSignersPageComponent extends ListPageComponent implements OnInit
                 this.itemToggled(event.item)
                 break;
             case 'update':
-                this.svc.openEditForm(event.item?.id);
+                this.svc.checkDefaultAuthPolicy(event.item).then((result) => {
+                    if (!result) {
+                        return;
+                    }
+                    this.svc.openEditForm(event.item?.id);
+                });
                 break;
             case 'create':
                 this.svc.openEditForm();
                 break;
             case 'delete':
-                this.deleteItem(event.item)
+                this.svc.checkDefaultAuthPolicy(event.item).then((result) => {
+                    if (!result) {
+                        return;
+                    }
+                    this.deleteItem(event.item)
+                });
                 break;
             default:
                 break;
@@ -90,7 +111,7 @@ export class JwtSignersPageComponent extends ListPageComponent implements OnInit
     }
 
     deleteItem(item: any) {
-        this.openBulkDelete([item], 'jwt-signer');
+        this.openBulkDelete([item], 'auth-policy');
     }
 
     closeModal(event: any) {

@@ -1,0 +1,187 @@
+.form-group-column {
+  &.three-fifths {
+    min-width: 500px;
+  }
+}
+
+.jwt-signer-form-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  gap: var(--gapXL);
+
+  .select-file-button {
+    padding-left: var(--paddingMedium);
+    padding-right: var(--paddingMedium);
+    height: 25px;
+    width: fit-content;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    background: var(--primary);
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--stroke);
+    color: var(--white);
+    cursor: pointer;
+    border-radius: var(--inputBorderRadius);
+    gap: var(--marginMedium);
+    margin-top: -5px;
+
+    &:hover {
+      filter: brightness(.8);
+    }
+    &:active {
+      filter: grayscale(1);
+      transform: translateY(1px);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: transparent;
+      border-top: 2px solid white;
+      border-right: 2px solid white;
+      border-bottom: 2px solid transparent;
+      border-left: 2px solid transparent;
+      -webkit-animation: loading 0.5s infinite linear;
+      animation: loading 0.5s infinite linear;
+    }
+  }
+
+  .select-file-label-container {
+    gap: var(--marginMedium);
+  }
+
+  .updb-input-options {
+    margin-top: var(--marginSmall);
+    background-color: var(--formGroup);
+    padding: var(--paddingMedium);
+    border-radius: var(--inputBorderRadius);
+
+    .form-field-title {
+      color: var(--offWhite);
+    }
+  }
+}
+
+::ng-deep .jwt-signer-form-container {
+  select,
+  input {
+    &:disabled {
+      opacity: 0.75 !important;
+      cursor: text;
+      background-color: var(--stroke) !important;
+    }
+  }
+}
+
+::ng-deep .api-data-no-wrap{
+  .jse-text-mode {
+    width: 100%;
+    .cm-editor {
+      width: 100%;
+      .cm-scroller {
+        width: 100%;
+        .cm-content {
+          width: 100%;
+          overflow: auto;
+          .ͼr {
+            white-space: nowrap;
+          }
+        }
+      }
+    }
+  }
+}
+
+.radio-group-container {
+  display: flex;
+  gap: var(--marginLarge);
+
+  &:focus {
+    .radio-button-container {
+      .radio-button-circle {
+        border-color: var(--primaryColor);
+      }
+    }
+  }
+
+  .radio-button-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--formGroup);
+    border-radius: var(--inputBorderRadius);
+    width: 100%;
+    padding-left: var(--paddingMedium);
+    padding-right: var(--paddingMedium);
+    padding-top: var(--paddingLarge);
+    padding-bottom: var(--paddingLarge);
+    cursor: pointer;
+    gap: var(--marginMedium);
+
+    .radio-button-circle {
+      display: flex;
+      width: 21px;
+      height: 21px;
+      border-radius: 21px;
+      border-width: 2px;
+      border-style: solid;
+      border-color: var(--offWhite);
+      align-items: center;
+      justify-content: center;
+      background-color: var(--offWhite);
+
+      .radio-button-inner-circle {
+        display: none;
+        width: 15px;
+        height: 15px;
+        border-radius: 15px;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--primaryColor);
+      }
+    }
+
+    &.selected {
+      .radio-button-circle {
+        .radio-button-inner-circle {
+          display: flex;
+        }
+      }
+    }
+
+    &:active {
+      .radio-button-circle {
+        .radio-button-inner-circle {
+          display: flex;
+          background-color: var(--menu);
+        }
+      }
+    }
+
+    .radio-button-label {
+      color: var(--offWhite);
+      font-size: 14px;
+      font-weight: 600;
+    }
+  }
+}
+
+.allowed-signers-container {
+  background-color: var(--formGroup);
+  padding: var(--paddingMedium);
+  border-radius: var(--inputBorderRadius);
+
+  .form-field-title {
+    color: var(--offWhite);
+  }
+}

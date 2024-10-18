@@ -40,17 +40,6 @@
                     </div>
                     <div class="form-field-label-container">
                         <div class="form-field-title-container">
-                            <span class="form-field-title">Claims Property</span>
-                            <div
-                                    class="form-field-info infoicon"
-                                    matTooltip="The field on the JWT for mapping to an identity. Matches the idnentity's id or externalId if &quot;Use External Id&quot; is set to true. Defaults to &quot;sub&quot;"
-                                    matTooltipPosition="below"
-                            ></div>
-                        </div>
-                        <input class="form-field-input" placeholder="Enter claims property" [(ngModel)]="formData.claimsProperty"/>
-                    </div>
-                    <div class="form-field-label-container">
-                        <div class="form-field-title-container">
                             <span class="form-field-title">Audience</span>
                             <div
                                     class="form-field-info infoicon"
@@ -60,24 +49,44 @@
                         </div>
                         <input class="form-field-input" placeholder="Enter audience" [(ngModel)]="formData.audience"/>
                     </div>
-                    <div class="config-item">
-                        <div class="config-container toggle-container">
+                    <div class="form-field-row">
+                        <div class="form-field-label-container">
                             <div class="form-field-title-container">
-                                <div class="config-container-label">Use External ID</div>
+                                <span class="form-field-title">Claims Property</span>
                                 <div
                                         class="form-field-info infoicon"
-                                        matTooltip="If enabled, will match the &quot;claimsProperty&quot; to an identity's &quot;externalId&quot; field. If false, it will match to the identity's id field."
+                                        matTooltip="The field on the JWT for mapping to an identity. Matches the identity's id or externalId if &quot;Use External Id&quot; is set to true. Defaults to &quot;sub&quot;"
                                         matTooltipPosition="below"
                                 ></div>
                             </div>
-                            <div
-                                    (click)="toggleUseExternalId()"
-                                    [ngClass]="{ on: formData.useExternalId }"
-                                    class="toggle"
-                            >
-                                <span [hidden]="!formData.useExternalId" class="on-label">YES</span>
-                                <span [hidden]="formData.useExternalId" class="off-label">NO</span>
-                                <div class="switch"></div>
+                            <input class="form-field-input" placeholder="Enter claims property" [(ngModel)]="formData.claimsProperty"/>
+                        </div>
+                        <div class="form-field-label-container">
+                            <div class="form-field-header">
+                                <div class="form-field-title-container">
+                                    <div class="config-container-label" style="font-weight: 600; font-size: 14px;">External ID</div>
+                                    <div
+                                            class="form-field-info infoicon"
+                                            matTooltip="If enabled, will match the &quot;claimsProperty&quot; to an identity's &quot;externalId&quot; field. If false, it will match to the identity's id field."
+                                            matTooltipPosition="below"
+                                    ></div>
+                                </div>
+                            </div>
+                            <div class="config-item">
+                                <div class="config-container toggle-container">
+                                    <div class="form-field-title-container">
+                                        <div class="config-container-label">Use External ID</div>
+                                    </div>
+                                    <div
+                                            (click)="toggleUseExternalId()"
+                                            [ngClass]="{ on: formData.useExternalId }"
+                                            class="toggle"
+                                    >
+                                        <span [hidden]="!formData.useExternalId" class="on-label">YES</span>
+                                        <span [hidden]="formData.useExternalId" class="off-label">NO</span>
+                                        <div class="switch"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -97,7 +106,7 @@
                                         matTooltipPosition="below"
                                 ></div>
                             </div>
-                            <input class="form-field-input" placeholder="Enter external auth URL" [(ngModel)]="formData.clientId"/>
+                            <input class="form-field-input" placeholder="Enter client ID" [(ngModel)]="formData.clientId"/>
                         </div>
                         <div class="form-field-label-container">
                             <div class="form-field-title-container">
