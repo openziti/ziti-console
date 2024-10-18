@@ -154,7 +154,7 @@
 
   .select2-selection__rendered {
     .select2-selection_choice_item {
-      width: 100%;
+      width: fit-content;
       overflow: hidden;
       position: relative;
     }

@@ -313,6 +313,12 @@ input {
   color: var(--tableText);
   text-transform: uppercase;
   height: 14px;
+
+  .form-sub-text {
+    margin-left: 5px;
+    font-size: 12px;
+    text-transform: none;
+  }
 }
 
 .form-field-label {
@@ -777,8 +783,7 @@ lib-form-field-container {
     border-radius: 5px;
 
     &.toggle-container {
-      padding-top: 10px;
-      padding-bottom: 10px;
+      padding: 10px;
 
       .config-container-label {
         color: var(--offWhite);
@@ -1111,6 +1116,28 @@ p-dropdown {
         display: none;
       }
     }
+    .p-icon-wrapper {
+      width: 20px;
+      position: absolute;
+      right: 32px;
+      top: 11px;
+      height: 20px;
+
+      .p-dropdown-clear-icon {
+        right: 0;
+        path {
+          fill: var(--icon) !important;
+        }
+      }
+
+      &:hover {
+        .p-dropdown-clear-icon {
+          path {
+            fill: var(--primaryColor) !important;
+          }
+        }
+      }
+    }
   }
 }
 
@@ -1217,5 +1244,77 @@ p-dropdown {
 
   .p-inputtext {
     border:none;
+  }
+}
+
+p-dropdown {
+  .p-dropdown {
+    .p-dropdown-header {
+      .dropdown-filter-container {
+        display: flex;
+        flex-direction: row;
+
+        .p-inputtext {
+          border-radius: 0;
+          border-width: 1px;
+          border-color: var(--stroke);
+          border-style: solid;
+
+          &:focus {
+            box-shadow: none;
+            &:enabled {
+              box-shadow: none;
+            }
+          }
+        }
+
+        .spinner {
+          display: inline-block;
+          width: var(--spinnerSizeMedium);
+          height: var(--spinnerSizeMedium);
+          border-radius: 50%;
+          background: transparent;
+          border-top: var(--spinerBorderTopMedium);
+          border-right: var(--spinerBorderRightMedium);
+          border-bottom: var(--spinerBorderBottomMedium);
+          border-left: var(--spinerBorderLeftMedium);
+          animation: loading .5s infinite linear;
+          margin-left: var(--marginSmall);
+          position: absolute;
+          right: 18px;
+          top: 20px;
+          opacity: .7;
+        }
+      }
+
+      .p-inputgroup-addon {
+        border-top-left-radius: var(--inputBorderRadius);
+        border-bottom-left-radius: var(--inputBorderRadius);
+      }
+
+      .p-button {
+        border-radius: 0;
+        border-top-right-radius: var(--inputBorderRadius);
+        border-bottom-right-radius: var(--inputBorderRadius);
+        background-color: var(--primary);
+
+        &.configs-loading {
+          .p-button-icon {
+            display: none;
+          }
+        }
+
+        &:focus {
+          box-shadow: none;
+        }
+      }
+      .p-button {
+        &.configs-loading {
+          .p-button-icon {
+            display: none;
+          }
+        }
+      }
+    }
   }
 }

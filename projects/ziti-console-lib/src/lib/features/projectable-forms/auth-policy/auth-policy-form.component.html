@@ -1,0 +1,336 @@
+<div class="projectable-form-wrapper"
+     (keyup.enter)="save($event)"
+     (keyup.escape)="closeModal(false)"
+     tabindex="0"
+>
+    <lib-form-header
+            [data]="formData"
+            [title]="(formData.id ? 'Auth Policy Details' : 'Create Auth Policy')"
+            [moreActions]="formData.moreActions"
+            (actionRequested)="headerActionRequested($event)"
+            [(formView)]="formView"
+            [saveDisabled]="svc.saveDisabled || formDataInvalid"
+    ></lib-form-header>
+    <div class="jwt-signer-form-container projectable-form-container">
+        <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
+            <div class="form-group-column three-fifths">
+                <lib-form-field-container
+                        [title]="'Name'"
+                        [label]="'Required'"
+                >
+                    <input class="form-field-input read-only" [(ngModel)]="formData.name" [ngClass]="{error: errors['name']}" placeholder="Name this JWT Signer"/>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Primary Authentication'"
+                        [layout]="'row'"
+                >
+                    <div class="config-item">
+                        <div class="config-container toggle-container">
+                            <div class="form-field-title-container">
+                                <div class="config-container-label">Cert</div>
+                                <div
+                                        class="form-field-info infoicon"
+                                        matTooltip="Allow x509 certificate based authentication"
+                                        matTooltipPosition="below"
+                                ></div>
+                            </div>
+                            <div
+                                    (click)="toggleCertAllowed()"
+                                    [ngClass]="{ on: formData.primary.cert.allowed }"
+                                    class="toggle"
+                            >
+                                <span [hidden]="!formData.primary.cert.allowed" class="on-label">YES</span>
+                                <span [hidden]="formData.primary.cert.allowed" class="off-label">NO</span>
+                                <div class="switch"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="config-item">
+                        <div class="config-container toggle-container">
+                            <div class="form-field-title-container">
+                                <div class="config-container-label">Ext JWT</div>
+                                <div
+                                        class="form-field-info infoicon"
+                                        matTooltip="Allow externally signed JWT bearer tokens"
+                                        matTooltipPosition="below"
+                                ></div>
+                            </div>
+                            <div
+                                    (click)="toggleExtJwtAllowed()"
+                                    [ngClass]="{ on: formData.primary.extJwt.allowed }"
+                                    class="toggle"
+                            >
+                                <span [hidden]="!formData.primary.extJwt.allowed" class="on-label">YES</span>
+                                <span [hidden]="formData.primary.extJwt.allowed" class="off-label">NO</span>
+                                <div class="switch"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="config-item">
+                        <div class="config-container toggle-container">
+                            <div class="form-field-title-container">
+                                <div class="config-container-label">UPDB</div>
+                                <div
+                                        class="form-field-info infoicon"
+                                        matTooltip="Allow authentication via a traditional &quot;Username Password Database&quot;"
+                                        matTooltipPosition="below"
+                                ></div>
+                            </div>
+                            <div
+                                    (click)="toggleUpdbAllowed()"
+                                    [ngClass]="{ on: formData.primary.updb.allowed }"
+                                    class="toggle"
+                            >
+                                <span [hidden]="!formData.primary.updb.allowed" class="on-label">YES</span>
+                                <span [hidden]="formData.primary.updb.allowed" class="off-label">NO</span>
+                                <div class="switch"></div>
+                            </div>
+                        </div>
+                    </div>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        *ngIf="formData.primary.cert.allowed"
+                        [title]="'Cert Options'"
+                        [layout]="'row'"
+                >
+                    <div class="config-item">
+                        <div class="config-container toggle-container">
+                            <div class="form-field-title-container">
+                                <div class="config-container-label">Allow Expired Certificates</div>
+                                <div
+                                        class="form-field-info infoicon"
+                                        matTooltip="Allow expired client certificates to authenticate"
+                                        matTooltipPosition="below"
+                                ></div>
+                            </div>
+                            <div
+                                    (click)="toggleAllowExpiredCerts()"
+                                    [ngClass]="{ on: formData.primary.cert.allowExpiredCerts }"
+                                    class="toggle"
+                            >
+                                <span [hidden]="!formData.primary.cert.allowExpiredCerts" class="on-label">YES</span>
+                                <span [hidden]="formData.primary.cert.allowExpiredCerts" class="off-label">NO</span>
+                                <div class="switch"></div>
+                            </div>
+                        </div>
+                    </div>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        *ngIf="formData.primary.extJwt.allowed"
+                        [title]="'Ext JWT Options'"
+                        [layout]="'column'"
+                >
+                    <div class="form-field-label-container allowed-signers-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">Allowed JWT Signers</span>
+                            <div
+                                    class="form-field-info infoicon"
+                                    matTooltip="Choose which External JWT Signers may be used for authentication"
+                                    matTooltipPosition="below"
+                            ></div>
+                        </div>
+                        <lib-tag-selector
+                                [(selectedNamedAttributes)]="allowedJwtSignerAttributes"
+                                [availableNamedAttributes]="svc.jwtSignerNamedAttributes"
+                                [placeholder]="'Select which External JWT Signers to allow'"
+                                (selectedNamedAttributesChange)="allowedJwtSignersChanged($event)"
+                        ></lib-tag-selector>
+                    </div>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        *ngIf="formData.primary.updb.allowed"
+                        [title]="'UPDB Options'"
+                        [layout]="'column'"
+                >
+                    <div class="form-field-row updb-input-options">
+                        <div class="form-field-label-container">
+                            <div class="form-field-title-container">
+                                <span class="form-field-title">Minimum Length</span>
+                            </div>
+                            <input class="form-field-input" placeholder="Enter a numeric value" type="number" [(ngModel)]="formData.primary.updb.minPasswordLength"/>
+                        </div>
+                        <div class="form-field-label-container">
+                            <div class="form-field-title-container">
+                                <span class="form-field-title">Max Attempts</span>
+                            </div>
+                            <input class="form-field-input" placeholder="Enter a numeric value" type="number" [(ngModel)]="formData.primary.updb.maxAttempts"/>
+                        </div>
+                        <div class="form-field-label-container">
+                            <div class="form-field-title-container">
+                                <span class="form-field-title">Lockout Duration <div class="form-sub-text">(min)</div></span>
+                            </div>
+                            <input class="form-field-input" placeholder="Enter time in min" type="number" [(ngModel)]="formData.primary.updb.lockoutDurationMinutes"/>
+                        </div>
+                    </div>
+                    <div class="form-field-row">
+                        <div class="config-item">
+                            <div class="config-container toggle-container">
+                                <div class="form-field-title-container">
+                                    <div class="config-container-label">Mixed Case</div>
+                                    <div
+                                            class="form-field-info infoicon"
+                                            matTooltip="Require upper and lower case charachters"
+                                            matTooltipPosition="below"
+                                    ></div>
+                                </div>
+                                <div
+                                        (click)="toggleUpdbMixed()"
+                                        [ngClass]="{ on: formData.primary.updb.requireMixedCase }"
+                                        class="toggle"
+                                >
+                                    <span [hidden]="!formData.primary.updb.requireMixedCase" class="on-label">YES</span>
+                                    <span [hidden]="formData.primary.updb.requireMixedCase" class="off-label">NO</span>
+                                    <div class="switch"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="config-item">
+                            <div class="config-container toggle-container">
+                                <div class="form-field-title-container">
+                                    <div class="config-container-label">Numeric</div>
+                                    <div
+                                            class="form-field-info infoicon"
+                                            matTooltip="Require numerical charachters 0-9"
+                                            matTooltipPosition="below"
+                                    ></div>
+                                </div>
+                                <div
+                                        (click)="toggleUpdbNumeric()"
+                                        [ngClass]="{ on: formData.primary.updb.requireNumericChar }"
+                                        class="toggle"
+                                >
+                                    <span [hidden]="!formData.primary.updb.requireNumericChar" class="on-label">YES</span>
+                                    <span [hidden]="formData.primary.updb.requireNumericChar" class="off-label">NO</span>
+                                    <div class="switch"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="config-item">
+                            <div class="config-container toggle-container">
+                                <div class="form-field-title-container">
+                                    <div class="config-container-label">Special</div>
+                                    <div
+                                            class="form-field-info infoicon"
+                                            matTooltip="Require special (non-alpha numeric) charachters. ie. !%$@*"
+                                            matTooltipPosition="below"
+                                    ></div>
+                                </div>
+                                <div
+                                        (click)="toggleUpdbSpecial()"
+                                        [ngClass]="{ on: formData.primary.updb.requireSpecialChar }"
+                                        class="toggle"
+                                >
+                                    <span [hidden]="!formData.primary.updb.requireSpecialChar" class="on-label">YES</span>
+                                    <span [hidden]="formData.primary.updb.requireSpecialChar" class="off-label">NO</span>
+                                    <div class="switch"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </lib-form-field-container>
+                <lib-form-field-toggle [(toggleOn)]="showMore" (toggleOnChange)="showMoreChanged($event)" style="margin: 0px 10px"></lib-form-field-toggle>
+                <div [hidden]="!showMore" class="form-group-column">
+                    <lib-form-field-container
+                            [title]="'Custom Tags'"
+                            [label]="'OPTIONAL'"
+                            class="form-field-advanced"
+                    >
+                        <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
+                    </lib-form-field-container>
+                </div>
+            </div>
+            <div class="form-group-column two-fifths">
+                <lib-form-field-container
+                        [title]="'Secondary Authentication'"
+                        [label]="'OPTIONAL'"
+                        [layout]="'column'"
+                        [contentStyle]="'z-index: 1000001'"
+                >
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">TOTP MFA</span>
+                            <div
+                                    class="form-field-info infoicon"
+                                    matTooltip="Require authenticating clients to have TOTP MFA enabled (Time-based, One-Time Password)"
+                                    matTooltipPosition="below"
+                            ></div>
+                        </div>
+                        <div class="config-item">
+                            <div class="config-container toggle-container">
+                                <div class="form-field-title-container">
+                                    <div class="config-container-label">Require TOTP</div>
+                                </div>
+                                <div
+                                        (click)="toggleRequireTotp()"
+                                        [ngClass]="{ on: formData.secondary.requireTotp }"
+                                        class="toggle"
+                                >
+                                    <span [hidden]="!formData.secondary.requireTotp" class="on-label">YES</span>
+                                    <span [hidden]="formData.secondary.requireTotp" class="off-label">NO</span>
+                                    <div class="switch"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">JWT Signer</span>
+                            <div
+                                    class="form-field-info infoicon"
+                                    matTooltip="Require every client request to have a JWT from the specified External JTW Signer in the HTTP Authentication header"
+                                    matTooltipPosition="below"
+                            ></div>
+                        </div>
+                        <p-dropdown
+                                placeholder="Select JWT Signer..."
+                                optionLabel="name"
+                                optionValue="id"
+                                filterBy="name"
+                                [options]="svc.jwtSigners"
+                                [filter]="true"
+                                [showClear]="true"
+                                (change)="secondaryJwtSignerChanged($event)"
+                                [(ngModel)]="formData.secondary.requireExtJwtSigner"
+                        >
+                            <ng-template pTemplate="filter" let-options="options">
+                                <div class="dropdown-filter-container">
+                                    <div class="p-inputgroup" (click)="$event.stopPropagation()">
+                                        <span class="p-inputgroup-addon"><i class="pi pi-search"></i></span>
+                                        <input
+                                                type="text"
+                                                pInputText
+                                                placeholder="Filter"
+                                                (keyup)="jwtSignersFilterChangedDebounced($event)" />
+                                    </div>
+                                    <button pButton
+                                            icon="pi pi-times"
+                                            [ngClass]="{'configs-loading': svc.jwtSignersLoading}"
+                                            (click)="clearJwtSignerFilter($event)"
+                                            severity="secondary">
+                                    </button>
+                                    <div class="spinner" *ngIf="svc.jwtSignersLoading"></div>
+                                </div>
+                            </ng-template>
+                        </p-dropdown>
+                    </div>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'API Calls'"
+                        [headerActions]="apiOptions"
+                        (actionRequested)="apiActionRequested($event)"
+                        [class]="'api-data-no-wrap'"
+                >
+                    <div class="form-row">
+                        <input class="form-field-input" [value]="apiCallURL"/>
+                        <div class="icon-copy copy" (click)="copyToClipboard(apiCallURL)"></div>
+                    </div>
+                    <lib-json-view *ngIf="formData" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
+                </lib-form-field-container>
+            </div>
+        </div>
+        <div class="form-group-column" *ngIf="formView === 'raw'">
+            <lib-json-view *ngIf="formData" [(data)]="formData"></lib-json-view>
+        </div>
+    </div>
+</div>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

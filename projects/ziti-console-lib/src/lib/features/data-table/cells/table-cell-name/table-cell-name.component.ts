@@ -4,7 +4,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {ICellRendererParams} from "ag-grid-community";
 import {Router} from "@angular/router";
 
-import {isEmpty, get} from 'lodash';
+import {isEmpty, isFunction, get} from 'lodash';
 
 @Component({
   selector: 'lib-table-cell-name',
@@ -32,9 +32,18 @@ export class TableCellNameComponent  implements ICellRendererAngularComp {
   }
 
   linkClicked(event) {
-    this.router.navigateByUrl(`${this.cellParams.pathRoot}/${this.item.id}`);
     event.stopPropagation();
     event.preventDefault();
+    if (isFunction(this.cellParams?.cellNamePreCheck)) {
+      this.cellParams?.cellNamePreCheck(this.item).then((result) => {
+        if (!result) {
+          return;
+        }
+        this.router.navigateByUrl(`${this.cellParams.pathRoot}/${this.item.id}`);
+      })
+      return;
+    }
+    this.router.navigateByUrl(`${this.cellParams.pathRoot}/${this.item.id}`);
   }
 
   get cellText() {

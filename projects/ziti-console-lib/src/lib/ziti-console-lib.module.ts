@@ -111,6 +111,8 @@ import {TerminatorsPageComponent} from "./pages/terminators/terminators-page.com
 import {ConfigurationFormComponent} from "./features/projectable-forms/configuration/configuration-form.component";
 import {JwtSignersPageComponent} from "./pages/jwt-signers/jwt-signers-page.component";
 import {JwtSignerFormComponent} from "./features/projectable-forms/jwt-signer/jwt-signer-form.component";
+import {AuthPoliciesPageComponent} from "./pages/auth-policies/auth-policies-page.component";
+import {AuthPolicyFormComponent} from "./features/projectable-forms/auth-policy/auth-policy-form.component";
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -192,7 +194,9 @@ export function playerFactory() {
         TerminatorFormComponent,
         ConfigurationFormComponent,
         JwtSignersPageComponent,
-        JwtSignerFormComponent
+        JwtSignerFormComponent,
+        AuthPoliciesPageComponent,
+        AuthPolicyFormComponent
     ],
     imports: [
         CommonModule,
@@ -249,7 +253,9 @@ export function playerFactory() {
         TerminatorsPageComponent,
         TerminatorFormComponent,
         JwtSignersPageComponent,
-        JwtSignerFormComponent
+        JwtSignerFormComponent,
+        AuthPoliciesPageComponent,
+        AuthPolicyFormComponent
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},
