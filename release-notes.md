@@ -1,3 +1,14 @@
+# app-ziti-console-v3.6.0
+# ziti-console-lib-v0.6.1
+
+## Feature/Improvements
+* [Issue #517](https://github.com/openziti/ziti-console/issues/517) - New Auth Policies List Page and Edit Form
+* [Issue #514](https://github.com/openziti/ziti-console/issues/514) - Added URI validation and improve layout for Cert PEM & JWKS Endpoint input fields
+
+## Bug Fixes
+* [Issue #515](https://github.com/openziti/ziti-console/issues/515) - Show sub-tab navigation options for list page header
+
+
 # ziti-console-lib-v0.6.0
 ## Feature/Improvements
 * [Issue #512](https://github.com/openziti/ziti-console/issues/512) - New JWT Signers List Page and Edit Form
