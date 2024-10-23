@@ -159,7 +159,7 @@ From project Root:
 1. Then in a separate window run & watch changes in the main application **app-ziti-console**
 
     ```bash
-    ng build ziti-console-node --watch
+    ng build ziti-console --watch --base-href=/zac/
     ```
 
 This ensures changes made to the NPM library get pulled into the Angular app as you are developing
