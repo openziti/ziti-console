@@ -81,6 +81,7 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
     }
 
     override ngOnInit(): void {
+        this.svc.configJsonView = false;
         super.ngOnInit();
         this.settingsService.settingsChange.subscribe((results:any) => {
             this.settings = results;
