@@ -9,5 +9,4 @@ node-console.ipr
 node-console.iws
 
 assets/scripts/components/debug.log
-package-lock.json
 .vscode/launch.json
