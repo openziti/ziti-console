@@ -61,14 +61,14 @@ export class AuthPoliciesPageComponent extends ListPageComponent implements OnIn
                 this.svc.openEditForm();
                 break;
             case 'delete':
-                let defaultPolicy;
+                let defaultCheckPromise: Promise<boolean> = Promise.resolve(true);
                 const selectedItems = this.rowData.filter((row) => {
-                    if (row.id === 'default') {
-                        defaultPolicy = row;
+                    if (row.selected && row.id === 'default') {
+                        defaultCheckPromise = this.svc.checkDefaultAuthPolicy(row);
                     }
                     return row.selected;
                 });
-                this.svc.checkDefaultAuthPolicy(defaultPolicy).then((result) => {
+                defaultCheckPromise.then((result) => {
                     if (!result) {
                         return;
                     }
