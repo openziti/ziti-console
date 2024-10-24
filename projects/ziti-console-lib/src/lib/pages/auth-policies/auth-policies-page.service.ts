@@ -151,7 +151,7 @@ export class AuthPoliciesPageService extends ListPageServiceClass {
         ];
     }
 
-    checkDefaultAuthPolicy(authPolicy) {
+    checkDefaultAuthPolicy(authPolicy): Promise<boolean> {
         if (authPolicy.id !== 'default') {
             return Promise.resolve(true);
         }
