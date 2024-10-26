@@ -52,7 +52,7 @@
     "@openziti/ziti-sdk-nodejs": "^0.13.3"
   },
   "dependencies": {
-    "ziti-console-lib": "file:dist/ziti-console-lib",
+    "ziti-console-lib": "file:projects/ziti-console-lib",
     "@angular/animations": "^16.0.0",
     "@angular/cdk": "^16.1.5",
     "@angular/common": "^16.0.0",
