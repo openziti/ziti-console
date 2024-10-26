@@ -91,7 +91,7 @@
     "ngx-lottie": "^10.0.0",
     "node": "^18.13.0",
     "nodemailer": "^6.9.1",
-    "npm": "^9.4.0",
+    "npm": "^10.9.0",
     "primeicons": "^6.0.1",
     "primeng": "^16.9.0",
     "request": "^2.88.2",
@@ -104,13 +104,13 @@
     "z-schema": "^6.0.1",
     "zone.js": "~0.13.0",
     "d3": "~7.9.0",
-    "d3-hierarchy": "^2.0.0"
+    "d3-hierarchy": "^3.1.2"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^16.0.2",
     "@angular/cli": "~16.0.2",
     "@angular/compiler-cli": "^16.0.0",
-    "@types/jasmine": "~4.3.0",
+    "@types/jasmine": "~5.1.4",
     "@types/jquery": "^3.5.16",
     "@types/lodash": "^4.14.195",
     "ajv": "^8.8.2",
