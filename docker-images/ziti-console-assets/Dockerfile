@@ -8,7 +8,7 @@ ARG BASE_HREF=/zac/
 
 WORKDIR /usr/src/app
 
-RUN npm install -g @angular/cli@16.0.0-next.0
+RUN npm install -g @angular/cli@18
 
 COPY package*.json ./
 COPY version.js ./

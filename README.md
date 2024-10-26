@@ -73,7 +73,7 @@ To build and run the application from source, you'll also need to make sure you 
 This provides the `ng` command.
 
 ```bash
-npm install -g @angular/cli@16
+npm install -g @angular/cli@18
 ```
 
 ## Projects
