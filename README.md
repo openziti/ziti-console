@@ -47,7 +47,6 @@ Please star us!
 
 ---
 
-
 # OpenZiti Console
 
 The OpenZiti Console is an administrative web interface for an OpenZiti network.
@@ -100,6 +99,7 @@ From the project root:
     ```bash
     ng build ziti-console-lib
     ```
+
 ### Build the Single Page Application
 
 This is the recommended approach.
@@ -110,11 +110,8 @@ This is the recommended approach.
     ng build ziti-console
     ```
 
-1. You must host the static files with a web server.
-   See [the deployment guide](https://openziti.io/docs/guides/deployments/linux/console) for details on configuring the controller to host these files.
-
+1. You must host the static files with a web server. See [the deployment guide](https://openziti.io/docs/guides/deployments/linux/console#configuration) for details on configuring the controller to host these files.
 1. Access the console at the controller's address: https://localhost:1280/zac/
-
 
 ### Build the Standalone Node Server
 
@@ -139,7 +136,7 @@ This deployment mode is deprecated by the SPA mode.
 
 There are two elements to the Angular app.
 
-From project Root:
+From the project root:
 
 1. Install dependencies
 
@@ -159,8 +156,26 @@ From project Root:
 1. Then in a separate window run & watch changes in the main application **app-ziti-console**
 
     ```bash
-    ng build ziti-console-node --watch
+    ng build ziti-console --watch --base-href '/zac/'
     ```
 
-This ensures changes made to the NPM library get pulled into the Angular app as you are developing
+This ensures changes made to the library are pulled into the Angular app during development. The static assets are built in `./dist/app-ziti-console/`. You must access the built assets through the web server that is built in to the Ziti controller ([link to guide](https://openziti.io/docs/guides/deployments/linux/console#configuration)). For example, you can bind the "zac" component to your console project checkout where Angular is constantly updating the built assets during development. Just ensure the files are readable by the owner of the Ziti controller process.
 
+```yaml
+web:
+  - name: client-management
+    bindPoints:
+      - interface: 0.0.0.0:1280
+        address: localhost:1280
+    apis:
+      - binding: edge-client
+        options: { }
+      - binding: edge-management
+        options: { }
+      - binding: fabric
+        options: { }
+      - binding: zac
+        options:
+          location: /home/user/openziti/ziti-console/dist/app-ziti-console
+          indexFile: index.html
+```
