@@ -63,7 +63,7 @@ To install this library in an angular application, run the following command fro
 npm install @openziti/ziti-console-lib
 ```
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.0.0.
+This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.
 
 ## Building From Source
 After checking out the main <a href="https://github.com/openziti/ziti-console">ziti-console</a> github project,
