@@ -24,7 +24,7 @@ import {ExtensionService} from "../../features/extendable/extensions-noop.servic
 })
 export class EdgeRoutersPageComponent extends ListPageComponent implements OnInit, OnDestroy {
 
-  title = 'Edge Router Management'
+  title = 'Edge Routers'
   tabs: { url: string, label: string }[] ;
   isLoading = false;
   edgeRouterRoleAttributes: any[] = [];

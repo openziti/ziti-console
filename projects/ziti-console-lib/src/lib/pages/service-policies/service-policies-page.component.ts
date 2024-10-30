@@ -36,7 +36,7 @@ export class ServicePoliciesPageComponent extends ListPageComponent implements O
   formDataChanged = false;
   isLoading: boolean;
   tabs: { url: string; label: string }[];
-  title = 'Manage Service Policies';
+  title = 'Service Policies';
 
   constructor(
       public override svc: ServicePoliciesPageService,

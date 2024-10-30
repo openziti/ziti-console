@@ -36,7 +36,7 @@ import { IdentityServicePathComponent } from "../../features/visualizer/identity
 })
 export class IdentitiesPageComponent extends ListPageComponent implements OnInit, OnDestroy {
 
-  title = 'Identity Management'
+  title = 'Identities'
   tabs: { url: string, label: string }[] ;
   isLoading = false;
   identityRoleAttributes: any[] = [];
