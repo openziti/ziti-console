@@ -15,11 +15,9 @@ export class ConfigEditorComponent implements OnInit {
   lColorArray = [
     'white',
     'white',
-    'white',
   ]
 
   bColorArray = [
-    'var(--formBase)',
     'var(--formGroup)',
     'var(--formSubGroup)'
   ]

@@ -124,7 +124,12 @@
       &.save-disabled {
         filter: grayscale(1);
         opacity: .3;
-        pointer: not-allowed;
+        cursor: not-allowed;
+
+        &:active {
+          transform: translateY(0px);
+          background: var(--primary);
+        }
       }
     }
   }
