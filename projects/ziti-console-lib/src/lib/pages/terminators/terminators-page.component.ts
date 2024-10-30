@@ -29,7 +29,7 @@ import {MatDialog} from "@angular/material/dialog";
     styleUrls: ['./terminators-page.component.scss']
 })
 export class TerminatorsPageComponent extends ListPageComponent implements OnInit {
-    title = 'Terminator Management'
+    title = 'Terminators'
     tabs: { url: string, label: string }[] ;
     isLoading: boolean;
     formDataChanged = false;

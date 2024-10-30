@@ -35,7 +35,7 @@ export class ServiceEdgeRouterPoliciesPageComponent extends ListPageComponent im
   formDataChanged = false;
   isLoading: boolean;
   tabs: { url: string; label: string }[];
-  title = 'Manage Service Edge Router Policies';
+  title = 'Service Edge Router Policies';
 
   constructor(
       public override svc: ServiceEdgeRouterPoliciesPageService,

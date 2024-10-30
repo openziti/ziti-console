@@ -37,17 +37,20 @@ export class TabNameService {
             ["routers", [
                 {label: 'Routers', url: '/routers'},
                 {label: 'Transit Routers', url: '/transit-routers'},
-                {label: 'Router Policies', url: '/router-policies'},
             ],
             ],
             ["policies", [
                 {label: 'Service Policies', url: '/service-policies'},
                 {label: 'Router Policies', url: '/router-policies'},
-                {label: 'Service Router Policies', url: '/service-router-policies'},
+                {label: 'Service Router Policies', url: '/service-router-policies'}
+            ]
+            ],
+            ["authentication", [
+                {label: 'Certificate Authorities', url: '/certificate-authorities'},
                 {label: 'Auth Policies', url: '/auth-policies'},
                 {label: 'JWT Signers', url: '/jwt-signers'},
-            ],
-            ],
+            ]
+            ]
         ]
     );
 

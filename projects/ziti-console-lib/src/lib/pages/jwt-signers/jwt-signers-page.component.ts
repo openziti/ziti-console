@@ -29,7 +29,7 @@ import {MatDialog} from "@angular/material/dialog";
     styleUrls: ['./jwt-signers-page.component.scss']
 })
 export class JwtSignersPageComponent extends ListPageComponent implements OnInit {
-    title = 'JWT Signers Management'
+    title = 'JWT Signers'
     tabs: { url: string, label: string }[] ;
     isLoading: boolean;
     formDataChanged = false;
@@ -45,7 +45,7 @@ export class JwtSignersPageComponent extends ListPageComponent implements OnInit
     }
 
     override ngOnInit() {
-        this.tabs = this.tabNames.getTabs('policies');
+        this.tabs = this.tabNames.getTabs('authentication');
         this.svc.refreshData = this.refreshData;
         super.ngOnInit();
     }

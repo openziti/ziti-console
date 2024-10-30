@@ -37,7 +37,7 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
   formDataChanged = false;
   isLoading: boolean;
   tabs: { url: string; label: string }[];
-  title = 'Manage Services';
+  title = 'Services';
 
   constructor(
       public override svc: ServicesPageService,

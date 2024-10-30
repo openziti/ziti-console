@@ -72,13 +72,15 @@ export const COMPONENTS: any = {
                     <div class="tab" data-go="/service-policies" data-i18n="ServicePolicies"></div>
                     <div class="tab" data-go="/router-policies" data-i18n="EdgeRouterPolicies"></div>
                     <div class="tab" data-go="/service-router-policies" data-i18n="ServiceRouterPolicies"></div>
-                    <div class="tab" data-go="/auth-policies" data-i18n="AuthPolicies"></div>
-                    <div class="tab" data-go="/jwt-signers" data-i18n="JwtSigners"></div>
                 </div>`,
+    tabAuthentication: `<div class="tabs">
+                            <div class="tab" data-go="/cas" data-i18n="CAs"></div>
+                            <div class="tab" data-go="/auth-policies" data-i18n="AuthPolicies"></div>
+                            <div class="tab" data-go="/jwt-signers" data-i18n="JwtSigners"></div>
+                        </div>`,
     tabRouters: `<div class="tabs">
                     <div class="tab" data-go="/routers" data-i18n="EdgeRouters"></div>
                     <div class="tab" data-go="/transit-routers" data-i18n="TransitRouters"></div>
-                    <div class="tab" data-go="/router-policies" data-i18n="EdgeRouterPolicies"></div>
                 </div>`,
     tabServers: `<div class="tabs">
                   <div class="tab" data-go="/servers" data-i18n="ManageServers">Manage Servers</div>

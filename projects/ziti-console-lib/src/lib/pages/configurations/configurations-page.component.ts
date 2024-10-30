@@ -29,7 +29,7 @@ import {MatDialog} from "@angular/material/dialog";
     styleUrls: ['./configurations-page.component.scss']
 })
 export class ConfigurationsPageComponent extends ListPageComponent implements OnInit {
-    title = 'Configuration Management'
+    title = 'Configurations'
     tabs: { url: string, label: string }[] ;
     isLoading: boolean;
     formDataChanged = false;

@@ -31,7 +31,7 @@ import {firstValueFrom} from "rxjs";
     styleUrls: ['./auth-policies-page.component.scss']
 })
 export class AuthPoliciesPageComponent extends ListPageComponent implements OnInit {
-    title = 'Auth Policies Management'
+    title = 'Auth Policies'
     tabs: { url: string, label: string }[] ;
     isLoading: boolean;
     formDataChanged = false;
@@ -47,7 +47,7 @@ export class AuthPoliciesPageComponent extends ListPageComponent implements OnIn
     }
 
     override ngOnInit() {
-        this.tabs = this.tabNames.getTabs('policies');
+        this.tabs = this.tabNames.getTabs('authentication');
         this.svc.refreshData = this.refreshData;
         super.ngOnInit();
     }

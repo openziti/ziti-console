@@ -35,7 +35,7 @@ export class EdgeRouterPoliciesPageComponent extends ListPageComponent implement
   formDataChanged = false;
   isLoading: boolean;
   tabs: { url: string; label: string }[];
-  title = 'Manage Edge Router Policies';
+  title = 'Edge Router Policies';
 
   constructor(
       public override svc: EdgeRouterPoliciesPageService,
