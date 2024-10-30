@@ -49,6 +49,9 @@ export class FormHeaderComponent {
   }
 
   requestAction(action) {
+    if (action?.name === 'save' && this.saveDisabled) {
+      return;
+    }
     if (action.name === 'toggle-view') {
       if (action.data === 'simple') {
         this.formView = 'raw';
