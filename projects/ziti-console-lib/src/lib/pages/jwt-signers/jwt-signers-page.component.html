@@ -1,4 +1,12 @@
 <div class="ziti-page-container ziti-configs-container">
+    <a
+        *ngIf="_networkJwt"
+        class="network-jwt-link save-button"
+        href="data:application/ziti-jwt;charset=utf-8,{{networkJwt}}"
+        download="{{networkJwtFilename}}.jwt"
+    >
+        Download Network JWT
+    </a>
     <lib-list-page-header [title]="title"
                           [tabs]="tabs"
                           [showAdd]="!itemsSelected"
@@ -18,3 +26,4 @@
     >
     </lib-data-table>
 </div>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

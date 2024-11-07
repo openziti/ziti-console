@@ -21,6 +21,7 @@ import {TabNameService} from "../../services/tab-name.service";
 import {ListPageComponent} from "../../shared/list-page-component.class";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {MatDialog} from "@angular/material/dialog";
+import {isEmpty} from "lodash";
 
 
 @Component({
@@ -33,6 +34,7 @@ export class JwtSignersPageComponent extends ListPageComponent implements OnInit
     tabs: { url: string, label: string }[] ;
     isLoading: boolean;
     formDataChanged = false;
+    _networkJwt: any;
 
     constructor(
         override svc: JwtSignersPageService,
@@ -47,6 +49,12 @@ export class JwtSignersPageComponent extends ListPageComponent implements OnInit
     override ngOnInit() {
         this.tabs = this.tabNames.getTabs('authentication');
         this.svc.refreshData = this.refreshData;
+        this.svc.getNetworkJwt().then((result) => {
+            if (isEmpty(result?.data)) {
+                return;
+            }
+            this._networkJwt = result.data[0].token;
+        });
         super.ngOnInit();
     }
 
@@ -102,5 +110,18 @@ export class JwtSignersPageComponent extends ListPageComponent implements OnInit
 
     dataChanged(event) {
         this.formDataChanged = event;
+    }
+
+    get networkJwt() {
+        return encodeURIComponent(this._networkJwt);
+    }
+
+    get networkJwtFilename() {
+        let filename = 'network-jwt';
+        if (this.svc?.currentSettings?.selectedEdgeController) {
+            const urlObject = new URL(this.svc?.currentSettings?.selectedEdgeController);
+            filename = urlObject.hostname;
+        }
+        return filename;
     }
 }
