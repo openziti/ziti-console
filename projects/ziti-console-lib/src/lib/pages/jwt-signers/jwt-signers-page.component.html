@@ -1,4 +1,12 @@
 <div class="ziti-page-container ziti-configs-container">
+    <a
+        *ngIf="_networkJwt"
+        class="network-jwt-link"
+        href="data:application/ziti-jwt;charset=utf-8,{{networkJwt}}"
+        download="{{networkHostname}}.jwt"
+    >
+        Download Network JWT
+    </a>
     <lib-list-page-header [title]="title"
                           [tabs]="tabs"
                           [showAdd]="!itemsSelected"

@@ -114,9 +114,9 @@ export abstract class ListPageServiceClass {
             if (!isEmpty(this.settings?.settings?.session?.id)) {
                 if (this.currentSettings?.session?.id !== settings?.session?.id && this.refreshData) {
                     this.refreshData();
-                    this.currentSettings = settings
                 }
             }
+            this.currentSettings = settings;
         });
         router.events.subscribe((event: any) => {
             if (event => event instanceof NavigationEnd) {
@@ -192,6 +192,10 @@ export abstract class ListPageServiceClass {
             text = window.getSelection().toString();
         }
         return text?.length > 0;
+    }
+
+    getNetworkJwt() {
+        return this.dataService.get('network-jwts', {}, []);
     }
 
     public openEditForm(itemId = '', basePath?) {
