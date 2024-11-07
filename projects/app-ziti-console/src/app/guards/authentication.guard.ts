@@ -41,10 +41,7 @@ export class AuthenticationGuard {
   canActivate(next, state) {
     const isAuthorized = this.settingsSvc.hasSession();
     if (!isAuthorized) {
-      // messaging.error('not authorized');
       this.settingsSvc.set(this.settingsSvc.settings);
-      const gorwlerData: GrowlerModel = new GrowlerModel('warning', 'Invalid Session', 'Session Expired', 'Your session is no longer valid. Please login to continue.');
-      this.growlerService.show(gorwlerData);
       this.router.navigate(['/login']);
     }
 

@@ -116,7 +116,12 @@ export class JwtSignersPageComponent extends ListPageComponent implements OnInit
         return encodeURIComponent(this._networkJwt);
     }
 
-    get networkHostname() {
-        return this.svc?.currentSettings?.host || 'network-jwt';
+    get networkJwtFilename() {
+        let filename = 'network-jwt';
+        if (this.svc?.currentSettings?.selectedEdgeController) {
+            const urlObject = new URL(this.svc?.currentSettings?.selectedEdgeController);
+            filename = urlObject.hostname;
+        }
+        return filename;
     }
 }

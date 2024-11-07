@@ -52,12 +52,10 @@ export class ZitiApiInterceptor implements HttpInterceptor {
 
     private handleErrorResponse(err: HttpErrorResponse): Observable<any> {
         if (err.status === 401) {
-            // User is unauthorized. Show growler/warning and redirect user back to login page
-            const gorwlerData: GrowlerModel = new GrowlerModel('warning', 'Invalid Session', 'Session Expired', 'Your session is no longer valid. Please login to continue.');
+            // User is unauthorized. redirect user back to login page
             growler.disabled = true;
             defer(() => {
                 this.dialogRef.closeAll();
-                this.growlerService.show(gorwlerData);
                 growler.disabled = false;
             });
             if (this.settingsService?.settings?.session) {

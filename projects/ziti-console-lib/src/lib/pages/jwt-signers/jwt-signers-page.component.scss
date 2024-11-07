@@ -10,6 +10,13 @@
 .network-jwt-link {
   position: absolute;
   right: 90px;
-  top: 30px;
+  top: 25px;
   z-index: 10001;
+  height: var(--buttonHeightSmall);
+  padding-left: var(--buttonImagePaddingSmall);
+  background-position: var(--buttonImagePositionSmall);
+  background-image: url(/assets/svgs/DownloadKey.svg);
+  background-repeat: no-repeat;
+  background-size: var(--buttonImageSizeSmall);
+  color: var(--white);
 }
