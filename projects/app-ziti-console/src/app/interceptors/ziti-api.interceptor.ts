@@ -84,7 +84,8 @@ export class ZitiApiInterceptor implements HttpInterceptor {
 
     private addAuthToken(request: any) {
         const session = this.settingsService.settings.session;
-        return request.clone({setHeaders: {"zt-session": session.id, 'content-type': 'application/json', accept: 'application/json'}});
+        const contentType = request.headers.get('Content-Type') || 'application/json';
+        return request.clone({setHeaders: {"zt-session": session.id, 'content-type': contentType, accept: 'application/json'}});
     }
 }
 

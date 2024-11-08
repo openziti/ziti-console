@@ -1,3 +1,18 @@
+# app-ziti-console-v3.6.1
+# ziti-console-lib-v0.6.2
+
+## Feature/Improvements
+* [Issue #534](https://github.com/openziti/ziti-console/issues/534) - Allow re-arrangement of sub tabs via extension service
+* [Issue #539](https://github.com/openziti/ziti-console/issues/539) - Add ability to download network JWT
+* [Issue #523](https://github.com/openziti/ziti-console/issues/523) - lock git revision to dependency versions
+* 
+## Bug Fixes
+* [Issue #520](https://github.com/openziti/ziti-console/issues/520) - Data doesn't show when loading config editor
+* [Issue #526](https://github.com/openziti/ziti-console/issues/526) - Prevent default policy warning from showing when it isn't selected
+* [Issue #535](https://github.com/openziti/ziti-console/issues/535) - Prevent actions on save button when "disable" state is applied
+* [Issue #541](https://github.com/openziti/ziti-console/issues/541) - Verify Certificate modal doesn't render
+
+
 # app-ziti-console-v3.6.0
 # ziti-console-lib-v0.6.1
 
