@@ -131,6 +131,7 @@ input {
   font-weight: 700;
 }
 
+#VerifyModal,
 #DetailModal,
 #AddMessageModal,
 #QRModal,
@@ -147,7 +148,23 @@ input {
   }
 }
 
+#VerifyModal {
+  .sized {
+    &.large {
+      margin-top: 20px;
+      height: 100%;
+
+      .icon-close {
+        &.close {
+          top: 30px;
+        }
+      }
+    }
+  }
+}
+
 .sideNavClosed {
+  #VerifyModal,
   #AddMessageModal,
   #QRModal,
   #ResetModal,
