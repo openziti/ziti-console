@@ -169,6 +169,7 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
       } else {
         this.initData = this.formData;
       }
+      this.extService.updateFormData(this.formData);
     }).finally(() => {
       this.isLoading = false;
     });

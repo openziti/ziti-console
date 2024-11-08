@@ -15,7 +15,7 @@
 */
 
 import {EventEmitter, Inject, Injectable, InjectionToken} from '@angular/core';
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Subject, Subscription} from "rxjs";
 import {NavigationEnd, Router} from "@angular/router";
 import {Resolver} from "@stoplight/json-ref-resolver";
@@ -466,6 +466,11 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                     this.handleServiceResult(result, returnTo);
                 });
                 break;
+            case 'verify':
+                this.callZitiEdge(`${controllerDomain}/edge/management/v1/cas/${params.id}/verify`, params.cert, 'POST', 'text/plain').then((result) => {
+                    this.handleServiceResult(result, returnTo);
+                });
+                break;
             case 'tags':
                 // For no this is a no-op
                 break;
@@ -869,8 +874,8 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
         });
     }
 
-    callZitiEdge(url: string, body: any, method: string = 'GET') {
-        const options = this.getHttpOptions();
+    callZitiEdge(url: string, body: any, method: string = 'GET', contentType?: string) {
+        const options = this.getHttpOptions(false, contentType);
         let prom;
         switch (method) {
             case 'GET':
@@ -925,7 +930,7 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
         }
     }
 
-    getHttpOptions(useZitiCreds = false) {
+    getHttpOptions(useZitiCreds = false, contentType?:string) {
         const options: any = {
             headers: {
                 accept: 'application/json',
@@ -933,6 +938,10 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
             params: {},
             responseType: 'json' as const,
         };
+        if (contentType) {
+            const headers = new HttpHeaders().set('Content-Type', contentType);
+            options.headers = headers;
+        }
         return options;
     }
 
