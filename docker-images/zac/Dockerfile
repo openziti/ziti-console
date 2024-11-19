@@ -6,10 +6,8 @@ RUN npm install -g @angular/cli@16.0.0-next.0
 
 COPY package*.json ./
 COPY version.js ./
-COPY ./projects/ziti-console-lib/src/lib/version.ts ./projects/ziti-console-lib/src/lib/
-RUN npm install --omit=optional
-
 COPY . .
+RUN npm install --omit=optional
 RUN ng build ziti-console-lib
 RUN ng build ziti-console-node
 
