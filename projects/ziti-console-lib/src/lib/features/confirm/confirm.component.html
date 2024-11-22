@@ -24,9 +24,20 @@
             </div>
         </div>
     </div>
+    <div class="secondary-confirm-container" *ngIf="dataObj.showSecondaryConfirm">
+        <div class="cSelect" [ngClass]="{'selected': dataObj.secondaryConfirmed}" (click)="toggleSecondary($event)"></div>
+        <div class="secondary-confirm-label">{{dataObj.secondaryConfirmLabel}}</div>
+        <div
+            *ngIf="dataObj.secondaryInfoLabel"
+            class="form-field-info infoicon"
+            matTooltip="{{dataObj.secondaryInfoLabel}}"
+            matTooltipPosition="above"
+        ></div>
+    </div>
     <div class="confirm-buttons-container">
         <div class="linkButton cancel" (click)="cancel()" *ngIf="dataObj.showCancelLink">{{dataObj.cancelLabel}}</div>
+        <button class="button save secondary-button" (click)="secondaryAction()" *ngIf="dataObj.secondaryActionLabel && dataObj.secondaryConfirmed">{{dataObj.secondaryActionLabel}}</button>
         <button class="button save cancel" (click)="cancel()" *ngIf="dataObj.showCancelButton">{{dataObj.cancelLabel}}</button>
-        <button class="button save confirm" (click)="confirm()">{{dataObj.confirmLabel}}</button>
+        <button class="button save confirm" (click)="confirm()">{{dataObj.confirmLabelAlt && dataObj.secondaryConfirmed ? dataObj.confirmLabelAlt : dataObj.confirmLabel}}</button>
     </div>
 </div>

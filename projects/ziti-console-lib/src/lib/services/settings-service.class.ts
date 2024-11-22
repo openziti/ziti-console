@@ -63,6 +63,7 @@ export abstract class SettingsServiceClass {
     protocol = DEFAULTS.protocol;
     host = DEFAULTS.host;
     httpClient: HttpClient;
+    zitiSemver = '';
 
     public supportedFeatures: any = {
         organization: false,

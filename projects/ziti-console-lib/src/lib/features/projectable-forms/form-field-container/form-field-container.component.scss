@@ -16,6 +16,15 @@
     height: 100%;
     position: relative;
 
+    &.bold-header-title {
+        .form-field-title {
+            color: var(--primary);
+            font-weight: 100;
+            font-size: 18px;
+            font-family: 'Russo One';
+            filter: brightness(0.9);
+        }
+    }
     &.hide-overflow {
         .form-field-content {
             overflow: hidden;
@@ -58,6 +67,12 @@
         align-items: center;
         height: 14px;
         z-index: 9999;
+    }
+
+    .title-icon {
+        font-size: 20px;
+        margin-right: 5px;
+        margin-left: 5px;
     }
 
     .form-field-title {

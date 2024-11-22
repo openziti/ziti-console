@@ -171,6 +171,7 @@ export class SettingsService extends SettingsServiceClass {
                             growler.error("Invalid Edge Controller: " + body.error);
                         } else {
                             this.apiVersions = body.data.apiVersions;
+                            this.zitiSemver = body.data?.version?.replace("v", "");
                         }
                     } catch (e) {
                         growler.error("Invalid Edge Controller: " + body);

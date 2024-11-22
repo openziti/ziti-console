@@ -25,6 +25,7 @@ export class FormFieldContainerComponent {
 
   @Input() title = '';
   @Input() title2 = undefined;
+  @Input() titleIcon = undefined;
   @Input() layout = 'column';
   @Input() helpText: any = undefined;
   @Input() helpText2: any = undefined;

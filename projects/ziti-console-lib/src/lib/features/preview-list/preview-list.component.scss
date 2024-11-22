@@ -104,6 +104,10 @@
 
 .preview-name {
     white-space: pre;
+
+    &.preview-placeholder {
+        font-style: italic;
+    }
 }
 
 .preview-item-icon {

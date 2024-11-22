@@ -33,11 +33,18 @@ export class ConfirmComponent {
     subtitle: '',
     message: '',
     confirmLabel: '',
+    confirmLabelAlt: undefined,
     cancelLabel: '',
     bulletList: [],
     submessage: '',
     showCancelButton: false,
     showCancelLink: false,
+    showSecondaryConfirm: false,
+    secondaryConfirmLabel: '',
+    secondaryConfirmed: false,
+    secondaryActionLabel: undefined,
+    secondaryInfoLabel: undefined,
+    secondaryAction: undefined,
     imageUrl: '../../assets/svgs/Confirm_Trash.svg'
   }
 
@@ -49,10 +56,21 @@ export class ConfirmComponent {
   }
 
   confirm() {
-    this.dialogRef.close(true);
+    this.dialogRef.close({confirmed: true, secondaryConfirmed: this.dataObj.secondaryConfirmed});
+  }
+
+  secondaryAction() {
+    if (!this.dataObj.secondaryAction) {
+      return;
+    }
+    this.dataObj.secondaryAction();
   }
 
   cancel() {
-    this.dialogRef.close(false);
+    this.dialogRef.close({confirmed: false, secondaryConfirmed: false});
+  }
+
+  toggleSecondary(event) {
+    this.dataObj.secondaryConfirmed = !this.dataObj.secondaryConfirmed;
   }
 }
