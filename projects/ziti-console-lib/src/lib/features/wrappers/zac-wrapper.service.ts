@@ -471,6 +471,13 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                     this.handleServiceResult(result, returnTo);
                 });
                 break;
+            case 'jwt':
+                this.callZitiEdge(`${controllerDomain}/edge/management/v1/${params.type}/${params.id}/jwt`, {}, 'GET', 'application/jwt').then((result) => {
+                    const jwt = result?.text || result;
+                    const data = {id: params.id, jwt: jwt};
+                    this.handleServiceResult(data, returnTo);
+                });
+                break;
             case 'tags':
                 // For no this is a no-op
                 break;
