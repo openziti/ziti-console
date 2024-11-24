@@ -186,7 +186,8 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
         label: this.svc.selectedConfigTypeId,
         filterName: 'Config Type',
         type: 'TEXTINPUT',
-        verb: '='
+        verb: '=',
+        rawFilter: true
       });
     }
     this.svc.getConfigs(filters,1);
@@ -213,7 +214,8 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
         label: this.svc.selectedConfigTypeId,
         filterName: 'Config Type',
         type: 'TEXTINPUT',
-        verb: '='
+        verb: '=',
+        rawFilter: true
       });
     }
     this.svc.getConfigs(filters,1);
@@ -234,7 +236,8 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
         label: this.svc.selectedConfigTypeId,
         filterName: 'Config Type',
         type: 'TEXTINPUT',
-        verb: '='
+        verb: '=',
+        rawFilter: true
       });
     }
     this.svc.getConfigs(filters,1).then(() => {
