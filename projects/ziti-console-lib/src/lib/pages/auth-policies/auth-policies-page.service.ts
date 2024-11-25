@@ -89,8 +89,8 @@ export class AuthPoliciesPageService extends ListPageServiceClass {
                     if (this.hasSelectedText()) {
                         return;
                     }
-                    this.checkDefaultAuthPolicy(data?.data).then((result) => {
-                        if (!result) {
+                    this.checkDefaultAuthPolicy(data?.data).then((result: any) => {
+                        if (!result.confirmed) {
                             return;
                         }
                         this.openEditForm(data?.data?.id);
@@ -151,7 +151,7 @@ export class AuthPoliciesPageService extends ListPageServiceClass {
         ];
     }
 
-    checkDefaultAuthPolicy(authPolicy): Promise<boolean> {
+    checkDefaultAuthPolicy(authPolicy): Promise<any> {
         if (authPolicy.id !== 'default') {
             return Promise.resolve(true);
         }

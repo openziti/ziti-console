@@ -152,9 +152,9 @@
     justify-content: center;
 
     .form-group-row {
-      flex-wrap: nowrap;
-      gap: 30;
-      max-width: 1200px;
+      flex-wrap: wrap;
+      gap: 15px;
+      max-width: 650px;
       justify-content: center;
       padding: 0;
     }
@@ -190,37 +190,6 @@
     }
     .config-container-label {
       color: white;
-    }
-  }
-}
-
-@media only screen and (max-width: 1475px) {
-  .simple-service-wrapper {
-    .form-group-row {
-      &.simple-service-image-container {
-        display: none;
-      }
-      &.simple-service-center-content {
-        gap: 30px;
-      }
-    }
-  }
-}
-
-@media only screen and (max-width: 2000px) {
-  .simple-service-wrapper {
-    .simple-service-center-content {
-      max-width: 650px;
-      padding: 0;
-
-      .form-group-row {
-        flex-wrap: wrap;
-        gap: 15px;
-      }
-      .form-field-divider-container {
-        padding-left: 0;
-        padding-right: 0;
-      }
     }
   }
 }

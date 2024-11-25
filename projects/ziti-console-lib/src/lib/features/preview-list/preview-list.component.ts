@@ -42,6 +42,15 @@ export class PreviewListComponent {
   constructor(private router: Router) {}
 
   ngOnInit() {
+    this.setPreviewItems();
+  }
+
+  ngOnChanges() {
+    this.setPreviewItems();
+    this.sort();
+  }
+
+  setPreviewItems() {
     this.previewItems = [];
     if (!isEmpty(this.allNames)) {
       this.previewItems.push(...this.allNames);
@@ -49,13 +58,6 @@ export class PreviewListComponent {
     } else {
       this.previewItems.push(...this.items);
     }
-    this.sort();
-  }
-
-  ngOnChanges() {
-    this.previewItems = [];
-    this.previewItems.push(...this.allNames);
-    this.previewItems = this.previewItems.filter((item) => item !== this.hideOption);
     this.sort();
   }
 
@@ -90,7 +92,10 @@ export class PreviewListComponent {
   }
 
   selected(item: string) {
-    if (this.clickable) this.itemSelected.emit(item);
+    if (!this.clickable)  {
+      return;
+    }
+    this.itemSelected.emit(item);
   }
 
   remove(item) {
@@ -98,6 +103,9 @@ export class PreviewListComponent {
   }
 
   linkClicked(event, item) {
+    if (!this.clickable) {
+      return;
+    }
     this.router.navigateByUrl(item.href);
     event.preventDefault();
   }

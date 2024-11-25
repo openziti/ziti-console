@@ -3,6 +3,7 @@
   flex-direction: column;
   background-color: var(--background);
   border-radius: 25px;
+  width: 600px;
 
   .confirm-model-body {
     display: flex;
@@ -80,6 +81,56 @@
       margin: 0;
     }
   }
+
+  .secondary-confirm-container {
+    height: 35px;
+    width: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 35px;
+    padding-top: 35px;
+    padding-bottom: 25px;
+
+    &.disabled {
+      opacity: 0.5;
+      filter: grayscale(1);
+      cursor: not-allowed;
+
+      .cSelect {
+        cursor: not-allowed;
+        &:hover {
+          transform: none;
+          border: 2px var(--inputBorder) solid;
+        }
+        &:active {
+          transform: none;
+          border: 2px var(--inputBorder) solid;
+        }
+      }
+    }
+
+    .cSelect {
+      position: relative;
+      top: initial;
+      left: initial;
+      height: 25px;
+      width: 25px;
+    }
+
+    .secondary-confirm-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--tableText);
+      margin-left: 7px;
+    }
+
+    .infoicon {
+      filter: brightness(0.8);
+    }
+  }
+
   .confirm-buttons-container {
     display: flex;
     justify-content: flex-end;
@@ -94,6 +145,10 @@
       color: var(--subText);
       font-weight: 600;
     }
+    .secondary-button {
+      margin-right: 10px;
+      background-color: var(--primary);
+    }
   }
 
   button {
@@ -103,6 +158,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 12px;
 
     &.confirm {
       background-color: var(--secondary);

@@ -15,6 +15,8 @@ body {
   --text: #000;
   --tableText: #000;
   --table: #ffffff;
+  --redShadow: rgba(255, 13, 73, 0.3);
+  --redText: #9c0027;
   --shadow: 0px 0px 8px 2px rgba(0,0,0,0.08);
   --shadowLarge: 0 12px 23px 0 rgba(0, 0, 0, .07);
   --shadowColor: rgba(0,0,0,0.08);
@@ -1337,5 +1339,41 @@ p-dropdown {
         }
       }
     }
+  }
+}
+
+.cSelect {
+  width: 25px;
+  height: 25px;
+  border: 2px var(--stroke) solid;
+  border-radius: 15px;
+  cursor: pointer;
+  -webkit-transition: background-color 0.5s;
+  transition: background-color 0.5s;
+  position: relative;
+  background-color: var(--navigation);
+
+  &:hover {
+    border: 2px var(--primary) solid;
+    cursor: pointer;
+    background-color: var(--offWhite);
+    -webkit-transition: background-color 0.5s;
+    -moz-transition: background-color 0.5s;
+    -ms-transition: background-color 0.5s;
+    -o-transition: background-color 0.5s;
+    transition: background-color 0.5s;
+  }
+
+  &:active {
+    transform: scale(0.9);
+    transition: background-color 0.3s;
+  }
+
+  &.selected {
+    background-color: var(--green);
+    background-image: url(/assets/images/check.png); //REPLACE
+    background-size: 45%;
+    background-position: center center;
+    border: none;
   }
 }

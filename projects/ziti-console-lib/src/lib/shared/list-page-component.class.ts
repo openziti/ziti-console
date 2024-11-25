@@ -138,7 +138,7 @@ export abstract class ListPageComponent {
             });
     }
 
-    protected openBulkDelete(selectedItems: any[], entityTypeLabel = 'item(s)') {
+    protected openBulkDelete(selectedItems: any[], entityTypeLabel = 'item(s)', ) {
         const selectedIds = selectedItems.map((row) => {
             return row.id;
         });
@@ -153,6 +153,7 @@ export abstract class ListPageComponent {
             bulletList: selectedNames,
             confirmLabel: 'Yes',
             cancelLabel: 'Oops, no get me out of here',
+            imageUrl: '../../assets/svgs/Confirm_Trash.svg',
             showCancelLink: true
         };
         this.dialogRef = this.dialogForm.open(ConfirmComponent, {
@@ -160,7 +161,7 @@ export abstract class ListPageComponent {
             autoFocus: false,
         });
         this.dialogRef.afterClosed().subscribe((result) => {
-            if (result) {
+            if (result?.confirmed) {
                 this.svc.removeItems(selectedIds).then(() => {
                     this.refreshData(this.svc.currentSort);
                 });

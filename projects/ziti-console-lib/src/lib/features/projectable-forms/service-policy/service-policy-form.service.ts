@@ -121,18 +121,19 @@ export class ServicePolicyFormService {
         this.associatedServiceNames = [];
         if (isEmpty(roleAttributes)) {
             this.associatedServiceNames = [...namedAttributes];
-            return;
+            return Promise.resolve([]);
         }
         const filters = this.zitiService.getRoleFilter(roleAttributes);
         const paging = this.zitiService.DEFAULT_PAGING;
         paging.noSearch = false;
-        this.zitiService.get('services', paging, filters).then((result: any) => {
+        return this.zitiService.get('services', paging, filters).then((result: any) => {
             this.associatedServices = result.data;
             this.associatedServiceNames = this.associatedServices.map((svc) => {
                 return svc.name;
             });
             this.associatedServiceNames = [...this.associatedServiceNames, ...namedAttributes];
             this.associatedServiceNames = sortedUniq(this.associatedServiceNames);
+            return this.associatedServices;
         });
     }
 

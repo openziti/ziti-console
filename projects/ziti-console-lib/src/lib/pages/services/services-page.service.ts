@@ -35,6 +35,7 @@ import {SettingsServiceClass} from "../../services/settings-service.class";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
 import {Router} from "@angular/router";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
+import {ServicePolicyFormService} from "../../features/projectable-forms/service-policy/service-policy-form.service";
 
 const CSV_COLUMNS = [
     {label: 'Name', path: 'name'},
@@ -78,7 +79,8 @@ export class ServicesPageService extends ListPageServiceClass {
         private growlerService: GrowlerService,
         private dialogForm: MatDialog,
         @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService,
-        protected override router: Router
+        protected override router: Router,
+        private servicePolicyService: ServicePolicyFormService
     ) {
         super(settings, filterService, csvDownloadService, extService, router);
     }
@@ -242,5 +244,135 @@ export class ServicesPageService extends ListPageServiceClass {
             this.selectedService = new Service();
         }
         this.sideModalOpen = true;
+    }
+
+    getAllServicesAndOrphans(selectedItems) {
+        const promises = [];
+        const selected = [];
+        const allItem = {
+            name: 'All',
+            id: 'all',
+            associatedConfigs: [],
+            associatedServicePolicies: []
+        };
+
+        selectedItems.forEach((service: any) => {
+            const serviceItem = {
+                name: service.name,
+                id: service.id,
+                associatedConfigs: [],
+                associatedServicePolicies: []
+            }
+            const svcCfgAssociationPromises = [];
+            const allCfgAssociationsPromise = new Promise((resolve, reject) => {
+                this.zitiService.getSubdata('services', service.id, 'configs').then((result) => {
+                    const configs = result.data;
+                    configs.forEach((config) => {
+                        const cfgProm = this.zitiService.getSubdata('configs', config.id, 'services').then((result) => {
+                            const associatedServices = result.data;
+                            const isOrphan = !associatedServices.some((svc) => {
+                                return svc.id !== service.id;
+                            });
+                            if (isOrphan) {
+                                serviceItem.associatedConfigs.push(config);
+                            }
+                        }).catch(() => {
+                            reject();
+                        });
+                        svcCfgAssociationPromises.push(cfgProm);
+                    });
+                    Promise.all(svcCfgAssociationPromises).then(() => {
+                        serviceItem.associatedConfigs = serviceItem.associatedConfigs.map((config) => {
+                            const cfg = {
+                                name: config.name,
+                                id: config.id
+                            }
+                            if (!this.isConfigAdded(cfg, allItem)) {
+                                allItem.associatedConfigs.push(cfg);
+                            }
+                            return cfg;
+                        });
+                        resolve(serviceItem.associatedConfigs);
+                    })
+                }).catch(() => {
+                    reject();
+                });
+            });
+            promises.push(allCfgAssociationsPromise);
+            const svcPolAssociationPromises = [];
+            const allSvcAssociationsPromise = new Promise((resolve, reject) => {
+                this.zitiService.getSubdata('services', service.id, 'service-policies').then((result) => {
+                    const policies = result.data;
+                    policies.forEach((pol) => {
+                        let roleAttributes = pol.serviceRoles.filter((attr) => {
+                            return attr.charAt('0') === '#';
+                        });
+                        roleAttributes = roleAttributes.map((attr) => {
+                            return attr.substring(1);
+                        });
+                        const prom = this.servicePolicyService.getAssociatedServicesByAttribute(roleAttributes, []).then((result) => {
+                            const isOrphan = !result.some((svc) => {
+                                return svc.id !== service.id;
+                            });
+                            if (isOrphan) {
+                                serviceItem.associatedServicePolicies.push(pol);
+                            }
+                        }).catch(() => {
+                            reject();
+                        });
+                        svcPolAssociationPromises.push(prom);
+                    });
+                    Promise.all(svcPolAssociationPromises).then(() => {
+                        serviceItem.associatedServicePolicies = serviceItem.associatedServicePolicies.map((pol) => {
+                            const policy = {
+                                name: pol.name,
+                                id: pol.id
+                            }
+                            if (!this.isServicePolicyAdded(policy, allItem)) {
+                                allItem.associatedServicePolicies.push(policy);
+                            }
+                            return policy;
+                        });
+                        resolve(serviceItem.associatedServicePolicies);
+                    });
+                }).catch(() => {
+                    reject();
+                });
+            });
+            promises.push(allSvcAssociationsPromise);
+            selected.push(serviceItem);
+        });
+        return Promise.all(promises).then(() => {
+            return {selectedItems: selected, allItem: allItem};
+        });
+    }
+
+    isConfigAdded(configToAdd, allItem) {
+        return allItem.associatedConfigs.some((config) => {
+            return config.id === configToAdd.id;
+        });
+    }
+
+    isServicePolicyAdded(policyToAdd, allItem) {
+        return allItem.associatedServicePolicies.some((policy) => {
+            return policy.id === policyToAdd.id;
+        });
+    }
+
+    removeAllServicesAndOrphans(allItems) {
+        const promises = [];
+        allItems.forEach((service) => {
+            const prom = this.dataService.delete('services', service.id);
+            promises.push(prom);
+            service.associatedConfigs.forEach((config) => {
+                const cfgPromise = this.dataService.delete('configs', config.id);
+                promises.push(cfgPromise);
+            });
+            service.associatedServicePolicies.forEach((policy) => {
+                const svcPolPromise = this.dataService.delete('service-policies', policy.id);
+                promises.push(svcPolPromise);
+            });
+        });
+        return Promise.all(promises);
     }
 }

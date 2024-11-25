@@ -1,0 +1,113 @@
+<div class="preview-selections-container confirm-modal-container" [ngClass]="{'error-state': state === 'ERROR', 'loading-state': isLoading}">
+    <div class="close icon-close" (click)="cancel()"></div>
+    <div class="preview-selections-body">
+        <div class="preview-selections-content">
+            <div class="preview-selections-title-container">
+                <div class="confirm-modal-icon" style="background-image: url(&quot;../../assets/svgs/Confirm_Trash.svg&quot;);"></div>
+                <span class="preview-selections-title">Orphaned Configs & Service Policies</span>
+                <span class="preview-selections-subtitle">Preview of all associated entities that will be orphaned and deleted once the selected services are deleted</span>
+            </div>
+            <div class="preview-selections-info-message" *ngIf="infoMessage" [ngClass]="{'error-message': state === 'ERROR'}">{{infoMessage}}</div>
+            <div class="preview-selections-main">
+                <div class="preview-selections-left-side">
+                    <lib-form-field-container
+                            [showHeader]="true"
+                            [title]="'Services To Delete'"
+                            [class]="'hide-overflow bold-header-title'"
+                            [count]="selectedItems.length"
+                    >
+                        <div class="selected-items-container">
+                            <div class="selected-items">
+                                <div class="selected-items-category">
+                                    <ul>
+                                        <li class="selected-items-item header-item" (click)="previewItem(allItem)" [ngClass]="{'selected': selectedItem.id === 'all'}">
+                                            <span class="selected-item-name">{{allItem.name}}</span>
+                                            <div class="associated-count-container">
+                                                <div class="associated-count-header-group">
+                                                    <div
+                                                        class="associated-header-icon icon-configuration"
+                                                        matTooltip="Configs"
+                                                        matTooltipPosition="below"
+                                                        matTooltipShowDelay="500"
+                                                    ></div>
+                                                    <span class="associated-configs-count">{{allItem.associatedConfigs.length}}</span>
+                                                </div>
+                                                <div class="count-divider header-divider"></div>
+                                                <div class="associated-count-header-group">
+                                                    <div
+                                                        class="associated-header-icon icon-Policies"
+                                                        matTooltip="Service Policies"
+                                                        matTooltipPosition="below"
+                                                        matTooltipShowDelay="500"
+                                                    ></div>
+                                                    <span class="associated-policies-count">{{allItem.associatedServicePolicies.length}}</span>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <div class="selected-items-divider"></div>
+                                        <li *ngFor="let item of selectedItems" class="selected-items-item" (click)="previewItem(item)" [ngClass]="{'selected': item.selected}">
+                                            <span class="selected-item-name">{{item.name}}</span>
+                                            <div class="associated-count-container">
+                                                <div class="associated-count-list-group">
+                                                    <span class="associated-configs-header-count">{{allItem.associatedConfigs.length}}</span>
+                                                    <span class="associated-configs-count">{{item.associatedConfigs.length}}</span>
+                                                </div>
+                                                <div class="count-divider"></div>
+                                                <div class="associated-count-list-group">
+                                                    <span class="associated-configs-header-count">{{allItem.associatedServicePolicies.length}}</span>
+                                                    <span class="associated-policies-count">{{item.associatedServicePolicies.length}}</span>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </lib-form-field-container>
+                </div>
+                <div class="preview-selections-divider"></div>
+                <div class="preview-selections-right-side">
+                    <div class="preview-selections-lists-title">
+                        <div class="resource-type"> Selected Service </div>
+                        <div class="icon-next preview-selections-breadcrumb"></div>
+                        <div class="selected-attribute"> {{selectedItem.name}} </div>
+                    </div>
+                    <div class="preview-selections-lists">
+                        <lib-form-field-container
+                                [title]="'Orphaned Configs'"
+                                [titleIcon]="'icon-configuration'"
+                                [count]="selectedItem.associatedConfigs.length"
+                                [class]="'hide-overflow'"
+                                [helpText]="'List of orphaned Configs that will be deleted.'"
+                        >
+                            <lib-preview-list
+                                    [clickable]="false"
+                                    [items]="selectedItem.associatedConfigs"
+                                    [allowRemove]="false"
+                            ></lib-preview-list>
+                        </lib-form-field-container>
+                        <lib-form-field-container
+                                [title]="'Orphaned Service Policies'"
+                                [titleIcon]="'icon-Policies'"
+                                [count]="selectedItem.associatedServicePolicies.length"
+                                [class]="'hide-overflow'"
+                                [helpText]="'List of all orphaned Service Policies that will be deleted.'"
+                        >
+                            <lib-preview-list
+                                    [clickable]="false"
+                                    [items]="selectedItem.associatedServicePolicies"
+                                    [allowRemove]="false"
+                            ></lib-preview-list>
+                        </lib-form-field-container>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="preview-selections-buttons-container">
+        <button class="button save secondary-button" (click)="return()">Return</button>
+        <button class="button save confirm" *ngIf="dataObj.deleteConfirmed && state !== 'ERROR'" (click)="confirm()" [disabled]="isLoading">Delete All</button>
+    </div>
+</div>
+
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

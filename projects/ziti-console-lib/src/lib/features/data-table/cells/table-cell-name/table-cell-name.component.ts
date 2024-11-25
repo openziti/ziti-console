@@ -36,7 +36,7 @@ export class TableCellNameComponent  implements ICellRendererAngularComp {
     event.preventDefault();
     if (isFunction(this.cellParams?.cellNamePreCheck)) {
       this.cellParams?.cellNamePreCheck(this.item).then((result) => {
-        if (!result) {
+        if (!result?.confirmed) {
           return;
         }
         this.router.navigateByUrl(`${this.cellParams.pathRoot}/${this.item.id}`);

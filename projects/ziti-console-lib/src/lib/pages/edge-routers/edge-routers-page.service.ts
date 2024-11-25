@@ -351,7 +351,7 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
             autoFocus: false,
         });
         return this.dialogRef.afterClosed().toPromise().then((result) => {
-            if (result) {
+            if (result?.confirmed) {
                 return this.zitiService.post(`edge-routers/${router.id}/re-enroll`, {}, true).then((result) => {
                     const growlerData = new GrowlerModel(
                         'success',
