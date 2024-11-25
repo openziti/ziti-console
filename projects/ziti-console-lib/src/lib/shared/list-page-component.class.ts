@@ -38,7 +38,6 @@ export abstract class ListPageComponent {
     startCount = '-';
     endCount = '-';
     totalCount = '-';
-    currentPage = 1;
     itemsSelected = false;
     selectedItems: any[] = [];
     columnDefs: any = [];
@@ -59,6 +58,7 @@ export abstract class ListPageComponent {
     ) {}
 
     ngOnInit() {
+        this.filterService.currentPage = 1;
         this.svc.sideModalOpen = false;
         this.svc.refreshData = this.refreshData.bind(this);
         this.columnDefs = this.svc.initTableColumns();
@@ -71,7 +71,6 @@ export abstract class ListPageComponent {
             })
         );
         this.filterService.pageChanged.subscribe(page => {
-            this.currentPage = page;
             this.refreshData();
         });
         this.subscription.add(
@@ -113,7 +112,7 @@ export abstract class ListPageComponent {
     refreshData(sort?: { sortBy: string, ordering: string }, hardRefresh = false): void {
         this.isLoading = true;
         sort = sort ? sort : this.svc.currentSort;
-        this.svc.getData(this.filterService.filters, sort, this.currentPage)
+        this.svc.getData(this.filterService.filters, sort, this.filterService.currentPage)
             .then((data: any) => {
                 this.rowData = [];
                 if (hardRefresh) {
