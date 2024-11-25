@@ -321,7 +321,11 @@ export class NodeDataService extends ZitiDataService {
             let filterVal = '';
             switch (filter.type) {
                 case 'TEXTINPUT':
-                    filterVal = `${filter.columnId} contains "${filter.value}"`;
+                    const verb = filter.verb ? filter.verb : 'contains';
+                    filterVal = `${filter.columnId} ${verb} "${filter.value}"`;
+                    if (filter.rawFilter) {
+                        paging.rawFilter = true;
+                    }
                     break;
                 case 'SELECT':
                 case 'COMBO':
