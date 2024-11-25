@@ -1,3 +1,16 @@
+# app-ziti-console-v3.6.2
+# ziti-console-lib-v0.6.3
+
+## Feature/Improvements
+* [Issue #548](https://github.com/openziti/ziti-console/issues/548) - Optionally delete unused/orphaned entities when deleting a Service
+*
+## Bug Fixes
+* [Issue #550](https://github.com/openziti/ziti-console/issues/550) - Fix filtering of configs based on config type when editing a service
+* [Issue #546](https://github.com/openziti/ziti-console/issues/546) - Fix download of Certificate Authority JWT
+* [Issue #553](https://github.com/openziti/ziti-console/issues/553) - Fix synchronization of pagination controls when applying filters to list pages
+* [Issue #544](https://github.com/openziti/ziti-console/pull/544) - prune and ignore hard-coded lib version.ts file
+
+
 # app-ziti-console-v3.6.1
 # ziti-console-lib-v0.6.2
 
