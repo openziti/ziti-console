@@ -30,6 +30,7 @@ import {ServicePolicyFormService} from "../../features/projectable-forms/service
 import semver from 'semver';
 import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service";
 import {Subscription} from "rxjs";
+import {isEmpty} from "lodash";
 
 @Component({
   selector: 'lib-services',
@@ -161,12 +162,13 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
     });
     const countLabel = selectedItems.length > 1 ? selectedItems.length : '';
     this.selectedItems = selectedItems;
+    const showSecondaryConfirm = !isEmpty(this.settingsService?.zitiSemver) && semver.gte(this.settingsService?.zitiSemver, '1.1.8')
     this.confirmData = {
       appendId: 'DeleteServices',
       title: 'Delete Services',
       message: `Are you sure you would like to delete the following ${countLabel} ${entityTypeLabel}?`,
       bulletList: selectedNames,
-      showSecondaryConfirm: semver.gte(this.settingsService?.zitiSemver, '1.1.8'),
+      showSecondaryConfirm: showSecondaryConfirm,
       secondaryConfirmLabel: 'Delete all orphaned associated configs and service policies?',
       secondaryConfirmed: false,
       secondaryInfoLabel: `Choosing this option will also delete any associated configs and/or service policies that ONLY make reference to these selected services`,

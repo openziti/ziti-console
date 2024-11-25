@@ -54,6 +54,7 @@ export class SideToolbarComponent {
     this.zacService.initZac();
     app.init();
     this.zacService.initZACButtonListener();
+    this.settingsService.initApiVersions(this.settingsService?.settings?.selectedEdgeController);
     this.settingsService.settingsChange.subscribe((results:any) => {
       this.hideNav = results.hideNav;
       this.initSideBar();
