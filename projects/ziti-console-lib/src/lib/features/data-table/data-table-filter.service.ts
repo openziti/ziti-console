@@ -22,8 +22,8 @@ export class DataTableFilterService {
 
     filters: FilterObj[] = [];
     currentPage = 1;
-    filtersChanged
-        = new BehaviorSubject<FilterObj[]>(this.filters)
+    filtersChanged = new BehaviorSubject<FilterObj[]>(this.filters);
+    public filtering = new BehaviorSubject<boolean>(false);
 
     pageChanged = new BehaviorSubject<any>(this.currentPage);
 
@@ -74,6 +74,7 @@ export class DataTableFilterService {
     }
 
     changePage(page: any) {
+        this.currentPage = page;
         this.pageChanged.next(page);
     }
 

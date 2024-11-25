@@ -35,6 +35,7 @@ export class FilterBarComponent {
   @Input() totalCount: string = '-';
   @Input() currentPage: number = 1;
 
+  filtering = false;
   filterString = '';
   inputChangedDebounced = debounce(this.inputChanged.bind(this), 400);
 
@@ -52,6 +53,9 @@ export class FilterBarComponent {
       }
       this.filterString = tmp;
     });
+    this.filterService.filtering.subscribe((filtering) => {
+      this.filtering = filtering;
+    });
   }
 
   nextPage() {
@@ -65,7 +69,7 @@ export class FilterBarComponent {
   }
 
   get nextDisabled() {
-    if (!isNumber(this.totalCount) || !isNumber(this.endCount)) {
+    if (!isNumber(this.totalCount) || !isNumber(this.endCount) || this.filtering) {
       return true;
     }
     const total: any = Number.parseInt(this.totalCount);
@@ -74,7 +78,7 @@ export class FilterBarComponent {
   }
 
   get prevDisabled() {
-    if (!isNumber(this.startCount) || !isNumber(this.totalCount)) {
+    if (!isNumber(this.startCount) || !isNumber(this.totalCount) || this.filtering) {
       return true;
     }
     const start = Number.parseInt(this.startCount, 10);
@@ -82,6 +86,8 @@ export class FilterBarComponent {
   }
 
   inputChanged() {
+    this.currentPage = 1;
+    this.filterService.currentPage = this.currentPage;
     const filterObj: FilterObj = {
       filterName: this.filterName,
       columnId: this.filterColumn,

@@ -169,7 +169,10 @@ export abstract class ListPageServiceClass {
             paging.filter = filters[idx].value;
             paging.rawFilter = true;
         }
-        return this.dataService.get(resourceType, paging, filters);
+        this.filterService.filtering.next(true);
+        return this.dataService.get(resourceType, paging, filters).finally(() => {
+            this.filterService.filtering.next(false);
+        });
     }
 
     removeItems(ids: string[]) {
