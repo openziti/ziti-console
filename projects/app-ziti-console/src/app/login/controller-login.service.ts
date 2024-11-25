@@ -17,11 +17,10 @@
 import {Injectable, Inject} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {LoginServiceClass, SettingsServiceClass, GrowlerService, GrowlerModel, SETTINGS_SERVICE} from "ziti-console-lib";
-import {firstValueFrom, lastValueFrom, Observable, ObservableInput, of, switchMap, tap} from "rxjs";
+import {lastValueFrom, Observable, of, switchMap} from "rxjs";
 import {catchError} from "rxjs/operators";
 import {Router} from "@angular/router";
-import moment from "moment";
-import {debounce, defer, isEmpty, isNil} from "lodash";
+import {defer, isEmpty, isNil} from "lodash";
 
 @Injectable({
     providedIn: 'root'
@@ -68,50 +67,140 @@ export class ControllerLoginService extends LoginServiceClass {
         });
     }
 
-    observeLogin(serviceUrl: string, username?: string, password?: string) {
-        const queryParams = username && password ? '?method=password' : '?method=cert';
-        const requestBody = username && password ? { username, password } : undefined;
-        const endpoint = serviceUrl + '/authenticate';
+    observeLogin(serviceUrl: string, username?: string, password?: string): Observable<any> {
+        return new Observable(observer => {
+            let checkForInputsInterval: number | null = null;
+            let timeoutId: number | null = null;
 
-        return this.httpClient.post(endpoint + queryParams, requestBody, {
-            headers: {
-                "content-type": "application/json",
-            }
-        })
-            .pipe(
-                switchMap((body: any) => {
-                    return this.handleLoginResponse.bind(this)(body, username, password)
-                }),
-                catchError((err: any) => {
-                    let errorMessage, growlerData;
-                    if (err.code === "ECONNREFUSED") {
-                        errorMessage = `Server Not Accessible. Please make sure controller is online.`;
-                        growlerData = new GrowlerModel(
-                            'error',
-                            'Error',
-                            `Login Failed`,
-                            errorMessage,
-                        );
-                    } else {
-                        const status = err?.statusText;
-                        const code = '- ' + (err?.error?.code || status);
-                        errorMessage = `Unable to login to selected edge controller ${code}. Please make sure the selected controller is online and accessible`;
-                        growlerData = new GrowlerModel(
-                            'error',
-                            'Error',
-                            `Login Failed`,
-                            errorMessage,
-                        );
-                        this.router.navigate(['/login']);
+            const setupInputListeners = (usernameInput: HTMLInputElement, passwordInput: HTMLInputElement) => {
+                console.log('Login inputs found');
+
+                // Detect autofill using MutationObserver
+                const detectAutofill = () => {
+                    const observer = new MutationObserver(() => {
+                        const isUsernameFilled = usernameInput.value.length > 0;
+                        const isPasswordFilled = passwordInput.value.length > 0;
+                        if (isUsernameFilled && isPasswordFilled) {
+                            console.log('Autofill detected via MutationObserver');
+                            observer.disconnect();
+                            triggerLogin(usernameInput, passwordInput);
+                        }
+                    });
+
+                    observer.observe(usernameInput, { attributes: true, childList: true, characterData: true });
+                    observer.observe(passwordInput, { attributes: true, childList: true, characterData: true });
+
+                    // Fallback: Periodically check for filled inputs
+                    const checkInterval = setInterval(() => {
+                        const isUsernameFilled = usernameInput.value.length > 0;
+                        const isPasswordFilled = passwordInput.value.length > 0;
+                        if (isUsernameFilled && isPasswordFilled) {
+                            console.log('Autofill detected via interval check');
+                            clearInterval(checkInterval);
+                            observer.disconnect();
+                            triggerLogin(usernameInput, passwordInput);
+                        }
+                    }, 500); // Check every 500ms
+                };
+
+                const triggerLogin = (usernameInput: HTMLInputElement, passwordInput: HTMLInputElement) => {
+                    const detectedUsername = usernameInput.value || username || '';
+                    const detectedPassword = passwordInput.value || password || '';
+
+                    console.log(`Login attempted - Username: "${detectedUsername}", Password: ${detectedPassword ? '[REDACTED]' : 'empty'}`);
+
+                    const queryParams = detectedUsername && detectedPassword ? '?method=password' : '?method=cert';
+                    const requestBody = detectedUsername && detectedPassword ? { username: detectedUsername, password: detectedPassword } : undefined;
+                    const endpoint = serviceUrl + '/authenticate';
+
+                    console.log(`Authentication method: ${queryParams.includes('password') ? 'password' : 'cert'}`);
+
+                    this.httpClient.post(endpoint + queryParams, requestBody, {
+                        headers: {
+                            "content-type": "application/json",
+                        }
+                    }).pipe(
+                        switchMap((body: any) => {
+                            return this.handleLoginResponse.bind(this)(body, detectedUsername, detectedPassword);
+                        }),
+                        catchError((err: any) => {
+                            let errorMessage, growlerData;
+                            if (err.code === "ECONNREFUSED") {
+                                errorMessage = `Server Not Accessible. Please make sure controller is online.`;
+                                growlerData = new GrowlerModel(
+                                    'error',
+                                    'Error',
+                                    `Login Failed`,
+                                    errorMessage,
+                                );
+                            } else {
+                                const status = err?.statusText;
+                                const code = '- ' + (err?.error?.code || status);
+                                errorMessage = `Unable to login to selected edge controller ${code}. Please make sure the selected controller is online and accessible`;
+                                growlerData = new GrowlerModel(
+                                    'error',
+                                    'Error',
+                                    `Login Failed`,
+                                    errorMessage,
+                                );
+                                this.router.navigate(['/login']);
+                            }
+                            if (this.settingsService?.settings?.session) {
+                                this.settingsService.settings.session.id = undefined;
+                            }
+                            this.settingsService.set(this.settingsService.settings)
+                            this.growlerService.show(growlerData);
+                            throw({error: errorMessage});
+                        })
+                    ).subscribe(
+                        result => observer.next(result),
+                        error => observer.error(error),
+                        () => observer.complete()
+                    );
+                };
+
+                detectAutofill();
+            };
+
+            const checkForInputs = () => {
+                console.log('Checking for login inputs...');
+                const usernameInput = document.querySelector('input[type="text"], input[type="email"], input[name="username"]') as HTMLInputElement;
+                const passwordInput = document.querySelector('input[type="password"]') as HTMLInputElement;
+                
+                if (usernameInput && passwordInput) {
+                    console.log('Login inputs found:', usernameInput, passwordInput);
+                    if (checkForInputsInterval !== null) {
+                        clearInterval(checkForInputsInterval);
                     }
-                    if (this.settingsService?.settings?.session) {
-                        this.settingsService.settings.session.id = undefined;
+                    if (timeoutId !== null) {
+                        clearTimeout(timeoutId);
                     }
-                    this.settingsService.set(this.settingsService.settings)
-                    this.growlerService.show(growlerData);
-                    throw({error: errorMessage});
-                })
-            );
+                    setupInputListeners(usernameInput, passwordInput);
+                } else {
+                    console.log('Login inputs not found yet');
+                }
+            };
+
+            checkForInputsInterval = window.setInterval(checkForInputs, 100); // Check every 100ms
+
+            // Timeout after 10 seconds
+            timeoutId = window.setTimeout(() => {
+                if (checkForInputsInterval !== null) {
+                    clearInterval(checkForInputsInterval);
+                }
+                console.error('Login inputs not found after 10 seconds. DOM structure:', document.body.innerHTML);
+                observer.error(new Error('Login inputs not found after 10 seconds'));
+            }, 10000);
+
+            return () => {
+                if (checkForInputsInterval !== null) {
+                    clearInterval(checkForInputsInterval);
+                }
+                if (timeoutId !== null) {
+                    clearTimeout(timeoutId);
+                }
+            };
+        });
     }
 
     private handleLoginResponse(body: any, username: string, password: string): Observable<any> {
