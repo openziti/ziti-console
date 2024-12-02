@@ -84,13 +84,20 @@ export class AuthPoliciesPageService extends ListPageServiceClass {
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
                 cellRenderer: TableCellNameComponent,
-                cellRendererParams: { pathRoot: this.basePath, cellNamePreCheck: this.checkDefaultAuthPolicy.bind(this) },
+                cellRendererParams: { pathRoot: this.basePath, cellNamePreCheck: (data) => {
+                    this.checkDefaultAuthPolicy(data).then((result) => {
+                        if (!result) {
+                            return;
+                        }
+                        this.openEditForm(data?.data?.id);
+                    });
+                }},
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
                         return;
                     }
                     this.checkDefaultAuthPolicy(data?.data).then((result: any) => {
-                        if (!result.confirmed) {
+                        if (!result) {
                             return;
                         }
                         this.openEditForm(data?.data?.id);
