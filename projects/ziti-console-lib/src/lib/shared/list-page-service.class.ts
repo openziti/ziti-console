@@ -23,7 +23,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {ConfirmComponent} from "../features/confirm/confirm.component";
 import {SETTINGS_SERVICE, SettingsService} from "../services/settings.service";
 
-import {isEmpty} from "lodash";
+import {isEmpty, cloneDeep} from "lodash";
 import {CsvDownloadService} from "../services/csv-download.service";
 import {SettingsServiceClass} from "../services/settings-service.class";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../features/extendable/extensions-noop.service";
