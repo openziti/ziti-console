@@ -105,7 +105,7 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
         this.deleteItem(event.item)
         break;
       case 'download-all':
-        this.svc.downloadAllItems();
+        this.downloadAllItems();
         break;
       case 'download-selected':
         this.svc.downloadItems(this.selectedItems);

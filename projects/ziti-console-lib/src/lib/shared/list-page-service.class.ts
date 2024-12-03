@@ -38,6 +38,12 @@ export abstract class ListPageServiceClass {
     abstract openUpdate(entity?: any);
     abstract resourceType: string;
 
+    CSV_COLUMNS = [
+        {label: 'Name', path: 'name'},
+        {label: 'ID', path: 'id'},
+        {label: 'Created At', path: 'createdAt'}
+    ];
+
     basePath: string = '';
 
     headerComponentParams = {
@@ -157,13 +163,36 @@ export abstract class ListPageServiceClass {
         }
     }
 
+    downloadItems(selectedItems) {
+        this.csvDownloadService.download(
+            this.resourceType,
+            selectedItems,
+            this.CSV_COLUMNS,
+            false,
+            false,
+            undefined,
+            false
+        );
+    }
+
+    downloadAllItems(): Promise<any> {
+        const paging = cloneDeep(this.DEFAULT_PAGING);
+        paging.total = -1;
+        return this.getTableData(this.resourceType, paging, undefined, undefined)
+            .then((results: any) => {
+                return this.downloadItems(results?.data);
+            });
+    }
+
     getTableData(resourceType: string, paging: any, filters?: FilterObj[], sort?: any): Promise<any> {
-        paging = {...this.DEFAULT_PAGING};
+        if (!paging) {
+            paging = {...this.DEFAULT_PAGING};
+        }
         if(sort) {
             paging.sort = sort.sortBy;
             paging.order = sort.ordering;
         }
-        for (let idx = 0; idx < filters.length; idx++) {
+        for (let idx = 0; idx < filters?.length; idx++) {
             paging.noSearch = false;
             paging.searchOn = filters[idx].columnId;
             paging.filter = filters[idx].value;

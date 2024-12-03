@@ -42,24 +42,6 @@ import {IDENTITY_EXTENSION_SERVICE} from "../../features/projectable-forms/ident
 import {Router} from "@angular/router";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 
-const CSV_COLUMNS = [
-    {label: 'Name', path: 'name'},
-    {label: 'Roles', path: 'roleAttributes'},
-    {label: 'Online', path: 'hasApiSession'},
-    {label: 'Edge Router Connected', path: 'hasEdgeRouterConnection'},
-    {label: 'OS', path: 'envInfo.os'},
-    {label: 'OS Version', path: 'envInfo.osVersion'},
-    {label: 'SDK', path: 'sdkInfo.version'},
-    {label: 'App Version', path: 'sdkInfo.appVersion'},
-    {label: 'Type', path: 'typeId'},
-    {label: 'Is Admin', path: 'isAdmin'},
-    {label: 'Auth Policy', path: 'authPolicy.name'},
-    {label: 'Auth Policy ID', path: 'authPolicy.id'},
-    {label: 'MFA Enabled', path: 'isMfaEnabled'},
-    {label: 'Created At', path: 'createdAt'},
-    {label: 'ID', path: 'id'},
-];
-
 @Injectable({
     providedIn: 'root'
 })
@@ -67,6 +49,24 @@ export class IdentitiesPageService extends ListPageServiceClass {
 
     private paging = this.DEFAULT_PAGING;
     public modalType = 'identities';
+
+    override CSV_COLUMNS = [
+        {label: 'Name', path: 'name'},
+        {label: 'Roles', path: 'roleAttributes'},
+        {label: 'Online', path: 'hasApiSession'},
+        {label: 'Edge Router Connected', path: 'hasEdgeRouterConnection'},
+        {label: 'OS', path: 'envInfo.os'},
+        {label: 'OS Version', path: 'envInfo.osVersion'},
+        {label: 'SDK', path: 'sdkInfo.version'},
+        {label: 'App Version', path: 'sdkInfo.appVersion'},
+        {label: 'Type', path: 'typeId'},
+        {label: 'Is Admin', path: 'isAdmin'},
+        {label: 'Auth Policy', path: 'authPolicy.name'},
+        {label: 'Auth Policy ID', path: 'authPolicy.id'},
+        {label: 'MFA Enabled', path: 'isMfaEnabled'},
+        {label: 'Created At', path: 'createdAt'},
+        {label: 'ID', path: 'id'},
+    ];
 
     selectedIdentity: any = new Identity();
     columnFilters: any = {
@@ -451,15 +451,6 @@ export class IdentitiesPageService extends ListPageServiceClass {
         return expiresAt;
     }
 
-    downloadAllItems() {
-        const paging = cloneDeep(this.paging);
-        paging.total = 2000;
-        super.getTableData('identities', paging, undefined, undefined)
-            .then((results: any) => {
-                return this.downloadItems(results?.data);
-            });
-    }
-
     resetEnrollment(identity: any, date: any) {
         let id = identity?.authenticators?.cert?.id;
         if (!id) {
@@ -488,18 +479,6 @@ export class IdentitiesPageService extends ListPageServiceClass {
             );
             this.growlerService.show(growlerData);
         });
-    }
-
-    downloadItems(selectedItems) {
-        this.csvDownloadService.download(
-            'identities',
-            selectedItems,
-            CSV_COLUMNS,
-            false,
-            false,
-            undefined,
-            false
-        );
     }
 
     public openUpdate(itemId?: any) {

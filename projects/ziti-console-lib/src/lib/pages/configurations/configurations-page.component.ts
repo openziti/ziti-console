@@ -84,6 +84,12 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
             case 'delete':
                 this.deleteItem(event.item)
                 break;
+            case 'download-all':
+                this.downloadAllItems();
+                break;
+            case 'download-selected':
+                this.svc.downloadItems(this.selectedItems);
+                break;
             default:
                 break;
         }

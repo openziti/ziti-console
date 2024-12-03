@@ -36,11 +36,6 @@ import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/ext
 import {Router} from "@angular/router";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 
-const CSV_COLUMNS = [
-    {label: 'Name', path: 'name'},
-    {label: 'Created At', path: 'createdAt'}
-];
-
 @Injectable({
     providedIn: 'root'
 })
@@ -450,27 +445,6 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
             this.postureNamedAttributes = namedAttributes;
             return namedAttributes;
         });
-    }
-
-    downloadAllItems() {
-        const paging = cloneDeep(this.paging);
-        paging.total = this.totalCount;
-        super.getTableData('service-policies', paging, undefined, undefined)
-            .then((results: any) => {
-                return this.downloadItems(results?.data);
-            });
-    }
-
-    downloadItems(selectedItems) {
-        this.csvDownloadService.download(
-            'service-policies',
-            selectedItems,
-            CSV_COLUMNS,
-            false,
-            false,
-            undefined,
-            false
-        );
     }
 
     public openUpdate(item?: any) {

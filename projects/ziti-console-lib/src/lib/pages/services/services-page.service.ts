@@ -37,11 +37,6 @@ import {Router} from "@angular/router";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 import {ServicePolicyFormService} from "../../features/projectable-forms/service-policy/service-policy-form.service";
 
-const CSV_COLUMNS = [
-    {label: 'Name', path: 'name'},
-    {label: 'Created At', path: 'createdAt'}
-];
-
 @Injectable({
     providedIn: 'root'
 })
@@ -49,6 +44,14 @@ export class ServicesPageService extends ListPageServiceClass {
 
     private paging = this.DEFAULT_PAGING;
     public modalType = 'service';
+
+    override CSV_COLUMNS = [
+        {label: 'Name', path: 'name'},
+        {label: 'ID', path: 'id'},
+        {label: 'Encryption Required', path: 'encryptionRequired'},
+        {label: 'Terminator Strategy', path: 'terminatorStrategy'},
+        {label: 'Created At', path: 'createdAt'},
+    ]
 
     serviceType = '';
     selectedService: any = new Service();
@@ -203,27 +206,6 @@ export class ServicesPageService extends ListPageServiceClass {
 
     public getIdentityRoleAttributes() {
         return this.zitiService.get('identity-role-attributes', {}, []);
-    }
-
-    downloadAllItems() {
-        const paging = cloneDeep(this.paging);
-        paging.total = this.totalCount;
-        super.getTableData('services', paging, undefined, undefined)
-            .then((results: any) => {
-                return this.downloadItems(results?.data);
-            });
-    }
-
-    downloadItems(selectedItems) {
-        this.csvDownloadService.download(
-            'services',
-            selectedItems,
-            CSV_COLUMNS,
-            false,
-            false,
-            undefined,
-            false
-        );
     }
 
     public openSelection() {

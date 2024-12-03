@@ -152,7 +152,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
         this.showQRCode(event.item);
         break;
       case 'download-all':
-        this.svc.downloadAllItems();
+        this.downloadAllItems();
         break;
       case 'download-selected':
         this.svc.downloadItems(this.selectedItems);

@@ -105,6 +105,12 @@ export class AuthPoliciesPageComponent extends ListPageComponent implements OnIn
                     this.deleteItem(event.item)
                 });
                 break;
+            case 'download-all':
+                this.downloadAllItems();
+                break;
+            case 'download-selected':
+                this.svc.downloadItems(this.selectedItems);
+                break;
             default:
                 break;
         }
