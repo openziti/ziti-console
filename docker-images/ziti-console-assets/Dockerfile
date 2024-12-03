@@ -15,7 +15,6 @@ COPY . .
 RUN --mount=type=cache,target=/usr/src/app/node_modules \
     --mount=type=cache,target=/usr/src/app/.angular/cache \
     npm install --omit=optional && \
-    ng build ziti-console-lib && \
     ng build ziti-console --base-href ${BASE_HREF} --configuration "production"
 
 ARG NODE_VERSION=${NODE_VERSION}

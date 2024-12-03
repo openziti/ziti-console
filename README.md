@@ -40,7 +40,8 @@ Please star us!
     </p>
 
 ---
-[![Issues](https://img.shields.io/github/issues-raw/openziti/ziti-console)]()
+
+[![Issues](https://img.shields.io/github/issues-raw/openziti/ziti-console)](https://github.com/openziti/ziti-console/issues)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=rounded)](CONTRIBUTING.md)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
@@ -88,21 +89,13 @@ This repository houses two projects.
 
 From the project root:
 
-1. Install the projects' dependencies.
+1. Install both projects' dependencies and build the library.
 
     ```bash
     npm install
     ```
 
-1. Build the library project with Angular.
-
-    ```bash
-    ng build ziti-console-lib
-    ```
-
 ### Build the Single Page Application
-
-This is the recommended approach.
 
 1. Build the console project with Angular.
 
@@ -138,7 +131,7 @@ There are two elements to the Angular app.
 
 From the project root:
 
-1. Install dependencies
+1. Install dependencies and build the library.
 
     ```bash
     npm install
