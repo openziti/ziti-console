@@ -40,7 +40,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     controllerHostname = '';
     edgeNameError = '';
     edgeUrlError = '';
-    backToLogin = false;
     showEdge = false;
     isLoading = false;
     private subscription = new Subscription();
@@ -93,7 +92,10 @@ export class LoginComponent implements OnInit, OnDestroy {
                 this.selectedEdgeController,
                 this.username.trim(),
                 this.password
-            ).then(() => {
+            ).then((result) => {
+                if (result.error) {
+                    return;
+                }
                 context.set('serviceUrl', this.selectedEdgeController);
                 this.settingsService.settings.selectedEdgeController = this.selectedEdgeController;
                 this.settingsService.set(this.settingsService.settings);
@@ -155,14 +157,12 @@ export class LoginComponent implements OnInit, OnDestroy {
     settingsReturned(settings: any) {
         this.edgeControllerList = [];
         if (settings.edgeControllers?.length > 0) {
-            this.backToLogin = false;
             this.edgeControllerList = [];
             settings.edgeControllers.forEach((controller) => {
                 this.edgeControllerList.push({name:controller.name + ` (${controller.url})`, value: controller.url});
             });
             this.reset();
         } else {
-            this.backToLogin = true;
             this.edgeCreate = true;
             this.userLogin = false;
         }
