@@ -25,25 +25,6 @@ import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {Router} from "@angular/router";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 
-const CSV_COLUMNS = [
-    {label: 'Name', path: 'name'},
-    {label: 'Attributes', path: 'roleAttributes'},
-    {label: 'Verified', path: 'isVerified'},
-    {label: 'Online', path: 'isOnline'},
-    {label: 'Created', path: 'createdAt'},
-    {label: 'Token', path: 'enrollmentToken'},
-    {label: 'No Traversal', path: 'noTraversal'},
-    {label: 'Host Name', path: 'hostname'},
-    {label: 'Disabled', path: 'disabled'},
-    {label: 'Tunneler Enabled', path: 'isTunnelerEnabled'},
-    {label: 'OS', path: 'versionInfo.os'},
-    {label: 'Architecture', path: 'versionInfo.arch'},
-    {label: 'Version', path: 'versionInfo.version'},
-    {label: 'Revision', path: 'versionInfo.revision'},
-    {label: 'Fingerprint', path: 'fingerprint'},
-    {label: 'ID', path: 'id'},
-];
-
 @Injectable({
     providedIn: 'root'
 })
@@ -51,6 +32,25 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
 
     private paging = this.DEFAULT_PAGING;
     public modalType = 'edge-router';
+
+    override CSV_COLUMNS = [
+        {label: 'Name', path: 'name'},
+        {label: 'Attributes', path: 'roleAttributes'},
+        {label: 'Verified', path: 'isVerified'},
+        {label: 'Online', path: 'isOnline'},
+        {label: 'Created', path: 'createdAt'},
+        {label: 'Token', path: 'enrollmentToken'},
+        {label: 'No Traversal', path: 'noTraversal'},
+        {label: 'Host Name', path: 'hostname'},
+        {label: 'Disabled', path: 'disabled'},
+        {label: 'Tunneler Enabled', path: 'isTunnelerEnabled'},
+        {label: 'OS', path: 'versionInfo.os'},
+        {label: 'Architecture', path: 'versionInfo.arch'},
+        {label: 'Version', path: 'versionInfo.version'},
+        {label: 'Revision', path: 'versionInfo.revision'},
+        {label: 'Fingerprint', path: 'fingerprint'},
+        {label: 'ID', path: 'id'},
+    ];
 
     selectedEdgeRouter: any = new EdgeRouter();
     columnFilters: any = {
@@ -314,27 +314,6 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
         document.body.appendChild(element);
         element.click();
         document.body.removeChild(element);
-    }
-
-    downloadAllItems() {
-        const paging = cloneDeep(this.paging);
-        paging.total = 2000;
-        super.getTableData('edge-routers', paging, undefined, undefined)
-            .then((results: any) => {
-                return this.downloadItems(results?.data);
-            });
-    }
-
-    downloadItems(selectedItems) {
-        this.csvDownloadService.download(
-            'edge-routers',
-            selectedItems,
-            CSV_COLUMNS,
-            false,
-            false,
-            undefined,
-            false
-        );
     }
 
     reenroll(router: any) {

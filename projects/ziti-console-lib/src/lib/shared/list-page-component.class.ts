@@ -16,7 +16,7 @@
 
 import {DataTableFilterService} from "../features/data-table/data-table-filter.service";
 import {ListPageServiceClass} from "./list-page-service.class";
-import {Injectable} from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {Subscription} from "rxjs";
 import {ConsoleEventsService} from "../services/console-events.service";
 import {ConfirmComponent} from "../features/confirm/confirm.component";
@@ -25,6 +25,8 @@ import {MatDialog} from "@angular/material/dialog";
 import {defer, isEmpty} from "lodash";
 import {ActivatedRoute} from "@angular/router";
 import {ExtensionService} from "../features/extendable/extensions-noop.service";
+import {GrowlerService} from "../features/messaging/growler.service";
+import {GrowlerModel} from "../features/messaging/growler.model";
 
 @Injectable()
 export abstract class ListPageComponent {
@@ -48,6 +50,8 @@ export abstract class ListPageComponent {
     gridObj: any = {};
 
     subscription: Subscription = new Subscription();
+
+    private growlerSvc = inject(GrowlerService);
 
     constructor(
         protected filterService: DataTableFilterService,
@@ -137,6 +141,28 @@ export abstract class ListPageComponent {
             });
     }
 
+    protected downloadAllItems() {
+        this.isLoading = true;
+        this.svc.downloadAllItems().then(() => {
+            const growlerData = new GrowlerModel(
+                'success',
+                'Success',
+                `Download Finished`,
+                `The requested items have been downloaded`,
+            );
+            this.growlerSvc.show(growlerData);
+        }).catch(() => {
+            const growlerData = new GrowlerModel(
+                'error',
+                'Error',
+                `Download Failed`,
+                `Failed to retrieve items for download`,
+            );
+            this.growlerSvc.show(growlerData);
+        }).finally(() => {
+            this.isLoading = false;
+        })
+    }
     protected openBulkDelete(selectedItems: any[], entityTypeLabel = 'item(s)', ) {
         const selectedIds = selectedItems.map((row) => {
             return row.id;
