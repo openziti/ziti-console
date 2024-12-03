@@ -1,6 +1,6 @@
 # this Dockerfile builds openziti/ziti-console-assets
 
-ARG NODE_VERSION=18
+ARG NODE_VERSION=20
 
 FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
