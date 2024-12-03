@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {Subject} from "rxjs";
-import {debounce} from "lodash";
+import {debounce, defer} from "lodash";
 
 @Component({
   selector: 'lib-selector-input',
@@ -38,10 +38,19 @@ export class SelectorInputComponent {
   @Input() set valueList(list: any[]) {
     this.listIsObject = list?.length > 0 && typeof list[0] !== 'string';
     this._valueList = list;
-    list.forEach(val => {
-      if(val.default) this.fieldValue = val;
+    let valToSet;
+    list.forEach(item => {
+      if(item.default) {
+        valToSet = item.value;
+      }
+    });
+    valToSet = valToSet || this.fieldValue;
+    this.fieldValue = undefined;
+    defer(() => {
+      this.fieldValue = valToSet;
     });
   };
+
   @Input() labelColor = '#000000';
   @Input() fieldClass = '';
   @Input() error = '';
