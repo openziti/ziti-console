@@ -266,8 +266,9 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
         return tableColumns;
     }
 
-    getData(filters?: FilterObj[], sort?: any): Promise<any> {
+    getData(filters?: FilterObj[], sort?: any, page?: any): Promise<any> {
         // we can customize filters or sorting here before moving on...
+        this.paging.page = page || this.paging.page;
         return super.getTableData('edge-routers', this.paging, filters, sort)
             .then((results: any) => {
                 return this.processData(results);
