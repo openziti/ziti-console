@@ -237,7 +237,10 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
 
     validate() {
         this.errors = {};
-        this.configEditor.validateConfig(this.selectedSchema);
+
+        if (!this.configEditor.validateConfig(this.selectedSchema, true)) {
+            return false;
+        }
         if (isEmpty(this.formData.name)) {
             this.errors['name'] = true;
         }

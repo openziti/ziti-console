@@ -3,7 +3,9 @@ import {JsonEditorComponent, JsonEditorOptions} from "ang-jsoneditor";
 import {debounce, defer, delay, isBoolean, isEmpty, isNil, keys} from "lodash";
 import {SchemaService} from "../../services/schema.service";
 import Ajv from 'ajv';
-import addFormats from 'ajv-formats';  // Import ajv-formats
+import addFormats from 'ajv-formats';
+import {GrowlerModel} from "../messaging/growler.model";
+import {GrowlerService} from "../messaging/growler.service";  // Import ajv-formats
 
 @Component({
   selector: 'lib-config-editor',
@@ -61,7 +63,7 @@ export class ConfigEditorComponent implements OnInit {
   jsonDataChangedDebounced: any = debounce(this.jsonDataChanged.bind(this), 350);
   @ViewChild("dynamicform", {read: ViewContainerRef}) dynamicForm!: ViewContainerRef;
   @ViewChild(JsonEditorComponent, {static: false}) editor!: JsonEditorComponent;
-  constructor(private schemaSvc: SchemaService) {
+  constructor(private schemaSvc: SchemaService, private growlerService: GrowlerService) {
   }
 
   ngOnInit() {
@@ -201,7 +203,7 @@ export class ConfigEditorComponent implements OnInit {
     return data;
   }
 
-  validateConfig(schema?, propertyValidationMap?) {
+  validateConfig(schema?, showGrowler = true) {
     let validationErrors;
     let valid = true;
     if (schema) {
@@ -214,11 +216,14 @@ export class ConfigEditorComponent implements OnInit {
       validationErrors = validate.errors;
     }
     this.configErrors = {};
-    propertyValidationMap = propertyValidationMap || {};
+    const propertyValidationMap = {};
     this.validateConfigItems(this.items, undefined, '', validationErrors);
     this.buildPropertyValidationMap(validationErrors, propertyValidationMap);
     if (!valid) {
       this.configErrors['configData'] = true;
+      if (showGrowler) {
+        this.displayConfigErrors(propertyValidationMap);
+      }
     }
     this.configErrorsChange.emit(this.configErrors);
     return isEmpty(this.configErrors);
@@ -261,6 +266,28 @@ export class ConfigEditorComponent implements OnInit {
       }
     });
     return isValid;
+  }
+
+  displayConfigErrors(propertyValidationMap) {
+    let validationMessage = '';
+    if (!isEmpty(propertyValidationMap)) {
+      const props = keys(propertyValidationMap);
+      props.forEach((key, index) => {
+        validationMessage += `<li>${propertyValidationMap[key]}</li>`;
+      });
+    }
+    if (isEmpty(validationMessage)) {
+      validationMessage = 'The entered configuration is invalid. Please update missing/invalid fields and try again.';
+    } else {
+      validationMessage = `<ul style="margin-top: 5px;">${validationMessage}</ul>`;
+    }
+    const growlerData = new GrowlerModel(
+        'error',
+        'Error',
+        `Error Validating Config`,
+        validationMessage,
+    );
+    this.growlerService.show(growlerData);
   }
 
   formDataChanged() {

@@ -420,27 +420,7 @@ export class ServiceFormService {
     async attachConfig(addedConfigId) {
         let configId;
         if (this.selectedConfigId === 'add-new') {
-            const propertyValidationMap = {};
-            if (!this.validateConfig(propertyValidationMap)) {
-                let validationMessage = '';
-                if (!isEmpty(propertyValidationMap)) {
-                    const props = keys(propertyValidationMap);
-                    props.forEach((key, index) => {
-                        validationMessage += `<li>${propertyValidationMap[key]}</li>`;
-                    });
-                }
-                if (isEmpty(validationMessage)) {
-                    validationMessage = 'The entered configuration is invalid. Please update missing/invalid fields and try again.';
-                } else {
-                    validationMessage = `<ul style="margin-top: 5px;">${validationMessage}</ul>`;
-                }
-                const growlerData = new GrowlerModel(
-                    'error',
-                    'Error',
-                    `Error Validating Config`,
-                    validationMessage,
-                );
-                this.growlerService.show(growlerData);
+            if (!this.validateConfig()) {
                 return;
             }
             const newConfig: any = {
@@ -589,9 +569,9 @@ export class ServiceFormService {
         return isEmpty(this.errors);
     }
 
-    validateConfig(validationMessages?) {
+    validateConfig() {
         this.configErrors = {};
-        this.configEditor?.validateConfig(this.selectedConfigType?.schema, validationMessages);
+        this.configEditor?.validateConfig(this.selectedConfigType?.schema, true);
         if (isEmpty(this.newConfigName)) {
             this.configErrors['name'] = true;
         }

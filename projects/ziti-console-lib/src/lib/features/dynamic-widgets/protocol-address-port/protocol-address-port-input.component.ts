@@ -108,10 +108,14 @@ export class ProtocolAddressPortInputComponent implements OnInit, DoCheck {
 
     this.props = [
       {key: 'protocol', value: protocol},
-      {key: 'address', value: address},
-      {key: 'hostname', value: hostname},
       {key: 'port', value: port}
     ];
+    if (this.showAddress) {
+      this.props.push({key: 'address', value: address});
+    }
+    if (this.showHostName) {
+      this.props.push({key: 'hostname', value: hostname});
+    }
     return this.props;
   }
 
