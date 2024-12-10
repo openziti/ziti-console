@@ -59,6 +59,13 @@ export class ProtocolAddressPortInputComponent implements OnInit, DoCheck {
 
   errors = {};
 
+  props = [
+    {key: 'protocol', value: undefined},
+    {key: 'address', value: undefined},
+    {key: 'hostname', value: undefined},
+    {key: 'port', value: undefined}
+  ]
+
   constructor(private validationService: ValidationService) {
   }
   ngOnInit() {
@@ -99,13 +106,26 @@ export class ProtocolAddressPortInputComponent implements OnInit, DoCheck {
     const hostname = isEmpty(this.hostname) ? undefined : this.hostname;
     const port = !isNumber(this.port) ? undefined : this.port;
 
-    const props = [
+    this.props = [
       {key: 'protocol', value: protocol},
       {key: 'address', value: address},
       {key: 'hostname', value: hostname},
       {key: 'port', value: port}
     ];
-    return props;
+    return this.props;
+  }
+
+  setValidationErrors(propertyPath = '', validationErrors: any[]) {
+    this.props.forEach((prop) => {
+      const hasValidationError: any = validationErrors?.some((error) => {
+        let pathToMach = error.instancePath;
+        if (!isEmpty(error?.params?.missingProperty)) {
+          pathToMach += '/' + error?.params?.missingProperty
+        }
+        return pathToMach === propertyPath + '/' + prop.key;
+      });
+      this.errors[prop.key] = hasValidationError;
+    });
   }
 
   isValid() {

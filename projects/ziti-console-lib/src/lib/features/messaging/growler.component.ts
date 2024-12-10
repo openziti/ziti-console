@@ -45,7 +45,7 @@ export class GrowlerComponent  implements OnInit, OnDestroy {
     this.show = true;
     setTimeout(() => {
       this.show = false;
-    }, 5000);
+    }, 7000);
 
   }
 }

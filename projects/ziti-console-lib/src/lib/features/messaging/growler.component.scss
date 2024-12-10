@@ -268,3 +268,13 @@
 .sevSuccess {
   background-image: url(../../assets/svgs/Growl_Success.svg);
 }
+
+::ng-deep {
+  .growler {
+    .content {
+      ul {
+        margin-top: 5px;
+      }
+    }
+  }
+}

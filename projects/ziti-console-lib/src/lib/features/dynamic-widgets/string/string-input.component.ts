@@ -5,7 +5,7 @@ import {debounce} from "lodash";
 @Component({
   selector: 'lib-string-input',
   template: `
-      <div [ngClass]="fieldClass">
+      <div [ngClass]="fieldClass + (!_isValid ? 'invalid' : '')" class="string-input-container">
           <label for="schema_{{parentage?parentage+'_':''}}{{_idName}}"  [ngStyle]="{'color': labelColor}">{{_fieldName}}</label>
           <input id="schema_{{parentage?parentage+'_':''}}{{_idName}}"
                  type="text" class="jsonEntry"
@@ -14,7 +14,7 @@ import {debounce} from "lodash";
           <div *ngIf="error" class="error">{{error}}</div>
       </div>
   `,
-    styles:['input.error {border-color:red;}','div.error {color:red}']
+    styleUrls: ['string-input.component.scss']
 })
 export class StringInputComponent {
     _fieldName = 'Field Label';
@@ -31,6 +31,11 @@ export class StringInputComponent {
     @Input() error = '';
     @Output() fieldValueChange = new EventEmitter<string>();
     valueChange = new Subject<string> ();
+
+    _isValid = true;
+    public setIsValid (isValid) {
+        this._isValid = isValid;
+    }
 
     onKeyup() {
         debounce(() => {

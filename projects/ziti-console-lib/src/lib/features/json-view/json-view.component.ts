@@ -29,7 +29,7 @@ import {GrowlerService} from '../messaging/growler.service';
 import {GrowlerModel} from '../messaging/growler.model';
 
 import _ from 'lodash';
-import {createAjvValidator, JSONEditor, Mode} from "vanilla-jsoneditor";
+import {createAjvValidator, createJSONEditor, Mode} from "vanilla-jsoneditor";
 
 @Component({
   selector: 'lib-json-view',
@@ -51,7 +51,7 @@ export class JsonViewComponent implements AfterViewInit, OnChanges {
   content: any;
   @ViewChild('editor', {static: false}) editorDiv!: ElementRef;
   validator: any;
-  private editor: JSONEditor;
+  private editor: any;
   private schemaDefinitions: any;
   oldData: any;
   currentData: any;
@@ -84,7 +84,7 @@ export class JsonViewComponent implements AfterViewInit, OnChanges {
       text: undefined,
       json: this.data || {}
     };
-    this.editor = new JSONEditor({
+    this.editor = createJSONEditor({
       target: this.editorDiv.nativeElement,
       props: {
         validator: this.validator,

@@ -15,7 +15,7 @@
 */
 
 import {Injectable, Inject, InjectionToken} from "@angular/core";
-import {isEmpty, isString, keys, some, defer, cloneDeep, filter, isNil, isBoolean} from 'lodash';
+import {isEmpty, isString, keys, some, defer, cloneDeep, filter, forEach, isNil, isBoolean} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
@@ -420,12 +420,25 @@ export class ServiceFormService {
     async attachConfig(addedConfigId) {
         let configId;
         if (this.selectedConfigId === 'add-new') {
-            if (!this.validateConfig()) {
+            const propertyValidationMap = {};
+            if (!this.validateConfig(propertyValidationMap)) {
+                let validationMessage = '';
+                if (!isEmpty(propertyValidationMap)) {
+                    const props = keys(propertyValidationMap);
+                    props.forEach((key, index) => {
+                        validationMessage += `<li>${propertyValidationMap[key]}</li>`;
+                    });
+                }
+                if (isEmpty(validationMessage)) {
+                    validationMessage = 'The entered configuration is invalid. Please update missing/invalid fields and try again.';
+                } else {
+                    validationMessage = `<ul style="margin-top: 5px;">${validationMessage}</ul>`;
+                }
                 const growlerData = new GrowlerModel(
                     'error',
                     'Error',
                     `Error Validating Config`,
-                    'The entered configuration is invalid. Please update missing/invalid fields and try again.',
+                    validationMessage,
                 );
                 this.growlerService.show(growlerData);
                 return;
@@ -576,9 +589,9 @@ export class ServiceFormService {
         return isEmpty(this.errors);
     }
 
-    validateConfig() {
+    validateConfig(validationMessages?) {
         this.configErrors = {};
-        this.configEditor?.validateConfig();
+        this.configEditor?.validateConfig(this.selectedConfigType?.schema, validationMessages);
         if (isEmpty(this.newConfigName)) {
             this.configErrors['name'] = true;
         }

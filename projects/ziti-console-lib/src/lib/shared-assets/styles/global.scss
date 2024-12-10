@@ -11,6 +11,7 @@ body {
   --formBackground: #f6f7fb;
   --visualizerBackground: #ffffff80;
   --background: #ffffff;
+  --navigation: #ffffff;
   --placeholder: #CDCDCD;
   --text: #000;
   --tableText: #000;
@@ -25,7 +26,7 @@ body {
   --dark: #28292B;
   --formBase: #919ca5;
   --formGroup: #232f3e;
-  --formSubGroup: #5e7088;
+  --formSubGroup: #707985;
   --buttonHeightSmall: 25px;
   --buttonImageSizeSmall: 20px;
   --buttonImagePaddingSmall: 35px;
@@ -305,8 +306,28 @@ input {
   padding-top: var(--paddingSmall);
   background-color: var(--formSubGroup);
   border-radius: var(--inputBorderRadius);
+  display: flex;
+  flex-direction: column;
+
   &[hidden] {
     display: none !important;
+  }
+
+  input{
+    &::placeholder {
+      color: var(--formBase);
+    }
+  }
+
+  .toggle {
+    background-color: var(--formGroup);
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--formSubGroup);
+
+    .switch {
+      top: 4px;
+    }
   }
 }
 
@@ -1033,10 +1054,59 @@ lib-tag-selector {
   .invalid {
     input {
       border-color: var(--red);
+      background-color: var(--lightRed) !important;
+    }
+    label {
+      color: var(--lightRed);
     }
     .p-component {
       &.p-input-wrapper {
         border-color: var(--red);
+      }
+    }
+  }
+  input,
+  select {
+    &:not(.checkbox) {
+      height: 2.3rem !important;
+      padding: 0 7px;
+      border-width: 1px;
+      border-radius: .3rem;
+    }
+  }
+
+  .p-element {
+    .p-chips {
+      &.p-component,
+      &.p-input-wrapper,
+      .p-chips-multiple-container {
+        padding-left: 5px;
+        overflow-y: auto;
+        max-height: 4.6rem;
+        height: fit-content;
+        gap: .3rem;
+        border-width: 1px;
+        border-radius: .3rem;
+
+        .p-chips-input-token {
+          padding: 0;
+
+          input {
+            height: 34px !important;
+            font-family: 'Open Sans', Arial, sans-serif;
+            border-width: 1px;
+            border-radius: .3rem;
+          }
+        }
+
+        .p-chips-token-label {
+          height: 20px;
+          line-height: 20px;
+        }
+
+        .p-chips-token {
+          margin: 0;
+        }
       }
     }
   }
@@ -1165,6 +1235,12 @@ p-dropdown {
 }
 
 .p-element {
+  &.p-inputwrapper-focus {
+    .p-chips.p-component {
+      border-color: var(--primaryColor) !important;
+      box-shadow: none !important;
+    }
+  }
 
   .p-chips.p-component {
     width: 100%;
@@ -1180,7 +1256,7 @@ p-dropdown {
     outline: none;
     box-sizing: border-box;
     font-size: 15px;
-    background-color: var(--background) !important;
+    background-color: var(--navigation) !important;
     color: var(--text);
     -webkit-appearance: none;
 
@@ -1188,10 +1264,11 @@ p-dropdown {
       width: 100%;
       padding: 0;
       border-width: var(--inputBorderWidth);
+      height: fit-content;
 
       &.p-focus {
         border-color: var(--primaryColor) !important;
-        box-shadow: 0 0 7px 0 var(--primaryColorOpaque) !important;
+        box-shadow: none !important;
 
         &.error {
           border-color: var(--red) !important;

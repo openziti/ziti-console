@@ -139,6 +139,48 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
         }
     }
 
+    apiActionRequested(action) {
+        switch (action.id) {
+            case 'cli':
+                this.copyCLICommand();
+                break;
+            case 'curl':
+                this.copyCURLCommand();
+                break;
+        }
+    }
+
+    copyCLICommand() {
+        const command = `ziti edge ${this.formData.id ? 'update' : 'create'} config ${this.formData.id ? `'${this.formData.id}'` : ''} ${this.formData.id ? '--name' : ''} '${this.formData.name}' --configTypeId '${this.formData.configTypeId}' --data '${JSON.stringify(this.formData.data)}' --tags-json '${JSON.stringify(this.formData.tags)}'`;
+
+        navigator.clipboard.writeText(command);
+        const growlerData = new GrowlerModel(
+            'success',
+            'Success',
+            `Text Copied`,
+            `CLI command copied to clipboard`,
+        );
+        this.growlerService.show(growlerData);
+    }
+
+    copyCURLCommand() {
+        const command = `curl '${this.apiCallURL}' \\
+    ${this.formData.id ? '--request PATCH \\' : '\\'}
+    -H 'accept: application/json' \\
+    -H 'content-type: application/json' \\
+    -H 'zt-session: ${this.settings.session.id}' \\
+    --data-raw '${JSON.stringify(this.apiData)}'`;
+
+        navigator.clipboard.writeText(command);
+        const growlerData = new GrowlerModel(
+            'success',
+            'Success',
+            `Text Copied`,
+            `CURL command copied to clipboard`,
+        );
+        this.growlerService.show(growlerData);
+    }
+
     override clear() {
         this.formData.configTypeId = '';
         this.clearForm();
@@ -195,7 +237,7 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
 
     validate() {
         this.errors = {};
-        this.configEditor.validateConfig();
+        this.configEditor.validateConfig(this.selectedSchema);
         if (isEmpty(this.formData.name)) {
             this.errors['name'] = true;
         }

@@ -5,7 +5,7 @@ import {debounce} from "lodash";
 @Component({
   selector: 'lib-selector-input',
   template: `
-    <div [ngClass]="fieldClass">
+    <div [ngClass]="fieldClass + (!_isValid ? 'invalid' : '')" class="selector-input-container">
       <label [ngStyle]="{'color': labelColor}">{{_fieldName}}</label>
       <select id="schema_{{parentage?parentage+'_':''}}{{_idName}}"
              class="jsonEntry"
@@ -21,7 +21,8 @@ import {debounce} from "lodash";
       </select>
       <div *ngIf="error" class="error">{{error}}</div>
     </div>
-`
+  `,
+  styleUrls: ['selector-input.component.scss']
 })
 export class SelectorInputComponent {
   _fieldName = 'Field Label';
@@ -47,6 +48,11 @@ export class SelectorInputComponent {
   @Input() error = '';
   @Output() fieldValueChange = new EventEmitter<string>();
   valueChange = new Subject<string> ();
+
+  _isValid = true;
+  public setIsValid (isValid) {
+    this._isValid = isValid;
+  }
 
   selected() {
     debounce(() => {
