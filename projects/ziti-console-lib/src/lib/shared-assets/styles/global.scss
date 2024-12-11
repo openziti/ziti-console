@@ -12,7 +12,7 @@ body {
   --visualizerBackground: #ffffff80;
   --background: #ffffff;
   --navigation: #ffffff;
-  --placeholder: #CDCDCD;
+  --placeholder: #c6ccd7;
   --text: #000;
   --tableText: #000;
   --table: #ffffff;
@@ -908,6 +908,11 @@ lib-form-field-container {
       .p-chips.p-component {
         &.p-input-wrapper {
           border-color: var(--red);
+          background-color: var(--lightRed) !important;
+
+          input {
+            background-color: var(--lightRed) !important;
+          }
         }
       }
     }
@@ -1053,7 +1058,7 @@ lib-tag-selector {
   }
   .invalid {
     input {
-      border-color: var(--red);
+      border-color: var(--red) !important;
       background-color: var(--lightRed) !important;
     }
     label {
@@ -1062,6 +1067,10 @@ lib-tag-selector {
     .p-component {
       &.p-input-wrapper {
         border-color: var(--red);
+        background-color: var(--lightRed) !important;
+        input {
+          background-color: var(--lightRed) !important;
+        }
       }
     }
   }

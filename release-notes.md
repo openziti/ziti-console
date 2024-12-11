@@ -1,3 +1,16 @@
+# app-ziti-console-v3.6.3
+# ziti-console-lib-v0.6.4
+## Feature/Improvements
+* [Issue #562](https://github.com/openziti/ziti-console/issues/562) - Improve config editing and validation
+*
+## Bug Fixes
+* [Issue #556](https://github.com/openziti/ziti-console/issues/556) - Clicking Auth Policy name on list page does not open edit form
+* [Issue #558](https://github.com/openziti/ziti-console/issues/558) - "Download All" option on list table does not download entities
+* [Issue #560](https://github.com/openziti/ziti-console/issues/560) - Edge Controller selection becomes unselected on login page
+* [Issue #564](https://github.com/openziti/ziti-console/pull/564) - Can't navigate past first 50 results on Edge Routers page
+* [Issue #566](https://github.com/openziti/ziti-console/pull/566) - QR Code scanner expands multiple times with continuous clicks
+
+
 # app-ziti-console-v3.6.2
 # ziti-console-lib-v0.6.3
 

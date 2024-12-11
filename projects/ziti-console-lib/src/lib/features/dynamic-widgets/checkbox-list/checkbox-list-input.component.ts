@@ -21,7 +21,7 @@ import {defer, isEmpty} from "lodash";
 @Component({
   selector: 'lib-checkbox-list-input',
   template: `
-    <div [ngClass]="fieldClass">
+    <div [ngClass]="fieldClass + (!_isValid ? ' invalid' : '')">
       <label [ngStyle]="{'color': labelColor}">{{_fieldName}}</label>
       <div  *ngFor="let item of items">
           <input type="checkbox"
@@ -94,6 +94,11 @@ export class CheckboxListInputComponent {
       this.fieldValueChange.emit(this._fieldValue);
       this.valueChange.next(this._fieldValue);
     });
+  }
+
+  _isValid = true;
+  public setIsValid(isValid) {
+    this._isValid = isValid;
   }
 }
 
