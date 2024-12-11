@@ -114,6 +114,9 @@ export class QrCodeComponent implements OnChanges {
   }
 
   expandQRCode() {
+    if (!this.canExpand) {
+      return;
+    }
     const data = {
       jwt: this.jwt,
       expiration: this.expiration,
