@@ -88,6 +88,15 @@ export class ForwardingConfigComponent {
     this.svc.validate(this.allowedPortRanges);
   }
 
+  props = [
+    { key: 'allowedAddresses', value: undefined },
+    { key: 'allowedPortRanges', value: undefined },
+    { key: 'forwardPort', value: undefined },
+    { key: 'forwardProtocol', value: undefined },
+    { key: 'forwardAddress', value: undefined },
+    { key: 'allowedProtocols', value: undefined },
+  ];
+
   getProperties() {
     return this.svc.getProperties(this.protocol, this.address, this.port, this.forwardProtocol, this.forwardAddress, this.forwardPort, this.allowedProtocols, this.allowedAddresses, this.allowedPortRanges);
   }
@@ -127,5 +136,19 @@ export class ForwardingConfigComponent {
       this.validateAllowedAddresses();
     }
     return isEmpty(this.errors) && papIsValid;
+  }
+
+  setValidationErrors(propertyPath = '', validationErrors: any[]) {
+    this.props.forEach((prop) => {
+      const hasValidationError: any = validationErrors?.some((error) => {
+        let pathToMach = error.instancePath;
+        if (!isEmpty(error?.params?.missingProperty)) {
+          pathToMach += '/' + error?.params?.missingProperty
+        }
+        return pathToMach === propertyPath + '/' + prop.key;
+      });
+      this.errors[prop.key] = hasValidationError;
+    });
+    this.papComponent.setValidationErrors(propertyPath, validationErrors);
   }
 }

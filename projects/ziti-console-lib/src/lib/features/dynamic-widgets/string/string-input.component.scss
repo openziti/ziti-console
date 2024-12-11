@@ -1,0 +1,16 @@
+.string-input-container {
+  margin: var(--marginSmall) 0;
+
+  label {
+    margin-bottom: 0px;
+    margin-top: 0px;
+  }
+
+  input.error {
+    border-color:red;
+  }
+
+  div.error {
+    color:red
+  }
+}

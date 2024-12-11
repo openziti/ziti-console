@@ -15,7 +15,7 @@
 */
 
 import {Injectable, Inject, InjectionToken} from "@angular/core";
-import {isEmpty, isString, keys, some, defer, cloneDeep, filter, isNil, isBoolean} from 'lodash';
+import {isEmpty, isString, keys, some, defer, cloneDeep, filter, forEach, isNil, isBoolean} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
@@ -421,13 +421,6 @@ export class ServiceFormService {
         let configId;
         if (this.selectedConfigId === 'add-new') {
             if (!this.validateConfig()) {
-                const growlerData = new GrowlerModel(
-                    'error',
-                    'Error',
-                    `Error Validating Config`,
-                    'The entered configuration is invalid. Please update missing/invalid fields and try again.',
-                );
-                this.growlerService.show(growlerData);
                 return;
             }
             const newConfig: any = {
@@ -578,7 +571,7 @@ export class ServiceFormService {
 
     validateConfig() {
         this.configErrors = {};
-        this.configEditor?.validateConfig();
+        this.configEditor?.validateConfig(this.selectedConfigType?.schema, true);
         if (isEmpty(this.newConfigName)) {
             this.configErrors['name'] = true;
         }

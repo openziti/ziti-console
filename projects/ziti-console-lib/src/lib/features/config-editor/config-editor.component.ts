@@ -2,6 +2,10 @@ import {Component, ComponentRef, EventEmitter, Input, OnInit, Output, ViewChild,
 import {JsonEditorComponent, JsonEditorOptions} from "ang-jsoneditor";
 import {debounce, defer, delay, isBoolean, isEmpty, isNil, keys} from "lodash";
 import {SchemaService} from "../../services/schema.service";
+import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
+import {GrowlerModel} from "../messaging/growler.model";
+import {GrowlerService} from "../messaging/growler.service";  // Import ajv-formats
 
 @Component({
   selector: 'lib-config-editor',
@@ -59,7 +63,7 @@ export class ConfigEditorComponent implements OnInit {
   jsonDataChangedDebounced: any = debounce(this.jsonDataChanged.bind(this), 350);
   @ViewChild("dynamicform", {read: ViewContainerRef}) dynamicForm!: ViewContainerRef;
   @ViewChild(JsonEditorComponent, {static: false}) editor!: JsonEditorComponent;
-  constructor(private schemaSvc: SchemaService) {
+  constructor(private schemaSvc: SchemaService, private growlerService: GrowlerService) {
   }
 
   ngOnInit() {
@@ -199,30 +203,91 @@ export class ConfigEditorComponent implements OnInit {
     return data;
   }
 
-  validateConfig() {
+  validateConfig(schema?, showGrowler = true) {
+    let validationErrors;
+    let valid = true;
+    if (schema) {
+      // Initialize Ajv
+      const ajv = new Ajv({allErrors: true});
+      addFormats(ajv);
+      ajv.addFormat('idn-hostname', /^.+$/);
+      const validate = ajv.compile(schema);
+      valid = validate(this.configData);
+      validationErrors = validate.errors;
+    }
     this.configErrors = {};
-    const configItemsValid = this.validateConfigItems(this.items);
-    if (!configItemsValid) {
+    const propertyValidationMap = {};
+    this.validateConfigItems(this.items, undefined, '', validationErrors);
+    this.buildPropertyValidationMap(validationErrors, propertyValidationMap);
+    if (!valid) {
       this.configErrors['configData'] = true;
+      if (showGrowler) {
+        this.displayConfigErrors(propertyValidationMap);
+      }
     }
     this.configErrorsChange.emit(this.configErrors);
     return isEmpty(this.configErrors);
   }
 
-  validateConfigItems(items, parentType = 'object') {
+  buildPropertyValidationMap(validationErrors, propertyValidationMap) {
+    validationErrors?.forEach((error) => {
+      let path = error.instancePath;
+      if (!isEmpty(error?.params?.missingProperty)) {
+        path += '/' + error?.params?.missingProperty;
+      }
+      if (!isEmpty(path)) {
+        propertyValidationMap[path] = `<b>${path}</b>: ${error.message}`;
+      }
+    });
+  }
+
+  validateConfigItems(items, parentType = 'object', path = '', validationErrors = []) {
     let isValid = true;
     items.forEach((item) => {
       if (item.type === 'object') {
-        if (!this.validateConfigItems(item.items, item.type)) {
+        console.log(validationErrors);
+        if (!this.validateConfigItems(item.items, item.type, path + '/' + item.key, validationErrors)) {
           isValid = false;
         }
-      } else if (item?.component?.instance?.isValid) {
-        if (!item?.component?.instance?.isValid()) {
-          isValid = false;
+      } else if (item?.component?.instance?.setValidationErrors) {
+        item?.component?.instance?.setValidationErrors(path, validationErrors)
+      } else {
+        const hasValidationError: any = validationErrors?.some((error) => {
+          let pathToMach = error.instancePath;
+          if (!isEmpty(error?.params?.missingProperty)) {
+            pathToMach += '/' + error?.params?.missingProperty;
+          }
+          const matched = pathToMach === (path + '/' + item.key);
+          return matched;
+        });
+        if (item?.component?.instance?.setIsValid) {
+          item?.component?.instance?.setIsValid(!hasValidationError);
         }
       }
     });
     return isValid;
+  }
+
+  displayConfigErrors(propertyValidationMap) {
+    let validationMessage = '';
+    if (!isEmpty(propertyValidationMap)) {
+      const props = keys(propertyValidationMap);
+      props.forEach((key, index) => {
+        validationMessage += `<li>${propertyValidationMap[key]}</li>`;
+      });
+    }
+    if (isEmpty(validationMessage)) {
+      validationMessage = 'The entered configuration is invalid. Please update missing/invalid fields and try again.';
+    } else {
+      validationMessage = `<ul style="margin-top: 5px;">${validationMessage}</ul>`;
+    }
+    const growlerData = new GrowlerModel(
+        'error',
+        'Error',
+        `Error Validating Config`,
+        validationMessage,
+    );
+    this.growlerService.show(growlerData);
   }
 
   formDataChanged() {

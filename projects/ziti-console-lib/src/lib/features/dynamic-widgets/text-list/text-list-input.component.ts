@@ -21,7 +21,7 @@ import {debounce, isEmpty} from "lodash";
 @Component({
   selector: 'lib-text-list-input',
   template: `
-    <div [ngClass]="fieldClass">
+    <div [ngClass]="fieldClass + (!_isValid ? ' invalid' : '')">
       <label for="schema_{{parentage?parentage+'_':''}}{{_idName}}"  [ngStyle]="{'color': labelColor}">{{_fieldName}}</label>
       <p-chips id="schema_{{parentage?parentage+'_':''}}{{_idName}}"
           (keyup)="onKeyup($event)"
@@ -29,7 +29,7 @@ import {debounce, isEmpty} from "lodash";
           [allowDuplicate]="false"
           [placeholder]="placeholder"
           [addOnBlur]="true"
-          [ngClass]="fieldClass" 
+          [ngClass]="fieldClass + (!_isValid ? ' invalid' : '')" 
           (onBlur)="emitEvents()"
           separator=",">
       </p-chips>
@@ -83,4 +83,10 @@ export class TextListInputComponent {
       this.valueChange.next(this.fieldValue);
     }, 500)();
   }
+
+  _isValid = true;
+  public setIsValid(isValid) {
+    this._isValid = isValid;
+  }
+
 }

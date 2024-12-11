@@ -87,4 +87,8 @@ export class PortRangesComponent {
     });
     this.invalid = invalid;
   }
+
+  public setIsValid(isValid) {
+    this.invalid = !isValid;
+  }
 }

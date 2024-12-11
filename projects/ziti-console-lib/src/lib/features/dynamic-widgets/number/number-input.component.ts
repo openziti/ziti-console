@@ -5,7 +5,7 @@ import {debounce} from "lodash";
 @Component({
   selector: 'lib-number-input',
   template: `
-    <div [ngClass]="fieldClass">
+    <div [ngClass]="fieldClass + (!_isValid ? 'invalid' : '')" class="{{!_isValid ? 'invalid' : ''}} number-input-container">
       <label for="schema_{{parentage?parentage+'_':''}}{{_idName}}"  [ngStyle]="{'color': labelColor}">{{_fieldName}}</label>
       <input id="schema_{{parentage?parentage+'_':''}}{{_idName}}"
          type="number" class="jsonEntry"
@@ -13,7 +13,8 @@ import {debounce} from "lodash";
          [placeholder]="placeholder" [(ngModel)]="fieldValue" (paste)="onKeyup()" (keyup)="onKeyup()"/>
       <div *ngIf="error" class="error">{{error}}</div>
     </div>
-`
+  `,
+  styleUrls: ['number-input.component.scss']
 })
 export class NumberInputComponent {
   _fieldName = 'Field Label';
@@ -30,6 +31,11 @@ export class NumberInputComponent {
   @Input() error = '';
   @Output() fieldValueChange = new EventEmitter<number| undefined>();
   valueChange = new Subject<number| undefined> ();
+
+  _isValid = true;
+  public setIsValid(isValid) {
+    this._isValid = isValid;
+  }
 
   onKeyup() {
     debounce(() => {
