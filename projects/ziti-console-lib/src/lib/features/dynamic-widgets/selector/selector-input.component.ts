@@ -6,18 +6,38 @@ import {debounce, defer} from "lodash";
   selector: 'lib-selector-input',
   template: `
     <div [ngClass]="fieldClass + (!_isValid ? 'invalid' : '')" class="selector-input-container">
-      <label [ngStyle]="{'color': labelColor}">{{_fieldName}}</label>
-      <select id="schema_{{parentage?parentage+'_':''}}{{_idName}}"
-             class="jsonEntry"
-              [ngClass]="{'error': error}"
-             [(ngModel)]="fieldValue" (change)="selected()">
-          <option value="" *ngIf="placeholder">{{placeholder}}</option>
-        <ng-container *ngIf="!listIsObject">
-          <option *ngFor="let name of _valueList" [value]="name">{{name}}</option>
-        </ng-container>
-        <ng-container *ngIf="listIsObject">
-          <option *ngFor="let data of _valueList" [value]="data.value">{{data.name}}</option>
-        </ng-container>
+      <div class="label-container">
+        <label [ngStyle]="{'color': labelColor}">{{_fieldName}}</label>
+        <div
+            *ngIf="helpText"
+            class="form-field-info infoicon"
+            matTooltip="{{helpText}}"
+            matTooltipPosition="above"
+            matTooltipClass="wide-tooltip"
+        ></div>
+      </div>
+      <select
+          *ngIf="!hideSelect"
+          id="schema_{{parentage?parentage+'_':''}}{{_idName}}"
+          class="jsonEntry"
+          [ngClass]="{'error': error}"
+          [(ngModel)]="fieldValue"
+          (change)="selected()"
+      >
+          <option [value]="undefined" *ngIf="placeholder">{{placeholder}}</option>
+          <ng-container *ngIf="!listIsObject">
+            <option *ngFor="let name of _valueList" [value]="name">{{name}}</option>
+          </ng-container>
+          <ng-container *ngIf="listIsObject">
+            <option *ngFor="let data of _valueList" [value]="data.value">{{data.name}}</option>
+          </ng-container>
+      </select>
+      <select
+          *ngIf="hideSelect"
+          class="placeholder-select"
+          [ngClass]="{'error': error}"
+          [(ngModel)]="fieldValue"
+      >
       </select>
       <div *ngIf="error" class="error">{{error}}</div>
     </div>
@@ -29,11 +49,21 @@ export class SelectorInputComponent {
   _idName = 'fieldname';
   _valueList: any[] = [];
   listIsObject = false;
+  hideSelect = false;
+
   @Input() set fieldName(name: string) {
     this._fieldName = name;
     this._idName = name.replace(/\s/g, '').toLowerCase();
   }
-  @Input() fieldValue:any = '';
+  _fieldValue: string;
+  @Input() set fieldValue(val: string) {
+    this._fieldValue = val;
+  }
+  get fieldValue():string {
+    return this._fieldValue;
+  }
+
+  @Input() helpText;
   @Input() placeholder = '';
   @Input() parentage: string[] = [];
   @Input() set valueList(list: any[]) {
@@ -46,10 +76,7 @@ export class SelectorInputComponent {
       }
     });
     valToSet = valToSet || this.fieldValue;
-    this.fieldValue = undefined;
-    defer(() => {
-      this.fieldValue = valToSet;
-    });
+    this.reInitSelect();
   };
 
   @Input() labelColor = '#000000';
@@ -65,8 +92,18 @@ export class SelectorInputComponent {
 
   selected() {
     debounce(() => {
+      if (this.fieldValue === 'undefined') {
+        this.fieldValue = undefined;
+      }
       this.fieldValueChange.emit(this.fieldValue);
       this.valueChange.next(this.fieldValue);
     }, 500)();
+  }
+
+  reInitSelect() {
+    this.hideSelect = true;
+    defer(() => {
+      this.hideSelect = false;
+    });
   }
 }

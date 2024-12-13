@@ -120,6 +120,28 @@ input {
     flex-direction: row;
     flex-wrap: nowrap;
   }
+
+  .ag-cell-wrapper {
+    &.ag-checkbox-cell {
+      .ag-checkbox-input-wrapper {
+        display: none;
+        border-radius: 30px;
+        overflow: hidden;
+        &.ag-checked {
+          display: block;
+        }
+        &:after {
+          overflow: hidden;
+          color: var(--green);
+          font-size: 17px;
+          border-radius: 30px;
+        }
+        &.ag-disabled {
+          opacity: .8;
+        }
+      }
+    }
+  }
 }
 
 .header-text-container.text-input-filter {
@@ -193,6 +215,14 @@ input {
     }
   }
 }
+
+.wide-tooltip {
+  .mdc-tooltip__surface {
+    white-space: pre-line;
+    max-width: 300px;
+  }
+}
+
 
 .mat-mdc-dialog-container {
   .mat-mdc-dialog-surface {
@@ -1048,6 +1078,15 @@ lib-tag-selector {
 
   .form-field-title {
     color: var(--offWhite);
+  }
+}
+
+.loginForm {
+  .invalid {
+    select,
+    input {
+      border-color: var(--red) !important;
+    }
   }
 }
 

@@ -135,7 +135,7 @@ export abstract class SettingsServiceClass {
         if (name.trim().length == 0 || url.trim().length == 0) {
             growler.error("Name and URL required");
         } else {
-            this.controllerSave(name, url);
+            return this.controllerSave(name, url);
         }
     }
 }

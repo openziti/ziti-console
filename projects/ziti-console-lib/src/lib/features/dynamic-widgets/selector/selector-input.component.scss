@@ -4,6 +4,7 @@
   label {
     margin-bottom: 0px;
     margin-top: 0px;
+    width: fit-content;
   }
 
   input.error {
@@ -13,4 +14,11 @@
   div.error {
     color:red
   }
+}
+
+.label-container {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 5px;
+  margin-top: 10px;
 }

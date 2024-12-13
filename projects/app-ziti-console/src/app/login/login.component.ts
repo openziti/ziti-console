@@ -42,6 +42,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     edgeUrlError = '';
     showEdge = false;
     isLoading = false;
+    helpText;
+    controllerInvalid = false;
     private subscription = new Subscription();
 
     constructor(
@@ -99,10 +101,23 @@ export class LoginComponent implements OnInit, OnDestroy {
                 context.set('serviceUrl', this.selectedEdgeController);
                 this.settingsService.settings.selectedEdgeController = this.selectedEdgeController;
                 this.settingsService.set(this.settingsService.settings);
+            }).catch((error) => {
+                this.handleControllerInvalid(error?.controllerInvalid);
             });
         }
     }
 
+    handleControllerInvalid(controllerInvalid = false) {
+        if (controllerInvalid) {
+            this.helpText = `NOTE: The controller url is relative to the server running the Ziti Administration Console. \n 
+                    For example, if you are running the ziti controller and ZAC inside docker, the controller URL should be reachable from the same server that's hosting ZAC. \n 
+                    In this case, that would be the hostname of the container running the ziti controller image. \n `;
+            this.controllerInvalid = true;
+        } else {
+            this.helpText = undefined;
+            this.controllerInvalid = false;
+        }
+    }
     next() {
         if (this.edgeCreate) {
             this.create();
@@ -113,9 +128,14 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     create() {
         if (this.isValid()) {
-            this.settingsService.addContoller(this.edgeName, this.edgeUrl);
-            context.set("serviceUrl", this.edgeUrl);
-            this.settingsService.set(this.settingsService.settings);
+            this.settingsService.addContoller(this.edgeName, this.edgeUrl).then((result) => {
+                if (result.error) {
+                    this.handleControllerInvalid(true);
+                    return;
+                }
+                context.set("serviceUrl", this.edgeUrl);
+                this.settingsService.set(this.settingsService.settings);
+            });
         } else growler.form();
     }
 

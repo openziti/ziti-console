@@ -68,7 +68,8 @@ export class NodeLoginService extends LoginServiceClass {
             }),
             catchError((err: any) => {
                 const error = "Server Not Accessible";
-                if (err.code != "ECONNREFUSED") throw({error: err.code});
+                const controllerInvalid = err?.error && err?.error?.indexOf('Invalid Management Api') >= 0;
+                if (err.code != "ECONNREFUSED") throw({error: err.code, controllerInvalid: controllerInvalid});
                 throw({error: error});
             })
         );
@@ -96,6 +97,9 @@ export class NodeLoginService extends LoginServiceClass {
                 `Unable to login to selected edge controller`,
             );
             this.growlerService.show(growlerData);
+            const error = "Server Not Accessible";
+            const controllerUnreachable = body?.error?.indexOf('Invalid Management Api') >= 0;
+            throw({error: body?.error, controllerUnreachable: controllerUnreachable});
         }
         return of([body.success]);
     }

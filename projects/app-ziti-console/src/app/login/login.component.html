@@ -1,4 +1,4 @@
-<div class="loginForm" (keyup.enter)="next()">
+<div class="loginForm standard-form-fields" (keyup.enter)="next()">
     <div *ngIf="!isLoading">
         <div class="title">Ziti Admin Console</div>
         <div class="subtitle">Welcome, please login to continue</div>
@@ -6,10 +6,14 @@
         <ng-container *ngIf="edgeCreate; else userLogin">
             <lib-string-input [fieldName]="'Edge Controller Name'"
                         [(fieldValue)]="edgeName" [error]="edgeNameError"
-                        [placeholder]="'enter a name for your controller'"></lib-string-input>
+                        [placeholder]="'enter a name for your controller'"
+            ></lib-string-input>
             <lib-string-input [fieldName]="'URL'"
                         [(fieldValue)]="edgeUrl" [error]="edgeUrlError"
-                        [placeholder]="'e.g. http://10.0.0.1:1280'"></lib-string-input>
+                        [placeholder]="'e.g. http://10.0.0.1:1280'"
+                        [helpText]="helpText"
+                        [fieldClass]="controllerInvalid ? 'invalid' : ''"
+            ></lib-string-input>
             <div id="CreateArea" class="edgecreate buttons">
                 <div id="BackToLogin" *ngIf="edgeControllerList.length > 0" class="linkButton" (click)="reset()">Back To Login</div>
                 <button class="button" (click)="create()" [disabled]="!edgeName ||!edgeUrl">Set Controller</button>
@@ -24,6 +28,8 @@
                         [error]="edgeNameError"
                         [placeholder]="'Connect to a new Edge Controller'"
                         [valueList]="edgeControllerList"
+                        [helpText]="helpText"
+                        [fieldClass]="controllerInvalid ? 'invalid' : ''"
                         (fieldValueChange)="edgeChanged($event)"
             >
             </lib-selector-input>
