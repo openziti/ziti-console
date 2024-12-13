@@ -109,7 +109,7 @@ export class ControllerLoginService extends LoginServiceClass {
                     }
                     this.settingsService.set(this.settingsService.settings)
                     this.growlerService.show(growlerData);
-                    throw({error: errorMessage});
+                    throw({error: errorMessage, controllerInvalid: err?.status === 0, statusText: err?.statusText});
                 })
             );
     }

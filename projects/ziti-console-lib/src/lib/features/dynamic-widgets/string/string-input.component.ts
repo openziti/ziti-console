@@ -6,7 +6,16 @@ import {debounce} from "lodash";
   selector: 'lib-string-input',
   template: `
       <div [ngClass]="fieldClass + (!_isValid ? 'invalid' : '')" class="string-input-container">
-          <label for="schema_{{parentage?parentage+'_':''}}{{_idName}}"  [ngStyle]="{'color': labelColor}">{{_fieldName}}</label>
+          <div class="label-container">
+              <label for="schema_{{parentage?parentage+'_':''}}{{_idName}}"  [ngStyle]="{'color': labelColor}">{{_fieldName}}</label>
+              <div
+                  *ngIf="helpText"
+                  class="form-field-info infoicon"
+                  matTooltip="{{helpText}}"
+                  matTooltipPosition="above"
+                  matTooltipClass="wide-tooltip"
+              ></div>
+          </div>
           <input id="schema_{{parentage?parentage+'_':''}}{{_idName}}"
                  type="text" class="jsonEntry"
                  [ngClass]="{'error': error}"
@@ -23,6 +32,7 @@ export class StringInputComponent {
         this._fieldName = name;
         this._idName = name.replace(/\s/g, '').toLowerCase();
     }
+    @Input() helpText;
     @Input() fieldValue = '';
     @Input() placeholder = '';
     @Input() parentage: string[] = [];

@@ -102,7 +102,7 @@ export class NodeSettingsService extends SettingsServiceClass {
     override controllerSave(name, controllerURL) {
         const nodeServerURL = window.location.origin;
         const apiURL = nodeServerURL + '/api/controllerSave';
-        this.httpClient.post(
+        return this.httpClient.post(
             apiURL,
             { url: controllerURL, name: name },
             {
@@ -119,6 +119,7 @@ export class NodeSettingsService extends SettingsServiceClass {
                     result.error,
                 );
                 this.growlerService.show(growlerData);
+                return result;
             } else {
                 this.settings.selectedEdgeController = controllerURL;
                 this.settings.edgeControllers = result.edgeControllers;

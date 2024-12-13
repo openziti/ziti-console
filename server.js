@@ -594,7 +594,7 @@ app.post("/api/controllerSave", function(request, response) {
 			if (err) {
 				log("Add Controller Error");
 				log(err);
-				response.json( {error: "Edge Controller not Online", errorObj: err} );
+				response.json( {error: "Edge controller is not online or is not reachable.", errorObj: err} );
 			} else {
 				try {
 					var results = JSON.parse(body);

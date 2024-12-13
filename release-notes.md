@@ -1,3 +1,8 @@
+# ziti-console-lib-v0.6.5
+## Feature/Improvements
+* [Issue #568](https://github.com/openziti/ziti-console/issues/568) - Show login help text when entered controller URL is not reachable
+
+
 # app-ziti-console-v3.6.3
 # ziti-console-lib-v0.6.4
 ## Feature/Improvements

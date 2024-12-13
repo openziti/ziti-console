@@ -426,8 +426,8 @@ export class SchemaService {
         const val = list?.length > 0 ? list[0] : '';
         let componentRef = view.createComponent(SelectorInputComponent);
         componentRef.setInput('fieldName', this.getLabel(key));
+        componentRef.setInput('placeholder', `select ${key}`);
         if (parentage && !_.isEmpty(parentage)) componentRef.setInput('parentage', parentage);
-        componentRef.setInput('fieldValue', val);
         componentRef.setInput('valueList', list);
         componentRef.setInput('labelColor', this.lColorArray[nestLevel]);
         return componentRef;
