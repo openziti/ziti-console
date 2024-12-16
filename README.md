@@ -104,8 +104,7 @@ From the project root:
     ```
 
 1. The single-page application assets are rendered in the `./dist/app-ziti-console` directory.
-1. You must host the static files with a web server. See [the deployment guide](https://openziti.io/docs/guides/deployments/linux/console#configuration) for details on configuring the controller to host these files.
-1. Access the console at the controller's address: https://localhost:1280/zac/
+1. use the Node server to preview changes.
 
 ### Build the Standalone Node Server
 
