@@ -152,22 +152,3 @@ From the project root:
     ```bash
     ng build ziti-console --watch --base-href '/zac/'
     ```
-
-```yaml
-web:
-  - name: client-management
-    bindPoints:
-      - interface: 0.0.0.0:1280
-        address: localhost:1280
-    apis:
-      - binding: edge-client
-        options: { }
-      - binding: edge-management
-        options: { }
-      - binding: fabric
-        options: { }
-      - binding: zac
-        options:
-          location: /home/user/openziti/ziti-console/dist/app-ziti-console
-          indexFile: index.html
-```
