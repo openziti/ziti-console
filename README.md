@@ -103,12 +103,13 @@ From the project root:
     ng build ziti-console
     ```
 
+1. The single-page application assets are rendered in the `./dist/app-ziti-console` directory.
 1. You must host the static files with a web server. See [the deployment guide](https://openziti.io/docs/guides/deployments/linux/console#configuration) for details on configuring the controller to host these files.
 1. Access the console at the controller's address: https://localhost:1280/zac/
 
 ### Build the Standalone Node Server
 
-This deployment mode is deprecated by the SPA mode.
+*This is a deprecated mode temporarily preserved here for backwards compatibility.*
 
 1. Build the console project with Angular.
 
@@ -137,7 +138,7 @@ From the project root:
     npm install
     ```
 
-1. Run & watch changes in the core library in **ziti-console-lib** by running the npm script **watch:lib**
+1. Run & watch changes in the core library in **ziti-console-lib** by running the npm script **watch:lib**. You can skip this step if you are developing the SPA only, not the library, because the library is already built by `npm install`.
 
     ```bash
     ng build ziti-console-lib --watch
@@ -146,13 +147,11 @@ From the project root:
    * Note: The NPM library is referenced/linked in package.json as "ziti-console-lib": "file:dist/ziti-console-lib".
      This library includes the pure javascript code it shared with ziti-console, and the Angular code it shares with other apps.
 
-1. Then in a separate window run & watch changes in the main application **app-ziti-console**
+1. In a separate window, build the SPA **app-ziti-console** continually when the watched files change.
 
     ```bash
     ng build ziti-console --watch --base-href '/zac/'
     ```
-
-This ensures changes made to the library are pulled into the Angular app during development. The static assets are built in `./dist/app-ziti-console/`. You must access the built assets through the web server that is built in to the Ziti controller ([link to guide](https://openziti.io/docs/guides/deployments/linux/console#configuration)). For example, you can bind the "zac" component to your console project checkout where Angular is constantly updating the built assets during development. Just ensure the files are readable by the owner of the Ziti controller process.
 
 ```yaml
 web:
