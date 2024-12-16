@@ -108,7 +108,7 @@ From the project root:
 
 ### Build the Standalone Node Server
 
-*This is a deprecated mode temporarily preserved here for backwards compatibility.*
+*Do not use this in production: [deployment guides](https://openziti.io/docs/category/deployments). This is a deprecated build and run mode temporarily preserved here for previewing local changes during development.*
 
 1. Build the console project with Angular.
 
@@ -129,7 +129,7 @@ From the project root:
 
 There are two elements to the Angular app.
 
-From the project root:
+From the project directory:
 
 1. Install dependencies and build the library.
 
@@ -137,16 +137,15 @@ From the project root:
     npm install
     ```
 
-1. Run & watch changes in the core library in **ziti-console-lib** by running the npm script **watch:lib**.
+1. Continually build the library in **./dist/ziti-console-lib** by running the npm script **watch:lib**.
 
     ```bash
     ng build ziti-console-lib --watch
     ```
 
-   * Note: The NPM library is referenced/linked in package.json as "ziti-console-lib": "file:dist/ziti-console-lib".
-     This library includes the pure javascript code it shared with ziti-console, and the Angular code it shares with other apps.
+   Note: The NPM library is referenced/linked in `package.json` as `"ziti-console-lib": "file:dist/ziti-console-lib"`. This library includes the javascript code shared with the console application and the Angular code shared with other applications.
 
-1. In a separate window, build the SPA **app-ziti-console** continually when the watched files change.
+1. Continually build the deprecated Node server in **app-ziti-console-node** to preview changes.
 
     ```bash
     ng build ziti-console-node --watch
