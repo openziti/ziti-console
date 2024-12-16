@@ -40,13 +40,13 @@ Please star us!
     </p>
 
 ---
-[![Issues](https://img.shields.io/github/issues-raw/openziti/ziti-console)]()
+
+[![Issues](https://img.shields.io/github/issues-raw/openziti/ziti-console)](https://github.com/openziti/ziti-console/issues)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=rounded)](CONTRIBUTING.md)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
 
 ---
-
 
 # OpenZiti Console
 
@@ -64,7 +64,7 @@ To build and run the application from source, you'll also need to make sure you 
 
 | Tool        |      Version |
 | :---:       | :---:        |
-| Node.js     |  =18         |
+| Node.js     | >=18         |
 | npm         | >=8.1        |
 | ng          |  =16         |
 
@@ -89,20 +89,13 @@ This repository houses two projects.
 
 From the project root:
 
-1. Install the projects' dependencies.
+1. Install both projects' dependencies and build the library.
 
     ```bash
     npm install
     ```
 
-1. Build the library project with Angular.
-
-    ```bash
-    ng build ziti-console-lib
-    ```
 ### Build the Single Page Application
-
-This is the recommended approach.
 
 1. Build the console project with Angular.
 
@@ -110,15 +103,12 @@ This is the recommended approach.
     ng build ziti-console
     ```
 
-1. You must host the static files with a web server.
-   See [the deployment guide](https://openziti.io/docs/guides/deployments/linux/console) for details on configuring the controller to host these files.
-
-1. Access the console at the controller's address: https://localhost:1280/zac/
-
+1. The single-page application assets are rendered in the `./dist/app-ziti-console` directory.
+1. use the Node server to preview changes.
 
 ### Build the Standalone Node Server
 
-This deployment mode is deprecated by the SPA mode.
+*Do not use this in production: [deployment guides](https://openziti.io/docs/category/deployments). This is a deprecated build and run mode temporarily preserved here for previewing local changes during development.*
 
 1. Build the console project with Angular.
 
@@ -139,28 +129,24 @@ This deployment mode is deprecated by the SPA mode.
 
 There are two elements to the Angular app.
 
-From project Root:
+From the project directory:
 
-1. Install dependencies
+1. Install dependencies and build the library.
 
     ```bash
     npm install
     ```
 
-1. Run & watch changes in the core library in **ziti-console-lib** by running the npm script **watch:lib**
+1. Continually build the library in **./dist/ziti-console-lib** by running the npm script **watch:lib**.
 
     ```bash
     ng build ziti-console-lib --watch
     ```
 
-   * Note: The NPM library is referenced/linked in package.json as "ziti-console-lib": "file:dist/ziti-console-lib".
-     This library includes the pure javascript code it shared with ziti-console, and the Angular code it shares with other apps.
+   Note: The NPM library is referenced/linked in `package.json` as `"ziti-console-lib": "file:dist/ziti-console-lib"`. This library includes the javascript code shared with the console application and the Angular code shared with other applications.
 
-1. Then in a separate window run & watch changes in the main application **app-ziti-console**
+1. Continually build the deprecated Node server in **app-ziti-console-node** to preview changes.
 
     ```bash
     ng build ziti-console-node --watch
     ```
-
-This ensures changes made to the NPM library get pulled into the Angular app as you are developing
-

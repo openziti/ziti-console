@@ -8,7 +8,6 @@ COPY package*.json ./
 COPY version.js ./
 COPY . .
 RUN npm install --omit=optional
-RUN ng build ziti-console-lib
 RUN ng build ziti-console-node
 
 
