@@ -150,5 +150,5 @@ From the project root:
 1. In a separate window, build the SPA **app-ziti-console** continually when the watched files change.
 
     ```bash
-    ng build ziti-console --watch --base-href '/zac/'
+    ng build ziti-console-node --watch
     ```
