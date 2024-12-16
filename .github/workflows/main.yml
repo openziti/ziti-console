@@ -33,15 +33,15 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build Multi-Platform Container Image to exercise amd64, arm64 builds
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: ${{ github.workspace }}/
           file: ./docker-images/ziti-console-assets/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ github.workflow }}
+          cache-to: type=gha,mode=max,scope=${{ github.workflow }}
 
   build-node-zac:
     name: Test Build Node ZAC for All Platforms
@@ -62,12 +62,12 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build Multi-Platform Container Image to exercise amd64, arm64 builds
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: ${{ github.workspace }}/
           file: ./docker-images/zac/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ github.workflow }}
+          cache-to: type=gha,mode=max,scope=${{ github.workflow }}
