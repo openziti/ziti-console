@@ -1,4 +1,4 @@
-name: Publish Console Image to Docker Hub
+name: Publish Docker Image
 
 on:
   push:
