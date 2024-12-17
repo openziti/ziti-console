@@ -20,7 +20,6 @@ docker build \
     --tag ziti-console-assets \
     --file ./docker-images/ziti-console-assets/Dockerfile \
     --build-arg BASE_HREF=/zac/ \
-    --build-arg DEPLOY_URL=/zac/ \
     "${PWD}"
 ```
 
