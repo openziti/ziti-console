@@ -74,13 +74,13 @@ jobs:
         id: push
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ${{ github.workspace }}/
           file: ./docker-images/ziti-console-assets/Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ github.workflow }}
+          cache-to: type=gha,mode=max,scope=${{ github.workflow }}
           push: true
           # ziti controller always binds at /zac and trailing slash is necessary to qualify Angular runtime paths in index.html
           build-args: |
