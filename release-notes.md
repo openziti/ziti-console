@@ -1,3 +1,13 @@
+# ziti-console-lib-v0.6.6
+## Feature/Improvements
+* [Issue #572](https://github.com/openziti/ziti-console/issues/572) - Add "None" as an option for identity enrollment type
+
+## Bug Fixes
+* [Issue #570](https://github.com/openziti/ziti-console/issues/570) - Fix alignment of protocol, hostname, and port options when editing a config
+* [Issue #533](https://github.com/openziti/ziti-console/issues/533) - Config isn't validating for missing protocol before saving
+* [Issue #524](https://github.com/openziti/ziti-console/issues/524) - create config with missing required fields gets incomprehensible error
+
+
 # ziti-console-lib-v0.6.5
 ## Feature/Improvements
 * [Issue #568](https://github.com/openziti/ziti-console/issues/568) - Show login help text when entered controller URL is not reachable

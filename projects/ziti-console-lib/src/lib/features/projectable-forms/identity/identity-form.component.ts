@@ -154,6 +154,8 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       this.enrollmentType = 'updb';
     } else if (this.formData?.enrollment?.ottca) {
       this.enrollmentType = 'CA';
+    } else if (isEmpty(this.formData?.enrollment)) {
+      this.enrollmentType = 'none';
     }
   }
 
@@ -251,6 +253,9 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
         break;
       case 'updb':
         this.formData.enrollment = {updb: this.enrollmentUPDB};
+        break;
+      case 'none':
+        this.formData.enrollment = {};
         break;
       default:
         this.formData.enrollment = {ott: true}
