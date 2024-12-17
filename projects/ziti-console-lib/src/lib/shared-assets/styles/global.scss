@@ -123,6 +123,7 @@ input {
 
   .ag-cell-wrapper {
     &.ag-checkbox-cell {
+      height: 100%;
       .ag-checkbox-input-wrapper {
         display: none;
         border-radius: 30px;
@@ -138,6 +139,11 @@ input {
         }
         &.ag-disabled {
           opacity: .8;
+        }
+        &:active,
+        &:focus,
+        &:focus-within {
+          box-shadow: none !important;
         }
       }
     }
