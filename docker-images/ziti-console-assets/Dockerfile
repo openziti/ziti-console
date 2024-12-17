@@ -11,12 +11,16 @@ WORKDIR /usr/src/app
 RUN npm install -g @angular/cli@16.0.0-next.0
 
 COPY . .
-RUN npm install --omit=optional
-RUN ng build ziti-console-lib
-RUN ng build ziti-console --base-href ${BASE_HREF} --configuration "production"
+
+RUN --mount=type=cache,target=/usr/src/app/node_modules \
+    --mount=type=cache,target=/usr/src/app/.angular/cache \
+    npm install --omit=optional && \
+    ng build ziti-console --base-href ${BASE_HREF} --configuration "production"
 
 ARG NODE_VERSION=${NODE_VERSION}
+
 FROM node:${NODE_VERSION}-bookworm-slim
+
 WORKDIR /usr/src/app
 
 COPY --from=builder /usr/src/app/dist/app-ziti-console ./dist/app-ziti-console
