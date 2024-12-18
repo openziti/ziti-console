@@ -71,7 +71,7 @@
                                     [filter]="true"
                                     [showClear]="true"
                                     [disabled]="!svc.selectedConfigTypeId || svc.selectedConfigTypeId === ''"
-                                    (change)="configChanged($event)"
+                                    (onChange)="configChanged($event)"
                                     [(ngModel)]="svc.selectedConfigId"
                             >
                                 <ng-template pTemplate="filter" let-options="options">
