@@ -538,6 +538,7 @@ export class ServiceFormService {
             //this.createForm(dynamicForm);
             this.saveDisabled = true;
         } else if (this.selectedConfigId) {
+            attachLabel = 'Attach to Service';
             this.filteredConfigs.forEach((config) => {
                 if (this.selectedConfigId === config.id) {
                     selectedConfig = config;

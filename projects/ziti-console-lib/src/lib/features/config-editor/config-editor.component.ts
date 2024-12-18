@@ -204,6 +204,7 @@ export class ConfigEditorComponent implements OnInit {
   }
 
   validateConfig(schema?, showGrowler = true) {
+    this.configData = this.removeUndefinedProperties(this.configData);
     let validationErrors;
     let valid = true;
     if (schema) {
@@ -301,5 +302,22 @@ export class ConfigEditorComponent implements OnInit {
       this.configDataChange.emit(this.configData);
       this.updateFormView(this.items, this.configData);
     });
+  }
+
+  removeUndefinedProperties(data) {
+    if (Array.isArray(data)) {
+      return data
+          .map(item => this.removeUndefinedProperties(item))
+          .filter(item => item !== undefined);
+    } else if (typeof data === 'object' && data !== null) {
+      // Handle objects
+      return Object.fromEntries(
+          Object.entries(data)
+              .filter(([_, value]) => value !== undefined)
+              .map(([key, value]) => [key, this.removeUndefinedProperties(value)])
+      );
+    }
+    // Return primitive values as is
+    return data;
   }
 }
