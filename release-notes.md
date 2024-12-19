@@ -1,3 +1,8 @@
+# app-ziti-console-v3.6.4
+# ziti-console-lib-v0.6.7
+## Bug Fixes
+* [Issue #577](https://github.com/openziti/ziti-console/issues/570) - "Create and attach" button label should just say "attach" when adding existing config to a service
+
 # ziti-console-lib-v0.6.6
 ## Feature/Improvements
 * [Issue #572](https://github.com/openziti/ziti-console/issues/572) - Add "None" as an option for identity enrollment type

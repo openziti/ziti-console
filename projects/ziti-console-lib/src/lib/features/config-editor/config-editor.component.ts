@@ -310,14 +310,12 @@ export class ConfigEditorComponent implements OnInit {
           .map(item => this.removeUndefinedProperties(item))
           .filter(item => item !== undefined);
     } else if (typeof data === 'object' && data !== null) {
-      // Handle objects
       return Object.fromEntries(
           Object.entries(data)
               .filter(([_, value]) => value !== undefined)
               .map(([key, value]) => [key, this.removeUndefinedProperties(value)])
       );
     }
-    // Return primitive values as is
     return data;
   }
 }
