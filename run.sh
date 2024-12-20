@@ -1,22 +1,25 @@
 #!/usr/bin/env bash
 
-# Set environment values if they exist as arguments
-if [ $# -ne 0 ]; then
-  echo "===> Overriding env params with args ..."
-  for var in "$@"
-  do
+# Override environment variables if provided as arguments
+if [ $# -gt 0 ]; then
+  echo "===> Overriding environment variables with arguments..."
+  for var in "$@"; do
     export "$var"
   done
 fi
 
+# Display the current environment variables
 echo "===> ENV Variables ..."
 env | sort
 
-echo "===> User"
+# Show the user information
+echo "===> User:"
 id
 
+# Build the project
 echo "===> Building ..."
 yarn build
 
-echo "===> Running ... "
+# Run the application
+echo "===> Running ..."
 exec node index.js
