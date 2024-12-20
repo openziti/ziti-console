@@ -14,13 +14,17 @@
     limitations under the License.
 */
 
-import {Injector} from "@angular/core";
-import {SettingsService, SETTINGS_SERVICE} from "./services/settings.service";
-import {ZAC_LOGIN_SERVICE, LoginServiceClass} from "./services/login-service.class";
+import { Injector } from "@angular/core";
+import { SettingsService, SETTINGS_SERVICE } from "./services/settings.service";
+import { ZAC_LOGIN_SERVICE, LoginServiceClass } from "./services/login-service.class";
 
 export function onAppInit(injector: Injector): () => Promise<any> {
     const loginService = injector.get(ZAC_LOGIN_SERVICE, LoginServiceClass);
     const settingsService = injector.get(SETTINGS_SERVICE, SettingsService);
-    settingsService.init()
+
+    // Initialize services
+    settingsService.init();
+
+    // Return promise for login initialization
     return () => loginService.init();
 }
