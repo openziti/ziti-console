@@ -297,7 +297,6 @@ export class NetworkVisualizerHelper {
         serviceobj.type = 'Service';
         serviceobj.rootNode = isRootNode;
         const attributeswithName = [];
-       //   attributeswithName.push('@' + rawObj.name);
         rawObj && rawObj.roleAttributes && rawObj.roleAttributes.find((srattr) => {
            attributeswithName.push(srattr);
         });
@@ -344,6 +343,7 @@ export class NetworkVisualizerHelper {
         const rootJson = new RootJson();
         rootJson.name = 'Network';
         rootJson.status = 'Provisioned';
+
         function processIdentitiesForTree(
             identitiesChildren,
             identities,
@@ -351,26 +351,7 @@ export class NetworkVisualizerHelper {
             ny
         ) {
           if(args[2]===false) return identitiesChildren;
-           // identitiesChildren.name = identitiesChildren.name + ' (' + ny + ')';
-            const unregisteredGrp = new Group(
-                createId(),
-                'Identities[Unregistered]',
-                'Identities that are not registered'
-            );
-            const abcdGrp = new Group(createId(), 'Identities [A-D]', 'Identity name starts with A to D');
-            const efghGrp = new Group(createId(), 'Identities [E-H]', 'Identity name starts with E to H');
-            const ijklGrp = new Group(createId(), 'Identities [I-L]', 'Identity name starts with I to L');
-            const mnopGrp = new Group(createId(), 'Identities [M-P]', 'Identity name starts with M to P');
-            const qrstGrp = new Group(createId(), 'Identities [Q-T]', 'Identity name starts with Q to T');
-            const uvwxGrp = new Group(createId(), 'Identities [U-X]', 'Identity name starts with U to X');
-            const yzGrp   = new Group(createId(), 'Identities [Y-Z]', 'Identity name starts with Y and Z');
-            const oneTo9Grp = new Group(createId(), 'Identities [1-9]', 'Identity name starts with 0 to 9');
-            const specialCharGrp = new Group(
-                createId(),
-                'Identities [others]',
-                'Identity name starts with special characters'
-            );
-
+            const obj_array = [];
             for (let j = nx; j < ny; j++) {
                 const endpoint = new Identity();
                 endpoint.rootNode = 'Yes';
@@ -389,24 +370,118 @@ export class NetworkVisualizerHelper {
                 if (identities[j].authPolicy && identities[j].authPolicy.name.includes("BrowZer")) {
                    endpoint.type = 'BrowZer Identity';
                 }
+                obj_array.push(endpoint);
+            } // end of main for loop
+          return grouping('Identitie', identitiesChildren, obj_array);
 
-                const cha = endpoint.name.charAt(0).toLowerCase();
-                if (endpoint.status === 'Not Registered') {
-                    unregisteredGrp.children.push(endpoint);
+        }
+        function subGrouping(name, mainGroup) {
+           const pageSize = 50;
+           mainGroup.children.sort(function (a, b) {
+               return a.name.localeCompare(b.name);
+           });
+          if (mainGroup.children.length > pageSize) {
+            const children:any = [];
+            let pageNo = 0;
+            for (let i = 0; i < mainGroup.children.length; i++) {
+                const lastElement = (i + pageSize) < mainGroup.children.length? (i + pageSize) : (mainGroup.children.length);
+                const nameS =
+                        name + 's [' +
+                        mainGroup.children[i].name.substring(0, 4) +
+                        ' - ' +
+                        mainGroup.children[lastElement-1].name.substring(0, 4) +
+                        ']';
+                const chld = new Group(
+                        createId(),
+                        nameS,
+                        name + ' name starts with ' +
+                         mainGroup.children[i].name.substring(0, 4) +
+                         ' To ' +
+                         mainGroup.children[lastElement-1].name.substring(0, 4)
+                    );
+                    let j = 0;
+                for (j = i; j < lastElement; j++) {
+                     i++;
+                     chld.children.push(mainGroup.children[j]);
+                }
+                 --i;
+                  chld.name = chld.name + ' (' + chld.children.length + ')';
+                  children.push(chld);
+            }
+            mainGroup.children = children;
+          }
+          return mainGroup;
+        }
+
+        function grouping(name, children, objectsArray) {
+          let protocolRDPGrp, protocolHTTPSGrp, protocolHTTPGrp, protocolFTPGrp, unregisteredGrp;
+
+          if (name === 'Service') {
+             protocolRDPGrp = new Group(
+                createId(),
+                'Services [protocol-RDP]',
+                'Services created for RDP protocol'
+            );
+             protocolHTTPSGrp = new Group(
+                createId(),
+                'Services [protocol-HTTPS]',
+                'Service created for HTTPS protocol'
+            );
+             protocolHTTPGrp = new Group(
+                createId(),
+                'Services [protocol-HTTP]',
+                'Service created for HTTP protocol'
+            );
+             protocolFTPGrp = new Group(createId(), 'Services [protocol-FTP]', 'Service created for FTP protocol');
+          }
+           if (name === 'Identitie') {
+             unregisteredGrp = new Group(
+                          createId(),
+                          'Identities[Unregistered]',
+                          'Identities that are not registered'
+              );
+           }
+            const abcdGrp = new Group(createId(), name + 's [A-D]', name +' name starts with A to D');
+            const efghGrp = new Group(createId(), name + 's [E-H]', name +' name starts with E to H');
+            const ijklGrp = new Group(createId(), name + 's [I-L]', name +' name starts with I to L');
+            const mnopGrp = new Group(createId(), name + 's [M-P]', name +' name starts with M to P');
+            const qrstGrp = new Group(createId(), name + 's [Q-T]', name +' name starts with Q to T');
+            const uvwxGrp = new Group(createId(), name + 's [U-X]', name +' name starts with U to X');
+            const yzGrp = new Group(createId(),   name + 's [Y-Z]', name +' name starts with Y and Z');
+            const oneTo9Grp = new Group(createId(), name + 's [1-9]', name +' name starts with 0 to 9');
+            const specialCharGrp = new Group(
+                createId(),
+                name + 's [others]',
+                name + ' name starts with special characters'
+            );
+
+            for (let i = 0; i < objectsArray.length; i++) {
+                const obj = objectsArray[i];
+                const cha = obj.name.charAt(0).toLowerCase();
+                if (name === 'Identitie' && obj.status === 'Not Registered') {
+                    unregisteredGrp.children.push(obj);
+                } else if (name === 'Service' && obj.protocol === 'rdp') {
+                    protocolRDPGrp.children.push(obj);
+                } else if (name === 'Service' && obj.protocol === 'https') {
+                    protocolHTTPSGrp.children.push(obj);
+                } else if (name === 'Service' && obj.protocol === 'http') {
+                    protocolHTTPGrp.children.push(obj);
+                } else if (name === 'Service' &&  obj.protocol === 'ftp') {
+                    protocolFTPGrp.children.push(obj);
                 } else if (cha === 'a' || cha === 'b' || cha === 'c' || cha === 'd') {
-                    abcdGrp.children.push(endpoint);
+                    abcdGrp.children.push(obj);
                 } else if (cha === 'e' || cha === 'f' || cha === 'g' || cha === 'h') {
-                    efghGrp.children.push(endpoint);
+                    efghGrp.children.push(obj);
                 } else if (cha === 'i' || cha === 'j' || cha === 'k' || cha === 'l') {
-                    ijklGrp.children.push(endpoint);
+                    ijklGrp.children.push(obj);
                 } else if (cha === 'm' || cha === 'n' || cha === 'o' || cha === 'p') {
-                    mnopGrp.children.push(endpoint);
+                    mnopGrp.children.push(obj);
                 } else if (cha === 'q' || cha === 'r' || cha === 's' || cha === 't') {
-                    qrstGrp.children.push(endpoint);
+                    qrstGrp.children.push(obj);
                 } else if (cha === 'u' || cha === 'v' || cha === 'w' || cha === 'x') {
-                    uvwxGrp.children.push(endpoint);
+                    uvwxGrp.children.push(obj);
                 } else if (cha === 'y' || cha === 'z') {
-                    yzGrp.children.push(endpoint);
+                    yzGrp.children.push(obj);
                 } else if (
                     cha === '0' ||
                     cha === '1' ||
@@ -419,111 +494,93 @@ export class NetworkVisualizerHelper {
                     cha === '8' ||
                     cha === '9'
                 ) {
-                    oneTo9Grp.children.push(endpoint);
+                    oneTo9Grp.children.push(obj);
                 } else {
-                    specialCharGrp.children.push(endpoint);
+                    specialCharGrp.children.push(obj);
                 }
-            } // end of main for loop
+            } // end main for loop
 
-            if (unregisteredGrp.children.length > 0) {
-                unregisteredGrp.children.sort(function (a, b) {
+          if (name === 'Service') {
+            if (protocolRDPGrp.children.length > 0) {
+                protocolRDPGrp.children.sort(function (a, b) {
                     return a.name.localeCompare(b.name);
                 });
+                protocolRDPGrp.name = protocolRDPGrp.name + '(' + protocolRDPGrp.children.length + ')';
+                children.children.push(protocolRDPGrp);
+            }
+            if (protocolHTTPSGrp.children.length > 0) {
+                protocolHTTPSGrp.children.sort(function (a, b) {
+                    return a.name.localeCompare(b.name);
+                });
+                protocolHTTPSGrp.name = protocolHTTPSGrp.name + '(' + protocolHTTPSGrp.children.length + ')';
+                children.children.push(protocolHTTPSGrp);
+            }
+            if (protocolHTTPGrp.children.length > 0) {
+                protocolHTTPGrp.children.sort(function (a, b) {
+                    return a.name.localeCompare(b.name);
+                });
+                protocolHTTPGrp.name = protocolHTTPGrp.name + '(' + protocolHTTPGrp.children.length + ')';
+                children.children.push(protocolHTTPGrp);
+            }
+            if (protocolFTPGrp.children.length > 0) {
+                protocolFTPGrp.children.sort(function (a, b) {
+                    return a.name.localeCompare(b.name);
+                });
+                protocolFTPGrp.name = protocolFTPGrp.name + '(' + protocolFTPGrp.children.length + ')';
+                children.children.push(protocolFTPGrp);
+            }
+          }
+            if (name === 'Identitie' && unregisteredGrp.children.length > 0) {
                 unregisteredGrp.name = unregisteredGrp.name + '(' + unregisteredGrp.children.length + ')';
-                identitiesChildren.children.push(unregisteredGrp);
+                children.children.push(unregisteredGrp);
+                subGrouping(name, unregisteredGrp);
+            }
+            if (specialCharGrp.children.length > 0) {
+                specialCharGrp.name = specialCharGrp.name + '(' + specialCharGrp.children.length + ')';
+                children.children.push(specialCharGrp);
+                subGrouping(name, specialCharGrp);
             }
             if (abcdGrp.children.length > 0) {
-                abcdGrp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                abcdGrp.name = abcdGrp.name + ' (' + abcdGrp.children.length + ')';
-                identitiesChildren.children.push(abcdGrp);
+                abcdGrp.name = abcdGrp.name + '(' + abcdGrp.children.length + ')';
+                children.children.push(abcdGrp);
+                subGrouping(name, abcdGrp);
             }
-
             if (efghGrp.children.length > 0) {
-                efghGrp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                efghGrp.name = efghGrp.name + ' (' + efghGrp.children.length + ')';
-                identitiesChildren.children.push(efghGrp);
+                efghGrp.name = efghGrp.name + '(' + efghGrp.children.length + ')';
+                children.children.push(efghGrp);
+                subGrouping(name, efghGrp);
             }
             if (ijklGrp.children.length > 0) {
-                ijklGrp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                ijklGrp.name = ijklGrp.name + ' (' + ijklGrp.children.length + ')';
-                identitiesChildren.children.push(ijklGrp);
+                ijklGrp.name = ijklGrp.name + '(' + ijklGrp.children.length + ')';
+                children.children.push(ijklGrp);
+                subGrouping(name, ijklGrp);
             }
             if (mnopGrp.children.length > 0) {
-                mnopGrp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                mnopGrp.name = mnopGrp.name + ' (' + mnopGrp.children.length + ')';
-                identitiesChildren.children.push(mnopGrp);
+                mnopGrp.name = mnopGrp.name + '(' + mnopGrp.children.length + ')';
+                children.children.push(mnopGrp);
+                subGrouping(name, mnopGrp);
             }
             if (qrstGrp.children.length > 0) {
-                qrstGrp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                qrstGrp.name = qrstGrp.name + ' (' + qrstGrp.children.length + ')';
-                identitiesChildren.children.push(qrstGrp);
+                qrstGrp.name = qrstGrp.name + '(' + qrstGrp.children.length + ')';
+                children.children.push(qrstGrp);
+                subGrouping(name, qrstGrp);
             }
             if (uvwxGrp.children.length > 0) {
-                uvwxGrp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                uvwxGrp.name = uvwxGrp.name + ' (' + uvwxGrp.children.length + ')';
-                identitiesChildren.children.push(uvwxGrp);
+                uvwxGrp.name = uvwxGrp.name + '(' + uvwxGrp.children.length + ')';
+                children.children.push(uvwxGrp);
+                subGrouping(name, uvwxGrp);
             }
             if (yzGrp.children.length > 0) {
-                yzGrp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                yzGrp.name = yzGrp.name + ' (' + yzGrp.children.length + ')';
-                identitiesChildren.children.push(yzGrp);
+                yzGrp.name = yzGrp.name + '(' + yzGrp.children.length + ')';
+                children.children.push(yzGrp);
+                subGrouping(name, yzGrp);
             }
-
-            if (specialCharGrp.children.length > 0) {
-                specialCharGrp.name = specialCharGrp.name + ' (' + specialCharGrp.children.length + ')';
-                identitiesChildren.children.push(specialCharGrp);
+            if (oneTo9Grp.children.length > 0) {
+                oneTo9Grp.name = oneTo9Grp.name + '(' + oneTo9Grp.children.length + ')';
+                children.children.push(oneTo9Grp);
+                subGrouping(name, oneTo9Grp);
             }
-
-            if (oneTo9Grp.children.length > 0 && oneTo9Grp.children.length <= 100) {
-                oneTo9Grp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                oneTo9Grp.name = oneTo9Grp.name + ' (' + oneTo9Grp.children.length + ')';
-                identitiesChildren.children.push(oneTo9Grp);
-            } else if (oneTo9Grp.children.length > 100) {
-                oneTo9Grp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                for (let i = 0; i < oneTo9Grp.children.length; i++) {
-                    const lastElement = i + 80 < oneTo9Grp.children.length ? i + 80 : oneTo9Grp.children.length - 1;
-                    const nameS =
-                        'Identities [' +
-                        oneTo9Grp.children[i].name.substring(0, 4) +
-                        '-' +
-                        oneTo9Grp.children[lastElement].name.substring(0, 4) +
-                        ']';
-                    const chld = new Group(
-                        createId(),
-                        nameS,
-                        'Identity name starts with ' +
-                            oneTo9Grp.children[i].name.substring(0, 4) +
-                            ' To ' +
-                            oneTo9Grp.children[lastElement].name.substring(0, 4)
-                    );
-                    for (let j = i; j < lastElement; j++) {
-                        chld.children.push(oneTo9Grp.children[j]);
-                    }
-                   // chld.name = chld.name + ' (' + chld.children.length + ')';
-                    identitiesChildren.children.push(chld);
-                    i = i + 80;
-                }
-            }
-
-            return identitiesChildren;
+            return children;
         }
 
         function processServicePoliciesForTree(
@@ -538,7 +595,6 @@ export class NetworkVisualizerHelper {
           const dialGrp = new Group(createId(), 'Dial-Policies', 'Dial Service Policy');
 
           servicePolicies.forEach( (sp) => {
-
             const spolicy = new ServicePolicy();
                 spolicy.id = createId();
                 spolicy.uuid = sp.id;
@@ -550,182 +606,15 @@ export class NetworkVisualizerHelper {
                 } else {
                   dialGrp.children.push(spolicy);
                 }
-
           } );
 
            bindGrp.name = bindGrp.name + '('+ bindGrp.children.length +')';
            servicePolicyChildren.children.push(bindGrp);
+           subGrouping('Bind-Policie', bindGrp);
            dialGrp.name = dialGrp.name + '('+ dialGrp.children.length +')';
            servicePolicyChildren.children.push(dialGrp);
+           subGrouping('Dial-Policie', dialGrp);
           return servicePolicyChildren;
-        }
-
-        function serviceGrouping(servicesChildren, servicestree) {
-            const protocolRDPGrp = new Group(
-                createId(),
-                'Services [protocol-RDP]',
-                'Services created for RDP protocol'
-            );
-            const protocolHTTPSGrp = new Group(
-                createId(),
-                'Services [protocol-HTTPS]',
-                'Service created for HTTPS protocol'
-            );
-            const protocolHTTPGrp = new Group(
-                createId(),
-                'Services [protocol-HTTP]',
-                'Service created for HTTP protocol'
-            );
-            const protocolFTPGrp = new Group(createId(), 'Services [protocol-FTP]', 'Service created for FTP protocol');
-
-            const abcdGrp = new Group(createId(), 'Services [A-D]', 'Service name starts with A to D');
-            const efghGrp = new Group(createId(), 'Services [E-H]', 'Service name starts with E to H');
-            const ijklGrp = new Group(createId(), 'Services [I-L]', 'Service name starts with I to L');
-            const mnopGrp = new Group(createId(), 'Services [M-P]', 'Service name starts with M to P');
-            const qrstGrp = new Group(createId(), 'Services [Q-T]', 'Service name starts with Q to T');
-            const uvwxGrp = new Group(createId(), 'Services [U-X]', 'Service name starts with U to X');
-            const yzGrp = new Group(createId(), 'Services [Y-Z]', 'Service name starts with Y and Z');
-            const oneTo9Grp = new Group(createId(), 'Services [1-9]', 'Service name starts with 0 to 9');
-            const specialCharGrp = new Group(
-                createId(),
-                'Services [others]',
-                'Service name starts with special characters'
-            );
-
-            for (let i = 0; i < servicestree.length; i++) {
-                const serviceobj = servicestree[i];
-                const cha = serviceobj.name.charAt(0).toLowerCase();
-
-                if (serviceobj.protocol === 'rdp') {
-                    protocolRDPGrp.children.push(serviceobj);
-                } else if (serviceobj.protocol === 'https') {
-                    protocolHTTPSGrp.children.push(serviceobj);
-                } else if (serviceobj.protocol === 'http') {
-                    protocolHTTPGrp.children.push(serviceobj);
-                } else if (serviceobj.protocol === 'ftp') {
-                    protocolFTPGrp.children.push(serviceobj);
-                } else if (cha === 'a' || cha === 'b' || cha === 'c' || cha === 'd') {
-                    abcdGrp.children.push(serviceobj);
-                } else if (cha === 'e' || cha === 'f' || cha === 'g' || cha === 'h') {
-                    efghGrp.children.push(serviceobj);
-                } else if (cha === 'i' || cha === 'j' || cha === 'k' || cha === 'l') {
-                    ijklGrp.children.push(serviceobj);
-                } else if (cha === 'm' || cha === 'n' || cha === 'o' || cha === 'p') {
-                    mnopGrp.children.push(serviceobj);
-                } else if (cha === 'q' || cha === 'r' || cha === 's' || cha === 't') {
-                    qrstGrp.children.push(serviceobj);
-                } else if (cha === 'u' || cha === 'v' || cha === 'w' || cha === 'x') {
-                    uvwxGrp.children.push(serviceobj);
-                } else if (cha === 'y' || cha === 'z') {
-                    yzGrp.children.push(serviceobj);
-                } else if (
-                    cha === '0' ||
-                    cha === '1' ||
-                    cha === '2' ||
-                    cha === '3' ||
-                    cha === '4' ||
-                    cha === '5' ||
-                    cha === '6' ||
-                    cha === '7' ||
-                    cha === '8' ||
-                    cha === '9'
-                ) {
-                    oneTo9Grp.children.push(serviceobj);
-                } else {
-                    specialCharGrp.children.push(serviceobj);
-                }
-            } // end main for loop
-
-            if (protocolRDPGrp.children.length > 0) {
-                protocolRDPGrp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                protocolRDPGrp.name = protocolRDPGrp.name + '(' + protocolRDPGrp.children.length + ')';
-                servicesChildren.children.push(protocolRDPGrp);
-            }
-            if (specialCharGrp.children.length > 0) {
-                specialCharGrp.name = specialCharGrp.name + '(' + specialCharGrp.children.length + ')';
-                servicesChildren.children.push(specialCharGrp);
-            }
-            if (protocolHTTPSGrp.children.length > 0) {
-                protocolHTTPSGrp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                protocolHTTPSGrp.name = protocolHTTPSGrp.name + '(' + protocolHTTPSGrp.children.length + ')';
-                servicesChildren.children.push(protocolHTTPSGrp);
-            }
-            if (protocolHTTPGrp.children.length > 0) {
-                protocolHTTPGrp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                protocolHTTPGrp.name = protocolHTTPGrp.name + '(' + protocolHTTPGrp.children.length + ')';
-                servicesChildren.children.push(protocolHTTPGrp);
-            }
-            if (protocolFTPGrp.children.length > 0) {
-                protocolFTPGrp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                protocolFTPGrp.name = protocolFTPGrp.name + '(' + protocolFTPGrp.children.length + ')';
-                servicesChildren.children.push(protocolFTPGrp);
-            }
-            if (abcdGrp.children.length > 0) {
-                abcdGrp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                abcdGrp.name = abcdGrp.name + '(' + abcdGrp.children.length + ')';
-                servicesChildren.children.push(abcdGrp);
-            }
-            if (efghGrp.children.length > 0) {
-                efghGrp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                efghGrp.name = efghGrp.name + '(' + efghGrp.children.length + ')';
-                servicesChildren.children.push(efghGrp);
-            }
-            if (ijklGrp.children.length > 0) {
-                ijklGrp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                ijklGrp.name = ijklGrp.name + '(' + ijklGrp.children.length + ')';
-                servicesChildren.children.push(ijklGrp);
-            }
-            if (mnopGrp.children.length > 0) {
-                mnopGrp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                mnopGrp.name = mnopGrp.name + '(' + mnopGrp.children.length + ')';
-                servicesChildren.children.push(mnopGrp);
-            }
-            if (qrstGrp.children.length > 0) {
-                qrstGrp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                qrstGrp.name = qrstGrp.name + '(' + qrstGrp.children.length + ')';
-                servicesChildren.children.push(qrstGrp);
-            }
-            if (uvwxGrp.children.length > 0) {
-                uvwxGrp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                uvwxGrp.name = uvwxGrp.name + '(' + uvwxGrp.children.length + ')';
-                servicesChildren.children.push(uvwxGrp);
-            }
-            if (yzGrp.children.length > 0) {
-                yzGrp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                yzGrp.name = yzGrp.name + '(' + yzGrp.children.length + ')';
-                servicesChildren.children.push(yzGrp);
-            }
-            if (oneTo9Grp.children.length > 0) {
-                oneTo9Grp.children.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                oneTo9Grp.name = oneTo9Grp.name + '(' + oneTo9Grp.children.length + ')';
-                servicesChildren.children.push(oneTo9Grp);
-            }
-           //  servicesChildren.name = servicesChildren.name + '(' + servicestree.length + ')';
-            return servicesChildren;
         }
 
         function processServicesForTree(
@@ -778,11 +667,9 @@ export class NetworkVisualizerHelper {
                         isItFTPProtocolAttr = true;
                     }
                 } // end inner for loop
-
                 servicestree.push(serviceobj);
             } // end for loop
-
-            return serviceGrouping(servicesChildren, servicestree);
+            return grouping('Service', servicesChildren, servicestree);
         } // end of processServicesForTree
 
         function processEdgeRouterPoliciesForTree(
@@ -792,6 +679,7 @@ export class NetworkVisualizerHelper {
             ny
         ) {
           if(args[4]===false) return edgeRouterPoliciesChildren;
+          const policies_Array = [];
             for (let i = nx; i < ny; i++) {
                 const erpolicy = new ERPolicy();
                 erpolicy.id = createId();
@@ -801,9 +689,9 @@ export class NetworkVisualizerHelper {
                 erpolicy.rootNode = 'Yes';
                 erpolicy.isSystem = edgeRouterPolicies[i].isSystem;
                 erpolicy.semantic = edgeRouterPolicies[i].semantic;
-                edgeRouterPoliciesChildren.children.push(erpolicy);
+                policies_Array.push(erpolicy);
             } // end of main for loop
-            return edgeRouterPoliciesChildren;
+            return grouping('RouterPolicies',edgeRouterPoliciesChildren,policies_Array);
         } // end
 
         function processServiceEdgeRouterPoliciesForTree(
@@ -825,13 +713,15 @@ export class NetworkVisualizerHelper {
             return serviceEdgeRouterPoliciesChildren;
         } // end
 
-        function processEdgeroutersForTree(
-            edgerouterChildren,
+        function processEdgeRoutersForTree(
+            routersChildren,
             edgerouters,
             nx,
             ny
         ) {
-        if(args[3]===false) return edgerouterChildren;
+        if(args[3]===false) return routersChildren;
+
+            const er_objects = [];
             for (let i = nx; i < ny; i++) {
                 const erOb = new ERouter();
                 erOb.id = createId();
@@ -849,11 +739,11 @@ export class NetworkVisualizerHelper {
                     erOb.syncStatus = er.syncStatus? er.syncStatus:'No';
                     erOb.createdAt = er.createdAt;
                     erOb.updatedAt = er.updatedAt;
-
-                    edgerouterChildren.children.push(erOb);
+                    er_objects.push(erOb);
                 }
             } // end main for loop
-            return edgerouterChildren;
+           // return routersChildren;
+           return grouping('Router', routersChildren, er_objects);
         }
 
         // createId() generates node Id 1,2,3,4,5 for the following five nodes. this id is used to search capability.
@@ -894,7 +784,7 @@ export class NetworkVisualizerHelper {
             services.length
         );
 
-        edgerouterChildren = processEdgeroutersForTree(
+        edgerouterChildren = processEdgeRoutersForTree(
             edgerouterChildren,
             edgerouters,
             0,
@@ -915,14 +805,12 @@ export class NetworkVisualizerHelper {
             edgeRouterPolicies.length
         );
 
-
         identitiesChildren = processIdentitiesForTree(
             identitiesChildren,
             identities,
             0,
             identities.length
         );
-
         //serviceRouterPolicies
         serviceEdgeRouterPolicesChildren = processServiceEdgeRouterPoliciesForTree(
             serviceEdgeRouterPolicesChildren,
