@@ -89,7 +89,7 @@ export class AuthPoliciesPageService extends ListPageServiceClass {
                         if (!result) {
                             return;
                         }
-                        this.openEditForm(data?.data?.id);
+                        this.openEditForm(data?.id);
                     });
                 }},
                 onCellClicked: (data) => {
