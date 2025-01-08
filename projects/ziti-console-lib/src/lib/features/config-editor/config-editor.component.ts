@@ -1,6 +1,6 @@
 import {Component, ComponentRef, EventEmitter, Input, OnInit, Output, ViewChild, ViewContainerRef} from '@angular/core';
 import {JsonEditorComponent, JsonEditorOptions} from "ang-jsoneditor";
-import {debounce, defer, delay, isBoolean, isEmpty, isNil, keys} from "lodash";
+import {debounce, defer, isBoolean, isEmpty, isNil, keys} from "lodash";
 import {SchemaService} from "../../services/schema.service";
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
@@ -13,6 +13,8 @@ import {GrowlerService} from "../messaging/growler.service";  // Import ajv-form
   styleUrls: ['./config-editor.component.scss']
 })
 export class ConfigEditorComponent implements OnInit {
+
+  configDataInit = false;
 
   items: any[] = [];
 
@@ -33,7 +35,9 @@ export class ConfigEditorComponent implements OnInit {
   _configData: any = {};
   @Input() set configData(data) {
     this._configData = data;
+    this.initFormData();
   };
+
   @Output() configDataChange = new EventEmitter<any>();
   get configData() {
     return this._configData;
@@ -51,6 +55,7 @@ export class ConfigEditorComponent implements OnInit {
   _schema = false;
   @Input() set schema(schema: any) {
     this._schema = schema;
+    this.initFormData();
     this.createForm();
     this.updateConfigData();
   }
@@ -68,9 +73,6 @@ export class ConfigEditorComponent implements OnInit {
 
   ngOnInit() {
     this.createForm();
-    defer(() => {
-      this.formDataChanged();
-    });
   }
 
   createForm() {
@@ -291,10 +293,17 @@ export class ConfigEditorComponent implements OnInit {
     this.growlerService.show(growlerData);
   }
 
+  initFormData() {
+    if (!this.configDataInit && !isEmpty(this._configData) && !isEmpty(this.schema)) {
+      this.configDataInit = true;
+      this.formDataChanged();
+    }
+  }
+
   formDataChanged() {
-    delay(() => {
-      this.getConfigDataFromForm();
-    }, 200);
+      defer(() => {
+        this.getConfigDataFromForm();
+      });
   }
 
   jsonDataChanged(event) {
