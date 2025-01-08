@@ -30,7 +30,8 @@ import {debounce, isEmpty} from "lodash";
           [placeholder]="placeholder"
           [addOnBlur]="true"
           [ngClass]="fieldClass + (!_isValid ? ' invalid' : '')" 
-          (onBlur)="emitEvents()"
+          (onBlur)="emitEventsDebounced()"
+          (onModelChange)="emitEvents()"
           separator=",">
       </p-chips>
       <div *ngIf="error" class="error">{{error}}</div>
@@ -74,14 +75,13 @@ export class TextListInputComponent {
       element.blur();
       element.focus();
     }
-    this.emitEvents();
+    this.emitEventsDebounced();
   }
 
+  emitEventsDebounced = debounce(this.emitEvents.bind(this), 500);
   emitEvents() {
-    debounce(() => {
-      this.fieldValueChange.emit(this.fieldValue);
-      this.valueChange.next(this.fieldValue);
-    }, 500)();
+    this.fieldValueChange.emit(this.fieldValue);
+    this.valueChange.next(this.fieldValue);
   }
 
   _isValid = true;
