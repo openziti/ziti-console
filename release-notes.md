@@ -1,3 +1,10 @@
+# app-ziti-console-v3.6.5
+# ziti-console-lib-v0.6.8
+## Bug Fixes
+* [Issue #589](https://github.com/openziti/ziti-console/issues/589) - Clicking name column doesn't open auth policy edit form
+* [Issue #592](https://github.com/openziti/ziti-console/issues/592) - ZAC configurations are empty after a few requests
+
+
 # app-ziti-console-v3.6.4
 # ziti-console-lib-v0.6.7
 ## Bug Fixes
