@@ -30,34 +30,34 @@
     clear: both;
     display: block;
     float: left;
-    width: 54px;
-    height: 44px;
-    margin-left: 5px;
+    width: 3.375rem;
+    height: 2.75rem;
+    margin-left: 0.3125rem;
     cursor: pointer;
     transition: var(--transition);
   }
 
   .clickable .icon {
-    width: 27px;
-    height: 27px;
+    width: 1.6875rem;
+    height: 1.6875rem;
     position: absolute;
-    left: 14px;
-    top: 14px;
+    left: 0.875rem;
+    top: 0.875rem;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center center;
-    font-size: 29px;
+    font-size: 1.8125rem;
     text-align: center;
     color: #FFF;
   }
 
   .clickable .main {
     opacity: 1.0;
-    width: 37px;
-    height: 37px;
-    left: 9px;
-    top: 9px;
-    border-radius: 37px;
+    width: 2.3125rem;
+    height: 2.3125rem;
+    left: 0.5625rem;
+    top: 0.5625rem;
+    border-radius: 2.3125rem;
     position: absolute;
     transition: var(--transition);
   }
@@ -70,11 +70,11 @@
     opacity: 0.0;
     z-index: -2;
     background-color: var(--white);
-    width: 45px;
-    height: 45px;
-    left: 5px;
-    top: 5px;
-    border-radius: 33px;
+    width: 2.8125rem;
+    height: 2.8125rem;
+    left: 0.3125rem;
+    top: 0.3125rem;
+    border-radius: 2.0625rem;
     position: absolute;
     transition: var(--transition);
   }
@@ -90,8 +90,8 @@
 
   #NavigationButton .icon {
     color: var(--white);
-    font-size: 27px;
-    line-height: 27px;
+    font-size: 1.6875rem;
+    line-height: 1.6875rem;
     text-align: center;
   }
 
@@ -117,37 +117,37 @@
 
   #ProfileButton .icon {
     background-image: url(../../../assets/svgs/MainMenuBlankUser.svg);
-    width: 37px;
-    height: 37px;
-    left: 9px;
-    top: 9px;
-    border-radius: 50px;
+    width: 2.3125rem;
+    height: 2.3125rem;
+    left: 0.5625rem;
+    top: 0.5625rem;
+    border-radius: 3.125rem;
   }
 
   #ProfileMenu {
     position: absolute;
-    bottom: -55px;
-    left: 45px;
+    bottom: -3.4375rem;
+    left: 2.8125rem;
   }
 
   #ProfileMenu.open {
-    bottom: -5px;
+    bottom: -0.3125rem;
   }
 
   #AlertButton .count {
-    width: 13px;
-    height: 13px;
+    width: 0.8125rem;
+    height: 0.8125rem;
     border-radius: 50%;
     font-family: 'Open Sans', Arial, sans-serif;
     background-color: var(--secondary);
     z-index: 20;
     color: var(--white);
-    font-size: 8px;
-    line-height: 12px;
+    font-size: 0.5rem;
+    line-height: 0.75rem;
     font-weight: bold;
     position: absolute;
-    right: 13px;
-    top: 15px;
+    right: 0.8125rem;
+    top: 0.9375rem;
     text-align: center;
     box-shadow: var(--shadows);
   }

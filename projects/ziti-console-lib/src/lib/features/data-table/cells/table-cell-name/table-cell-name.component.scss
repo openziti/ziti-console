@@ -1,7 +1,7 @@
 .cell-name-renderer {
   display: flex;
   flex-direction: row;
-  gap: 5px;
+  gap: 0.3125rem;
 }
 
 .cell-name-container {
@@ -15,5 +15,5 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 0.25rem;
 }

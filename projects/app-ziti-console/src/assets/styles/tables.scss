@@ -3,9 +3,9 @@
 .sort {
   cursor: pointer;
   right: 0;
-  background-position: right 7px center;
+  background-position: right 0.4375rem center;
   background-repeat: no-repeat;
-  background-size: 12px 12px;
+  background-size: 0.75rem 0.75rem;
   color: var(--tableText);
 }
 
@@ -17,36 +17,36 @@
 .sort.asc {
   opacity: 1;
   background-repeat: no-repeat;
-  background-size: 20px;
-  background-position-y: 23px;
+  background-size: 1.25rem;
+  background-position-y: 1.4375rem;
 }
 
 .sort.desc {
   opacity: 1;
   background-repeat: no-repeat;
-  background-size: 20px;
-  background-position-y: 23px;
+  background-size: 1.25rem;
+  background-position-y: 1.4375rem;
 }
 
 .tabletab.first {
-  border-top-left-radius: 3px;
+  border-top-left-radius: 0.1875rem;
 }
 
 .tabletab.last {
-  border-top-right-radius: 3px;
+  border-top-right-radius: 0.1875rem;
 }
 
 .tabletab {
   cursor: pointer;
-  font-size: 14px;
+  font-size: 0.875rem;
   text-align: center;
   text-transform: uppercase;
   border-style: solid;
-  border-width: 1.5px;
+  border-width: .1rem;
   border-color: var(--primary);
   color: var(--primary);
-  height: 30px;
-  line-height: 24px;
+  height: 1.875rem;
+  line-height: 1.5rem;
 }
 
 .tabletab.selected {
@@ -56,15 +56,15 @@
 
 .TitleLine {
   width: 100%;
-  height: 30px;
-  line-height: 15px;
+  height: 1.875rem;
+  line-height: 0.9375rem;
   display: grid;
-  grid-template-columns: auto 200px 200px;
+  grid-template-columns: auto 12.5rem 12.5rem;
   grid-template-rows: auto;
   border-bottom-style: solid;
   border-bottom-color: var(--primary);
-  border-bottom-width: 4px;
-  font-size: 30px;
+  border-bottom-width: 0.25rem;
+  font-size: 1.875rem;
   color: var(--tableText);
 }
 
@@ -74,14 +74,14 @@
 
 main.table {
   background-color: var(--table);
-  padding-left: 60px;
+  padding-left: 3.75rem;
 }
 
 .tHead.filterable {
-  padding-left: 30px;
+  padding-left: 1.875rem;
   background-image: url(/assets/svgs/Filter.svg);
-  background-size: 18px;
-  background-position: left 0px top 7px;
+  background-size: 1.125rem;
+  background-position: left 0rem top 0.4375rem;
   background-repeat: no-repeat;
 }
 
@@ -89,21 +89,21 @@ main.table {
   position: relative;
   float: left;
   color: var(--tableText);
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 600;
   font-family: 'Open Sans';
   background-color: var(--primary);
-  border-left: 4px solid var(--primary);
-  height: 55px;
+  border-left: 0.25rem solid var(--primary);
+  height: 3.4375rem;
   text-overflow: ellipsis;
   transition: 0.5s;
-  padding-left: 7px;
+  padding-left: 0.4375rem;
   white-space: nowrap;
 }
 
 .tHead span {
   overflow: hidden;
-  padding-right: 40px;
+  padding-right: 2.5rem;
   box-sizing: border-box;
   display: inline-block;
   width: 100%;
@@ -112,10 +112,10 @@ main.table {
 
 .tHeadRow {
   box-sizing: border-box;
-  border-bottom: solid 4px var(--primary);
+  border-bottom: solid 0.25rem var(--primary);
   background-color: var(--navigation);
-  padding-left: 4px;
-  line-height: 55px;
+  padding-left: 0.25rem;
+  line-height: 3.4375rem;
   position: sticky !important;
   top: 0;
   z-index: 10;
@@ -123,22 +123,22 @@ main.table {
   opacity: 0.97;
 }
 
-@supports ((-webkit-backdrop-filter: saturate(90%) blur(20px)) or (backdrop-filter: saturate(90%) blur(20px))) {
+@supports ((-webkit-backdrop-filter: saturate(90%) blur(1.25rem)) or (backdrop-filter: saturate(90%) blur(1.25rem))) {
   .tHeadRow {
     background: none;
     opacity: 0.97;
-    -webkit-backdrop-filter: saturate(90%) blur(20px);
-    backdrop-filter: saturate(90%) blur(20px);
+    -webkit-backdrop-filter: saturate(90%) blur(1.25rem);
+    backdrop-filter: saturate(90%) blur(1.25rem);
   }
 }
 
 .tIcon {
-  height: 30px;
-  top: 10px;
-  bottom: 10px;
+  height: 1.875rem;
+  top: 0.625rem;
+  bottom: 0.625rem;
   position: absolute;
   background-position: center center;
-  width: 90px;
+  width: 5.625rem;
   background-size: contain;
   display: inline-block;
   background-repeat: no-repeat;
@@ -146,12 +146,12 @@ main.table {
 
 .tIcon.AWS {
   background-image: url(/assets/images/gateways-aws.png);
-  width: 65px;
+  width: 4.0625rem;
 }
 
 .tIcon.Microsoft {
   background-image: url(/assets/svgs/Azure.svg);
-  background-position-x: 15px;
+  background-position-x: 0.9375rem;
 }
 
 .tIcon.Google {
@@ -166,9 +166,9 @@ main.table {
   background-repeat: no-repeat;
   background-size: 70%;
   background-position: center;
-  margin-top: 7px;
-  width: 35px;
-  height: 24px;
+  margin-top: 0.4375rem;
+  width: 2.1875rem;
+  height: 1.5rem;
   display: inline-block;
 }
 
@@ -190,7 +190,7 @@ main.table {
   color: var(--red);
   font-family: 'icomoon' !important;
   speak: none;
-  font-size: 25px;
+  font-size: 1.5625rem;
   font-style: normal;
   font-weight: 600;
   font-variant: normal;
@@ -201,18 +201,18 @@ main.table {
   background-repeat: no-repeat;
   background-size: 70%;
   background-position: center;
-  margin-top: 7px;
-  width: 35px;
-  height: 24px;
+  margin-top: 0.4375rem;
+  width: 2.1875rem;
+  height: 1.5rem;
   display: inline-block;
 }
 
 .tRow {
-  border-left: 4px solid var(--navigation);
+  border-left: 0.25rem solid var(--navigation);
   background-color: var(--navigation);
   font-weight: normal;
   color: var(--tableText);
-  line-height: 55px;
+  line-height: 3.4375rem;
   position: relative;
   float: left;
   width: 100%;
@@ -225,13 +225,13 @@ main.table {
 }
 
 .tRow:nth-child(even) {
-  border-left: 4px solid var(--background);
+  border-left: 0.25rem solid var(--background);
   background-color: var(--background);
   background: var(--background);
 }
 
 .tRow:hover {
-  border-left: 4px solid var(--primary);
+  border-left: 0.25rem solid var(--primary);
   -webkit-transition: 0.3s;
   -moz-transition: 0.3s;
   -ms-transition: 0.3s;
@@ -242,32 +242,32 @@ main.table {
 .noData {
   width: 100%;
   height: 90%;
-  top: 0px;
+  top: 0rem;
   position: absolute;
   background-image: url(/assets/svgs/NoData.svg);
-  background-position: top 102px center;
-  background-size: 180px;
+  background-position: top 6.375rem center;
+  background-size: 11.25rem;
   color: var(--icon);
   opacity: 0.25;
-  font-size: 24px;
+  font-size: 1.5rem;
   text-align: center;
-  padding-right: 30px;
-  line-height: 553px;
+  padding-right: 1.875rem;
+  line-height: 34.5625rem;
   text-transform: uppercase;
   font-weight: 600;
   font-family: 'Open Sans';
 }
 
 .tCol .bubble {
-  margin-left: 0px;
+  margin-left: 0rem;
 }
 
 .tCol #NetworkTimeline .bubble {
-  margin-left: 20px;
+  margin-left: 1.25rem;
 }
 
 .tMenu.all {
-  width: 160px;
+  width: 10rem;
 }
 
 .tMenu.open {
@@ -277,17 +277,17 @@ main.table {
 
 .tMenu {
   position: absolute;
-  width: 150px;
+  width: 9.375rem;
   background-color: var(--menu);
   border-radius: var(--inputBorderRadius);
-  right: -20px;
-  top: 30px;
-  box-shadow: 0 0 0 1px var(--shadow), 0 8px 16px var(--shadow);
+  right: -1.25rem;
+  top: 1.875rem;
+  box-shadow: 0 0 0 0.0625rem var(--shadow), 0 0.5rem 1rem var(--shadow);
   z-index: 40;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: 0.625rem;
+  padding-bottom: 0.625rem;
   opacity: 0;
-  height: 0px;
+  height: 0rem;
   pointer-events: none;
   transition: 0.5s;
   overflow: hidden;
@@ -295,17 +295,17 @@ main.table {
 }
 
 .tMenu .tActionRow {
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: normal;
-  line-height: 30px;
+  line-height: 1.875rem;
   color: var(--white);
   width: 100%;
   position: relative;
   float: left;
-  letter-spacing: 0px;
+  letter-spacing: 0rem;
   text-align: left;
-  padding-left: 11px;
-  padding-right: 10px;
+  padding-left: 0.6875rem;
+  padding-right: 0.625rem;
   cursor: pointer;
   font-weight: 600;
   font-family: 'Open Sans';
@@ -317,21 +317,21 @@ main.table {
 }
 
 .tSelect {
-  width: 25px;
-  height: 25px;
-  border: 2px var(--offWhite) solid;
-  border-radius: 15px;
+  width: 1.5625rem;
+  height: 1.5625rem;
+  border: 0.125rem var(--offWhite) solid;
+  border-radius: 0.9375rem;
   cursor: pointer;
   -webkit-transition: background-color 0.5s;
   transition: background-color 0.5s;
   position: absolute;
-  top: 13px;
-  left: 17px;
+  top: 0.8125rem;
+  left: 1.0625rem;
   background-color: var(--navigation);
 }
 
 .tSelect:hover {
-  border: 2px var(--primary) solid;
+  border: 0.125rem var(--primary) solid;
   cursor: pointer;
   background-color: var(--offWhite);
   -webkit-transition: background-color 0.5s;
@@ -355,46 +355,46 @@ main.table {
 }
 
 .initials {
-  width: 32px;
-  height: 32px;
-  border-radius: 18px;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 1.125rem;
   background-color: linear-gradient(125deg, var(--primary), var(--secondary));
   color: var(--white);
   position: absolute;
-  left: 0px;
-  top: 7px;
+  left: 0rem;
+  top: 0.4375rem;
   text-align: center;
   text-transform: uppercase;
-  line-height: 32px;
-  margin-top: 3px;
+  line-height: 2rem;
+  margin-top: 0.1875rem;
   font-weight: 600;
-  padding-left: 1px;
-  margin-right: 10px;
+  padding-left: 0.0625rem;
+  margin-right: 0.625rem;
   background-color: #08dc5a; /*Fallback Color for Old Browsers*/
 }
 
 .tColSpace {
-  padding-left: 55px;
+  padding-left: 3.4375rem;
 }
 
 .tCol.ellipse {
   text-overflow: ellipsis;
   overflow: hidden;
-  height: 39px;
+  height: 2.4375rem;
 }
 
 .tCol {
   position: relative;
   float: left;
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 400;
   font-family: 'Open Sans';
   text-overflow: ellipsis;
-  height: 50px;
-  line-height: 50px;
+  height: 3.125rem;
+  line-height: 3.125rem;
   overflow: hidden;
   white-space: nowrap;
-  padding-left: 7px;
+  padding-left: 0.4375rem;
 }
 
 .tRight {
@@ -410,17 +410,17 @@ main.table {
 
 .dots {
   text-align: center;
-  font-size: 42px;
-  line-height: 30px;
+  font-size: 2.625rem;
+  line-height: 1.875rem;
   font-family: serif;
-  letter-spacing: 0px;
+  letter-spacing: 0rem;
   cursor: pointer;
-  height: 40px;
+  height: 2.5rem;
   display: inline-block;
-  width: 40px;
+  width: 2.5rem;
   color: var(--stroke);
   position: absolute;
-  right: 20px;
+  right: 1.25rem;
   -webkit-transition: 0.5s;
   -moz-transition: 0.5s;
   -ms-transition: 0.5s;
@@ -443,14 +443,14 @@ main.table {
   width: 100%;
   display: grid;
   color: var(--text);
-  font-size: 14px;
-  line-height: 24px;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
   grid-template-columns: auto;
-  margin-bottom: 5px;
+  margin-bottom: 0.3125rem;
 }
 
 .modal .table div {
-  padding: 10px;
+  padding: 0.625rem;
 }
 
 .modal .table.three {
@@ -489,9 +489,9 @@ main.table {
   position: relative;
   width: 100%;
   display: grid;
-  font-size: 12px;
+  font-size: 0.75rem;
   grid-template-columns: auto;
-  grid-column-gap: 5px;
+  grid-column-gap: 0.3125rem;
 }
 
 .tableGrid.header {
@@ -517,7 +517,7 @@ main.table {
 
 .gridLabel {
   color: var(--primary);
-  line-height: 50px;
+  line-height: 3.125rem;
   font-weight: bold;
 }
 
@@ -580,10 +580,10 @@ main.table {
 .filterButton {
   position: absolute;
   z-index: 20;
-  width: 16px;
-  height: 16px;
-  top: 20px;
-  right: 33px;
+  width: 1rem;
+  height: 1rem;
+  top: 1.25rem;
+  right: 2.0625rem;
   background-image: url(/assets/svgs/Filter.svg);
   background-size: contain;
   background-position: center center;
@@ -592,15 +592,15 @@ main.table {
 
 .filterButton .options {
   position: absolute;
-  right: 0px;
+  right: 0rem;
   z-index: 30;
-  top: 20px;
+  top: 1.25rem;
   box-shadow: var(--shadows);
-  border-radius: 8px;
-  width: 200px;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  height: 0px;
+  border-radius: 0.5rem;
+  width: 12.5rem;
+  padding-top: 0.625rem;
+  padding-bottom: 0.625rem;
+  height: 0rem;
   opacity: 0;
   overflow-x: hidden;
   overflow: hidden;
@@ -609,7 +609,7 @@ main.table {
 }
 
 .filterButton .options.open {
-  width: 200px;
+  width: 12.5rem;
   height: unset;
   opacity: 1;
   overflow: auto;
@@ -618,11 +618,11 @@ main.table {
 
 .filterButton .options .option {
   width: 100%;
-  height: 30px;
-  font-size: 14px;
-  line-height: 30px;
-  padding-left: 11px;
-  padding-right: 10px;
+  height: 1.875rem;
+  font-size: 0.875rem;
+  line-height: 1.875rem;
+  padding-left: 0.6875rem;
+  padding-right: 0.625rem;
   color: var(--white);
   cursor: pointer;
   overflow: hidden;

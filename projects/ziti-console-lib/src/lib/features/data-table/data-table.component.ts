@@ -80,7 +80,7 @@ export class DataTableComponent implements OnChanges, OnInit {
   @Input() showNoItemsAdd = true;
   @Input() currentPage = 1;
   @Input() noItemsImage = 'nodata';
-  @Input() rowHeight = 50;
+  @Input() rowHeight = this.remToPx(3.125);
   @Input() filterName = 'name';
   @Input() filterColumn = 'name';
   @Output() actionRequested = new EventEmitter<{ action: string; item?: any }>();
@@ -133,7 +133,7 @@ export class DataTableComponent implements OnChanges, OnInit {
     colId: 'ziti-ag-menu',
     field: 'ziti-ag-menu',
     resizable: false,
-    width: 50,
+    width: this.remToPx(3.125),
     sortable: false,
     lockPosition: true,
     suppressMovable: true,
@@ -173,7 +173,7 @@ export class DataTableComponent implements OnChanges, OnInit {
     suppressMovable: true,
     resizable: false,
     pinned: 'left',
-    width: 60,
+    width: this.remToPx(3.75),
     sortable: false,
     headerClass: 'selectHeader',
     cellClass: 'tCol',
@@ -585,31 +585,8 @@ export class DataTableComponent implements OnChanges, OnInit {
         },
       },
       getRowHeight: (params) => {
-        if (params.api.view === 'process') {
-          if (_.get(params, 'data.isRoot')) {
-            return 50;
-          }
-          if (_.get(params, 'data.isParallel')) {
-            return 35;
-          }
-          if (_.get(params, 'data.parentId')) {
-            return 40;
-          }
-          return 50;
-        } else if (
-            params.api.view === 'users' ||
-            params.api.view === 'user-roles' ||
-            params.api.view === 'roles'
-        ) {
-          if (_.get(params, 'data.roleItem')) {
-            return 35;
-          }
-          return 50;
-        } else {
-          return 50;
-        }
+        return this.remToPx(3.125);
       },
-
       onCellEditingStopped: (eventObj) => {
         if (!this.validateService) {
           return;
@@ -909,4 +886,9 @@ export class DataTableComponent implements OnChanges, OnInit {
       $('.ag-pinned-right-cols-container').removeClass('ag-pinned-right-shadow');
     }
   }
+
+  remToPx(remValue) {
+    const rootFontSize: any = parseFloat(window.getComputedStyle(document.documentElement).fontSize);
+    return remValue * rootFontSize;
+  };
 }

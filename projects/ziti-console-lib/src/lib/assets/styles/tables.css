@@ -1,90 +1,90 @@
 .grid {
 	display: grid;
 	grid-template-columns: auto;
-	grid-gap: 3px;
+	grid-gap: 0.1875rem;
 }
 
 .grid.singular {
-    grid-template-columns: auto 416px auto;
-    margin-bottom: 20px;
+    grid-template-columns: auto 26rem auto;
+    margin-bottom: 1.25rem;
 }
 
 .grid.dual {
     grid-template-columns: 48% 48%;
     grid-column-gap: 4%;
-    grid-row-gap: 20px;
-    margin-bottom: 20px;
+    grid-row-gap: 1.25rem;
+    margin-bottom: 1.25rem;
 }
 
 .grid .col.padLeft {
-	padding-left: 10px;
+	padding-left: 0.625rem;
 }
 
 .grid.links {
-    grid-template-columns: 50px 100px auto 50px;
+    grid-template-columns: 3.125rem 6.25rem auto 3.125rem;
     grid-column-gap: 2%;
 	width: 100%;
 }
 
 .grid.threedelete {
-	grid-template-columns: 50% auto 30px;
-    line-height: 45px;
-    font-size: 16px;
-    height: 45px;
+	grid-template-columns: 50% auto 1.875rem;
+    line-height: 2.8125rem;
+    font-size: 1rem;
+    height: 2.8125rem;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .split {
 	display: grid;
-	grid-gap: 10px;
+	grid-gap: 0.625rem;
 	grid-template-columns: auto 50%;
 }
 
 .split.exp {
 	display: grid;
-	grid-gap: 5px;
+	grid-gap: 0.3125rem;
 	grid-template-columns: auto 40%;
 }
 
 .grid.aside {
 	display: grid;
-	grid-gap: 10px;
+	grid-gap: 0.625rem;
 	grid-template-columns: auto 20%;
 }
 
 .three {
 	display: grid;
-	grid-gap: 10px;
+	grid-gap: 0.625rem;
 	grid-template-columns: 33% auto 33%;
 }
 
 .four {
 	display: grid;
-	grid-gap: 10px;
+	grid-gap: 0.625rem;
 	grid-template-columns: 25% auto 25% 25%;
 } 
 
 .padCol {
-	padding-left: 15px;
+	padding-left: 0.9375rem;
 }
 
 .duplex {
 	display: grid;
-	grid-gap: 0px;
+	grid-gap: 0rem;
 	grid-template-columns: 50% 50%;
 }
 
 .bubbleTitle {
 	width: 100%;
-    height: 75px;
-    line-height: 75px;
+    height: 4.6875rem;
+    line-height: 4.6875rem;
     font-weight: bold;
-    font-size: 44px;
+    font-size: 2.75rem;
     background-color: #28292B;
-    border-radius: 50px;
-    padding-left: 25px;
-    margin-top: 20px;
+    border-radius: 3.125rem;
+    padding-left: 1.5625rem;
+    margin-top: 1.25rem;
 	color: #FFF;
 	position: relative;
 }
@@ -92,14 +92,14 @@
 .inside {
     position: absolute;
     width: 40%;
-    height: 55px;
-    right: 10px;
+    height: 3.4375rem;
+    right: 0.625rem;
     text-align: center;
-    top: 30px;    color: var(--white);
+    top: 1.875rem;    color: var(--white);
     background-color: var(--black);
-    border-radius: 50px;
+    border-radius: 3.125rem;
     font-weight: bold;
-    padding-top: 8px;
+    padding-top: 0.5rem;
 }
 
 .split.unsplit {
@@ -110,79 +110,79 @@
 	grid-template-columns: 50% auto;
 	position: relative;
 	width: 100%;
-    margin-bottom: 10px;	
+    margin-bottom: 0.625rem;	
 }
 
 .grid.checkLabel {
-	grid-template-columns: 70px auto;
-	margin-top: 10px;
+	grid-template-columns: 4.375rem auto;
+	margin-top: 0.625rem;
 }
 
 .grid.triple {
-	grid-template-columns: 300px auto 300px;
+	grid-template-columns: 18.75rem auto 18.75rem;
 }
 
 .grid.three {
-	grid-template-columns: 150px auto 150px;
+	grid-template-columns: 9.375rem auto 9.375rem;
 }
 
 .grid.four {
-	grid-template-columns: 50px auto 150px 50px;
+	grid-template-columns: 3.125rem auto 9.375rem 3.125rem;
 }
 
 .grid.templates {
-	grid-template-columns: 50px 200px 300px 300px auto 50px;
+	grid-template-columns: 3.125rem 12.5rem 18.75rem 18.75rem auto 3.125rem;
 }
 
 .grid.flour {
-	grid-template-columns: 50px 150px auto 50px;
+	grid-template-columns: 3.125rem 9.375rem auto 3.125rem;
 }
 
 .grid.serviceTable {
-	grid-template-columns: 50px auto 30% 150px 50px;
+	grid-template-columns: 3.125rem auto 30% 9.375rem 3.125rem;
 }
 
 .grid.five {
-	grid-template-columns: 50px auto 150px 150px 50px;
+	grid-template-columns: 3.125rem auto 9.375rem 9.375rem 3.125rem;
 }
 
 .grid.splitadd {
-	grid-template-columns: auto auto 100px;    
-	column-gap: 10px;
+	grid-template-columns: auto auto 6.25rem;    
+	column-gap: 0.625rem;
 }
 
 .grid.split.wide {
 	grid-template-columns: auto 49%;
-	column-gap: 20px;
+	column-gap: 1.25rem;
     z-index: 10;
 }
 
 .grid.split.wide {
     grid-template-columns: auto 49%;
-    column-gap: 20px;
+    column-gap: 1.25rem;
     z-index: 10;
 }
 
 .grid.split.wide.exp {
 	grid-template-columns: auto auto auto;
-	column-gap: 10px;
+	column-gap: 0.625rem;
 	z-index: 10;
 }
 
 .grid.fived {
-	grid-template-columns: 50px 150px 150px auto 50px;
+	grid-template-columns: 3.125rem 9.375rem 9.375rem auto 3.125rem;
 }
 
 .grid.fives {
-	grid-template-columns: 50px 200px auto 150px 50px;
+	grid-template-columns: 3.125rem 12.5rem auto 9.375rem 3.125rem;
 }
 
 .grid.floor {
-	grid-template-columns: 250px auto 150px 50px;
+	grid-template-columns: 15.625rem auto 9.375rem 3.125rem;
 }
 
 .grid.flive {
-	grid-template-columns: 150px 150px 150px auto 50px;
+	grid-template-columns: 9.375rem 9.375rem 9.375rem auto 3.125rem;
 }
 
 .grid.five.same {
@@ -191,32 +191,32 @@
 }
 
 .grid.six {
-	grid-template-columns: 50px auto 20% 20% 150px 50px;
+	grid-template-columns: 3.125rem auto 20% 20% 9.375rem 3.125rem;
 }
 
 .grid.dashboard {
-	margin-top: 20px;
+	margin-top: 1.25rem;
 	grid-template-columns: auto 20%;
-	column-gap: 20px;
-	row-gap: 20px;
+	column-gap: 1.25rem;
+	row-gap: 1.25rem;
 }
 
 .grid.dashboard.exp {
-	margin-top: 20px;
+	margin-top: 1.25rem;
 	grid-template-columns: auto 30%;
-	column-gap: 20px;
-	row-gap: 20px;
+	column-gap: 1.25rem;
+	row-gap: 1.25rem;
 }
 
 .grid.numbers {
-    grid-template-columns: 50px 15% auto 15% 15% 15% 15%;
-	column-gap: 20px;
-    border-width: 3px;
+    grid-template-columns: 3.125rem 15% auto 15% 15% 15% 15%;
+	column-gap: 1.25rem;
+    border-width: 0.1875rem;
     border-style: solid;
     border-color: var(--white);
     background-color: rgba(255,255,255,0.5);
-    padding: 22px;
-    border-radius: 12px;
+    padding: 1.375rem;
+    border-radius: 0.75rem;
     z-index: 10;
     box-shadow: var(--shadowLarge);
 }
@@ -224,43 +224,43 @@
 .grid.cells {
 	grid-template-columns: 100%;
 	grid-template-rows: 60% auto;
-    row-gap: 20px;
+    row-gap: 1.25rem;
 }
 
 .grid.seven {
-	grid-template-columns: 50px auto 20% 150px 150px 150px 50px;
+	grid-template-columns: 3.125rem auto 20% 9.375rem 9.375rem 9.375rem 3.125rem;
 }
 
 .grid.sleven {
-	grid-template-columns: 50px auto 250px 150px 150px 150px 50px;
+	grid-template-columns: 3.125rem auto 15.625rem 9.375rem 9.375rem 9.375rem 3.125rem;
 }
 
 .grid.policies {
-	grid-template-columns: 50px auto 25% 25% 10% 100px 100px 50px;
+	grid-template-columns: 3.125rem auto 25% 25% 10% 6.25rem 6.25rem 3.125rem;
 }
 
 .grid.nineOS {
-	grid-template-columns: 50px auto 50px 120px 20% 150px 150px 150px 50px;
+	grid-template-columns: 3.125rem auto 3.125rem 7.5rem 20% 9.375rem 9.375rem 9.375rem 3.125rem;
 }
 
 .grid.tenOS {
-	grid-template-columns: 50px auto 50px 120px 100px 150px 150px 100px 100px 50px;
+	grid-template-columns: 3.125rem auto 3.125rem 7.5rem 6.25rem 9.375rem 9.375rem 6.25rem 6.25rem 3.125rem;
 }
 
 .grid.eight {
-	grid-template-columns: 50px 200px auto 15% 15% 15% 15% 50px;
+	grid-template-columns: 3.125rem 12.5rem auto 15% 15% 15% 15% 3.125rem;
 }
 
 .grid.eightOS {
-	grid-template-columns: 50px 200px 50px auto 15% 15% 15% 15% 50px;
+	grid-template-columns: 3.125rem 12.5rem 3.125rem auto 15% 15% 15% 15% 3.125rem;
 }
 
 .grid.nine {
-	grid-template-columns: 50px 200px auto 100px 100px 100px 150px 150px 50px;
+	grid-template-columns: 3.125rem 12.5rem auto 6.25rem 6.25rem 6.25rem 9.375rem 9.375rem 3.125rem;
 }
 
 .grid.ten {
-	grid-template-columns: 50px auto 150px 150px 150px 100px 100px 100px 100px 50px;
+	grid-template-columns: 3.125rem auto 9.375rem 9.375rem 9.375rem 6.25rem 6.25rem 6.25rem 6.25rem 3.125rem;
 }
 
 .grid.quad {
@@ -269,36 +269,36 @@
 }
 
 .grid.oss {
-	grid-template-columns: 70px 100px auto;
-	margin-bottom: 10px;
+	grid-template-columns: 4.375rem 6.25rem auto;
+	margin-bottom: 0.625rem;
 }
 
 .grid.quint {
-	grid-template-columns: 24% 24% 24% 24% 50px;
+	grid-template-columns: 24% 24% 24% 24% 3.125rem;
 }
 
 .grid.trio {
-	grid-template-columns: 75px auto;
+	grid-template-columns: 4.6875rem auto;
 	grid-column-gap: 1%;
 }
 
 .grid.addressProtocol {
-	grid-template-columns: 75px auto;
+	grid-template-columns: 4.6875rem auto;
 }
 
 .grid.addressPort {
-	grid-template-columns: auto 75px;
+	grid-template-columns: auto 4.6875rem;
 }
 
 .grid.addressFull {
-	grid-template-columns: 75px auto 75px;
+	grid-template-columns: 4.6875rem auto 4.6875rem;
 }
 
 .head.grid {
 	box-sizing: border-box;
-    border-bottom: solid 4px var(--primary);
-    padding-left: 4px;
-    line-height: 55px;
+    border-bottom: solid 0.25rem var(--primary);
+    padding-left: 0.25rem;
+    line-height: 3.4375rem;
 	position: sticky !important;
 	background-color: var(--background); 
     top: 0;
@@ -306,12 +306,12 @@
 	opacity: .97;
 }
 
-@supports ((-webkit-backdrop-filter: saturate(90%) blur(20px)) or (backdrop-filter: saturate(90%) blur(20px))) {
+@supports ((-webkit-backdrop-filter: saturate(90%) blur(1.25rem)) or (backdrop-filter: saturate(90%) blur(1.25rem))) {
     .head.grid  {
 		background: none;
 		opacity: .97;
-        -webkit-backdrop-filter: saturate(90%) blur(20px);
-        backdrop-filter: saturate(90%) blur(20px)
+        -webkit-backdrop-filter: saturate(90%) blur(1.25rem);
+        backdrop-filter: saturate(90%) blur(1.25rem)
     }
 }
 
@@ -319,22 +319,22 @@
 	position: relative;
 	float: left;
 	color: var(--text);
-	font-size: 14px;
+	font-size: 0.875rem;
 	font-weight: 600;
 	font-family: "Open Sans";
-    padding-left: 5px;
+    padding-left: 0.3125rem;
 }
 
 .grid .col {
 	position: relative;
-	padding-right: 5px;
+	padding-right: 0.3125rem;
 	float: left;
-	font-size: 15px;
+	font-size: 0.9375rem;
 	font-weight: 400;
 	font-family: 'Open Sans';
 	text-overflow: ellipsis;
-	height: 50px;
-	line-height: 50px;
+	height: 3.125rem;
+	line-height: 3.125rem;
 	overflow: hidden;
 	white-space: nowrap;
 	transition: var(--transition);
@@ -345,26 +345,26 @@
 }
 
 .table .row:hover, .table .row:nth-child(even):hover {
-    border-left: 4px solid var(--primary);
+    border-left: 0.25rem solid var(--primary);
 }
 
 .table .row {
-    border-left: 4px solid var(--white);
+    border-left: 0.25rem solid var(--white);
     background-color: var(--white);
     background: var(--white);
 }
 
 .table .row:nth-child(even) {
-    border-left: 4px solid var(--shaded);
+    border-left: 0.25rem solid var(--shaded);
     background-color: var(--shaded);
     background: var(--shaded);
 }
 
 .grid .col.sort {
 	cursor: pointer;
-	background-position: right 12px center;
+	background-position: right 0.75rem center;
 	background-repeat: no-repeat;
-	background-size: 12px 12px;
+	background-size: 0.75rem 0.75rem;
 }
 
 .grid  .col.sort:hover {
@@ -386,12 +386,12 @@
 }
 
 .ball {
-    width: 22px;
-    height: 22px;
+    width: 1.375rem;
+    height: 1.375rem;
     position: relative;
-    margin-left: 12px;
-    margin-top: 14px;
-    border-radius: 11px;
+    margin-left: 0.75rem;
+    margin-top: 0.875rem;
+    border-radius: 0.6875rem;
 	background-color: var(--black);
 	opacity: 0.04;
 }
@@ -401,46 +401,46 @@
 	opacity: 1.0;
 }
 .grid.path {
-	grid-template-columns: 160px auto 160px;
-	grid-column-gap: 0px;
+	grid-template-columns: 10rem auto 10rem;
+	grid-column-gap: 0rem;
 }
 
 .spot {
-    margin-top: 14px;
-    height: 22px;
-    width: 100px;
-    padding-left: 10px;
+    margin-top: 0.875rem;
+    height: 1.375rem;
+    width: 6.25rem;
+    padding-left: 0.625rem;
     background-color: var(--black);
-    font-size: 12px;
-    border-radius: 11px;
+    font-size: 0.75rem;
+    border-radius: 0.6875rem;
     color: var(--white);
-	line-height: 23px;
+	line-height: 1.4375rem;
 	position: absolute;
     z-index: 5;
 }
 
 .connector {
     width: 100%;
-    height: 1px;
-    margin-top: 24px;
+    height: 0.0625rem;
+    margin-top: 1.5rem;
 	background-color: #28292B;
 	position: absolute;
 	z-index: 1;
 }
 
 .latency {
-    font-size: 12px;
+    font-size: 0.75rem;
     position: absolute;
-    padding-right: 10px;
-    left: 0px;
-    top: 12px;
+    padding-right: 0.625rem;
+    left: 0rem;
+    top: 0.75rem;
     color: #FFF;
-    line-height: 26px;
-    height: 26px;
+    line-height: 1.625rem;
+    height: 1.625rem;
     text-align: right;
-    width: 160px;
+    width: 10rem;
     background-color: #28292B;
-    border-radius: 12px;
+    border-radius: 0.75rem;
     z-index: 2;
 }
 

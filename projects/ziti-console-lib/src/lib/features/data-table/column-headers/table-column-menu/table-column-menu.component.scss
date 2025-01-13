@@ -1,16 +1,16 @@
 .cell-menu-container {
   .dots {
-    width: 30px;
-    right: 10px;
-    height: 30px;
+    width: 1.875rem;
+    right: 0.625rem;
+    height: 1.875rem;
     position: absolute;
-    top: 10px;
-    font-size: 24px;
+    top: 0.625rem;
+    font-size: 1.5rem;
     text-align: center;
     cursor: pointer;
     background-color: transparent;
     transition: var(--transition);
-    line-height: 13px;
+    line-height: 0.8125rem;
     border-radius: var(--inputBorderRadius);
   }
 }

@@ -1,12 +1,12 @@
 :host {
   flex: 1 1 auto;
-  max-width: 540px;
+  max-width: 33.75rem;
 }
 
 .button {
   display:inline-block;
   background-color: #0273fb;
-  box-shadow: 0 3px 9px #0273fb4d;
+  box-shadow: 0 0.1875rem 0.5625rem #0273fb4d;
   color: #ffffff;
   float:right;
 }
@@ -14,7 +14,7 @@
   cursor: auto;
   pointer-events: none;
   background-color: #0273fb4d;
-  box-shadow: 0 3px 9px lightgrey;
+  box-shadow: 0 0.1875rem 0.5625rem lightgrey;
 }
 
 select {
@@ -22,5 +22,5 @@ select {
 }
 
 select, input {
-  max-width: 600px;
+  max-width: 37.5rem;
 }

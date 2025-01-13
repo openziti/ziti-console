@@ -3,13 +3,13 @@
     width: 75%;
     height: 85%;
     background-color: var(--background);
-    border-radius: 25px;
+    border-radius: 1.5625rem;
     z-index: 1001;
     margin: auto;
-    top: 0px;
-    left: 0px;
-    bottom: 0px;
-    right: 0px;
+    top: 0rem;
+    left: 0rem;
+    bottom: 0rem;
+    right: 0rem;
     position: fixed;
 
     .buttonBall {
@@ -17,9 +17,9 @@
       font-weight: 600;
       &.icon-close {
         position: absolute;
-        top: 20px;
-        right: 20px;
-        font-size: 23px;
+        top: 1.25rem;
+        right: 1.25rem;
+        font-size: 1.4375rem;
         color: var(--icon);
       }
       &:hover {
@@ -28,11 +28,11 @@
     }
 
     .clear-svc-icon {
-      font-size: 23px;
+      font-size: 1.4375rem;
       font-weight: 600;
       position: absolute;
-      top: 15px;
-      right: 40px;
+      top: 0.9375rem;
+      right: 2.5rem;
       color: var(--icon);
       cursor: pointer;
       &:hover {
@@ -51,60 +51,60 @@
         display: flex;
         flex-direction: row;
         position: absolute;
-        margin: 20px;
+        margin: 1.25rem;
         padding: 0;
     }
 
     .buttonBall.resize {
-        top: 20px;
-        width: 23px;
-        height: 23px;
-        right: 55px;
+        top: 1.25rem;
+        width: 1.4375rem;
+        height: 1.4375rem;
+        right: 3.4375rem;
         background-image: url(/assets/svgs/Resize.svg);
-        background-size: 23px 23px;
+        background-size: 1.4375rem 1.4375rem;
         position: absolute;
         cursor: pointer;
     }
 
     .identity-topology-container {
         display: flex;
-        margin-left: -5px;
-        margin-top: 10px;
+        margin-left: -0.3125rem;
+        margin-top: 0.625rem;
         flex-direction: column;
         cursor: grab;
         background: #f5e9f2;
-        background-image: linear-gradient(#ecd3e6 2px, transparent 0), linear-gradient(90deg, #ecd3e6 2px, transparent 0), linear-gradient(#ecd3e6 1px, transparent 0), linear-gradient(90deg, #ecd3e6 1px, transparent 0);
-        background-size: 40px 40px, 40px 40px, 10px 10px, 10px 10px;
+        background-image: linear-gradient(#ecd3e6 0.125rem, transparent 0), linear-gradient(90deg, #ecd3e6 0.125rem, transparent 0), linear-gradient(#ecd3e6 0.0625rem, transparent 0), linear-gradient(90deg, #ecd3e6 0.0625rem, transparent 0);
+        background-size: 2.5rem 2.5rem, 2.5rem 2.5rem, 0.625rem 0.625rem, 0.625rem 0.625rem;
     }
 
     .tp-data-header {
-        height: 40px;
-        font-size: 25px;
+        height: 2.5rem;
+        font-size: 1.5625rem;
         font-weight: 600;
-        margin-left: 20px;
-        margin-top: 10px;
-        margin-bottom: 5px;
+        margin-left: 1.25rem;
+        margin-top: 0.625rem;
+        margin-bottom: 0.3125rem;
         font-family: 'Russo One';
         color: var(--primaryColor);
-        font-size: 30px;
+        font-size: 1.875rem;
         text-transform: uppercase;
         font-weight: 400;
     }
 
     .node {
         text {
-            font: 12px 'Open Sans', Arial, sans-serif;
+            font: 0.75rem 'Open Sans', Arial, sans-serif;
         }
     }
 
     .modaltitle {
         filter: brightness(50%);
-        padding-top: 6px;
-        padding-left: 5px;
+        padding-top: 0.375rem;
+        padding-left: 0.3125rem;
     }
 
     .modalbuttons {
-        padding-right: 20px;
+        padding-right: 1.25rem;
     }
 
  .listBox.row .close, {
@@ -121,13 +121,13 @@
         -moz-osx-font-smoothing: grayscale;
         color: var(--icon);
         text-align: center;
-        font-size: 35px;
-        line-height: 40px;
+        font-size: 2.1875rem;
+        line-height: 2.5rem;
        // position: absolute;
         left: 35%;
         top: 17%;
-        width: 40px;
-        height: 40px;
+        width: 2.5rem;
+        height: 2.5rem;
         background-image: url(/assets/svgs/close.svg);
         z-index: 600;
         background-position: center center;
@@ -139,102 +139,102 @@
     }
 
     .tp-topo-data-header {
-        border: 0px solid black;
-        height: 1200px;
+        border: 0rem solid black;
+        height: 75rem;
 
-        font-size: 12px;
+        font-size: 0.75rem;
         font-weight: 400;
-        margin-left: 12px;
-        margin-top: 3px;
+        margin-left: 0.75rem;
+        margin-top: 0.1875rem;
         //font-family: "Russo One";
         color: var(--primaryColor);
         // text-transform: uppercase;
     }
 
     .services-select {
-        width: 400px;
+        width: 25rem;
         flex-shrink: 0;
-        border-radius: 27px;
-        height: 51px;
-        margin-left: 22px;
-        margin-top: 10px;
+        border-radius: 1.6875rem;
+        height: 3.1875rem;
+        margin-left: 1.375rem;
+        margin-top: 0.625rem;
         background-color: #ffffff;
         border-color: var(--navigation);
-        box-shadow: 0px 20px 23px 0px var(--shadow);
+        box-shadow: 0rem 1.25rem 1.4375rem 0rem var(--shadow);
         color: var(--tableText);
-        padding-left: 20px;
+        padding-left: 1.25rem;
     }
 
     select {
         background-image: url(/assets/svgs/ArrowDown.svg);
-        background-position: center right 15px;
+        background-position: center right 0.9375rem;
         background-repeat: no-repeat;
-        background-size: 18px;
-        padding-right: 47px;
+        background-size: 1.125rem;
+        padding-right: 2.9375rem;
     }
 
     .topology-filter-input {
-        height: 50px;
+        height: 3.125rem;
         width: 95%;
-        border-radius: 25px;
+        border-radius: 1.5625rem;
         border-color: var(--navigation);
         background-color: var(--navigation);
-        box-shadow: 0px 20px 23px 0px var(--shadow);
-        padding-left: 20px;
+        box-shadow: 0rem 1.25rem 1.4375rem 0rem var(--shadow);
+        padding-left: 1.25rem;
     }
 
     .topotip {
         display: none;
         position: fixed;
         background: var(--navigation);
-        border: 0px;
-        border-radius: 12px;
+        border: 0rem;
+        border-radius: 0.75rem;
         pointer-events: none;
-        box-shadow: 0px 20px 23px 0px var(--shadow);
+        box-shadow: 0rem 1.25rem 1.4375rem 0rem var(--shadow);
         transition: background-color 0.3s;
-        padding: 5px 0;
-        font-size: 17px;
+        padding: 0.3125rem 0;
+        font-size: 1.0625rem;
         font-weight: 700;
         color: var(--tableText);
         z-index: 2000;
         opacity: 1;
-        max-width: 450px;
+        max-width: 28.125rem;
     }
 
     .topology-legendA {
-        border: 0px solid blue;
-        width: 200px;
-        border-radius: 12px;
-        margin-bottom: 10px;
-        margin-right: 10px;
+        border: 0rem solid blue;
+        width: 12.5rem;
+        border-radius: 0.75rem;
+        margin-bottom: 0.625rem;
+        margin-right: 0.625rem;
         position: absolute;
         display: inline-block;
-        top: 75px;
-        right: 0px;
+        top: 4.6875rem;
+        right: 0rem;
         background: var(--navigation);
-        box-shadow: 0px 20px 23px 0px var(--shadow);
-        padding: 10px;
-        padding-top: 0px;
-        padding-bottom: 5px;
+        box-shadow: 0rem 1.25rem 1.4375rem 0rem var(--shadow);
+        padding: 0.625rem;
+        padding-top: 0rem;
+        padding-bottom: 0.3125rem;
         margin-top: 0;
-        padding-right: 10px;
+        padding-right: 0.625rem;
     }
     .topology-legendB {
-        width: 200px;
-        border: 0px solid blue;
-        border-radius: 12px;
-        margin-bottom: 10px;
-        margin-right: 10px;
+        width: 12.5rem;
+        border: 0rem solid blue;
+        border-radius: 0.75rem;
+        margin-bottom: 0.625rem;
+        margin-right: 0.625rem;
         position: absolute;
-        top: 200px;
-        right: 0px;
+        top: 12.5rem;
+        right: 0rem;
         background: var(--navigation);
         display: inline-block;
-        box-shadow: 0px 20px 23px 0px var(--shadow);
-        padding: 10px;
-        padding-top: 0px;
-        padding-bottom: 5px;
-        margin-left: 10px;
+        box-shadow: 0rem 1.25rem 1.4375rem 0rem var(--shadow);
+        padding: 0.625rem;
+        padding-top: 0rem;
+        padding-bottom: 0.3125rem;
+        margin-left: 0.625rem;
     }
 
     .legend-item {
@@ -247,16 +247,16 @@
         width: 105%;
         height: 100%;
         display: inline-block;
-        border: 0px solid blue;
-        left: -3px;
+        border: 0rem solid blue;
+        left: -0.1875rem;
     }
 
     .legend-circle {
-        height: 12px;
-        width: 12px;
-        border-radius: 15px;
+        height: 0.75rem;
+        width: 0.75rem;
+        border-radius: 0.9375rem;
         display: inline-block;
-        margin-top: 7px;
+        margin-top: 0.4375rem;
     }
 
     .legend-circle.unregistered {
@@ -264,7 +264,7 @@
     }
 
     .legend-circle.registered_not_in_use {
-        border: 1px solid #08dc5a; //#CAEEC2;
+        border: 0.0625rem solid #08dc5a; //#CAEEC2;
         background-color: #ffffff;
     }
 
@@ -284,99 +284,99 @@
 
     .legend-text {
         display: inline-block;
-        font-size: 15px;
+        font-size: 0.9375rem;
         font-weight: 600;
         color: var(--tableText);
-        padding-left: 7px;
-        padding-bottom: 4px;
+        padding-left: 0.4375rem;
+        padding-bottom: 0.25rem;
     }
 
     .legend-text-heading {
         text-align: center;
         display: inline-block;
-        font-size: 14px;
+        font-size: 0.875rem;
         font-weight: 600;
         color: var(--tableText);
-        padding-left: 10px;
-        padding-top: 2px;
-        padding-bottom: 2px;
+        padding-left: 0.625rem;
+        padding-top: 0.125rem;
+        padding-bottom: 0.125rem;
         color: blueviolet;
     }
 
     .legend-text2 {
         display: inline-block;
-        font-size: 10px;
+        font-size: 0.625rem;
         font-weight: 400;
         color: var(--tableText);
-        padding-left: 2px;
-        padding-bottom: 4px;
+        padding-left: 0.125rem;
+        padding-bottom: 0.25rem;
     }
     .filters-area {
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: flex-end;
-        margin-top: 10px;
+        margin-top: 0.625rem;
     }
     .dateTimeField input {
-        // width: 80px; //300px;
-        height: 40px;
+        // width: 5rem; //18.75rem;
+        height: 2.5rem;
         vertical-align: middle;
-        margin-right: 1px;
+        margin-right: 0.0625rem;
     }
     .p-datepicker table td {
-        padding: 0px;
+        padding: 0rem;
     }
     .p-datepicker table td > span {
-        padding: 0px;
+        padding: 0rem;
     }
     .p-timepicker {
-        padding: 1px;
+        padding: 0.0625rem;
     }
     .p-datepicker-header {
-        padding: 0px;
+        padding: 0rem;
     }
     .p-datepicker-header-group {
-        padding: 0px;
+        padding: 0rem;
     }
     .p-datepicker .p-timepicker button:last-child {
-        height: 15px;
+        height: 0.9375rem;
     }
     .p-datepicker .p-timepicker button {
-        height: 15px;
+        height: 0.9375rem;
     }
     .ng-tns-c15-3 {
-        font-size: 15px;
+        font-size: 0.9375rem;
         font-weight: 700;
     }
     .p-datepicker .p-datepicker-buttonbar {
-        padding: 0px;
+        padding: 0rem;
     }
 
     .reset-button {
-        height: 50px;
-        width: 50px;
+        height: 3.125rem;
+        width: 3.125rem;
         margin-top: -7%;
         margin-left: 70%;
-        border-radius: 50px;
-        margin-right: 10px;
+        border-radius: 3.125rem;
+        margin-right: 0.625rem;
         background-size: contain;
         --background-image: url(/assets/svgs/refresh.svg);
         cursor: pointer;
         overflow: hidden;
         z-index: 24;
-        box-shadow: 0px 20px 23px 0px var(--shadow);
+        box-shadow: 0rem 1.25rem 1.4375rem 0rem var(--shadow);
         transition: 0.3s;
     }
     .refresh-button {
         position: absolute;
         display: inline-block;
-        height: 43px;
-        width: 122px;
-        margin-top: -85px;
+        height: 2.6875rem;
+        width: 7.625rem;
+        margin-top: -5.3125rem;
         margin-left: 65%;
-        border-radius: 10px;
-        margin-right: 10px;
+        border-radius: 0.625rem;
+        margin-right: 0.625rem;
         font-color: blue;
         font-weight: 700;
     }
@@ -432,12 +432,12 @@
   .prop-row {
     display: grid;/* direct children will be displayed into the grid set */
     grid-template-columns: 2fr 3fr;
-    grid-gap: 10px;
+    grid-gap: 0.625rem;
     grid-template-areas: "propName propVal";
     height: fit-content;
-    min-height: 25px;
+    min-height: 1.5625rem;
     align-items: center;
-    padding: 0 10px;
+    padding: 0 0.625rem;
 
     &:nth-child(even) {
       background-color: var(--formBackground);

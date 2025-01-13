@@ -17,8 +17,8 @@ body {
     --text: #000;
     --tableText: #000;
     --table: #ffffff;
-    --shadow: 0px 0px 8px 2px rgba(0,0,0,0.08);
-    --shadowLarge: 0 12px 23px 0 rgba(0, 0, 0, .07);
+    --shadow: 0rem 0rem 0.5rem 0.125rem rgba(0,0,0,0.08);
+    --shadowLarge: 0 0.75rem 1.4375rem 0 rgba(0, 0, 0, .07);
     --shadowColor: rgba(0,0,0,0.08);
     --transition: 0.5s;
     --offWhite: #FCFCFC;
@@ -26,30 +26,30 @@ body {
     --formBase: #919ca5;
     --formGroup: #232f3e;
     --formSubGroup: #707985;
-    --modalBorderRadius: 15px;
-    --paddingSmall: 5px;
-    --paddingMedium: 10px;
-    --paddingLarge: 10px;
-    --paddingXL: 15px;
-    --paddingXXL: 20px;
-    --marginSmall: 5px;
-    --marginMedium: 10px;
-    --marginLarge: 10px;
-    --marginXL: 15px;
-    --marginXXL: 20px;
-    --gapSmall: 5px;
-    --gapMedium: 10px;
-    --gapLarge: 10px;
-    --gapXL: 15px;
-    --defaultInputHeight: 43px;
-    --defaultLineHeight: 15px;
-    --inputBorderRadius: 7px;
-    --inputBorderWidth: 2px;
-    --spinnerSizeMedium: 20px;
-    --spinerBorderTopMedium: 2px solid var(--stroke);
-    --spinerBorderRightMedium: 2px solid var(--stroke);
-    --spinerBorderBottomMedium: 2px solid transparent;
-    --spinerBorderLeftMedium: 2px solid transparent;
+    --modalBorderRadius: 0.9375rem;
+    --paddingSmall: 0.3125rem;
+    --paddingMedium: 0.625rem;
+    --paddingLarge: 0.625rem;
+    --paddingXL: 0.9375rem;
+    --paddingXXL: 1.25rem;
+    --marginSmall: 0.3125rem;
+    --marginMedium: 0.625rem;
+    --marginLarge: 0.625rem;
+    --marginXL: 0.9375rem;
+    --marginXXL: 1.25rem;
+    --gapSmall: 0.3125rem;
+    --gapMedium: 0.625rem;
+    --gapLarge: 0.625rem;
+    --gapXL: 0.9375rem;
+    --defaultInputHeight: 2.6875rem;
+    --defaultLineHeight: 0.9375rem;
+    --inputBorderRadius: 0.4375rem;
+    --inputBorderWidth: 0.125rem;
+    --spinnerSizeMedium: 1.25rem;
+    --spinerBorderTopMedium: 0.125rem solid var(--stroke);
+    --spinerBorderRightMedium: 0.125rem solid var(--stroke);
+    --spinerBorderBottomMedium: 0.125rem solid transparent;
+    --spinerBorderLeftMedium: 0.125rem solid transparent;
 }
 
 ::placeholder {
@@ -58,8 +58,8 @@ body {
 
 
 ::-webkit-scrollbar {
-    width: 14px;
-    height: 18px;
+    width: 0.875rem;
+    height: 1.125rem;
 }
 
 ::-webkit-scrollbar-track {
@@ -67,14 +67,14 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    min-height: 34px;
-    border: 4px solid rgba(0, 0, 0, 0);
+    min-height: 2.125rem;
+    border: 0.25rem solid rgba(0, 0, 0, 0);
     background-clip: padding-box;
     -webkit-border-radius: var(--inputBorderRadius);
     border-radius: var(--inputBorderRadius);
     background-color: var(--stroke);
-    -webkit-box-shadow: inset -1px -1px 0px rgba(0, 0, 0, 0.05), inset 1px 1px 0px rgba(0, 0, 0, 0.05);
-    box-shadow: inset -1px -1px 0px rgba(0, 0, 0, 0.05), inset 1px 1px 0px rgba(0, 0, 0, 0.05);
+    -webkit-box-shadow: inset -0.0625rem -0.0625rem 0rem rgba(0, 0, 0, 0.05), inset 0.0625rem 0.0625rem 0rem rgba(0, 0, 0, 0.05);
+    box-shadow: inset -0.0625rem -0.0625rem 0rem rgba(0, 0, 0, 0.05), inset 0.0625rem 0.0625rem 0rem rgba(0, 0, 0, 0.05);
 }
 
 ::-webkit-scrollbar-button {
@@ -139,12 +139,12 @@ html {
 
 body {
     font-family: "Open Sans";
-    font-size: 14px;
+    font-size: 0.875rem;
     color: var(--text);
-    margin: 0px;
+    margin: 0rem;
     color: var(--text);
     background-color: var(--background);
-    font-size: 14px;
+    font-size: 0.875rem;
     height: 100%;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
@@ -164,13 +164,13 @@ a, a:hover {
 
 main {
     position: absolute;
-    padding: 20px;
-    padding-top: 14px;
-    padding-left: 35px;
-    padding-right: 35px;
-    top: 0px;
-    left: 60px;
-    right: 0px;
+    padding: 1.25rem;
+    padding-top: 0.875rem;
+    padding-left: 2.1875rem;
+    padding-right: 2.1875rem;
+    top: 0rem;
+    left: 3.75rem;
+    right: 0rem;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     height: 100vh;
@@ -178,16 +178,16 @@ main {
 }
 
 main.open, main.login {
-    left: 380px;
+    left: 23.75rem;
 }
 
 aside {
     position: fixed;
     z-index: 10;
-    left: 0px;
-    top: 0px;
-    bottom: 0px;
-    width: 380px;
+    left: 0rem;
+    top: 0rem;
+    bottom: 0rem;
+    width: 23.75rem;
     background-image: url(../images/Login.jpg);
     background-size: cover;
     background-position: center center;
@@ -196,10 +196,10 @@ aside {
 aside .overlay {
     position: absolute;
     z-index: 10;
-    left: 0px;
-    top: 0px;
-    bottom: 0px;
-    right: 0px;
+    left: 0rem;
+    top: 0rem;
+    bottom: 0rem;
+    right: 0rem;
     opacity: 0.78;
     background: linear-gradient(to right, var(--primary) 0%, var(--secondary) 100%);
 }
@@ -207,57 +207,57 @@ aside .overlay {
 aside .title {
     font-family: "Open Sans";
     color: var(--white);
-    font-size: 24px;
-    line-height: 38px;
-    padding-left: 30px;
-    padding-right: 30px;
+    font-size: 1.5rem;
+    line-height: 2.375rem;
+    padding-left: 1.875rem;
+    padding-right: 1.875rem;
     z-index: 30;
     position: relative;
     clear: both;
     text-align: center;
     font-weight: 200;
-    top: calc(50% - 75px);
+    top: calc(50% - 4.6875rem);
     filter: unset;
 }
 
 aside .icon {
-    width: 100px;
-    height: 100px;
+    width: 6.25rem;
+    height: 6.25rem;
     background-image: url(../icons/android-icon-192x192.png);
     position: absolute;
     background-size: contain;
-    top: calc(50% - 200px);
-    left: calc( 50% - 50px);
+    top: calc(50% - 12.5rem);
+    left: calc( 50% - 3.125rem);
     z-index: 20;
     box-sizing: var(--shadow);
 }
 
 .hashtager {
-    margin-top: 0px !important;
-    margin-bottom: 5px !important;
+    margin-top: 0rem !important;
+    margin-bottom: 0.3125rem !important;
 }
 
 .title {
     color: var(--primary);
-    font-size: 34px;
+    font-size: 2.125rem;
     font-family: 'Russo One';
-    line-height: 34px;
+    line-height: 2.125rem;
 }
 
 .version {
     position: absolute;
-    bottom: 20px;
-    right: 20px;
+    bottom: 1.25rem;
+    right: 1.25rem;
     width: 75%;
     text-align: center;
     color: var(--text);
     opacity: 0.7;
-    font-size: 14px;
+    font-size: 0.875rem;
     font-weight: bold;
 }
 
 .constrained {
-    width: 600px;
+    width: 37.5rem;
     position: relative;
     margin-left: auto;
     margin-right: auto;
@@ -265,18 +265,18 @@ aside .icon {
 
 .subTitle {
     color: var(--text);
-    font-size: 34px;
-    margin-top: -3px;
-    margin-bottom: 10px;
+    font-size: 2.125rem;
+    margin-top: -0.1875rem;
+    margin-bottom: 0.625rem;
 }
 
 .subLink {
     cursor: pointer;
-    padding-left: 20px;
+    padding-left: 1.25rem;
     opacity: 0.4;
-    font-size: 12px;
-    margin-top: -33px;
-    margin-bottom: 20px;
+    font-size: 0.75rem;
+    margin-top: -2.0625rem;
+    margin-bottom: 1.25rem;
     text-transform: uppercase;
     transition: var(--transition);
 }
@@ -295,7 +295,7 @@ aside .icon {
 }
 
 .mb15 {
-    margin-bottom: 15px;
+    margin-bottom: 0.9375rem;
 }
 
 .auth.loggedIn {
@@ -318,23 +318,23 @@ aside .icon {
 }
 
 .resource.icon {
-    width: 100px;
-    height: 100px;
+    width: 6.25rem;
+    height: 6.25rem;
     background-color: #FCFCFC;
-    border-radius: 50px;
+    border-radius: 3.125rem;
     cursor: pointer;
-    background-size: 50px auto;
+    background-size: 3.125rem auto;
     background-position: center center;
 }
 
 .upload {
-    width: 100px;
-    height: 100px;
+    width: 6.25rem;
+    height: 6.25rem;
     background-color: var(--placeholder);
-    border-radius: 50px;
-    border-radius: 50px;
+    border-radius: 3.125rem;
+    border-radius: 3.125rem;
     cursor: pointer;
-    background-size: 50px auto;
+    background-size: 3.125rem auto;
     background-position: center center;
     background-image: url(../svgs/upload.svg);
     transition: var(--transition);
@@ -346,10 +346,10 @@ aside .icon {
 
 .upload .progress {
     position: absolute;
-    left: 0px;
-    top: 0px;
-    bottom: 0px;
-    width: 0px;
+    left: 0rem;
+    top: 0rem;
+    bottom: 0rem;
+    width: 0rem;
     transition: 0.05s;
     background-color: var(--primary);
     opacity: 0.6;
@@ -357,52 +357,52 @@ aside .icon {
 
 .resource.icon.profile {
     background-size: cover;
-    border-radius: 50px;
+    border-radius: 3.125rem;
 }
 
 .filters {
     position: relative;
     width: 100%;
-    height: 60px;
+    height: 3.75rem;
     background-color: var(--shaded);
-    border-radius: 50px;
-    padding: 10px;
+    border-radius: 3.125rem;
+    padding: 0.625rem;
 }
 
 .filters input {
-    width: 320px;
-    height: 40px;
-    border-radius: 25px;
-    font-size: 14px;
+    width: 20rem;
+    height: 2.5rem;
+    border-radius: 1.5625rem;
+    font-size: 0.875rem;
     font-weight: 600;
-    padding-left: 15px;
-    background-size: 20px;
-    background-position: right 12px top 7px;
+    padding-left: 0.9375rem;
+    background-size: 1.25rem;
+    background-position: right 0.75rem top 0.4375rem;
     background-repeat: no-repeat;
     background-color: var(--white) !important;
 }
 
 .filters .counters {
     position: absolute;
-    right: 120px;
-    top: 0px;
-    line-height: 60px;
-    height: 50px;
-    font-size: 13px;
+    right: 7.5rem;
+    top: 0rem;
+    line-height: 3.75rem;
+    height: 3.125rem;
+    font-size: 0.8125rem;
     color: var(--text);
     font-weight: 600;
 }
 
 .filters .navigate {
-    height: 40px;
-    width: 40px;
+    height: 2.5rem;
+    width: 2.5rem;
     background-color: var(--white);
-    border-radius: 40px;
+    border-radius: 2.5rem;
     position: absolute;
     cursor: pointer;
     text-align: center;
-    font-size: 24px;
-    line-height: 40px;
+    font-size: 1.5rem;
+    line-height: 2.5rem;
     overflow: hidden;
     color: var(--text);
     transition: var(--transition);
@@ -422,13 +422,13 @@ aside .icon {
 }
 
 .filters .navigate.prev {
-    right: 60px;
-    top: 10px;
+    right: 3.75rem;
+    top: 0.625rem;
 }
 
 .filters .navigate.next {
-    right: 10px;
-    top: 10px;
+    right: 0.625rem;
+    top: 0.625rem;
 }
 
 .filters .navigate.disabled {
@@ -443,7 +443,7 @@ aside .icon {
     color: var(--primary);
     -webkit-filter: brightness(50%);
     filter: brightness(50%);
-    font-size: 30px;
+    font-size: 1.875rem;
     text-transform: uppercase;
     font-weight: 400;
 }
@@ -451,8 +451,8 @@ aside .icon {
 .line {
     position: absolute;
     width: 100%;
-    top: 40px;
-    height: 4px;
+    top: 2.5rem;
+    height: 0.25rem;
     background-color: var(--stroke);
 }
 
@@ -462,59 +462,59 @@ aside .icon {
 }
 
 .blurb {
-    padding: 10px;
+    padding: 0.625rem;
     background-color: #ffcc33;
     border-radius: var(--inputBorderRadius);
     border-color: #cc3300;
     border-width: var(--inputBorderWidth);
     border-style: solid;
-    margin-top: 8px;
+    margin-top: 0.5rem;
 }
 
 .tabs {
     position: relative;
     display: inline-block;
     width: 100%;
-    font-size: 14px;
-    min-height: 40px;
-    padding-top: 15px;
+    font-size: 0.875rem;
+    min-height: 2.5rem;
+    padding-top: 0.9375rem;
 }
 
 .tabs .tab {
     position: relative;
     float: left;
-    margin-right: 20px;
-    padding-bottom: 5px;
-    margin-bottom: 10px;
-    font-size: 14px;
+    margin-right: 1.25rem;
+    padding-bottom: 0.3125rem;
+    margin-bottom: 0.625rem;
+    font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
 }
 
 .tabs .tab:hover {
-    border-bottom-width: 4px;
+    border-bottom-width: 0.25rem;
     border-bottom-color: var(--secondary);
     border-bottom-style: solid;
 }
 
 .tabs .tab.selected {
-    border-bottom-width: 4px;
+    border-bottom-width: 0.25rem;
     border-bottom-color: var(--primary);
     border-bottom-style: solid;
 }
 
 .bread {
     position: absolute;
-    right: 70px;
-    top: 10px;
-    font-size: 13px;
+    right: 4.375rem;
+    top: 0.625rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     text-transform: uppercase;
 }
 
 .bread.over {
-    right: 0px;
+    right: 0rem;
 }
 
 .template {
@@ -530,14 +530,14 @@ aside .icon {
 .action {
     text-align: center;
     color: var(--white);
-    line-height: 60px;
-    font-size: 30px;
-    width: 60px;
-    height: 60px;
-    border-radius: 40px;
+    line-height: 3.75rem;
+    font-size: 1.875rem;
+    width: 3.75rem;
+    height: 3.75rem;
+    border-radius: 2.5rem;
     position: absolute;
-    right: 35px;
-    top: 25px;
+    right: 2.1875rem;
+    top: 1.5625rem;
     background-color: var(--primary);
     cursor: pointer;
     overflow: hidden;
@@ -549,21 +549,21 @@ aside .icon {
 .action.remove {
     text-align: center;
     color: var(--white);
-    line-height: 60px;
-    font-size: 30px;
-    width: 60px;
-    height: 60px;
-    border-radius: 40px;
+    line-height: 3.75rem;
+    font-size: 1.875rem;
+    width: 3.75rem;
+    height: 3.75rem;
+    border-radius: 2.5rem;
     position: absolute;
-    right: 35px;
-    top: 25px;
+    right: 2.1875rem;
+    top: 1.5625rem;
     cursor: pointer;
     overflow: hidden;
     z-index: 24;
     box-shadow: var(--shadow);
     transition: var(--transition);
     background-color: var(--red);
-    margin-top: 0px;
+    margin-top: 0rem;
     opacity: 1;
 }
 
@@ -573,23 +573,23 @@ aside .icon {
 
 .action:hover, .action:focus {
     outline: 0;
-    box-shadow: 0 20px 30px -16px #000;
-    -webkit-transform: translateY(3px);
-    transform: translateY(3px);
+    box-shadow: 0 1.25rem 1.875rem -1rem #000;
+    -webkit-transform: translateY(0.1875rem);
+    transform: translateY(0.1875rem);
 }
 
 .nodata {
     position: relative;
     width: 100%;
-    height: 200px;
+    height: 12.5rem;
     background-position: top center;
     background-size: contain;
     background-image: url(../svgs/nodata.svg);
     display: none;
     text-align: center;
-    font-size: 24px;
-    line-height: 430px;
-    margin-top: 75px;
+    font-size: 1.5rem;
+    line-height: 26.875rem;
+    margin-top: 4.6875rem;
     color: var(--menu);
 }
 
@@ -600,15 +600,15 @@ aside .icon {
 .modal.background.open {
     opacity: 0.9;
     height: 100%;
-    bottom: 0px;
+    bottom: 0rem;
     transition: var(--transition);
 }
 
 .modal.background {
     position: fixed;
     width: 100%;
-    height: 1px;
-    bottom: -1px;
+    height: 0.0625rem;
+    bottom: -0.0625rem;
     z-index: 10000;
     background-color: #000;
     opacity: 0.0;
@@ -617,17 +617,17 @@ aside .icon {
 
 .modal.box.open {
     opacity: 1.0;
-    top: 0px;
-    bottom: 0px;
-    left: 0px;
-    height: 200px;
-    right: 0px;
+    top: 0rem;
+    bottom: 0rem;
+    left: 0rem;
+    height: 12.5rem;
+    right: 0rem;
     transition: var(--transition);
     z-index: 10001;
 }
 
 .modal.box.full {
-    border-radius: 0px;
+    border-radius: 0rem;
     width: 100%;
 }
 
@@ -637,15 +637,15 @@ aside .icon {
 }
 
 .modal.box.full .sized {
-    width: 600px;
+    width: 37.5rem;
     margin-left: auto;
     margin-right: auto;
     height: 100vh;
-    padding-bottom: 40px;
+    padding-bottom: 2.5rem;
 }
 
 .modal.box.full .sized.large {
-    width: 1024px;
+    width: 64rem;
 }
 
 .modal.box.full .sized.not {
@@ -686,7 +686,7 @@ aside .icon {
 }
 
 .configBox label {
-    margin-top: 5px;
+    margin-top: 0.3125rem;
     color: var(--black);
     white-space: nowrap;
     overflow: hidden;
@@ -696,10 +696,10 @@ aside .icon {
 .configureBox {
     background-color: var(--stroke);
     border-radius: var(--inputBorderRadius);
-    padding: 20px;
-    margin-bottom: 10px;
+    padding: 1.25rem;
+    margin-bottom: 0.625rem;
     position: relative;
-    margin-top: 25px;
+    margin-top: 1.5625rem;
 }
 
 .configureBox input, .configureBox select {
@@ -709,8 +709,8 @@ aside .icon {
 .configBox {
     background-color: var(--stroke);
     border-radius: var(--inputBorderRadius);
-    padding: 20px;
-    margin-bottom: 10px;
+    padding: 1.25rem;
+    margin-bottom: 0.625rem;
     position: relative;
 }
 
@@ -722,22 +722,22 @@ aside .icon {
     color: #FFF;
     background-color: var(--menu);
     border-radius: var(--inputBorderRadius);
-    padding: 10px;
-    margin-top: 10px;
+    padding: 0.625rem;
+    margin-top: 0.625rem;
     position: relative;
     clear: both;
-    padding-bottom: 20px;
+    padding-bottom: 1.25rem;
 }
 
 .lightBox label {
-    margin-top: 0px;
+    margin-top: 0rem;
 }
 
 .routerArea {
     opacity: 0;
     transition: var(--transition);
     overflow: hidden;
-    height: 0px;
+    height: 0rem;
 }
 
 .routerArea.open {
@@ -747,14 +747,14 @@ aside .icon {
 
 .forminfo {
     display: block;
-    margin-top: 10px;
-    padding-left: 5px;
+    margin-top: 0.625rem;
+    padding-left: 0.3125rem;
     color: var(--menu);
     font-weight: bold;
 }
 
 .configs {
-    height: 0px;
+    height: 0rem;
     overflow: hidden;
     opacity: 0;
     transition: var(--transition);
@@ -767,13 +767,13 @@ aside .icon {
 
 .onoff {
     position: absolute;
-    right: 10px;
-    top: 10px;
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-top: 5px;
-    font-size: 12px;
-    padding-bottom: 5px;
+    right: 0.625rem;
+    top: 0.625rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    padding-top: 0.3125rem;
+    font-size: 0.75rem;
+    padding-bottom: 0.3125rem;
     border-radius: var(--inputBorderRadius);
     color: var(--black);
     transition: var(--transition);
@@ -792,41 +792,41 @@ aside .icon {
 
 .inlinerow {
     opacity: 0.0;
-    height: 0px;
+    height: 0rem;
     overflow: hidden;
-    margin-top: 0px;
+    margin-top: 0rem;
     width: 100%;
     position: relative;
     display: grid;
-    grid-template-columns: 30px 30% auto;
+    grid-template-columns: 1.875rem 30% auto;
     transition: var(--transition);
-    margin-left: 10px;
+    margin-left: 0.625rem;
 }
 
 .inlinerow.on {
-    margin-top: 10px;
+    margin-top: 0.625rem;
     opacity: 1.0;
     height: auto;
 }
 
 .inlinerow .remove {
     background-color: var(--black);
-    margin-top: 0px;
+    margin-top: 0rem;
 }
 
 .inlinerow .name {
     font-weight: bold;
-    line-height: 20px;
+    line-height: 1.25rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .configRemove, .terminatorRemove {
-    width: 20px;
-    height: 20px;
-    line-height: 20px;
-    font-size: 20px;
+    width: 1.25rem;
+    height: 1.25rem;
+    line-height: 1.25rem;
+    font-size: 1.25rem;
     cursor: pointer;
     font-weight: normal;
     transition: var(--transition);
@@ -839,7 +839,7 @@ aside .icon {
 
 .inlinerow .detail {
     font-weight: normal;
-    line-height: 20px;
+    line-height: 1.25rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -850,12 +850,12 @@ aside .icon {
 }
 
 .toggler {
-    width: 40px;
-    height: 22px;
+    width: 2.5rem;
+    height: 1.375rem;
     background-color: var(--stroke);
-    border-radius: 15px;
-    top: 10px;
-    right: 10px;
+    border-radius: 0.9375rem;
+    top: 0.625rem;
+    right: 0.625rem;
     position: absolute;
     color: var(--black);
     cursor: pointer;
@@ -863,26 +863,26 @@ aside .icon {
 }
 
 .toggler .toggleLabel {
-    line-height: 26px;
-    font-size: 12px;
+    line-height: 1.625rem;
+    font-size: 0.75rem;
     width: 100%;
     position: absolute;
-    left: -30px;
+    left: -1.875rem;
 }
 
 .toggler .toggleButton {
     background-color: var(--black);
-    width: 18px;
-    height: 18px;
+    width: 1.125rem;
+    height: 1.125rem;
     position: absolute;
-    right: 2px;
-    top: 2px;
-    border-radius: 13px;
+    right: 0.125rem;
+    top: 0.125rem;
+    border-radius: 0.8125rem;
     transition: var(--transition);
 }
 
 .toggler.no .toggleButton {
-    left: 2px;
+    left: 0.125rem;
 }
 
 .configBox input, .configBox select, .configBox textarea {
@@ -890,18 +890,18 @@ aside .icon {
 }
 
 .configBox .sectionTitle {
-    margin-top: 0px;
+    margin-top: 0rem;
 }
 
 .configBox .newConfig {
-    height: 0px;
+    height: 0rem;
     overflow: hidden;
     transition: var(--transition);
     opacity: 0;
 }
 
 .configBox .newConfig label {
-    margin-top: 10px;
+    margin-top: 0.625rem;
 }
 
 .configBox .newConfig.open {
@@ -911,19 +911,19 @@ aside .icon {
 
 .modal.box {
     z-index: -10;
-    width: 620px;
-    border-radius: 8px;
+    width: 38.75rem;
+    border-radius: 0.5rem;
     position: fixed;
     background-color: var(--white);
     box-shadow: var(--shadow);
     opacity: 0.0;
-    padding: 20px;
+    padding: 1.25rem;
     margin: auto;
-    bottom: -205px;
-    height: 200px;
+    bottom: -12.8125rem;
+    height: 12.5rem;
     top: calc(100%);
-    left: 0px;
-    right: 0px;
+    left: 0rem;
+    right: 0rem;
     transition: var(--transition);
 }
 
@@ -933,20 +933,20 @@ aside .icon {
 
 .modal.box .close {
     position: absolute;
-    width: 30px;
-    height: 30px;
+    width: 1.875rem;
+    height: 1.875rem;
 }
 
 .close {
     position: absolute;
     z-index: 10;
-    right: 20px;
-    top: 20px;
-    width: 40px;
-    height: 40px;
-    line-height: 40px;
+    right: 1.25rem;
+    top: 1.25rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    line-height: 2.5rem;
     cursor: pointer;
-    font-size: 34px;
+    font-size: 2.125rem;
     color: var(--stroke);
     transition: var(--transition);
 }
@@ -969,7 +969,7 @@ aside .icon {
 
 .linkButton {
     color: var(--menu);
-    line-height: 40px;
+    line-height: 2.5rem;
     cursor: pointer;
     transition: var(--transition);
 }
@@ -984,10 +984,10 @@ aside .icon {
 }
 
 .multiselect .selected {
-    font-size: 12px;
-    padding-left: 10px;
-    line-height: 30px;
-    height: 30px;
+    font-size: 0.75rem;
+    padding-left: 0.625rem;
+    line-height: 1.875rem;
+    height: 1.875rem;
     overflow: auto;
     overflow-x: hidden;
 }
@@ -996,27 +996,27 @@ aside .icon {
     background-color: var(--stroke);
     float: left;
     position: relative;
-    margin-top: 5px;
-    margin-right: 5px;
-    background-size: 10px 10px;
-    background-position: 8px 8px;
+    margin-top: 0.3125rem;
+    margin-right: 0.3125rem;
+    background-size: 0.625rem 0.625rem;
+    background-position: 0.5rem 0.5rem;
     cursor: pointer;
-    border-radius: 13px;
+    border-radius: 0.8125rem;
     opacity: 1.0;
-    max-width: 160px;
+    max-width: 10rem;
     text-overflow: ellipsis;
     overflow: hidden;
-    height: 26px;
-    padding-left: 10px;
-    line-height: 26px;
-    padding-right: 10px;
+    height: 1.625rem;
+    padding-left: 0.625rem;
+    line-height: 1.625rem;
+    padding-right: 0.625rem;
     transition: var(--transition);
     white-space: nowrap;
 }
 
 .multiselect .selected .item:hover {
     opacity: 1.0;
-    padding-left: 24px;
+    padding-left: 1.5rem;
     background-image: url(../svgs/close.svg);
 }
 
@@ -1026,52 +1026,52 @@ aside .icon {
     border-color: var(--menu);
     border-radius: var(--inputBorderRadius);
     background-color: var(--menu);
-    padding:0px;
-    height: 130px;
+    padding:0rem;
+    height: 8.125rem;
     overflow: scroll;
-    margin-top: 10px;
+    margin-top: 0.625rem;
 }
 
 .selectable .item {
     width: 100%;
     position: relative;
     display: inline-block;
-    height: 40px;
-    line-height: 40px;
-    padding-left: 5px;
+    height: 2.5rem;
+    line-height: 2.5rem;
+    padding-left: 0.3125rem;
     border-radius: var(--inputBorderRadius);
-    margin-bottom: 10px;
+    margin-bottom: 0.625rem;
     background-color: var(--stroke);
     cursor: pointer;
-    font-size: 12px;
+    font-size: 0.75rem;
     text-transform: uppercase;
     color: var(--text);
     transition: var(--transition);
-    padding-left: 10px;
-    background-position: 9px 9px;
-    background-size: 22px 22px;
+    padding-left: 0.625rem;
+    background-position: 0.5625rem 0.5625rem;
+    background-size: 1.375rem 1.375rem;
     opacity: 0.8;
     background-repeat: no-repeat;
 }
 
 .selectable .item:hover {
-    padding-left: 40px;
+    padding-left: 2.5rem;
     opacity: 1.0;
     background-image: url(../svgs/select.svg);
 }
 
 .dots {
-    width: 30px;
-    right: 10px;
-    height: 30px;
+    width: 1.875rem;
+    right: 0.625rem;
+    height: 1.875rem;
     position: absolute;
-    top: 10px;
-    font-size: 24px;
+    top: 0.625rem;
+    font-size: 1.5rem;
     text-align: center;
     cursor: pointer;
     background-color: transparent;
     transition: var(--transition);
-    line-height: 13px;
+    line-height: 0.8125rem;
     border-radius: var(--inputBorderRadius);
 }
 
@@ -1079,7 +1079,7 @@ aside .icon {
     background-image: url(../svgs/docs.svg);
     background-size: contain;
     width: 100%;
-    height: 56px;
+    height: 3.5rem;
     background-position: center;
 }
 
@@ -1087,50 +1087,50 @@ aside .icon {
     background-image: url(../svgs/downloads.svg);
     background-size: contain;
     width: 100%;
-    height: 56px;
+    height: 3.5rem;
     background-position: center;
 }
 .network-visualizer {
     background-image: url(../svgs/v8visualizer.svg);
     background-size: contain;
-    width: 50px;
-    height: 50px;
+    width: 3.125rem;
+    height: 3.125rem;
     background-position: center;
 }
 .dial {
     background-image: url(../svgs/dial.svg);
     background-size: contain;
-    width: 60px;
+    width: 3.75rem;
     height: 100%;
     background-position: center;
 }
 
 .totalPod {
     width: 100%;
-    height: 60px;
+    height: 3.75rem;
     color: var(--black);
-    padding: 12px;
+    padding: 0.75rem;
     text-align: center;
     border-right: var(--white);
-    border-right-width: 3px;
+    border-right-width: 0.1875rem;
     border-right-style: solid;
-    padding-top: 0px;
+    padding-top: 0rem;
     cursor: pointer;
     transition: var(--transition);
 }
 
 .iconLink {
-    border-width: 3px;
+    border-width: 0.1875rem;
     border-style: solid;
     border-color: var(--white);
     background-color: rgba(255, 255, 255, 0.6);
-    padding: 13px;
-    border-radius: 12px;
+    padding: 0.8125rem;
+    border-radius: 0.75rem;
     z-index: 10;
     box-shadow: var(--shadowLarge);
     transition: var(--transition);
     cursor: pointer;
-    height: 110px;
+    height: 6.875rem;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1147,30 +1147,30 @@ aside .icon {
 }
 
 .totalPod:last-child {
-    border-right-width: 0px;
+    border-right-width: 0rem;
     border-right-style: none;
 }
 
 .totalPod .total {
-    font-size: 32px;
+    font-size: 2rem;
     color: var(--primary);
     font-weight: 600;
     transition: var(--transition);
 }
 
 .totalPod .label, .iconLink .label {
-    font-size: 14px;
+    font-size: 0.875rem;
     text-transform: uppercase;
     color: var(--menu);
     font-weight: 600;
     transition: var(--transition);
-    margin-top: -3px;
+    margin-top: -0.1875rem;
     width: 100%;
     text-align: center;
 }
 
 .iconLink .label {
-    margin-top: 0px;
+    margin-top: 0rem;
 }
 
 #Services.row {
@@ -1204,10 +1204,10 @@ aside .icon {
 }
 
 .grid.oss .tagSelect {
-    height: 40px;
-    margin-top: 5px;
+    height: 2.5rem;
+    margin-top: 0.3125rem;
     overflow: hidden;
-    padding: 3px;
+    padding: 0.1875rem;
     pointer-events: all;
     opacity: 1.0;
     transition: var(--transition);
@@ -1217,12 +1217,12 @@ aside .icon {
     opacity: 1.0;
     pointer-events: all;
     display: grid;
-    grid-template-columns: 100px auto 100px auto;
+    grid-template-columns: 6.25rem auto 6.25rem auto;
 }
 
 .grid.versionArea label {
-    padding-right: 10px;
-    line-height: 35px;
+    padding-right: 0.625rem;
+    line-height: 2.1875rem;
     text-align: right;
 }
 
@@ -1245,53 +1245,53 @@ aside .icon {
     border-color: var(--menu);
     border-radius: var(--inputBorderRadius);
     background-color: var(--menu);
-    padding: 0px;
-    height: 130px;
+    padding: 0rem;
+    height: 8.125rem;
     overflow: scroll;
-    margin-top: 10px;
+    margin-top: 0.625rem;
 }
 
 .tagSelect .tag {
     position: relative;
     float: left;
-    margin-right: 5px;
-    height: 30px;
-    line-height: 30px;
-    border-radius: 15px;
-    padding-left: 5px;
-    margin-bottom: 10px;
+    margin-right: 0.3125rem;
+    height: 1.875rem;
+    line-height: 1.875rem;
+    border-radius: 0.9375rem;
+    padding-left: 0.3125rem;
+    margin-bottom: 0.625rem;
     background-color: var(--stroke);
     cursor: pointer;
-    font-size: 12px;
+    font-size: 0.75rem;
     text-transform: none;
     color: var(--text);
     transition: var(--transition);
-    padding-left: 10px;
-    background-position: 9px 4px;
-    background-size: 22px 22px;
-    padding-right: 10px;
+    padding-left: 0.625rem;
+    background-position: 0.5625rem 0.25rem;
+    background-size: 1.375rem 1.375rem;
+    padding-right: 0.625rem;
     opacity: 0.2;
     background-repeat: no-repeat;
 }
 
 .grid.efour {
     grid-template-columns: 25% 25% 25% 25%;
-    column-gap: 0px;
+    column-gap: 0rem;
 }
 
 .grid.ethree {
     grid-template-columns: 33% 34% 33%;
-    column-gap: 0px;
+    column-gap: 0rem;
 }
 
 .grid.etwo {
     grid-template-columns: 50% 50%;
-    column-gap: 0px;
+    column-gap: 0rem;
 }
 
 .grid.efive {
     grid-template-columns: 20% 20% 20% 20% 20%;
-    column-gap: 0px;
+    column-gap: 0rem;
 }
 
 .tagSelect .tag:hover {
@@ -1304,22 +1304,22 @@ aside .icon {
 
 .tagSelect .tag.selected:hover {
     opacity: 0.8;
-    background-size: 8px 8px;
-    background-position: 14px 11px;
+    background-size: 0.5rem 0.5rem;
+    background-position: 0.875rem 0.6875rem;
 }
 
 #ConfirmModal {
-    height: 150px;
-    width: 400px;
+    height: 9.375rem;
+    width: 25rem;
 }
 
 .os {
     cursor: pointer;
-    width: 30px;
-    height: 30px;
+    width: 1.875rem;
+    height: 1.875rem;
     position: relative;
     display: inline-block;
-    top: 5px;
+    top: 0.3125rem;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center center;
@@ -1352,22 +1352,22 @@ aside .icon {
     position: relative;
     font-weight: bold;
     text-transform: uppercase;
-    font-size: 18px;
+    font-size: 1.125rem;
     color: var(--primary);
-    margin-top: 15px;
+    margin-top: 0.9375rem;
 }
 
 .configureBox .sectionTitle {
-    margin-top: 0px;
+    margin-top: 0rem;
 }
 
 .cert {
     cursor: pointer;
-    width: 30px;
-    height: 30px;
+    width: 1.875rem;
+    height: 1.875rem;
     position: relative;
     display: inline-block;
-    top: 5px;
+    top: 0.3125rem;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center center;
@@ -1383,15 +1383,15 @@ aside .icon {
 
 .qr {
     cursor: pointer;
-    width: 30px;
-    height: 30px;
+    width: 1.875rem;
+    height: 1.875rem;
     position: relative;
     display: inline-block;
-    top: 2px;
+    top: 0.125rem;
     transition: var(--transition);
-    font-size: 28px;
-    margin-left: 5px;
-    line-height: 28px;
+    font-size: 1.75rem;
+    margin-left: 0.3125rem;
+    line-height: 1.75rem;
     text-align: center;
     color: var(--black);
     text-align: center;
@@ -1399,8 +1399,8 @@ aside .icon {
 
 #QRCode {
     text-align: center;
-    padding: 20px;
-    width: 340px;
+    padding: 1.25rem;
+    width: 21.25rem;
     margin-right: auto;
     margin-left: auto;
     background-color: #FFF;
@@ -1414,8 +1414,8 @@ aside .icon {
     color: var(--black);
     font-weight: bold;
     text-transform: uppercase;
-    margin-top: 10px;
-    font-size: 16px;
+    margin-top: 0.625rem;
+    font-size: 1rem;
 }
 
 .darkened .CodeMirror {
@@ -1427,22 +1427,22 @@ aside .icon {
 }
 
 #ApiUrl {
-    padding-right: 40px;
+    padding-right: 2.5rem;
 }
 
 .gridMenu {
     position: absolute;
-    width: 150px;
+    width: 9.375rem;
     background-color: var(--menu);
     border-radius: var(--inputBorderRadius);
-    right: 0px;
-    top: 20px;
-    box-shadow: 0 0 0 1px var(--shadowColor), 0 8px 16px var(--shadowColor);
+    right: 0rem;
+    top: 1.25rem;
+    box-shadow: 0 0 0 0.0625rem var(--shadowColor), 0 0.5rem 1rem var(--shadowColor);
     z-index: 40;
-    padding-top: 10px;
-    padding-bottom: 10px;
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
     opacity: 0.0;
-    height: 0px;
+    height: 0rem;
     pointer-events: none;
     transition: var(--transition);
     overflow: hidden;
@@ -1456,17 +1456,17 @@ aside .icon {
 }
 
 .gridMenu .gridAction {
-    font-size: 14px;
+    font-size: 0.875rem;
     font-weight: normal;
-    line-height: 30px;
+    line-height: 1.875rem;
     color: var(--white);
     width: 100%;
     position: relative;
     float: left;
-    letter-spacing: 0px;
+    letter-spacing: 0rem;
     text-align: left;
-    padding-left: 11px;
-    padding-right: 10px;
+    padding-left: 0.6875rem;
+    padding-right: 0.625rem;
     cursor: pointer;
     font-weight: 600;
     font-family: 'Open Sans';
@@ -1493,15 +1493,15 @@ aside .icon {
     background-color: var(--primary);
     overflow: visable;
     border-radius: var(--inputBorderRadius);
-    height: 120px;
+    height: 7.5rem;
     width: 100%;
     float: left;
     position: relative;
-    background-position: bottom 10px right 10px;
+    background-position: bottom 0.625rem right 0.625rem;
     background-size: 25%;
-    margin-top: 25px;
-    margin-right: 1px;
-    margin-left: 1px;
+    margin-top: 1.5625rem;
+    margin-right: 0.0625rem;
+    margin-left: 0.0625rem;
     box-shadow: var(--shadow);
     transition: var(--transition);
 }
@@ -1522,35 +1522,35 @@ aside .icon {
 
 .cardStack.clickable .icon {
     position: absolute;
-    right: 5px;
-    top: 5px;
+    right: 0.3125rem;
+    top: 0.3125rem;
     text-align: center;
     color: var(--menu);
     background-image: unset;
-    width: 30px;
-    height: 30px;
-    line-height: 38px;
-    font-size: 24px;
+    width: 1.875rem;
+    height: 1.875rem;
+    line-height: 2.375rem;
+    font-size: 1.5rem;
     left: unset;
     z-index: unset;
 }
 
 .cardStack .title {
     color: var(--background);
-    font-size: 14px;
+    font-size: 0.875rem;
     text-transform: uppercase;
-    padding-left: 18px;
-    padding-right: 10px;
-    background-position: top 9px right 8px;
-    background-size: 25px 25px;
-    height: 47px;
-    line-height: 47px;
+    padding-left: 1.125rem;
+    padding-right: 0.625rem;
+    background-position: top 0.5625rem right 0.5rem;
+    background-size: 1.5625rem 1.5625rem;
+    height: 2.9375rem;
+    line-height: 2.9375rem;
     border-bottom-color: var(--background);
     border-bottom-style: solid;
-    border-bottom-width: 3px;
+    border-bottom-width: 0.1875rem;
     filter: unset;
     z-index: 10;
-    padding-top: 0px;
+    padding-top: 0rem;
     text-align: left;
     width: 100%;
     font-weight: 600;
@@ -1559,61 +1559,61 @@ aside .icon {
 }
 
 .cardStack .subtitle {
-    font-size: 40px;
+    font-size: 2.5rem;
     width: 100%;
     position:  relative;
     float: left;
     text-align: center;
     color: var(--background);
-    line-height: 70px;
+    line-height: 4.375rem;
     font-weight: 400;
     font-family: 'Open Sans';
 }
 
 .card1 {
     opacity: 0.6;
-    border-radius: 10px;
+    border-radius: 0.625rem;
     position: absolute;
-    left: 14px;
-    right: 14px;
-    top: -10px;
+    left: 0.875rem;
+    right: 0.875rem;
+    top: -0.625rem;
     background-color: var(--primary);
-    height: 18px;
+    height: 1.125rem;
 }
 
 .card2 {
     opacity: 0.3;
-    border-radius: 10px;
+    border-radius: 0.625rem;
     position: absolute;
-    left: 28px;
-    right: 28px;
-    top: -18px;
+    left: 1.75rem;
+    right: 1.75rem;
+    top: -1.125rem;
     background-color: var(--primary);
-    height: 28px;
+    height: 1.75rem;
 }
 
 .launcher {
-    height: 90px;
+    height: 5.625rem;
     background-color: var(--white);
     display: grid;
-    grid-template-columns: 130px auto;
-    gap: 30px;
-    box-shadow: 0px 0px 19px -8px rgba(0, 0, 0, 0.2);
-    padding: 10px;
+    grid-template-columns: 8.125rem auto;
+    gap: 1.875rem;
+    box-shadow: 0rem 0rem 1.1875rem -0.5rem rgba(0, 0, 0, 0.2);
+    padding: 0.625rem;
     border-radius: var(--inputBorderRadius);
     cursor: pointer;
     transition: 0.3s;
 }
 
 .launcher:hover {
-    box-shadow: 0 14px 20px rgba(0, 0, 0, 0.05), 0 14px 20px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 0.875rem 1.25rem rgba(0, 0, 0, 0.05), 0 0.875rem 1.25rem rgba(0, 0, 0, 0.05);
     transform: scale(1.01);
 }
 
 .launcher .image {
     text-align: right;
-    font-size: 70px;
-    line-height: 70px;
+    font-size: 4.375rem;
+    line-height: 4.375rem;
 }
 
 .launcher .image::before {
@@ -1623,16 +1623,16 @@ aside .icon {
 .launcher .label {
     font-family: 'Open Sans';
     text-transform: unset;
-    font-size: 21px;
-    line-height: 30px;
-    padding-top: 5px;
+    font-size: 1.3125rem;
+    line-height: 1.875rem;
+    padding-top: 0.3125rem;
     margin-top: unset;
     color: var(--primary);
 }
 
 .iconButton {
     width: 100%;
-    height: 150px;
+    height: 9.375rem;
     position: relative;
     background-color: var(--white);
     border-radius: var(--inputBorderRadius);
@@ -1645,13 +1645,13 @@ aside .icon {
 }
 
 .iconButton .image {
-    font-size: 85px;
+    font-size: 5.3125rem;
     text-align: center;
     transition: var(--transition);
 }
 
 .iconButton .label {
-    font-size: 16px;
+    font-size: 1rem;
     text-transform: uppercase;
     text-align: center;
     font-weight: bold;
@@ -1669,21 +1669,21 @@ aside .icon {
 
 #AddAnyModal .title {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 1.25rem;
 }
 
 .dragger {
     border-left-color: #d4d9e2;
     border-right-color: #d4d9e2;
-    border-left-width: 1px;
-    border-right-width: 1px;
+    border-left-width: 0.0625rem;
+    border-right-width: 0.0625rem;
     border-left-style: solid;
     border-right-style: solid;
-    width: 3px;
-    height: 14px;
+    width: 0.1875rem;
+    height: 0.875rem;
     position: absolute;
-    right: 0px;
-    top: 19px;
+    right: 0rem;
+    top: 1.1875rem;
     cursor: col-resize;
 }
 
@@ -1694,7 +1694,7 @@ aside .icon {
     border-color: var(--offWhite);
     background-color: var(--offWhite);
     text-align: center;
-    font-size: 14px;
+    font-size: 0.875rem;
     color: var(--text);
     font-weight: bold;
     cursor: pointer;
@@ -1710,17 +1710,17 @@ aside .icon {
 
 .card .icon {
     width: 100%;
-    height: 150px;
-    font-size: 64px;
-    line-height: 150px;
+    height: 9.375rem;
+    font-size: 4rem;
+    line-height: 9.375rem;
 }
 
 .card .checkbox {
     width: 100%;
-    height: 50px;
+    height: 3.125rem;
     transition: var(--transition);
-    font-size: 28px;
-    line-height: 38px;
+    font-size: 1.75rem;
+    line-height: 2.375rem;
     text-align: center;
 }
 
@@ -1741,10 +1741,10 @@ aside .icon {
 
 .loved {
     position: absolute;
-    width: 50px;
-    height: 50px;
+    width: 3.125rem;
+    height: 3.125rem;
     transform: rotate(-12deg);
-    top: 30px;
+    top: 1.875rem;
     right: 30%;
     background-image: url(../svgs/heart.svg);
     background-position: center center;
@@ -1754,7 +1754,7 @@ aside .icon {
 }
 
 .loved.love {
-    top: -10px;
+    top: -0.625rem;
     right: 24%;
     opacity: 1.0;
     transform: rotate(12deg);
@@ -1762,9 +1762,9 @@ aside .icon {
 
 .jsonButton {
     position: absolute;
-    right: 0px;
-    top: 10px;
-    font-size: 12px;
+    right: 0rem;
+    top: 0.625rem;
+    font-size: 0.75rem;
     cursor: pointer;
     transition: var(--transition);
 }
@@ -1786,7 +1786,7 @@ aside .icon {
 
 .idBox {
     width: 48%;
-    margin: 6px;
+    margin: 0.375rem;
     border-radius: var(--inputBorderRadius);
     background-color: var(--stroke);
     position: relative;
@@ -1794,14 +1794,14 @@ aside .icon {
 }
 
 .idBox .title {
-    font-size: 18px;
+    font-size: 1.125rem;
     text-align: center;
     font-family: "Open Sans";
     color: #FFF;
 }
 
 .idBox .dlButton {
-    font-size: 14px;
+    font-size: 0.875rem;
     text-align: center;
     font-family: "Open Sans";
     color: #FFF;
@@ -1809,15 +1809,15 @@ aside .icon {
 }
 
 #TagArea .tag, .selectedItems .tag {
-    line-height: 30px;
-    font-size: 16px;
+    line-height: 1.875rem;
+    font-size: 1rem;
     color: #FFF;
     background-color: var(--primary);
-    padding-left: 20px;
-    padding-right: 20px;
-    border-radius: 20px;
-    margin-bottom: 10px;
-    margin-right: 5px;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    border-radius: 1.25rem;
+    margin-bottom: 0.625rem;
+    margin-right: 0.3125rem;
     position: relative;
     display: inline-block;
     cursor: pointer;
@@ -1833,20 +1833,20 @@ aside .icon {
     position: relative;
     display: inline-block;
     width: 100%;
-    height: 0px;
+    height: 0rem;
     transition: var(--transition);
 }
 
 .map.open {
-    height: 200px;
+    height: 12.5rem;
 }
 
 .resources {
     position: absolute;
-    left: 0px;
-    top: 0px;
-    width: 0px;
-    height: 0px;
+    left: 0rem;
+    top: 0rem;
+    width: 0rem;
+    height: 0rem;
     opacity: 0.0;
     transition: var(--transition);
     background-color: #fCFCFC;
@@ -1857,11 +1857,11 @@ aside .icon {
 }
 
 .resources .resource, .resources .upload {
-    width: 50px;
-    height: 50px;
-    margin: 10px;
+    width: 3.125rem;
+    height: 3.125rem;
+    margin: 0.625rem;
     background-position: center center;
-    background-size: 40px auto;
+    background-size: 2.5rem auto;
     position: relative;
     display: inline-block;
     cursor: pointer;
@@ -1871,7 +1871,7 @@ aside .icon {
 
 .resources .resource.image {
     background-size: contain;
-    border-radius: 25px;
+    border-radius: 1.5625rem;
 }
 
 .resources .resource:hover {
@@ -1883,10 +1883,10 @@ aside .icon {
 }
 
 .resources.open {
-    max-width: 440px;
+    max-width: 27.5rem;
     width: auto;
     height: auto;
-    max-height: 400px;
+    max-height: 25rem;
     overflow-y: auto;
     z-index: 10000;
     opacity: 1.0;
@@ -1894,11 +1894,11 @@ aside .icon {
 }
 
 .searchButton {
-    width: 30px;
-    height: 30px;
-    font-size: 25px;
-    left: 340px;
-    top: 18px;
+    width: 1.875rem;
+    height: 1.875rem;
+    font-size: 1.5625rem;
+    left: 21.25rem;
+    top: 1.125rem;
     color: var(--menu);
     position: absolute;
     z-index: 10;
@@ -1912,18 +1912,18 @@ aside .icon {
 }
 
 .clear {
-    width: 20px;
-    height: 20px;
+    width: 1.25rem;
+    height: 1.25rem;
     background-size: contain;
     cursor: pointer;
     transition: var(--transition);
     opacity: 0.0;
     position: absolute;
-    left: 300px;
-    top: 20px;
+    left: 18.75rem;
+    top: 1.25rem;
     z-index: 10;
     color: var(--menu);
-    font-size: 20px;
+    font-size: 1.25rem;
 }
 
 .clear.showing:hover {
@@ -1937,33 +1937,33 @@ aside .icon {
 .bubble {
     position: relative;
     display: inline-block;
-    width: 30px;
-    font-size: 10px;
-    border-radius: 15px;
+    width: 1.875rem;
+    font-size: 0.625rem;
+    border-radius: 0.9375rem;
     background-color: var(--black);
     color: var(--white);
-    height: 30px;
-    line-height: 30px;
+    height: 1.875rem;
+    line-height: 1.875rem;
     text-align: center;
-    margin: 10px;
+    margin: 0.625rem;
     opacity: 1.0;
     transition: var(--transition);
 }
 
 .bubble.small {
-    height: 14px;
-    line-height: 14px;
-    width: 60px;
+    height: 0.875rem;
+    line-height: 0.875rem;
+    width: 3.75rem;
     background-color: unset;
     color: var(--black);
 }
 .bubble.small.dst {
     text-align: center;
-    top: -8px;
+    top: -0.5rem;
 }
 .bubble.small.src {
     text-align: center;
-    top: -8px;
+    top: -0.5rem;
 }
 path:not(.loader path, .highcharts-root path) {
     stroke-width: 2;
@@ -2004,10 +2004,10 @@ path.green {
     background-color: var(--black);
     color: var(--white);
     position: relative;
-    line-height: 60px;
-    border-radius: 30px;
-    width: 300px;
-    height: 60px;
+    line-height: 3.75rem;
+    border-radius: 1.875rem;
+    width: 18.75rem;
+    height: 3.75rem;
     margin-right: auto;
     margin-left: auto;
 }
@@ -2015,16 +2015,16 @@ path.green {
 .bigborder .enlighten {
     background-color: var(--white);
     color: var(--black);
-    width: 200px;
-    top: 3px;
-    bottom: 3px;
-    left: 3px;
+    width: 12.5rem;
+    top: 0.1875rem;
+    bottom: 0.1875rem;
+    left: 0.1875rem;
     position: absolute;
-    line-height: 54px;
-    font-size: 24px;
-    padding-left: 20px;
-    border-radius: 27px;
-    padding-right: 20px;
+    line-height: 3.375rem;
+    font-size: 1.5rem;
+    padding-left: 1.25rem;
+    border-radius: 1.6875rem;
+    padding-right: 1.25rem;
 }
 
 .remove::before {
@@ -2032,17 +2032,17 @@ path.green {
 }
 
 .remove {
-    width: 20px;
-    height: 20px;
+    width: 1.25rem;
+    height: 1.25rem;
     cursor: pointer;
-    border-radius: 10px;
+    border-radius: 0.625rem;
     background-color: var(--red);
     color: var(--white);
     text-align: center;
     opacity: 0.4;
-    font-size: 18px;
-    margin-top: 10px;
-    line-height: 20px;
+    font-size: 1.125rem;
+    margin-top: 0.625rem;
+    line-height: 1.25rem;
     transition: var(--transition);
 }
 
@@ -2067,31 +2067,31 @@ path.green {
 }
 
 .hashtag, .attag {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 0.625rem;
+    padding-right: 0.625rem;
     background-color: var(--primary);
     color: transparent;
     position: absolute;
     float: left;
-    line-height: 30px;
+    line-height: 1.875rem;
     border-radius: var(--inputBorderRadius);
-    margin-left: 2px;
-    margin-bottom: 10px;
-    margin-top: 10px;
+    margin-left: 0.125rem;
+    margin-bottom: 0.625rem;
+    margin-top: 0.625rem;
     transition: var(--transition);
 }
 
 .tag-name {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 0.625rem;
+    padding-right: 0.625rem;
     color: #FFF;
     position: relative;
     float: left;
-    line-height: 30px;
+    line-height: 1.875rem;
     border-radius: var(--inputBorderRadius);
-    margin-left: 2px;
-    margin-bottom: 10px;
-    margin-top: 10px;
+    margin-left: 0.125rem;
+    margin-bottom: 0.625rem;
+    margin-top: 0.625rem;
     transition: var(--transition);
 }
 
@@ -2115,34 +2115,34 @@ path.green {
 }
 
 .searchSelector.inline .suggests.open {
-    top: 50px;
+    top: 3.125rem;
     position: absolute;
 }
 
 .searchSelector.only .tagArea {
     position: absolute;
-    top: 10px;
+    top: 0.625rem;
 }
 
 .tagButton {
     margin-top: unset;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 0.625rem;
+    padding-right: 0.625rem;
     color: #FFF;
     background-color: var(--primary);
     position: relative;
     float: left;
-    line-height: 30px;
+    line-height: 1.875rem;
     border-radius: var(--inputBorderRadius);
-    margin-left: 10px;
-    margin-bottom: 10px;
+    margin-left: 0.625rem;
+    margin-bottom: 0.625rem;
     transition: var(--transition);
 }
 
 .tagButton .label, .tagButton.attag .label {
-    font-size: 16px;
+    font-size: 1rem;
     font-family: "Open Sans";
-    margin-left: 5px;
+    margin-left: 0.3125rem;
 }
 
 .tagButton.attag.error, .tagButton.error {
@@ -2151,16 +2151,16 @@ path.green {
 
 .tagButton.attag {
     margin-top: unset;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 0.625rem;
+    padding-right: 0.625rem;
     color: #FFF;
     background-color: var(--secondary);
     position: relative;
     float: left;
-    line-height: 30px;
+    line-height: 1.875rem;
     border-radius: var(--inputBorderRadius);
-    margin-left: 10px;
-    margin-bottom: 10px;
+    margin-left: 0.625rem;
+    margin-bottom: 0.625rem;
     transition: var(--transition);
 }
 
@@ -2182,42 +2182,42 @@ path.green {
 
 .suggests {
     width: 100%;
-    top: 50px;
+    top: 3.125rem;
     overflow: auto;
-    max-height: 300px;
+    max-height: 18.75rem;
     z-index: 10;
     background-color: var(--white);
-    border-top: solid #FFF 0px;
-    border-bottom: solid #FFF 0px;
+    border-top: solid #FFF 0rem;
+    border-bottom: solid #FFF 0rem;
     opacity: 0;
     transition: var(--transition);
-    height: 0px;
+    height: 0rem;
 }
 
 .suggests.open {
-    padding: 20px;
-    border-radius: 0px;
-    margin-top: -7px;
-    margin-bottom: 10px;
+    padding: 1.25rem;
+    border-radius: 0rem;
+    margin-top: -0.4375rem;
+    margin-bottom: 0.625rem;
     opacity: 1.0;
     border-bottom-left-radius: var(--inputBorderRadius);
     border-bottom-right-radius: var(--inputBorderRadius);
     background-color: rgba(0,0,0,0.6);
-    padding-top: 25px;
-    padding-left: 10px;
-    padding-bottom: 10px;
-    padding-right: 10px;
+    padding-top: 1.5625rem;
+    padding-left: 0.625rem;
+    padding-bottom: 0.625rem;
+    padding-right: 0.625rem;
     height: auto;
-    max-height: 200px;
+    max-height: 12.5rem;
     overflow-y: auto;
 }
 
 .suggests .suggest {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 0.625rem;
+    padding-right: 0.625rem;
     width: 100%;
-    line-height: 30px;
-    font-size: 14px;
+    line-height: 1.875rem;
+    font-size: 0.875rem;
     cursor: pointer;
     transition: var(--transition);
 }
@@ -2229,49 +2229,49 @@ path.green {
 
 .sidenote {
     color: var(--input);
-    line-height: 50px;
+    line-height: 3.125rem;
     box-sizing: border-box;
     display: inline-block;
     opacity: 0.3;
-    height: 50px;
+    height: 3.125rem;
 }
 
 .border {
     background-color: var(--black);
     color: var(--white);
-    height: 30px;
-    line-height: 30px;
-    border-radius: 15px;
-    padding-left: 20px;
-    padding-right: 20px;
-    margin: 10px;
+    height: 1.875rem;
+    line-height: 1.875rem;
+    border-radius: 0.9375rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    margin: 0.625rem;
 }
 
 .charts {
     position: relative;
     margin: auto;
-    padding: 20px;
+    padding: 1.25rem;
     width: 100%;
 }
 
 .removeIcon {
     position: absolute;
-    font-size: 18px;
+    font-size: 1.125rem;
     color: var(--primary);
     cursor: pointer;
-    right: 14px;
+    right: 0.875rem;
     font-weight: normal;
-    top: 16px;
+    top: 1rem;
     transition: var(--transition);
 }
 
 .addIcon {
     position: absolute;
-    font-size: 18px;
+    font-size: 1.125rem;
     color: var(--primary);
     cursor: pointer;
-    right: 14px;
-    top: 16px;
+    right: 0.875rem;
+    top: 1rem;
     transition: var(--transition);
 }
 
@@ -2281,8 +2281,8 @@ path.green {
 
 .oneline {
     width: 100%;
-    height: 50px;
-    line-height: 50px;
+    height: 3.125rem;
+    line-height: 3.125rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -2291,10 +2291,10 @@ path.green {
 
 #CustomLogo {
     width: 75%;
-    height: 100px;
+    height: 6.25rem;
     position: absolute;
-    bottom: 49px;
-    right: 20px;
+    bottom: 3.0625rem;
+    right: 1.25rem;
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center center;
@@ -2305,10 +2305,10 @@ canvas { outline: none !important; }
 
 div:focus {
     outline: none !important;
-    outline: -webkit-focus-ring-color auto 0px;
+    outline: -webkit-focus-ring-color auto 0rem;
     outline-color: -webkit-focus-ring-color;
     outline-style: auto;
-    outline-width: 1px;
+    outline-width: 0.0625rem;
 }
 
 @media (max-width:1524px) {
@@ -2317,7 +2317,7 @@ div:focus {
     }
     .grid.nine {
         display: grid;
-        grid-template-columns: 15% auto 140px 140px 15%;
+        grid-template-columns: 15% auto 8.75rem 8.75rem 15%;
         grid-template-rows: auto;
     }
 }
@@ -2327,18 +2327,18 @@ div:focus {
 }
 
 .totalPod .total {
-    line-height: 40px;
+    line-height: 2.5rem;
 }
 
 @media (max-width:1700px) {
     .grid.numbers {
-        column-gap: 5px;
+        column-gap: 0.3125rem;
     }
     .totalPod .total {
-        font-size: 20px;
+        font-size: 1.25rem;
     }
     .totalPod .label, .iconLink .label {
-        font-size: 10px;
+        font-size: 0.625rem;
     }
 }
 
@@ -2350,19 +2350,19 @@ div:focus {
         display: none;
     }
     .bigborder {
-        line-height: 60px;
-        border-radius: 30px;
-        width: 70px;
-        height: 60px;
+        line-height: 3.75rem;
+        border-radius: 1.875rem;
+        width: 4.375rem;
+        height: 3.75rem;
     }
     .bigborder .enlighten {
-        width: 64px;
+        width: 4rem;
         position: absolute;
-        line-height: 54px;
+        line-height: 3.375rem;
         text-align: center;
-        font-size: 12px;
-        padding-left: 0px;
-        padding-right: 0px;
+        font-size: 0.75rem;
+        padding-left: 0rem;
+        padding-right: 0rem;
     }
     .bigborder .enlighten.right {
         text-align: center;
@@ -2374,17 +2374,17 @@ div:focus {
         grid-template-columns: 100%;
     }
     #MainMap {
-        height: calc(100vh - 320px) !important;
+        height: calc(100vh - 20rem) !important;
     }
     .grid.triple {
-        grid-template-columns: 100px auto 100px;
+        grid-template-columns: 6.25rem auto 6.25rem;
     }
     .grid.numbers {
-        grid-template-columns: 50px auto 40%;
+        grid-template-columns: 3.125rem auto 40%;
     }
     .grid.four, .grid.templates, .grid.five, .grid.fives, .grid.six, .grid.seven, .grid.sleven, .grid.ten, .grid.nine, .grid.eight, .grid.eightOS, .grid.nineOS, .grid.tenOS, .grid.policies, .grid.columns {
         display: grid;
-        grid-template-columns: 50px auto 40px !important;
+        grid-template-columns: 3.125rem auto 2.5rem !important;
         grid-template-rows: auto;
     }
     .grid.columns.noAction {
@@ -2392,10 +2392,10 @@ div:focus {
         grid-template-rows: auto;
     }
     .grid.quad, .grid.quint {
-        grid-template-columns: 75px auto 75px;
+        grid-template-columns: 4.6875rem auto 4.6875rem;
     }
     .grid.flive, .grid.floor  {
-        grid-template-columns: 150px auto 15%;
+        grid-template-columns: 9.375rem auto 15%;
     }
     .grid.dual, .grid.singular,.grid.five.same, .duplex {
         grid-template-columns: auto;
@@ -2413,7 +2413,7 @@ div:focus {
         width: 50% !important;
     }
     .tabs .tab {
-        font-size: 10px !important;
+        font-size: 0.625rem !important;
     }
     .tabs .tab.selected {
         display:none !important;
@@ -2425,78 +2425,78 @@ div:focus {
         display: none !important;
     }
     nav .navList .navButton .iconArea {
-        width: 45px !important;
-        height: 45px !important;
+        width: 2.8125rem !important;
+        height: 2.8125rem !important;
     }
     nav .navList .navButton .image {
-        top: 0px !important;
-        right: 0px !important;
-        left: 0px !important;
-        height: 30px !important;
-        font-size: 30px !important;
-        line-height: 45px !important;
+        top: 0rem !important;
+        right: 0rem !important;
+        left: 0rem !important;
+        height: 1.875rem !important;
+        font-size: 1.875rem !important;
+        line-height: 2.8125rem !important;
     }
     nav .title {
         display: none;
     }
     nav .navList {
-        margin-top: 20px !important;
+        margin-top: 1.25rem !important;
         grid-template-columns: auto !important;
-        grid-row-gap: 20px !important;
-        margin-left: 75px !important;
-        margin-right: 10px !important;
+        grid-row-gap: 1.25rem !important;
+        margin-left: 4.6875rem !important;
+        margin-right: 0.625rem !important;
     }
     nav.open {
-        width: 130px !important;
+        width: 8.125rem !important;
     }
     main.open {
-        left: 130px !important;
+        left: 8.125rem !important;
     }
     nav .navList .navButton {
-        height: 45px !important;
+        height: 2.8125rem !important;
     }
     .modal.box.full .sized {
         width: 100%;
     }
     .modal.box.open {
         height: 100% !important;
-        border-radius: 0px;
+        border-radius: 0rem;
     }
     .modal.box.open {
         width: 100% !important;
     }
     .title {
-        font-size: 20px !important;
+        font-size: 1.25rem !important;
     }
     aside {
         display: none !important;
     }
     .form.mini {
         width: unset !important;
-        right: 40px !important;
-        left: 0px !important;
+        right: 2.5rem !important;
+        left: 0rem !important;
     }
     main {
-        padding-top: 5px !important;
-        padding-left: 5px !important;
-        padding-right: 5px !important;
-        left: 65px !important;
+        padding-top: 0.3125rem !important;
+        padding-left: 0.3125rem !important;
+        padding-right: 0.3125rem !important;
+        left: 4.0625rem !important;
     }
     .cardStack.clickable:hover {
         -webkit-transform: scale3d(1.05,1.05,1) !important;
         transform: scale3d(0.96,0.96,1) !important;
     }
     .action {
-        line-height: 45px !important;
-        font-size: 20px !important;
-        width: 45px !important;
-        height: 45px !important;
-        border-radius: 40px !important;
-        right: 10px !important;
-        top: 21px !important;
+        line-height: 2.8125rem !important;
+        font-size: 1.25rem !important;
+        width: 2.8125rem !important;
+        height: 2.8125rem !important;
+        border-radius: 2.5rem !important;
+        right: 0.625rem !important;
+        top: 1.3125rem !important;
     }
     .filters input {
-        font-size: 12px !important;
+        font-size: 0.75rem !important;
         background-image: unset !important;
     }
     .hover {
@@ -2504,8 +2504,8 @@ div:focus {
     }
     .constrained {
         width: 100%;
-        margin-left: 20px;
-        margin-right: 20px;
+        margin-left: 1.25rem;
+        margin-right: 1.25rem;
     }
     #Version {
         display: none;
@@ -2521,7 +2521,7 @@ div:focus {
     margin-right: auto;
     margin-left: auto;
     width: fit-content;
-    font-size: 44px;
+    font-size: 2.75rem;
     text-align: center;
     color: var(--primary);
 }
@@ -2531,7 +2531,7 @@ div:focus {
 }
 
 #VisualTitle .super {
-    font-size: 10px;
+    font-size: 0.625rem;
     position: absolute;
     text-align: center;
     width: 100%;
@@ -2557,7 +2557,7 @@ div:focus {
 }
 
 .boxed .title {
-    font-size: 14px;
+    font-size: 0.875rem;
 }
 
 .boxed input, .boxed select {
@@ -2566,12 +2566,12 @@ div:focus {
 }
 
 .boxed {
-    border-width: 3px;
+    border-width: 0.1875rem;
     border-style: solid;
     border-color: var(--white);
     background-color: rgba(255,255,255,0.5);
-    padding: 13px;
-    border-radius: 12px;
+    padding: 0.8125rem;
+    border-radius: 0.75rem;
     z-index: 10;
     box-shadow: var(--shadowLarge);
     transition: var(--transition);
@@ -2579,18 +2579,18 @@ div:focus {
 }
 
 .pod .button {
-    margin-top: 10px;
+    margin-top: 0.625rem;
     width: 100%;
     border-radius: var(--inputBorderRadius);
-    line-height: 30px;
+    line-height: 1.875rem;
 }
 
 .pod {
-    margin: 10px;
+    margin: 0.625rem;
     background-color: var(--background);
     opacity: 0.9;
-    border-radius: 10px;
-    padding: 25px;
+    border-radius: 0.625rem;
+    padding: 1.5625rem;
     width: auto;
     position: relative;
     display: inline-block;
@@ -2598,7 +2598,7 @@ div:focus {
 }
 
 .pod .title {
-    font-size: 18px;
+    font-size: 1.125rem;
     font-weight: bold;
     font-family: "Open Sans";
     text-transform: uppercase;
@@ -2607,21 +2607,21 @@ div:focus {
 }
 
 .pod .subtitle {
-    margin-bottom: 25px;
+    margin-bottom: 1.5625rem;
 }
 
 .pod .dataArea {
-    width: 75px;
-    height: 75px;
+    width: 4.6875rem;
+    height: 4.6875rem;
 }
 
 .pod .dataArea .count {
-    font-size: 40px;
+    font-size: 2.5rem;
     color: var(--black);
 }
 
 .pod .dataArea .note {
-    font-size: 8px;;
+    font-size: 0.5rem;;
     text-transform: uppercase;
 }
 
@@ -2641,18 +2641,18 @@ div:focus {
 
 #OperationCommands .title {
     text-align: left;
-    font-size: 21px;
+    font-size: 1.3125rem;
     color: var(--white);
-    margin-bottom: 0px;
+    margin-bottom: 0rem;
 }
 
 #IconDownload {
     position: absolute;
-    right: 23px;
-    top: 24px;
-    width: 25px;
-    height: 25px;
-    font-size: 25px;
+    right: 1.4375rem;
+    top: 1.5rem;
+    width: 1.5625rem;
+    height: 1.5625rem;
+    font-size: 1.5625rem;
     cursor: pointer;
     transition: var(--transition);
 }
@@ -2663,16 +2663,16 @@ div:focus {
 
 .step {
     background-color: var(--primary);
-    width: 25px;
-    height: 25px;
+    width: 1.5625rem;
+    height: 1.5625rem;
     border-radius: 100%;
     text-align: center;
-    line-height: 25px;
+    line-height: 1.5625rem;
     font-weight: bold;
     cursor: pointer;
     transition: var(--transition);
     display: inline-block;
-    margin-right: 10px;
+    margin-right: 0.625rem;
     position: relative;
     opacity: 0.6;
 }
@@ -2687,24 +2687,24 @@ div:focus {
 
 .views {
     position: absolute;
-    right: 20px;
-    top: 50px;
-    height: 45px;
+    right: 1.25rem;
+    top: 3.125rem;
+    height: 2.8125rem;
 }
 
 #ExecutionSteps {
     position: absolute;
-    right: 48px;
-    top: 23px;
+    right: 3rem;
+    top: 1.4375rem;
 }
 
 .views .imageButton {
     position: relative;
     float: right;
     cursor: pointer;
-    width: 45px;
-    height: 45px;
-    font-size: 10px;
+    width: 2.8125rem;
+    height: 2.8125rem;
+    font-size: 0.625rem;
     text-align: center;
     opacity: 0.4;
     transition: var(--transition);
@@ -2716,7 +2716,7 @@ div:focus {
 }
 
 .views .imageButton .icon {
-    font-size: 24px;
+    font-size: 1.5rem;
     width: 100%;
     text-align: center;
 }
@@ -2728,11 +2728,11 @@ div:focus {
 #MainMap {
     position: relative;
     width: 100%;
-    height: calc(100vh - 220px);
+    height: calc(100vh - 13.75rem);
     z-index: 10;
-    border-radius: 12px;
+    border-radius: 0.75rem;
     box-shadow: var(--shadowLarge);
-    margin-top: 20px;
+    margin-top: 1.25rem;
 }
 
 .vert {
@@ -2746,18 +2746,18 @@ div:focus {
 
 .floater {
     position: absolute;
-    top: 41px;
+    top: 2.5625rem;
     background-color: var(--primary);
-    padding: 5px;
-    line-height: 14px;
-    height: 0px;
+    padding: 0.3125rem;
+    line-height: 0.875rem;
+    height: 0rem;
     z-index: 100;
-    font-size: 10px;
-    left: -15px;
-    left: 5px;
-    width: 0px;
+    font-size: 0.625rem;
+    left: -0.9375rem;
+    left: 0.3125rem;
+    width: 0rem;
     text-align: center;
-    border-radius: 20px;
+    border-radius: 1.25rem;
     transition: var(--transition);
     opacity: 0.0;
     overflow: hidden;
@@ -2765,25 +2765,25 @@ div:focus {
 
 .floater.open {
     opacity: 1.0;
-    height: 24px;
-    left: -15px;
-    width: 60px;
+    height: 1.5rem;
+    left: -0.9375rem;
+    width: 3.75rem;
 }
 
 .fixedfull {
     position: fixed;
     width: 100%;
     height: 100%;
-    left: 0px;
-    top: 0px;
+    left: 0rem;
+    top: 0rem;
 }
 
 .abslutefull {
     position: absolute;
     width: 100%;
     height: 100%;
-    left: 0px;
-    top: 0px;
+    left: 0rem;
+    top: 0rem;
 }
 
 .blacken {
@@ -2792,7 +2792,7 @@ div:focus {
 
 .enlighten.right {
     left: unset;
-    right: 3px;
+    right: 0.1875rem;
     text-align: right;
 }
 
@@ -2810,11 +2810,11 @@ div:focus {
 
 .circle {
     display: inline-block;
-    width: 10px;
-    height: 10px;
+    width: 0.625rem;
+    height: 0.625rem;
     background-color: var(--stroke);
-    border-radius: 10px;
-    margin-right: 2px;
+    border-radius: 0.625rem;
+    margin-right: 0.125rem;
 }
 
 .circle.true {
@@ -2822,15 +2822,15 @@ div:focus {
 }
 
 .circular {
-    width: 40px;
-    height: 40px;
+    width: 2.5rem;
+    height: 2.5rem;
     background-color: var(--primary);
-    border-radius: 20px;
-    font-size: 10px;
+    border-radius: 1.25rem;
+    font-size: 0.625rem;
     color: var(--black);
     text-align: center;
-    line-height: 40px;
-    margin: 20px;
+    line-height: 2.5rem;
+    margin: 1.25rem;
     display: inline-block;
 }
 
@@ -2855,15 +2855,15 @@ div:focus {
     z-index: 30;
     position: absolute;
     opacity: 0.9;
-    left: 10px;
-    top: 10px;
+    left: 0.625rem;
+    top: 0.625rem;
     background-color: var(--primary);
-    padding: 20px;
-    border-radius: 10px;
+    padding: 1.25rem;
+    border-radius: 0.625rem;
 }
 
 #Summary .total {
-    font-size: 40px;
+    font-size: 2.5rem;
     color: var(--white);
 }
 
@@ -2888,10 +2888,10 @@ svg {
     right: unset;
     top: unset;
     width: 100%;
-    height: 30px;
-    line-height: 30px;
-    border-width: 1px;
-    font-size: 12px;
+    height: 1.875rem;
+    line-height: 1.875rem;
+    border-width: 0.0625rem;
+    font-size: 0.75rem;
     border-color: var(--menu);
     background-color: var(--menu) !important;
 }
@@ -2902,10 +2902,10 @@ svg {
     border-color: var(--menu);
     border-radius: var(--inputBorderRadius);
     background-color: var(--menu);
-    padding: 0px;
-    height: 260px;
+    padding: 0rem;
+    height: 16.25rem;
     overflow: scroll;
-    margin-top: 10px;
+    margin-top: 0.625rem;
     overflow-x:hidden;
 }
 
@@ -2913,19 +2913,19 @@ svg {
     position: relative;
     width: 100%;
     border-radius: var(--inputBorderRadius);
-    height: 30px;
+    height: 1.875rem;
     background-color: var(--white);
     color: var(--black);
     cursor: pointer;
-    line-height: 30px;
-    font-size: 14px;
+    line-height: 1.875rem;
+    font-size: 0.875rem;
     text-align: left;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 0.625rem;
+    padding-right: 0.625rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin-bottom: 2px;
+    margin-bottom: 0.125rem;
     transition: var(--transition);
 }
 
@@ -2935,10 +2935,10 @@ svg {
 
 .list .listItem .cert {
     position: absolute;
-    width: 16px;
-    height: 16px;
-    right: 6px;
-    top: 6px;
+    width: 1rem;
+    height: 1rem;
+    right: 0.375rem;
+    top: 0.375rem;
     z-index: 10;
 }
 
@@ -2946,13 +2946,13 @@ svg {
     color: #FFF;
     position: absolute;
     z-index: 10;
-    width: 24px;
-    height: 24px;
-    line-height: 24px;
+    width: 1.5rem;
+    height: 1.5rem;
+    line-height: 1.5rem;
     text-align: center;
     cursor: pointer;
-    right: 4px;
-    top: 4px;
+    right: 0.25rem;
+    top: 0.25rem;
     opacity: 0.4;
     transition: var(--transition);
 }
@@ -2962,11 +2962,11 @@ svg {
 }
 
 :root {
-    --balloon-border-radius: 2px;
+    --balloon-border-radius: 0.125rem;
     --balloon-color: rgba(16, 16, 16, 0.95);
     --balloon-text-color: #fff;
-    --balloon-font-size: 12px;
-    --balloon-move: 4px; }
+    --balloon-font-size: 0.75rem;
+    --balloon-move: 0.25rem; }
 
 button[aria-label][data-balloon-pos] {
     overflow: visible; }
@@ -2985,7 +2985,7 @@ button[aria-label][data-balloon-pos] {
     text-shadow: none;
     font-size: var(--balloon-font-size);
     background: var(--balloon-color);
-    border-radius: 2px;
+    border-radius: 0.125rem;
     color: var(--balloon-text-color);
     border-radius: var(--balloon-border-radius);
     content: attr(aria-label);
@@ -2996,7 +2996,7 @@ button[aria-label][data-balloon-pos] {
 [aria-label][data-balloon-pos]:before {
     width: 0;
     height: 0;
-    border: 5px solid transparent;
+    border: 0.3125rem solid transparent;
     border-top-color: var(--balloon-color);
     opacity: 0;
     pointer-events: none;
@@ -3023,11 +3023,11 @@ button[aria-label][data-balloon-pos] {
 [aria-label][data-balloon-pos][data-balloon-pos*="-left"]:after {
     left: 0; }
 [aria-label][data-balloon-pos][data-balloon-pos*="-left"]:before {
-    left: 5px; }
+    left: 0.3125rem; }
 [aria-label][data-balloon-pos][data-balloon-pos*="-right"]:after {
     right: 0; }
 [aria-label][data-balloon-pos][data-balloon-pos*="-right"]:before {
-    right: 5px; }
+    right: 0.3125rem; }
 [aria-label][data-balloon-pos][data-balloon-pos*="-left"]:hover:after, [aria-label][data-balloon-pos][data-balloon-pos*="-left"][data-balloon-visible]:after, [aria-label][data-balloon-pos][data-balloon-pos*="-right"]:hover:after, [aria-label][data-balloon-pos][data-balloon-pos*="-right"][data-balloon-visible]:after {
     transform: translate(0, 0); }
 [aria-label][data-balloon-pos][data-balloon-pos*="-left"]:hover:before, [aria-label][data-balloon-pos][data-balloon-pos*="-left"][data-balloon-visible]:before, [aria-label][data-balloon-pos][data-balloon-pos*="-right"]:hover:before, [aria-label][data-balloon-pos][data-balloon-pos*="-right"][data-balloon-visible]:before {
@@ -3037,7 +3037,7 @@ button[aria-label][data-balloon-pos] {
     transform-origin: top;
     transform: translate(0, var(--balloon-move)); }
 [aria-label][data-balloon-pos][data-balloon-pos^="up"]:after {
-    margin-bottom: 10px; }
+    margin-bottom: 0.625rem; }
 [aria-label][data-balloon-pos][data-balloon-pos="up"]:before, [aria-label][data-balloon-pos][data-balloon-pos="up"]:after {
     left: 50%;
     transform: translate(-50%, var(--balloon-move)); }
@@ -3045,11 +3045,11 @@ button[aria-label][data-balloon-pos] {
     top: 100%;
     transform: translate(0, calc(var(--balloon-move) * -1)); }
 [aria-label][data-balloon-pos][data-balloon-pos^="down"]:after {
-    margin-top: 10px; }
+    margin-top: 0.625rem; }
 [aria-label][data-balloon-pos][data-balloon-pos^="down"]:before {
     width: 0;
     height: 0;
-    border: 5px solid transparent;
+    border: 0.3125rem solid transparent;
     border-bottom-color: var(--balloon-color); }
 [aria-label][data-balloon-pos][data-balloon-pos="down"]:after, [aria-label][data-balloon-pos][data-balloon-pos="down"]:before {
     left: 50%;
@@ -3063,33 +3063,33 @@ button[aria-label][data-balloon-pos] {
     top: 50%;
     transform: translate(var(--balloon-move), -50%); }
 [aria-label][data-balloon-pos][data-balloon-pos="left"]:after {
-    margin-right: 10px; }
+    margin-right: 0.625rem; }
 [aria-label][data-balloon-pos][data-balloon-pos="left"]:before {
     width: 0;
     height: 0;
-    border: 5px solid transparent;
+    border: 0.3125rem solid transparent;
     border-left-color: var(--balloon-color); }
 [aria-label][data-balloon-pos][data-balloon-pos="right"]:after, [aria-label][data-balloon-pos][data-balloon-pos="right"]:before {
     left: 100%;
     top: 50%;
     transform: translate(calc(var(--balloon-move) * -1), -50%); }
 [aria-label][data-balloon-pos][data-balloon-pos="right"]:after {
-    margin-left: 10px; }
+    margin-left: 0.625rem; }
 [aria-label][data-balloon-pos][data-balloon-pos="right"]:before {
     width: 0;
     height: 0;
-    border: 5px solid transparent;
+    border: 0.3125rem solid transparent;
     border-right-color: var(--balloon-color); }
 [aria-label][data-balloon-pos][data-balloon-length]:after {
     white-space: normal; }
 [aria-label][data-balloon-pos][data-balloon-length="small"]:after {
-    width: 80px; }
+    width: 5rem; }
 [aria-label][data-balloon-pos][data-balloon-length="medium"]:after {
-    width: 150px; }
+    width: 9.375rem; }
 [aria-label][data-balloon-pos][data-balloon-length="large"]:after {
-    width: 260px; }
+    width: 16.25rem; }
 [aria-label][data-balloon-pos][data-balloon-length="xlarge"]:after {
-    width: 380px; }
+    width: 23.75rem; }
 @media screen and (max-width: 768px) {
     [aria-label][data-balloon-pos][data-balloon-length="xlarge"]:after {
         width: 90vw; } }
@@ -3117,9 +3117,9 @@ button[aria-label][data-balloon-pos] {
 
 .copy {
     position: absolute;
-    right: 14px;
-    top: 16px;
-    font-size: 20px;
+    right: 0.875rem;
+    top: 1rem;
+    font-size: 1.25rem;
     cursor: pointer;
     transition: var(--transition);
     z-index: 150;
@@ -3143,22 +3143,22 @@ button[aria-label][data-balloon-pos] {
     position: relative;
     display: none;
     width: 100%;
-    height: 0px;
+    height: 0rem;
     opacity: 0;
     background-color: var(--black);
     color: var(--white);
     border-radius: var(--inputBorderRadius);
-    padding: 20px;
+    padding: 1.25rem;
     transition: var(--transition);
-    margin-top: 15px;
+    margin-top: 0.9375rem;
 }
 
 .commands input {
     background-color: var(--dark) !important;
     border-color: var(--dark) !important;
     color: var(--placeholder);
-    padding: 16px;
-    padding-right: 43px;
+    padding: 1rem;
+    padding-right: 2.6875rem;
 }
 
 .commands label {
@@ -3168,23 +3168,23 @@ button[aria-label][data-balloon-pos] {
 }
 
 .modal .CodeMirror {
-    height: 150px;
+    height: 9.375rem;
     border-radius: var(--inputBorderRadius);
     border-top-left-radius: var(--inputBorderRadius);
     border-bottom-left-radius: var(--inputBorderRadius);
-    margin-top: 10px;
+    margin-top: 0.625rem;
 }
 
 
 .lds-ripple {
     display: inline-block;
     position: relative;
-    width: 80px;
-    height: 80px;
+    width: 5rem;
+    height: 5rem;
 }
 .lds-ripple div {
     position: absolute;
-    border: 4px solid var(--primary);
+    border: 0.25rem solid var(--primary);
     opacity: 1;
     border-radius: 50%;
     animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
@@ -3194,31 +3194,31 @@ button[aria-label][data-balloon-pos] {
 }
 @keyframes lds-ripple {
     0% {
-        top: 36px;
-        left: 36px;
+        top: 2.25rem;
+        left: 2.25rem;
         width: 0;
         height: 0;
         opacity: 0;
     }
     4.9% {
-        top: 36px;
-        left: 36px;
+        top: 2.25rem;
+        left: 2.25rem;
         width: 0;
         height: 0;
         opacity: 0;
     }
     5% {
-        top: 36px;
-        left: 36px;
+        top: 2.25rem;
+        left: 2.25rem;
         width: 0;
         height: 0;
         opacity: 1;
     }
     100% {
-        top: 0px;
-        left: 0px;
-        width: 72px;
-        height: 72px;
+        top: 0rem;
+        left: 0rem;
+        width: 4.5rem;
+        height: 4.5rem;
         opacity: 0;
     }
 }

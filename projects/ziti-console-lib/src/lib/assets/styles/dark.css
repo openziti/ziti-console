@@ -14,7 +14,7 @@ body {
 	--placeholder: #2A2B31;
 	--text: #FFF;
     --subText: #97a0b2;
-    --shadow: 0px 0px 8px 2px rgba(255,255,255,0.08);
+    --shadow: 0rem 0rem 0.5rem 0.125rem rgba(255,255,255,0.08);
     --shadowColor: rgba(255,255,255,0.08);
     --transition: 0.5s;
     --offWhite: #2A2B31;
@@ -48,5 +48,5 @@ option {
 }
 
 nav .navList .navButton:hover .iconArea {
-	box-shadow: 0 14px 20px rgba(255, 255, 255, .05), 0 14px 20px rgba(255, 255, 255, .05);
+	box-shadow: 0 0.875rem 1.25rem rgba(255, 255, 255, .05), 0 0.875rem 1.25rem rgba(255, 255, 255, .05);
 }

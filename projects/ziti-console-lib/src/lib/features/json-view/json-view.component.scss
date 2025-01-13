@@ -8,7 +8,7 @@
 
 #jsoneditor {
   height: 100%;
-  min-height: 200px;
+  min-height: 12.5rem;
   border-color: var(--inputBorder);
   border-style: solid;
   border-radius: var(--inputBorderRadius);
@@ -24,8 +24,8 @@
 .copy {
   &.icon-copy {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 0.625rem;
+    right: 0.625rem;
     background: transparent;
   }
 }

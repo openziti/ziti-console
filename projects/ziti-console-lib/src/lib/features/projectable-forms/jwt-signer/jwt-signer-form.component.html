@@ -59,7 +59,7 @@
                                         matTooltipPosition="below"
                                 ></div>
                             </div>
-                            <input class="form-field-input" placeholder="Enter claims property" [(ngModel)]="formData.claimsProperty"/>
+                            <input class="form-field-input" placeholder="Enter claims property" [(ngModel)]="formData.claimsProperty" (keyup)="checkExternalIdToggle()" [ngClass]="{error: errors['claimsProperty']}"/>
                         </div>
                         <div class="form-field-label-container">
                             <div class="form-field-header">
@@ -91,52 +91,51 @@
                         </div>
                     </div>
                 </lib-form-field-container>
+                <lib-form-field-container
+                        [showHeader]="false"
+                >
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">Client ID</span>
+                            <div
+                                    class="form-field-info infoicon"
+                                    matTooltip="The client id to use when authenticating to the IDP"
+                                    matTooltipPosition="below"
+                            ></div>
+                        </div>
+                        <input class="form-field-input" placeholder="Enter client ID" [(ngModel)]="formData.clientId"/>
+                    </div>
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">External Auth Url</span>
+                            <div
+                                    class="form-field-info infoicon"
+                                    matTooltip="The URL that users are directed to, to obtain a JWT"
+                                    matTooltipPosition="below"
+                            ></div>
+                        </div>
+                        <input class="form-field-input" placeholder="Enter external auth URL" [(ngModel)]="formData.externalAuthUrl"/>
+                    </div>
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">Scopes</span>
+                            <div
+                                    class="form-field-info infoicon"
+                                    matTooltip="Enter as a comma or space seperated list of claims/permissions"
+                                    matTooltipPosition="below"
+                            ></div>
+                        </div>
+                        <p-chips (keyup)="scopesOnKeyup($event)"
+                                 [(ngModel)]="formData.scopes"
+                                 [allowDuplicate]="false"
+                                 placeholder="Enter scopes"
+                                 [addOnBlur]="true"
+                                 separator=",">
+                        </p-chips>
+                    </div>
+                </lib-form-field-container>
                 <lib-form-field-toggle [(toggleOn)]="showMore" (toggleOnChange)="showMoreChanged($event)" style="margin: 0px 10px"></lib-form-field-toggle>
                 <div [hidden]="!showMore" class="form-group-column">
-                    <lib-form-field-container
-                            [showHeader]="false"
-                            class="form-field-advanced"
-                    >
-                        <div class="form-field-label-container">
-                            <div class="form-field-title-container">
-                                <span class="form-field-title">Client ID</span>
-                                <div
-                                        class="form-field-info infoicon"
-                                        matTooltip="The client id to use when authenticating to the IDP"
-                                        matTooltipPosition="below"
-                                ></div>
-                            </div>
-                            <input class="form-field-input" placeholder="Enter client ID" [(ngModel)]="formData.clientId"/>
-                        </div>
-                        <div class="form-field-label-container">
-                            <div class="form-field-title-container">
-                                <span class="form-field-title">External Auth Url</span>
-                                <div
-                                        class="form-field-info infoicon"
-                                        matTooltip="The URL that users are directed to, to obtain a JWT"
-                                        matTooltipPosition="below"
-                                ></div>
-                            </div>
-                            <input class="form-field-input" placeholder="Enter external auth URL" [(ngModel)]="formData.externalAuthUrl"/>
-                        </div>
-                        <div class="form-field-label-container">
-                            <div class="form-field-title-container">
-                                <span class="form-field-title">Scopes</span>
-                                <div
-                                        class="form-field-info infoicon"
-                                        matTooltip="Enter as a comma or space seperated list of claims/permissions"
-                                        matTooltipPosition="below"
-                                ></div>
-                            </div>
-                            <p-chips (keyup)="scopesOnKeyup($event)"
-                                     [(ngModel)]="formData.scopes"
-                                     [allowDuplicate]="false"
-                                     placeholder="Enter scopes"
-                                     [addOnBlur]="true"
-                                     separator=",">
-                            </p-chips>
-                        </div>
-                    </lib-form-field-container>
                     <lib-form-field-container
                             [title]="'Custom Tags'"
                             [label]="'OPTIONAL'"

@@ -3,7 +3,7 @@
 .CodeMirror {
   /* Set height, width, borders, and global font properties here */
   font-family: monospace;
-  height: 300px;
+  height: 18.75rem;
   color: black;
   direction: ltr;
 }
@@ -11,11 +11,11 @@
 /* PADDING */
 
 .CodeMirror-lines {
-  padding: 4px 0; /* Vertical padding around content */
+  padding: 0.25rem 0; /* Vertical padding around content */
 }
 .CodeMirror pre.CodeMirror-line,
 .CodeMirror pre.CodeMirror-line-like {
-  padding: 0 4px; /* Horizontal padding of content */
+  padding: 0 0.25rem; /* Horizontal padding of content */
 }
 
 .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
@@ -25,14 +25,14 @@
 /* GUTTER */
 
 .CodeMirror-gutters {
-  border-right: 1px solid #ddd;
+  border-right: 0.0625rem solid #ddd;
   background-color: #f7f7f7;
   white-space: nowrap;
 }
 .CodeMirror-linenumbers {}
 .CodeMirror-linenumber {
-  padding: 0 3px 0 5px;
-  min-width: 20px;
+  padding: 0 0.1875rem 0 0.3125rem;
+  min-width: 1.25rem;
   text-align: right;
   color: #999;
   white-space: nowrap;
@@ -44,13 +44,13 @@
 /* CURSOR */
 
 .CodeMirror-cursor {
-  border-left: 1px solid black;
+  border-left: 0.0625rem solid black;
   border-right: none;
   width: 0;
 }
 /* Shown when moving in bi-directional text */
 .CodeMirror div.CodeMirror-secondarycursor {
-  border-left: 1px solid silver;
+  border-left: 0.0625rem solid silver;
 }
 .cm-fat-cursor .CodeMirror-cursor {
   width: auto;
@@ -97,11 +97,11 @@
 
 .CodeMirror-rulers {
   position: absolute;
-  left: 0; right: 0; top: -50px; bottom: 0;
+  left: 0; right: 0; top: -3.125rem; bottom: 0;
   overflow: hidden;
 }
 .CodeMirror-ruler {
-  border-left: 1px solid #ccc;
+  border-left: 0.0625rem solid #ccc;
   top: 0; bottom: 0;
   position: absolute;
 }
@@ -142,7 +142,7 @@
 .cm-s-default .cm-error {color: #f00;}
 .cm-invalidchar {color: #f00;}
 
-.CodeMirror-composing { border-bottom: 2px solid; }
+.CodeMirror-composing { border-bottom: 0.125rem solid; }
 
 /* Default styles for common addons */
 
@@ -159,29 +159,29 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
     position: relative;
     overflow: hidden;
     background: white;
-    border-radius: 10px;
+    border-radius: 0.625rem;
     border-color: var(--border);
-    border-width: 2px;
-    height: 450px;
-    font-size: 12px;
+    border-width: 0.125rem;
+    height: 28.125rem;
+    font-size: 0.75rem;
     border-style: solid;
-    border-top-left-radius: 0px;
-    border-bottom-left-radius: 0px;
+    border-top-left-radius: 0rem;
+    border-bottom-left-radius: 0rem;
 }
 
 .CodeMirror-scroll {
   overflow: scroll !important; /* Things will break if this is overridden */
-  /* 30px is the magic margin used to hide the element's real scrollbars */
+  /* 1.875rem is the magic margin used to hide the element's real scrollbars */
   /* See overflow: hidden in .CodeMirror */
-  margin-bottom: -30px; margin-right: -30px;
-  padding-bottom: 30px;
+  margin-bottom: -1.875rem; margin-right: -1.875rem;
+  padding-bottom: 1.875rem;
   height: 100%;
   outline: none; /* Prevent dragging from highlighting the element */
   position: relative;
 }
 .CodeMirror-sizer {
   position: relative;
-  border-right: 30px solid transparent;
+  border-right: 1.875rem solid transparent;
 }
 
 /* The fake, visible scrollbars. Used to force redraw during scrolling
@@ -219,7 +219,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   height: 100%;
   display: inline-block;
   vertical-align: top;
-  margin-bottom: -30px;
+  margin-bottom: -1.875rem;
 }
 .CodeMirror-gutter-wrapper {
   position: absolute;
@@ -242,7 +242,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
 .CodeMirror-lines {
   cursor: text;
-  min-height: 1px; /* prevents collapsing before first draw */
+  min-height: 0.0625rem; /* prevents collapsing before first draw */
 }
 .CodeMirror pre.CodeMirror-line,
 .CodeMirror pre.CodeMirror-line-like {
@@ -280,7 +280,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 .CodeMirror-linewidget {
   position: relative;
   z-index: 2;
-  padding: 0.1px; /* Force widget margins to stay inside of the container */
+  padding: 0.006rem; /* Force widget margins to stay inside of the container */
 }
 
 .CodeMirror-widget {}
@@ -340,7 +340,7 @@ div.CodeMirror-dragcursors {
 }
 
 /* Used to force a border model for a node */
-.cm-force-border { padding-right: .1px; }
+.cm-force-border { padding-right: .0.0625rem; }
 
 @media print {
   /* Hide the cursor when printing */

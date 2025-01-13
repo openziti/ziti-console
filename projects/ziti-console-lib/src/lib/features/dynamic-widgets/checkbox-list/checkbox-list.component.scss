@@ -2,7 +2,7 @@
   text-transform: uppercase; position:absolute;padding-top: 0.3rem; padding-left:0.25rem
 }
 input {
-  width: 1rem; height: 1.5rem; border-radius: 4px;
+  width: 1rem; height: 1.5rem; border-radius: 0.25rem;
 }
 input:checked {
   background-color: var(--green)!important
@@ -10,16 +10,16 @@ input:checked {
 
 .jsonEntry {
   &.checkbox {
-    width: 25px;
-    height: 25px;
-    border-radius: 15px;
+    width: 1.5625rem;
+    height: 1.5625rem;
+    border-radius: 0.9375rem;
     cursor: pointer;
     transition: background-color .5s;
-    top: 13px;
-    left: 10px;
+    top: 0.8125rem;
+    left: 0.625rem;
     background-color: var(--navigation);
     transition: var(--transition);
-    border: 2px var(--offWhite) solid;
+    border: 0.125rem var(--offWhite) solid;
     &:checked {
       background-color: var(--green);
       background-image: url(../../../assets/images/check.png);

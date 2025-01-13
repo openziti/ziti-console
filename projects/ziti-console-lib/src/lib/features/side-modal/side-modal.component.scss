@@ -2,19 +2,19 @@
   position: fixed;
   left: 100%;
   top: 0;
-  padding: 20px;
+  padding: 1.25rem;
   height: 100%;
   width: 100%;
   overflow-y: auto;
-  right: 0px;
+  right: 0rem;
   transition: var(--transition);
   z-index: 10001;
   background-color: var(--formBackground);
-  box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.08);
+  box-shadow: 0rem 0.25rem 1rem 0rem rgba(0, 0, 0, 0.08);
 
   &.side-modal-open {
-    width: calc(100% - 380px);
-    left: 380px;
+    width: calc(100% - 23.75rem);
+    left: 23.75rem;
     padding-bottom: 0;
   }
 }
@@ -22,8 +22,8 @@
 ::ng-deep .sideNavClosed {
   .side-modal-container {
     &.side-modal-open {
-      width: calc(100% - 65px);
-      left: 65px;
+      width: calc(100% - 4.0625rem);
+      left: 4.0625rem;
     }
   }
 }

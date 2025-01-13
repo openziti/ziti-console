@@ -10,14 +10,14 @@
   }
 
   .download-button {
-    margin: 10px 0px;
+    margin: 0.625rem 0rem;
   }
 
   &.modal-view {
-    width: 500px;
+    width: 31.25rem;
     background-color: var(--background);
-    padding: 20px;
-    border-radius: 15px;
+    padding: 1.25rem;
+    border-radius: 0.9375rem;
   }
   .qr-code-buttons {
     display: flex;

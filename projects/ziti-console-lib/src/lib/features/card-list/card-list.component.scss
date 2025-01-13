@@ -5,9 +5,9 @@
 .card-list-wrapper {
 
   >.title {
-    font-size: 26px;
+    font-size: 1.625rem;
     filter: brightness(50%);
-    padding-top: 35px;
+    padding-top: 2.1875rem;
     text-align: center;
     width: 100%;
     color: var(--primaryColor);
@@ -21,8 +21,8 @@
     width: 100%;
     color: var(--tableText);
     position: relative;
-    margin-bottom: 0px;
-    font-size: 32px;
+    margin-bottom: 0rem;
+    font-size: 2rem;
     font-weight: 300;
     font-family: "Open Sans";
     float: left;
@@ -41,31 +41,31 @@
       -webkit-font-smoothing: antialiased;
       cursor: pointer;
       position: absolute;
-      width: 63px;
-      height: 63px;
-      font-size: 30px;
-      top: 20px;
-      right: 20px;
+      width: 3.9375rem;
+      height: 3.9375rem;
+      font-size: 1.875rem;
+      top: 1.25rem;
+      right: 1.25rem;
       left: unset;
       z-index: 20;
       color: var(--stroke);
       text-transform: uppercase;
       text-align: center;
-      line-height: 40px;
+      line-height: 2.5rem;
       font-family: zac !important;
       font-variant: normal;
-      border-radius: 33px;
+      border-radius: 2.0625rem;
       transition: all 0.3s ease 0s;
 
       &::before {
         content: '\e91b';
-        font-size: 30px;
+        font-size: 1.875rem;
       }
     }
     &:hover {
       background-color: var(--primaryColor);
       color: var(--white);
-      box-shadow: 0 2px 3px 0 var(--primaryColorOpaque);
+      box-shadow: 0 0.125rem 0.1875rem 0 var(--primaryColorOpaque);
       transition: all 0.2s ease 0s;
       &::before {
         color: var(--white);
@@ -75,10 +75,10 @@
       font-weight: 600;
       font-family: "Open Sans", Arial, sans-serif;
       position: absolute;
-      bottom: -2px;
+      bottom: -0.125rem;
       width: 100%;
       text-align: center;
-      font-size: 12px;
+      font-size: 0.75rem;
       text-transform: uppercase;
     }
   }

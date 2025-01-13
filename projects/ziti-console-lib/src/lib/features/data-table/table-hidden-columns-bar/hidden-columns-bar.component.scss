@@ -11,8 +11,8 @@
   align-items: center;
   display: flex;
   flex-direction: row;
-  margin-left: 7px;
-  min-height: 30px;
+  margin-left: 0.4375rem;
+  min-height: 1.875rem;
   flex-wrap: wrap;
   flex: 0 1 auto;
 
@@ -24,27 +24,27 @@
     }
   }
   &::-webkit-scrollbar {
-    height: 14px;
+    height: 0.875rem;
   }
 
   .hidden-column-item {
     align-items: center;
     background-color: var(--background);
-    border: 2px solid var(--background);
-    border-radius: 12px;
+    border: 0.125rem solid var(--background);
+    border-radius: 0.75rem;
     cursor: pointer;
     color: var(--inputBorder);
     font-weight: 600;
     font-family: 'Open Sans', sans-serif;
     display: flex;
     flex: 0 1 auto;
-    height: 25px !important;
-    margin-left: 10px;
-    margin-top: 5px;
-    padding-left: 5px;
-    padding-right: 10px;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    height: 1.5625rem !important;
+    margin-left: 0.625rem;
+    margin-top: 0.3125rem;
+    padding-left: 0.3125rem;
+    padding-right: 0.625rem;
+    padding-top: 0.125rem;
+    padding-bottom: 0.125rem;
     position: relative;
     text-align: center;
     box-shadow: unset;
@@ -54,7 +54,7 @@
 
   .ag-dnd-ghost {
     &:hover {
-      border: 2px solid var(--primaryColor) !important;
+      border: 0.125rem solid var(--primaryColor) !important;
 
       .ag-dnd-ghost-label {
         color: var(--ag-alpine-active-color, var(--primaryColor));
