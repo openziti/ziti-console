@@ -1,5 +1,5 @@
 .aside {
-  max-width: 380px;
+  max-width: 23.75rem;
   position: relative;
   display:inline-block;
   height:100vh;
@@ -10,27 +10,27 @@
   .title {
     font-family: "Open Sans", serif;
     color: var(--white);
-    font-size: 24px;
-    line-height: 38px;
-    padding-left: 30px;
-    padding-right: 30px;
+    font-size: 1.5rem;
+    line-height: 2.375rem;
+    padding-left: 1.875rem;
+    padding-right: 1.875rem;
     z-index: 30;
     position: relative;
     clear: both;
     text-align: center;
     font-weight: 200;
-    top: calc(50% - 75px);
+    top: calc(50% - 4.6875rem);
     filter: unset;
     text-transform: uppercase;
   }
   .icon {
-    width: 100px;
-    height: 100px;
+    width: 6.25rem;
+    height: 6.25rem;
     background-image: url(../../../assets/icons/android-icon-192x192.png);
     position: absolute;
     background-size: contain;
-    top: calc(50% - 200px);
-    left: calc( 50% - 50px);
+    top: calc(50% - 12.5rem);
+    left: calc( 50% - 3.125rem);
     z-index: 20;
     box-sizing: var(--shadow);
   }

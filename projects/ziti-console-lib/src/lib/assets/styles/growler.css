@@ -1,15 +1,15 @@
 #Growler {
 	position: fixed;
-	right: 20px;
-	bottom: -100px;
-	min-width: 300px;
+	right: 1.25rem;
+	bottom: -6.25rem;
+	min-width: 18.75rem;
 	z-index: 9999999;
-	max-width: 500px;
+	max-width: 31.25rem;
 }
 
 #NotificationsList {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 0.625rem;
+    padding-right: 0.625rem;
     overflow-y: scroll;
     height: 90vh;
 }
@@ -20,26 +20,26 @@
 	z-index: 9999999;
 	width: 100%;
 	opacity: 1.0;
-	margin-bottom: 10px;
+	margin-bottom: 0.625rem;
 }
 
 #NotificationsList .nonotify {
-    padding-left: 11px;
-    font-size: 19px;
+    padding-left: 0.6875rem;
+    font-size: 1.1875rem;
     opacity: 0.4;	
 }
 
 .growler {
 	background-color: #f6f7fb;    
-	min-height: 105px;
-	min-width: 334px;
-	font-size: 16px;
+	min-height: 6.5625rem;
+	min-width: 20.875rem;
+	font-size: 1rem;
 	color: #000;
 	text-align: left;
-	border-radius: 6px;
-    -webkit-box-shadow: 0px 12px 23px 0px rgba(0,0,0,.2);
-    -moz-box-shadow: 0px 12px 23px 0px rgba(0,0,0,.1);
-    box-shadow: 0px 12px 23px 0px rgba(0,0,0,.1);
+	border-radius: 0.375rem;
+    -webkit-box-shadow: 0rem 0.75rem 1.4375rem 0rem rgba(0,0,0,.2);
+    -moz-box-shadow: 0rem 0.75rem 1.4375rem 0rem rgba(0,0,0,.1);
+    box-shadow: 0rem 0.75rem 1.4375rem 0rem rgba(0,0,0,.1);
     -webkit-transition: 0.5s;
     -moz-transition: 0.5s;
     -ms-transition: 0.5s;
@@ -49,7 +49,7 @@
 }
 
 #Growler.open {
-	bottom: 20px;
+	bottom: 1.25rem;
 }
 
 .growler.open {
@@ -57,11 +57,11 @@
 }
 
 .growler .time {
-	font-size: 13px;
+	font-size: 0.8125rem;
 	color: #FFF;
 	position: absolute;
-	top: 7px;
-	right: 10px;
+	top: 0.4375rem;
+	right: 0.625rem;
     font-weight: 600;
 font-family: "Open Sans";
 }
@@ -87,53 +87,53 @@ font-family: "Open Sans";
 }
 
 .growler .title {
-	padding-left: 10px;
-	padding-right: 10px;
-	font-size: 14px;
+	padding-left: 0.625rem;
+	padding-right: 0.625rem;
+	font-size: 0.875rem;
 	font-weight: bold;
 	color: #FFF;
-	line-height: 30px;
+	line-height: 1.875rem;
 	text-transform: uppercase;
 	background-color: #03db5c;
-	border-top-left-radius: 6px;
-	border-top-right-radius: 6px;
+	border-top-left-radius: 0.375rem;
+	border-top-right-radius: 0.375rem;
     font-weight: 600;
     font-family: 'Open Sans';
     filter: brightness(100%);
 }
 
 .growler .subtitle {
-    padding-top: 17px;
-    font-size: 15px;
+    padding-top: 1.0625rem;
+    font-size: 0.9375rem;
     font-weight: bold;
-    padding-left: 75px;
-    padding-right: 10px;
+    padding-left: 4.6875rem;
+    padding-right: 0.625rem;
 	overflow: hidden;
 }
 
 .growler .content {
-	font-size: 13px;
+	font-size: 0.8125rem;
     font-weight: normal;
-    padding-left: 75px;
-    padding-right: 20px;
-	margin-top: 2px;
-    line-height: 14px;
+    padding-left: 4.6875rem;
+    padding-right: 1.25rem;
+	margin-top: 0.125rem;
+    line-height: 0.875rem;
     text-overflow: ellipsis;
 	overflow: hidden;
     font-weight: 400;
 	font-family: 'Open Sans';
     color: #434c5e;
-    padding-bottom: 10px;
+    padding-bottom: 0.625rem;
 }
 
 .growler .icon {
-	width: 55px;
-    height: 55px;
+	width: 3.4375rem;
+    height: 3.4375rem;
     background-position: center center;
     background-size: 80%;
     position: absolute;
-    left: 10px;
-    top: 40px;
+    left: 0.625rem;
+    top: 2.5rem;
 }
 
 .growler.error .icon {
@@ -158,11 +158,11 @@ font-family: "Open Sans";
 
 #NotificationsMenu {
 	z-index: 979;
-	width: 0px;
+	width: 0rem;
 	position: fixed;
-	top: 0px;
-	bottom: 0px;
-	left: -80px;
+	top: 0rem;
+	bottom: 0rem;
+	left: -5rem;
 	background-color: var(--offWhite);
     transition: 0.5s;
 	opacity: 0.0;
@@ -170,10 +170,10 @@ font-family: "Open Sans";
 }
 
 #NotificationsMenu.open {
-	width: 380px;
-	left: 0px;
+	width: 23.75rem;
+	left: 0rem;
     opacity: 1.0;
-	border-right-width: 4px;
+	border-right-width: 0.25rem;
 	border-right-color: var(--stroke);
 	border-right-style: solid;
 }
@@ -181,10 +181,10 @@ font-family: "Open Sans";
 #NotificationsMenu .header.title {
 	font-weight: 300;
     font-family: 'Russo One';
-    font-size: 20px;
-    line-height: 84px;
+    font-size: 1.25rem;
+    line-height: 5.25rem;
     color: var(--primary);
     filter: brightness(50%);
-    padding-left: 20px;
+    padding-left: 1.25rem;
 	text-transform: uppercase;
 }

@@ -1,19 +1,19 @@
 .overrides-wrapper {
   display: flex;
   justify-content: center;
-  padding: 10px;
+  padding: 0.625rem;
 
   .overrides-container {
-    max-width: 1024px;
+    max-width: 64rem;
     flex: 1 1 auto;
 
     .form-title-container {
-      margin-left: -10px;
+      margin-left: -0.625rem;
     }
 
     .title {
       display: flex;
-      margin-left: 5px;
+      margin-left: 0.3125rem;
     }
 
     .button {
@@ -27,7 +27,7 @@
           outline: 0;
           filter: brightness(90%);
           background-color: var(--primaryColor);
-          box-shadow: 0 2px 3px 0 var(--primaryColorOpaque);
+          box-shadow: 0 0.125rem 0.1875rem 0 var(--primaryColorOpaque);
         }
       }
     }
@@ -42,17 +42,17 @@
   .p-dropdown {
     font-weight: 400;
     font-family: 'Open Sans', Arial, sans-serif;
-    height: 50px;
+    height: 3.125rem;
     width: 100%;
     border-color: var(--stroke);
     border-style: solid;
     border-width: var(--inputBorderWidth);
     border-radius: var(--inputBorderRadius);
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 0.625rem;
+    padding-right: 0.625rem;
     outline: none;
     box-sizing: border-box;
-    font-size: 15px;
+    font-size: 0.9375rem;
     background-color: var(--navigation) !important;
     color: var(--text);
     -webkit-appearance: none;
@@ -60,7 +60,7 @@
   .p-inputtext {
     border-radius: var(--inputBorderRadius);
     border-color: transparent !important;
-    height: 46px;
+    height: 2.875rem;
     &:hover {
       border-color: transparent !important;
     }

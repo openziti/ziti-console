@@ -33,17 +33,17 @@
     -moz-osx-font-smoothing: grayscale;
     cursor: pointer;
     position: absolute;
-    width: 63px;
-    height: 63px;
-    border-radius: 33px;
-    font-size: 30px;
+    width: 3.9375rem;
+    height: 3.9375rem;
+    border-radius: 2.0625rem;
+    font-size: 1.875rem;
     top: 1.25rem;
     left:1.25rem;;
     z-index: 31;
     color: var(--stroke);
     text-transform: uppercase;
     text-align: center;
-    line-height: 40px;
+    line-height: 2.5rem;
     transition: .3s;
   }
 
@@ -51,7 +51,7 @@
     font-weight: 600;
     font-family: Open Sans, Arial, sans-serif;
     position: absolute;
-    bottom: -2px;
+    bottom: -0.125rem;
     width: 100%;
     text-align: center;
     font-size: 0.75rem;

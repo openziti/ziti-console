@@ -1,14 +1,14 @@
 .row-toggle {
   &.tSelect {
-    width: 25px;
-    height: 25px;
-    border: 1.5px var(--stroke) solid;
-    border-radius: 15px;
+    width: 1.5625rem;
+    height: 1.5625rem;
+    border: .1rem var(--stroke) solid;
+    border-radius: 0.9375rem;
     cursor: pointer;
     transition: background-color 0.5s;
     position: absolute;
-    top: 13px;
-    left: 10px;
+    top: 0.8125rem;
+    left: 0.625rem;
     background-color: var(--navigation);
     transition: var(--transition);
 
@@ -26,14 +26,14 @@
       transform: initial !important;
 
       &:hover {
-        width: 25px;
-        height: 25px;
-        border: 2px var(--offWhite) solid;
-        border-radius: 15px;
+        width: 1.5625rem;
+        height: 1.5625rem;
+        border: 0.125rem var(--offWhite) solid;
+        border-radius: 0.9375rem;
         transition: background-color 0.5s;
         position: absolute;
-        top: 13px;
-        left: 17px;
+        top: 0.8125rem;
+        left: 1.0625rem;
         background-color: var(--background);
       }
     }

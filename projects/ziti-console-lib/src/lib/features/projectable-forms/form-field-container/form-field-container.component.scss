@@ -10,8 +10,8 @@
     display: flex;
     flex-direction: column;
     background-color: var(--navigation);
-    padding: 15px 15px;
-    border-radius: 10px;
+    padding: 0.9375rem 0.9375rem;
+    border-radius: 0.625rem;
     gap: var(--marginMedium);
     height: 100%;
     position: relative;
@@ -20,7 +20,7 @@
         .form-field-title {
             color: var(--primary);
             font-weight: 100;
-            font-size: 18px;
+            font-size: 1.125rem;
             font-family: 'Russo One';
             filter: brightness(0.9);
         }
@@ -41,7 +41,7 @@
         display: flex;
         flex-direction: column;
         width: 100%;
-        gap: 15px;
+        gap: 0.9375rem;
         z-index: 99999;
         position: relative;
         border-radius: var(--inputBorderRadius);
@@ -65,28 +65,28 @@
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        height: 14px;
+        height: 0.875rem;
         z-index: 9999;
     }
 
     .title-icon {
-        font-size: 20px;
-        margin-right: 5px;
-        margin-left: 5px;
+        font-size: 1.25rem;
+        margin-right: 0.3125rem;
+        margin-left: 0.3125rem;
     }
 
     .form-field-title {
         display: flex;
         align-items: center;
-        font-size: 14px;
+        font-size: 0.875rem;
         font-weight: 600;
         color: var(--tableText);
         text-transform: uppercase;
-        height: 14px;
+        height: 0.875rem;
     }
 
     .form-field-label {
-        font-size: 14px;
+        font-size: 0.875rem;
         font-weight: 600;
         color: var(--placeholder);
     }
@@ -97,11 +97,11 @@
         display: flex;
         align-items: center;
         font-weight: 700;
-        border-radius: 14px;
-        height: 24px;
-        padding-left: 13px;
-        padding-right: 13px;
-        font-size: 13px;
+        border-radius: 0.875rem;
+        height: 1.5rem;
+        padding-left: 0.8125rem;
+        padding-right: 0.8125rem;
+        font-size: 0.8125rem;
     }
 
     .form-field-input {
@@ -112,6 +112,6 @@
 
     .save-button {
         text-wrap: nowrap;
-        height: 25px;
+        height: 1.5625rem;
     }
 }

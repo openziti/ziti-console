@@ -2,11 +2,11 @@
 .grid {
     display: grid;
     grid-template-columns: auto;
-    grid-gap: 10px;
+    grid-gap: 0.625rem;
 }
 
 .grid.addressFull {
-    grid-template-columns: 75px auto 75px;
+    grid-template-columns: 4.6875rem auto 4.6875rem;
 
     .disabled {
         opacity: .5;
@@ -19,5 +19,5 @@
 }
 
 .host-name-port {
-    grid-template-columns: auto 75px;
+    grid-template-columns: auto 4.6875rem;
 }

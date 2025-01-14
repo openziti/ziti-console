@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   background-color: var(--background);
-  border-radius: 25px;
-  width: 600px;
+  border-radius: 1.5625rem;
+  width: 37.5rem;
 
   .confirm-model-body {
     display: flex;
@@ -19,12 +19,12 @@
       align-items: center;
     }
     .confirm-modal-icon {
-      width: 120px;
-      height: 120px;
+      width: 7.5rem;
+      height: 7.5rem;
       background-size: contain;
       z-index: 20;
       box-sizing: var(--shadow);
-      margin-left: 15px;
+      margin-left: 0.9375rem;
     }
   }
   .confirm-title-container {
@@ -33,26 +33,26 @@
     flex-direction: column;
     .confirm-title {
       color: var(--primaryColor);
-      font-size: 30px;
+      font-size: 1.875rem;
       position: relative;
       padding-left: 0;
-      width: 400px;
+      width: 25rem;
       background: none;
       text-transform: none;
       height: auto;
       font-family: Russo One;
-      margin-top: 30px;
-      margin-left: 150px;
+      margin-top: 1.875rem;
+      margin-left: 9.375rem;
       filter: brightness(50%);
     }
   }
   .confirm-message-sub-content,
   .confirm-message-content {
     color: var(--text);
-    font-size: 14px;
+    font-size: 0.875rem;
     position: relative;
-    margin: 15px;
-    margin-top: 5px;
+    margin: 0.9375rem;
+    margin-top: 0.3125rem;
     padding: 0;
     font-weight: 600;
     font-family: Open Sans;
@@ -61,13 +61,13 @@
     align-items: center;
     justify-content: flex-start;
     color: var(--tableText);
-    max-width: 400px;
+    max-width: 25rem;
   }
   .confirm-message-bullet-list {
-    margin-left: 20px;
-    margin-bottom: 15px;
-    margin-right: 20px;
-    max-height: 200px;
+    margin-left: 1.25rem;
+    margin-bottom: 0.9375rem;
+    margin-right: 1.25rem;
+    max-height: 12.5rem;
     overflow: auto;
     .confirm-item-name {
       color: var(--primaryColor);
@@ -83,15 +83,15 @@
   }
 
   .secondary-confirm-container {
-    height: 35px;
+    height: 2.1875rem;
     width: 100%;
     position: relative;
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding-left: 35px;
-    padding-top: 35px;
-    padding-bottom: 25px;
+    padding-left: 2.1875rem;
+    padding-top: 2.1875rem;
+    padding-bottom: 1.5625rem;
 
     &.disabled {
       opacity: 0.5;
@@ -102,11 +102,11 @@
         cursor: not-allowed;
         &:hover {
           transform: none;
-          border: 2px var(--inputBorder) solid;
+          border: 0.125rem var(--inputBorder) solid;
         }
         &:active {
           transform: none;
-          border: 2px var(--inputBorder) solid;
+          border: 0.125rem var(--inputBorder) solid;
         }
       }
     }
@@ -115,15 +115,15 @@
       position: relative;
       top: initial;
       left: initial;
-      height: 25px;
-      width: 25px;
+      height: 1.5625rem;
+      width: 1.5625rem;
     }
 
     .secondary-confirm-label {
-      font-size: 14px;
+      font-size: 0.875rem;
       font-weight: 600;
       color: var(--tableText);
-      margin-left: 7px;
+      margin-left: 0.4375rem;
     }
 
     .infoicon {
@@ -136,29 +136,29 @@
     justify-content: flex-end;
     flex-direction: row;
     width: 100%;
-    padding-right: 20px;
-    padding-bottom: 20px;
+    padding-right: 1.25rem;
+    padding-bottom: 1.25rem;
     align-items: flex-end;
     .linkButton {
       position: absolute;
-      left: 25px;
+      left: 1.5625rem;
       color: var(--subText);
       font-weight: 600;
     }
     .secondary-button {
-      margin-right: 10px;
+      margin-right: 0.625rem;
       background-color: var(--primary);
     }
   }
 
   button {
-    width: 100px;
-    height: 40px;
+    width: 6.25rem;
+    height: 2.5rem;
     color: var(--white);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 0.75rem;
 
     &.confirm {
       background-color: var(--secondary);

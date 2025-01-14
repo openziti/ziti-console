@@ -13,8 +13,8 @@
     filter: brightness(50%);
     font-family: 'Russo One', serif;
     text-align: center;
-    font-size: 24px;
-    line-height: 56px;
+    font-size: 1.5rem;
+    line-height: 3.5rem;
   }
 
   .navList {
@@ -31,12 +31,12 @@
 
   .lock {
     position: absolute;
-    bottom: 20px;
-    right: 10px;
-    width: 30px;
-    height: 30px;
-    font-size: 30px;
-    line-height: 30px;
+    bottom: 1.25rem;
+    right: 0.625rem;
+    width: 1.875rem;
+    height: 1.875rem;
+    font-size: 1.875rem;
+    line-height: 1.875rem;
     text-align: center;
     opacity: 0.2;
     cursor: pointer;
@@ -53,11 +53,11 @@
 
   .version {
     position: absolute;
-    bottom: 20px;
+    bottom: 1.25rem;
     width: 100%;
     color: var(--text);
     opacity: .7;
-    font-size: 14px;
+    font-size: 0.875rem;
     right: 0;
     left: 0;
     display: flex;
@@ -67,10 +67,10 @@
 
   #CustomLogo {
     width: 75%;
-    height: 100px;
+    height: 6.25rem;
     position: absolute;
-    bottom: 49px;
-    right: 20px;
+    bottom: 3.0625rem;
+    right: 1.25rem;
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center center;
@@ -92,19 +92,19 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    margin-bottom: 15px;
+    margin-bottom: 0.9375rem;
 
     .side-navigator-menu-group {
       display: flex;
       flex-direction: column;
       width: 100%;
-      margin-bottom: 15px;
+      margin-bottom: 0.9375rem;
     }
 
     .side-navigator-menu-group-label {
-      margin-left: 23px;
+      margin-left: 1.4375rem;
       color: var(--groupText);
-      font-size: 14px;
+      font-size: 0.875rem;
       position: relative;
       text-transform: uppercase;
       font-weight: 600;
@@ -113,17 +113,17 @@
     .side-navigator-menu-item {
       position: relative;
       display: flex;
-      height: 53px;
+      height: 3.3125rem;
       cursor: pointer;
       align-items: center;
-      padding-left: 25px;
-      margin-bottom: 5px;
-      margin-top: 5px;
+      padding-left: 1.5625rem;
+      margin-bottom: 0.3125rem;
+      margin-top: 0.3125rem;
 
       &.selected {
         background-color: var(--primaryColorShadowLight);
         border-right-color: var(--secondaryColor);
-        border-right-width: 4px;
+        border-right-width: 0.25rem;
         border-right-style: solid;
         &:hover {
           border-right-color: var(--secondaryColor);
@@ -133,30 +133,30 @@
       &:hover {
         background-color: var(--primaryColorShadowLight);
         border-right-color: var(--primaryColor);
-        border-right-width: 4px;
+        border-right-width: 0.25rem;
         border-right-style: solid;
         transition: 0.3s;
       }
 
       .side-navigator-menu-item-icon {
-        max-width: 50px;
-        width: 50px;
-        height: 50px;
+        max-width: 3.125rem;
+        width: 3.125rem;
+        height: 3.125rem;
         background-color: var(--white);
         box-shadow: var(--shadow);
         border-color: var(--white);
         transition: var(--transition);
-        border-radius: 8px;
+        border-radius: 0.5rem;
         display: flex;
         align-items: center;
         justify-content: center;
         border-width: var(--inputBorderWidth);
         flex: 1 0 auto;
         border-style: solid;
-        font-size: 35px;
+        font-size: 2.1875rem;
 
         &:hover {
-          box-shadow: 0 14px 20px rgba(0, 0, 0, .05), 0 14px 20px rgba(0, 0, 0, .05);
+          box-shadow: 0 0.875rem 1.25rem rgba(0, 0, 0, .05), 0 0.875rem 1.25rem rgba(0, 0, 0, .05);
         }
 
         .image {
@@ -168,19 +168,19 @@
 
       .side-navigator-menu-item-label {
         color: var(--tableText);
-        font-size: 16px;
+        font-size: 1rem;
         text-transform: unset;
         font-weight: 600;
         text-align: left;
         font-family: Open Sans, serif;
         width: 100%;
         margin-bottom: 0;
-        margin-left: 15px;
+        margin-left: 0.9375rem;
         display: flex;
 
         .side-navigator-menu-item-sublabel {
           color: var(--placeholder);
-          margin-left: 5px;
+          margin-left: 0.3125rem;
         }
       }
     }
@@ -188,19 +188,19 @@
 
   .headerNetworkList,
   .headerTenantList {
-    height: 182px;
+    height: 11.375rem;
     overflow-y: scroll;
   }
 
   .headerNetworkList .row,
   .headerTenantList .row {
     color: var(--white);
-    font-size: 14px;
+    font-size: 0.875rem;
     font-weight: 600;
-    line-height: 30px;
-    padding-left: 45px;
+    line-height: 1.875rem;
+    padding-left: 2.8125rem;
     cursor: pointer;
-    height: 32px;
+    height: 2rem;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -230,10 +230,10 @@
 
   .headerNetworkList .status,
   .headerTenantList .status {
-    width: 25px;
-    height: 25px;
-    top: 3px;
-    left: 10px;
+    width: 1.5625rem;
+    height: 1.5625rem;
+    top: 0.1875rem;
+    left: 0.625rem;
   }
 
   #Networks .currentNetwork,
@@ -246,30 +246,30 @@
     border-width: var(--inputBorderWidth);
     border-radius: var(--inputBorderRadius);
     border-style: solid;
-    width: 271px;
-    height: 40px;
+    width: 16.9375rem;
+    height: 2.5rem;
     background-image: url(../../../assets/svgs/ArrowDown.svg);
-    background-position: center right 10px;
-    background-size: 20px 10px;
+    background-position: center right 0.625rem;
+    background-size: 1.25rem 0.625rem;
     cursor: pointer;
     background-color: var(--background);
     animation: fadein 0.5s;
     position: relative;
-    margin-top: 18px;
-    margin-bottom: 10px;
+    margin-top: 1.125rem;
+    margin-bottom: 0.625rem;
   }
 
   .currentNetwork {
     font-family: "Russo One", serif;
-    font-size: 18px;
+    font-size: 1.125rem;
     color: var(--tableText);
-    padding-left: 10px;
-    line-height: 36px;
+    padding-left: 0.625rem;
+    line-height: 2.25rem;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    padding-right: 20px;
-    width: 259px;
+    padding-right: 1.25rem;
+    width: 16.1875rem;
   }
 
   #Networks {
@@ -278,24 +278,24 @@
     width: 101.5%;
     overflow: hidden;
     position: absolute;
-    top: -2px;
-    left: -2px;
-    padding-top: 2px;
+    top: -0.125rem;
+    left: -0.125rem;
+    padding-top: 0.125rem;
     background-color: var(--menu);
-    min-height: 20px;
+    min-height: 1.25rem;
     z-index: 60;
     opacity: 0;
     transition: 0.5s;
     pointer-events: none;
 
     &.opened {
-      height: 300px;
+      height: 18.75rem;
       opacity: 1;
       pointer-events: all;
     }
 
     .search.row {
-      line-height: 55px;
+      line-height: 3.4375rem;
     }
   }
 
@@ -304,18 +304,18 @@
     position: absolute;
     align-items: center;
     justify-content: center;
-    top: 2px;
-    left: 54px;
+    top: 0.125rem;
+    left: 3.375rem;
     background-color: var(--red);
-    box-shadow: 0 2px 7px 0 rgba(255, 13, 73, 0.5);
+    box-shadow: 0 0.125rem 0.4375rem 0 rgba(255, 13, 73, 0.5);
     z-index: 999;
     color: white;
-    font-size: 12px;
+    font-size: 0.75rem;
     font-weight: bold;
-    width: 18px;
-    height: 18px;
-    line-height: 18px;
-    border-radius: 9px;
+    width: 1.125rem;
+    height: 1.125rem;
+    line-height: 1.125rem;
+    border-radius: 0.5625rem;
     font-family: 'Open Sans', serif;
   }
 }

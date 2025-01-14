@@ -24,8 +24,8 @@
   --placeholder: #CDCDCD;
   --text: #000;
   --subText: #97a0b2;
-  --shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.08);
-  --shadowLarge: 0 12px 23px 0 rgba(0, 0, 0, .07);
+  --shadow: 0rem 0rem 0.5rem 0.125rem rgba(0, 0, 0, 0.08);
+  --shadowLarge: 0 0.75rem 1.4375rem 0 rgba(0, 0, 0, .07);
   --shadowColor: rgba(0, 0, 0, 0.08);
   --greenShadow: rgba(82, 255, 13, 0.3);
   --redShadow: rgba(255, 13, 73, 0.3);
@@ -37,10 +37,10 @@
 .ziti-page-container .filters {
   position: relative !important;
   width: 100% !important;
-  height: 60px !important;
+  height: 3.75rem !important;
   background-color: var(--shaded) !important;
-  border-radius: 50px !important;
-  padding: 10px !important;
+  border-radius: 3.125rem !important;
+  padding: 0.625rem !important;
 }
 
 .ziti-page-container {
@@ -50,10 +50,10 @@
   display: flex;
   flex-direction: column;
   position: absolute;
-  padding-top: 14px;
-  padding-left: 20px;
-  padding-right: 20px;
-  top: 0px;
+  padding-top: 0.875rem;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  top: 0rem;
 
   .searchButton {
     display: none;
@@ -82,14 +82,14 @@
 .action-button {
   text-align: center;
   color: var(--white);
-  line-height: 60px;
-  font-size: 30px;
-  width: 60px;
-  height: 60px;
-  border-radius: 40px;
+  line-height: 3.75rem;
+  font-size: 1.875rem;
+  width: 3.75rem;
+  height: 3.75rem;
+  border-radius: 2.5rem;
   position: absolute;
-  right: 35px;
-  top: 25px;
+  right: 2.1875rem;
+  top: 1.5625rem;
   background-color: var(--primary);
   cursor: pointer;
   overflow: hidden;
@@ -100,21 +100,21 @@
   &.remove {
     text-align: center;
     color: var(--white);
-    line-height: 60px;
-    font-size: 30px;
-    width: 60px;
-    height: 60px;
-    border-radius: 40px;
+    line-height: 3.75rem;
+    font-size: 1.875rem;
+    width: 3.75rem;
+    height: 3.75rem;
+    border-radius: 2.5rem;
     position: absolute;
-    right: 35px;
-    top: 25px;
+    right: 2.1875rem;
+    top: 1.5625rem;
     cursor: pointer;
     overflow: hidden;
     z-index: 24;
     box-shadow: var(--shadow);
     transition: var(--transition);
     background-color: var(--red);
-    margin-top: 0px;
+    margin-top: 0rem;
     opacity: 1;
   }
 }

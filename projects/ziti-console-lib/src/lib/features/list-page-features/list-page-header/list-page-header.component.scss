@@ -18,14 +18,14 @@
   .action {
     text-align: center;
     color: var(--white);
-    line-height: 60px;
-    font-size: 30px;
-    width: 60px;
-    height: 60px;
-    border-radius: 40px;
+    line-height: 3.75rem;
+    font-size: 1.875rem;
+    width: 3.75rem;
+    height: 3.75rem;
+    border-radius: 2.5rem;
     position: absolute;
     right: 0;
-    top: 12px;
+    top: 0.75rem;
     background-color: var(--primary);
     cursor: pointer;
     overflow: hidden;
@@ -39,7 +39,7 @@
   }
   .line {
     width: 100%;
-    height: 4px;
+    height: 0.25rem;
     background-color: var(--stroke);
   }
   .tabs {
@@ -48,21 +48,21 @@
     flex:1 1;
     flex-wrap: wrap;
     width: 100%;
-    font-size: 14px;
-    min-height: 40px;
-    padding-top: 16px;
+    font-size: 0.875rem;
+    min-height: 2.5rem;
+    padding-top: 1rem;
 
     .tab {
       position: relative;
       float: left;
-      margin-right: 20px;
-      padding-bottom: 5px;
-      margin-bottom: 10px;
-      font-size: 14px;
+      margin-right: 1.25rem;
+      padding-bottom: 0.3125rem;
+      margin-bottom: 0.625rem;
+      font-size: 0.875rem;
       font-weight: 600;
       cursor: pointer;
       transition: var(--transition);
-      border-bottom-width: 4px;
+      border-bottom-width: 0.25rem;
       border-bottom-color: transparent;
       border-bottom-style: solid;
       &:hover {
@@ -78,29 +78,29 @@
   }
 
   .title {
-    height: 30px;
+    height: 1.875rem;
     overflow: hidden;
     font-family: 'Russo One', serif;
     color: var(--primary);
     -webkit-filter: brightness(50%);
     filter: brightness(50%);
-    font-size: 30px;
+    font-size: 1.875rem;
     text-transform: uppercase;
     font-weight: 400;
-    line-height: 34px;
+    line-height: 2.125rem;
   }
 }
 @media (max-width: 1024px) {
   .title {
-    font-size: 20px !important;
+    font-size: 1.25rem !important;
   }
   .action {
-    line-height: 45px !important;
-    font-size: 20px !important;
-    width: 45px !important;
-    height: 45px !important;
-    border-radius: 40px !important;
-    top: 20px !important;
+    line-height: 2.8125rem !important;
+    font-size: 1.25rem !important;
+    width: 2.8125rem !important;
+    height: 2.8125rem !important;
+    border-radius: 2.5rem !important;
+    top: 1.25rem !important;
     right:0 !important;
   }
 }

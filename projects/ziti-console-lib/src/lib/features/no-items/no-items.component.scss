@@ -1,7 +1,7 @@
 :host {
   display: flex;
   flex-direction: column;
-  height: calc(100% - 200px);
+  height: calc(100% - 12.5rem);
   width: 100%;
   align-items: center;
   justify-content: center;
@@ -10,12 +10,12 @@
 
 .addExample {
   display: inline-block;
-  width: 35px;
-  height: 35px;
+  width: 2.1875rem;
+  height: 2.1875rem;
   background-image: url(../../assets/svgs/No_Plus.svg);
   background-size: contain;
   background-repeat: no-repeat;
-  margin-bottom: -8px;
+  margin-bottom: -0.5rem;
 }
 
 .addExample:hover {
@@ -32,7 +32,7 @@
 .noarea {
   .icon {
     width: 100%;
-    height: 250px;
+    height: 15.625rem;
     background-position: center center;
     background-size: contain;
     position: relative;
@@ -46,8 +46,8 @@
 
 @media only screen and (max-width: 715px) {
   .addExample {
-    width: 16px;
-    height: 16px;
+    width: 1rem;
+    height: 1rem;
   }
 }
 
@@ -64,10 +64,10 @@
 }
 
 .hidden-results {
-  margin-top: 20px;
+  margin-top: 1.25rem;
 
   span {
-    font-size: 22px;
+    font-size: 1.375rem;
     cursor: default;
 
     a {
@@ -98,7 +98,7 @@
   font-family: "Open Sans";
   filter: unset;
   text-align: center;
-  font-size: 24px;
+  font-size: 1.5rem;
   color: var(--menu);
   text-transform: unset;
 }

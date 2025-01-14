@@ -4,15 +4,15 @@
   height: 100%;
   width: 100%;
   align-items: center;
-  gap: 15px;
+  gap: 0.9375rem;
 }
 
 .form-field-dropdown {
   background-image: url(../../../assets/svgs/ArrowDown.svg);
-  background-position: center right 10px;
+  background-position: center right 0.625rem;
   background-repeat: no-repeat;
-  background-size: 18px;
-  padding-right: 28px;
+  background-size: 1.125rem;
+  padding-right: 1.75rem;
 }
 
 .disabled {
@@ -49,8 +49,8 @@
   background-color: var(--background);
   bottom: 0;
   font-weight: 600;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: 0.625rem;
+  padding-right: 0.625rem;
   border-color: var(--inputBorder);
   border-style: solid;
   border-width: var(--inputBorderWidth);
@@ -60,19 +60,19 @@
 
   &.test-result-open {
     height: fit-content;
-    box-shadow: 0px -2px 11px 0px var(--boxShadow);
-    padding-bottom: 15px;
-    padding-top: 15px;
+    box-shadow: 0rem -0.125rem 0.6875rem 0rem var(--boxShadow);
+    padding-bottom: 0.9375rem;
+    padding-top: 0.9375rem;
   }
 
   .close {
     &.icon-close {
-      top: 10px;
-      right: 10px;
-      font-size: 18px;
-      height: 18px;
-      width: 18px;
-      line-height: 18px;
+      top: 0.625rem;
+      right: 0.625rem;
+      font-size: 1.125rem;
+      height: 1.125rem;
+      width: 1.125rem;
+      line-height: 1.125rem;
     }
   }
 }
@@ -90,7 +90,7 @@
       border-style: solid;
       border-width: var(--inputBorderWidth);
       .switch {
-        top: 1px;
+        top: 0.0625rem;
       }
     }
   }

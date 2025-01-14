@@ -17,8 +17,8 @@
 /* New Loader for Next Generation Navigation */
 .loader {
   margin: 0 auto;
-  width: 125px;
-  height: 125px;
+  width: 7.8125rem;
+  height: 7.8125rem;
   text-align: center;
   position: absolute;
   top: 50%;
@@ -28,7 +28,7 @@
 
   > div {
     height: 100%;
-    width: 125px;
+    width: 7.8125rem;
     display: inline-block;
     float: left;
   }
@@ -39,6 +39,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 125px;
-  height: 125px;
+  width: 7.8125rem;
+  height: 7.8125rem;
 }

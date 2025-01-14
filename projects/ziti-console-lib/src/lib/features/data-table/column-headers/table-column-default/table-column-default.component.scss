@@ -14,16 +14,16 @@
 .Online,
 .v7Online,
 .v7Offline {
-  margin-right: 8px !important;
-  height: 14px !important;
-  width: 14px !important;
+  margin-right: 0.5rem !important;
+  height: 0.875rem !important;
+  width: 0.875rem !important;
 
   &:hover {
     border-color: var(--primaryColor) !important;
     border-style: solid;
     border-width: var(--inputBorderWidth);
-    height: 10px !important;
-    width: 10px !important;
+    height: 0.625rem !important;
+    width: 0.625rem !important;
   }
 }
 
@@ -39,27 +39,27 @@
   align-items: center;
 
   .bubble {
-    margin-top: 8px;
-    margin-left: 1px;
-    margin-right: 8px;
-    width: 14px;
-    height: 14px;
+    margin-top: 0.5rem;
+    margin-left: 0.0625rem;
+    margin-right: 0.5rem;
+    width: 0.875rem;
+    height: 0.875rem;
     flex-shrink: 0;
   }
 }
 
 .ag-header-col-filter-button {
-  margin-top: 8px;
+  margin-top: 0.5rem;
 }
 
 .ag-header-cell-text {
-  margin-top: 2px;
+  margin-top: 0.125rem;
   width: 100%;
 }
 
 .ag-header-cell-label {
   .ag-sort-descending-icon {
-    margin-top: 20px !important;
+    margin-top: 1.25rem !important;
   }
 }
 

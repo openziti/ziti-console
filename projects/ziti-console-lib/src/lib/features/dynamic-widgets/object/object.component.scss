@@ -6,10 +6,10 @@
 
 .wrapper {
   border-radius: .3rem;
-  padding: calc(var(--paddingSmall) + 2px) var(--paddingXL);
+  padding: calc(var(--paddingSmall) + 0.125rem) var(--paddingXL);
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 0.3125rem;
   margin-top: var(--marginXL);
 
   &.closed {
@@ -19,7 +19,7 @@
   .object-main-content {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 0.3125rem;
     &[hidden] {
       display: none;
     }
@@ -27,10 +27,10 @@
   .save-button {
     margin-top: var(--marginSmall);
     margin-bottom: var(--marginSmall);
-    height: 35px;
-    min-width: 140px;
+    height: 2.1875rem;
+    min-width: 8.75rem;
     border-style: solid;
-    border-width: 1px;
+    border-width: 0.0625rem;
     border-color: var(--stroke);
   }
 }
@@ -46,7 +46,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 23px;
+    height: 1.4375rem;
     cursor: pointer;
   }
 
@@ -59,19 +59,19 @@
 .expand-toggle {
   font-family: zac;
   font-weight: 600;
-  font-size: 23px;
-  width: 15px;
+  font-size: 1.4375rem;
+  width: 0.9375rem;
   color: var(--stroke);
-  height: 20px;
-  margin-top: -3px;
+  height: 1.25rem;
+  margin-top: -0.1875rem;
   cursor: pointer;
   &:before {
     content: '\e91f';
   }
   &.open {
     transform: rotate(270deg);
-    margin-top: 7px;
-    margin-right: 3px;
+    margin-top: 0.4375rem;
+    margin-right: 0.1875rem;
   }
 }
 
@@ -89,7 +89,7 @@
     border-radius: var(--inputBorderRadius);
     display: flex;
     flex-direction: column;
-    padding: 5px;
+    padding: 0.3125rem;
     .none-added-label {
       padding-left: var(--paddingSmall);
       color: var(--white);
@@ -107,7 +107,7 @@
       //cursor: pointer;
       font-weight: 600;
       margin-left: var(--marginSmall);
-      margin-bottom: 2px;
+      margin-bottom: 0.125rem;
       /*&:hover {
         text-decoration: underline;
         color: var(--primary);
