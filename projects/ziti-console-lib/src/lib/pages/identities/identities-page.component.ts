@@ -121,6 +121,13 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
     }
     switch(event?.action) {
       case 'toggleAll':
+        this.itemToggled(event.item);
+        this.rowData.forEach((item) => {
+          if (item.typeId === 'Router') {
+            item.selected = false;
+          }
+        });
+        break;
       case 'toggleItem':
         this.itemToggled(event.item)
         break;
