@@ -19,7 +19,7 @@ import {debounce} from "lodash";
           <input id="schema_{{parentage?parentage+'_':''}}{{_idName}}"
                  type="text" class="jsonEntry"
                  [ngClass]="{'error': error}"
-                 [placeholder]="placeholder" [(ngModel)]="fieldValue" (paste)="onKeyup()" (keyup)="onKeyup()"/>
+                 [placeholder]="placeholder" [(ngModel)]="fieldValue" (paste)="onKeyup()" (keyup)="onKeyup()" (change)="emitEvents()"/>
           <div *ngIf="error" class="error">{{error}}</div>
       </div>
   `,
@@ -48,9 +48,12 @@ export class StringInputComponent {
     }
 
     onKeyup() {
-        debounce(() => {
-            this.fieldValueChange.emit(this.fieldValue);
-            this.valueChange.next(this.fieldValue);
-        }, 500)();
+        this.emitEventsDebounced();
+    }
+
+    emitEventsDebounced = debounce(this.emitEvents.bind(this), 500);
+    emitEvents() {
+        this.fieldValueChange.emit(this.fieldValue);
+        this.valueChange.next(this.fieldValue);
     }
 }
