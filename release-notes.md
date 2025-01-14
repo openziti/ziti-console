@@ -1,3 +1,15 @@
+# app-ziti-console-v3.7.0
+# ziti-console-lib-v0.7.0
+## Feature/Improvements
+* [Issue #601](https://github.com/openziti/ziti-console/issues/601) - Improve scaling and responsiveness of ZAC pages & components
+* [Issue #595](https://github.com/openziti/ziti-console/issues/595) - Default behavior for JWT Signer "claims" property
+* [Issue #490](https://github.com/openziti/ziti-console/issues/490) - NW visualizer: difference in components count in few nodes
+
+## Bug Fixes
+* [Issue #598](https://github.com/openziti/ziti-console/issues/598) - Fix selection behavior for router managed identities
+* [Issue #603](https://github.com/openziti/ziti-console/issues/603) - Missing label for "External ID" field on identities create/edit form
+
+
 # app-ziti-console-v3.6.5
 # ziti-console-lib-v0.6.8
 ## Bug Fixes
