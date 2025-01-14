@@ -106,6 +106,14 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         }
     }
 
+    checkExternalIdToggle() {
+        if (isEmpty(this.formData.claimsProperty)) {
+            this.formData.useExternalId = false;
+        } else {
+            this.formData.useExternalId = true;
+        }
+    }
+
     override clear() {
         this.formData.configTypeId = '';
         this.clearForm();
@@ -162,6 +170,10 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
             this.errors.certPem = true;
             this.errors.jwksEndpoint = true;
             labels.push('Cert PEM or JWKS Endpoint');
+        }
+        if (this.formData.useExternalId && isEmpty(this.formData.claimsProperty)) {
+            this.errors.claimsProperty = true;
+            labels.push('Claims Property');
         }
         if (!isEmpty(this.errors)) {
             let missingFields = labels.join(', ');
@@ -274,6 +286,9 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
 
     toggleUseExternalId() {
         this.formData.useExternalId = !this.formData.useExternalId;
+        if (!this.formData.useExternalId) {
+            this.errors.claimsProperty = false;
+        }
     }
 
     radioKeyDownHandler(event: any) {

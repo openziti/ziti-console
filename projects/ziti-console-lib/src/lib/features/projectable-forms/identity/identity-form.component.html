@@ -52,7 +52,15 @@
                             {{ policy.name }}
                         </option>
                     </select>
-                    <input class="form-field-input" placeholder="Optional External ID" [(ngModel)]="formData.externalId"/>
+                    <div class="form-field-label-container" style="gap: var(--paddingMedium)">
+                        <div class="form-field-header">
+                            <div class="form-field-title-container">
+                                <span class="form-field-title">External ID</span>
+                            </div>
+                            <span class="form-field-label">OPTIONAL</span>
+                        </div>
+                        <input class="form-field-input" placeholder="Optional External ID" [(ngModel)]="formData.externalId"/>
+                    </div>
                 </lib-form-field-container>
                 <lib-form-field-toggle [(toggleOn)]="showMore" (toggleOnChange)="showMoreChanged($event)" style="margin: 0px 10px"></lib-form-field-toggle>
                 <div [hidden]="!showMore" class="form-group-column">
