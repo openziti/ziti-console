@@ -109,6 +109,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
   treeData;
   graphtooltip;
   searchCache;
+  allPromises = [];
 
   constructor(
      @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
@@ -171,6 +172,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                 });
               });
              promises.push(tmp_promise);
+             this.allPromises.push(tmp_promise);
            }
            Promise.all(promises).then(() => {
             // this.identities_totalCount = this.identities.length;
@@ -209,6 +211,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                     });
                   });
                 s_promises.push(tmp_promise);
+                this.allPromises.push(tmp_promise);
               }
               Promise.all(s_promises).then(() => {
                // this.services_totalCount = this.services.length;
@@ -247,6 +250,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                     });
                   });
                 sp_promises.push(tmp_promise);
+                this.allPromises.push(tmp_promise);
               }
 
               Promise.all(sp_promises).then(() => {
@@ -286,6 +290,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                     });
                   });
                 r_promises.push(tmp_promise);
+                this.allPromises.push(tmp_promise);
               }
               Promise.all(r_promises).then(() => {
                  // this.edgerouters_totalCount = this.edgerouters.length;
@@ -324,6 +329,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                     });
                   });
                 r_promises.push(tmp_promise);
+                this.allPromises.push(tmp_promise);
               }
 
               Promise.all(r_promises).then(() => {
@@ -345,7 +351,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
             if (!this.service_router_policies || this.service_router_policies.length === 0) {
               this.isLoading = false;
             } else if (this.service_router_policies_totalCount < this.maxObjectsPerNode) {
-              this.all_service_router_policies_fetched = false;
+              this.all_service_router_policies_fetched = true;
               const pages = Math.ceil(result.meta.pagination.totalCount / pagesize);
               const r_promises = [];
               for (let page = 2; page <= pages; page++) {
@@ -362,6 +368,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                     });
                   });
                 r_promises.push(tmp_promise);
+                this.allPromises.push(tmp_promise);
               }
               Promise.all(r_promises).then(() => {
               // this.service_router_policies_totalCount = this.service_router_policies.length;
@@ -398,6 +405,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                     });
                   });
                 r_promises.push(tmp_promise);
+                this.allPromises.push(tmp_promise);
               }
               Promise.all(r_promises).then(() => {
                const configs_totalCount = this.configs.length;
@@ -414,17 +422,21 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
      let networkVisPromises =[];
      const pagesize = 500;
      const eps = this.fetchIdentities(pagesize);
+     this.allPromises.push(eps);
      const ss = this.fetchServices(pagesize);
+     this.allPromises.push(ss);
      const sps = this.fetchServicePolicies(pagesize);
+     this.allPromises.push(sps);
      const ers = this.fetchEdgeRouters(pagesize);
+     this.allPromises.push(eps);
      const erps = this.findEdgeRouterPolicies(pagesize);
+     this.allPromises.push(erps);
      const serps = this.fetchServiceEdgeRouterPolicies(pagesize);
+     this.allPromises.push(serps);
      const cfg = this.fetchConfigs(pagesize);
-     Promise.all([eps, ss, sps, ers, erps, erps, serps, cfg]).then(() => {
-      resolve('end');
-     });
+     this.allPromises.push(cfg);
+     Promise.all(this.allPromises).then((res) => {resolve('end'); });
    });
-
  }
 
   processFirstNetworkGraph() {
@@ -775,6 +787,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
         }
         return targetNodes;
     }
+
     clearSearchLinkColors() {
         this.svg.selectAll('path.link').each( function (this: any,  d:any) {
             d3.select(this).style('stroke', 'white');
