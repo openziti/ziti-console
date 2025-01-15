@@ -1122,7 +1122,7 @@ lib-tag-selector {
   input,
   select {
     &:not(.checkbox) {
-      height: 2.3rem !important;
+      height: 2.375rem !important;
       padding: 0 0.4375rem;
       border-width: 0.0625rem;
       border-radius: .3rem;
@@ -1136,7 +1136,8 @@ lib-tag-selector {
       .p-chips-multiple-container {
         padding-left: 0.3125rem;
         overflow-y: auto;
-        max-height: 4.6rem;
+        max-height: calc(2.375rem* 2 + var(--paddingXL));
+        min-height: 2.375rem;
         height: fit-content;
         gap: .3rem;
         border-width: 0.0625rem;
@@ -1160,6 +1161,18 @@ lib-tag-selector {
 
         .p-chips-token {
           margin: 0;
+          margin-right: 0.3rem;
+          margin-bottom: 0.3rem;
+        }
+      }
+    }
+    .p-chips {
+      &.p-component {
+        .p-inputtext {
+          &.p-chips-multiple-container {
+            max-height: unset;
+            padding-top: .3rem;
+          }
         }
       }
     }
@@ -1300,8 +1313,9 @@ p-dropdown {
   .p-chips.p-component {
     width: 100%;
     font-weight: 400;
-    font-family: 'Open Sans', Arial, sans-serif;
-    height: var(--defaultInputHeight);
+    font-family: "Open Sans", Arial, sans-serif;
+    min-height: var(--defaultInputHeight);
+    max-height: calc(var(--defaultInputHeight)* 2 + var(--paddingMedium));
     border-color: var(--stroke);
     border-style: solid;
     border-width: var(--inputBorderWidth);
@@ -1314,12 +1328,14 @@ p-dropdown {
     background-color: var(--navigation) !important;
     color: var(--text);
     -webkit-appearance: none;
+    overflow: auto;
 
     .p-inputtext.p-chips-multiple-container {
       width: 100%;
       padding: 0;
       border-width: var(--inputBorderWidth);
       height: fit-content;
+      gap: 0;
 
       &.p-focus {
         border-color: var(--primaryColor) !important;
