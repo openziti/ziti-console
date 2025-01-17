@@ -37,12 +37,12 @@ export class TreeNodeProcessor {
         if (rawEp.roleAttributes) {rawEpAttributes = rawEp.roleAttributes};
 
         for (let i = 0; i < rawEpAttributes.length; i++) {
-                    const attribute = new Attribute();
-                    attribute.id = this.createId();
-                    attribute.name = rawEpAttributes[i];
-                    attribute.type = 'Identity Attribute';
-                    identityNode.data.children.push(attribute);
-                }
+          const attribute = new Attribute();
+              attribute.id = this.createId();
+              attribute.name = rawEpAttributes[i];
+              attribute.type = 'Identity Attribute';
+              identityNode.data.children.push(attribute);
+        }
 
       const bindServices = new Children();
       const dialServices = new Children();
@@ -56,15 +56,15 @@ export class TreeNodeProcessor {
       const paging = this.getPagingObject(pagesize);
       const erChailds = new Children();
         erChailds.id = this.createId();
-        erChailds.name= 'Associated Routers';
-        erChailds.type= 'Associated Routers';
+        erChailds.name= 'Associated Edge Routers';
+        erChailds.type= 'Edge Routers';
       const associatedRoutersPromise =  await zitiService.get(url, paging, [])
            .then( (result) => {
              result.data.forEach( (re) => {
                const tmp = new ERouter();
                    tmp.id = this.createId();
                    tmp.name = re.name;
-                   tmp.type = 'Router';
+                   tmp.type = 'Edge Router';
                    erChailds.children.push(tmp);
              } );
       });
@@ -391,14 +391,14 @@ export class TreeNodeProcessor {
                   const erOb = new ERouter();
                         erOb.id = this.createId();
                         erOb.name =   er.name;
-                        er.type = 'Router';
+                        er.type = 'Edge Router';
                   associatedRouters.push(erOb);
                 });
              }
          })
          const tmp = new Children();
-             tmp.name = "Associated Routers(" + associatedRouters.length +')';
-             tmp.type = "Routers";
+             tmp.name = "Associated Edge Routers(" + associatedRouters.length +')';
+             tmp.type = "Edge Routers";
              tmp.children = associatedRouters;
              tmp.id = this.createId();
              serviceNode.data.children.push(tmp);
@@ -618,7 +618,7 @@ export class TreeNodeProcessor {
                 policy.id = this.createId();
                 policy.uuid = pol.id;
                 policy.name = pol.name;
-                policy.type = 'Router Policy';
+                policy.type = 'Edge Router Policy';
                 policy.isSystem = pol.isSystem;
                 policy.semantic = pol.semantic;
                 policy.rootNode = 'No';
@@ -819,8 +819,8 @@ export class TreeNodeProcessor {
       let associatedRouters = [];
       const paging = this.getPagingObject(pagesize);
       const erChailds = new Children();
-        erChailds.name= 'Associated Routers';
-        erChailds.type= 'Associated Routers';
+        erChailds.name= 'Associated Edge Routers';
+        erChailds.type= 'Edge Routers';
         erChailds.id = this.createId();
       const associatedRoutersPromise =  await zitiService.get(er_url, paging, [])
            .then( (result) => {
@@ -828,7 +828,7 @@ export class TreeNodeProcessor {
                const tmp = new ERouter();
                    tmp.id = this.createId();
                    tmp.name = er.name;
-                   tmp.type = 'Router';
+                   tmp.type = 'Edge Router';
                    tmp.verified = er.isVerified? 'Yes': 'No';
                    tmp.online = er.isOnline? 'Yes': 'No';
                    tmp.disabled = er.disabled? 'Yes': 'No';
@@ -935,7 +935,7 @@ export class TreeNodeProcessor {
                 idOb.type = 'Edge Router';
                 erChilds.children.push(idOb);
              });
-               erChilds.name = "EdgeRouters("+ erChilds.children.length +')';
+               erChilds.name = "Edge Routers("+ erChilds.children.length +')';
                serviceErPolicyNode.data.children.push(erChilds);
              });
           });

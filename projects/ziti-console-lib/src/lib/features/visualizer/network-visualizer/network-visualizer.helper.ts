@@ -242,7 +242,7 @@ export class NetworkVisualizerHelper {
      // erpolicy.id = createId();
       erpolicy.uuid = rawObj.id;
       erpolicy.name = rawObj.name;
-      erpolicy.type = 'Router Policy';
+      erpolicy.type = 'Edge Router Policy';
       erpolicy.rootNode = isRootNode;
       erpolicy.isSystem = rawObj.isSystem;
       erpolicy.semantic = rawObj.semantic;
@@ -376,7 +376,7 @@ export class NetworkVisualizerHelper {
 
         }
         function subGrouping(name, mainGroup) {
-           const pageSize = 50;
+           const pageSize = 25;
            mainGroup.children.sort(function (a, b) {
                return a.name.localeCompare(b.name);
            });
@@ -685,13 +685,13 @@ export class NetworkVisualizerHelper {
                 erpolicy.id = createId();
                 erpolicy.uuid = edgeRouterPolicies[i].id;
                 erpolicy.name = edgeRouterPolicies[i].name;
-                erpolicy.type = 'Router Policy';
+                erpolicy.type = 'Edge Router Policy';
                 erpolicy.rootNode = 'Yes';
                 erpolicy.isSystem = edgeRouterPolicies[i].isSystem;
                 erpolicy.semantic = edgeRouterPolicies[i].semantic;
                 policies_Array.push(erpolicy);
             } // end of main for loop
-            return grouping('RouterPolicies',edgeRouterPoliciesChildren,policies_Array);
+            return grouping('Edge Router Policies',edgeRouterPoliciesChildren,policies_Array);
         } // end
 
         function processServiceEdgeRouterPoliciesForTree(
@@ -743,7 +743,7 @@ export class NetworkVisualizerHelper {
                 }
             } // end main for loop
            // return routersChildren;
-           return grouping('Router', routersChildren, er_objects);
+           return grouping('Edge Router', routersChildren, er_objects);
         }
 
         // createId() generates node Id 1,2,3,4,5 for the following five nodes. this id is used to search capability.

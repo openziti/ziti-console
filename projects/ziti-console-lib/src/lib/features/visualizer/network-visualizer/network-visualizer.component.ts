@@ -1220,7 +1220,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                 if (_.startsWith(d.data.name, 'Edge Routers') || _.includes(d.data.type, 'Edge Router')) {
                     className = 'edge-router';
                 }
-                if (_.includes(d.data.name, 'Identities') || _.includes(d.data.name, 'Associated Identities') || _.includes(d.data.type, 'Identity') || _.includes(d.data.type, 'BrowZer Identity')) {
+                if (_.includes(d.data.name, 'Identities') || _.includes(d.data.name, 'Identity') || _.includes(d.data.name, 'Associated Identities') || _.includes(d.data.type, 'Identity') || _.includes(d.data.type, 'BrowZer Identity')) {
                     className = 'endpoint';
                 }
                 if (_.startsWith(d.data.name, 'Services') || _.startsWith(d.data.type, 'Service')) {
@@ -1235,7 +1235,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                 if (_.includes(d.data.name, 'Service Policies') || _.includes(d.data.type, 'Service Policy')) {
                     className = 'service-policy';
                 }
-                if (_.startsWith(d.data.name, 'Edge Router Policies') || _.startsWith(d.data.type, 'Router Policy')) {
+                if (_.startsWith(d.data.name, 'Edge Router Policies') || _.startsWith(d.data.type, 'Edge Router Policy')) {
                     className = 'edge-router-policy';
                 }
                 if (
@@ -1351,7 +1351,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                 disableLi('#liSingleUT');
 
                 this.contextmenuNodeType = 'service-policy';
-            } else if (d && d.data && d.data.type === 'Router Policy') {
+            } else if (d && d.data && d.data.type === 'Edge Router Policy') {
                 disableLi('#liMet');
                 disableLi('#liIns');
                 enableLi('#liVC');
@@ -1417,20 +1417,23 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
             })
             .on('click', async ( event, d: any) => {
                if (d.data.rootNode && d.data.rootNode === 'Yes' && d.data.clickProcess === 'Not Yet') {
-                 d3.select(event.currentTarget).transition()
-                       .duration(600)
-                      .style("stroke-width", "10")
+                     d3.select(event.currentTarget).transition()
+                      .duration(400)
+                      .style("1stroke-width", "10")
+                      .transition()
+                      .duration(1600)
+                      .style("stroke-width", "6")
                       .transition()
                       .duration(600)
-                       .style("stroke-width", "6")
-                       .transition()
-                       .duration(600)
-                       .style("stroke-width", "3")
+                      .style("stroke-width", "3")
+                      .transition()
+                      .duration(1600)
+                      .style("stroke-width", "6")
                       .transition()
                       .duration(600)
                       .style("stroke-width", "9")
                       .transition()
-                      .duration(600)
+                      .duration(1000)
                       .style("stroke-width", "12");
                }
                 if (d && d.data && d.data.contextMenu === 'Yes') {
@@ -1449,7 +1452,8 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                         this.openNodes.push(d.data.id);
                     }
                     if (d.data.clickProcess === 'Not Yet') {
-                        d._children = null;
+                        let transitionLoop = true;
+                          d._children = null;
                         if (
                             d.data &&
                             d.data.rootNode &&
@@ -1544,7 +1548,7 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                             d.data &&
                             d.data.rootNode &&
                             d.data.rootNode === 'Yes' &&
-                            d.data.type === 'Router Policy' &&
+                            d.data.type === 'Edge Router Policy' &&
                             !d.children &&
                             !d._children
                         ) {
