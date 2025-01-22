@@ -21,6 +21,7 @@ import {TabNameService} from "../../services/tab-name.service";
 import {ListPageComponent} from "../../shared/list-page-component.class";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {MatDialog} from "@angular/material/dialog";
+import {ConfirmComponent} from "../../features/confirm/confirm.component";
 
 
 @Component({
@@ -62,8 +63,14 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
                 const selectedItems = this.rowData.filter((row) => {
                     return row.selected;
                 });
-                const label = selectedItems.length > 1 ? 'configurations' : 'configuration';
-                this.openBulkDelete(selectedItems, label);
+                this.svc.checkForAssociatedServices(selectedItems).then((configsWithAssociations) => {
+                    const label = selectedItems.length > 1 ? 'configurations' : 'configuration';
+                    if (configsWithAssociations.length > 0) {
+                        this.confirmAssociatedDelete(configsWithAssociations, selectedItems, label);
+                    } else {
+                        this.openBulkDelete(selectedItems, label);
+                    }
+                });
                 break;
             default:
         }
@@ -108,5 +115,31 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
 
     dataChanged(event) {
         this.formDataChanged = event;
+    }
+
+    confirmAssociatedDelete(configsWithAssociations, selectedItems, label) {
+        const configNames = configsWithAssociations.map((item) => {
+            return item.name;
+        });
+        const data = {
+            appendId: 'DeleteConfigsWithAssociations',
+            title: 'Configs In Use',
+            message: `The following configs are still in use by a service:`,
+            submessage: 'Deleting these configs may cause disruption to those services. Would you still like to continue?',
+            bulletList: configNames,
+            confirmLabel: 'Yes',
+            cancelLabel: 'Oops, no get me out of here',
+            imageUrl: '../../assets/svgs/Growl_Warning.svg',
+            showCancelLink: true
+        };
+        this.dialogRef = this.dialogForm.open(ConfirmComponent, {
+            data: data,
+            autoFocus: false,
+        });
+        this.dialogRef.afterClosed().subscribe((result) => {
+            if (result?.confirmed) {
+                this.openBulkDelete(selectedItems, label);
+            }
+        });
     }
 }

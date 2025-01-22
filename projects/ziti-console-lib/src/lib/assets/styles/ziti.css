@@ -26,25 +26,31 @@ body {
     --formBase: #919ca5;
     --formGroup: #232f3e;
     --formSubGroup: #707985;
+
     --modalBorderRadius: 0.9375rem;
+
     --paddingSmall: 0.3125rem;
     --paddingMedium: 0.625rem;
     --paddingLarge: 0.625rem;
     --paddingXL: 0.9375rem;
     --paddingXXL: 1.25rem;
+
     --marginSmall: 0.3125rem;
     --marginMedium: 0.625rem;
     --marginLarge: 0.625rem;
     --marginXL: 0.9375rem;
     --marginXXL: 1.25rem;
+
     --gapSmall: 0.3125rem;
     --gapMedium: 0.625rem;
     --gapLarge: 0.625rem;
     --gapXL: 0.9375rem;
+
     --defaultInputHeight: 2.6875rem;
     --defaultLineHeight: 0.9375rem;
     --inputBorderRadius: 0.4375rem;
     --inputBorderWidth: 0.125rem;
+
     --spinnerSizeMedium: 1.25rem;
     --spinerBorderTopMedium: 0.125rem solid var(--stroke);
     --spinerBorderRightMedium: 0.125rem solid var(--stroke);
@@ -122,7 +128,7 @@ body {
 }
 
 a {
-    color: var(--menu);
+    color: var(--tableText);
     font-weight: bold;
     transition: var(--transition);
 }
@@ -590,7 +596,7 @@ aside .icon {
     font-size: 1.5rem;
     line-height: 26.875rem;
     margin-top: 4.6875rem;
-    color: var(--menu);
+    color: var(--tableText);
 }
 
 .data {

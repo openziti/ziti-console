@@ -204,6 +204,23 @@ export abstract class ListPageServiceClass {
         });
     }
 
+    checkForAssociatedServices(configs) {
+        const configsWithAssociations = [];
+        const promises = [];
+        configs.forEach((config) => {
+            const prom = this.dataService.getSubdata('configs', config.id, 'services').then((result: any) => {
+                const services = result.data || [];
+                if (services.length > 0) {
+                    configsWithAssociations.push(config);
+                }
+            });
+            promises.push(prom);
+        });
+        return Promise.all(promises).then(() => {
+            return configsWithAssociations;
+        });
+    }
+
     removeItems(ids: string[]) {
         const promises = [];
         ids.forEach((id) => {

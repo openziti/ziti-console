@@ -13,11 +13,21 @@ body {
 	--background: #18191D;
 	--placeholder: #2A2B31;
 	--text: #FFF;
+    --tableText: #FFF;
     --subText: #97a0b2;
     --shadow: 0rem 0rem 0.5rem 0.125rem rgba(255,255,255,0.08);
     --shadowColor: rgba(255,255,255,0.08);
     --transition: 0.5s;
     --offWhite: #2A2B31;
+
+    // vanilla json editor dark theming
+    --jse-key-color: var(--tableText);
+    --jse-background-color: var(--navigation);
+    --jse-panel-background: var(--background);
+    --jse-panel-border: var(--inputBorder);
+    --jse-main-border: var(--inputBorder);
+    --jse-delimiter-color: var(--tableText);
+    --jse-key-color: var(--tableText);
 }
 
 .filters .navigate {

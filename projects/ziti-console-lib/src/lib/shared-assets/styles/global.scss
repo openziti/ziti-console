@@ -1,3 +1,5 @@
+@import 'node_modules/vanilla-jsoneditor/themes/jse-theme-dark.css';
+
 body {
   --highlighted: #f5a93d;
   --red: #ff104b;
@@ -27,29 +29,35 @@ body {
   --formBase: #919ca5;
   --formGroup: #232f3e;
   --formSubGroup: #707985;
+
   --buttonHeightSmall: 1.5625rem;
   --buttonImageSizeSmall: 1.25rem;
   --buttonImagePaddingSmall: 2.1875rem;
   --buttonImagePositionSmall: left calc(var(--paddingSmall) + 0.1875rem) center;
   --modalBorderRadius: 0.9375rem;
+
   --paddingSmall: 0.3125rem;
   --paddingMedium: 0.625rem;
   --paddingLarge: 0.625rem;
   --paddingXL: 0.9375rem;
   --paddingXXL: 1.25rem;
+
   --marginSmall: 0.3125rem;
   --marginMedium: 0.625rem;
   --marginLarge: 0.625rem;
   --marginXL: 0.9375rem;
   --marginXXL: 1.25rem;
+
   --gapSmall: 0.3125rem;
   --gapMedium: 0.625rem;
   --gapLarge: 0.625rem;
   --gapXL: 0.9375rem;
+
   --defaultInputHeight: 2.6875rem;
   --defaultLineHeight: 0.9375rem;
   --inputBorderRadius: 0.4375rem;
   --inputBorderWidth: 0.125rem;
+
   --spinnerSizeMedium: 1.25rem;
   --spinerBorderTopMedium: 0.125rem solid var(--stroke);
   --spinerBorderRightMedium: 0.125rem solid var(--stroke);
@@ -96,7 +104,7 @@ input {
 }
 
 .cell-name-renderer strong {
-  color: var(--menu);
+  color: var(--tableText);
 }
 
 .mat-mdc-dialog-surface {
@@ -148,6 +156,10 @@ input {
       }
     }
   }
+}
+
+.ag-overlay-no-rows-center {
+  color: var(--tableText);
 }
 
 .header-text-container.text-input-filter {
@@ -1334,6 +1346,7 @@ p-dropdown {
       width: 100%;
       padding: 0;
       border-width: var(--inputBorderWidth);
+      background-color: var(--navigation);
       height: fit-content;
       gap: 0;
 
@@ -1369,7 +1382,7 @@ p-dropdown {
     margin-top: 0.3125rem;
     margin-bottom: 0.3125rem;
     background: var(--primary);
-    color: var(--white);
+    color: var(--tableText);
     border-radius: var(--inputBorderRadius);
     cursor: default;
     display: inline-flex;

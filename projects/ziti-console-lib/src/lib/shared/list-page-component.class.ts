@@ -163,6 +163,7 @@ export abstract class ListPageComponent {
             this.isLoading = false;
         })
     }
+
     protected openBulkDelete(selectedItems: any[], entityTypeLabel = 'item(s)', ) {
         const selectedIds = selectedItems.map((row) => {
             return row.id;
