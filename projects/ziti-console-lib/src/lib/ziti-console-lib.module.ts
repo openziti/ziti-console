@@ -113,6 +113,7 @@ import {JwtSignersPageComponent} from "./pages/jwt-signers/jwt-signers-page.comp
 import {JwtSignerFormComponent} from "./features/projectable-forms/jwt-signer/jwt-signer-form.component";
 import {AuthPoliciesPageComponent} from "./pages/auth-policies/auth-policies-page.component";
 import {AuthPolicyFormComponent} from "./features/projectable-forms/auth-policy/auth-policy-form.component";
+import {CertificateAuthoritiesPageComponent} from "./pages/certificate-authorities/certificate-authorities-page.component";
 import {PreviewSelectionsComponent} from "./features/preview-selections/preview-selections.component";
 
 export function playerFactory() {
@@ -198,7 +199,8 @@ export function playerFactory() {
         JwtSignerFormComponent,
         AuthPoliciesPageComponent,
         AuthPolicyFormComponent,
-        PreviewSelectionsComponent
+        PreviewSelectionsComponent,
+        CertificateAuthoritiesPageComponent
     ],
     imports: [
         CommonModule,

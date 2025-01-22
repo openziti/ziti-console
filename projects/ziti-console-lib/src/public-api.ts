@@ -24,6 +24,8 @@ export * from './lib/pages/jwt-signers/jwt-signers-page.component';
 export * from './lib/pages/jwt-signers/jwt-signers-page.service';
 export * from './lib/pages/auth-policies/auth-policies-page.component';
 export * from './lib/pages/auth-policies/auth-policies-page.service';
+export * from './lib/pages/certificate-authorities/certificate-authorities-page.component';
+export * from './lib/pages/certificate-authorities/certificate-authorities-page.service';
 export * from './lib/services/login-service.class';
 export * from './lib/services/noop-login.service';
 export * from './lib/services/settings-service.class';
