@@ -1,14 +1,19 @@
 :host {
   position: relative;
   width: 100%;
-  max-width: 68.75rem;
   margin-bottom: 0.625rem;
+  display: flex;
+  justify-content: center;
+  padding-left: 3.125rem;
+  padding-right: 3.125rem;
 }
 
 .form-header-container {
   display: flex;
   flex-direction: column;
   width: 100%;
+  padding-right: var(--paddingMedium);
+  max-width: 68.75rem;
 
   &.show-more-actions {
     .form-title-container {

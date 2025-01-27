@@ -47,6 +47,7 @@ export class CertificateAuthoritiesPageService extends ListPageServiceClass {
 
     override menuItems = [
         {name: 'Edit', action: 'update'},
+        {name: 'Verify', action: 'verify'},
         {name: 'Delete', action: 'delete'},
     ]
 
@@ -71,6 +72,15 @@ export class CertificateAuthoritiesPageService extends ListPageServiceClass {
                 { label: 'All', value: '' },
                 { label: 'Verified', value: true },
                 { label: 'Unverified', value: false },
+            ]
+        };
+        const enabledComponentParams = {
+            filterType: 'SELECT',
+            enableSorting: true,
+            filterOptions: [
+                { label: 'All', value: '' },
+                { label: 'Enabled', value: true },
+                { label: 'Disabled', value: false },
             ]
         };
         const createdAtHeaderComponentParams = {
@@ -114,6 +124,7 @@ export class CertificateAuthoritiesPageService extends ListPageServiceClass {
                 field: 'isAutoCaEnrollmentEnabled',
                 headerName: 'Auto Enrollment',
                 headerComponent: TableColumnDefaultComponent,
+                headerComponentParams: enabledComponentParams,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
                 sortable: true,
@@ -125,6 +136,7 @@ export class CertificateAuthoritiesPageService extends ListPageServiceClass {
                 field: 'isOttCaEnrollmentEnabled',
                 headerName: 'OTT Auto',
                 headerComponent: TableColumnDefaultComponent,
+                headerComponentParams: enabledComponentParams,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
                 sortable: true,
@@ -136,6 +148,7 @@ export class CertificateAuthoritiesPageService extends ListPageServiceClass {
                 field: 'isAuthEnabled',
                 headerName: 'Auth Enabled',
                 headerComponent: TableColumnDefaultComponent,
+                headerComponentParams: enabledComponentParams,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
                 sortable: true,
@@ -177,7 +190,7 @@ export class CertificateAuthoritiesPageService extends ListPageServiceClass {
 
     private addActionsPerRow(results: any): any[] {
         return results.data.map((row) => {
-            row.actionList = ['update', 'delete'];
+            row.actionList = ['update', 'verify', 'delete',];
             return row;
         });
     }
@@ -192,5 +205,10 @@ export class CertificateAuthoritiesPageService extends ListPageServiceClass {
             this.selectedConfig = new Service();
         }
         this.sideModalOpen = true;
+    }
+
+    public verifyCert(itemId, basePath?) {
+        basePath = basePath ? basePath : this.basePath;
+        this.router?.navigateByUrl(`${basePath}/${itemId}/verify`);
     }
 }

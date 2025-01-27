@@ -84,7 +84,10 @@ export class CertificateAuthoritiesPageComponent extends ListPageComponent imple
                 this.svc.openEditForm();
                 break;
             case 'delete':
-                this.deleteItem(event.item)
+                this.deleteItem(event.item);
+                break;
+            case 'verify':
+                this.svc.verifyCert(event.item.id);
                 break;
             case 'download-all':
                 this.downloadAllItems();

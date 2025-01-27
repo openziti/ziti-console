@@ -1,0 +1,187 @@
+.form-group-column {
+  &.three-fifths {
+    min-width: 31.25rem;
+  }
+}
+
+.jwt-signer-form-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  gap: var(--gapXL);
+
+  .select-file-button {
+    padding-left: var(--paddingMedium);
+    padding-right: var(--paddingMedium);
+    height: 1.5625rem;
+    width: fit-content;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    background: var(--primary);
+    border-style: solid;
+    border-width: 0.0625rem;
+    border-color: var(--stroke);
+    color: var(--white);
+    cursor: pointer;
+    border-radius: var(--inputBorderRadius);
+    gap: var(--marginMedium);
+    margin-top: -0.3125rem;
+
+    &:hover {
+      filter: brightness(.8);
+    }
+    &:active {
+      filter: grayscale(1);
+      transform: translateY(0.0625rem);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: transparent;
+      border-top: 0.125rem solid white;
+      border-right: 0.125rem solid white;
+      border-bottom: 0.125rem solid transparent;
+      border-left: 0.125rem solid transparent;
+      -webkit-animation: loading 0.5s infinite linear;
+      animation: loading 0.5s infinite linear;
+    }
+  }
+
+  .select-file-label-container {
+    gap: var(--marginMedium);
+  }
+
+  .updb-input-options {
+    margin-top: var(--marginSmall);
+    background-color: var(--formGroup);
+    padding: var(--paddingMedium);
+    border-radius: var(--inputBorderRadius);
+
+    .form-field-title {
+      color: var(--offWhite);
+    }
+  }
+}
+
+::ng-deep .jwt-signer-form-container {
+  select,
+  input {
+    &:disabled {
+      opacity: 0.75 !important;
+      cursor: text;
+      background-color: var(--stroke) !important;
+    }
+  }
+}
+
+::ng-deep .api-data-no-wrap{
+  .jse-text-mode {
+    width: 100%;
+    .cm-editor {
+      width: 100%;
+      .cm-scroller {
+        width: 100%;
+        .cm-content {
+          width: 100%;
+          overflow: auto;
+          .ͼr {
+            white-space: nowrap;
+          }
+        }
+      }
+    }
+  }
+}
+
+.radio-group-container {
+  display: flex;
+  gap: var(--marginLarge);
+
+  &:focus {
+    .radio-button-container {
+      .radio-button-circle {
+        border-color: var(--primaryColor);
+      }
+    }
+  }
+
+  .radio-button-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--formGroup);
+    border-radius: var(--inputBorderRadius);
+    width: 100%;
+    padding-left: var(--paddingMedium);
+    padding-right: var(--paddingMedium);
+    padding-top: var(--paddingLarge);
+    padding-bottom: var(--paddingLarge);
+    cursor: pointer;
+    gap: var(--marginMedium);
+
+    .radio-button-circle {
+      display: flex;
+      width: 1.3125rem;
+      height: 1.3125rem;
+      border-radius: 1.3125rem;
+      border-width: 0.125rem;
+      border-style: solid;
+      border-color: var(--offWhite);
+      align-items: center;
+      justify-content: center;
+      background-color: var(--offWhite);
+
+      .radio-button-inner-circle {
+        display: none;
+        width: 0.9375rem;
+        height: 0.9375rem;
+        border-radius: 0.9375rem;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--primaryColor);
+      }
+    }
+
+    &.selected {
+      .radio-button-circle {
+        .radio-button-inner-circle {
+          display: flex;
+        }
+      }
+    }
+
+    &:active {
+      .radio-button-circle {
+        .radio-button-inner-circle {
+          display: flex;
+          background-color: var(--menu);
+        }
+      }
+    }
+
+    .radio-button-label {
+      color: var(--offWhite);
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+  }
+}
+
+.allowed-signers-container {
+  background-color: var(--formGroup);
+  padding: var(--paddingMedium);
+  border-radius: var(--inputBorderRadius);
+
+  .form-field-title {
+    color: var(--offWhite);
+  }
+}

@@ -83,6 +83,9 @@ export * from './lib/features/projectable-forms/jwt-signer/jwt-signer-form.servi
 export * from './lib/features/projectable-forms/jwt-signer/jwt-signer-form.component';
 export * from './lib/features/projectable-forms/auth-policy/auth-policy-form.service';
 export * from './lib/features/projectable-forms/auth-policy/auth-policy-form.component';
+export * from './lib/features/projectable-forms/certificate-authority/certificate-authority-form.service';
+export * from './lib/features/projectable-forms/certificate-authority/certificate-authority-form.component';
+export * from './lib/features/projectable-forms/certificate-authority/verify-certificate/verify-certificate.component';
 export * from './lib/features/reset-enrollment/reset-enrollment.service';
 export * from './lib/features/extendable/extensions-noop.service';
 export * from './lib/features/projectable-forms/form-header/form-header.component';

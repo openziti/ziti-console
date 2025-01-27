@@ -36,12 +36,26 @@ export class FormFieldContainerComponent {
   @Input() class = '';
   @Input() contentStyle: any = '';
   @Input() showHeader: any = true;
+  @Input() showToggle = false;
   @Input() headerActions: any[];
+  @Input() headerToggle = false;
 
   @Output() actionRequested: EventEmitter<any> = new EventEmitter<any>();
+  @Output() headerToggleChange: EventEmitter<boolean> = new EventEmitter<boolean>();
   constructor() {}
 
   actionClicked(action) {
     this.actionRequested.emit(action);
+  }
+
+  toggleHeader(option?) {
+    if (option == 'left') {
+      this.headerToggle = false;
+    } else if (option === 'right') {
+      this.headerToggle = true;
+    } else {
+      this.headerToggle = !this.headerToggle;
+    }
+    this.headerToggleChange.emit(this.headerToggle);
   }
 }
