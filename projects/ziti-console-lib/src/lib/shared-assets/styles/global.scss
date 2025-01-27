@@ -649,6 +649,15 @@ lib-form-field-container {
     background-color: var(--navigation);
   }
 }
+
+a {
+  &.download-button {
+    &:hover {
+      color: var(--white)
+    }
+  }
+}
+
 .download-button {
   display: flex;
   flex-direction: row;
@@ -656,7 +665,7 @@ lib-form-field-container {
   justify-content: space-between;
   width: 100%;
   background-color: var(--primaryColor);
-  color: var(--background);
+  color: var(--white);
   text-transform: uppercase;
   font-size: 0.875rem;
   font-weight: 600;
@@ -670,6 +679,7 @@ lib-form-field-container {
     outline: 0;
     filter: brightness(90%);
     box-shadow: 0 0.125rem 0.1875rem 0 var(--primaryColorOpaque);
+    color: var(--white);
   }
 
   &:active {
@@ -693,8 +703,8 @@ lib-form-field-container {
     z-index: 10;
   }
 
+  .verify-certificate,
   .tap-to-download {
-    font-family: zac!important;
     speak: none;
     font-style: normal;
     font-weight: 400;
@@ -707,10 +717,21 @@ lib-form-field-container {
     -moz-osx-font-smoothing: grayscale;
     position: relative;
     width: 2.8125rem;
-    margin-right: 0.625rem;
     background-size: contain;
     background-repeat: no-repeat;
+  }
 
+  .verify-certificate {
+    font-family: icomoon !important;
+    margin-left: var(--marginMedium);
+    &:before {
+      content: "\e958";
+    }
+  }
+
+  .tap-to-download {
+    font-family: zac !important;
+    margin-right: var(--marginMedium);
     &:before {
       content: "\e92d";
     }
@@ -1036,6 +1057,18 @@ lib-tag-selector {
       transition: 0.5s;
       left: 0;
 
+      &.form-toggle-switch-inverse {
+        .form-toggle-indicator {
+          border-color: var(--red);
+        }
+
+        &.toggle-right {
+          .form-toggle-indicator {
+            border-color: var(--green);
+          }
+        }
+      }
+
       &.toggle-right {
         left: 0.625rem;
 
@@ -1096,6 +1129,11 @@ lib-tag-selector {
 
   .form-field-title {
     color: var(--offWhite);
+  }
+
+  &.disabled {
+    opacity: .8;
+    pointer-events: none;
   }
 }
 
@@ -1537,4 +1575,110 @@ p-dropdown {
     background-position: center center;
     border: none;
   }
+}
+
+.radio-group-container {
+  display: flex;
+  gap: var(--marginLarge);
+
+  &:focus {
+    .radio-button-container {
+      .radio-button-circle {
+        border-color: var(--primaryColor);
+      }
+    }
+  }
+
+  .radio-button-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--formGroup);
+    border-radius: var(--inputBorderRadius);
+    width: 100%;
+    padding-left: var(--paddingMedium);
+    padding-right: var(--paddingMedium);
+    padding-top: var(--paddingLarge);
+    padding-bottom: var(--paddingLarge);
+    cursor: pointer;
+    gap: var(--marginMedium);
+
+    .radio-button-circle {
+      display: flex;
+      width: 1.3125rem;
+      height: 1.3125rem;
+      border-radius: 1.3125rem;
+      border-width: 0.125rem;
+      border-style: solid;
+      border-color: var(--offWhite);
+      align-items: center;
+      justify-content: center;
+      background-color: var(--offWhite);
+
+      .radio-button-inner-circle {
+        display: none;
+        width: 0.9375rem;
+        height: 0.9375rem;
+        border-radius: 0.9375rem;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--primaryColor);
+      }
+    }
+
+    &.selected {
+      .radio-button-circle {
+        .radio-button-inner-circle {
+          display: flex;
+        }
+      }
+    }
+
+    &:active {
+      .radio-button-circle {
+        .radio-button-inner-circle {
+          display: flex;
+          background-color: var(--menu);
+        }
+      }
+    }
+
+    .radio-button-label {
+      color: var(--offWhite);
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+  }
+}
+
+.api-data-no-wrap{
+  .jse-text-mode {
+    width: 100%;
+    .cm-editor {
+      width: 100%;
+      .cm-scroller {
+        width: 100%;
+        .cm-content {
+          width: 100%;
+          overflow: auto;
+          .ͼr {
+            white-space: nowrap;
+          }
+        }
+      }
+    }
+  }
+}
+
+.copy-icon {
+  background-image: url(/assets/svgs/copy.svg);
+  background-size: 1.125rem;
+  background-repeat: no-repeat;
+  height: 1.25rem;
+  width: 1.25rem;
+  margin-left: var(--marginSmall);;
+}
+
+.error-text {
+  color: var(--red);
 }

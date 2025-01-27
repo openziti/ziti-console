@@ -1,0 +1,138 @@
+::ng-deep .verify-certificate-container lib-form-header .form-header-container {
+  max-width: 50rem;
+}
+
+.verify-certificate-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  gap: var(--gapXL);
+
+  .projectable-form-main-column {
+    max-width: 50rem;
+  }
+
+  .copy-token-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    cursor: pointer;
+    background-color: var(--stroke);
+    border-radius: var(--inputBorderRadius);
+    transition: all .2s;
+
+    .copy-icon {
+      filter: grayscale(1);
+    }
+
+    &:hover {
+      .copy-token-button {
+        transform: scale(1.02);
+      }
+      .copy-icon {
+        transform: scale(1.02);
+        filter: none;
+      }
+    }
+
+    .copy-token-button {
+      cursor: pointer;
+      align-items: center;
+      margin-left: var(--marginMedium);
+      display: flex;
+    }
+  }
+
+  .instructions-list {
+    margin: 0;
+    padding-left: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    font-size: .9rem;
+  }
+
+  .select-file-button {
+    padding-left: var(--paddingMedium);
+    padding-right: var(--paddingMedium);
+    height: 1.5625rem;
+    width: fit-content;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    background: var(--primary);
+    border-style: solid;
+    border-width: 0.0625rem;
+    border-color: var(--stroke);
+    color: var(--white);
+    cursor: pointer;
+    border-radius: var(--inputBorderRadius);
+    gap: var(--marginMedium);
+    margin-top: -0.3125rem;
+
+    &:hover {
+      filter: brightness(.8);
+    }
+    &:active {
+      filter: grayscale(1);
+      transform: translateY(0.0625rem);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: transparent;
+      border-top: 0.125rem solid white;
+      border-right: 0.125rem solid white;
+      border-bottom: 0.125rem solid transparent;
+      border-left: 0.125rem solid transparent;
+      -webkit-animation: loading 0.5s infinite linear;
+      animation: loading 0.5s infinite linear;
+    }
+  }
+
+  .select-file-label-container {
+    gap: var(--marginMedium);
+  }
+
+  .cert-error-text {
+    height: .7rem;
+  }
+
+  .save-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    background: var(--primary);
+    padding: 0.4375rem;
+    border-radius: var(--inputBorderRadius);
+    color: var(--white);
+    cursor: pointer;
+    box-shadow: 0 0.1875rem 0.5625rem 0 var(--primaryColorOpaque);
+  }
+}
+
+::ng-deep .verify-certificate-container {
+  select,
+  input {
+    &:disabled {
+      opacity: 0.75 !important;
+      cursor: text;
+      background-color: var(--stroke) !important;
+    }
+  }
+}
+
+::ng-deep .verify-certificate-wrapper lib-form-header .form-header-container {
+  max-width: 50rem;
+}

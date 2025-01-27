@@ -1,6 +1,5 @@
 # app-ziti-console-v3.7.1
 # ziti-console-lib-v0.7.1
-
 ## Bug Fixes
 * [Issue #605](https://github.com/openziti/ziti-console/issues/605) - Remove delay in username & password change events during login
 * [Issue #607](https://github.com/openziti/ziti-console/issues/607) - Network Visualizer: Fix in node type name, color and subgroup size

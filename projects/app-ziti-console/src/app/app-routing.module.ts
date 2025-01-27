@@ -43,7 +43,10 @@ import {
   JwtSignersPageComponent,
   JwtSignerFormComponent,
   AuthPoliciesPageComponent,
-  AuthPolicyFormComponent
+  AuthPolicyFormComponent,
+  CertificateAuthoritiesPageComponent,
+  CertificateAuthorityFormComponent,
+  VerifyCertificateComponent
 } from "ziti-console-lib";
 import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
@@ -250,8 +253,22 @@ const routes: Routes = [
   },
   {
     path: 'certificate-authorities',
-    component: ZacWrapperComponent,
+    component: CertificateAuthoritiesPageComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'certificate-authorities/:id',
+    component: CertificateAuthorityFormComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    canDeactivate: [DeactivateGuardService],
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'certificate-authorities/:id/verify',
+    component: VerifyCertificateComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    canDeactivate: [DeactivateGuardService],
     runGuardsAndResolvers: 'always',
   },
   {

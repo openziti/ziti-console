@@ -21,6 +21,31 @@
                     matTooltipPosition="below"
             ></div>
         </div>
+        <div class="form-header-toggle-container" *ngIf="showToggle">
+            <span
+                    class="toggle-option-text"
+                    [ngClass]="{'toggle-option-selected': !headerToggle}"
+                    (click)="toggleHeader('left')"
+            >
+                OFF
+            </span>
+            <div class="form-header-toggle" (click)="toggleHeader()">
+                <div
+                        class="form-toggle-switch form-toggle-switch-inverse"
+                        [ngClass]="{'toggle-left': !headerToggle, 'toggle-right': headerToggle}"
+                >
+                    <div class="form-toggle-indicator"></div>
+                    <div class="form-toggle-indicator"></div>
+                </div>
+            </div>
+            <span
+                    class="toggle-option-text"
+                    [ngClass]="{'toggle-option-selected': headerToggle}"
+                    (click)="toggleHeader('right')"
+            >
+                ON
+            </span>
+        </div>
     </div>
     <div class="form-field-content" [style]="contentStyle">
         <ng-content></ng-content>

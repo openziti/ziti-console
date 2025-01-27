@@ -93,21 +93,8 @@ export class ValidationService {
     }
 
     isValidPEM(cert) {
-        const header = '-----BEGIN CERTIFICATE-----';
-        const footer = '-----END CERTIFICATE-----';
-
-        if (!cert.startsWith(header) || !cert.endsWith(footer)) {
-            return false;
-        }
-
-        const base64Content = cert.slice(header.length, -footer.length).trim();
-
-        const isBase64 = (str) => {
-            const base64Pattern = /^(?:[A-Z0-9+/=]+\n)*[A-Z0-9+/=]+$/i;
-            return base64Pattern.test(str);
-        };
-
-        return isBase64(base64Content);
+        const pemRegex = /^-----BEGIN CERTIFICATE-----([A-Za-z0-9+/=\n\r]+)-----END CERTIFICATE-----$/;
+        return pemRegex.test(cert);
     }
 
     isValidURI(uri) {

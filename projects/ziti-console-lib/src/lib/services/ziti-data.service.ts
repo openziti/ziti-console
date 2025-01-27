@@ -52,7 +52,7 @@ export abstract class ZitiDataService {
               protected router: Router
   ) {}
 
-  abstract post(type, model, chained?): Promise<any>;
+  abstract post(type, model, chained?, contentType?): Promise<any>;
   abstract put(type, model, id, chained?): Promise<any>;
   abstract patch(type, model, id, chained?): Promise<any>;
   abstract get(type: string, paging: any, filters: FilterObj[], url?): Promise<any>;
@@ -85,5 +85,21 @@ export abstract class ZitiDataService {
       ];
     }
     return filters;
+  }
+
+  getErrorMessage(resp) {
+    let errorMessage;
+    if (resp?.error?.error?.message) {
+      errorMessage = resp?.error?.error?.message;
+    } else if (resp?.error?.error?.cause?.message) {
+      errorMessage = resp?.error?.error?.cause?.message;
+    } else if (resp?.error?.error?.cause?.reason) {
+      errorMessage = resp?.error?.error?.cause?.reason;
+    }else if (resp?.error?.message) {
+      errorMessage = resp?.error?.message;
+    } else {
+      errorMessage = 'An unknown error occurred';
+    }
+    return errorMessage;
   }
 }

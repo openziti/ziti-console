@@ -42,13 +42,19 @@ export class ZitiControllerDataService extends ZitiDataService {
         super(logger, growler, settingsService, httpClient, router);
     }
 
-    post(type, model, chained = false): Promise<any> {
+    post(type, model, chained = false, contentType?): Promise<any> {
         const apiVersions = this.settingsService.apiVersions || {};
         const prefix = apiVersions["edge-management"]?.v1?.path;
         const url = this.settingsService.settings.selectedEdgeController;
         const serviceUrl = url + prefix + "/" + type;
-
-        return firstValueFrom(this.httpClient.post(serviceUrl, model, {}).pipe(
+        let options = {};
+        if (contentType) {
+            const headers = {
+                'Content-Type': 'text/plain'
+            }
+            options = { headers };
+        }
+        return firstValueFrom(this.httpClient.post(serviceUrl, model, options).pipe(
                 catchError((err: any) => {
                     const error = "Server Not Accessible";
                     if (err.code !== "ECONNREFUSED") throw(err);

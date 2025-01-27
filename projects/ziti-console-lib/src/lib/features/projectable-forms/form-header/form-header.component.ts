@@ -31,6 +31,8 @@ export class FormHeaderComponent {
   @Input() saveTooltip = '';
   @Input() actionButtonText = 'Save';
   @Input() moreActionsText = 'More Actions';
+  @Input() showHeaderToggle = true;
+  @Input() showHeaderButton = true;
   @Output() formViewChange: EventEmitter<string> = new EventEmitter<string>();
   @Output() actionRequested: EventEmitter<any> = new EventEmitter<any>();
 

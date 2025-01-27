@@ -11,14 +11,14 @@
             </div>
         </div>
         <div class="header-actions-container">
-            <div class="form-header-toggle-container">
-                        <span
-                                class="toggle-option-text"
-                                [ngClass]="{'toggle-option-selected': formView === 'simple'}"
-                                (click)="requestAction({name: 'toggle-view', data: 'raw'})"
-                        >
-                            FORM
-                        </span>
+            <div *ngIf="showHeaderToggle" class="form-header-toggle-container">
+                <span
+                        class="toggle-option-text"
+                        [ngClass]="{'toggle-option-selected': formView === 'simple'}"
+                        (click)="requestAction({name: 'toggle-view', data: 'raw'})"
+                >
+                    FORM
+                </span>
                 <div class="form-header-toggle" (click)="requestAction({name: 'toggle-view', data: formView})">
                     <div
                             class="form-toggle-switch"
@@ -54,6 +54,7 @@
                 </div>
             </div>
             <div class="save-button"
+                 *ngIf="showHeaderButton"
                  (click)="requestAction({name: 'save'})"
                  [ngClass]="{'save-disabled': saveDisabled}"
                  matTooltip="{{saveDisabled ? saveTooltip : ''}}"

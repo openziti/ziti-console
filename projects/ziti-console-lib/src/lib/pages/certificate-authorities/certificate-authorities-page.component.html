@@ -1,17 +1,17 @@
-<div class="ziti-page-container ziti-auth-policies-container">
+<div class="ziti-page-container ziti-cert-authorities-container">
     <lib-list-page-header [title]="title"
                           [tabs]="tabs"
                           [showAdd]="!itemsSelected"
                           (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
 
-    <lib-data-table [tableId]="'auth-policies'"
+    <lib-data-table [tableId]="'certificate-authorities'"
                     [rowData]="rowData"
                     [columnDefinitions]="columnDefs"
                     (actionRequested)="tableAction($event)"
                     [startCount]="startCount"
                     [endCount]="endCount"
                     [totalCount]="totalCount"
-                    [emptyMsg]="'No Auth Policies defined, Click the plus to add a Configuration.'"
+                    [emptyMsg]="'No Certificate Authorities defined, Click the plus to add a Configuration.'"
                     [filterApplied]="filterApplied"
                     [menuItems]="svc.menuItems"
                     (gridReady)="gridReady($event)"

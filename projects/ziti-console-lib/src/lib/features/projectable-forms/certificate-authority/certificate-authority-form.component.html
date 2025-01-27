@@ -1,0 +1,269 @@
+<div class="projectable-form-wrapper"
+     (keyup.enter)="save($event)"
+     (keyup.escape)="closeModal(false)"
+     tabindex="0"
+>
+    <lib-form-header
+            [data]="formData"
+            [title]="(formData.id ? 'Certificate Authority Details' : 'Create Certificate Authority')"
+            [moreActions]="formData.moreActions"
+            (actionRequested)="headerActionRequested($event)"
+            [(formView)]="formView"
+            [saveDisabled]="svc.saveDisabled || formDataInvalid"
+    ></lib-form-header>
+    <div class="jwt-signer-form-container projectable-form-container">
+        <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
+            <div class="form-group-column three-fifths">
+                <lib-form-field-container
+                        [title]="'Name'"
+                        [label]="'Required'"
+                >
+                    <input class="form-field-input read-only" [(ngModel)]="formData.name" [ngClass]="{error: errors['name']}" placeholder="Name this Certificate Authority"/>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Identity Name Format'"
+                        [contentStyle]="'z-index: 99999999'"
+                        [label]="'OPTIONAL'"
+                        [helpText]="'The identity name format used to name automatically enrolling identities. Defaults to [caName]-[commonName]'"
+                >
+                    <input class="form-field-input read-only" [(ngModel)]="formData.identityNameFormat" [ngClass]="{error: errors['identityNameFormat']}" placeholder="Defaults to [caName]-[commonName]"/>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Identity Roles'"
+                        [contentStyle]="'z-index: 99999999'"
+                        [label]="'OPTIONAL'"
+                        [helpText]="'The identity roles to give to automatically enrolling identities'"
+                >
+                    <lib-tag-selector
+                            [(selectedRoleAttributes)]="formData.identityRoles"
+                            [availableRoleAttributes]="identityRoleAttributes"
+                            [placeholder]="'Type to filter and enter to assign'"
+                            [hasError]="errors.dialIdentities"
+                    ></lib-tag-selector>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Enrollment Options'"
+                        [layout]="'row'"
+                >
+                    <div class="config-item">
+                        <div class="config-container toggle-container">
+                            <div class="form-field-title-container">
+                                <div class="config-container-label">Auto Enroll</div>
+                                <div
+                                        class="form-field-info infoicon"
+                                        matTooltip="Allows client certificates of the CA to automatically enroll when"
+                                        matTooltipPosition="below"
+                                ></div>
+                            </div>
+                            <div
+                                    (click)="toggleSwitch('isAutoCaEnrollmentEnabled')"
+                                    [ngClass]="{ on: formData.isAutoCaEnrollmentEnabled }"
+                                    class="toggle"
+                            >
+                                <span [hidden]="!formData.isAutoCaEnrollmentEnabled" class="on-label">YES</span>
+                                <span [hidden]="formData.isAutoCaEnrollmentEnabled" class="off-label">NO</span>
+                                <div class="switch"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="config-item">
+                        <div class="config-container toggle-container">
+                            <div class="form-field-title-container">
+                                <div class="config-container-label">OTT Enroll</div>
+                                <div
+                                        class="form-field-info infoicon"
+                                        matTooltip="Allows client certificates of the CA to enroll if an identity with an ottca enrollment was created"
+                                        matTooltipPosition="below"
+                                ></div>
+                            </div>
+                            <div
+                                    (click)="toggleSwitch('isOttCaEnrollmentEnabled')"
+                                    [ngClass]="{ on: formData.isOttCaEnrollmentEnabled }"
+                                    class="toggle"
+                            >
+                                <span [hidden]="!formData.isOttCaEnrollmentEnabled" class="on-label">YES</span>
+                                <span [hidden]="formData.isOttCaEnrollmentEnabled" class="off-label">NO</span>
+                                <div class="switch"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="config-item">
+                        <div class="config-container toggle-container">
+                            <div class="form-field-title-container">
+                                <div class="config-container-label">Auth Enabled</div>
+                                <div
+                                        class="form-field-info infoicon"
+                                        matTooltip="Allows client certificates of the CA to attempt to enroll"
+                                        matTooltipPosition="below"
+                                ></div>
+                            </div>
+                            <div
+                                    (click)="toggleSwitch('isAuthEnabled')"
+                                    [ngClass]="{ on: formData.isAuthEnabled }"
+                                    class="toggle"
+                            >
+                                <span [hidden]="!formData.isAuthEnabled" class="on-label">YES</span>
+                                <span [hidden]="formData.isAuthEnabled" class="off-label">NO</span>
+                                <div class="switch"></div>
+                            </div>
+                        </div>
+                    </div>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'External ID Claim'"
+                        [layout]="'column'"
+                        [helpText]="'Configuration used to pull values out of the x509 client certificate used to match identity externalId'"
+                        [showToggle]="true"
+                        [(headerToggle)]="externalIdClaim"
+                        (headerToggleChange)="externalIdClaimChanged()"
+                >
+                    <div class="form-field-input-group" [ngClass]="{disabled: !externalIdClaim}">
+                        <div class="form-field-row">
+                            <div class="form-field-label-container">
+                                <div class="form-field-title-container">
+                                    <span class="form-field-title">Location</span>
+                                    <div
+                                            class="form-field-info infoicon"
+                                            matTooltip="Defines which value(s) in an x509 certificate will be processed"
+                                            matTooltipPosition="below"
+                                    ></div>
+                                </div>
+                                <select [(ngModel)]="claimLocation" id="ClaimLocation" class="form-field-dropdown" [disabled]="!externalIdClaim" [ngClass]="{error: errors['claimLocation']}">
+                                    <option value="">Select an option</option>
+                                    <option *ngFor="let loc of locations" [value]="loc">
+                                        {{ loc }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="form-field-label-container">
+                                <div class="form-field-title-container">
+                                    <span class="form-field-title">Matcher</span>
+                                    <div
+                                            class="form-field-info infoicon"
+                                            matTooltip="Defines how values from location will be filtered"
+                                            matTooltipPosition="below"
+                                    ></div>
+                                </div>
+                                <select [(ngModel)]="matcher" id="ClaimMatcher" class="form-field-dropdown" [disabled]="!externalIdClaim" [ngClass]="{error: errors['matcher']}">
+                                    <option value="">Select an option</option>
+                                    <option *ngFor="let matcher of matchers" [value]="matcher">
+                                        {{ matcher }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="form-field-label-container">
+                                <div class="form-field-title-container">
+                                    <span class="form-field-title">Parser</span>
+                                    <div
+                                            class="form-field-info infoicon"
+                                            matTooltip="Defines how values from location filtered by matcher will be parsed"
+                                            matTooltipPosition="below"
+                                    ></div>
+                                </div>
+                                <select [(ngModel)]="parser" id="ClaimParser" class="form-field-dropdown" [disabled]="!externalIdClaim" [ngClass]="{error: errors['parser']}">
+                                    <option value="">Select an option</option>
+                                    <option *ngFor="let parser of parsers" [value]="parser">
+                                        {{ parser }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-field-row">
+                            <div class="form-field-label-container">
+                                <div class="form-field-title-container">
+                                    <span class="form-field-title">Index</span>
+                                    <div
+                                            class="form-field-info infoicon"
+                                            matTooltip="Should multiple values still be available after location, matcher, and parser processing the integer value here will be used from the set"
+                                            matTooltipPosition="below"
+                                    ></div>
+                                </div>
+                                <input class="form-field-input" type="number" placeholder="Enter a number" [(ngModel)]="index" [ngClass]="{error: errors['index']}" [disabled]="!externalIdClaim"/>
+                            </div>
+                            <div class="form-field-label-container">
+                                <div class="form-field-title-container">
+                                    <span class="form-field-title">Match Criteria</span>
+                                    <div
+                                            class="form-field-info infoicon"
+                                            matTooltip="Defines the PREFIX, SUFFIX, or SCHEME to look for based on matcher"
+                                            matTooltipPosition="below"
+                                    ></div>
+                                </div>
+                                <input class="form-field-input" placeholder="Enter matcher criteria" [(ngModel)]="matcherCriteria" [ngClass]="{error: errors['matcherCriteria']}" [disabled]="!externalIdClaim"/>
+                            </div>
+                            <div class="form-field-label-container">
+                                <div class="form-field-title-container">
+                                    <span class="form-field-title">Parser Criteria</span>
+                                    <div
+                                            class="form-field-info infoicon"
+                                            matTooltip="Defines the criteria to provide to parser"
+                                            matTooltipPosition="below"
+                                    ></div>
+                                </div>
+                                <input class="form-field-input" placeholder="Enter parser criteria" [(ngModel)]="parserCriteria" [ngClass]="{error: errors['parserCriteria']}" [disabled]="!externalIdClaim"/>
+                            </div>
+                        </div>
+                    </div>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'PEM'"
+                        [label]="'REQUIRED'"
+                >
+                    <div class="form-field-input-group">
+                        <div class="form-field-label-container select-file-label-container">
+                            <div class="form-field-header">
+                                <div class="form-field-title-container">
+                                    <span class="form-field-title">Enter PEM</span>
+                                </div>
+                                <span class="select-file-button" (click)="openFileSelect($event)">
+                                        Select File
+                                        <div class="spinner" *ngIf="fileSelectOpening"></div>
+                                    </span>
+                                <input #fileSelect type="file" style="display:none" (change)="selectPemFile($event)">
+                            </div>
+                            <textarea placeholder="Paste pem contents or select file" [(ngModel)]="formData.certPem" [ngClass]="{error: errors['certPem']}"></textarea>
+                        </div>
+                    </div>
+                </lib-form-field-container>
+                <lib-form-field-toggle [(toggleOn)]="showMore" (toggleOnChange)="showMoreChanged($event)" style="margin: 0px 10px"></lib-form-field-toggle>
+                <div [hidden]="!showMore" class="form-group-column">
+                    <lib-form-field-container
+                            [title]="'Custom Tags'"
+                            [label]="'OPTIONAL'"
+                            class="form-field-advanced"
+                    >
+                        <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
+                    </lib-form-field-container>
+                </div>
+            </div>
+            <div class="form-group-column two-fifths">
+                <lib-form-field-container
+                    *ngIf="formData.id"
+                    [showHeader]="false"
+                >
+                    <a class="download-button" href="./{{this.basePath}}/{{this.formData.id}}/verify" (click)="verifyCertificate($event)">
+                        <div class="verify-certificate"></div>
+                        <span>Verify Certificate</span>
+                        <div class="tap-to-download"></div>
+                    </a>
+                </lib-form-field-container>
+                <lib-form-field-container
+                    [title]="'API Calls'"
+                    [headerActions]="apiOptions"
+                    (actionRequested)="apiActionRequested($event)"
+                    [class]="'api-data-no-wrap'"
+                >
+                    <div class="form-row">
+                        <input class="form-field-input" [value]="apiCallURL"/>
+                        <div class="icon-copy copy" (click)="copyToClipboard(apiCallURL)"></div>
+                    </div>
+                    <lib-json-view *ngIf="formData" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
+                </lib-form-field-container>
+            </div>
+        </div>
+        <div class="form-group-column" *ngIf="formView === 'raw'">
+            <lib-json-view *ngIf="formData" [(data)]="formData"></lib-json-view>
+        </div>
+    </div>
+</div>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
