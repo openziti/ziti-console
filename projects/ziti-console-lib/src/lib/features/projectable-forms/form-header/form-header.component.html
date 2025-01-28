@@ -63,7 +63,7 @@
         </div>
     </div>
     <div class="form-header-group badges-container">
-        <div *ngFor="let badge of data.badges" class="header-badge-container {{badge.class}}">
+        <div *ngFor="let badge of headerBadges" class="header-badge-container {{badge.class}}">
             <span *ngIf="badge.circle" class="circle {{badge.circle}}"></span>
             <span class="badge-label">{{badge.label}}</span>
         </div>

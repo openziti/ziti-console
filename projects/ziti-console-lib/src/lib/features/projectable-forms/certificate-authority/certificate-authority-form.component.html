@@ -10,6 +10,7 @@
             (actionRequested)="headerActionRequested($event)"
             [(formView)]="formView"
             [saveDisabled]="svc.saveDisabled || formDataInvalid"
+            [badges]="badges"
     ></lib-form-header>
     <div class="jwt-signer-form-container projectable-form-container">
         <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
@@ -51,7 +52,7 @@
                                 <div class="config-container-label">Auto Enroll</div>
                                 <div
                                         class="form-field-info infoicon"
-                                        matTooltip="Allows client certificates of the CA to automatically enroll when"
+                                        matTooltip="Allows client certificates of the CA to automatically enroll when encountered"
                                         matTooltipPosition="below"
                                 ></div>
                             </div>
@@ -238,7 +239,7 @@
             </div>
             <div class="form-group-column two-fifths">
                 <lib-form-field-container
-                    *ngIf="formData.id"
+                    *ngIf="formData.id && !this.formData.isVerified"
                     [showHeader]="false"
                 >
                     <a class="download-button" href="./{{this.basePath}}/{{this.formData.id}}/verify" (click)="verifyCertificate($event)">

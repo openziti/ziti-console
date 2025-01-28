@@ -86,6 +86,13 @@ export class CertificateAuthoritiesPageService extends ListPageServiceClass {
         const createdAtHeaderComponentParams = {
             filterType: 'DATETIME',
         };
+        const jwtColumnRenderer = (row) => {
+            let cell = '';
+            if (row.data?.id && row.data?.isVerified) {
+                cell = `<span class="cert"></span>`;
+            }
+            return cell;
+        }
         return [
             {
                 colId: 'name',
@@ -156,6 +163,20 @@ export class CertificateAuthoritiesPageService extends ListPageServiceClass {
                 sortColumn: this.sort.bind(this),
             },
             {
+                colId: 'jwt',
+                field: 'jwt',
+                headerName: 'JWT',
+                cellRenderer: jwtColumnRenderer,
+                headerComponent: TableColumnDefaultComponent,
+                headerComponentParams: enabledComponentParams,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align tCol',
+                sortable: true,
+                filter: true,
+                sortColumn: this.sort.bind(this),
+                width: this.remToPx(4.6875)
+            },
+            {
                 colId: 'createdAt',
                 field: 'createdAt',
                 headerName: 'Created At',
@@ -210,5 +231,17 @@ export class CertificateAuthoritiesPageService extends ListPageServiceClass {
     public verifyCert(itemId, basePath?) {
         basePath = basePath ? basePath : this.basePath;
         this.router?.navigateByUrl(`${basePath}/${itemId}/verify`);
+    }
+
+    public getJwt(id) {
+        return this.dataService.getSubdata('cas', id,'jwt', {},'application/jwt').then((result: any) => {
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:application/ziti-jwt;charset=utf-8,' + encodeURIComponent(result));
+            element.setAttribute('download', id+".jwt");
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        });
     }
 }

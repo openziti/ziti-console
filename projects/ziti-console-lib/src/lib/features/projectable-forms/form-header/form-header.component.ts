@@ -24,6 +24,7 @@ import {isFunction, defer} from 'lodash';
 })
 export class FormHeaderComponent {
   @Input() data: any = {};
+  @Input() badges: any = [];
   @Input() title = '';
   @Input() moreActions: any = [];
   @Input() formView = 'simple';
@@ -80,5 +81,9 @@ export class FormHeaderComponent {
     defer(() => {
       this.showActionsDropDown = false;
     });
+  }
+
+  get headerBadges() {
+    return this.data.badges || this.badges;
   }
 }

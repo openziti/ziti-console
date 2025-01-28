@@ -59,6 +59,7 @@ export class CertificateAuthorityFormComponent extends ProjectableForm implement
     settings: any = {};
     fileSelectOpening = false;
     identityRoleAttributes = [];
+    badges: any[] = [];
     override entityType = 'cas';
     override entityClass = CertificateAuthority;
 
@@ -94,6 +95,11 @@ export class CertificateAuthorityFormComponent extends ProjectableForm implement
     }
 
     protected override entityUpdated() {
+        if (this.formData.id && this.formData.isVerified) {
+            this.badges.push({label: 'Verified', class: 'verified', circle: 'verified'});
+        } else {
+            this.badges.push({label: 'Unverified', class: 'unreg'});
+        }
         super.entityUpdated();
     }
 

@@ -254,4 +254,9 @@ export abstract class ListPageServiceClass {
         basePath = basePath ? basePath : this.basePath;
         this.router?.navigateByUrl(`${basePath}/${itemId}`);
     }
+
+    remToPx(remValue) {
+        const rootFontSize: any = parseFloat(window.getComputedStyle(document.documentElement).fontSize);
+        return remValue * rootFontSize;
+    };
 }
