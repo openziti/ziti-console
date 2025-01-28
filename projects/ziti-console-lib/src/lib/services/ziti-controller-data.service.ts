@@ -50,7 +50,7 @@ export class ZitiControllerDataService extends ZitiDataService {
         let options = {};
         if (contentType) {
             const headers = {
-                'Content-Type': 'text/plain'
+                'Content-Type': contentType
             }
             options = { headers };
         }
@@ -127,7 +127,7 @@ export class ZitiControllerDataService extends ZitiDataService {
         );
     }
 
-    getSubdata(entityType: string, id: any, dataType: string, paging?: any): Promise<any> {
+    getSubdata(entityType: string, id: any, dataType: string, paging?: any, contentType?: any): Promise<any> {
         const apiVersions = this.settingsService.apiVersions || {};
         const prefix = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
 
@@ -137,7 +137,19 @@ export class ZitiControllerDataService extends ZitiDataService {
         }
         const url = this.settingsService.settings.selectedEdgeController + `${prefix}/${entityType}/${id}/${dataType}/${urlFilter}`;
 
-        return firstValueFrom(this.httpClient.get(url, {}).pipe(
+        let options: any = {};
+        if (contentType) {
+            const headers = {
+                'Accept': contentType,
+                'Content-Type': contentType
+            }
+            options = { headers };
+            if (contentType.indexOf('application/jwt') >= 0) {
+                options.responseType = 'text';
+            }
+        }
+
+        return firstValueFrom(this.httpClient.get(url, options).pipe(
                 catchError((err: any) => {
                     const error = "Server Not Accessible";
                     if (err.code != "ECONNREFUSED") throw({error: err.code});

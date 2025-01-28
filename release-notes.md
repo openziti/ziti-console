@@ -1,3 +1,8 @@
+# ziti-console-lib-v0.8.0
+## Feature/Improvements
+* [Issue #601](https://github.com/openziti/ziti-console/issues/611) - New Certificate Authorities List Page and Edit Form
+
+
 # app-ziti-console-v3.7.1
 # ziti-console-lib-v0.7.1
 ## Bug Fixes

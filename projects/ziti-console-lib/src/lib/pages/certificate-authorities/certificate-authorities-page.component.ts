@@ -114,4 +114,18 @@ export class CertificateAuthoritiesPageComponent extends ListPageComponent imple
     dataChanged(event) {
         this.formDataChanged = event;
     }
+
+    override gridReady(event) {
+        event.api.addEventListener('cellClicked', (event) => {
+            if (event.column.getColId() === 'jwt') {
+                if (event.data?.id && event.data.isVerified) {
+                    this.isLoading = true
+                    this.svc.getJwt(event.data?.id).finally(() => {
+                        this.isLoading = false;
+                    });
+                }
+            }
+        });
+        super.gridReady(event);
+    }
 }
