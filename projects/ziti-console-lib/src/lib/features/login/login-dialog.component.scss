@@ -1,0 +1,85 @@
+.login-modal-container {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background);
+  border-radius: 1.5625rem;
+  width: 25rem;
+  padding: var(--paddingXXL);
+
+  .login-modal-body {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    .login-modal-content {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+    .login-modal-main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .login-modal-icon {
+      width: 7.5rem;
+      height: 7.5rem;
+      background-size: contain;
+      z-index: 20;
+      box-sizing: var(--shadow);
+      margin-left: 0.9375rem;
+    }
+    lib-string-input,
+    lib-password-input {
+      width: 100%;
+    }
+  }
+  .login-title-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    .login-title {
+      color: var(--primaryColor);
+      font-size: 1.875rem;
+      position: relative;
+      padding-left: 0;
+      width: 100%;
+      background: none;
+      text-transform: none;
+      height: auto;
+      font-family: Russo One;
+      filter: brightness(50%);
+    }
+  }
+
+  .login-buttons-container {
+    display: flex;
+    justify-content: flex-end;
+    flex-direction: row;
+    width: 100%;
+    align-items: flex-end;
+    margin-top: var(--marginXXL);
+    .linkButton {
+      position: absolute;
+      left: 1.5625rem;
+      color: var(--subText);
+      font-weight: 600;
+    }
+  }
+
+  button {
+    width: 6.25rem;
+    height: 2.5rem;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+
+    &.confirm {
+      background-color: var(--secondary);
+    }
+    &.cancel {
+      background-color: var(--primary);
+    }
+  }
+}

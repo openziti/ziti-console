@@ -14,6 +14,7 @@ import {ServicesPageService} from "../../../../pages/services/services-page.serv
 import {ActivatedRoute, Router} from "@angular/router";
 import {FilterObj} from "../../../data-table/data-table-filter.service";
 import {ConfirmComponent} from "../../../confirm/confirm.component";
+import {Location} from "@angular/common";
 
 // @ts-ignore
 const {app} = window;
@@ -117,7 +118,7 @@ export class SimpleServiceComponent extends ProjectableForm {
   @Output() selected: EventEmitter<any> = new EventEmitter<any>();
 
   constructor(
-      @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
+      @Inject(SETTINGS_SERVICE) protected override settingsService: SettingsService,
       public svc: ServiceFormService,
       @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
       growlerService: GrowlerService,
@@ -127,8 +128,9 @@ export class SimpleServiceComponent extends ProjectableForm {
       private servicesPageService: ServicesPageService,
       protected override router: Router,
       protected override route: ActivatedRoute,
+      location: Location
   ) {
-    super(growlerService, extService, zitiService, router, route);
+    super(growlerService, extService, zitiService, router, route, location, settingsService);
   }
 
   override ngOnInit() {

@@ -94,7 +94,7 @@ export class ValidationService {
 
     isValidPEM(cert) {
         const pemRegex = /^-----BEGIN CERTIFICATE-----([A-Za-z0-9+/=\n\r]+)-----END CERTIFICATE-----$/;
-        return pemRegex.test(cert);
+        return pemRegex.test(cert?.trim().trimEnd());
     }
 
     isValidURI(uri) {

@@ -41,14 +41,16 @@ export class NodeLoginService extends LoginServiceClass {
         return this.checkForValidNodeSession();
     }
 
-    async login(prefix: string, url: string, username: string, password: string) {
+    async login(prefix: string, url: string, username: string, password: string, doNav = true) {
         return this.nodeLogin(url, username, password);
     }
 
-    nodeLogin(controllerURL: string, username: string, password: string) {
+    nodeLogin(controllerURL: string, username: string, password: string, doNav = true) {
         return lastValueFrom(this.observeLogin(controllerURL, username, password)
             ).then(() => {
-                this.router.navigate(['/']);
+                if (doNav) {
+                    this.router.navigate(['/']);
+                }
             });
     }
 

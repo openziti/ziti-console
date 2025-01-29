@@ -59,7 +59,7 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
   override entityClass = ServicePolicy;
 
   constructor(
-      @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
+      @Inject(SETTINGS_SERVICE) protected override settingsService: SettingsService,
       public svc: ServicePolicyFormService,
       @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
       growlerService: GrowlerService,
@@ -68,7 +68,7 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
       protected override route: ActivatedRoute,
       location: Location
   ) {
-    super(growlerService, extService, zitiService, router, route, location);
+    super(growlerService, extService, zitiService, router, route, location, settingsService);
   }
 
   override ngOnInit(): void {

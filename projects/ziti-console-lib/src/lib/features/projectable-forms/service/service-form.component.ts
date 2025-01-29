@@ -101,7 +101,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
 
   @ViewChild("configEditor", {read: ConfigEditorComponent}) configEditor!: ConfigEditorComponent;
   constructor(
-      @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
+      @Inject(SETTINGS_SERVICE) protected override settingsService: SettingsService,
       public svc: ServiceFormService,
       @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
       growlerService: GrowlerService,
@@ -110,7 +110,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
       protected override route: ActivatedRoute,
       location: Location
   ) {
-    super(growlerService, extService, zitiService, router, route, location);
+    super(growlerService, extService, zitiService, router, route, location, settingsService);
     this.formData = {};
   }
 

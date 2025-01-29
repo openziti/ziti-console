@@ -42,8 +42,8 @@ export class ControllerLoginService extends LoginServiceClass {
         return Promise.resolve();
     }
 
-    async login(prefix: string, url: string, username: string, password: string): Promise<any> {
-        return this.controllerLogin(prefix, url, username, password);
+    async login(prefix: string, url: string, username: string, password: string, doNav = true): Promise<any> {
+        return this.controllerLogin(prefix, url, username, password, doNav);
     }
 
     checkOriginForController(): Promise<any> {
@@ -59,12 +59,14 @@ export class ControllerLoginService extends LoginServiceClass {
         });
     }
 
-    controllerLogin(prefix: string, url: string, username: string, password: string): Promise<any> {
+    controllerLogin(prefix: string, url: string, username: string, password: string, doNav = true): Promise<any> {
         this.domain = url;
         const serviceUrl = url + prefix;
         return lastValueFrom(this.observeLogin(serviceUrl, username, password)
         ).then(() => {
-            this.router.navigate(['/']);
+            if (doNav) {
+                this.router.navigate(['/']);
+            }
         });
     }
 

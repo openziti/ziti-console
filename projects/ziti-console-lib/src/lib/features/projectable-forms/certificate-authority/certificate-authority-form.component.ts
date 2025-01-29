@@ -74,14 +74,14 @@ export class CertificateAuthorityFormComponent extends ProjectableForm implement
         private schemaSvc: SchemaService,
         growlerService: GrowlerService,
         @Inject(SHAREDZ_EXTENSION) extService: ExtensionService,
-        @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
+        @Inject(SETTINGS_SERVICE) protected override settingsService: SettingsService,
         @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
         protected override router: Router,
         protected override route: ActivatedRoute,
         location: Location,
         private validationService: ValidationService
     ) {
-        super(growlerService, extService, zitiService, router, route, location);
+        super(growlerService, extService, zitiService, router, route, location, settingsService);
     }
 
     override ngOnInit(): void {
@@ -95,7 +95,7 @@ export class CertificateAuthorityFormComponent extends ProjectableForm implement
     }
 
     protected override entityUpdated() {
-        if (this.formData.id && this.formData.isVerified) {
+        if (this.formData.id && this.formData.isVerified || true) {
             this.badges.push({label: 'Verified', class: 'verified', circle: 'verified'});
         } else {
             this.badges.push({label: 'Unverified', class: 'unreg'});

@@ -119,6 +119,7 @@ import {CertificateAuthorityFormComponent} from "./features/projectable-forms/ce
 import {
     VerifyCertificateComponent
 } from "./features/projectable-forms/certificate-authority/verify-certificate/verify-certificate.component";
+import {LoginDialogComponent} from "./features/login/login-dialog.component";
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -206,7 +207,8 @@ export function playerFactory() {
         PreviewSelectionsComponent,
         CertificateAuthoritiesPageComponent,
         CertificateAuthorityFormComponent,
-        VerifyCertificateComponent
+        VerifyCertificateComponent,
+        LoginDialogComponent
     ],
     imports: [
         CommonModule,
@@ -265,7 +267,8 @@ export function playerFactory() {
         JwtSignersPageComponent,
         JwtSignerFormComponent,
         AuthPoliciesPageComponent,
-        AuthPolicyFormComponent
+        AuthPolicyFormComponent,
+        LoginDialogComponent
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},

@@ -80,7 +80,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   cas = [];
 
   constructor(
-      @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
+      @Inject(SETTINGS_SERVICE) protected override settingsService: SettingsService,
       public svc: IdentityFormService,
       public identitiesService: IdentitiesPageService,
       @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
@@ -90,7 +90,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       protected override route: ActivatedRoute,
       location: Location
   ) {
-    super(growlerService, extService, zitiService, router, route, location);
+    super(growlerService, extService, zitiService, router, route, location, settingsService);
     this.identityRoleAttributes = [];
   }
 

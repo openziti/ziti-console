@@ -21,28 +21,43 @@
         </ng-container>
 
         <ng-template #userLogin>
-            <lib-selector-input
-                        *ngIf="!svc.originIsController"
-                        [fieldName]="'Edge Controller'"
-                        [(fieldValue)]="selectedEdgeController"
-                        [error]="edgeNameError"
-                        [placeholder]="'Connect to a new Edge Controller'"
-                        [valueList]="edgeControllerList"
-                        [helpText]="helpText"
-                        [fieldClass]="controllerInvalid ? 'invalid' : ''"
-                        (fieldValueChange)="edgeChanged($event)"
-            >
-            </lib-selector-input>
-            <lib-string-input [fieldName]="'Username'"
-                        [(fieldValue)]="username"
-                        [placeholder]="'enter username of controller'"></lib-string-input>
-            <lib-password-input [fieldName]="'Password'"
-                        [(fieldValue)]="password"
-                        [placeholder]="'enter password of controller'"></lib-password-input>
-
-            <div class="buttons">
-                <button class="button" (click)="login()">Login</button>
-            </div>
+                <lib-selector-input
+                    *ngIf="!svc.originIsController"
+                    [fieldName]="'Edge Controller'"
+                    [(fieldValue)]="selectedEdgeController"
+                    [error]="edgeNameError"
+                    [placeholder]="'Connect to a new Edge Controller'"
+                    [valueList]="edgeControllerList"
+                    [helpText]="helpText"
+                    [fieldClass]="controllerInvalid ? 'invalid' : ''"
+                    (fieldValueChange)="edgeChanged($event)"
+                >
+                </lib-selector-input>
+                <label for="Username" class="userlogin open">Username</label>
+                <input
+                    id="Username"
+                    name="username"
+                    type="text"
+                    autocomplete="on"
+                    required
+                    [placeholder]="'enter username of controller'"
+                    (change)="usernameChange($event)"
+                    (keyup)="usernameChange($event)"
+                >
+                <label for="Password" class="userlogin open">Password</label>
+                <input
+                    id="Password"
+                    name="password"
+                    type="password"
+                    autocomplete="on"
+                    required
+                    [placeholder]="'enter password of controller'"
+                    (change)="passwordChange($event)"
+                    (keyup)="passwordChange($event)"
+                >
+                <div class="buttons">
+                    <button class="button" (click)="login()">Login</button>
+                </div>
         </ng-template>
     </div>
 </div>
