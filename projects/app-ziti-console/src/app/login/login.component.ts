@@ -84,7 +84,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         });
     }
 
-    async login() {
+    login() {
         if(this.selectedEdgeController) {
             context.set("serviceUrl", this.selectedEdgeController);
             const apiVersions = this.settingsService.apiVersions;
@@ -202,5 +202,13 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         this.subscription.unsubscribe();
+    }
+
+    usernameChange(event) {
+        this.username = event.currentTarget.value;
+    }
+
+    passwordChange(event) {
+        this.password = event.currentTarget.value;
     }
 }

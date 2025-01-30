@@ -1,0 +1,37 @@
+<div class="login-modal-container">
+    <div class="close icon-close" (click)="close()"></div>
+    <form id="login-form" (submit)="login()" autocomplete="on">
+        <div class="login-modal-body">
+            <div class="login-modal-content">
+                <div class="login-title-container">
+                    <span class="login-title">Session Expired</span>
+                    <span class="login-subtitle">Please login to continue.</span>
+                </div>
+                <div class="login-modal-main">
+                    <lib-selector-input
+                            *ngIf="!svc.originIsController"
+                            [fieldName]="'Edge Controller'"
+                            [(fieldValue)]="selectedEdgeController"
+                            [placeholder]="'Select an Edge Controller'"
+                            [valueList]="edgeControllerList"
+                            (fieldValueChange)="edgeChanged($event)"
+                    >
+                    </lib-selector-input>
+                    <lib-string-input [fieldName]="'Username'"
+                                      [(fieldValue)]="username"
+                                      [autocomplete]="'username'"
+                                      [placeholder]="'enter username of controller'"></lib-string-input>
+                    <lib-password-input [fieldName]="'Password'"
+                                        [(fieldValue)]="password"
+                                        [autocomplete]="'current-password'"
+                                        [placeholder]="'enter password of controller'"></lib-password-input>
+                    <span class="login-error-message" *ngIf="loginFailed">Login Failed</span>
+                </div>
+            </div>
+        </div>
+        <div class="login-buttons-container">
+            <button class="button" type="submit">Login</button>
+            <div class="linkButton cancel" (click)="returnToLoginPage()">Return to login page</div>
+        </div>
+    </form>
+</div>

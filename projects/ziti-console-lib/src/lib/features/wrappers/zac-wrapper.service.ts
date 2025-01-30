@@ -905,9 +905,6 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                 break;
         }
         return prom.catch((result) => {
-            if (result?.error?.error?.code === 'UNAUTHORIZED') {
-                this.zitiDomainController.handleUnauthorized();
-            }
             return result?.error;
         });
     }

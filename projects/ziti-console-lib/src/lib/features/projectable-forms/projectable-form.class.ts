@@ -37,6 +37,7 @@ import {ZITI_DATA_SERVICE, ZitiDataService} from "../../services/ziti-data.servi
 import {ActivatedRoute, NavigationEnd, Router} from "@angular/router";
 import {Subscription} from "rxjs";
 import {Location} from "@angular/common";
+import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service";
 
 // @ts-ignore
 const {context, tags, resources, service, app} = window;
@@ -82,7 +83,9 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     previousRoute;
     showMore = false;
 
+    _settings: any = {};
     checkDataChangeDebounced = debounce(this.checkDataChange, 100, {maxWait: 100});
+    ignoreDataChange = false;
 
     subscription: Subscription = new Subscription();
 
@@ -92,7 +95,8 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         @Inject(ZITI_DATA_SERVICE) protected zitiService: ZitiDataService,
         protected router?: Router,
         protected route?: ActivatedRoute,
-        protected location?: Location
+        protected location?: Location,
+        @Inject(SETTINGS_SERVICE) protected settingsService?: SettingsService,
     ) {
         super();
         this.previousRoute = this.router.getCurrentNavigation().previousNavigation?.finalUrl?.toString();
@@ -113,6 +117,17 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
                     const pathSegments = event.snapshot.routeConfig.path.split('/');
                     this.basePath = pathSegments[0];
                 }
+            })
+        );
+        this.subscription.add(
+            this.settingsService.settingsChange?.subscribe(params => {
+                const newSettings = cloneDeep(this.settingsService.settings);
+                if (!isEmpty(this.formData?.id) && (isEmpty(this._settings) || this._settings.session?.id === newSettings.session?.id)) {
+                    this._settings = newSettings;
+                    return;
+                }
+                this._settings = newSettings;
+                this.ngOnInit();
             })
         );
     }
@@ -255,6 +270,9 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     }
 
     protected checkDataChange() {
+        if (this.ignoreDataChange) {
+            return;
+        }
         let initData = cloneDeep(this.initData);
         initData = this.omitEmptyData(initData);
         let formData = cloneDeep(this.formData);

@@ -54,7 +54,7 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
   settings: any = {};
 
   constructor(
-      @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
+      @Inject(SETTINGS_SERVICE) protected override settingsService: SettingsService,
       public svc: EdgeRouterFormService,
       @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
       growlerService: GrowlerService,
@@ -63,7 +63,7 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
       protected override route: ActivatedRoute,
       location: Location
   ) {
-    super(growlerService, extService, zitiService, router, route, location);
+    super(growlerService, extService, zitiService, router, route, location, settingsService);
     this.edgeRouterRoleAttributes = [];
   }
 

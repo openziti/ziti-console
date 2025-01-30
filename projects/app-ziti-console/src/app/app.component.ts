@@ -18,6 +18,7 @@ import {Component, OnInit, Inject} from '@angular/core';
 import {SettingsServiceClass, LoginServiceClass, SETTINGS_SERVICE, ZITI_DOMAIN_CONTROLLER, ZAC_LOGIN_SERVICE} from "ziti-console-lib";
 import { SimpleZitiDomainControllerService} from './services/simple-ziti-domain-controller.service';
 import { Router } from '@angular/router';
+import {MatDialog} from "@angular/material/dialog";
 
 @Component({
     selector: 'app-root',
@@ -38,7 +39,8 @@ export class AppComponent implements OnInit {
         @Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
         @Inject(ZITI_DOMAIN_CONTROLLER) private zitiControllerService: SimpleZitiDomainControllerService,
         @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass,
-        private router: Router
+        private router: Router,
+        private dialogRef: MatDialog
     ) {}
 
     ngOnInit() {
@@ -51,16 +53,25 @@ export class AppComponent implements OnInit {
             this.loading = false;
             this.checkSession();
         });
+        this.checkOriginForController();
     }
 
     async checkSession() {
         this.isAuthorized = this.settingsService.hasSession();
         if (!this.isAuthorized) {
+            this.loginService.loginDialogOpen = false;
+            this.dialogRef.closeAll();
             this.router.navigate(['/login']);
         }
         return Promise.resolve();
     }
- 
+
+    checkOriginForController() {
+        this.loginService.checkOriginForController().then((result) => {
+            this.loginService.originIsController = result;
+        });
+    }
+
     handleUserSettings() {
         if (localStorage.getItem("mode")!=null&&localStorage.getItem("mode")=="dark") {
             this.darkmodeEnabled = true;
