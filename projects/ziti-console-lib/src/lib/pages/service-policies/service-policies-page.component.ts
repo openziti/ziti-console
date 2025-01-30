@@ -53,6 +53,7 @@ export class ServicePoliciesPageComponent extends ListPageComponent implements O
 
   override ngOnInit() {
     super.ngOnInit();
+    this.getRoleAttributes();
     this.tabs = this.tabNames.getTabs('policies');
   }
 

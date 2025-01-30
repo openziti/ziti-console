@@ -68,6 +68,7 @@ import {ControllerLoginService} from "./login/controller-login.service";
 import {NodeLoginService} from "./login/node-login.service";
 import {NodeSettingsService} from "./services/node-settings.service";
 import {NoopHttpInterceptor} from "./interceptors/noop-http.interceptor";
+import {NodeApiInterceptor} from "./interceptors/node-api.interceptor";
 
 let loginService, zitiDataService, settingsService, wrapperService, apiInterceptor;
 if (environment.nodeIntegration) {
@@ -75,7 +76,7 @@ if (environment.nodeIntegration) {
     zitiDataService = NodeDataService;
     settingsService = NodeSettingsService;
     wrapperService = NodeWrapperService;
-    apiInterceptor = NoopHttpInterceptor;
+    apiInterceptor = NodeApiInterceptor;
 }else {
     loginService = ControllerLoginService;
     zitiDataService = ZitiControllerDataService;

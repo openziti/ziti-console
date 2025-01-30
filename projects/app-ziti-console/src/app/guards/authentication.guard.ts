@@ -21,8 +21,13 @@ import {
   LoginServiceClass,
   SETTINGS_SERVICE,
   ZAC_LOGIN_SERVICE,
-  GrowlerService, GrowlerModel
+  GrowlerService,
+  GrowlerModel,
+  LoginDialogComponent
 } from "ziti-console-lib";
+import {defer} from "lodash";
+import {MatDialog} from "@angular/material/dialog";
+import {map, Observable, of} from "rxjs";
 // @ts-ignore
 const {growler} = window;
 
@@ -30,21 +35,35 @@ export const AUTHENTICATION_GUARD = new InjectionToken<any>('AUTHENTICATION_GUAR
 
 @Injectable({providedIn: 'root'})
 export class AuthenticationGuard {
+  dialogRef: any = {};
+
   constructor(
       @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass,
       @Inject(SETTINGS_SERVICE) private settingsSvc: SettingsService,
       private router: Router,
-      private growlerService: GrowlerService
+      private growlerService: GrowlerService,
+      private dialogForm: MatDialog,
   ) {
   }
 
-  canActivate(next, state) {
-    const isAuthorized = this.settingsSvc.hasSession();
-    if (!isAuthorized) {
-      this.settingsSvc.set(this.settingsSvc.settings);
-      this.router.navigate(['/login']);
+  canActivate(next, state): Observable<boolean> {
+    let isAuthorized = this.settingsSvc.hasSession();
+    if (isAuthorized) {
+      return of(true);
     }
-
-    return isAuthorized;
+    if (this.loginService.loginDialogOpen) {
+      return of(false);
+    }
+    this.dialogRef = this.dialogForm.open(LoginDialogComponent, {
+      data: {},
+      autoFocus: false,
+    });
+    return this.dialogRef.afterClosed().pipe(map((result: any) => {
+      if (result?.isLoggedIn) {
+        return this.settingsSvc.hasSession();
+      } else {
+        return false;
+      }
+    }));
   }
 }

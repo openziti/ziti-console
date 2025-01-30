@@ -17,7 +17,7 @@
 import {Injectable, Inject} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {LoginServiceClass, SettingsServiceClass, GrowlerService, GrowlerModel, SETTINGS_SERVICE} from "ziti-console-lib";
-import {firstValueFrom, lastValueFrom, Observable, ObservableInput, of, switchMap, tap} from "rxjs";
+import {finalize, firstValueFrom, lastValueFrom, Observable, ObservableInput, of, switchMap, tap} from "rxjs";
 import {catchError} from "rxjs/operators";
 import {Router} from "@angular/router";
 import moment from "moment";
@@ -42,8 +42,8 @@ export class ControllerLoginService extends LoginServiceClass {
         return Promise.resolve();
     }
 
-    async login(prefix: string, url: string, username: string, password: string): Promise<any> {
-        return this.controllerLogin(prefix, url, username, password);
+    async login(prefix: string, url: string, username: string, password: string, doNav = true): Promise<any> {
+        return this.controllerLogin(prefix, url, username, password, doNav);
     }
 
     checkOriginForController(): Promise<any> {
@@ -59,20 +59,27 @@ export class ControllerLoginService extends LoginServiceClass {
         });
     }
 
-    controllerLogin(prefix: string, url: string, username: string, password: string): Promise<any> {
+    controllerLogin(prefix: string, url: string, username: string, password: string, doNav = true): Promise<any> {
         this.domain = url;
         const serviceUrl = url + prefix;
-        return lastValueFrom(this.observeLogin(serviceUrl, username, password)
+        return lastValueFrom(this.observeLogin(serviceUrl, username, password, doNav)
         ).then(() => {
-            this.router.navigate(['/']);
+            if (doNav) {
+                this.router.navigate(['/']);
+            }
         });
     }
 
-    observeLogin(serviceUrl: string, username?: string, password?: string) {
-        const queryParams = username && password ? '?method=password' : '?method=cert';
+    observeLogin(serviceUrl: string, username?: string, password?: string, doNav = true) {
+        if (this.loginInProgress) {
+            return of(false);
+        }
+        const isCertBased = !(username && password);
+        const queryParams = !isCertBased ? '?method=password' : '?method=cert';
         const requestBody = username && password ? { username, password } : undefined;
         const endpoint = serviceUrl + '/authenticate';
 
+        this.loginInProgress = true;
         return this.httpClient.post(endpoint + queryParams, requestBody, {
             headers: {
                 "content-type": "application/json",
@@ -80,7 +87,11 @@ export class ControllerLoginService extends LoginServiceClass {
         })
             .pipe(
                 switchMap((body: any) => {
-                    return this.handleLoginResponse.bind(this)(body, username, password)
+                    return this.handleLoginResponse.bind(this)(body, username, password).pipe(switchMap(body => {
+                        this.serviceUrl = serviceUrl;
+                        this.isCertBasedAuth = isCertBased;
+                        return of(body);
+                    }))
                 }),
                 catchError((err: any) => {
                     let errorMessage, growlerData;
@@ -102,14 +113,21 @@ export class ControllerLoginService extends LoginServiceClass {
                             `Login Failed`,
                             errorMessage,
                         );
-                        this.router.navigate(['/login']);
+                        if (doNav) {
+                            this.router.navigate(['/login']);
+                        }
                     }
-                    if (this.settingsService?.settings?.session) {
-                        this.settingsService.settings.session.id = undefined;
+                    if (doNav) {
+                        if (this.settingsService?.settings?.session) {
+                            this.settingsService.settings.session.id = undefined;
+                        }
+                        this.settingsService.set(this.settingsService.settings)
                     }
-                    this.settingsService.set(this.settingsService.settings)
                     this.growlerService.show(growlerData);
                     throw({error: errorMessage, controllerInvalid: err?.status === 0, statusText: err?.statusText});
+                }),
+                finalize(() => {
+                    this.loginInProgress = false
                 })
             );
     }

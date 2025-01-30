@@ -64,20 +64,11 @@ export class ServiceEdgeRouterPolicyFormService {
                 return false;
             });
         }).catch((resp) => {
-            let errorMessage;
-            if (resp?.error?.error?.cause?.message) {
-                errorMessage = resp?.error?.error?.cause?.message;
-            } else if (resp?.error?.error?.cause?.reason) {
-                errorMessage = resp?.error?.error?.cause?.reason;
-            }else if (resp?.error?.message) {
-                errorMessage = resp?.error?.message;
-            } else {
-                errorMessage = 'An unknown error occurred';
-            }
+            const errorMessage = this.zitiService.getErrorMessage(resp);
             const growlerData = new GrowlerModel(
                 'error',
                 'Error',
-                `Error Creating Edge Router Policy`,
+                `Error ${isUpdate ? 'Updating' : 'Creating'} Service Edge Router Policy`,
                 errorMessage,
             );
             this.growlerService.show(growlerData);

@@ -52,20 +52,11 @@ export class IdentityFormService {
             );
             this.growlerService.show(growlerData);
         }).catch((resp) => {
-            let errorMessage;
-            if (resp?.error?.error?.cause?.message) {
-                errorMessage = resp?.error?.error?.cause?.message;
-            } else if (resp?.error?.error?.cause?.reason) {
-                errorMessage = resp?.error?.error?.cause?.reason;
-            }else if (resp?.error?.message) {
-                errorMessage = resp?.error?.message;
-            } else {
-                errorMessage = 'An unknown error occurred';
-            }
+            const errorMessage = this.zitiService.getErrorMessage(resp);
             const growlerData = new GrowlerModel(
                 'error',
                 'Error',
-                `Error Creating Identity`,
+                `Error ${isUpdate ? 'Updating' : 'Creating'} Identity`,
                 errorMessage,
             );
             this.growlerService.show(growlerData);

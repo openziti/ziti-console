@@ -55,20 +55,11 @@ export class JwtSignerFormService {
                 return false;
             });
         }).catch((resp) => {
-            let errorMessage;
-            if (resp?.error?.error?.cause?.message) {
-                errorMessage = resp?.error?.error?.cause?.message;
-            } else if (resp?.error?.error?.cause?.reason) {
-                errorMessage = resp?.error?.error?.cause?.reason;
-            }else if (resp?.error?.message) {
-                errorMessage = resp?.error?.message;
-            } else {
-                errorMessage = 'An unknown error occurred';
-            }
+            const errorMessage = this.dataService.getErrorMessage(resp);
             const growlerData = new GrowlerModel(
                 'error',
                 'Error',
-                `Error Creating JWT Signer`,
+                `Error ${isUpdate ? 'Updating' : 'Creating'} JWT Signer`,
                 errorMessage,
             );
             this.growlerService.show(growlerData);

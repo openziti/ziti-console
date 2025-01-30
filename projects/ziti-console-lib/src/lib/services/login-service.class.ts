@@ -12,10 +12,14 @@ export const ZAC_LOGIN_SERVICE = new InjectionToken<any>('ZAC_LOGIN_SERVICE');
 export abstract class LoginServiceClass {
 
     public originIsController;
+    public loginDialogOpen = false;
+    public isCertBasedAuth = false;
+    public serviceUrl = '';
+    public loginInProgress = false;
 
     abstract init();
-    abstract login(prefix: string, url: string, username: string, password: string);
-    abstract observeLogin(serviceUrl: string, username: string, password: string);
+    abstract login(prefix: string, url: string, username: string, password: string, doNav?);
+    abstract observeLogin(serviceUrl: string, username: string, password: string, doNav?);
     abstract clearSession();
     abstract checkOriginForController(): Promise<any>;
     abstract logout();

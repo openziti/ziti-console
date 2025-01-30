@@ -23,7 +23,7 @@ import {firstValueFrom, map} from "rxjs";
 import {catchError} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
 import {FilterObj} from "../features/data-table/data-table-filter.service";
-import {isEmpty, get, isArray, isNumber, set} from "lodash";
+import {isEmpty, get, isArray, isNumber, set, isBoolean} from "lodash";
 import {ZitiDataService} from "./ziti-data.service";
 import {Resolver} from "@stoplight/json-ref-resolver";
 import moment from "moment";
@@ -32,6 +32,8 @@ import moment from "moment";
     providedIn: 'root'
 })
 export class NodeDataService extends ZitiDataService {
+
+    override dataServiceType = ZitiDataService.NODE_DATA_SERVICE_TYPE;
 
     constructor(override logger: LoggerService,
                 override growler: GrowlerService,
@@ -146,6 +148,9 @@ export class NodeDataService extends ZitiDataService {
                         throw({error: results.error});
                     } else if (results.error) {
                         this.handleError(results)
+                    }
+                    if (results && !results?.data) {
+                        results.data = {};
                     }
                     return results;
                 })
@@ -329,7 +334,7 @@ export class NodeDataService extends ZitiDataService {
                     break;
                 case 'SELECT':
                 case 'COMBO':
-                    const val = isNumber(filter.value) ? `${filter.value}` : `"${filter.value}"`;
+                    const val = isNumber(filter.value) || isBoolean(filter.value) ? `${filter.value}` : `"${filter.value}"`;
                     filterVal = `${filter.columnId} = ${val}`;
                     break;
                 case 'DATETIME':
@@ -370,14 +375,6 @@ export class NodeDataService extends ZitiDataService {
     }
 
     handleError(results) {
-        if (results?.errorObj?.code === 'UNAUTHORIZED') {
-            localStorage.removeItem('ziti.settings');
-            //window.location.href = '/login';
-            this.router.navigate(['/login']);
-            set(this.settingsService, 'hasNodeSession', false);
-            this.settingsService.set(this.settingsService.settings);
-        } else {
-            this.logger.error(results?.error)
-        }
+        this.logger.error(results?.error)
     }
 }

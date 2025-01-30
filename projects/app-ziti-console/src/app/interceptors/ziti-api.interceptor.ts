@@ -24,7 +24,9 @@ import {
     LoginServiceClass,
     SETTINGS_SERVICE,
     ZAC_LOGIN_SERVICE,
-    GrowlerModel, GrowlerService
+    GrowlerModel,
+    GrowlerService,
+    LoginDialogComponent
 } from "ziti-console-lib";
 import moment from "moment/moment";
 import {Router} from "@angular/router";
@@ -41,30 +43,33 @@ const {growler} = window;
 })
 export class ZitiApiInterceptor implements HttpInterceptor {
 
+    dialogRef: any;
+
     constructor(@Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
                 @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass,
                 private router: Router,
                 private growlerService: GrowlerService,
-                private dialogRef: MatDialog
+                private dialogForm: MatDialog,
                 ) {
 
     }
 
-    private handleErrorResponse(err: HttpErrorResponse): Observable<any> {
+    private handleErrorResponse(err: HttpErrorResponse, req?, next?): Observable<any> {
         if (err.status === 401) {
-            // User is unauthorized. redirect user back to login page
-            growler.disabled = true;
-            defer(() => {
-                this.dialogRef.closeAll();
-                growler.disabled = false;
-            });
-            if (this.settingsService?.settings?.session) {
-                this.settingsService.settings.session.id = undefined;
-                this.settingsService.settings.session.expiresAt = undefined;
-                this.settingsService.set(this.settingsService.settings);
+            if (this.loginService.loginDialogOpen) {
+                return of(err.message);
             }
-            this.router.navigate(['/login']);
-            return of(err.message); // or EMPTY may be appropriate here
+            if (this.loginService.isCertBasedAuth) {
+                return this.loginService.observeLogin(this.loginService.serviceUrl, undefined, undefined, false).pipe(
+                    switchMap(body => {
+                        return next.handle(this.addAuthToken(req));
+                    })
+                ).pipe(catchError(err => {
+                    this.showLoginDialog(err);
+                    return throwError(() => err);
+                }));
+            }
+            this.showLoginDialog(err);
         }
         return throwError(() => err);
     }
@@ -78,8 +83,36 @@ export class ZitiApiInterceptor implements HttpInterceptor {
         ) {
             return next.handle(req);
         } else {
-            return next.handle(this.addAuthToken(req)).pipe(catchError(err=> this.handleErrorResponse(err)));
+            return next.handle(this.addAuthToken(req)).pipe(catchError(err=> this.handleErrorResponse(err, req, next)));
         }
+    }
+
+    showLoginDialog(err) {
+        this.dialogRef = this.dialogForm.open(LoginDialogComponent, {
+            data: {},
+            autoFocus: false,
+        });
+        this.dialogRef.afterClosed().toPromise().then((result: any) => {
+            if (result?.isLoggedIn) {
+                return true;
+            } else if (result?.returnToLogin) {
+                // User is unauthorized. redirect user back to login page
+                growler.disabled = true;
+                defer(() => {
+                    this.dialogRef.closeAll();
+                    growler.disabled = false;
+                });
+                if (this.settingsService?.settings?.session) {
+                    this.settingsService.settings.session.id = undefined;
+                    this.settingsService.settings.session.expiresAt = undefined;
+                    this.settingsService.set(this.settingsService.settings);
+                }
+                this.router.navigate(['/login']);
+                return err.message;
+            } else {
+                return false;
+            }
+        });
     }
 
     private addAuthToken(request: any) {

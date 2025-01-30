@@ -23,7 +23,7 @@ import {HttpClient} from "@angular/common/http";
 import {FilterObj} from "../features/data-table/data-table-filter.service";
 import { LoginServiceClass } from './login-service.class';
 
-import {cloneDeep, isEmpty, sortedUniq} from "lodash";
+import {cloneDeep, isEmpty, sortedUniq, isString} from "lodash";
 import {SettingsServiceClass} from "./settings-service.class";
 
 export const ZITI_DATA_SERVICE = new InjectionToken<ZitiDataService>('ZITI_DATA_SERVICE');
@@ -32,6 +32,11 @@ export const ZITI_DATA_SERVICE = new InjectionToken<ZitiDataService>('ZITI_DATA_
   providedIn: 'root'
 })
 export abstract class ZitiDataService {
+
+  static NODE_DATA_SERVICE_TYPE = 'node';
+  static CONTROLLER_DATA_SERVICE_TYPE = 'controller';
+
+  dataServiceType = '';
 
   public get DEFAULT_PAGING() {
     return cloneDeep({
@@ -89,14 +94,17 @@ export abstract class ZitiDataService {
 
   getErrorMessage(resp) {
     let errorMessage;
+
     if (resp?.error?.error?.message) {
       errorMessage = resp?.error?.error?.message;
     } else if (resp?.error?.error?.cause?.message) {
       errorMessage = resp?.error?.error?.cause?.message;
     } else if (resp?.error?.error?.cause?.reason) {
       errorMessage = resp?.error?.error?.cause?.reason;
-    }else if (resp?.error?.message) {
+    } else if (resp?.error?.message) {
       errorMessage = resp?.error?.message;
+    } else if (isString(resp?.error)) {
+      errorMessage = resp?.error;
     } else {
       errorMessage = 'An unknown error occurred';
     }

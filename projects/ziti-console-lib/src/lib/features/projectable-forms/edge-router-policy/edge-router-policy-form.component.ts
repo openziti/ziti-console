@@ -57,7 +57,7 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
   override entityClass = EdgeRouterPolicy;
 
   constructor(
-      @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
+      @Inject(SETTINGS_SERVICE) protected override settingsService: SettingsService,
       public svc: EdgeRouterPolicyFormService,
       @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
       growlerService: GrowlerService,
@@ -66,7 +66,7 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
       protected override route: ActivatedRoute,
       location: Location
   ) {
-    super(growlerService, extService, zitiService, router, route, location);
+    super(growlerService, extService, zitiService, router, route, location, settingsService);
   }
 
   override ngOnInit(): void {

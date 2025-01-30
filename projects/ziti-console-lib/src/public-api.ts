@@ -42,6 +42,7 @@ export * from './lib/features/projectable-forms/configuration/configuration-form
 export * from './lib/features/extendable/extendable.component';
 export * from './lib/features/data-table/data-table-filter.service';
 export * from './lib/features/card-list/card-list.component';
+export * from './lib/features/login/login-dialog.component';
 export * from './lib/features/sidebars/side-toolbar/side-toolbar.component';
 export * from './lib/features/sidebars/side-navbar/side-navbar.component';
 export * from './lib/features/sidebars/side-banner/side-banner.component';
