@@ -135,22 +135,6 @@
                     </div>
                 </lib-form-field-container>
                 <lib-form-field-toggle [(toggleOn)]="showMore" (toggleOnChange)="showMoreChanged($event)" style="margin: 0px 10px"></lib-form-field-toggle>
-                <lib-form-field-container
-                    *ngIf="showMore && showTokenType"
-                    [title]="'Tarket Token Type'"
-                    [label]="'Required'"
-                    [helpText]="'The target token type. Can be either Access or ID'"
-                    class="form-field-advanced"
-                >
-                    <select
-                            [(ngModel)]="targetToken"
-                            id="authPolicyId"
-                            class="form-field-dropdown"
-                    >
-                        <option value="ACCESS">Access</option>
-                        <option value="ID">ID</option>
-                    </select>
-                </lib-form-field-container>
                 <div [hidden]="!showMore" class="form-group-column">
                     <lib-form-field-container
                             [title]="'Custom Tags'"

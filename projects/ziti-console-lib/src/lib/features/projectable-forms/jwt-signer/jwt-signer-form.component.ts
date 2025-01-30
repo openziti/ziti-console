@@ -28,7 +28,6 @@ import {ProjectableForm} from "../projectable-form.class";
 import {GrowlerService} from "../../messaging/growler.service";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../../extendable/extensions-noop.service";
 
-import semver from 'semver';
 import {cloneDeep, defer, delay, forOwn, keys, invert, isEmpty, isNil, unset} from 'lodash';
 import {GrowlerModel} from "../../messaging/growler.model";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
@@ -235,25 +234,6 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         return isEmpty(this.errors);
     }
 
-    get showTokenType() {
-        return !isEmpty(this.settingsService?.zitiSemver) && semver.gte(this.settingsService?.zitiSemver, '1.3.4')
-    }
-
-    get targetToken() {
-        if (this.formData && !this.formData.targetToken) {
-            this.formData.targetToken = 'ACCESS';
-            this.initData = cloneDeep(this.formData);
-        }
-        return this.formData.targetToken;
-    }
-
-    set targetToken(val) {
-        if (!this.formData) {
-            return;
-        }
-        this.formData.targetToken = val;
-    }
-
     get apiCallURL() {
         return this.settings.selectedEdgeController + '/edge/management/v1/external-jwt-signers' + (this.formData.id ? `/${this.formData.id}` : '');
     }
@@ -275,9 +255,6 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         };
         if (!isEmpty(this.formData.jwksEndpoint)) {
             data.jwksEndpoint = this.formData.jwksEndpoint;
-        }
-        if (!isEmpty(this.formData.targetToken) && this.showTokenType) {
-            data.targetToken = this.formData.targetToken;
         }
         if (!isEmpty(this.formData.id)) {
             data.id = this.formData.id;

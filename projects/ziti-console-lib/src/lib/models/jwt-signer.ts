@@ -12,5 +12,4 @@ export class JwtSigner {
     jwksEndpoint: string = undefined;
     certPem: string = undefined;
     tags: any = {};
-    targetToken: string = 'ACCESS';
 };
