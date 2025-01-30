@@ -17,7 +17,7 @@
 import {Injectable, Inject} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {LoginServiceClass, SettingsServiceClass, GrowlerService, GrowlerModel, SETTINGS_SERVICE} from "ziti-console-lib";
-import {firstValueFrom, lastValueFrom, Observable, ObservableInput, of, switchMap, tap} from "rxjs";
+import {finalize, firstValueFrom, lastValueFrom, Observable, ObservableInput, of, switchMap, tap} from "rxjs";
 import {catchError} from "rxjs/operators";
 import {Router} from "@angular/router";
 import moment from "moment";
@@ -71,10 +71,15 @@ export class ControllerLoginService extends LoginServiceClass {
     }
 
     observeLogin(serviceUrl: string, username?: string, password?: string, doNav = true) {
-        const queryParams = username && password ? '?method=password' : '?method=cert';
+        if (this.loginInProgress) {
+            return of(false);
+        }
+        const isCertBased = !(username && password);
+        const queryParams = !isCertBased ? '?method=password' : '?method=cert';
         const requestBody = username && password ? { username, password } : undefined;
         const endpoint = serviceUrl + '/authenticate';
 
+        this.loginInProgress = true;
         return this.httpClient.post(endpoint + queryParams, requestBody, {
             headers: {
                 "content-type": "application/json",
@@ -82,7 +87,11 @@ export class ControllerLoginService extends LoginServiceClass {
         })
             .pipe(
                 switchMap((body: any) => {
-                    return this.handleLoginResponse.bind(this)(body, username, password)
+                    return this.handleLoginResponse.bind(this)(body, username, password).pipe(switchMap(body => {
+                        this.serviceUrl = serviceUrl;
+                        this.isCertBasedAuth = isCertBased;
+                        return of(body);
+                    }))
                 }),
                 catchError((err: any) => {
                     let errorMessage, growlerData;
@@ -116,6 +125,9 @@ export class ControllerLoginService extends LoginServiceClass {
                     }
                     this.growlerService.show(growlerData);
                     throw({error: errorMessage, controllerInvalid: err?.status === 0, statusText: err?.statusText});
+                }),
+                finalize(() => {
+                    this.loginInProgress = false
                 })
             );
     }

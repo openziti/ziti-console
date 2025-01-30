@@ -59,31 +59,17 @@ export class ZitiApiInterceptor implements HttpInterceptor {
             if (this.loginService.loginDialogOpen) {
                 return of(err.message);
             }
-            this.dialogRef = this.dialogForm.open(LoginDialogComponent, {
-                data: {},
-                autoFocus: false,
-            });
-            this.dialogRef.afterClosed().toPromise().then((result: any) => {
-                if (result?.isLoggedIn) {
-                    return true;
-                } else if (result?.returnToLogin) {
-                    // User is unauthorized. redirect user back to login page
-                    growler.disabled = true;
-                    defer(() => {
-                        this.dialogRef.closeAll();
-                        growler.disabled = false;
-                    });
-                    if (this.settingsService?.settings?.session) {
-                        this.settingsService.settings.session.id = undefined;
-                        this.settingsService.settings.session.expiresAt = undefined;
-                        this.settingsService.set(this.settingsService.settings);
-                    }
-                    this.router.navigate(['/login']);
-                    return err.message;
-                } else {
-                    return false;
-                }
-            });
+            if (this.loginService.isCertBasedAuth) {
+                return this.loginService.observeLogin(this.loginService.serviceUrl, undefined, undefined, false).pipe(
+                    switchMap(body => {
+                        return next.handle(this.addAuthToken(req));
+                    })
+                ).pipe(catchError(err => {
+                    this.showLoginDialog(err);
+                    return throwError(() => err);
+                }));
+            }
+            this.showLoginDialog(err);
         }
         return throwError(() => err);
     }
@@ -99,6 +85,34 @@ export class ZitiApiInterceptor implements HttpInterceptor {
         } else {
             return next.handle(this.addAuthToken(req)).pipe(catchError(err=> this.handleErrorResponse(err, req, next)));
         }
+    }
+
+    showLoginDialog(err) {
+        this.dialogRef = this.dialogForm.open(LoginDialogComponent, {
+            data: {},
+            autoFocus: false,
+        });
+        this.dialogRef.afterClosed().toPromise().then((result: any) => {
+            if (result?.isLoggedIn) {
+                return true;
+            } else if (result?.returnToLogin) {
+                // User is unauthorized. redirect user back to login page
+                growler.disabled = true;
+                defer(() => {
+                    this.dialogRef.closeAll();
+                    growler.disabled = false;
+                });
+                if (this.settingsService?.settings?.session) {
+                    this.settingsService.settings.session.id = undefined;
+                    this.settingsService.settings.session.expiresAt = undefined;
+                    this.settingsService.set(this.settingsService.settings);
+                }
+                this.router.navigate(['/login']);
+                return err.message;
+            } else {
+                return false;
+            }
+        });
     }
 
     private addAuthToken(request: any) {
