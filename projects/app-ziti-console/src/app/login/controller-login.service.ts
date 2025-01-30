@@ -62,7 +62,7 @@ export class ControllerLoginService extends LoginServiceClass {
     controllerLogin(prefix: string, url: string, username: string, password: string, doNav = true): Promise<any> {
         this.domain = url;
         const serviceUrl = url + prefix;
-        return lastValueFrom(this.observeLogin(serviceUrl, username, password)
+        return lastValueFrom(this.observeLogin(serviceUrl, username, password, doNav)
         ).then(() => {
             if (doNav) {
                 this.router.navigate(['/']);
@@ -70,7 +70,7 @@ export class ControllerLoginService extends LoginServiceClass {
         });
     }
 
-    observeLogin(serviceUrl: string, username?: string, password?: string) {
+    observeLogin(serviceUrl: string, username?: string, password?: string, doNav = true) {
         const queryParams = username && password ? '?method=password' : '?method=cert';
         const requestBody = username && password ? { username, password } : undefined;
         const endpoint = serviceUrl + '/authenticate';
@@ -104,12 +104,16 @@ export class ControllerLoginService extends LoginServiceClass {
                             `Login Failed`,
                             errorMessage,
                         );
-                        this.router.navigate(['/login']);
+                        if (doNav) {
+                            this.router.navigate(['/login']);
+                        }
                     }
-                    if (this.settingsService?.settings?.session) {
-                        this.settingsService.settings.session.id = undefined;
+                    if (doNav) {
+                        if (this.settingsService?.settings?.session) {
+                            this.settingsService.settings.session.id = undefined;
+                        }
+                        this.settingsService.set(this.settingsService.settings)
                     }
-                    this.settingsService.set(this.settingsService.settings)
                     this.growlerService.show(growlerData);
                     throw({error: errorMessage, controllerInvalid: err?.status === 0, statusText: err?.statusText});
                 })

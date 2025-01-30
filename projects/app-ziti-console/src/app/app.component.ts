@@ -53,6 +53,7 @@ export class AppComponent implements OnInit {
             this.loading = false;
             this.checkSession();
         });
+        this.checkOriginForController();
     }
 
     async checkSession() {
@@ -64,7 +65,13 @@ export class AppComponent implements OnInit {
         }
         return Promise.resolve();
     }
- 
+
+    checkOriginForController() {
+        this.loginService.checkOriginForController().then((result) => {
+            this.loginService.originIsController = result;
+        });
+    }
+
     handleUserSettings() {
         if (localStorage.getItem("mode")!=null&&localStorage.getItem("mode")=="dark") {
             this.darkmodeEnabled = true;

@@ -84,7 +84,6 @@ export class ZitiApiInterceptor implements HttpInterceptor {
                     return false;
                 }
             });
-            return throwError(() => err);
         }
         return throwError(() => err);
     }

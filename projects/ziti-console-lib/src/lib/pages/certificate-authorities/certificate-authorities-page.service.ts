@@ -168,7 +168,6 @@ export class CertificateAuthoritiesPageService extends ListPageServiceClass {
                 headerName: 'JWT',
                 cellRenderer: jwtColumnRenderer,
                 headerComponent: TableColumnDefaultComponent,
-                headerComponentParams: enabledComponentParams,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
                 sortable: true,

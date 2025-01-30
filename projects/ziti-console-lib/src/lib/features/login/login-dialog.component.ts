@@ -14,25 +14,28 @@
     limitations under the License.
 */
 
-import {Component, Inject} from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 
 import {Router} from "@angular/router";
 import {LoginServiceClass, ZAC_LOGIN_SERVICE} from "../../services/login-service.class";
 import {SETTINGS_SERVICE} from "../../services/settings.service";
 import {SettingsServiceClass} from "../../services/settings-service.class";
+import {isEmpty} from "lodash";
 
 @Component({
   selector: 'lib-confirm',
   templateUrl: './login-dialog.component.html',
   styleUrls: ['./login-dialog.component.scss']
 })
-export class LoginDialogComponent {
+export class LoginDialogComponent implements OnInit {
 
   dataObj = {}
   selectedEdgeController = '';
   username = '';
   password = '';
+  loginFailed = false;
+  edgeControllerList = [];
 
   constructor(
     @Inject(ZAC_LOGIN_SERVICE) public svc: LoginServiceClass,
@@ -46,9 +49,46 @@ export class LoginDialogComponent {
     this.selectedEdgeController = this.settingsService?.settings?.selectedEdgeController;
   }
 
+  ngOnInit() {
+    this.settingsService.settingsChange.subscribe((results: any) => {
+      if (this.svc.originIsController) {
+        return;
+      }
+      if (results) this.settingsReturned(results);
+    });
+  }
+
+  settingsReturned(settings: any) {
+    this.edgeControllerList = [];
+    if (settings.edgeControllers?.length > 0) {
+      this.edgeControllerList = [];
+      settings.edgeControllers.forEach((controller) => {
+        if (!controller.url) {
+          return;
+        }
+        this.edgeControllerList.push({name:controller.name + ` (${controller.url})`, value: controller.url});
+      });
+    }
+    const serviceUrl = localStorage.getItem("ziti-serviceUrl-value");
+    if (!isEmpty(serviceUrl)) {
+      const lastUrl: any = JSON.parse(serviceUrl).data;
+      this.selectedEdgeController = lastUrl.trim();
+    } else {
+      this.selectedEdgeController = settings.selectedEdgeController;
+    }
+  }
+
+  edgeChanged(event?) {
+    if (this.selectedEdgeController) {
+      this.settingsService.initApiVersions(this.selectedEdgeController)
+    }
+    this.settingsService.settings.selectedEdgeController = this.selectedEdgeController;
+  }
+
   login() {
       const apiVersions = this.settingsService.apiVersions;
       const prefix = apiVersions && apiVersions["edge-management"]?.v1?.path || '';
+      this.loginFailed = false;
       this.svc.login(
           prefix,
           this.selectedEdgeController,
@@ -62,6 +102,8 @@ export class LoginDialogComponent {
         this.svc.loginDialogOpen = false;
         this.settingsService.set(this.settingsService.settings);
         this.dialogRef.close({isLoggedIn: true});
+      }).catch(() => {
+        this.loginFailed = true;
       });
   }
 

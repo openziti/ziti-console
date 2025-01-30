@@ -95,9 +95,10 @@ export class CertificateAuthorityFormComponent extends ProjectableForm implement
     }
 
     protected override entityUpdated() {
-        if (this.formData.id && this.formData.isVerified || true) {
+        this.badges = [];
+        if (this.formData.id && this.formData.isVerified) {
             this.badges.push({label: 'Verified', class: 'verified', circle: 'verified'});
-        } else {
+        } else if (this.formData.id) {
             this.badges.push({label: 'Unverified', class: 'unreg'});
         }
         super.entityUpdated();

@@ -83,3 +83,13 @@
     }
   }
 }
+
+.login-error-message {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  margin-top: .325rem;
+  color: var(--red);
+  font-weight: 600;
+  font-size: .925rem;
+}

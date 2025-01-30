@@ -42,11 +42,11 @@ export class NodeLoginService extends LoginServiceClass {
     }
 
     async login(prefix: string, url: string, username: string, password: string, doNav = true) {
-        return this.nodeLogin(url, username, password);
+        return this.nodeLogin(url, username, password, doNav);
     }
 
     nodeLogin(controllerURL: string, username: string, password: string, doNav = true) {
-        return lastValueFrom(this.observeLogin(controllerURL, username, password)
+        return lastValueFrom(this.observeLogin(controllerURL, username, password, doNav)
             ).then(() => {
                 if (doNav) {
                     this.router.navigate(['/']);
@@ -54,7 +54,7 @@ export class NodeLoginService extends LoginServiceClass {
             });
     }
 
-    observeLogin(controllerURL: string, username: string, password: string): Observable<any> {
+    observeLogin(controllerURL: string, username: string, password: string, doNav = true): Observable<any> {
         const loginURL = '/api/login';
         return this.httpClient.post(
             loginURL,
@@ -66,7 +66,7 @@ export class NodeLoginService extends LoginServiceClass {
             }
         ).pipe(
             switchMap((body: any) => {
-                return this.handleLoginResponse.bind(this)(body);
+                return this.handleLoginResponse.bind(this)(body, doNav);
             }),
             catchError((err: any) => {
                 const error = "Server Not Accessible";
@@ -86,11 +86,13 @@ export class NodeLoginService extends LoginServiceClass {
         this.clearSession();
     }
 
-    private async handleLoginResponse(body: any): Promise<any> {
+    private async handleLoginResponse(body: any, doNav = true): Promise<any> {
         if (body.success) {
             await this.checkForValidNodeSession();
             this.settingsService.set(this.settingsService.settings);
-            this.router.navigate(['/dashboard']);
+            if (doNav) {
+                this.router.navigate(['/dashboard']);
+            }
         } else {
             const growlerData = new GrowlerModel(
                 'error',
