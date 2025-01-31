@@ -210,7 +210,11 @@ export class CertificateAuthoritiesPageService extends ListPageServiceClass {
 
     private addActionsPerRow(results: any): any[] {
         return results.data.map((row) => {
-            row.actionList = ['update', 'verify', 'delete',];
+            let actionList = ['update', 'delete'];
+            if (!row.isVerified) {
+                actionList = ['update', 'verify', 'delete'];
+            }
+            row.actionList = actionList;
             return row;
         });
     }
