@@ -1,3 +1,11 @@
+# app-ziti-console-v3.8.0
+# ziti-console-lib-v0.8.1
+## Feature/Improvements
+* [Issue #611](https://github.com/openziti/ziti-console/issues/611) - New Certificate Authorities List Page and Edit Form
+* [Issue #614](https://github.com/openziti/ziti-console/issues/614) - Maintain application state when ziti session is expired
+* [Issue #601](https://github.com/openziti/ziti-console/issues/616) - Allow users to set "targetToken" property on JWT Signer
+
+
 # ziti-console-lib-v0.8.0
 ## Feature/Improvements
 * [Issue #601](https://github.com/openziti/ziti-console/issues/611) - New Certificate Authorities List Page and Edit Form
