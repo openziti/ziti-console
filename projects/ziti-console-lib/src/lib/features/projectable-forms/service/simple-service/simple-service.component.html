@@ -135,6 +135,7 @@
                                     [hasError]="errors.bindIdentities"
                                     (selectedNamedAttributesChange)="validateBindIdentities()"
                                     (selectedRoleAttributesChange)="validateBindIdentities()"
+                                    (filterChange)="getIdentityNamedAttributes($event)"
                             ></lib-tag-selector>
                         </div>
                         <div class="form-field-sub-group">
