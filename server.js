@@ -1524,17 +1524,6 @@ app.get('/resource/:resource/:name', function(request, response) {
 });
 
 /**
- * Save the customized resource to the system in their specific folder defined by the type of
- * resource being sent. Profile Images, Identity Images, Icons, etc
- */
-app.post('/api/upload', function(request, response) {
-	const body = {
-		message: 'This endpoint has been removed'
-	};
-	return response.status(410).send(body);
-});
-
-/**
  * Get the list of all resources defined for a specific type
  */
 app.post("/api/resources", function(request, response) {
