@@ -1528,17 +1528,10 @@ app.get('/resource/:resource/:name', function(request, response) {
  * resource being sent. Profile Images, Identity Images, Icons, etc
  */
 app.post('/api/upload', function(request, response) {
-	if (Object.keys(request.files).length == 0) return response.status(400).send("No Files Sent");
-
-	var image = request.files.image;
-	var resource = request.body.resource;
-	var saveTo = __dirname+settingsPath+'/resources/'+resource+'/'+image.name;
-	var fullUrl = '/resource/'+resource+'/'+image.name;
-	
-	image.mv(saveTo, function(error) {
-		if (error) return response.status(500).send(error);
-		else return response.send(fullUrl);
-	});
+	const body = {
+		message: 'This endpoint has been removed'
+	};
+	return response.status(410).send(body);
 });
 
 /**

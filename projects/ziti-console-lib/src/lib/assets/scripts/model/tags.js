@@ -20,7 +20,6 @@ var tags = {
         tags.get();
 	},
 	events: function() {
-        $('*[data-resource]').click(tags.load);
         $('*[data-array]').keyup(tags.addArray);
         $('*[data-array]').blur(tags.addBlurArray);
         $(".modal.box.full.open").on("click", tags.hideSelector);
@@ -57,9 +56,7 @@ var tags = {
         }
         return null;
     },
-    load: function(e) {
-        tags.showSelector(e);
-    },
+    load: function(e) {},
     loaded: function(e) {
         var items = e.id.split("-");
         tags.showResources(items[items.length-1]);
@@ -67,12 +64,7 @@ var tags = {
     hideSelector: function(e) {
         $('*[data-resources]').removeClass("open");
     },
-    showSelector: function(e) {
-        var tagId = $(e.currentTarget).data("id");
-        var resourceElements = $('#Tag_Resources_'+tagId);
-        tags.showResources(tagId);
-        resourceElements.addClass("open");
-    },
+    showSelector: function(e) {},
     showResources: function(tagId) {
         var resourceElements = $('#Tag_Resources_'+tagId);
         resourceElements.html("");
@@ -84,23 +76,11 @@ var tags = {
         }
         var element = $('<div class="upload" data-id="'+app.validate(tagId)+'"><div id="Progress_'+app.validate(tagId)+'" class="progress"></div></div>');
         var selector = $('<input id="Tag_'+app.validate(tagId)+'_SelectFile" data-id="'+app.validate(tagId)+'" type="file"/>');
-        element.click(uploader.select);
-        selector.change(uploader.selected);
         resourceElements.append(element);
         resourceElements.append(selector);
     },
-    selectResource: function(e) {
-        var id = $(e.currentTarget).parent().data("id");
-        var file = $(e.currentTarget).data("id");
-        $("#Tag_"+id+"_Hider").val(file);
-        $("#Tag_"+id).css("background-image","url("+file+")");
-        $('#Tag_Resources_'+id).removeClass("open");
-    },
-    doSelect: function(id, file) {
-        $("#Tag_"+id+"_Hider").val(file);
-        $("#Tag_"+id).css("background-image","url("+file+")");
-        $('#Tag_Resources_'+id).removeClass("open");
-    },
+    selectResource: function(e) {},
+    doSelect: function(id, file) {},
     addBlurArray: function(e) {
         var id = $(e.currentTarget).data("tag");
         var val = $(e.currentTarget).val().split(',').join('').trim();
