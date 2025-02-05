@@ -1524,24 +1524,6 @@ app.get('/resource/:resource/:name', function(request, response) {
 });
 
 /**
- * Save the customized resource to the system in their specific folder defined by the type of
- * resource being sent. Profile Images, Identity Images, Icons, etc
- */
-app.post('/api/upload', function(request, response) {
-	if (Object.keys(request.files).length == 0) return response.status(400).send("No Files Sent");
-
-	var image = request.files.image;
-	var resource = request.body.resource;
-	var saveTo = __dirname+settingsPath+'/resources/'+resource+'/'+image.name;
-	var fullUrl = '/resource/'+resource+'/'+image.name;
-	
-	image.mv(saveTo, function(error) {
-		if (error) return response.status(500).send(error);
-		else return response.send(fullUrl);
-	});
-});
-
-/**
  * Get the list of all resources defined for a specific type
  */
 app.post("/api/resources", function(request, response) {
