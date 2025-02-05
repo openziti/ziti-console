@@ -57,22 +57,20 @@ const processControllerUrls = (urlString) => {
 	}
 	const urls = urlString.split(',').map(url => url.trim());
 	const validUrls = urls.map(url => {
-		// If the URL doesn't have a protocol, prepend 'https://'
+		// If the controller URL doesn't have a protocol, prepend 'https://'
 		if (!/^https?:\/\//i.test(url)) {
 			url = 'https://' + url;
 		}
 		try {
-			// Validate the URL using the URL constructor
 			const validatedUrl = new URL(url);
 			const ctrlUrl = validatedUrl.toString().replace(/\/$/, '');
 			const setting = { name: ctrlUrl, url: ctrlUrl, default: false };
-			return setting; // Return the fully qualified URL (including the protocol)
+			return setting;
 		} catch (error) {
-			// If URL is invalid, log an error and return null or handle as needed
-			console.error(`Invalid URL: ${url}`);
+			log(`Invalid URL: ${url}`);
 			return null;
 		}
-	}).filter(Boolean) || []; // Remove any null values (invalid URLs)
+	}).filter(Boolean) || [];
 	return validUrls;
 };
 
