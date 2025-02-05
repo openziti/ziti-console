@@ -619,12 +619,8 @@ app.post("/api/settings", function(rewwquest, response) {
  */
 app.post("/api/controllerSave", function(request, response) {
 	var name = request.body.name.trim().replace(/[^a-zA-Z0-9 \-]/g, '');
-	var url = request.body.url.trim();
-	url = url.split('#').join('').split('?').join('');
-	if (url.endsWith('/')) url = url.substr(0, url.length-1);
 	var errors = [];
 	if (name.length==0) errors[errors.length] = "name";
-	if (url.length==0) errors[errors.length] = "url";
 	if (errors.length>0) {
 		response.json({ errors: errors });
 	} else {
@@ -634,18 +630,11 @@ app.post("/api/controllerSave", function(request, response) {
 			if (settings.edgeControllers[i].url==url) {
 				found = true;
 				settings.edgeControllers[i].name = name;
-				settings.edgeControllers[i].url = url;
 				break;
 			}
 		}
 		if (!found) {
-			var isDefault = false;
-			if (settings.edgeControllers.length==0) isDefault = true;
-			settings.edgeControllers[settings.edgeControllers.length] = {
-				name: name,
-				url: url,
-				default: isDefault
-			};
+			log("Controller not found in pre-defined list. Ignoring..: "+request.body);
 		}
 		fs.writeFileSync(__dirname+settingsPath+'/settings.json', JSON.stringify(settings));
 		response.json({edgeControllers: settings.edgeControllers});
