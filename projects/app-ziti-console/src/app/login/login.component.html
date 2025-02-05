@@ -2,63 +2,43 @@
     <div *ngIf="!isLoading">
         <div class="title">Ziti Admin Console</div>
         <div class="subtitle">Welcome, please login to continue</div>
-
-        <ng-container *ngIf="edgeCreate; else userLogin">
-            <lib-string-input [fieldName]="'Edge Controller Name'"
-                        [(fieldValue)]="edgeName" [error]="edgeNameError"
-                        [placeholder]="'enter a name for your controller'"
-            ></lib-string-input>
-            <lib-string-input [fieldName]="'URL'"
-                        [(fieldValue)]="edgeUrl" [error]="edgeUrlError"
-                        [placeholder]="'e.g. http://10.0.0.1:1280'"
-                        [helpText]="helpText"
-                        [fieldClass]="controllerInvalid ? 'invalid' : ''"
-            ></lib-string-input>
-            <div id="CreateArea" class="edgecreate buttons">
-                <div id="BackToLogin" *ngIf="edgeControllerList.length > 0" class="linkButton" (click)="reset()">Back To Login</div>
-                <button class="button" (click)="create()" [disabled]="!edgeName ||!edgeUrl">Set Controller</button>
-            </div>
-        </ng-container>
-
-        <ng-template #userLogin>
-                <lib-selector-input
-                    *ngIf="!svc.originIsController"
-                    [fieldName]="'Edge Controller'"
-                    [(fieldValue)]="selectedEdgeController"
-                    [error]="edgeNameError"
-                    [placeholder]="'Connect to a new Edge Controller'"
-                    [valueList]="edgeControllerList"
-                    [helpText]="helpText"
-                    [fieldClass]="controllerInvalid ? 'invalid' : ''"
-                    (fieldValueChange)="edgeChanged($event)"
-                >
-                </lib-selector-input>
-                <label for="Username" class="userlogin open">Username</label>
-                <input
-                    id="Username"
-                    name="username"
-                    type="text"
-                    autocomplete="on"
-                    required
-                    [placeholder]="'enter username of controller'"
-                    (change)="usernameChange($event)"
-                    (keyup)="usernameChange($event)"
-                >
-                <label for="Password" class="userlogin open">Password</label>
-                <input
-                    id="Password"
-                    name="password"
-                    type="password"
-                    autocomplete="on"
-                    required
-                    [placeholder]="'enter password of controller'"
-                    (change)="passwordChange($event)"
-                    (keyup)="passwordChange($event)"
-                >
-                <div class="buttons">
-                    <button class="button" (click)="login()">Login</button>
-                </div>
-        </ng-template>
+        <lib-selector-input
+            *ngIf="!svc.originIsController"
+            [fieldName]="'Edge Controller'"
+            [(fieldValue)]="selectedEdgeController"
+            [error]="edgeNameError"
+            [placeholder]="'Select an Edge Controller'"
+            [valueList]="edgeControllerList"
+            [helpText]="helpText"
+            [fieldClass]="controllerInvalid ? 'invalid' : ''"
+            (fieldValueChange)="edgeChanged($event)"
+        >
+        </lib-selector-input>
+        <label for="Username" class="userlogin open">Username</label>
+        <input
+            id="Username"
+            name="username"
+            type="text"
+            autocomplete="on"
+            required
+            [placeholder]="'enter username of controller'"
+            (change)="usernameChange($event)"
+            (keyup)="usernameChange($event)"
+        >
+        <label for="Password" class="userlogin open">Password</label>
+        <input
+            id="Password"
+            name="password"
+            type="password"
+            autocomplete="on"
+            required
+            [placeholder]="'enter password of controller'"
+            (change)="passwordChange($event)"
+            (keyup)="passwordChange($event)"
+        >
+        <div class="buttons">
+            <button class="button" (click)="login()">Login</button>
+        </div>
     </div>
 </div>
 <lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

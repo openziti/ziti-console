@@ -34,7 +34,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     password = '';
     edgeName: string = '';
     edgeUrl: string = '';
-    edgeCreate = false;
     userLogin = false;
     selectedEdgeController: any;
     controllerHostname = '';
@@ -55,6 +54,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     ngOnInit() {
         if (this.svc.originIsController !== false && this.svc.originIsController !== true) {
             this.checkOriginForController();
+        } else {
+            this.initSettings();
         }
         if (this.settingsService.hasSession()) {
             this.router.navigate(['/dashboard']);
@@ -71,7 +72,6 @@ export class LoginComponent implements OnInit, OnDestroy {
             this.svc.originIsController = result;
             if (this.svc.originIsController) {
                 this.svc.originIsController = true;
-                this.edgeCreate = false;
                 this.selectedEdgeController = window.location.origin;
                 this.controllerHostname = window.location.hostname;
                 this.settingsService.addContoller(this.controllerHostname, this.selectedEdgeController);
@@ -119,11 +119,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         }
     }
     next() {
-        if (this.edgeCreate) {
-            this.create();
-        } else {
-            this.login();
-        }
+        this.login();
     }
 
     create() {
@@ -150,7 +146,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     reset() {
         this.edgeNameError = '';
         this.edgeUrlError = '';
-        this.edgeCreate = false;
         this.userLogin = true;
     }
 
@@ -160,12 +155,8 @@ export class LoginComponent implements OnInit, OnDestroy {
         if (this.selectedEdgeController) {
             this.edgeName = ''
             this.edgeUrl = ''
-            this.edgeCreate = false;
             this.userLogin = true;
             this.settingsService.initApiVersions(this.selectedEdgeController)
-        } else {
-            this.edgeCreate = true;
-            this.userLogin = false;
         }
         this.settingsService.settings.selectedEdgeController = this.selectedEdgeController;
     }
@@ -183,7 +174,6 @@ export class LoginComponent implements OnInit, OnDestroy {
             });
             this.reset();
         } else {
-            this.edgeCreate = true;
             this.userLogin = false;
         }
         const serviceUrl = localStorage.getItem("ziti-serviceUrl-value");
