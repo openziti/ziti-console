@@ -24,3 +24,41 @@ select {
 select, input {
   max-width: 37.5rem;
 }
+
+.no-controllers-warning {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gapSmall);
+  background-color: var(--lightRed);
+  border-radius: 6.4px;
+  border-left-color: var(--red);
+  border-left-style: solid;
+  border-left-width: 5px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 10px 0px;
+  box-sizing: border-box;
+  color: var(--tableText);
+  font-family: sans-serif;
+  font-weight: 400;
+  margin-top: var(--marginXL);
+  margin-bottom: var(--marginXL);
+  padding: var(--paddingXL);
+  text-rendering: optimizelegibility;
+  width: fit-content;
+  height: fit-content;
+
+  .env-var-text {
+    color: var(--tableText);
+  }
+
+  code {
+    color: var(--tableText);
+    background-color: var(--stroke);
+    padding: var(--paddingSmall);
+    border-radius: .2rem;
+  }
+}
+
+.login-disabled {
+  opacity: .5;
+  pointer-events: none;
+}

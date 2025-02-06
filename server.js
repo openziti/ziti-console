@@ -41,7 +41,33 @@ const sessionStore = sessionStoreFactory(session);
 const __assets = '/dist/ziti-console-lib/assets';
 const __html = '/dist/ziti-console-lib/assets/html';
 
+const rateLimiter = (windowMs, maxRequests) => {
+	const requests = {};
 
+	return (req, res, next) => {
+		const ip = req.ip;
+		const now = Date.now();
+
+		if (!requests[ip]) {
+			requests[ip] = { count: 0, startTime: now };
+		}
+
+		const requestData = requests[ip];
+
+		if (now - requestData.startTime > windowMs) {
+			requestData.count = 0;
+			requestData.startTime = now;
+		}
+
+		requestData.count++;
+
+		if (requestData.count > maxRequests) {
+			return res.status(429).send('Too Many Requests');
+		}
+
+		next();
+	};
+};
 
 const loadModule = async (modulePath) => {
 	try {
@@ -614,9 +640,14 @@ app.post("/api/settings", function(rewwquest, response) {
 
 /**
  * Save controller information to the settings file if the server exists
+ * Limit 100 requests per minute
  */
-app.post("/api/controllerSave", function(request, response) {
-	var name = request.body.name.trim().replace(/[^a-zA-Z0-9 \-]/g, '');
+app.post("/api/controllerSave", rateLimiter(60000, 100), function(request, response) {
+	const name = request.body.name.trim().replace(/[^a-zA-Z0-9 \-]/g, '');
+	let url = request.body.url.trim();
+	url = url.split('#').join('').split('?').join('');
+	if (url.endsWith('/')) url = url.substr(0, url.length-1);
+	if (url.length==0) errors[errors.length] = "url";
 	var errors = [];
 	if (name.length==0) errors[errors.length] = "name";
 	if (errors.length>0) {

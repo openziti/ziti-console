@@ -201,4 +201,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     passwordChange(event) {
         this.password = event.currentTarget.value;
     }
+
+    get showNoControllers() {
+        return this.edgeControllerList.length===0 && !this.svc.originIsController && !this.svc.checkingControllerOrigin
+    }
 }
