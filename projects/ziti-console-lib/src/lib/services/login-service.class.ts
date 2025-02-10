@@ -11,6 +11,7 @@ export const ZAC_LOGIN_SERVICE = new InjectionToken<any>('ZAC_LOGIN_SERVICE');
 
 export abstract class LoginServiceClass {
 
+    public checkingControllerOrigin = false;
     public originIsController;
     public loginDialogOpen = false;
     public isCertBasedAuth = false;
