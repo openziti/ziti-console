@@ -15,11 +15,11 @@
         >
         </lib-selector-input>
         <div *ngIf="showNoControllers"class="no-controllers-warning">
-            <span><b>No Controllers Available</b></span>
+            <span class="warning-title"><b>No Controllers Available</b></span>
             <span>You must set at least one controller URL, prior to starting the ZAC node server</span>
             <span>Set an environment variable named <b class="env-var-text">ZAC_CONTROLLER_URLS</b> before starting the server</span>
-            <span>It must be a comma seperated list of 1 or more URLs. For Example:</span>
-            <code>ZAC_CONTROLLER_URLS=https://localhost:1280,https://somedomain.io:443</code>
+            <span>It must be a comma seperated list of 1 or more URLs.</span>
+            <code>ZAC_CONTROLLER_URLS=https://localhost:1280,https://example.domain.io:443</code>
         </div>
         <label for="Username" class="userlogin open" [ngClass]="{'login-disabled': showNoControllers}">Username</label>
         <input

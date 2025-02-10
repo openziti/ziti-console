@@ -43,8 +43,13 @@ select, input {
   margin-bottom: var(--marginXL);
   padding: var(--paddingXL);
   text-rendering: optimizelegibility;
+  min-width: 37.5rem;
   width: fit-content;
   height: fit-content;
+
+  .warning-title {
+    font-size: 1rem;
+  }
 
   .env-var-text {
     color: var(--tableText);
@@ -55,6 +60,7 @@ select, input {
     background-color: var(--stroke);
     padding: var(--paddingSmall);
     border-radius: .2rem;
+    width: fit-content;
   }
 }
 
