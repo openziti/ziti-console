@@ -1,3 +1,19 @@
+# app-ziti-console-v3.8.3
+# ziti-console-lib-v0.8.3
+## Bug Fixes
+* [Issue #625](https://github.com/openziti/ziti-console/issues/625) - Specify a list of pre-defined edge controllers when running the node server
+* [Issue #624](https://github.com/openziti/ziti-console/issues/624) - Remove file upload utility and node service
+
+# Notes:
+* This release will require all users deploying ZAC via the NodeJS server to specify a pre-defined list of ziti edge controller URL's in order to connect to a controller
+* To do this, users must define an environment variable called ZAC_CONTROLLER_URLS. For example:
+* It must be a comma seperated list of URLS. For example:
+*
+* On Mac/Linux: `export ZAC_CONTROLLER_URLS=https://localhost:1280,https://example.domain.io:443`
+* 
+* On Windows: `set ZAC_CONTROLLER_URLS=https://localhost:1280,https://example.domain.io:443`
+
+
 # app-ziti-console-v3.8.0
 # ziti-console-lib-v0.8.2
 ## Feature/Improvements
