@@ -1,5 +1,5 @@
-# app-ziti-console-v3.8.0
-# ziti-console-lib-v0.8.2
+# app-ziti-console-v3.9.0
+# ziti-console-lib-v0.9.0
 ## Feature/Improvements
 * [Issue #611](https://github.com/openziti/ziti-console/issues/611) - New Certificate Authorities List Page and Edit Form
 * [Issue #614](https://github.com/openziti/ziti-console/issues/614) - Maintain application state when ziti session is expired
