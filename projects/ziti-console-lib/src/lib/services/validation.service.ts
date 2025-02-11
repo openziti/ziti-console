@@ -106,6 +106,16 @@ export class ValidationService {
         }
     }
 
+    isValidJSON(val) {
+        try {
+            const jsonString = JSON.stringify(val);
+
+            return typeof jsonString === 'string' && jsonString !== '';
+        } catch (e) {
+            return false;
+        }
+    }
+
     redefineObject(obj) {
         for (let prop in obj) {
             if (Array.isArray(obj[prop]) && obj[prop].length==0) {
