@@ -34,7 +34,6 @@ export abstract class ListPageServiceClass {
 
     abstract initTableColumns(): any[];
     abstract getData(filters?: FilterObj[], sort?: any, page?: any): Promise<any[]>;
-    abstract validate: ValidatorCallback;
     abstract openUpdate(entity?: any);
     abstract resourceType: string;
 
@@ -204,20 +203,20 @@ export abstract class ListPageServiceClass {
         });
     }
 
-    checkForAssociatedServices(configs) {
-        const configsWithAssociations = [];
+    checkForAssociatedEntities(items, type, associatedType) {
+        const itemsWithAssociations = [];
         const promises = [];
-        configs.forEach((config) => {
-            const prom = this.dataService.getSubdata('configs', config.id, 'services').then((result: any) => {
+        items.forEach((config) => {
+            const prom = this.dataService.getSubdata(type, config.id, associatedType).then((result: any) => {
                 const services = result.data || [];
                 if (services.length > 0) {
-                    configsWithAssociations.push(config);
+                    itemsWithAssociations.push(config);
                 }
             });
             promises.push(prom);
         });
         return Promise.all(promises).then(() => {
-            return configsWithAssociations;
+            return itemsWithAssociations;
         });
     }
 

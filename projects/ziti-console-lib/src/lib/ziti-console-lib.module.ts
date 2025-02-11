@@ -120,6 +120,8 @@ import {
     VerifyCertificateComponent
 } from "./features/projectable-forms/certificate-authority/verify-certificate/verify-certificate.component";
 import {LoginDialogComponent} from "./features/login/login-dialog.component";
+import {ConfigTypesPageComponent} from "./pages/config-types/config-types-page.component";
+import {ConfigTypeFormComponent} from "./features/projectable-forms/config-type/config-type-form.component";
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -144,6 +146,8 @@ export function playerFactory() {
         PasswordInputComponent,
         TerminatorFormComponent,
         ConfigurationsPageComponent,
+        ConfigTypesPageComponent,
+        ConfigTypeFormComponent,
         ListPageHeaderComponent,
         FilterBarComponent,
         ListPageFormComponent,
@@ -247,6 +251,8 @@ export function playerFactory() {
         ProtocolAddressPortInputComponent,
         ConfigurationsPageComponent,
         ConfigurationFormComponent,
+        ConfigTypesPageComponent,
+        ConfigTypeFormComponent,
         EdgeRouterFormComponent,
         IdentitiesPageComponent,
         EdgeRoutersPageComponent,

@@ -47,6 +47,7 @@ export class ControllerLoginService extends LoginServiceClass {
     }
 
     checkOriginForController(): Promise<any> {
+        this.checkingControllerOrigin = true;
         const controllerUrl = window.location.origin;
         return this.settingsService.initApiVersions(controllerUrl).then((result) => {
             if (isNil(result) || isEmpty(result)) {
@@ -56,6 +57,8 @@ export class ControllerLoginService extends LoginServiceClass {
             }
         }).catch((result) => {
             return false;
+        }).finally(() => {
+            this.checkingControllerOrigin = false;
         });
     }
 

@@ -41,7 +41,33 @@ const sessionStore = sessionStoreFactory(session);
 const __assets = '/dist/ziti-console-lib/assets';
 const __html = '/dist/ziti-console-lib/assets/html';
 
+const rateLimiter = (windowMs, maxRequests) => {
+	const requests = {};
 
+	return (req, res, next) => {
+		const ip = req.ip;
+		const now = Date.now();
+
+		if (!requests[ip]) {
+			requests[ip] = { count: 0, startTime: now };
+		}
+
+		const requestData = requests[ip];
+
+		if (now - requestData.startTime > windowMs) {
+			requestData.count = 0;
+			requestData.startTime = now;
+		}
+
+		requestData.count++;
+
+		if (requestData.count > maxRequests) {
+			return res.status(429).send('Too Many Requests');
+		}
+
+		next();
+	};
+};
 
 const loadModule = async (modulePath) => {
 	try {
@@ -50,6 +76,29 @@ const loadModule = async (modulePath) => {
 	  throw new Error(`Unable to import module ${modulePath}`)
 	}
 }
+
+const processControllerUrls = (urlString) => {
+	if (!urlString) {
+		return [];
+	}
+	const urls = urlString.split(',').map(url => url.trim());
+	const validUrls = urls.map(url => {
+		// If the controller URL doesn't have a protocol, prepend 'https://'
+		if (!/^https?:\/\//i.test(url)) {
+			url = 'https://' + url;
+		}
+		try {
+			const validatedUrl = new URL(url);
+			const ctrlUrl = validatedUrl.toString().replace(/\/$/, '');
+			const setting = { name: ctrlUrl, url: ctrlUrl, default: false };
+			return setting;
+		} catch (error) {
+			log(`Invalid URL: ${url}`);
+			return null;
+		}
+	}).filter(Boolean) || [];
+	return validUrls;
+};
 
 var ziti;
 const zitiServiceName = process.env.ZITI_SERVICE_NAME || 'zac';
@@ -239,6 +288,22 @@ if (settings.port && !isNaN(settings.port)) port = settings.port;
 if (settings.portTLS && !isNaN(settings.portTLS)) portTLS = settings.portTLS;
 if (settings.rejectUnauthorized && !isNaN(settings.rejectUnauthorized)) rejectUnauthorized = settings.rejectUnauthorized;
 
+if (process.env.ZAC_CONTROLLER_URLS) {
+	const zacControllerUrlsVar = process.env.ZAC_CONTROLLER_URLS;
+	let zacControllerUrls = processControllerUrls(zacControllerUrlsVar);
+	zacControllerUrls = zacControllerUrls.filter((envController) => {
+		let ctrlExists = false;
+		if (settings.edgeControllers) {
+			settings.edgeControllers.forEach((settingsController) => {
+				if (envController.url === settingsController.url) {
+					ctrlExists = true;
+				}
+			});
+		}
+		return !ctrlExists;
+	});
+	settings.edgeControllers = [...settings.edgeControllers, ...zacControllerUrls];
+}
 
 if (process.env.PORT) port = process.env.PORT;
 if (process.env.PORTTLS) portTLS = process.env.PORTTLS;
@@ -292,7 +357,6 @@ if (settings.mail && settings.mail.host && settings.mail.host.trim().length>0) {
 
 
 /**------------- Authentication Section -------------**/
-
 app.get("/sso", (request, response) => {
 	var controller = request.query.controller;
 	var session = request.query.session;
@@ -576,66 +640,33 @@ app.post("/api/settings", function(rewwquest, response) {
 
 /**
  * Save controller information to the settings file if the server exists
+ * Limit 100 requests per minute
  */
-app.post("/api/controllerSave", function(request, response) {
-	var name = request.body.name.trim().replace(/[^a-zA-Z0-9 \-]/g, '');
-	var url = request.body.url.trim();
+app.post("/api/controllerSave", rateLimiter(60000, 100), function(request, response) {
+	const name = request.body.name.trim().replace(/[^a-zA-Z0-9 \-]/g, '');
+	let url = request.body.url.trim();
 	url = url.split('#').join('').split('?').join('');
 	if (url.endsWith('/')) url = url.substr(0, url.length-1);
+	if (url.length==0) errors[errors.length] = "url";
 	var errors = [];
 	if (name.length==0) errors[errors.length] = "name";
-	if (url.length==0) errors[errors.length] = "url";
 	if (errors.length>0) {
 		response.json({ errors: errors });
 	} else {
-		var callUrl = url+"/edge/management/v1/version";
-		log("Calling Controller: "+callUrl);
-		external.get(callUrl, {rejectUnauthorized: rejectUnauthorized, timeout: 5000}, function(err, res, body) {
-			if (err) {
-				log("Add Controller Error");
-				log(err);
-				response.json( {error: "Edge controller is not online or is not reachable.", errorObj: err} );
-			} else {
-				try {
-					var results = JSON.parse(body);
-					if (body.error) {
-						log("Add Controller Error");
-						log(JSON.stringify(body.error));
-						response.json( {error: "Invalid Edge Controller", errorObj: err} );
-					} else {
-						if (results.data.apiVersions.edge.v1 != null) {
-							log("Controller: "+url+" Returned: "+body);
-							var found = false;
-							for (var i=0; i<settings.edgeControllers.length; i++) {
-								if (settings.edgeControllers[i].url==url) {
-									found = true;
-									settings.edgeControllers[i].name = name;
-									settings.edgeControllers[i].url = url;
-									break;
-								}
-							}
-							if (!found) {
-								var isDefault = false;
-								if (settings.edgeControllers.length==0) isDefault = true;
-								settings.edgeControllers[settings.edgeControllers.length] = {
-									name: name,
-									url: url,
-									default: isDefault
-								};
-							}
-							fs.writeFileSync(__dirname+settingsPath+'/settings.json', JSON.stringify(settings));
-							response.json({edgeControllers: settings.edgeControllers});
-						} else {
-							log("Controller: "+url+" Returned: "+JSON.stringify(results));
-							response.json( {error: "Invalid Edge Controller", errorObj: results} );
-						}
-					}
-				} catch (e) {
-					log("Controller: "+url+" Returned "+(typeof body)+": "+body);
-					response.json( {error: "Invalid Edge Controller", errorObj: body} );
-				}
+		log("Updating Edge Controllers Setting: "+request.body);
+		var found = false;
+		for (var i=0; i<settings.edgeControllers.length; i++) {
+			if (settings.edgeControllers[i].url==url) {
+				found = true;
+				settings.edgeControllers[i].name = name;
+				break;
 			}
-		});		
+		}
+		if (!found) {
+			log("Controller not found in pre-defined list. Ignoring..: "+request.body);
+		}
+		fs.writeFileSync(__dirname+settingsPath+'/settings.json', JSON.stringify(settings));
+		response.json({edgeControllers: settings.edgeControllers});
 	}
 });
 
