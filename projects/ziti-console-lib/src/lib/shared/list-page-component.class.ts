@@ -44,6 +44,7 @@ export abstract class ListPageComponent {
     selectedItems: any[] = [];
     columnDefs: any = [];
     rowData = [];
+    reservedNames = [];
     filterApplied = false;
     dialogRef: any;
     modalOpen = false;
@@ -101,8 +102,12 @@ export abstract class ListPageComponent {
     updateSelectedItems(toggledItem?: any) {
         let itemSelected = false;
         this.selectedItems = [];
+
         this.rowData.forEach((item) => {
-            if (toggledItem?.id && toggledItem?.id === item?.id) {
+            const reserved = this.reservedNames?.includes(item.name);
+            if (reserved) {
+                item.selected = false;
+            } else if (toggledItem?.id && toggledItem?.id === item?.id) {
                 item.selected = toggledItem.selected;
             }
             if (item.selected) {

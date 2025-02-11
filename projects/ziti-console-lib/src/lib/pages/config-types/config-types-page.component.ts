@@ -16,7 +16,7 @@
 
 import {Component, OnInit} from '@angular/core';
 import {DataTableFilterService} from "../../features/data-table/data-table-filter.service";
-import {ConfigurationsPageService} from "./configurations-page.service";
+import {ConfigTypesPageService} from "./config-types-page.service";
 import {TabNameService} from "../../services/tab-name.service";
 import {ListPageComponent} from "../../shared/list-page-component.class";
 import {ConsoleEventsService} from "../../services/console-events.service";
@@ -26,17 +26,18 @@ import {ConfirmComponent} from "../../features/confirm/confirm.component";
 
 @Component({
     selector: 'lib-configurations',
-    templateUrl: './configurations-page.component.html',
-    styleUrls: ['./configurations-page.component.scss']
+    templateUrl: './config-types-page.component.html',
+    styleUrls: ['./config-types-page.component.scss']
 })
-export class ConfigurationsPageComponent extends ListPageComponent implements OnInit {
-    title = 'Configurations'
+export class ConfigTypesPageComponent extends ListPageComponent implements OnInit {
+    title = 'Config Types'
     tabs: { url: string, label: string }[] ;
     isLoading: boolean;
     formDataChanged = false;
+    override reservedNames = ['host.v1', 'host.v2', 'intercept.v1', 'ziti-tunneler-client.v1', 'ziti-tunneler-server.v1'];
 
     constructor(
-        override svc: ConfigurationsPageService,
+        override svc: ConfigTypesPageService,
         filterService: DataTableFilterService,
         private tabNames: TabNameService,
         consoleEvents: ConsoleEventsService,
@@ -63,14 +64,8 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
                 const selectedItems = this.rowData.filter((row) => {
                     return row.selected;
                 });
-                this.svc.checkForAssociatedEntities(selectedItems, 'configs', 'services').then((configsWithAssociations) => {
-                    const label = selectedItems.length > 1 ? 'configurations' : 'configuration';
-                    if (configsWithAssociations.length > 0) {
-                        this.confirmAssociatedDelete(configsWithAssociations, selectedItems, label);
-                    } else {
-                        this.openBulkDelete(selectedItems, label);
-                    }
-                });
+                const label = selectedItems.length > 1 ? 'config types' : 'config type';
+                this.openBulkDelete(selectedItems, label);
                 break;
             default:
         }
@@ -103,7 +98,7 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
     }
 
     deleteItem(item: any) {
-        this.openBulkDelete([item], 'config');
+        this.openBulkDelete([item], 'config type');
     }
 
     closeModal(event: any) {
@@ -122,10 +117,10 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
             return item.name;
         });
         const data = {
-            appendId: 'DeleteConfigsWithAssociations',
-            title: 'Configs In Use',
-            message: `The following configs are still in use by a service:`,
-            submessage: 'Deleting these configs may cause disruption to those services. Would you still like to continue?',
+            appendId: 'DeleteConfigTypesWithAssociations',
+            title: 'Config Type In Use',
+            message: `The following config types are still in use by a service:`,
+            submessage: 'Deleting these config types may cause disruption to those services. Would you still like to continue?',
             bulletList: configNames,
             confirmLabel: 'Yes',
             cancelLabel: 'Oops, no get me out of here',

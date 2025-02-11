@@ -20,6 +20,8 @@ import {PageNotFoundComponent} from "./page-not-found/page-not-found.component";
 import {LoginComponent} from "./login/login.component";
 import {
   ConfigurationsPageComponent,
+  ConfigTypeFormComponent,
+  ConfigTypesPageComponent,
   ZacWrapperComponent,
   IdentitiesPageComponent,
   DeactivateGuardService,
@@ -46,7 +48,7 @@ import {
   AuthPolicyFormComponent,
   CertificateAuthoritiesPageComponent,
   CertificateAuthorityFormComponent,
-  VerifyCertificateComponent
+  VerifyCertificateComponent,
 } from "ziti-console-lib";
 import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
@@ -170,12 +172,6 @@ const routes: Routes = [
     runGuardsAndResolvers: 'always',
   },
   {
-    path: 'config-types',
-    component: ZacWrapperComponent,
-    canActivate: mapToCanActivate([AuthenticationGuard]),
-    runGuardsAndResolvers: 'always',
-  },
-  {
     path: 'configs',
     component: ConfigurationsPageComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
@@ -188,6 +184,20 @@ const routes: Routes = [
     canActivate: mapToCanActivate([AuthenticationGuard]),
     canDeactivate: [DeactivateGuardService],
     runGuardsAndResolvers: 'always',
+  },
+  {
+      path: 'config-types',
+      component: ConfigTypesPageComponent,
+      canActivate: mapToCanActivate([AuthenticationGuard]),
+      canDeactivate: [DeactivateGuardService],
+      runGuardsAndResolvers: 'always',
+  },
+  {
+      path: 'config-types/:id',
+      component: ConfigTypeFormComponent,
+      canActivate: mapToCanActivate([AuthenticationGuard]),
+      canDeactivate: [DeactivateGuardService],
+      runGuardsAndResolvers: 'always',
   },
   {
     path: 'terminators',
