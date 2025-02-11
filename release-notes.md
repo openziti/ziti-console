@@ -1,5 +1,10 @@
-# app-ziti-console-v3.8.3
-# ziti-console-lib-v0.8.3
+# ziti-console-lib-v0.9.1
+## Bug Fixes
+* [Issue #632](https://github.com/openziti/ziti-console/issues/632) - Layout of config-types list page doesn't fill the main container
+
+
+# app-ziti-console-v3.9.0
+# ziti-console-lib-v0.9.0
 ## Feature/Improvements
 * [Issue #629](https://github.com/openziti/ziti-console/issues/629) - New Config Types List Page and Edit Form
 
