@@ -1,5 +1,8 @@
 # app-ziti-console-v3.8.3
 # ziti-console-lib-v0.8.3
+## Feature/Improvements
+* [Issue #629](https://github.com/openziti/ziti-console/issues/629) - New Config Types List Page and Edit Form
+
 ## Bug Fixes
 * [Issue #625](https://github.com/openziti/ziti-console/issues/625) - Specify a list of pre-defined edge controllers when running the node server
 * [Issue #624](https://github.com/openziti/ziti-console/issues/624) - Remove file upload utility and node service
