@@ -90,11 +90,9 @@ export class ConfigTypeFormComponent extends ProjectableForm implements OnInit, 
     }
 
     override entityUpdated() {
-        if (isEmpty(this.formData?.data)) {
-            this.formData.data = {};
-        }
-        if (isEmpty(this.formData?.configTypeId)) {
-            this.formData.configTypeId = '';
+        if (isEmpty(this.formData?.schema)) {
+            this.formData.schema = {};
+            this.initData = cloneDeep(this.formData);
         }
         this.selectedConfigTypeId = this.formData.configTypeId;
         this.initData = cloneDeep(this.formData);
@@ -185,9 +183,6 @@ export class ConfigTypeFormComponent extends ProjectableForm implements OnInit, 
 
     async save(event?: any) {
         this.errors = {};
-        if (isEmpty(this.formData.status)) {
-            this.formData.status = {};
-        }
         if (!this.validate()) {
             this.isLoading = false;
             return;
@@ -195,7 +190,7 @@ export class ConfigTypeFormComponent extends ProjectableForm implements OnInit, 
         const configId = await this.svc.save(this.formData).then((result) => {
             if (!isEmpty(result?.id)) {
                 this.formData = result;
-                this.initData = this.formData;
+                this.initData = cloneDeep(this.formData);
             }
             return result?.id;
         }).finally(() => {
