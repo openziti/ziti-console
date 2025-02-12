@@ -5,7 +5,7 @@ import {SchemaService} from "../../../services/schema.service";
 import {defer, isBoolean, isEmpty, isNil, keys} from "lodash";
 import {GrowlerModel} from "../../messaging/growler.model";
 import {GrowlerService} from "../../messaging/growler.service";
-import {Config} from "../../../models/config";
+import {ConfigType} from "../../../models/config-type";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../../extendable/extensions-noop.service";
 import {SERVICE_EXTENSION_SERVICE} from "../service/service-form.service";
 import {ValidationService} from "../../../services/validation.service";
@@ -41,7 +41,7 @@ export class ConfigTypeFormService {
 
     save(formData) {
         const isUpdate = !isEmpty(formData.id);
-        const data: any = this.getConfigDataModel(formData, isUpdate);
+        const data: any = this.getConfigTypeDataModel(formData, isUpdate);
         let prom;
         if (isUpdate) {
             prom = this.dataService.patch('config-types', data, formData.id, true);
@@ -82,8 +82,8 @@ export class ConfigTypeFormService {
         })
     }
 
-    getConfigDataModel(formData, isUpdate) {
-        const saveModel = new Config();
+    getConfigTypeDataModel(formData, isUpdate) {
+        const saveModel = new ConfigType();
         const modelProperties = keys(saveModel);
         modelProperties.forEach((prop) => {
             switch(prop) {
@@ -91,7 +91,6 @@ export class ConfigTypeFormService {
                     saveModel[prop] = formData[prop];
             }
         });
-        saveModel.data = this.validationService.redefineObject(saveModel.data);
         return saveModel;
     }
 }
