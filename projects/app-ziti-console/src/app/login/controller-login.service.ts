@@ -83,6 +83,7 @@ export class ControllerLoginService extends LoginServiceClass {
         const endpoint = serviceUrl + '/authenticate';
 
         this.loginInProgress = true;
+        this.certBasedAttempted = this.certBasedAttempted || isCertBased;
         return this.httpClient.post(endpoint + queryParams, requestBody, {
             headers: {
                 "content-type": "application/json",
