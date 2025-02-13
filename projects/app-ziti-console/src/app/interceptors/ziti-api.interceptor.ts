@@ -44,6 +44,8 @@ const {growler} = window;
 export class ZitiApiInterceptor implements HttpInterceptor {
 
     dialogRef: any;
+    doingCertRefresh = false;
+    retryRequestQue: any[] = [];
 
     constructor(@Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
                 @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass,
@@ -54,24 +56,45 @@ export class ZitiApiInterceptor implements HttpInterceptor {
 
     }
 
-    private handleErrorResponse(err: HttpErrorResponse, req?, next?): Observable<any> {
+    private handleErrorResponse(err: HttpErrorResponse, req?, next?: HttpHandler): Observable<any> {
         if (err.status === 401) {
-            if (this.loginService.loginDialogOpen) {
-                return of(err.message);
+            if (this.doingCertRefresh || this.loginService.loginDialogOpen) {
+                return new Observable((observer) => {
+                    this.retryRequestQue.push({ req, next, observer });
+                });
             }
-            if (this.loginService.isCertBasedAuth) {
+            if (this.loginService.isCertBasedAuth || !this.loginService.certBasedAttempted) {
+                this.doingCertRefresh = true;
                 return this.loginService.observeLogin(this.loginService.serviceUrl, undefined, undefined, false).pipe(
                     switchMap(body => {
+                        this.doingCertRefresh = false;
+                        this.retryRequestQue.forEach((failedRequest) => {
+                            this.retryFailedRequest(failedRequest);
+                        });
+                        this.retryRequestQue = [];
                         return next.handle(this.addAuthToken(req));
                     })
                 ).pipe(catchError(err => {
+                    this.doingCertRefresh = false;
+                    this.retryRequestQue = [];
                     this.showLoginDialog(err);
                     return throwError(() => err);
                 }));
             }
             this.showLoginDialog(err);
+            return new Observable((observer) => {
+                this.retryRequestQue.push({ req, next, observer });
+            });
         }
         return throwError(() => err);
+    }
+
+    private retryFailedRequest(queuedRequest: any): void {
+        const { req, next, observer } = queuedRequest;
+        next.handle(this.addAuthToken(req)).subscribe(
+            (response) => observer.next(response),
+            (error) => observer.error(error)
+        );
     }
 
     intercept(req: HttpRequest<any>, next: HttpHandler):
@@ -88,12 +111,17 @@ export class ZitiApiInterceptor implements HttpInterceptor {
     }
 
     showLoginDialog(err) {
+        this.loginService.loginDialogOpen = true;
         this.dialogRef = this.dialogForm.open(LoginDialogComponent, {
             data: {},
             autoFocus: false,
         });
         this.dialogRef.afterClosed().toPromise().then((result: any) => {
             if (result?.isLoggedIn) {
+                this.retryRequestQue.forEach((failedRequest) => {
+                    this.retryFailedRequest(failedRequest);
+                });
+                this.retryRequestQue = [];
                 return true;
             } else if (result?.returnToLogin) {
                 // User is unauthorized. redirect user back to login page
@@ -108,8 +136,10 @@ export class ZitiApiInterceptor implements HttpInterceptor {
                     this.settingsService.set(this.settingsService.settings);
                 }
                 this.router.navigate(['/login']);
+                this.retryRequestQue = [];
                 return err.message;
             } else {
+                this.retryRequestQue = [];
                 return false;
             }
         });

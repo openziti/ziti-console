@@ -28,6 +28,8 @@ import {isEmpty, defer} from "lodash";
 export class NodeLoginService extends LoginServiceClass {
     private domain = '';
     private hasNodeSession = false;
+    override certBasedAttempted = true;
+
     constructor(
         override httpClient: HttpClient,
         @Inject(SETTINGS_SERVICE) override settingsService: NodeSettingsService,

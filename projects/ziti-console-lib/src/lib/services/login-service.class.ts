@@ -15,6 +15,7 @@ export abstract class LoginServiceClass {
     public originIsController;
     public loginDialogOpen = false;
     public isCertBasedAuth = false;
+    public certBasedAttempted = false;
     public serviceUrl = '';
     public loginInProgress = false;
 

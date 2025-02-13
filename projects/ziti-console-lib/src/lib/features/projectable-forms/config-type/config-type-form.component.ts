@@ -90,16 +90,12 @@ export class ConfigTypeFormComponent extends ProjectableForm implements OnInit, 
     }
 
     override entityUpdated() {
-        if (isEmpty(this.formData?.schema)) {
+        if (!isEmpty(this.formData) && isEmpty(this.formData?.schema)) {
             this.formData.schema = {};
-            this.initData = cloneDeep(this.formData);
         }
         this.selectedConfigTypeId = this.formData.configTypeId;
         this.initData = cloneDeep(this.formData);
         this.isEditing = !isEmpty(this.formData.id);
-        if (this.configTypeEmpty) {
-            this.formData.configTypeId = '';
-        }
     }
 
     ngOnDestroy(): void {
