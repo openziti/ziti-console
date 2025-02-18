@@ -144,9 +144,7 @@ export class ControllerLoginService extends LoginServiceClass {
                 controllerDomain: this.domain,
                 authorization: 100,
                 expiresAt: body.data.expiresAt,
-                expirationSeconds: body.data.expirationSeconds,
-                username,
-                password
+                expirationSeconds: body.data.expirationSeconds
             }
         }
         this.settingsService.set(settings);
