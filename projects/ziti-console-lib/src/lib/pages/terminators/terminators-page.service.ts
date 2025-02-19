@@ -36,6 +36,16 @@ import {Router} from "@angular/router";
 })
 export class TerminatorsPageService extends ListPageServiceClass {
 
+    override DEFAULT_PAGING: any = {
+        filter: "",
+        noSearch: false,
+        order: "asc",
+        page: 1,
+        searchOn: "address",
+        sort: "address",
+        total: 50
+    }
+
     private paging = this.DEFAULT_PAGING;
 
     resourceType = 'terminators';
@@ -151,8 +161,9 @@ export class TerminatorsPageService extends ListPageServiceClass {
     }
 
     getData(filters?: FilterObj[], sort?: any) {
-        sort.sortBy = 'address';
-        // we can customize filters or sorting here before moving on...
+        if (sort.sortBy === 'name') {
+            sort.sortBy = 'address';
+        }
         return super.getTableData('terminators', this.paging, filters, sort)
             .then((results: any) => {
                 return this.processData(results);
