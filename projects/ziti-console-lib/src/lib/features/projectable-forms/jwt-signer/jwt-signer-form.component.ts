@@ -236,7 +236,7 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
     }
 
     get showTokenType() {
-        return !isEmpty(this.settingsService?.zitiSemver) && semver.gte(this.settingsService?.zitiSemver, '1.3.4')
+        return !isEmpty(this.settingsService?.zitiSemver) && semver.gte(this.settingsService?.zitiSemver, '1.4.0');
     }
 
     get targetToken() {
