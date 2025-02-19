@@ -970,7 +970,17 @@ app.post("/api/jwt", function(request, response) {
 	//});
 });
 
-
+app.post("/api/network-jwts", function(request, response) {
+	var id = request.body.id;
+	var type = request.body.type;
+	//Authenticate(request).then((results) => {
+	var url = serviceUrl+"/network-jwts";
+	log("Calling: "+url);
+	external.get(url, {json: {}, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
+		response.json({jwt: body.data[0]?.token});
+	});
+	//});
+});
 
 /**------------- Data Save Section -------------**/
 

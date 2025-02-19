@@ -478,10 +478,33 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                     this.handleServiceResult(data, returnTo);
                 });
                 break;
+            case 'reset':
+                this.resetIdentityPassword(params, returnTo);
+                break;
             case 'tags':
                 // For no this is a no-op
                 break;
         }
+    }
+
+    resetIdentityPassword(params: any, returnTo: any) {
+        const controllerDomain = this.settingsService?.settings?.selectedEdgeController || '';
+        this.callZitiEdge(`${controllerDomain}/edge/management/v1/current-identity/authenticators?filter=method="updb"`, { rejectUnauthorized: false }, 'GET', 'application/json').then((identResp) => {
+            const ident = identResp.data[0];
+            var id = ident.id;
+            var body = {
+                currentPassword: params.password,
+                password: params.newpassword,
+                username: ident.username
+            };
+            this.callZitiEdge(`${controllerDomain}/edge/management/v1/current-identity/authenticators/${id}`, body, 'PATCH', 'application/json').then((authResp) => {
+                if (authResp.error) {
+                    returnTo({ error: "Failed to update password" });
+                } else {
+                    returnTo({ success: "Password Updated" });
+                }
+            });
+        });
     }
 
     handleServiceResult(result, returnTo) {
