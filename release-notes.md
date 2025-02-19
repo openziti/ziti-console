@@ -1,3 +1,9 @@
+# app-ziti-console-v3.9.2
+# ziti-console-lib-v0.9.3
+## Feature/Improvements
+* [Issue #637](https://github.com/openziti/ziti-console/issues/637) - Update password from ZAC user management page
+* [Issue #639](https://github.com/openziti/ziti-console/issues/639) - Can't sort terminators list on anything other field besides address
+
 # app-ziti-console-v3.9.1
 # ziti-console-lib-v0.9.2
 ## Feature/Improvements
