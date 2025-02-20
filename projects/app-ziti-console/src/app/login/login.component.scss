@@ -21,10 +21,6 @@ select {
   padding-right: 0;
 }
 
-select, input {
-  max-width: 37.5rem;
-}
-
 .no-controllers-warning {
   display: flex;
   flex-direction: column;
@@ -67,4 +63,80 @@ select, input {
 .login-disabled {
   opacity: .5;
   pointer-events: none;
+}
+
+.divider-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  .idp-divider {
+    width: 100%;
+    flex: 1 1 auto;
+    display: flex;
+    height: 0.125rem;
+    max-height: 0.125rem;
+    border-top-width: 0.125rem;
+    border-top-color: var(--stroke);
+    border-top-style: solid;
+    margin-top: var(--marginMedium);
+    margin-bottom: var(--marginMedium);
+    padding-left: var(--paddingXXL);
+    padding-right: var(--paddingXXL);
+  }
+
+  .id-divider-label {
+    margin-left: var(--marginMedium);
+    margin-right: var(--marginMedium);
+    width: fit-content;
+    text-transform: uppercase;
+    flex: 1 0 auto;
+    color: var(--formSubGroup);
+  }
+}
+
+.idp-button {
+  color: var(--tableText);
+  height: var(--defaultInputHeight);
+  border-style: solid;
+  border-color: var(--inputBorder);
+  border-radius: var(--inputBorderRadius);
+  vertical-align: middle;
+  text-align: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--marginXL);
+  overflow: hidden;
+  transition: color 0.2s;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-family: "Open Sans", sans-serif;
+  text-transform: uppercase;
+  cursor: pointer;
+  width: 100%;
+
+  .spinner {
+    display: inline-block;
+    width: var(--spinnerSizeMedium);
+    height: var(--spinnerSizeMedium);
+    border-radius: 50%;
+    background: transparent;
+    border-top: var(--spinerBorderTopMedium);
+    border-right: var(--spinerBorderRightMedium);
+    border-bottom: var(--spinerBorderBottomMedium);
+    border-left: var(--spinerBorderLeftMedium);
+    animation: loading .5s infinite linear;
+    margin-left: var(--marginSmall);
+  }
+
+  &:hover {
+    filter: brightness(.95);
+    background-color: var(--shaded);
+  }
+  &:active {
+    transform: translateY(1px);
+  }
 }

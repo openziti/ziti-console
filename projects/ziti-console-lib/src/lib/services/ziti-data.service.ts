@@ -60,7 +60,7 @@ export abstract class ZitiDataService {
   abstract post(type, model, chained?, contentType?): Promise<any>;
   abstract put(type, model, id, chained?): Promise<any>;
   abstract patch(type, model, id, chained?): Promise<any>;
-  abstract get(type: string, paging: any, filters: FilterObj[], url?): Promise<any>;
+  abstract get(type: string, paging: any, filters: FilterObj[], url?, useClient?): Promise<any>;
   abstract getSubdata(entityType: string, id: any, dataType: string, paging?: any, contentType?): Promise<any>;
   abstract saveSubdata(entityType: string, id: any, dataType: string, params: any): Promise<any>;
   abstract deleteSubdata(entityType: string, id: any, dataType: string, params: any): Promise<any>;

@@ -107,10 +107,12 @@ export class ZitiControllerDataService extends ZitiDataService {
         );
     }
 
-    get(type: string, paging: any, filters: FilterObj[] = []): Promise<any> {
+    get(type: string, paging: any, filters: FilterObj[] = [], url?, useClient?): Promise<any> {
         const apiVersions = this.settingsService.apiVersions || {};
-        const prefix = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
-        const url = this.settingsService.settings.selectedEdgeController;
+        const managementUrl = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
+        const clientUrl = '/edge/client/v1';
+        const prefix = useClient ? clientUrl : managementUrl;
+        url = this.settingsService.settings.selectedEdgeController;
         const urlFilter = this.getUrlFilter(paging, filters);
         const serviceUrl = url + prefix + "/" + type + urlFilter;
 

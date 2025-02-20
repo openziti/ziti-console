@@ -29,7 +29,7 @@ import {GrowlerService} from "../../messaging/growler.service";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../../extendable/extensions-noop.service";
 
 import semver from 'semver';
-import {cloneDeep, defer, delay, forOwn, keys, invert, isEmpty, isNil, unset} from 'lodash';
+import {cloneDeep, defer, delay, forOwn, keys, invert, isEmpty, isNil, unset, trim} from 'lodash';
 import {GrowlerModel} from "../../messaging/growler.model";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
@@ -314,6 +314,10 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         }
     }
 
+    trimWhitespaceScopes() {
+        this.formData.scopes = this.formData?.scopes.map(trim);
+    }
+
     radioKeyDownHandler(event: any) {
         switch (event.key) {
             case 'ArrowLeft':
@@ -417,5 +421,8 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
             element.blur();
             element.focus();
         }
+        defer(() => {
+            this.trimWhitespaceScopes();
+        })
     }
 }

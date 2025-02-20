@@ -58,7 +58,9 @@ export class AppComponent implements OnInit {
 
     async checkSession() {
         this.isAuthorized = this.settingsService.hasSession();
-        if (!this.isAuthorized) {
+        const url = window.location.href;
+        const path = url.split("?")[0];
+        if (!this.isAuthorized && path.indexOf('callback') < 0) {
             this.loginService.loginDialogOpen = false;
             this.dialogRef.closeAll();
             this.router.navigate(['/login']);
