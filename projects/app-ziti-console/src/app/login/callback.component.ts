@@ -2,7 +2,7 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {OAuthService} from "angular-oauth2-oidc";
 import {Router} from "@angular/router";
 import {isEmpty} from "lodash";
-import {GrowlerModel, GrowlerService, LoginServiceClass, ZAC_LOGIN_SERVICE} from "ziti-console-lib";
+import {GrowlerModel, GrowlerService, LoginServiceClass, SettingsServiceClass, ZAC_LOGIN_SERVICE, SETTINGS_SERVICE} from "ziti-console-lib";
 
 @Component({
     selector: 'app-callback',
@@ -14,6 +14,8 @@ export class CallbackComponent implements OnInit {
         @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass,
         private growlerService: GrowlerService,
         private router: Router,
+        @Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
+
     ) {
 
     }
@@ -30,7 +32,7 @@ export class CallbackComponent implements OnInit {
                             // Handle post-login
                             const accessToken = this.oauthService.getAccessToken();
                             const prefix = '/edge/client/v1';
-                            const url = window.location.origin;
+                            const url = this.settingsService.settings.selectedEdgeController;
                             this.loginService.login(prefix, url, undefined, undefined, true, 'ext-jwt', accessToken);
                         } else {
                             const growlerData = new GrowlerModel(
