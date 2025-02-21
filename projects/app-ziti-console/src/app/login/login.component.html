@@ -1,7 +1,7 @@
 <div class="loginForm standard-form-fields" (keyup.enter)="next()">
     <div *ngIf="!isLoading">
         <div class="title">Ziti Admin Console</div>
-        <div class="subtitle">Welcome, please login to continue</div>
+        <div class="subtitle">Welcome, please log in to continue</div>
         <div *ngIf="showAddController">
             <lib-string-input [fieldName]="'Edge Controller Name'" [(fieldValue)]="edgeName" [error]="edgeNameError" [placeholder]="'enter a name for your controller'"></lib-string-input>
             <lib-string-input [fieldName]="'URL'" [(fieldValue)]="edgeUrl" [error]="edgeUrlError" [placeholder]="'e.g. https://example.domain.io:1280'" [helpText]="helpText" [fieldClass]="controllerInvalid ? 'invalid' : ''"></lib-string-input>
@@ -55,9 +55,9 @@
                     (keyup)="passwordChange($event)"
             >
             <div class="buttons">
-                <button class="button" (click)="login()" [ngClass]="{'login-disabled': showNoControllers}">Login</button>
+                <button class="button" (click)="login()" [ngClass]="{'login-disabled': showNoControllers}">Log in</button>
             </div>
-            <div *ngIf='extJwtSigners && extJwtSigners.length > 0' class="divider-container"><div class="idp-divider"></div><span class="id-divider-label">or sign in with</span><div class="idp-divider"></div></div>
+            <div *ngIf='extJwtSigners && extJwtSigners.length > 0' class="divider-container"><div class="idp-divider"></div><span class="id-divider-label">or log in with</span><div class="idp-divider"></div></div>
             <div *ngIf='extJwtSigners && extJwtSigners.length > 0' class="idp-buttons-container">
                 <div class="idp-button"
                      *ngFor="let jwtSigner of extJwtSigners"
