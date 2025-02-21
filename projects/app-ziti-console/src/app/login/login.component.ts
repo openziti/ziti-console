@@ -184,6 +184,7 @@ a
         this.edgeNameError = '';
         this.edgeUrlError = '';
         this.userLogin = true;
+        this.getExternalJwtSigners();
     }
 
     edgeChanged(event?) {
