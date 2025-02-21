@@ -64,6 +64,7 @@ export abstract class SettingsServiceClass {
     host = DEFAULTS.host;
     httpClient: HttpClient;
     zitiSemver = '';
+    allowControllerAdd = false;
 
     public supportedFeatures: any = {
         organization: false,

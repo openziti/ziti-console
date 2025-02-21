@@ -22,6 +22,7 @@ import {PageNotFoundComponent} from './page-not-found/page-not-found.component';
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {LoginComponent} from './login/login.component';
 import {FormsModule} from "@angular/forms";
+import { OAuthModule } from 'angular-oauth2-oidc';
 import {environment} from "./environments/environment";
 
 import {
@@ -51,7 +52,7 @@ import {
     IDENTITY_EXTENSION_SERVICE,
     SERVICE_POLICY_EXTENSION_SERVICE,
     EDGE_ROUTER_POLICY_EXTENSION_SERVICE,
-    SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE
+    SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE,
 } from "ziti-console-lib";
 
 import {AppRoutingModule} from "./app-routing.module";
@@ -69,6 +70,7 @@ import {NodeLoginService} from "./login/node-login.service";
 import {NodeSettingsService} from "./services/node-settings.service";
 import {NoopHttpInterceptor} from "./interceptors/noop-http.interceptor";
 import {NodeApiInterceptor} from "./interceptors/node-api.interceptor";
+import {CallbackComponent} from "./login/callback.component";
 
 let loginService, zitiDataService, settingsService, wrapperService, apiInterceptor;
 if (environment.nodeIntegration) {
@@ -90,6 +92,7 @@ if (environment.nodeIntegration) {
         AppComponent,
         PageNotFoundComponent,
         LoginComponent,
+        CallbackComponent
     ],
     imports: [
         BrowserModule,
@@ -101,6 +104,7 @@ if (environment.nodeIntegration) {
         OpenZitiConsoleLibModule,
         GrowlerModule,
         LoggerModule.forRoot({level: NgxLoggerLevel.DEBUG, serverLogLevel: NgxLoggerLevel.ERROR}),
+        OAuthModule.forRoot()
     ],
     exports: [],
     providers: [

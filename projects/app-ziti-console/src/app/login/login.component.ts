@@ -16,9 +16,9 @@
 
 import {Inject, Component, OnDestroy, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
-import {SettingsServiceClass, LoginServiceClass, SETTINGS_SERVICE, ZAC_LOGIN_SERVICE} from "ziti-console-lib";
+import {AuthService, SettingsServiceClass, LoginServiceClass, ZitiDataService, SETTINGS_SERVICE, ZAC_LOGIN_SERVICE, ZITI_DATA_SERVICE} from "ziti-console-lib";
 import {Subscription} from "rxjs";
-import {isEmpty, isNil, get} from "lodash";
+import {delay, isEmpty, isNil, get} from "lodash";
 
 // @ts-ignore
 const {growler, context} = window;
@@ -41,13 +41,18 @@ export class LoginComponent implements OnInit, OnDestroy {
     edgeUrlError = '';
     showEdge = false;
     isLoading = false;
+    extJwtSignersLoading = false;
     helpText;
     controllerInvalid = false;
+    extJwtSigners = [];
+    oauthLoading = '';
     private subscription = new Subscription();
 
     constructor(
         @Inject(ZAC_LOGIN_SERVICE) public svc: LoginServiceClass,
         @Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
+        @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
+        private authService: AuthService,
         private router: Router,
         ) { }
 
@@ -64,6 +69,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.settingsService.settingsChange.subscribe((results: any) => {
             if (results) this.settingsReturned(results);
         }));
+        this.getExternalJwtSigners();
     }
 
     checkOriginForController() {
@@ -84,6 +90,36 @@ export class LoginComponent implements OnInit, OnDestroy {
         });
     }
 
+    getExternalJwtSigners() {
+        this.extJwtSigners = [];
+        if (isEmpty(this.settingsService.settings.selectedEdgeController) || !this.settingsService.allowControllerAdd) {
+            return;
+        }
+        this.extJwtSignersLoading = true;
+        this.zitiService.get('external-jwt-signers', this.zitiService.DEFAULT_PAGING, [], undefined, true).then((results) => {
+            this.extJwtSigners = results.data || [];
+        }).finally(() => {
+            this.extJwtSignersLoading = false;
+        })
+    }
+
+    handleOAuthLogin(extJwtSigner: any) {
+        this.oauthLoading = extJwtSigner.name;
+        let scopes = extJwtSigner.scopes || [];
+        scopes = scopes.join(' ');
+        this.authService.configureOAuth(extJwtSigner.externalAuthUrl, extJwtSigner.clientId, extJwtSigner.audience, scopes).then((result) => {
+            if (result) {
+                delay(() => {
+                    this.oauthLoading = '';
+                }, 4000);
+            } else {
+                delay(() => {
+                    this.oauthLoading = '';
+                }, 700);
+            }
+        });
+    }
+a
     login() {
         if(this.selectedEdgeController) {
             context.set("serviceUrl", this.selectedEdgeController);
@@ -129,6 +165,7 @@ export class LoginComponent implements OnInit, OnDestroy {
                     this.handleControllerInvalid(true);
                     return;
                 }
+                this.selectedEdgeController = this.edgeUrl;
                 context.set("serviceUrl", this.edgeUrl);
                 this.settingsService.set(this.settingsService.settings);
             });
@@ -147,6 +184,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.edgeNameError = '';
         this.edgeUrlError = '';
         this.userLogin = true;
+        this.getExternalJwtSigners();
     }
 
     edgeChanged(event?) {
@@ -156,9 +194,12 @@ export class LoginComponent implements OnInit, OnDestroy {
             this.edgeName = ''
             this.edgeUrl = ''
             this.userLogin = true;
-            this.settingsService.initApiVersions(this.selectedEdgeController)
+            this.settingsService.initApiVersions(this.selectedEdgeController);
+        } else if (this.settingsService.allowControllerAdd) {
+            this.userLogin = false;
         }
         this.settingsService.settings.selectedEdgeController = this.selectedEdgeController;
+        this.getExternalJwtSigners();
     }
 
     initSettings() {
@@ -176,18 +217,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         } else {
             this.userLogin = false;
         }
-        const serviceUrl = localStorage.getItem("ziti-serviceUrl-value");
-        if (this.svc.originIsController) {
-            // the origin is already selected as the target ziti controller so no need to set it again.
-            this.selectedEdgeController = settings.selectedEdgeController;
-            return;
-        }
-        if (!isEmpty(serviceUrl)) {
-            const lastUrl: any = JSON.parse(serviceUrl).data;
-            this.selectedEdgeController = lastUrl.trim();
-        } else {
-            this.selectedEdgeController = settings.selectedEdgeController;
-        }
+        this.selectedEdgeController = settings.selectedEdgeController;
     }
 
     ngOnDestroy(): void {
@@ -202,7 +232,15 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.password = event.currentTarget.value;
     }
 
+    get showAddController() {
+        return !this.showNoControllers && (this.edgeControllerList.length===0 || !this.userLogin);
+    }
+
     get showNoControllers() {
-        return this.edgeControllerList.length===0 && !this.svc.originIsController && !this.svc.checkingControllerOrigin
+        return this.edgeControllerList.length===0 && !this.svc.originIsController && !this.svc.checkingControllerOrigin && !this.settingsService.allowControllerAdd;
+    }
+
+    get controllerSelectPlaceholder() {
+        return this.settingsService.allowControllerAdd ? 'Add a New Edge Controller' : 'Select an Edge Controller';
     }
 }

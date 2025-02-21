@@ -42,8 +42,8 @@ export class ControllerLoginService extends LoginServiceClass {
         return Promise.resolve();
     }
 
-    async login(prefix: string, url: string, username: string, password: string, doNav = true): Promise<any> {
-        return this.controllerLogin(prefix, url, username, password, doNav);
+    async login(prefix: string, url: string, username: string, password: string, doNav = true, type?, token?): Promise<any> {
+        return this.controllerLogin(prefix, url, username, password, doNav, type, token);
     }
 
     checkOriginForController(): Promise<any> {
@@ -62,10 +62,10 @@ export class ControllerLoginService extends LoginServiceClass {
         });
     }
 
-    controllerLogin(prefix: string, url: string, username: string, password: string, doNav = true): Promise<any> {
+    controllerLogin(prefix: string, url: string, username: string, password: string, doNav = true, type?, token?): Promise<any> {
         this.domain = url;
         const serviceUrl = url + prefix;
-        return lastValueFrom(this.observeLogin(serviceUrl, username, password, doNav)
+        return lastValueFrom(this.observeLogin(serviceUrl, username, password, doNav, type, token)
         ).then(() => {
             if (doNav) {
                 this.router.navigate(['/']);
@@ -73,22 +73,26 @@ export class ControllerLoginService extends LoginServiceClass {
         });
     }
 
-    observeLogin(serviceUrl: string, username?: string, password?: string, doNav = true) {
+    observeLogin(serviceUrl: string, username?: string, password?: string, doNav = true, type?, token?) {
         if (this.loginInProgress) {
             return of(false);
         }
-        const isCertBased = !(username && password);
-        const queryParams = !isCertBased ? '?method=password' : '?method=cert';
-        const requestBody = username && password ? { username, password } : undefined;
-        const endpoint = serviceUrl + '/authenticate';
-
+        let isCertBased = !(username && password) && type !== 'ext-jwt';
+        let queryParams = isCertBased ? '?method=cert' : type === 'ext-jwt' ? '?method=ext-jwt' : '?method=password';
+        let requestBody = username && password ? { username, password } : undefined;
+        let endpoint = serviceUrl + '/authenticate';
+        let headers: any = {
+            "content-type": "application/json",
+        };
+        if (type === 'ext-jwt') {
+            headers = {
+                "content-type": "application/json",
+                "Authorization": 'Bearer ' + token
+            }
+        }
         this.loginInProgress = true;
         this.certBasedAttempted = this.certBasedAttempted || isCertBased;
-        return this.httpClient.post(endpoint + queryParams, requestBody, {
-            headers: {
-                "content-type": "application/json",
-            }
-        })
+        return this.httpClient.post(endpoint + queryParams, requestBody, { headers })
             .pipe(
                 switchMap((body: any) => {
                     return this.handleLoginResponse.bind(this)(body, username, password).pipe(switchMap(body => {

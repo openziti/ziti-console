@@ -84,6 +84,8 @@ const DEFAULT_API_VERSIONS: any = {
 })
 export class SettingsService extends SettingsServiceClass {
 
+    override allowControllerAdd = true;
+
     constructor(override httpBackend: HttpBackend, override growlerService: GrowlerService) {
         super(httpBackend, growlerService);
     }

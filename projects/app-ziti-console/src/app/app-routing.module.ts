@@ -53,6 +53,7 @@ import {
 import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
 import {AuthenticationGuard} from "./guards/authentication.guard";
+import {CallbackComponent} from "./login/callback.component";
 
 const routes: Routes = [
   {
@@ -68,6 +69,10 @@ const routes: Routes = [
     path: 'login',
     redirectTo: 'login',
     pathMatch: 'full'
+  },
+  {
+    path: 'callback',
+    component: CallbackComponent
   },
   {
     path: 'dashboard',

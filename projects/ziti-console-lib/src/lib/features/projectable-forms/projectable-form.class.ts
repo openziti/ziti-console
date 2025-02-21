@@ -122,7 +122,11 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         this.subscription.add(
             this.settingsService.settingsChange?.subscribe(params => {
                 const newSettings = cloneDeep(this.settingsService.settings);
-                if (!isEmpty(this.formData?.id) && (isEmpty(this._settings) || this._settings.session?.id === newSettings.session?.id)) {
+                if (
+                    !isEmpty(this.formData?.id) && (isEmpty(this._settings) ||
+                    this._settings.session?.id === newSettings.session?.id ||
+                        isEmpty(newSettings.session?.id))
+                ) {
                     this._settings = newSettings;
                     return;
                 }

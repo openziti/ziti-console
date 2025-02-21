@@ -100,13 +100,23 @@ export class ZitiApiInterceptor implements HttpInterceptor {
     intercept(req: HttpRequest<any>, next: HttpHandler):
         Observable<HttpEvent<any>> {
 
-        if (!req.url.startsWith("http")
-            || req.url.indexOf("authenticate") > 0
-            || req.url.indexOf("version") > 0
-        ) {
+        if (this.isUnauthenticatedResource(req)) {
             return next.handle(req);
         } else {
             return next.handle(this.addAuthToken(req)).pipe(catchError(err=> this.handleErrorResponse(err, req, next)));
+        }
+    }
+
+    isUnauthenticatedResource(req: HttpRequest<any>) {
+        if (
+            !req.url.startsWith("http")
+            || req.url.indexOf("authenticate") > 0
+            || req.url.indexOf("version") > 0
+            || (req.url.indexOf("edge/client/v1/external-jwt-signers") > 0 && req.method)
+        ) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -148,7 +158,10 @@ export class ZitiApiInterceptor implements HttpInterceptor {
     private addAuthToken(request: any) {
         const session = this.settingsService.settings.session;
         const contentType = request.headers.get('Content-Type') || 'application/json';
-        const headers: any = {"zt-session": session.id, 'content-type': contentType};
+        let headers: any = {'content-type': contentType};
+        if (session?.id) {
+            headers = {"zt-session": session.id, 'content-type': contentType};
+        }
         const acceptHeader = request.headers.get('Accept');
         if (!acceptHeader) {
             headers.accept = 'application/json';

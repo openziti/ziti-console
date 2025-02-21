@@ -16,6 +16,7 @@
     "@angular/common": "^16.1.5",
     "@angular/core": "^16.1.5",
     "@angular/material": "^16.1.5",
+    "angular-oauth2-oidc": "^16.0.0",
     "ag-grid-angular": "^31.3.4",
     "ag-grid-community": "^31.3.4",
     "json-schema-ref-resolver": "file:dist/json-schema-ref-resolver",
