@@ -54,18 +54,20 @@ export class PostureCheckFormComponent extends ProjectableForm implements OnInit
     formDataInvalid = false;
     editMode = false;
     items: any = [];
-    selectedSchema: any = '';
     associatedServices = [];
     associatedServiceNames = [];
     servicesLoading = false;
     settings: any = {};
-    selectedConfigTypeId = '';
     pcRoleAttributes = [];
     postureCheckTypes = [];
-    androidOSEnabled = false;
-    linuxOSEnabled = false;
-    windowsOSEnabled = false;
-    macOSEnabled = false;
+    processMultiItems = [
+        {
+            hashes: [],
+            osType: '',
+            path: '',
+            signerFingerprints: []
+        }
+    ];
 
     osTypes = [
         {name: 'Android', type: 'Android'},
@@ -77,12 +79,12 @@ export class PostureCheckFormComponent extends ProjectableForm implements OnInit
     ];
 
     osCheckData = {
-        Android: {type: "Android", versions: [], enabled: false},
-        iOS: {type: "iOS", versions: [], enabled: false},
-        Linux: {type: "Linux", versions: [], enabled: false},
-        macOS: {type: "macOS", versions: [], enabled: false},
-        Windows: {type: "Windows", versions: [], enabled: false},
-        WindowsServer: {type: "WindowsServer", versions: [], enabled: false},
+        Android: {type: "Android", versions: [], min: '', max: '', enabled: false, isAdvanced: false},
+        iOS: {type: "iOS", versions: [], min: '', max: '', enabled: false, isAdvanced: false},
+        Linux: {type: "Linux", versions: [], min: '', max: '', enabled: false, isAdvanced: false},
+        macOS: {type: "macOS", versions: [], min: '', max: '', enabled: false, isAdvanced: false},
+        Windows: {type: "Windows", versions: [], min: '', max: '', enabled: false, isAdvanced: false},
+        WindowsServer: {type: "WindowsServer", versions: [], min: '', max: '', enabled: false, isAdvanced: false},
     };
 
     override entityType = 'posture-checks';
@@ -114,19 +116,90 @@ export class PostureCheckFormComponent extends ProjectableForm implements OnInit
 
     override entityUpdated() {
         if (this.formData.typeId === 'OS' && this.formData.operatingSystems) {
-            this.formData.operatingSystems.forEach((osData) => {
-                this.osCheckData[osData.type] = osData;
-                this.osCheckData[osData.type].enabled = true;
-                this.osCheckData[osData.type].versions = this.osCheckData[osData.type].versions || [];
-            });
+            this.parseOperatingSystems();
         }
         if (this.formData.typeId === 'MAC') {
             this.formData.macAddresses = this.formData.macAddresses.map(address => {
                 return address.match( /.{1,2}/g).join(':').toUpperCase();
             });
         }
+        if (this.formData.typeId === 'PROCESS_MULTI') {
+            this.processMultiItems = this.formData.processes || [];
+        }
         this.initData = cloneDeep(this.formData);
         this.isEditing = !isEmpty(this.formData.id);
+    }
+
+    getMinMaxVersions(version) {
+        const regex = /^\s*(>=(\d+\.\d+\.\d+))?\s*(<=(\d+\.\d+\.\d+))?\s*$/;
+        let min, max;
+        try {
+            const matches = version.match(regex);
+            if (matches) {
+                min = matches[2];
+                max = matches[4];
+            }
+        } catch(e) {}
+        return {min, max};
+    }
+
+    parseOperatingSystems() {
+        this.formData.operatingSystems.forEach((osData) => {
+            this.osCheckData[osData.type] = osData;
+            this.osCheckData[osData.type].enabled = true;
+            this.osCheckData[osData.type].versions = this.osCheckData[osData.type].versions || [];
+
+            if (osData.versions.length > 1) {
+                this.osCheckData[osData.type].isAdvanced = true;
+            } else {
+                if (isEmpty(osData.versions[0])) {
+                    this.osCheckData[osData.type].min = '';
+                    this.osCheckData[osData.type].max = '';
+                    return;
+                }
+                const {min, max} = this.getMinMaxVersions(osData.versions[0]);
+                if (isEmpty(min) && isEmpty(max)) {
+                    this.osCheckData[osData.type].isAdvanced = true;
+                } else {
+                    this.osCheckData[osData.type].min = min || '';
+                    this.osCheckData[osData.type].max = max || '';
+                }
+            }
+        });
+    }
+
+    getOperatingSystemsData() {
+        const operatingSystems = [];
+        forEach(this.osCheckData, (os, key) => {
+            if (os.enabled) {
+                const versions = this.getOSVersionData(os);
+                operatingSystems.push({type: os.type, versions: versions});
+            }
+        });
+        return operatingSystems;
+    }
+
+    getOSVersionData(os) {
+        let versions = [];
+        if (!os.isAdvanced) {
+            let version = '';
+            if (!isEmpty(os.min)) {
+                version = `>=${os.min}`;
+            }
+            if (!isEmpty(os.max)) {
+                if (!isEmpty(version)) {
+                    version += ` <=${os.max}`;
+                } else {
+                    version = `<=${os.max}`;
+                }
+            }
+            if (!isEmpty(version)) {
+                versions = [version];
+            }
+        } else {
+            versions = os.versions;
+        }
+        return versions;
     }
 
     ngOnDestroy(): void {
@@ -143,9 +216,7 @@ export class PostureCheckFormComponent extends ProjectableForm implements OnInit
         return this.zitiService.get('posture-check-types', this.zitiService.DEFAULT_PAGING, []).then((result) => {
             const pcTypes = result?.data || [];
             pcTypes.push({id: 'MFA', name: 'Multi Factor'});
-            this.postureCheckTypes = pcTypes.filter((pcType) => {
-                return pcType.id !== 'PROCESS_MULTI';
-            });
+            this.postureCheckTypes = pcTypes;
         }).catch((resp) => {
             const errorMessage = this.zitiService.getErrorMessage(resp);
             const growlerData = new GrowlerModel(
@@ -168,9 +239,37 @@ export class PostureCheckFormComponent extends ProjectableForm implements OnInit
                 this.returnToListPage();
                 break;
             case 'toggle-view':
+                if (this.formData.typeId === 'OS') {
+                    if (event.data !== 'simple') {
+                        this.formData.operatingSystems = this.getOperatingSystemsData();
+                    } else {
+                        this.parseOperatingSystems();
+                    }
+                } else if (this.formData.typeId === 'PROCESS_MULTI') {
+                    if (event.data !== 'simple') {
+                        this.formData.processes = this.processMultiItems;
+                    } else {
+                        this.processMultiItems = this.formData.processes || [];
+                    }
+                }
                 this.formView = event.data;
                 break;
         }
+    }
+
+    removeProcessItem(index) {
+        this.processMultiItems.splice(index, 1);
+    }
+
+    addProcessItem() {
+        this.processMultiItems.push(
+            {
+                hashes: [],
+                osType: '',
+                path: '',
+                signerFingerprints: []
+            }
+        );
     }
 
     apiActionRequested(action) {
@@ -236,9 +335,20 @@ export class PostureCheckFormComponent extends ProjectableForm implements OnInit
             this.isLoading = false;
             return;
         }
-        const data = this.apiData;
-        data.id = this.formData.id;
-        const configId = await this.svc.save(data).then((result) => {
+
+        if (this.formData.typeId === 'OS') {
+            if (this.formView === 'simple') {
+                this.formData.operatingSystems = this.getOperatingSystemsData();
+            } else {
+                this.parseOperatingSystems();
+            }
+        }
+        if (this.formData.typeId === 'PROCESS_MULTI') {
+            if (this.formView === 'simple') {
+                this.formData.processes = this.processMultiItems;
+            }
+        }
+        const configId = await this.svc.save(this.formData).then((result) => {
             if (!isEmpty(result?.id)) {
                 this.formData = result;
                 this.initData = cloneDeep(this.formData);
@@ -301,12 +411,7 @@ export class PostureCheckFormComponent extends ProjectableForm implements OnInit
                 data.macAddresses = this.formData.macAddresses;
                 break;
             case 'OS':
-                const operatingSystems = [];
-                forEach(this.osCheckData, (os, key) => {
-                    if (os.enabled) {
-                        operatingSystems.push({type: os.type, versions: os.versions});
-                    }
-                });
+                const operatingSystems = this.getOperatingSystemsData();
                 data.operatingSystems = operatingSystems;
                 break;
             case 'DOMAIN':
@@ -318,6 +423,9 @@ export class PostureCheckFormComponent extends ProjectableForm implements OnInit
                 data.timeoutSeconds = this.formData.timeoutSeconds;
                 break;
             case 'PROCESS_MULTI':
+                data.processes = this.processMultiItems;
+                break;
+            case 'PROCESS':
                 data.process = this.formData.process;
                 break;
         }
@@ -332,7 +440,6 @@ export class PostureCheckFormComponent extends ProjectableForm implements OnInit
 
     toggleOS(os) {
         this.osCheckData[os].enabled = !this.osCheckData[os].enabled;
-        this.osCheckData[os].versions = [];
     }
 
     toggleMFAPrompt(type) {

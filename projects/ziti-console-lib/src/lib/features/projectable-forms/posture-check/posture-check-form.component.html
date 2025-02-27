@@ -163,6 +163,119 @@
                         <input class="form-field-input" placeholder="Enter a fingerprint" [(ngModel)]="formData.process.signerFingerprint" [ngClass]="{error: errors['androidOSMin']}"/>
                     </div>
                 </lib-form-field-container>
+                <lib-form-field-container [title]="'Process Multi Details'" *ngIf="formData.typeId === 'PROCESS_MULTI'">
+                    <div class="form-field-label-container">
+                        <div class="form-field-header">
+                            <div class="form-field-title-container">
+                                <span class="form-field-title">Semantic</span>
+                            </div>
+                            <span class="form-field-label" >Required</span>
+                        </div>
+                        <select
+                                [(ngModel)]="formData.semantic"
+                                id="PolicySemantic"
+                                class="form-field-dropdown"
+                        >
+                            <option value="AllOf">AllOf</option>
+                            <option value="AnyOf">AnyOf</option>
+                        </select>
+                    </div>
+                    <div class="process-multi-item" *ngFor="let process of processMultiItems; index as i" (click)="removeProcessItem(i)">
+                        <div class="icon-clear" *ngIf="i !== 0"></div>
+                        <div class="form-field-label-container process-os-details-header">
+                            <div class="form-field-header">
+                                <div class="form-field-title-container">
+                                    <span class="form-field-title">Operating System</span>
+                                </div>
+                                <span class="form-field-label" >Required</span>
+                            </div>
+                            <p-dropdown
+                                    placeholder="Select configuration..."
+                                    optionLabel="name"
+                                    optionValue="type"
+                                    filterBy="name"
+                                    [options]="osTypes"
+                                    [filter]="false"
+                                    [showClear]="true"
+                                    [(ngModel)]="process.osType"
+                                    (keyup.enter)="preventEnterProp($event)"
+                            >
+                                <ng-template pTemplate="selectedItem">
+                                    <div class="os-type-dropdown-item" *ngIf="process.osType && process.osType !== ''">
+                                        <div class="os-type-dropdown-icon"
+                                             [class]="'os-type-dropdown-icon-' + process.osType"
+                                        ></div>
+                                        <div>{{ process.osType }}</div>
+                                    </div>
+                                </ng-template>
+                                <ng-template let-os pTemplate="item">
+                                    <div class="os-type-dropdown-item">
+                                        <div class="os-type-dropdown-icon"
+                                             [class]="'os-type-dropdown-icon-' + os.type"
+                                        ></div>
+                                        <div>{{ os.name }}</div>
+                                    </div>
+                                </ng-template>
+                            </p-dropdown>
+                        </div>
+                        <div class="form-field-label-container">
+                            <div class="form-field-header">
+                                <div class="form-field-title-container">
+                                    <span class="form-field-title">Hashes</span>
+                                    <div
+                                            class="form-field-info infoicon"
+                                            matTooltip="Valid sha256 hashes of a binary"
+                                            matTooltipPosition="below"
+                                    ></div>
+                                </div>
+                                <span class="form-field-label" >Required</span>
+                            </div>
+                            <p-chips [(ngModel)]="process.hashes"
+                                     [allowDuplicate]="false"
+                                     placeholder="Enter hashes"
+                                     [addOnBlur]="true"
+                                     [ngClass]="{ error: errors['processHashes'] }"
+                                     separator=","
+                                     (keyup.enter)="preventEnterProp($event)"
+                            >
+                            </p-chips>
+                        </div>
+                        <div class="form-field-label-container">
+                            <div class="form-field-header">
+                                <div class="form-field-title-container">
+                                    <span class="form-field-title">Path</span>
+                                </div>
+                                <span class="form-field-label" >Required</span>
+                            </div>
+                            <input class="form-field-input" placeholder="/path/to/process" [(ngModel)]="process.path" [ngClass]="{error: errors['processPath']}"/>
+                        </div>
+                        <div class="form-field-label-container">
+                            <div class="form-field-header">
+                                <div class="form-field-title-container">
+                                    <span class="form-field-title">Fingerprint</span>
+                                    <div
+                                            class="form-field-info infoicon"
+                                            matTooltip="Signer fingerprints are the sha1 fingerprints (thumbprints) of valid signing certificates"
+                                            matTooltipPosition="below"
+                                    ></div>
+                                </div>
+                                <span class="form-field-label" >Required</span>
+                            </div>
+                            <p-chips (keyup)="macAddressesChange($event)"
+                                     [(ngModel)]="process.signerFingerprints"
+                                     [allowDuplicate]="false"
+                                     placeholder="Enter signer fingerprints"
+                                     [addOnBlur]="true"
+                                     [ngClass]="{ error: errors['process[' + i +'].signerFingerprints'] }"
+                                     separator=","
+                                     (keyup.enter)="preventEnterProp($event)"
+                            />
+                        </div>
+                    </div>
+                    <div class="buttons process-multi-buttons">
+                        <button class="button" (click)="addProcessItem()">Add Process</button>
+                    </div>
+                </lib-form-field-container>
                 <lib-form-field-container
                         [title]="'Multi Factor Details'"
                         [layout]="'column'"
@@ -175,7 +288,7 @@
                             </div>
                             <input class="form-field-input" placeholder="# in seconds" [(ngModel)]="formData.timeoutSeconds" [ngClass]="{error: errors['timeoutSeconds']}" type="number"/>
                         </div>
-                        <div class="config-item os-toggle-container">
+                        <div class="config-item os-toggle-container" (click)="toggleMFAPrompt('wake')">
                             <div class="form-field-title-container">
                                 <span class="form-field-title">Require On Wake</span>
                             </div>
@@ -184,9 +297,8 @@
                                     <div class="config-container-label">Require</div>
                                 </div>
                                 <div
-                                        (click)="toggleMFAPrompt('wake')"
-                                        [ngClass]="{ on: formData.promptOnWake }"
-                                        class="toggle"
+                                    [ngClass]="{ on: formData.promptOnWake }"
+                                    class="toggle"
                                 >
                                     <span [hidden]="!formData.promptOnWake" class="on-label">YES</span>
                                     <span [hidden]="formData.promptOnWake" class="off-label">NO</span>
@@ -194,7 +306,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="config-item os-toggle-container">
+                        <div class="config-item os-toggle-container" (click)="toggleMFAPrompt('unlock')">
                             <div class="form-field-title-container">
                                 <span class="form-field-title">Require On Unlock</span>
                             </div>
@@ -203,9 +315,8 @@
                                     <div class="config-container-label">Require</div>
                                 </div>
                                 <div
-                                        (click)="toggleMFAPrompt('unlock')"
-                                        [ngClass]="{ on: formData.promptOnUnlock }"
-                                        class="toggle"
+                                    [ngClass]="{ on: formData.promptOnUnlock }"
+                                    class="toggle"
                                 >
                                     <span [hidden]="!formData.promptOnUnlock" class="on-label">YES</span>
                                     <span [hidden]="formData.promptOnUnlock" class="off-label">NO</span>
@@ -220,7 +331,7 @@
                     [layout]="'column'"
                     *ngIf="formData.typeId === 'OS'"
                 >
-                    <div class="form-field-row">
+                    <div class="form-field-row os-version-row">
                         <div class="config-item os-toggle-container">
                             <div class="form-field-title-container">
                                 <span class="form-field-title">Operating System</span>
@@ -245,16 +356,16 @@
                             <div class="form-field-title-container">
                                 <span class="form-field-title">Min Version</span>
                             </div>
-                            <input class="form-field-input" placeholder="#.#.#" [(ngModel)]="osCheckData.Android.versions[0]" [ngClass]="{error: errors['androidOSMin']}" [disabled]="!osCheckData.Android.enabled"/>
+                            <input class="form-field-input" placeholder="#.#.#" [matTooltip]="osCheckData.Android.isAdvanced ? 'Use JSON view to edit' : ''" [(ngModel)]="osCheckData.Android.min" [ngClass]="{error: errors['androidOSMin']}" [disabled]="!osCheckData.Android.enabled || osCheckData.Android.isAdvanced"/>
                         </div>
                         <div class="form-field-label-container">
                             <div class="form-field-title-container">
                                 <span class="form-field-title">Max Version</span>
                             </div>
-                            <input class="form-field-input" placeholder="#.#.#" [(ngModel)]="osCheckData.Android.versions[1]" [ngClass]="{error: errors['androidOSMax']}" [disabled]="!osCheckData.Android.enabled"/>
+                            <input class="form-field-input" placeholder="#.#.#" [matTooltip]="osCheckData.Android.isAdvanced ? 'Use JSON view to edit' : ''" [(ngModel)]="osCheckData.Android.max" [ngClass]="{error: errors['androidOSMax']}" [disabled]="!osCheckData.Android.enabled || osCheckData.Android.isAdvanced"/>
                         </div>
                     </div>
-                    <div class="form-field-row">
+                    <div class="form-field-row os-version-row">
                         <div class="config-item os-toggle-container"
                              (click)="toggleOS('iOS')">
                             <div class="config-container toggle-container os-toggle-container">
@@ -273,13 +384,13 @@
                             </div>
                         </div>
                         <div class="form-field-label-container">
-                            <input class="form-field-input" placeholder="#.#.#" [(ngModel)]="osCheckData.iOS.versions[0]" [ngClass]="{error: errors['iOS']}" [disabled]="!osCheckData.iOS.enabled"/>
+                            <input class="form-field-input" placeholder="#.#.#" [matTooltip]="osCheckData.iOS.isAdvanced ? 'Use JSON view to edit' : ''" [(ngModel)]="osCheckData.iOS.min" [ngClass]="{error: errors['iOS']}" [disabled]="!osCheckData.iOS.enabled || osCheckData.iOS.isAdvanced"/>
                         </div>
                         <div class="form-field-label-container">
-                            <input class="form-field-input" placeholder="#.#.#" [(ngModel)]="osCheckData.iOS.versions[1]" [ngClass]="{error: errors['iOS']}" [disabled]="!osCheckData.iOS.enabled"/>
+                            <input class="form-field-input" placeholder="#.#.#" [matTooltip]="osCheckData.iOS.isAdvanced ? 'Use JSON view to edit' : ''" [(ngModel)]="osCheckData.iOS.max" [ngClass]="{error: errors['iOS']}" [disabled]="!osCheckData.iOS.enabled || osCheckData.iOS.isAdvanced"/>
                         </div>
                     </div>
-                    <div class="form-field-row">
+                    <div class="form-field-row os-version-row">
                         <div class="config-item os-toggle-container"
                              (click)="toggleOS('Linux')">
                             <div class="config-container toggle-container os-toggle-container">
@@ -298,13 +409,13 @@
                             </div>
                         </div>
                         <div class="form-field-label-container">
-                            <input class="form-field-input" placeholder="#.#.#" [(ngModel)]="osCheckData.Linux.versions[0]" [ngClass]="{error: errors['linuxOS']}" [disabled]="!osCheckData.Linux.enabled"/>
+                            <input class="form-field-input" placeholder="#.#.#" [matTooltip]="osCheckData.Linux.isAdvanced ? 'Use JSON view to edit' : ''" [(ngModel)]="osCheckData.Linux.min" [ngClass]="{error: errors['linuxOS']}" [disabled]="!osCheckData.Linux.enabled || osCheckData.Linux.isAdvanced"/>
                         </div>
                         <div class="form-field-label-container">
-                            <input class="form-field-input" placeholder="#.#.#" [(ngModel)]="osCheckData.Linux.versions[1]" [ngClass]="{error: errors['linuxOS']}" [disabled]="!osCheckData.Linux.enabled"/>
+                            <input class="form-field-input" placeholder="#.#.#" [matTooltip]="osCheckData.Linux.isAdvanced ? 'Use JSON view to edit' : ''" [(ngModel)]="osCheckData.Linux.max" [ngClass]="{error: errors['linuxOS']}" [disabled]="!osCheckData.Linux.enabled || osCheckData.Linux.isAdvanced"/>
                         </div>
                     </div>
-                    <div class="form-field-row">
+                    <div class="form-field-row os-version-row">
                         <div class="config-item os-toggle-container">
                             <div class="config-container toggle-container os-toggle-container"
                                  (click)="toggleOS('macOS')">
@@ -323,13 +434,13 @@
                             </div>
                         </div>
                         <div class="form-field-label-container">
-                            <input class="form-field-input" placeholder="#.#.#" [(ngModel)]="osCheckData.macOS.versions[0]" [ngClass]="{error: errors['macOS']}" [disabled]="!osCheckData.macOS.enabled"/>
+                            <input class="form-field-input" placeholder="#.#.#" [matTooltip]="osCheckData.macOS.isAdvanced ? 'Use JSON view to edit' : ''" [(ngModel)]="osCheckData.macOS.min" [ngClass]="{error: errors['macOS']}" [disabled]="!osCheckData.macOS.enabled || osCheckData.macOS.isAdvanced"/>
                         </div>
                         <div class="form-field-label-container">
-                            <input class="form-field-input" placeholder="#.#.#" [(ngModel)]="osCheckData.macOS.versions[1]" [ngClass]="{error: errors['macOS']}" [disabled]="!osCheckData.macOS.enabled"/>
+                            <input class="form-field-input" placeholder="#.#.#" [matTooltip]="osCheckData.macOS.isAdvanced ? 'Use JSON view to edit' : ''" [(ngModel)]="osCheckData.macOS.max" [ngClass]="{error: errors['macOS']}" [disabled]="!osCheckData.macOS.enabled || osCheckData.macOS.isAdvanced"/>
                         </div>
                     </div>
-                    <div class="form-field-row">
+                    <div class="form-field-row os-version-row">
                         <div class="config-item os-toggle-container"
                              (click)="toggleOS('Windows')">
                             <div class="config-container toggle-container os-toggle-container">
@@ -348,13 +459,13 @@
                             </div>
                         </div>
                         <div class="form-field-label-container">
-                            <input class="form-field-input" placeholder="#.#.#" [(ngModel)]="osCheckData.Windows.versions[0]" [ngClass]="{error: errors['windowsOS']}" [disabled]="!osCheckData.Windows.enabled"/>
+                            <input class="form-field-input" placeholder="#.#.#" [matTooltip]="osCheckData.Windows.isAdvanced ? 'Use JSON view to edit' : ''" [(ngModel)]="osCheckData.Windows.min" [ngClass]="{error: errors['windowsOS']}" [disabled]="!osCheckData.Windows.enabled || osCheckData.Windows.isAdvanced"/>
                         </div>
                         <div class="form-field-label-container">
-                            <input class="form-field-input" placeholder="#.#.#" [(ngModel)]="osCheckData.Windows.versions[1]" [ngClass]="{error: errors['windowsOS']}" [disabled]="!osCheckData.Windows.enabled"/>
+                            <input class="form-field-input" placeholder="#.#.#" [matTooltip]="osCheckData.Windows.isAdvanced ? 'Use JSON view to edit' : ''" [(ngModel)]="osCheckData.Windows.max" [ngClass]="{error: errors['windowsOS']}" [disabled]="!osCheckData.Windows.enabled || osCheckData.Windows.isAdvanced"/>
                         </div>
                     </div>
-                    <div class="form-field-row">
+                    <div class="form-field-row os-version-row">
                         <div class="config-item os-toggle-container"
                              (click)="toggleOS('WindowsServer')">
                             <div class="config-container toggle-container os-toggle-container">
@@ -373,10 +484,10 @@
                             </div>
                         </div>
                         <div class="form-field-label-container">
-                            <input class="form-field-input" placeholder="#.#.#" [(ngModel)]="osCheckData.WindowsServer.versions[0]" [ngClass]="{error: errors['windowsServerOS']}" [disabled]="!osCheckData.WindowsServer.enabled"/>
+                            <input class="form-field-input" placeholder="#.#.#" [matTooltip]="osCheckData.WindowsServer.isAdvanced ? 'Use JSON view to edit' : ''" [(ngModel)]="osCheckData.WindowsServer.min" [ngClass]="{error: errors['windowsServerOS']}" [disabled]="!osCheckData.WindowsServer.enabled || osCheckData.WindowsServer.isAdvanced"/>
                         </div>
                         <div class="form-field-label-container">
-                            <input class="form-field-input" placeholder="#.#.#" [(ngModel)]="osCheckData.WindowsServer.versions[1]" [ngClass]="{error: errors['windowsServerOS']}" [disabled]="!osCheckData.WindowsServer.enabled"/>
+                            <input class="form-field-input" placeholder="#.#.#" [matTooltip]="osCheckData.WindowsServer.isAdvanced ? 'Use JSON view to edit' : ''" [(ngModel)]="osCheckData.WindowsServer.max" [ngClass]="{error: errors['windowsServerOS']}" [disabled]="!osCheckData.WindowsServer.enabled || osCheckData.WindowsServer.isAdvanced"/>
                         </div>
                     </div>
                 </lib-form-field-container>
