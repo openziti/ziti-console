@@ -41,7 +41,7 @@
                             [(ngModel)]="formData.typeId"
                             (change)="pcTypeChanged($event)"
                             [disabled]="formData.id"
-                            [matTooltip]="formData.id ? 'Can not change the type once saved' : ''"
+                            [matTooltip]="formData.id ? 'Type cannot be changed' : ''"
                             matTooltipPosition="below"
                             id="SelectedConfigType"
                             class="form-field-dropdown"
@@ -180,8 +180,8 @@
                             <option value="AnyOf">AnyOf</option>
                         </select>
                     </div>
-                    <div class="process-multi-item" *ngFor="let process of processMultiItems; index as i" (click)="removeProcessItem(i)">
-                        <div class="icon-clear" *ngIf="i !== 0"></div>
+                    <div class="process-multi-item" *ngFor="let process of processMultiItems; index as i">
+                        <div class="icon-clear" *ngIf="processMultiItems.length > 1" (click)="removeProcessItem(i)"></div>
                         <div class="form-field-label-container process-os-details-header">
                             <div class="form-field-header">
                                 <div class="form-field-title-container">
