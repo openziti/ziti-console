@@ -118,7 +118,7 @@
       border-radius: 1.3125rem;
       border-width: 0.125rem;
       border-style: solid;
-      border-color: var(--offWhite);
+      border-color: var(--offWhite_ALWAYS);
       align-items: center;
       justify-content: center;
       background-color: var(--offWhite);
@@ -152,7 +152,7 @@
     }
 
     .radio-button-label {
-      color: var(--offWhite);
+      color: var(--offWhite_ALWAYS);
       font-size: 0.875rem;
       font-weight: 600;
     }
