@@ -19,6 +19,8 @@ export class PostureCheck {
         path: '',
         signerFingerprint: ''
     };
+    promptOnWake = false;
+    promptOnUnlock = false;
     timeoutSeconds: number = 0;
     tags: any = {};
 };
