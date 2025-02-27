@@ -1,3 +1,10 @@
+# app-ziti-console-v3.10.0
+# ziti-console-lib-v0.10.0
+## Feature/Improvements
+* [Issue #644](https://github.com/openziti/ziti-console/issues/644) - Allow users to do OIDC login via External JWT Signers
+* [Issue #646](https://github.com/openziti/ziti-console/issues/646) - New Posture Checks List Page and Edit Form
+
+
 # app-ziti-console-v3.9.2
 # ziti-console-lib-v0.9.3
 ## Feature/Improvements
