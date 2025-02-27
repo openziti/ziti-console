@@ -1277,6 +1277,12 @@ p-dropdown {
       border-color: var(--stroke);
       border-style: solid;
       border-width: var(--inputBorderWidth);
+      z-index: 99999;
+      background-color: var(--navigation);
+
+      .p-dropdown-panel {
+        background-color: var(--navigation);
+      }
 
       .p-inputtext {
         font-size: 0.875rem;
@@ -1358,6 +1364,12 @@ p-dropdown {
     .p-chips.p-component {
       border-color: var(--primaryColor) !important;
       box-shadow: none !important;
+    }
+  }
+
+  &.error {
+    .p-chips-input-token {
+      background-color: var(--lightRed) !important;
     }
   }
 

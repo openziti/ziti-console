@@ -63,6 +63,8 @@ export * from './lib/features/messaging/growler.model';
 export * from './lib/features/messaging/logger.service';
 export * from './lib/pages/configurations/configurations-page.component';
 export * from './lib/pages/config-types/config-types-page.component';
+export * from './lib/pages/posture-checks/posture-checks-page.component';
+export * from './lib/pages/posture-checks/posture-checks-page.service';
 export * from './lib/pages/terminators/terminators-page.component';
 export * from './lib/pages/terminators/terminators-page.service';
 export * from './lib/ziti-console.constants';
@@ -90,6 +92,7 @@ export * from './lib/features/projectable-forms/certificate-authority/certificat
 export * from './lib/features/projectable-forms/certificate-authority/certificate-authority-form.component';
 export * from './lib/features/projectable-forms/certificate-authority/verify-certificate/verify-certificate.component';
 export * from './lib/features/projectable-forms/config-type/config-type-form.component';
+export * from './lib/features/projectable-forms/posture-check/posture-check-form.component';
 export * from './lib/features/reset-enrollment/reset-enrollment.service';
 export * from './lib/features/extendable/extensions-noop.service';
 export * from './lib/features/projectable-forms/form-header/form-header.component';

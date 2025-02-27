@@ -28,6 +28,9 @@
 
 .select2-container--default {
   .select2-selection--multiple {
+    input {
+      height: calc(var(--defaultInputHeight) - 0.1875rem);
+    }
     .select2-selection__choice {
       overflow: hidden;
       text-wrap: wrap;

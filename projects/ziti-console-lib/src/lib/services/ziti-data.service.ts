@@ -95,14 +95,14 @@ export abstract class ZitiDataService {
   getErrorMessage(resp) {
     let errorMessage;
 
-    if (resp?.error?.error?.message) {
-      errorMessage = resp?.error?.error?.message;
-    } else if (resp?.error?.error?.cause?.message) {
+    if (resp?.error?.error?.cause?.message) {
       errorMessage = resp?.error?.error?.cause?.message;
     } else if (resp?.error?.error?.cause?.reason) {
       errorMessage = resp?.error?.error?.cause?.reason;
     } else if (resp?.error?.message) {
       errorMessage = resp?.error?.message;
+    } else if (resp?.error?.error?.message) {
+      errorMessage = resp?.error?.error?.message;
     } else if (isString(resp?.error)) {
       errorMessage = resp?.error;
     } else {
