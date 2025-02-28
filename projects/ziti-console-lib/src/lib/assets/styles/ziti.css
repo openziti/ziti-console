@@ -22,6 +22,7 @@ body {
     --shadowColor: rgba(0,0,0,0.08);
     --transition: 0.5s;
     --offWhite: #FCFCFC;
+    --offWhite_ALWAYS: #FCFCFC;
     --dark: #28292B;
     --formBase: #919ca5;
     --formGroup: #232f3e;

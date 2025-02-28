@@ -11,7 +11,7 @@ body {
 	--shaded: #1D2024;
     --formBackground: #1D2024;
 	--background: #18191D;
-	--placeholder: #2A2B31;
+	--placeholder: #97a0b2;
 	--text: #FFF;
     --tableText: #FFF;
     --subText: #97a0b2;
@@ -19,6 +19,7 @@ body {
     --shadowColor: rgba(255,255,255,0.08);
     --transition: 0.5s;
     --offWhite: #2A2B31;
+    --offWhite_ALWAYS: #e6eced;
 
     // vanilla json editor dark theming
     --jse-key-color: var(--tableText);

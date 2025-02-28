@@ -49,6 +49,8 @@ import {
   CertificateAuthoritiesPageComponent,
   CertificateAuthorityFormComponent,
   VerifyCertificateComponent,
+  PostureChecksPageComponent,
+  PostureCheckFormComponent
 } from "ziti-console-lib";
 import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
@@ -300,7 +302,13 @@ const routes: Routes = [
   },
   {
     path: 'posture-checks',
-    component: ZacWrapperComponent,
+    component: PostureChecksPageComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'posture-checks/:id',
+    component: PostureCheckFormComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
   },

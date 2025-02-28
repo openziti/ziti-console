@@ -1,0 +1,21 @@
+<div class="ziti-page-container ziti-posture-checks-container">
+    <lib-list-page-header [title]="title"
+                          [tabs]="tabs"
+                          [showAdd]="!itemsSelected"
+                          (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
+
+    <lib-data-table [tableId]="'posture-checks'"
+                    [rowData]="rowData"
+                    [columnDefinitions]="columnDefs"
+                    (actionRequested)="tableAction($event)"
+                    [startCount]="startCount"
+                    [endCount]="endCount"
+                    [totalCount]="totalCount"
+                    [emptyMsg]="'No Posture Checks defined, Click the plus to add a Configuration.'"
+                    [filterApplied]="filterApplied"
+                    [menuItems]="svc.menuItems"
+                    (gridReady)="gridReady($event)"
+    >
+    </lib-data-table>
+</div>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
