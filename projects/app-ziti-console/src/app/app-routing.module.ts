@@ -50,7 +50,9 @@ import {
   CertificateAuthorityFormComponent,
   VerifyCertificateComponent,
   PostureChecksPageComponent,
-  PostureCheckFormComponent
+  PostureCheckFormComponent,
+  TransitRoutersPageComponent,
+  TransitRouterFormComponent
 } from "ziti-console-lib";
 import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
@@ -174,8 +176,16 @@ const routes: Routes = [
   },
   {
     path: 'transit-routers',
-    component: ZacWrapperComponent,
+    component: TransitRoutersPageComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
+    canDeactivate: [DeactivateGuardService],
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'transit-routers/:id',
+    component: TransitRouterFormComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    canDeactivate: [DeactivateGuardService],
     runGuardsAndResolvers: 'always',
   },
   {

@@ -35,6 +35,7 @@ export class FormFieldContainerComponent {
   @Input() actionLabel: string;
   @Input() class = '';
   @Input() contentStyle: any = '';
+  @Input() contentClass: any = '';
   @Input() showHeader: any = true;
   @Input() showToggle = false;
   @Input() headerActions: any[];

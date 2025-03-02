@@ -12,6 +12,8 @@ export * from './lib/pages/identities/identities-page.component';
 export * from './lib/pages/identities/identities-page.service';
 export * from './lib/pages/edge-routers/edge-routers-page.component';
 export * from './lib/pages/edge-routers/edge-routers-page.service';
+export * from './lib/pages/transit-routers/transit-routers-page.component';
+export * from './lib/pages/transit-routers/transit-routers-page.service';
 export * from './lib/pages/edge-router-policies/edge-router-policies-page.component';
 export * from './lib/pages/edge-router-policies/edge-router-policies-page.service';
 export * from './lib/pages/service-edge-router-policies/service-edge-router-policies-page.component';
@@ -73,6 +75,8 @@ export * from './lib/features/projectable-forms/identity/identity-form.component
 export * from './lib/features/projectable-forms/identity/identity-form.service';
 export * from './lib/features/projectable-forms/edge-router/edge-router-form.component';
 export * from './lib/features/projectable-forms/edge-router/edge-router-form.service';
+export * from './lib/features/projectable-forms/transit-router/transit-router-form.component';
+export * from './lib/features/projectable-forms/transit-router/transit-router-form.service';
 export * from './lib/features/projectable-forms/service/service-form.component';
 export * from './lib/features/projectable-forms/service/service-form.service';
 export * from './lib/features/projectable-forms/service/simple-service/simple-service.component';

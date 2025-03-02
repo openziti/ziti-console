@@ -1,9 +1,8 @@
 <div class="form-header-container" [ngClass]="{'show-more-actions': (moreActions && moreActions.length > 0 && data.id)}">
     <div class="form-header-group">
         <div class="form-title-container">
-            <div class="form-title-back-button" (click)="requestAction({name: 'close'})">
-                <div class="form-title-back-button-image"></div>
-                <div class="form-title-back-button-line"></div>
+            <div class="form-title-back-arrow" (click)="requestAction({name: 'close'})">
+                <div class="form-title-back-arrow-icon icon-back-arrow"></div>
             </div>
             <div class="form-header-title-text">
                 <span class="form-title">{{title}}</span>
