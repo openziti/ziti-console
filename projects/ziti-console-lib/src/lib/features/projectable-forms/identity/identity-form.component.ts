@@ -92,6 +92,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   ) {
     super(growlerService, extService, zitiService, router, route, location, settingsService);
     this.identityRoleAttributes = [];
+    this.getAuthPolicies();
   }
 
   override ngOnInit(): void {
@@ -129,7 +130,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     this.getIdentityRoleAttributes();
     this.getAssociatedServices();
     this.getAssociatedServicePolicies();
-    this.getAuthPolicies();
     this.getCertificateAuthorities();
     this.loadTags();
     unset(this.formData, '_links');

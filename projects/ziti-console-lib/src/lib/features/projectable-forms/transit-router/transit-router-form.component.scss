@@ -20,6 +20,11 @@
   pointer-events: none;
 }
 
+.config-item {
+  max-height: var(--defaultInputHeight);
+  margin-top: 1.15rem;
+}
+
 ::ng-deep .admin-toggle {
   width: 100%;
   width: 35%;
