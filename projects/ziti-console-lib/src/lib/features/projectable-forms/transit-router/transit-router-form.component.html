@@ -1,0 +1,114 @@
+<div class="projectable-form-wrapper"
+     (keyup.enter)="save($event)"
+     (keyup.escape)="closeModal(false)"
+>
+    <lib-form-header
+        [data]="formData"
+        [title]="formData.id ? 'Edit Transit Router: ' : 'Create New Transit Router'"
+        [moreActions]="moreActions"
+        (actionRequested)="headerActionRequested($event)"
+        [(formView)]="formView"
+    ></lib-form-header>
+    <div class="edge-router-form-container projectable-form-container">
+        <div class="projectable-form-main-column form-group-row" *ngIf="formView === 'simple'">
+            <div class="form-group-column three-fifths">
+                <lib-form-field-container [title]="'Edge Router Name'" [label]="'REQUIRED'">
+                    <input
+                        class="form-field-input"
+                        placeholder="Name this edge router"
+                        [ngClass]="{error: errors['name']}"
+                        [(ngModel)]="formData.name"
+                        autofocus
+                        #nameFieldInput
+                    />
+                </lib-form-field-container>
+                <lib-form-field-container
+                    [showHeader]="false"
+                    [layout]="'row'"
+                >
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">Cost</span>
+                        </div>
+                        <input
+                            type="number"
+                            class="form-field-input"
+                            placeholder="Name this edge router"
+                            [ngClass]="{error: errors['cost']}"
+                            [(ngModel)]="formData.cost"
+                        />
+                    </div>
+                    <div class="config-item">
+                        <div class="config-container toggle-container">
+                            <div class="config-container-label">ENABLED</div>
+                            <div
+                                (click)="toggleDisabled()"
+                                [ngClass]="{ on: !formData.disabled }"
+                                class="toggle"
+                            >
+                                <span [hidden]="formData.disabled" class="on-label">YES</span>
+                                <span [hidden]="!formData.disabled" class="off-label">NO</span>
+                                <div class="switch"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="config-item">
+                        <div class="config-container toggle-container">
+                            <div class="config-container-label">ALLOW TRAVERSAL</div>
+                            <div
+                                (click)="toggleNoTraversal()"
+                                [ngClass]="{ on: !formData.noTraversal }"
+                                class="toggle"
+                            >
+                                <span [hidden]="formData.noTraversal" class="on-label">YES</span>
+                                <span [hidden]="!formData.noTraversal" class="off-label">NO</span>
+                                <div class="switch"></div>
+                            </div>
+                        </div>
+                    </div>
+                </lib-form-field-container>
+                <ng-content select="[slot=column-1-slot-1]"></ng-content>
+                <lib-form-field-toggle [(toggleOn)]="showMore" style="margin: 0px 10px"></lib-form-field-toggle>
+                <div *ngIf="showMore" class="form-group-column">
+                    <lib-form-field-container
+                            [title]="'Custom Tags'"
+                            [label]="'OPTIONAL'"
+                            class="form-field-advanced"
+                    >
+                        <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
+                    </lib-form-field-container>
+                </div>
+            </div>
+            <div class="form-group-column two-fifths">
+                <ng-content select="[slot=column-2-slot-1]"></ng-content>
+                <lib-form-field-container
+                        *ngIf="hasEnrolmentToken && !extService['hideZitiRegistration']"
+                        [showHeader]="false"
+                >
+                    <lib-qr-code
+                            [identity]="formData"
+                            [jwt]="formData.enrollmentJwt"
+                            [token]="formData.enrollmentToken"
+                            [expiration]="formData.enrollmentExpiresAt"
+                            (doRefresh)="refreshEdgeRouter()"
+                            [type]="'router'"
+                    ></lib-qr-code>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'API Calls'"
+                        [label]="'OPTIONAL'"
+                >
+                    <div class="form-row">
+                        <input class="form-field-input" [value]="apiCallURL"/>
+                        <div class="icon-copy copy" (click)="copyToClipboard(apiCallURL)"></div>
+                    </div>
+                    <lib-json-view *ngIf="formData" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
+                </lib-form-field-container>
+            </div>
+        </div>
+        <div class="form-group-column" *ngIf="formView === 'raw'">
+            <lib-json-view *ngIf="formData" [(data)]="formData"></lib-json-view>
+        </div>
+    </div>
+</div>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

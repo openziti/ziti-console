@@ -58,12 +58,16 @@ body {
   --defaultLineHeight: 0.9375rem;
   --inputBorderRadius: 0.4375rem;
   --inputBorderWidth: 0.125rem;
+  --formFieldBorder: none;
+  --jsonEditorBorder: solid 0.125rem var(--inputBorderRadius);
 
   --spinnerSizeMedium: 1.25rem;
   --spinerBorderTopMedium: 0.125rem solid var(--stroke);
   --spinerBorderRightMedium: 0.125rem solid var(--stroke);
   --spinerBorderBottomMedium: 0.125rem solid transparent;
   --spinerBorderLeftMedium: 0.125rem solid transparent;
+
+  --appLoaderSize: 8.5rem;
 }
 
 body {

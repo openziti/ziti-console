@@ -15,6 +15,7 @@
     gap: var(--marginMedium);
     height: 100%;
     position: relative;
+    border: var(--formFieldBorder);
 
     &.bold-header-title {
         .form-field-title {

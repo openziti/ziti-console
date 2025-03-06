@@ -216,6 +216,16 @@ export class DataTableComponent implements OnChanges, OnInit {
     this._saveColumnStateDebounced = _.debounce(this.svc.saveColumnState.bind(this.svc), 400);
   }
 
+  hideMenuItem(menuItem, selectedItem) {
+      if (_.isFunction(menuItem.hidden)) {
+          return menuItem.hidden(selectedItem);
+      } else if (_.isBoolean(menuItem.hidden)) {
+          return menuItem.hidden;
+      } else {
+          return !selectedItem.actionList.includes(menuItem.action);
+      }
+  }
+
   private _columnDefinitions;
 
   @Input() set columnDefinitions(value: any) {

@@ -20,6 +20,8 @@ body {
     --transition: 0.5s;
     --offWhite: #2A2B31;
     --offWhite_ALWAYS: #e6eced;
+    --formFieldBorder: solid 0.125rem var(--stroke);
+    --jsonEditorBorder: solid 0.125rem var(--stroke);
 
     // vanilla json editor dark theming
     --jse-key-color: var(--tableText);

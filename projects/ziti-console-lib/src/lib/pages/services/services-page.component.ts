@@ -31,6 +31,9 @@ import semver from 'semver';
 import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service";
 import {Subscription} from "rxjs";
 import {isEmpty} from "lodash";
+import {IDENTITY_EXTENSION_SERVICE} from "../../features/projectable-forms/identity/identity-form.service";
+import {ExtensionService} from "../../features/extendable/extensions-noop.service";
+import {SERVICE_EXTENSION_SERVICE} from "../../features/projectable-forms/service/service-form.service";
 
 @Component({
   selector: 'lib-services',
@@ -58,8 +61,9 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
       @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperServiceClass,
       private growlerService: GrowlerService,
       @Inject(SETTINGS_SERVICE) private settingsService: SettingsService,
+      @Inject(SERVICE_EXTENSION_SERVICE) protected override extensionService: ExtensionService,
   ) {
-    super(filterService, svc, consoleEvents, dialogForm);
+    super(filterService, svc, consoleEvents, dialogForm, extensionService);
     let userLang = navigator.language || 'en-us';
     userLang = userLang.toLowerCase();
   }
@@ -90,6 +94,10 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
   }
 
   tableAction(event: any) {
+    const extensionActionFound = this.handleExtensionActions(event);
+    if (extensionActionFound) {
+      return;
+    }
     switch(event?.action) {
       case 'toggleAll':
       case 'toggleItem':

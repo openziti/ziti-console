@@ -80,7 +80,7 @@
                     >
                     </p-chips>
                 </lib-form-field-container>
-                <lib-form-field-container [title]="'Process Details'" *ngIf="formData.typeId === 'PROCESS'">
+                <lib-form-field-container [title]="'Process Details'" [contentClass]="'form-field-input-group'" *ngIf="formData.typeId === 'PROCESS'">
                     <div class="form-field-label-container process-os-details-header">
                         <div class="form-field-header">
                             <div class="form-field-title-container">
@@ -180,7 +180,7 @@
                             <option value="AnyOf">AnyOf</option>
                         </select>
                     </div>
-                    <div class="process-multi-item" *ngFor="let process of processMultiItems; index as i">
+                    <div class="process-multi-item form-field-input-group" *ngFor="let process of processMultiItems; index as i">
                         <div class="icon-clear" *ngIf="processMultiItems.length > 1" (click)="removeProcessItem(i)"></div>
                         <div class="form-field-label-container process-os-details-header">
                             <div class="form-field-header">
@@ -273,7 +273,7 @@
                         </div>
                     </div>
                     <div class="buttons process-multi-buttons">
-                        <button class="button" (click)="addProcessItem()">Add Process</button>
+                        <button class="button" (click)="addProcessItem()">Add Another Process</button>
                     </div>
                 </lib-form-field-container>
                 <lib-form-field-container

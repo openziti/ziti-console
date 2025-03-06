@@ -70,17 +70,16 @@
       }
     }
 
-    .form-title-back-button {
+    .form-title-back-arrow {
       display: flex;
       align-items: center;
-      justify-content: center;
-      position: relative;
-      transform: scaleY(.8);
+      justify-content: flex-start;
+      transform: scaleX(1.25);
+      margin-left: var(--marginSmall);
+      width: 1.325rem;
+      min-width: 1.325rem;
+      padding-left: .125rem;
       cursor: pointer;
-      padding-right: 0.375rem;
-      margin-top: 0.125rem;
-      margin-left: 0.25rem;
-      transition: 0.3s;
 
       &:hover {
         background-color: #ffffff;
@@ -96,12 +95,13 @@
         transition: 0.3s;
       }
 
-      .form-title-back-button-image {
-        background-image: url(../../../assets/svgs/ArrowDownDark.svg);
-        background-size: 1.25rem 0.875rem;
-        width: 1.25rem;
-        height: 0.875rem;
-        transform: rotate(90deg);
+      .form-title-back-arrow-icon {
+        font-family: icomoon !important;
+        font-size: 1rem;
+        height: 1rem;
+        font-weight: 600;
+        margin-top: .05rem;
+        color: var(--tableText);
       }
 
       .form-title-back-button-line {

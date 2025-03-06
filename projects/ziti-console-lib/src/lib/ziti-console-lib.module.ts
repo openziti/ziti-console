@@ -59,6 +59,7 @@ import {FilterBarComponent} from "./features/data-table/table-filter-bar/filter-
 import {AgGridModule} from "ag-grid-angular";
 import {IdentitiesPageComponent} from "./pages/identities/identities-page.component";
 import {EdgeRoutersPageComponent} from "./pages/edge-routers/edge-routers-page.component";
+import {TransitRoutersPageComponent} from "./pages/transit-routers/transit-routers-page.component";
 import {ServicesPageComponent} from "./pages/services/services-page.component";
 import {ZITI_NAVIGATOR} from "./ziti-console.constants";
 import { GrowlerComponent } from './features/messaging/growler.component';
@@ -89,6 +90,7 @@ import {IdentityServicePathComponent} from "./features/visualizer/identity-servi
 import {NetworkVisualizerComponent} from "./features/visualizer/network-visualizer/network-visualizer.component";
 import { CustomTagsComponent } from './features/custom-tags/custom-tags.component';
 import {EdgeRouterFormComponent} from "./features/projectable-forms/edge-router/edge-router-form.component";
+import {TransitRouterFormComponent} from "./features/projectable-forms/transit-router/transit-router-form.component";
 
 import {ServiceFormComponent} from "./features/projectable-forms/service/service-form.component";
 import { PortRangesComponent } from './features/dynamic-widgets/port-ranges/port-ranges.component';
@@ -155,6 +157,7 @@ export function playerFactory() {
         ListPageFormComponent,
         IdentitiesPageComponent,
         EdgeRoutersPageComponent,
+        TransitRoutersPageComponent,
         DataTableComponent,
         TableCellSelectComponent,
         TableColumnSelectComponent,
@@ -164,6 +167,7 @@ export function playerFactory() {
         TableColumnFilterComponent,
         IdentityFormComponent,
         EdgeRouterFormComponent,
+        TransitRouterFormComponent,
         HiddenColumnsBarComponent,
         FilterBarComponent,
         ExtendableComponent,
@@ -258,8 +262,10 @@ export function playerFactory() {
         ConfigTypesPageComponent,
         ConfigTypeFormComponent,
         EdgeRouterFormComponent,
+        TransitRouterFormComponent,
         IdentitiesPageComponent,
         EdgeRoutersPageComponent,
+        TransitRoutersPageComponent,
         ServicesPageComponent,
         ZacRoutingModule,
         SideModalComponent,

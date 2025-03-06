@@ -174,3 +174,6 @@
 .icon-Policies:before {
   content: "\e92e";
 }
+.icon-back-arrow:before {
+  content: "\e971";
+}

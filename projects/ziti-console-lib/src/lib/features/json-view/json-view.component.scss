@@ -9,8 +9,7 @@
 #jsoneditor {
   height: 100%;
   min-height: 12.5rem;
-  border-color: var(--inputBorder);
-  border-style: solid;
+  border: var(--jsonEditorBorder);
   border-radius: var(--inputBorderRadius);
   overflow: hidden;
 

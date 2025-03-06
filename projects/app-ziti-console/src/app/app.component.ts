@@ -19,6 +19,7 @@ import {SettingsServiceClass, LoginServiceClass, SETTINGS_SERVICE, ZITI_DOMAIN_C
 import { SimpleZitiDomainControllerService} from './services/simple-ziti-domain-controller.service';
 import { Router } from '@angular/router';
 import {MatDialog} from "@angular/material/dialog";
+import {VERSION} from "ziti-console-lib";
 
 @Component({
     selector: 'app-root',
@@ -44,7 +45,6 @@ export class AppComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.handleUserSettings();
         this.loading = true;
         this.settingsService.settingsChange.subscribe((results:any) => {
             this.version = results.version;
@@ -52,6 +52,7 @@ export class AppComponent implements OnInit {
             this.displayTool = !results.hideTool ?? true;
             this.loading = false;
             this.checkSession();
+            this.handleUserSettings();
         });
         this.checkOriginForController();
     }
@@ -89,18 +90,17 @@ export class AppComponent implements OnInit {
 
     loadDarkModeStyles() {
         const head = document.getElementsByTagName('head')[0];
-
         let themeLink = document.getElementById(
             'client-theme'
         ) as HTMLLinkElement;
         if (themeLink) {
-            themeLink.href = './assets/styles/dark.css';
+            themeLink.href = `./assets/styles/dark.css?v=${VERSION.version}`;
         } else {
             const style = document.createElement('link');
             style.id = 'client-theme';
             style.rel = 'stylesheet';
             style.type = 'text/css';
-            style.href = './assets/styles/dark.css'; //<--add assets
+            style.href = `./assets/styles/dark.css?v=${VERSION.version}`; //<--add assets
 
             head.appendChild(style);
         }

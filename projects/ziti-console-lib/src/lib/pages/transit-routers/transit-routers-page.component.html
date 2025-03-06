@@ -1,0 +1,22 @@
+<div class="ziti-page-container ziti-transit-routers-container">
+    <lib-list-page-header [title]="title"
+                          [tabs]="tabs"
+                          [showAdd]="!itemsSelected"
+                          (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
+
+    <lib-data-table [tableId]="'transit-routers'"
+                    [rowData]="rowData"
+                    [columnDefinitions]="columnDefs"
+                    (actionRequested)="tableAction($event)"
+                    [startCount]="startCount"
+                    [endCount]="endCount"
+                    [totalCount]="totalCount"
+                    [emptyMsg]="'No Transit Routers defined, Click the plus to add a Transit Router.'"
+                    [filterApplied]="filterApplied"
+                    [menuItems]="svc.menuItems"
+                    [headerActions]="svc.tableHeaderActions"
+                    [noItemsImage]="'No_Routers'"
+    >
+    </lib-data-table>
+</div>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

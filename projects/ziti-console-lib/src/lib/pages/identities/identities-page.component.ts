@@ -107,17 +107,9 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   }
 
   tableAction(event: any) {
-    if (this.extService?.listActions?.length > 0) {
-      let extensionFound = false;
-      this.extService?.listActions?.forEach((extAction) => {
-        if (extAction?.action === event?.action) {
-          extAction.callback(event.item);
-          extensionFound = true;
-        }
-      });
-      if (extensionFound) {
-        return;
-      }
+    const extensionActionFound = this.handleExtensionActions(event);
+    if (extensionActionFound) {
+      return;
     }
     switch(event?.action) {
       case 'toggleAll':
