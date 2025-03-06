@@ -36,6 +36,7 @@ import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/ext
 import {Router} from "@angular/router";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 import {ServicePolicyFormService} from "../../features/projectable-forms/service-policy/service-policy-form.service";
+import {SERVICE_EXTENSION_SERVICE} from "../../features/projectable-forms/service/service-form.service";
 
 @Injectable({
     providedIn: 'root'
@@ -81,11 +82,11 @@ export class ServicesPageService extends ListPageServiceClass {
         override csvDownloadService: CsvDownloadService,
         private growlerService: GrowlerService,
         private dialogForm: MatDialog,
-        @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService,
+        @Inject(SERVICE_EXTENSION_SERVICE) protected override extensionService: ExtensionService,
         protected override router: Router,
         private servicePolicyService: ServicePolicyFormService
     ) {
-        super(settings, filterService, csvDownloadService, extService, router);
+        super(settings, filterService, csvDownloadService, extensionService, router);
     }
 
     validate = (formData): Promise<CallbackResults> => {

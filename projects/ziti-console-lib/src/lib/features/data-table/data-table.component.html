@@ -56,7 +56,7 @@
         <div
                 *ngFor="let menuItem of menuItems"
                 (click)="actionRequested.emit({ action: menuItem.action, item: selectedItem })"
-                [ngClass]="{'menu-item-hidden': !selectedItem.actionList.includes(menuItem.action) || (menuItem.isHidden && menuItem.isHidden(selectedItem))}"
+                [ngClass]="{'menu-item-hidden': hideMenuItem(menuItem, selectedItem) }"
                 class="tActionRow"
                 id="TableActionButton_{{menuItem.action}}"
         >

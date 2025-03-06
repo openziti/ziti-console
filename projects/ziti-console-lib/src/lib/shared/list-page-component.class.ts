@@ -66,6 +66,7 @@ export abstract class ListPageComponent {
         this.filterService.currentPage = 1;
         this.svc.sideModalOpen = false;
         this.svc.refreshData = this.refreshData.bind(this);
+        this.svc.initMenuActions();
         this.columnDefs = this.svc.initTableColumns();
         this.filterService.clearFilters();
         this.extensionService?.extendOnInit();
@@ -198,6 +199,19 @@ export abstract class ListPageComponent {
                 });
             }
         });
+    }
+
+    handleExtensionActions(event) {
+        let extensionFound = false;
+        if (this.extensionService?.listActions?.length > 0) {
+            this.extensionService?.listActions?.forEach((extAction) => {
+                if (extAction?.action === event?.action) {
+                    extAction.callback(event.item);
+                    extensionFound = true;
+                }
+            });
+        }
+        return extensionFound;
     }
 
     gridReady(event) {
