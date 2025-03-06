@@ -1,3 +1,9 @@
+# ziti-console-lib-v0.10.1
+## Feature/Improvements
+* [Issue #649](https://github.com/openziti/ziti-console/pull/649) - New Transit Routers Page and Edit Form
+## Bug Fixes
+* [Issue #651](https://github.com/openziti/ziti-console/issues/651) - Identity form isn't pre-selecting auth policy in the drop down
+
 # app-ziti-console-v3.10.0
 # ziti-console-lib-v0.10.0
 ## Feature/Improvements
