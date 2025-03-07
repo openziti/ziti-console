@@ -13,6 +13,60 @@
     margin: 0.625rem 0rem;
   }
 
+  .reset-success {
+    opacity: .8;
+    background-color: var(--formSubGroup);
+    cursor: default;
+    pointer-events: none;
+
+    &:active {
+      transform: none;
+    }
+    &:hover {
+      filter: brightness(100%);
+    }
+  }
+
+  .icon-Icon_Check {
+    font-family: 'icomoon' !important;
+    font-size: 2rem;
+    margin-right: 1rem;
+
+    &:before {
+      content: "\e912";
+      color: var(--green);
+    }
+  }
+  .icon-lock {
+    margin-left: 0.725rem;
+    margin-right: 0.525rem;
+    text-align: center;
+    cursor: pointer;
+    height: 2.8125rem;
+    width: 2.8125rem;
+    z-index: 10;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: var(--spinnerSizeLarge);
+    height: var(--spinnerSizeLarge);
+    border-radius: 50%;
+    background: transparent;
+    border-top: var(--spinerBorderTopLarge);
+    border-right: var(--spinerBorderRightLarge);
+    border-bottom: var(--spinerBorderBottomLarge);
+    border-left: var(--spinerBorderLeftLarge);
+    animation: loading .5s infinite linear;
+    margin-left: var(--marginSmall);
+    margin-right: 1rem;
+    position: relative;
+  }
+
   &.modal-view {
     width: 31.25rem;
     background-color: var(--background);
