@@ -22,6 +22,7 @@ import {ListPageComponent} from "../../shared/list-page-component.class";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {MatDialog} from "@angular/material/dialog";
 import {isEmpty} from "lodash";
+import {ConfirmComponent} from "../../features/confirm/confirm.component";
 
 
 @Component({
@@ -70,11 +71,33 @@ export class JwtSignersPageComponent extends ListPageComponent implements OnInit
                 const selectedItems = this.rowData.filter((row) => {
                     return row.selected;
                 });
-                const label = selectedItems.length > 1 ? 'configurations' : 'configuration';
-                this.openBulkDelete(selectedItems, label);
+                this.checkForAssociatedEntities(selectedItems);
                 break;
             default:
         }
+    }
+
+    confirmAssociatedDelete(jwtSignersWithAssociations) {
+        const title = jwtSignersWithAssociations.length > 1 ? 'JWT Signers In Use' : 'JWT Signer In Use';
+        const label1 = jwtSignersWithAssociations.length > 1 ? 'The following external JWT signers are still in use by an auth policy and can not be deleted:' : 'The following external JWT signer is still in use by an auth policy and can not be deleted:';
+        const label2 = jwtSignersWithAssociations.length > 1 ? 'To delete these external JWT signers, first remove them from any associated auth policies.' : 'To delete this external JWT signer, first remove it from any associated auth policies.';
+        const names = jwtSignersWithAssociations.map((item) => {
+            return item.name;
+        });
+        const data = {
+            appendId: 'DeleteExtJWTSignersWithAssociations',
+            title: title,
+            message: label1,
+            submessage: label2,
+            bulletList: names,
+            confirmLabel: 'Ok',
+            imageUrl: '../../assets/svgs/Growl_Error.svg',
+            showCancelLink: false
+        };
+        this.dialogRef = this.dialogForm.open(ConfirmComponent, {
+            data: data,
+            autoFocus: false,
+        });
     }
 
     tableAction(event: any) {
@@ -90,11 +113,33 @@ export class JwtSignersPageComponent extends ListPageComponent implements OnInit
                 this.svc.openEditForm();
                 break;
             case 'delete':
-                this.deleteItem(event.item)
+                const selectedItems = [event.item];
+                this.checkForAssociatedEntities(selectedItems);
                 break;
             default:
                 break;
         }
+    }
+
+    checkForAssociatedEntities(selectedItems) {
+        this.svc.getTableData('auth-policies', this.svc.DEFAULT_PAGING).then((policies) => {
+            const signersWithAssociations = [];
+            this.selectedItems.forEach((signer) => {
+                policies.data.forEach((policy) => {
+                    if (policy.primary.extJwt?.allowedSigners?.includes(signer.id)) {
+                        signersWithAssociations.push(signer);
+                    } else if (policy.secondary.requireExtJwtSigner === signer.id) {
+                        signersWithAssociations.push(signer);
+                    }
+                });
+            });
+            if (signersWithAssociations.length > 0) {
+                this.confirmAssociatedDelete(signersWithAssociations);
+            } else {
+                const label = selectedItems.length > 1 ? 'external JWT signer' : 'external JWT signers';
+                this.openBulkDelete(selectedItems, label);
+            }
+        });
     }
 
     deleteItem(item: any) {
