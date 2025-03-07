@@ -232,6 +232,30 @@ export class NodeDataService extends ZitiDataService {
         );
     }
 
+    resetMFA(id) {
+        const nodeServerURL = window.location.origin;
+        const serviceUrl = nodeServerURL + '/api/mfa';
+        const options = {
+            body: {
+                id: id
+            }
+        };
+        return firstValueFrom(this.httpClient.delete(serviceUrl, options).pipe(
+                catchError((err: any) => {
+                    const error = "Server Not Accessible";
+                    if (err.code != "ECONNREFUSED") throw({error: err.code});
+                    throw({error: error});
+                }),
+                map((results: any) => {
+                    if(!isEmpty(results.error)) {
+                        throw({error: results.error});
+                    }
+                    return results;
+                })
+            )
+        );
+    }
+
     override deleteSubdata(entityType: string, id: any, dataType: string, data: any): Promise<any> {
         const nodeServerURL = window.location.origin;
         const serviceUrl = nodeServerURL + '/api/subSave';

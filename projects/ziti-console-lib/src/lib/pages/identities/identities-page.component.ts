@@ -156,6 +156,13 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       case 'download-selected':
         this.svc.downloadItems(this.selectedItems);
         break;
+      case 'reset-mfa':
+        this.isLoading = true;
+        this.svc.resetMFA(event.item).finally(() => {
+          this.isLoading = false;
+          this.refreshData();
+        });
+        break;
       default:
         break;
     }

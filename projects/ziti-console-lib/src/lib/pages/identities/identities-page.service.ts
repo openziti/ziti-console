@@ -82,9 +82,10 @@ export class IdentitiesPageService extends ListPageServiceClass {
         {name: 'Visualizer', action: 'identity-service-path'},
         {name: 'Reset Enrollment', action: 'reset-enrollment'},
         {name: 'Reissue Enrollment', action: 'reissue-enrollment'},
+        {name: 'Reset MFA', action: 'reset-mfa'},
         {name: 'Override', action: 'override'},
         {name: 'Delete', action: 'delete'},
-    ]
+    ];
 
     override tableHeaderActions = [
         {name: 'Download All', action: 'download-all'},
@@ -335,6 +336,9 @@ export class IdentitiesPageService extends ListPageServiceClass {
             } else if (this.hasAuthenticator(row)) {
                 row.actionList.push('reset-enrollment');
             }
+            if (row.isMfaEnabled) {
+                row.actionList.push('reset-mfa');
+            }
             this.addListItemExtensionActions(row);
             return row;
         });
@@ -370,6 +374,27 @@ export class IdentitiesPageService extends ListPageServiceClass {
 
     public getIdentitiesRoleAttributes() {
         return this.zitiService.get('identity-role-attributes', {}, []);
+    }
+
+    public resetMFA(identity) {
+        return this.zitiService.resetMFA(identity.id).then(() => {
+            const growlerData = new GrowlerModel(
+                'success',
+                'Success',
+                `MFA Reset`,
+                `MFA was successfully reset for identity: ${identity.name}`,
+            );
+            this.growlerService.show(growlerData);
+        }).catch((error) => {
+            const message = this.zitiService.getErrorMessage(error);
+            const growlerData = new GrowlerModel(
+                'error',
+                'Error',
+                `Failed to Reset MFA`,
+                `Attempt to reset MFA failed: ${message}`,
+            );
+            this.growlerService.show(growlerData);
+        });
     }
 
     getJWT(identity: any) {

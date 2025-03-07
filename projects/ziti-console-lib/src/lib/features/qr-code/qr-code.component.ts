@@ -43,6 +43,8 @@ export class QrCodeComponent implements OnChanges {
   expirationDate;
   qrCodeSize = 200;
   isModal = false;
+  resettingMFA = false;
+  mfaReset = false;
 
   constructor(
       @Optional() private dialogRef: MatDialogRef<QrCodeComponent>,
@@ -63,6 +65,7 @@ export class QrCodeComponent implements OnChanges {
       this.identity = data.identity;
       this.qrOnly = data.qrOnly;
     }
+    this.mfaReset = false;
   }
 
   get hasJWT() {
@@ -75,6 +78,10 @@ export class QrCodeComponent implements OnChanges {
 
   get showReissueToken() {
     return (this.identity?.enrollment?.ott?.id || this.identity?.enrollment?.updb?.id) && moment(this.expiration).isBefore();
+  }
+
+  get showResetMFA() {
+    return this.identity?.isMfaEnabled;
   }
 
   get showReenrollToken() {
@@ -95,6 +102,16 @@ export class QrCodeComponent implements OnChanges {
         if (result) {
           this.doRefresh.emit(true);
         }
+    });
+  }
+
+  resetMFA() {
+    this.resettingMFA = true;
+    this.identitiesSvc.resetMFA(this.identity).then(() => {
+      this.mfaReset = true;
+    }).finally(() => {
+      this.resettingMFA = false;
+      this.doRefresh.emit(true);
     });
   }
 

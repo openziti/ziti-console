@@ -223,6 +223,20 @@ export class ZitiControllerDataService extends ZitiDataService {
         );
     }
 
+    resetMFA(id) {
+        const apiVersions = this.settingsService.apiVersions || {};
+        const prefix = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
+        const url = this.settingsService.settings.selectedEdgeController + `${prefix}/identities/${id}/mfa`;
+        return firstValueFrom(this.httpClient.delete(url).pipe(
+                catchError((err: any) => {
+                    const error = "Server Not Accessible";
+                    if (err.code != "ECONNREFUSED") throw({error: err.code});
+                    throw({error: error});
+                })
+            )
+        );
+    }
+
     delete(type: string, id: string): Promise<any> {
         const apiVersions = this.settingsService.apiVersions || {};
         const prefix = apiVersions["edge-management"]?.v1?.path;

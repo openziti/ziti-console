@@ -68,6 +68,7 @@ export abstract class ZitiDataService {
   abstract call(url: string): Promise<any>;
   abstract resetEnrollment(id: string, date: string): Promise<any>;
   abstract reissueEnrollment(id: string, date: string): Promise<any>;
+  abstract resetMFA(id: string): Promise<any>;
   abstract schema(data: any): Promise<any>;
 
   getRoleFilter(roleAttributes) {
