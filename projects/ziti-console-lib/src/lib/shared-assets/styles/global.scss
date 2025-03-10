@@ -62,12 +62,16 @@ body {
   --jsonEditorBorder: solid 0.125rem var(--inputBorderRadius);
 
   --spinnerSizeMedium: 1.25rem;
+  --spinnerSizeLarge: 2rem;
   --spinerBorderTopMedium: 0.125rem solid var(--stroke);
   --spinerBorderRightMedium: 0.125rem solid var(--stroke);
   --spinerBorderBottomMedium: 0.125rem solid transparent;
   --spinerBorderLeftMedium: 0.125rem solid transparent;
-
-  --appLoaderSize: 8.5rem;
+  --spinerBorderTopLarge: 0.175rem solid var(--stroke);
+  --spinerBorderRightLarge: 0.175rem solid var(--stroke);
+  --spinerBorderBottomLarge: 0.175rem solid transparent;
+  --spinerBorderLeftLarge: 0.175rem solid transparent;
+  --appLoaderSize: 10.5rem;
 }
 
 body {
@@ -658,7 +662,7 @@ lib-form-field-container {
 a {
   &.download-button {
     &:hover {
-      color: var(--white)
+      color: var(--offWhite_ALWAYS)
     }
   }
 }
@@ -670,7 +674,7 @@ a {
   justify-content: space-between;
   width: 100%;
   background-color: var(--primaryColor);
-  color: var(--white);
+  color: var(--offWhite_ALWAYS);
   text-transform: uppercase;
   font-size: 0.875rem;
   font-weight: 600;
@@ -684,7 +688,7 @@ a {
     outline: 0;
     filter: brightness(90%);
     box-shadow: 0 0.125rem 0.1875rem 0 var(--primaryColorOpaque);
-    color: var(--white);
+    color: var(--offWhite_ALWAYS);
   }
 
   &:active {
@@ -717,7 +721,7 @@ a {
     text-transform: none;
     font-size: 1.875rem;
     line-height: 1;
-    color: var(--white);
+    color: var(--offWhite_ALWAYS);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     position: relative;

@@ -1,3 +1,9 @@
+# ziti-console-lib-v0.10.2
+## Feature/Improvements
+* [Issue #653](https://github.com/openziti/ziti-console/pull/653) - Check if ext-jwt-signer is in use before deleting
+* [Issue #655](https://github.com/openziti/ziti-console/issues/655) - Add "Reset MFA" option for identities
+
+
 # ziti-console-lib-v0.10.1
 ## Feature/Improvements
 * [Issue #649](https://github.com/openziti/ziti-console/pull/649) - New Transit Routers Page and Edit Form

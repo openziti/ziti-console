@@ -22,6 +22,11 @@
             <div>REISSUE ENROLLMENT</div>
             <div class="tap-to-download"></div>
         </div>
+        <div (click)="resetMFA()" *ngIf="showResetMFA || mfaReset" class="download-button" [ngClass]="{'reset-success': mfaReset}">
+            <div class="icon-lock"></div>
+            <div>{{mfaReset ? 'MFA RESET SUCCESSFUL' : 'RESET MFA'}}</div>
+            <div [ngClass]="{spinner: resettingMFA, 'tap-to-download': !resettingMFA, 'icon-Icon_Check': mfaReset && !resettingMFA}"></div>
+        </div>
         <span class="info-text" *ngIf="hasJWT && !jwtExpired && type !== 'router'">OR SCAN QR CODE</span>
     </div>
     <qrcode
