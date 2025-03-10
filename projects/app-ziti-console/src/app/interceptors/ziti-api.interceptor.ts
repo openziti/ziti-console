@@ -110,6 +110,7 @@ export class ZitiApiInterceptor implements HttpInterceptor {
     isUnauthenticatedResource(req: HttpRequest<any>) {
         if (
             !req.url.startsWith("http")
+            || req.url.indexOf(this.settingsService?.settings?.selectedEdgeController) < 0
             || req.url.indexOf("authenticate") > 0
             || req.url.indexOf("version") > 0
             || (req.url.indexOf("edge/client/v1/external-jwt-signers") > 0 && req.method)
