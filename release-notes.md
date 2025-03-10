@@ -1,3 +1,15 @@
+# app-ziti-console-v3.11.0
+# ziti-console-lib-v0.11.0
+## Feature/Improvements
+* [Issue #649](https://github.com/openziti/ziti-console/pull/649) - New Transit Routers Page and Edit Form
+* [Issue #653](https://github.com/openziti/ziti-console/pull/653) - Check if ext-jwt-signer is in use before deleting
+* [Issue #655](https://github.com/openziti/ziti-console/issues/655) - Add "Reset MFA" option for identities
+
+## Bug Fixes
+* [Issue #651](https://github.com/openziti/ziti-console/issues/651) - Identity form isn't pre-selecting auth policy in the drop down
+* [Issue #658](https://github.com/openziti/ziti-console/issues/658) - Prevent intercept on requests to OIDC config "well-know" endpoint
+
+
 # ziti-console-lib-v0.10.2
 ## Feature/Improvements
 * [Issue #653](https://github.com/openziti/ziti-console/pull/653) - Check if ext-jwt-signer is in use before deleting
