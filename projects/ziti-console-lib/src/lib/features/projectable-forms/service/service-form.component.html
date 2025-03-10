@@ -6,7 +6,7 @@
     <lib-form-header
         [data]="formData"
         [title]="(formData.id ? 'Edit Service' : 'Create Service')"
-        [moreActions]="formData.moreActions"
+        [moreActions]="moreActions"
         (actionRequested)="headerActionRequested($event)"
         [(formView)]="formView"
         [saveDisabled]="svc.saveDisabled || formDataInvalid"
