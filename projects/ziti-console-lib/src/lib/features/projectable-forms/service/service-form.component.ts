@@ -65,7 +65,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   }
 
   get formData(): any {
-    return this.svc.formData;
+    return this.svc?.formData;
   }
 
   @Input() serviceRoleAttributes: any[] = [];
@@ -296,6 +296,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
       if (!isEmpty(result?.id)) {
         this.formData = result;
         this.initData = this.formData;
+        this.checkDataChange();
       }
       return result?.id;
     }).finally(() => {
