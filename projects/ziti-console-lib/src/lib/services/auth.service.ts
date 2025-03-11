@@ -39,7 +39,9 @@ export class AuthService {
             showDebugInformation: true,
             customQueryParams: {
                 audience: audience
-            }
+            },
+            strictDiscoveryDocumentValidation: false,
+            usePKCE: true,
         };
         localStorage.setItem('oauth_callback_config', JSON.stringify(oauthConfig));
         this.oauthService.configure(oauthConfig);
