@@ -1,3 +1,9 @@
+# app-ziti-console-v3.11.1
+# ziti-console-lib-v0.11.1
+## Bug Fixes
+* [Issue #657](https://github.com/openziti/ziti-console/issues/657) - Fix OIDC config to support google oauth
+
+
 # app-ziti-console-v3.11.0
 # ziti-console-lib-v0.11.0
 ## Feature/Improvements
