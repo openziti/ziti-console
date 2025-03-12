@@ -23,6 +23,7 @@ export class CallbackComponent implements OnInit {
     ngOnInit() {
         try {
             const configString = localStorage.getItem('oauth_callback_config');
+            const tokenType = localStorage.getItem('oauth_callback_target_token');
             const oauthConfig = JSON.parse(configString);
             if (!isEmpty(oauthConfig)) {
                 this.oauthService.configure(oauthConfig);
@@ -30,10 +31,15 @@ export class CallbackComponent implements OnInit {
                     this.oauthService.tryLogin().then((result) => {
                         if (result) {
                             // Handle post-login
-                            const accessToken = this.oauthService.getAccessToken();
+                            let token;
+                            if (tokenType === 'ID') {
+                                token = this.oauthService.getIdToken();
+                            } else {
+                                token = this.oauthService.getAccessToken();
+                            }
                             const prefix = '/edge/client/v1';
                             const url = this.settingsService.settings.selectedEdgeController;
-                            this.loginService.login(prefix, url, undefined, undefined, true, 'ext-jwt', accessToken);
+                            this.loginService.login(prefix, url, undefined, undefined, true, 'ext-jwt', token);
                         } else {
                             const growlerData = new GrowlerModel(
                                 'error',
