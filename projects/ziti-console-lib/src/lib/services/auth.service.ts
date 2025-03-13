@@ -27,23 +27,28 @@ export class AuthService {
         });
     }
 
-    public configureOAuth(issuer, clientId, audience, scopes?): Promise<any> {
+    public configureOAuth(extJwtSigner): Promise<any> {
         let basePath = document.querySelector('base')?.getAttribute('href') || '/';
         basePath = basePath.endsWith('/') ? basePath.slice(0, -1) : basePath;
+        const scopes = extJwtSigner.scopes || [];
+        const scope = scopes.join(' ');
         const oauthConfig = {
-            issuer: issuer,
+            issuer: extJwtSigner.externalAuthUrl,
             redirectUri: window.location.origin + `${basePath}/callback`,
-            clientId: clientId,
+            clientId: extJwtSigner.clientId,
             responseType: 'code',
-            scope: scopes,
+            scope: scope,
             showDebugInformation: true,
             customQueryParams: {
-                audience: audience
+                audience: extJwtSigner.audience
             },
             strictDiscoveryDocumentValidation: false,
             usePKCE: true,
         };
         localStorage.setItem('oauth_callback_config', JSON.stringify(oauthConfig));
+        if (extJwtSigner.targetToken) {
+            localStorage.setItem('oauth_callback_target_token', extJwtSigner.targetToken);
+        }
         this.oauthService.configure(oauthConfig);
         return this.oauthService.loadDiscoveryDocumentAndTryLogin().then((initSuccess) => {
             if (initSuccess) {

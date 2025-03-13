@@ -105,9 +105,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     handleOAuthLogin(extJwtSigner: any) {
         this.oauthLoading = extJwtSigner.name;
-        let scopes = extJwtSigner.scopes || [];
-        scopes = scopes.join(' ');
-        this.authService.configureOAuth(extJwtSigner.externalAuthUrl, extJwtSigner.clientId, extJwtSigner.audience, scopes).then((result) => {
+        this.authService.configureOAuth(extJwtSigner).then((result) => {
             if (result) {
                 delay(() => {
                     this.oauthLoading = '';
@@ -119,7 +117,7 @@ export class LoginComponent implements OnInit, OnDestroy {
             }
         });
     }
-a
+
     login() {
         if(this.selectedEdgeController) {
             context.set("serviceUrl", this.selectedEdgeController);
