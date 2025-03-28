@@ -58,6 +58,7 @@ import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
 import {AuthenticationGuard} from "./guards/authentication.guard";
 import {CallbackComponent} from "./login/callback.component";
+import {SessionsPageComponent} from "../../../ziti-console-lib/src/lib/pages/sessions/sessions-page.component";
 
 const routes: Routes = [
   {
@@ -354,7 +355,7 @@ const routes: Routes = [
   },
   {
     path: 'sessions',
-    component: ZacWrapperComponent,
+    component: SessionsPageComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
   },

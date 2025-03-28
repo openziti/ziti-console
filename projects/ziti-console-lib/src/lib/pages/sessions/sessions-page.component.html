@@ -1,0 +1,23 @@
+<div class="ziti-page-container ziti-sessions-container">
+    <lib-list-page-header [title]="title"
+                          [tabs]="tabs"
+                          [showAdd]="!itemsSelected"
+                          (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
+
+    <lib-data-table [tableId]="'sessions'"
+                    [rowData]="rowData"
+                    [columnDefinitions]="columnDefs"
+                    (actionRequested)="tableAction($event)"
+                    [startCount]="startCount"
+                    [endCount]="endCount"
+                    [totalCount]="totalCount"
+                    [emptyMsg]="'No Sessions defined'"
+                    [filterApplied]="filterApplied"
+                    [filterColumn]="'service'"
+                    [filterName]="'service'"
+                    [menuItems]="svc.menuItems"
+                    (gridReady)="gridReady($event)"
+    >
+    </lib-data-table>
+</div>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
