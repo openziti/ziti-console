@@ -46,7 +46,7 @@ export class FilterBarComponent {
       });
       let tmp = '';
       for (let idx = 0; idx < filters.length; idx++) {
-        if (filters[idx].columnId === 'name') {
+        if (filters[idx].columnId === this.filterColumn) {
           tmp = filters[idx].value;
           break;
         }

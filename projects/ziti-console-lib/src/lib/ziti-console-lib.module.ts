@@ -126,6 +126,7 @@ import {ConfigTypesPageComponent} from "./pages/config-types/config-types-page.c
 import {ConfigTypeFormComponent} from "./features/projectable-forms/config-type/config-type-form.component";
 import {PostureChecksPageComponent} from "./pages/posture-checks/posture-checks-page.component";
 import {PostureCheckFormComponent} from "./features/projectable-forms/posture-check/posture-check-form.component";
+import {SessionsPageComponent} from "./pages/sessions/sessions-page.component";
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -220,7 +221,8 @@ export function playerFactory() {
         VerifyCertificateComponent,
         LoginDialogComponent,
         PostureChecksPageComponent,
-        PostureCheckFormComponent
+        PostureCheckFormComponent,
+        SessionsPageComponent
     ],
     imports: [
         CommonModule,
@@ -286,7 +288,8 @@ export function playerFactory() {
         AuthPolicyFormComponent,
         LoginDialogComponent,
         PostureChecksPageComponent,
-        PostureCheckFormComponent
+        PostureCheckFormComponent,
+        SessionsPageComponent
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},
