@@ -52,13 +52,13 @@ import {
   PostureChecksPageComponent,
   PostureCheckFormComponent,
   TransitRoutersPageComponent,
-  TransitRouterFormComponent
+  TransitRouterFormComponent,
+  SessionsPageComponent
 } from "ziti-console-lib";
 import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
 import {AuthenticationGuard} from "./guards/authentication.guard";
 import {CallbackComponent} from "./login/callback.component";
-import {SessionsPageComponent} from "../../../ziti-console-lib/src/lib/pages/sessions/sessions-page.component";
 
 const routes: Routes = [
   {
