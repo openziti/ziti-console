@@ -57,10 +57,10 @@
     height: var(--spinnerSizeLarge);
     border-radius: 50%;
     background: transparent;
-    border-top: var(--spinerBorderTopLarge);
-    border-right: var(--spinerBorderRightLarge);
-    border-bottom: var(--spinerBorderBottomLarge);
-    border-left: var(--spinerBorderLeftLarge);
+    border-top: var(--spinnerBorderTopLarge);
+    border-right: var(--spinnerBorderRightLarge);
+    border-bottom: var(--spinnerBorderBottomLarge);
+    border-left: var(--spinnerBorderLeftLarge);
     animation: loading .5s infinite linear;
     margin-left: var(--marginSmall);
     margin-right: 1rem;

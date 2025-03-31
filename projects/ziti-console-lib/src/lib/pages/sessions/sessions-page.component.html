@@ -1,7 +1,7 @@
 <div class="ziti-page-container ziti-sessions-container">
     <lib-list-page-header [title]="title"
                           [tabs]="tabs"
-                          [showAdd]="!itemsSelected"
+                          [hideAction]="true"
                           (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
 
     <lib-data-table [tableId]="'sessions'"

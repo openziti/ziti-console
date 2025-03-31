@@ -53,10 +53,10 @@ body {
     --inputBorderWidth: 0.125rem;
 
     --spinnerSizeMedium: 1.25rem;
-    --spinerBorderTopMedium: 0.125rem solid var(--stroke);
-    --spinerBorderRightMedium: 0.125rem solid var(--stroke);
-    --spinerBorderBottomMedium: 0.125rem solid transparent;
-    --spinerBorderLeftMedium: 0.125rem solid transparent;
+    --spinnerBorderTopMedium: 0.125rem solid var(--stroke);
+    --spinnerBorderRightMedium: 0.125rem solid var(--stroke);
+    --spinnerBorderBottomMedium: 0.125rem solid transparent;
+    --spinnerBorderLeftMedium: 0.125rem solid transparent;
 }
 
 ::placeholder {

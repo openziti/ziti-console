@@ -1,0 +1,128 @@
+<div class="projectable-form-wrapper"
+     (keyup.enter)="save($event)"
+     (keyup.escape)="closeModal(false)"
+>
+    <lib-form-header
+        [data]="formData"
+        [title]="'View Session'"
+        [moreActions]="moreActions"
+        (actionRequested)="headerActionRequested($event)"
+        [(formView)]="formView"
+    ></lib-form-header>
+    <div class="edge-router-form-container projectable-form-container">
+        <div class="projectable-form-main-column form-group-row" *ngIf="formView === 'simple'">
+            <div class="form-group-column three-fifths">
+                <lib-form-field-container [title]="'Session Details'" [label]="'REQUIRED'">
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">ID</span>
+                        </div>
+                        <div class="config-container">
+                            <span>{{formData.id}}</span>
+                        </div>
+                    </div>
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">Service Name</span>
+                        </div>
+                        <a class="form-field-link" [href]="'./services/' + formData.service.id" (click)="serviceNameLinkClicked($event)">
+                            <div class="config-container config-container-clickable">
+                                <span>{{formData.service.name}}</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">Identity Name</span>
+                        </div>
+                        <a class="form-field-link" [href]="'./identities/' + associatedIdentity.id" (click)="identityNameLinkClicked($event)">
+                            <div class="config-container config-container-clickable">
+                                <div class="entity-name-and-spinner">
+                                    <span>{{associatedIdentity.name}}</span>
+                                    <div class="spinner" *ngIf="identityLoading"></div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">API Session ID</span>
+                        </div>
+                        <a class="form-field-link" [href]="'./api-sessions/' + formData.apiSessionId" (click)="apiSessionLinkClicked($event)">
+                            <div class="config-container config-container-clickable">
+                                <span>{{formData.apiSessionId}}</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">Type</span>
+                        </div>
+                        <div class="config-container">
+                            <span>{{formData.type}}</span>
+                        </div>
+                    </div>
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">Created At</span>
+                        </div>
+                        <div class="config-container">
+                            <span>{{moment(formData.createdAt).format("M/D/YYYY h:mm A")}}</span>
+                        </div>
+                    </div>
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">Updated At</span>
+                        </div>
+                        <div class="config-container">
+                            <span>{{moment(formData.updatedAt).format("M/D/YYYY h:mm A")}}</span>
+                        </div>
+                    </div>
+                </lib-form-field-container>
+                <ng-content select="[slot=column-1-slot-1]"></ng-content>
+            </div>
+            <div class="form-group-column two-fifths">
+                <lib-form-field-container
+                        [title]="'Associated Entities'"
+                        [label]="'Click for detailed view'"
+                        [helpText]="'List the edge routers and service policies that are associated with this session. Click on the entity name to navigate to the entity\'s detailed view.'"
+                        [class]="'no-gap'"
+                >
+                    <div class="form-row space-between" style="margin-top: 0;">
+                        <div class="config-title-row">
+                            <span class="form-field-title">Edge Routers</span>
+                        </div>
+                        <span class="form-field-count">{{associatedEdgeRouters.length}}</span>
+                    </div>
+                    <lib-preview-list
+                        [isLoading]="false"
+                        [allNames]="associatedEdgeRouters"
+                        [allowRemove]="false"
+                        [clickable]="true"
+                        [showfilter]="false"
+                        [tooltip]="'View Edge Router'"
+                        (itemSelected)="previewEdgeRouter($event, router)"
+                    ></lib-preview-list>
+                    <div class="form-row space-between">
+                        <div class="config-title-row">
+                            <span class="form-field-title">Service Policies</span>
+                        </div>
+                        <span class="form-field-count">{{associatedServicePolicies.length}}</span>
+                    </div>
+                    <lib-preview-list
+                            [isLoading]="false"
+                            [clickable]="true"
+                            (itemSelected)="previewServicePolicy($event, router)"
+                            [tooltip]="'View Service Policy'"
+                            [allNames]="associatedServicePolicies"
+                            [showfilter]="false"
+                    ></lib-preview-list>
+                </lib-form-field-container>
+            </div>
+        </div>
+        <div class="form-group-column" *ngIf="formView === 'raw'">
+            <lib-json-view *ngIf="formData" [(data)]="formData"></lib-json-view>
+        </div>
+    </div>
+</div>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

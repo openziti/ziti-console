@@ -99,12 +99,14 @@ export * from './lib/features/projectable-forms/certificate-authority/certificat
 export * from './lib/features/projectable-forms/certificate-authority/verify-certificate/verify-certificate.component';
 export * from './lib/features/projectable-forms/config-type/config-type-form.component';
 export * from './lib/features/projectable-forms/posture-check/posture-check-form.component';
+export * from './lib/features/projectable-forms/session/session-form.component';
 export * from './lib/features/reset-enrollment/reset-enrollment.service';
 export * from './lib/features/extendable/extensions-noop.service';
 export * from './lib/features/projectable-forms/form-header/form-header.component';
 export * from './lib/features/loading-indicator/loading-indicator.component';
 export * from './lib/models/identity';
 export * from './lib/models/edge-router';
+export * from './lib/models/session';
 export * from './lib/features/messaging/growler.module';
 export * from './lib/shared/list-page-component.class';
 export * from './lib/shared/list-page-service.class';

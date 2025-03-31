@@ -27,7 +27,7 @@ import {SchemaService} from "../../services/schema.service";
 import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service";
 import {CsvDownloadService} from "../../services/csv-download.service";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
-import {Service} from "../../models/service";
+import {Session} from "../../models/session";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 import {Router} from "@angular/router";
 
@@ -48,7 +48,7 @@ export class SessionsPageService extends ListPageServiceClass {
 
     private paging = this.DEFAULT_PAGING;
 
-    resourceType = 'config-types';
+    resourceType = 'sessions';
     selectedConfig: any = {};
     modalType = '';
 
@@ -193,13 +193,13 @@ export class SessionsPageService extends ListPageServiceClass {
     }
 
     public openUpdate(item?: any) {
-        this.modalType = 'config';
+        this.modalType = 'session';
         if (item) {
             this.selectedConfig = item;
             this.selectedConfig.badges = [];
             unset(this.selectedConfig, '_links');
         } else {
-            this.selectedConfig = new Service();
+            this.selectedConfig = new Session();
         }
         this.sideModalOpen = true;
     }
