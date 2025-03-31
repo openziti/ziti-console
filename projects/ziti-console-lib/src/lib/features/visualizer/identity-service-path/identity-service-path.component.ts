@@ -268,7 +268,6 @@ export class IdentityServicePathComponent implements OnInit {
         serviceConfigs
       );
     } catch (err) {
-      console.log('Error in creating graph', err);
       return;
     }
 

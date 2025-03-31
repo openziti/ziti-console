@@ -63,14 +63,14 @@ body {
 
   --spinnerSizeMedium: 1.25rem;
   --spinnerSizeLarge: 2rem;
-  --spinerBorderTopMedium: 0.125rem solid var(--stroke);
-  --spinerBorderRightMedium: 0.125rem solid var(--stroke);
-  --spinerBorderBottomMedium: 0.125rem solid transparent;
-  --spinerBorderLeftMedium: 0.125rem solid transparent;
-  --spinerBorderTopLarge: 0.175rem solid var(--stroke);
-  --spinerBorderRightLarge: 0.175rem solid var(--stroke);
-  --spinerBorderBottomLarge: 0.175rem solid transparent;
-  --spinerBorderLeftLarge: 0.175rem solid transparent;
+  --spinnerBorderTopMedium: 0.125rem solid var(--stroke);
+  --spinnerBorderRightMedium: 0.125rem solid var(--stroke);
+  --spinnerBorderBottomMedium: 0.125rem solid transparent;
+  --spinnerBorderLeftMedium: 0.125rem solid transparent;
+  --spinnerBorderTopLarge: 0.175rem solid var(--stroke);
+  --spinnerBorderRightLarge: 0.175rem solid var(--stroke);
+  --spinnerBorderBottomLarge: 0.175rem solid transparent;
+  --spinnerBorderLeftLarge: 0.175rem solid transparent;
   --appLoaderSize: 10.5rem;
 }
 
@@ -1517,10 +1517,10 @@ p-dropdown {
           height: var(--spinnerSizeMedium);
           border-radius: 50%;
           background: transparent;
-          border-top: var(--spinerBorderTopMedium);
-          border-right: var(--spinerBorderRightMedium);
-          border-bottom: var(--spinerBorderBottomMedium);
-          border-left: var(--spinerBorderLeftMedium);
+          border-top: var(--spinnerBorderTopMedium);
+          border-right: var(--spinnerBorderRightMedium);
+          border-bottom: var(--spinnerBorderBottomMedium);
+          border-left: var(--spinnerBorderLeftMedium);
           animation: loading .5s infinite linear;
           margin-left: var(--marginSmall);
           position: absolute;
@@ -1702,4 +1702,48 @@ p-dropdown {
 
 .error-text {
   color: var(--red);
+}
+
+.config-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--defaultInputHeight);
+  padding-left: var(--paddingMedium);
+  width: 100%;
+  background-color: var(--stroke);
+  border-radius: var(--inputBorderRadius);
+
+  &.config-container-clickable {
+    cursor: pointer;
+  }
+}
+
+a {
+  &.form-field-link {
+    span {
+      color: var(--primaryColor);
+    }
+    &:hover {
+      span {
+        filter: brightness(.85);
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.spinner {
+  display: inline-block;
+  width: var(--spinnerSizeMedium);
+  height: var(--spinnerSizeMedium);
+  border-radius: 50%;
+  background: transparent;
+  border-top: var(--spinnerBorderTopMedium);
+  border-right: var(--spinnerBorderRightMedium);
+  border-bottom: var(--spinnerBorderBottomMedium);
+  border-left: var(--spinnerBorderLeftMedium);
+  animation: loading .5s infinite linear;
+  margin-left: var(--marginSmall);
 }

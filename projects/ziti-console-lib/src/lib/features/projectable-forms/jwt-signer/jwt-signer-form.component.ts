@@ -344,7 +344,6 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
     }
 
     selectPemFile(event: any) {
-        console.log(event);
         const file: File = event?.target?.files[0];
 
         if (file) {

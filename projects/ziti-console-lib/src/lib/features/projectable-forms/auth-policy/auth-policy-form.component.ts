@@ -270,7 +270,6 @@ export class AuthPolicyFormComponent extends ProjectableForm implements OnInit, 
     }
 
     selectPemFile(event: any) {
-        console.log(event);
         const file: File = event?.target?.files[0];
 
         if (file) {

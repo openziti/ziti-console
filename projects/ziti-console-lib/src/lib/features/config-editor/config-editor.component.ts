@@ -248,7 +248,6 @@ export class ConfigEditorComponent implements OnInit {
     let isValid = true;
     items.forEach((item) => {
       if (item.type === 'object') {
-        console.log(validationErrors);
         if (!this.validateConfigItems(item.items, item.type, path + '/' + item.key, validationErrors)) {
           isValid = false;
         }

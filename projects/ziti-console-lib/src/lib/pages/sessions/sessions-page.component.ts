@@ -96,6 +96,16 @@ export class SessionsPageComponent extends ListPageComponent implements OnInit {
         }
     }
 
+    override openBulkDelete(selectedItems, label) {
+        const updatedItems = selectedItems.map((item) => {
+            return {
+                name: item.service?.name + ': ' + item.id,
+                id: item.id
+            }
+        });
+        super.openBulkDelete(updatedItems, label);
+    }
+
     deleteItem(item: any) {
         this.openBulkDelete([item], 'sessions');
     }
