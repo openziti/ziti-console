@@ -1,3 +1,11 @@
+::ng-deep .api-session-form-wrapper {
+  .form-header-container {
+    .form-header-toggle-container {
+      margin-right: 0 !important;
+    }
+  }
+}
+
 .form-field-dropdown {
   background-image: url(../../../assets/svgs/ArrowDown.svg);
   background-position: center right 0.625rem;

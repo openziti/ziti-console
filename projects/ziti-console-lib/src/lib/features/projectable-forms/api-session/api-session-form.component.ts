@@ -88,7 +88,7 @@ export class APISessionFormComponent extends ProjectableForm implements OnInit, 
         if (data.isEmpty) {
           return;
         }
-        this.formData = data;
+        this.formData = data || {};
       })
     );
   }

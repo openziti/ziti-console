@@ -89,6 +89,8 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
 
     subscription: Subscription = new Subscription();
 
+    formInit = false;
+
     protected constructor(
         protected growlerService: GrowlerService,
         @Inject(SHAREDZ_EXTENSION) protected extService: ExtensionService,
@@ -131,6 +133,9 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
                     return;
                 }
                 this._settings = newSettings;
+                if (!this.formInit) {
+                    return;
+                }
                 this.ngOnInit();
             })
         );
@@ -162,6 +167,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
                 this.isLoading = false;
             });
         }
+        this.formInit = true;
     }
 
     showMoreChanged(showMore) {

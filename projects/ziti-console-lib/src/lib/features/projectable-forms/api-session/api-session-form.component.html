@@ -1,18 +1,19 @@
-<div class="projectable-form-wrapper"
+<div class="projectable-form-wrapper api-session-form-wrapper"
      (keyup.enter)="save($event)"
      (keyup.escape)="closeModal(false)"
 >
     <lib-form-header
         [data]="formData"
-        [title]="'API View Session'"
+        [title]="'API Session Details'"
         [moreActions]="moreActions"
         (actionRequested)="headerActionRequested($event)"
         [(formView)]="formView"
+        [showHeaderButton]="false"
     ></lib-form-header>
     <div class="edge-router-form-container projectable-form-container">
         <div class="projectable-form-main-column form-group-row" *ngIf="formView === 'simple'">
             <div class="form-group-column">
-                <lib-form-field-container [title]="'Session Details'" [label]="'REQUIRED'">
+                <lib-form-field-container [showHeader]="false">
                     <div class="form-field-label-container">
                         <div class="form-field-title-container">
                             <span class="form-field-title">ID</span>
