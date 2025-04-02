@@ -1,8 +1,15 @@
 ::ng-deep .api-session-form-wrapper {
   .form-header-container {
+    max-width: 35rem !important;
     .form-header-toggle-container {
       margin-right: 0 !important;
     }
+  }
+}
+
+.projectable-form-main-column {
+  &.form-group-row {
+    max-width: 35rem;
   }
 }
 

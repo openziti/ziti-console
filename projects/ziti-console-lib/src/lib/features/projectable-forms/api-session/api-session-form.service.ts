@@ -6,12 +6,12 @@ import {GrowlerModel} from "../../messaging/growler.model";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../../extendable/extensions-noop.service";
 
-import {Session} from "../../../models/session";
+import {EdgeRouter} from "../../../models/edge-router";
 
 @Injectable({
     providedIn: 'root'
 })
-export class SessionFormService {
+export class APISessionFormService {
 
     associatedIdentities: any = [];
     associatedIdentityNames: any = [];
@@ -27,11 +27,11 @@ export class SessionFormService {
  
     save(formData): Promise<any> {
         const isUpdate = !isEmpty(formData.id);
-        const data: any = this.getSessionDataModel(formData, isUpdate);
+        const data: any = this.getEdgeRouterDataModel(formData, isUpdate);
         const svc = isUpdate ? this.zitiService.patch.bind(this.zitiService) : this.zitiService.post.bind(this.zitiService);
-        return svc('api-sessions', data, formData.id).then(async (result: any) => {
+        return svc('transit-routers', data, formData.id).then(async (result: any) => {
             const id = result?.data?.id || formData.id;
-            let router = await this.zitiService.getSubdata('api-sessions', id, '').then((routerData) => {
+            let router = await this.zitiService.getSubdata('transit-routers', id, '').then((routerData) => {
                 return routerData.data;
             });
             return this.extService.formDataSaved(router).then((formSavedResult: any) => {
@@ -42,8 +42,8 @@ export class SessionFormService {
                 const growlerData = new GrowlerModel(
                     'success',
                     'Success',
-                    `API Session ${isUpdate ? 'Updated' : 'Created'}`,
-                    `Successfully ${isUpdate ? 'updated' : 'created'} API Session: ${formData.name}`,
+                    `Transit Router ${isUpdate ? 'Updated' : 'Created'}`,
+                    `Successfully ${isUpdate ? 'updated' : 'created'} Transit Router: ${formData.name}`,
                 );
                 this.growlerService.show(growlerData);
                 return returnVal;
@@ -55,7 +55,7 @@ export class SessionFormService {
             const growlerData = new GrowlerModel(
                 'error',
                 'Error',
-                `Error ${isUpdate ? 'Updating' : 'Creating'} API Session`,
+                `Error ${isUpdate ? 'Updating' : 'Creating'} Transit Router`,
                 errorMessage,
             );
             this.growlerService.show(growlerData);
@@ -63,8 +63,8 @@ export class SessionFormService {
         })
     }
 
-    getSessionDataModel(formData, isUpdate) {
-        const saveModel = new Session();
+    getEdgeRouterDataModel(formData, isUpdate) {
+        const saveModel = new EdgeRouter();
         const modelProperties = keys(saveModel);
         modelProperties.forEach((prop) => {
             switch(prop) {
@@ -73,6 +73,21 @@ export class SessionFormService {
             }
         });
         return saveModel;
+    }
+
+    getAuthPolicies() {
+        const paging = {
+            filter: "",
+            noSearch: true,
+            order: "asc",
+            page: 1,
+            searchOn: "name",
+            sort: "name",
+            total: 100
+        }
+        return this.zitiService.get('auth-policies', paging, []).then((result: any) => {
+            return [{id: 'default', name: 'Default'}, ...result.data];
+        });
     }
 
     copyToClipboard(val) {
@@ -84,5 +99,28 @@ export class SessionFormService {
             `API call URL copied to clipboard`,
         );
         this.growlerService.show(growlerData);
+    }
+
+    getAssociatedServices(id) {
+        this.zitiService.getSubdata('transit-routers', id, 'services').then((result: any) => {
+            this.associatedServices = result.data;
+            this.associatedServiceNames = this.associatedServices.map((svc) => {
+                return svc.name;
+            });
+        });
+    }
+
+    getAssociatedIdentities(id) {
+        this.zitiService.getSubdata('transit-routers', id, 'identities').then((result: any) => {
+            this.associatedIdentities = result.data;
+            this.associatedIdentityNames = this.associatedIdentities.map((policy) => {
+                return policy.name;
+            });
+        });
+    }
+
+    refreshRouter(id) {
+        const url: any = `/transit-routers/${id}`
+        return this.zitiService.call(url);
     }
 }

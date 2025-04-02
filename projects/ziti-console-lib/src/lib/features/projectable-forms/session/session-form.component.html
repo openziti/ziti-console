@@ -4,15 +4,16 @@
 >
     <lib-form-header
         [data]="formData"
-        [title]="'View Session'"
+        [title]="'Session Details'"
         [moreActions]="moreActions"
         (actionRequested)="headerActionRequested($event)"
         [(formView)]="formView"
+        [showHeaderButton]="false"
     ></lib-form-header>
     <div class="edge-router-form-container projectable-form-container">
         <div class="projectable-form-main-column form-group-row" *ngIf="formView === 'simple'">
             <div class="form-group-column three-fifths">
-                <lib-form-field-container [title]="'Session Details'" [label]="'REQUIRED'">
+                <lib-form-field-container [showHeader]="false">
                     <div class="form-field-label-container">
                         <div class="form-field-title-container">
                             <span class="form-field-title">ID</span>

@@ -53,7 +53,10 @@ import {
   PostureCheckFormComponent,
   TransitRoutersPageComponent,
   TransitRouterFormComponent,
-  SessionsPageComponent
+  SessionsPageComponent,
+  APISessionsPageComponent,
+  SessionFormComponent,
+  APISessionFormComponent
 } from "ziti-console-lib";
 import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
@@ -360,8 +363,20 @@ const routes: Routes = [
     runGuardsAndResolvers: 'always',
   },
   {
+    path: 'sessions/:id',
+    component: SessionFormComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    runGuardsAndResolvers: 'always',
+  },
+  {
     path: 'api-sessions',
-    component: ZacWrapperComponent,
+    component: APISessionsPageComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'api-sessions/:id',
+    component: APISessionFormComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
   },

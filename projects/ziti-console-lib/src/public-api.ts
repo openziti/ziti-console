@@ -30,6 +30,8 @@ export * from './lib/pages/certificate-authorities/certificate-authorities-page.
 export * from './lib/pages/certificate-authorities/certificate-authorities-page.service';
 export * from './lib/pages/sessions/sessions-page.component';
 export * from './lib/pages/sessions/sessions-page.service';
+export * from './lib/pages/api-sessions/api-sessions-page.component';
+export * from './lib/pages/api-sessions/api-sessions-page.service';
 export * from './lib/services/login-service.class';
 export * from './lib/services/noop-login.service';
 export * from './lib/services/settings-service.class';
@@ -100,6 +102,7 @@ export * from './lib/features/projectable-forms/certificate-authority/verify-cer
 export * from './lib/features/projectable-forms/config-type/config-type-form.component';
 export * from './lib/features/projectable-forms/posture-check/posture-check-form.component';
 export * from './lib/features/projectable-forms/session/session-form.component';
+export * from './lib/features/projectable-forms/api-session/api-session-form.component';
 export * from './lib/features/reset-enrollment/reset-enrollment.service';
 export * from './lib/features/extendable/extensions-noop.service';
 export * from './lib/features/projectable-forms/form-header/form-header.component';

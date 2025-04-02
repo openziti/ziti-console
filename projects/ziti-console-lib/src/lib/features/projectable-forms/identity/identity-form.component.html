@@ -167,6 +167,7 @@
                 </div>
             </div>
             <div class="form-group-column two-fifths">
+                <ng-content select="[slot=column-1-slot-1]"></ng-content>
                 <lib-form-field-container
                         *ngIf="hasEnrolmentToken || hasAuthenticator"
                         [showHeader]="false"
