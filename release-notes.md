@@ -1,3 +1,9 @@
+# app-ziti-console-v3.12.0
+# ziti-console-lib-v0.12.0
+## Feature/Improvements
+* [Issue #664](https://github.com/openziti/ziti-console/pull/664) - New Sessions (And API Sessions) List Pages and Edit Forms
+
+
 # app-ziti-console-v3.11.2
 # ziti-console-lib-v0.11.2
 ## Bug Fixes
