@@ -1,0 +1,23 @@
+<div class="ziti-page-container ziti-api-sessions-container">
+    <lib-list-page-header [title]="title"
+                          [tabs]="tabs"
+                          [hideAction]="true"
+                          (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
+
+    <lib-data-table [tableId]="'api-sessions'"
+                    [rowData]="rowData"
+                    [columnDefinitions]="columnDefs"
+                    (actionRequested)="tableAction($event)"
+                    [startCount]="startCount"
+                    [endCount]="endCount"
+                    [totalCount]="totalCount"
+                    [emptyMsg]="'No API Sessions defined'"
+                    [filterApplied]="filterApplied"
+                    [filterColumn]="'identity'"
+                    [filterName]="'identity'"
+                    [menuItems]="svc.menuItems"
+                    (gridReady)="gridReady($event)"
+    >
+    </lib-data-table>
+</div>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

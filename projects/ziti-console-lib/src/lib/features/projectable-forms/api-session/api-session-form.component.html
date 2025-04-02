@@ -1,0 +1,75 @@
+<div class="projectable-form-wrapper"
+     (keyup.enter)="save($event)"
+     (keyup.escape)="closeModal(false)"
+>
+    <lib-form-header
+        [data]="formData"
+        [title]="'API View Session'"
+        [moreActions]="moreActions"
+        (actionRequested)="headerActionRequested($event)"
+        [(formView)]="formView"
+    ></lib-form-header>
+    <div class="edge-router-form-container projectable-form-container">
+        <div class="projectable-form-main-column form-group-row" *ngIf="formView === 'simple'">
+            <div class="form-group-column">
+                <lib-form-field-container [title]="'Session Details'" [label]="'REQUIRED'">
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">ID</span>
+                        </div>
+                        <div class="config-container">
+                            <span>{{formData.id}}</span>
+                        </div>
+                    </div>
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">Identity Name</span>
+                        </div>
+                        <a class="form-field-link" [href]="'./services/' + formData.identity.id" (click)="identityNameLinkClicked($event)">
+                            <div class="config-container config-container-clickable">
+                                <span>{{formData.identity.name}}</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">IP Address</span>
+                        </div>
+                        <div class="config-container">
+                            <span>{{formData.ipAddress}}</span>
+                        </div>
+                    </div>
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">Created At</span>
+                        </div>
+                        <div class="config-container">
+                            <span>{{moment(formData.createdAt).format("M/D/YYYY h:mm A")}}</span>
+                        </div>
+                    </div>
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">Updated At</span>
+                        </div>
+                        <div class="config-container">
+                            <span>{{moment(formData.updatedAt).format("M/D/YYYY h:mm A")}}</span>
+                        </div>
+                    </div>
+                    <div class="form-field-label-container">
+                        <div class="form-field-title-container">
+                            <span class="form-field-title">Last Activity</span>
+                        </div>
+                        <div class="config-container">
+                            <span>{{moment(formData.lastActivity).format("M/D/YYYY h:mm A")}}</span>
+                        </div>
+                    </div>
+                </lib-form-field-container>
+                <ng-content select="[slot=column-1-slot-1]"></ng-content>
+            </div>
+        </div>
+        <div class="form-group-column" *ngIf="formView === 'raw'">
+            <lib-json-view *ngIf="formData" [(data)]="formData"></lib-json-view>
+        </div>
+    </div>
+</div>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

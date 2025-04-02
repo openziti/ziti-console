@@ -50,6 +50,11 @@ export class TabNameService {
                 {label: 'Auth Policies', url: '/auth-policies'},
                 {label: 'JWT Signers', url: '/jwt-signers'},
             ]
+            ],
+            ["sessions", [
+                {label: 'Sessions', url: '/sessions'},
+                {label: 'API Sessions', url: '/api-sessions'},
+            ]
             ]
         ]
     );
