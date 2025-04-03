@@ -53,10 +53,13 @@ jobs:
           tags: |
             # set "main" tag on revisions that are accepted into the default branch
             type=raw,value=${{ github.ref_name }},enable={{is_default_branch}}
+
             # set "latest" tag on releases
             type=raw,value=latest,enable=${{startsWith(github.ref_name, 'app-ziti-console-v')}}
+
             # set (e.g., "1.2.3") semver tag on releases
             type=match,pattern=app-ziti-console-v(.*),group=1,enable=${{startsWith(github.ref_name, 'app-ziti-console-v')}}
+
             # set (e.g., "v1") major version tag on releases
             type=match,pattern=app-ziti-console-(v\d+)\..*,group=1,enable=${{startsWith(github.ref_name, 'app-ziti-console-v')}}
 

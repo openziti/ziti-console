@@ -20,7 +20,6 @@ jobs:
         id: parse
         shell: bash
         env:
-          GITHUB_REF_NAME: ${{ github.ref_name }}
           GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
           set -o pipefail
@@ -148,6 +147,7 @@ jobs:
           jf rt copy
           --recursive=false
           --flat=true
+          --fail-no-op=true
           ${{ env.ZITI_DEB_TEST_REPO }}/pool/${{ matrix.package_name }}/${{ matrix.arch.deb }}/${{ matrix.package_name }}_${{ needs.parse-version.outputs.version }}_*.deb
           ${{ env.ZITI_DEB_PROD_REPO }}/pool/${{ matrix.package_name }}/${{ matrix.arch.deb }}/
 
@@ -158,5 +158,6 @@ jobs:
           jf rt copy
           --recursive=false
           --flat=true
+          --fail-no-op=true
           ${{ env.ZITI_RPM_TEST_REPO }}/redhat/${{ matrix.arch.rpm }}/${{ matrix.package_name }}-${{ needs.parse-version.outputs.version }}-*.${{ matrix.arch.rpm }}.rpm
           ${{ env.ZITI_RPM_PROD_REPO }}/redhat/${{ matrix.arch.rpm }}/
