@@ -34,6 +34,7 @@
                             [placeholder]="'Add attributes to group Identities'"
                     ></lib-tag-selector>
                 </lib-form-field-container>
+                <ng-content select="[slot=column-1-slot-1]"></ng-content>
                 <lib-form-field-container
                         [title]="'Auth Policy'"
                         [label]="'OPTIONAL'"
@@ -62,6 +63,7 @@
                         <input class="form-field-input" placeholder="Optional External ID" [(ngModel)]="formData.externalId"/>
                     </div>
                 </lib-form-field-container>
+                <ng-content select="[slot=column-1-slot-2]"></ng-content>
                 <lib-form-field-toggle [(toggleOn)]="showMore" (toggleOnChange)="showMoreChanged($event)" style="margin: 0px 10px"></lib-form-field-toggle>
                 <div [hidden]="!showMore" class="form-group-column">
                     <lib-form-field-container
@@ -167,7 +169,7 @@
                 </div>
             </div>
             <div class="form-group-column two-fifths">
-                <ng-content select="[slot=column-1-slot-1]"></ng-content>
+                <ng-content select="[slot=column-2-slot-1]"></ng-content>
                 <lib-form-field-container
                         *ngIf="hasEnrolmentToken || hasAuthenticator"
                         [showHeader]="false"

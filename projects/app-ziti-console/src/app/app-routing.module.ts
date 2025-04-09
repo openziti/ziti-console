@@ -123,6 +123,13 @@ const routes: Routes = [
     runGuardsAndResolvers: 'always',
   },
   {
+    path: 'jwt-signers/:id/test-auth',
+    component: JwtSignerFormComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    canDeactivate: [DeactivateGuardService],
+    runGuardsAndResolvers: 'always',
+  },
+  {
     path: 'auth-policies',
     component: AuthPoliciesPageComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
