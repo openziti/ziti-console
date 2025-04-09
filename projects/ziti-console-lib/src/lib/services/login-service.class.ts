@@ -20,8 +20,8 @@ export abstract class LoginServiceClass {
     public loginInProgress = false;
 
     abstract init();
-    abstract login(prefix: string, url: string, username: string, password: string, doNav?, type?, token?);
-    abstract observeLogin(serviceUrl: string, username: string, password: string, doNav?, type?, token?);
+    abstract login(prefix: string, url: string, username: string, password: string, doNav?, type?, token?, isTest?);
+    abstract observeLogin(serviceUrl: string, username: string, password: string, doNav?, type?, token?, isTest?);
     abstract clearSession();
     abstract checkOriginForController(): Promise<any>;
     abstract logout();

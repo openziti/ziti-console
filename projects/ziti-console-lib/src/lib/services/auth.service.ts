@@ -27,14 +27,25 @@ export class AuthService {
         });
     }
 
-    public configureOAuth(extJwtSigner): Promise<any> {
+    public resetOAuthService(configKey = 'oauth_callback_config', tokenTypeKey = 'oauth_callback_target_token') {
+        const urlWithoutHash = window.location.href.split('?')[0];
+        // Update the URL without the hash
+        window.history.pushState({}, '', urlWithoutHash);
+        localStorage.removeItem(configKey);
+        localStorage.removeItem(tokenTypeKey);
+        this.oauthService.logOut();
+        this.oauthService.configure({});
+    }
+
+    public configureOAuth(extJwtSigner, callbackParams?, configKey?, tokenTypeKey?): Promise<any> {
         let basePath = document.querySelector('base')?.getAttribute('href') || '/';
         basePath = basePath.endsWith('/') ? basePath.slice(0, -1) : basePath;
         const scopes = extJwtSigner.scopes || [];
         const scope = scopes.join(' ');
+        const redirectPath = basePath + `/callback${callbackParams ? `?${callbackParams}` : ''}`;
         const oauthConfig = {
             issuer: extJwtSigner.externalAuthUrl,
-            redirectUri: window.location.origin + `${basePath}/callback`,
+            redirectUri: window.location.origin + redirectPath,
             clientId: extJwtSigner.clientId,
             responseType: 'code',
             scope: scope,
@@ -45,9 +56,10 @@ export class AuthService {
             strictDiscoveryDocumentValidation: false,
             usePKCE: true,
         };
-        localStorage.setItem('oauth_callback_config', JSON.stringify(oauthConfig));
+
+        localStorage.setItem(configKey || 'oauth_callback_config', JSON.stringify(oauthConfig));
         if (extJwtSigner.targetToken) {
-            localStorage.setItem('oauth_callback_target_token', extJwtSigner.targetToken);
+            localStorage.setItem(tokenTypeKey || 'oauth_callback_target_token', extJwtSigner.targetToken);
         }
         this.oauthService.configure(oauthConfig);
         return this.oauthService.loadDiscoveryDocumentAndTryLogin().then((initSuccess) => {
@@ -71,6 +83,7 @@ export class AuthService {
                 'Unable to initialize OAuth login: ' + (error?.message ? error.message : error),
             );
             this.growlerService.show(growlerData);
+            this.resetOAuthService();
             return false;
         });
     }

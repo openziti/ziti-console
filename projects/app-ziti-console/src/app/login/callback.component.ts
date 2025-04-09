@@ -1,8 +1,8 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {OAuthService} from "angular-oauth2-oidc";
-import {Router} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {isEmpty} from "lodash";
-import {GrowlerModel, GrowlerService, LoginServiceClass, SettingsServiceClass, ZAC_LOGIN_SERVICE, SETTINGS_SERVICE} from "ziti-console-lib";
+import {GrowlerModel, GrowlerService, LoginServiceClass, SettingsServiceClass, ZitiDataService, ZAC_LOGIN_SERVICE, SETTINGS_SERVICE, ZITI_DATA_SERVICE} from "ziti-console-lib";
 
 @Component({
     selector: 'app-callback',
@@ -14,6 +14,8 @@ export class CallbackComponent implements OnInit {
         @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass,
         private growlerService: GrowlerService,
         private router: Router,
+        private route: ActivatedRoute,
+        @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
         @Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
 
     ) {
@@ -25,6 +27,7 @@ export class CallbackComponent implements OnInit {
             const configString = localStorage.getItem('oauth_callback_config');
             const tokenType = localStorage.getItem('oauth_callback_target_token');
             const oauthConfig = JSON.parse(configString);
+            const redirectRoute = this.route.snapshot.queryParamMap.get('redirectRoute');
             if (!isEmpty(oauthConfig)) {
                 this.oauthService.configure(oauthConfig);
                 this.oauthService.loadDiscoveryDocument().then((loadResult) => {
@@ -39,7 +42,47 @@ export class CallbackComponent implements OnInit {
                             }
                             const prefix = '/edge/client/v1';
                             const url = this.settingsService.settings.selectedEdgeController;
-                            this.loginService.login(prefix, url, undefined, undefined, true, 'ext-jwt', token);
+                            let doNav = true;
+                            let isTest = true;
+                            if (!isEmpty(redirectRoute)) {
+                                doNav = false;
+                                isTest = true;
+                            }
+                            this.loginService.login(prefix, url, undefined, undefined, doNav, 'ext-jwt', token, isTest).then((result) => {
+                                if (!isEmpty(redirectRoute)) {
+                                    this.router.navigate([redirectRoute], {
+                                        queryParams: {
+                                            oidcAuthResult: 'success',
+                                        }
+                                    });
+                                }
+                            }).catch((error) => {
+                                let errorMessage = this.zitiService.getErrorMessage(error);
+                                if (error.statusText) {
+                                    errorMessage = error.statusText + ': ' + errorMessage;
+                                }
+                                if (error.status) {
+                                    errorMessage = error.status + ' ' + errorMessage;
+                                }
+                                errorMessage = 'Failed to get ziti session ID from controller using OIDC token: ' + errorMessage;
+                                const growlerData = new GrowlerModel(
+                                    'error',
+                                    'Error',
+                                    `Login Error`,
+                                    'Unable to initialize OAuth login. ' + errorMessage,
+                                );
+                                this.growlerService.show(growlerData);
+                                if (!isEmpty(redirectRoute)) {
+                                    this.router.navigate([redirectRoute], {
+                                        queryParams: {
+                                            oidcAuthResult: 'failed',
+                                            oidcAuthErrorMessage: errorMessage
+                                        }
+                                    });
+                                } else {
+                                    this.router.navigate(['/login']);
+                                }
+                            });
                         } else {
                             const growlerData = new GrowlerModel(
                                 'error',
@@ -48,9 +91,48 @@ export class CallbackComponent implements OnInit {
                                 'Unable to initialize OAuth login',
                             );
                             this.growlerService.show(growlerData);
-                            this.router.navigate(['/login']);
+                            this.router.navigate(['/login'], {
+                                queryParams: {
+                                    oidcAuthResult: 'failed',
+                                    oidcAuthErrorMessage: 'Failed to get ziti session ID from controller using OIDC token'
+                                }
+                            });
+                        }
+                    }).catch((error) => {
+                        const errorMessage = `${error.params ? error.params.error + ': ' + error.params.error_description : ''}`;
+                        const growlerData = new GrowlerModel(
+                            'error',
+                            'Error',
+                            `Login Error`,
+                            'Unable to initialize OAuth login. ' + errorMessage,
+                        );
+                        this.growlerService.show(growlerData);
+                        if (!isEmpty(redirectRoute)) {
+                            this.router.navigate([redirectRoute], {
+                                queryParams: {
+                                    oidcAuthResult: 'failed',
+                                    oidcAuthErrorMessage: errorMessage
+                                }
+                            });
                         }
                     });
+                }).catch((error) => {
+                    const errorMessage = `${error.params ? error.params.error + ': ' + error.params.error_description : ''}`;
+                    const growlerData = new GrowlerModel(
+                        'error',
+                        'Error',
+                        `Login Error`,
+                        'Unable to initialize OAuth login. ' + errorMessage,
+                    );
+                    this.growlerService.show(growlerData);
+                    if (!isEmpty(redirectRoute)) {
+                        this.router.navigate([redirectRoute], {
+                            queryParams: {
+                                oidcAuthResult: 'failed',
+                                oidcAuthErrorMessage: errorMessage
+                            }
+                        });
+                    }
                 });
             }
         } catch (e) {

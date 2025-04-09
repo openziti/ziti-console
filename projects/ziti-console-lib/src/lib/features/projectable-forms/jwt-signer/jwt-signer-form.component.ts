@@ -37,6 +37,9 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {JwtSigner} from "../../../models/jwt-signer";
 import {Location} from "@angular/common";
 import {ValidationService} from "../../../services/validation.service";
+import {OAuthService} from "angular-oauth2-oidc";
+import {LoginServiceClass, ZAC_LOGIN_SERVICE} from "../../../services/login-service.class";
+import {AuthService} from "../../../services/auth.service";
 
 @Component({
     selector: 'lib-configuration',
@@ -58,10 +61,17 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
     settings: any = {};
     fileSelectOpening = false;
     signatureMethod = "JWKS_ENDPOINT";
+    oauthLoading = false;
+    configKey = 'oauth_test_callback_config';
+    tokenTypeKey = 'oauth_test_callback_token_type';
+    oidcVerified = false;
+    oidcErrorMessage;
+    overrideFormData;
     override entityType = 'external-jwt-signers';
     override entityClass = JwtSigner;
 
     @ViewChild('fileSelect') filterInput: ElementRef;
+    @ViewChild('oidcVerification') oidcVerification: ElementRef;
 
     constructor(
         public svc: JwtSignerFormService,
@@ -73,7 +83,11 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         protected override router: Router,
         protected override route: ActivatedRoute,
         location: Location,
-        private validationService: ValidationService
+        private validationService: ValidationService,
+        private authService: AuthService,
+        private oauthService: OAuthService,
+        @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass,
+
     ) {
         super(growlerService, extService, zitiService, router, route, location, settingsService);
     }
@@ -83,10 +97,26 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         this.settingsService.settingsChange.subscribe((results:any) => {
             this.settings = results;
         });
+        if (window.location.href.indexOf('test-auth') > 0) {
+            this.handleOAuthCallback();
+        } else {
+            this.authService.resetOAuthService(this.configKey, this.tokenTypeKey);
+        }
+    }
+
+    override ngAfterViewInit() {
+        super.ngAfterViewInit(true);
+        defer(() => {
+            this.scrollContainer?.nativeElement.scrollTo(0,  this.scrollContainer?.nativeElement.scrollHeight);
+        });
     }
 
     protected override entityUpdated() {
         super.entityUpdated();
+        if (!isEmpty(this.overrideFormData)) {
+            this.formData = this.overrideFormData;
+            this.overrideFormData = undefined;
+        }
     }
 
     ngOnDestroy(): void {
@@ -423,5 +453,48 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         defer(() => {
             this.trimWhitespaceScopes();
         })
+    }
+
+    get callbackURL() {
+        return window.location.origin + this.baseHref + `callback`
+    }
+
+    copyCallbackURL() {
+        navigator.clipboard.writeText(this.callbackURL);
+        this.growlerService.show(
+            new GrowlerModel('success', 'Success', 'Copied to clipboard', 'JWT based auth domain has been copied to your clipboard')
+        );
+    }
+
+    testOIDCAuthentication() {
+        this.oauthLoading = true;
+        const callbackParams = `redirectRoute=jwt-signers/${this.formData.id}/test-auth`;
+        localStorage.setItem('oidc_callback_test_config', JSON.stringify(this.formData));
+        this.authService.configureOAuth(this.formData, callbackParams).then((result) => {
+            if (result) {
+                delay(() => {
+                    this.oauthLoading = false;
+                }, 4000);
+            } else {
+                delay(() => {
+                    this.oauthLoading = false;
+                }, 700);
+            }
+        });
+    }
+
+    handleOAuthCallback() {
+        this.showMore = true;
+        const errorMessage = this.route.snapshot.queryParamMap.get('oidcAuthErrorMessage');
+        const result = this.route.snapshot.queryParamMap.get('oidcAuthResult');
+        if (result === 'success') {
+            this.oidcVerified = true;
+        } else {
+            this.oidcErrorMessage = errorMessage;
+        }
+        const formData = localStorage.getItem('oidc_callback_test_config');
+        if (!isEmpty(formData)) {
+            this.overrideFormData = JSON.parse(formData);
+        }
     }
 }

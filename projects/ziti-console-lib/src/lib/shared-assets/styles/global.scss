@@ -11,6 +11,7 @@ body {
   --black: #000;
   --shaded: #f6f7fb;
   --formBackground: #f6f7fb;
+  --backgroundMuted: #eaeef1;
   --visualizerBackground: #ffffff80;
   --background: #ffffff;
   --navigation: #ffffff;
@@ -621,6 +622,25 @@ input {
     bottom: 0rem;
     left: 0rem;
     right: 0rem;
+  }
+}
+
+.form-field-advanced {
+  &.formFieldSuccess {
+    .form-field-container {
+      &:before {
+        border-style: solid;
+        border-color: var(--green);
+      }
+    }
+  }
+  &.formFieldError {
+    .form-field-container {
+      &:before {
+        border-style: solid;
+        border-color: var(--red);
+      }
+    }
   }
 }
 

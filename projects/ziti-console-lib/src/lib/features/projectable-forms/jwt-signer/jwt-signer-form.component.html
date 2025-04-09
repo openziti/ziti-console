@@ -11,14 +11,14 @@
             [(formView)]="formView"
             [saveDisabled]="svc.saveDisabled || formDataInvalid"
     ></lib-form-header>
-    <div class="jwt-signer-form-container projectable-form-container">
+    <div class="jwt-signer-form-container projectable-form-container" #scrollContainer>
         <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
             <div class="form-group-column three-fifths">
                 <lib-form-field-container
                         [title]="'Name'"
                         [label]="'Required'"
                 >
-                    <input class="form-field-input read-only" [(ngModel)]="formData.name" [ngClass]="{error: errors['name']}" placeholder="Name this JWT Signer"/>
+                    <input class="form-field-input read-only" [(ngModel)]="formData.name" [ngClass]="{error: errors['name']}" placeholder="Name this JWT Signer" #nameFieldInput/>
                 </lib-form-field-container>
                 <lib-form-field-container
                         [layout]="'column'"
@@ -152,6 +152,37 @@
                     </select>
                 </lib-form-field-container>
                 <div [hidden]="!showMore" class="form-group-column">
+                    <lib-form-field-container
+                        [title]="'Verify OIDC Authentication'"
+                        class="form-field-advanced"
+                        [ngClass]="{'formFieldError': !oidcVerified && oidcErrorMessage, 'formFieldSuccess': oidcVerified}"
+                    >
+                        <div class="form-field-row" #oidcVerification>
+                            <div class="form-field-label-container">
+                                <div class="form-field-title-container">
+                                    <div class="form-field-title">Callback URL</div>
+                                    <div
+                                            class="form-field-info infoicon"
+                                            matTooltip="This URL must be added to the list of allowed callback URLs in your OAuth provider configuration"
+                                            matTooltipPosition="below"
+                                    ></div>
+                                </div>
+                                <div class="copy-link-container">
+                                    <pre class="read-only-2" (click)="copyCallbackURL()">{{ callbackURL }}</pre>
+                                    <div class="copy-button" (click)="copyCallbackURL()"></div>
+                                </div>
+                            </div>
+                            <div class="test-oauth-button"
+                                 [ngClass]="{'oidc-verified': oidcVerified}"
+                                 (click)="testOIDCAuthentication()"
+                            >
+                                {{oidcVerified ? 'Verified' : 'Authenticate' }}
+                                <div class="spinner" *ngIf="oauthLoading"></div>
+                                <input type="checkbox" [disabled]="true" [checked]="true" class="success-check" *ngIf="oidcVerified">
+                            </div>
+                        </div>
+                        <span class="oidc-error-message" *ngIf="oidcErrorMessage">{{oidcErrorMessage}}</span>
+                    </lib-form-field-container>
                     <lib-form-field-container
                             [title]="'Custom Tags'"
                             [label]="'OPTIONAL'"
