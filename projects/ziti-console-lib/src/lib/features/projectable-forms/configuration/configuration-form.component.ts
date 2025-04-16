@@ -151,7 +151,7 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
     }
 
     copyCLICommand() {
-        const command = `ziti edge ${this.formData.id ? 'update' : 'create'} config ${this.formData.id ? `'${this.formData.id}'` : ''} ${this.formData.id ? '--name' : ''} '${this.formData.name}' --configTypeId '${this.formData.configTypeId}' --data '${JSON.stringify(this.formData.data)}' --tags-json '${JSON.stringify(this.formData.tags)}'`;
+        const command = `ziti edge ${this.formData.id ? 'update' : 'create'} config ${this.formData.id ? `'${this.formData.id}'` : ''} ${this.formData.id ? '--name' : ''} '${this.formData.name}' --data '${JSON.stringify(this.formData.data)}' --tags-json '${JSON.stringify(this.formData.tags)}'`;
 
         navigator.clipboard.writeText(command);
         const growlerData = new GrowlerModel(
