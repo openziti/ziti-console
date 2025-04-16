@@ -64,6 +64,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     @Output() abstract close: EventEmitter<any>;
     @Output() dataChange: EventEmitter<any> = new EventEmitter<any>();
     @ViewChild('nameFieldInput') nameFieldInput: ElementRef;
+    @ViewChild('scrollContainer') scrollContainer: ElementRef;
 
     abstract clear(): void;
     abstract save(): void;
@@ -80,6 +81,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     _dataChange = false;
     apiOptions = [{id: 'cli', label: 'Copy as CLI'}, {id: 'curl', label: 'Copy as CURL'}];
     basePath = '';
+    baseHref;
     previousRoute;
     showMore = false;
 
@@ -139,12 +141,15 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
                 this.ngOnInit();
             })
         );
+        this.initBaseHref();
     }
 
-    override ngAfterViewInit() {
+    override ngAfterViewInit(skipFocus = false) {
         super.ngAfterViewInit();
         this.errors = {};
-        this.nameFieldInput.nativeElement.focus();
+        if (!skipFocus) {
+            this.nameFieldInput?.nativeElement?.focus();
+        }
         if (this.extService?.moreActions) {
             this.moreActions = [...this.moreActions, ...this.extService.moreActions];
         }
@@ -168,6 +173,15 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
             });
         }
         this.formInit = true;
+    }
+
+    initBaseHref() {
+        try {
+            const base = document?.querySelector('base');
+            this.baseHref = base ? base.getAttribute('href') : '/';
+        } catch (error) {
+            this.baseHref = '/';
+        }
     }
 
     showMoreChanged(showMore) {

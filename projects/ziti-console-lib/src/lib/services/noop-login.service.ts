@@ -25,13 +25,13 @@ export class NoopLoginService extends LoginServiceClass {
     clearSession() {
     }
 
-    login(prefix: string, url: string, username: string, password: string) {
+    login(prefix: string, url: string, username: string, password: string, isTest?) {
     }
 
     logout() {
     }
 
-    observeLogin(serviceUrl: string, username: string, password: string) {
+    observeLogin(serviceUrl: string, username: string, password: string, isTest?) {
     }
 
     checkOriginForController(): Promise<any> {

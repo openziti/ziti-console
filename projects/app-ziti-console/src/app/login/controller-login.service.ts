@@ -42,8 +42,8 @@ export class ControllerLoginService extends LoginServiceClass {
         return Promise.resolve();
     }
 
-    async login(prefix: string, url: string, username: string, password: string, doNav = true, type?, token?): Promise<any> {
-        return this.controllerLogin(prefix, url, username, password, doNav, type, token);
+    async login(prefix: string, url: string, username: string, password: string, doNav = true, type?, token?, isTest?): Promise<any> {
+        return this.controllerLogin(prefix, url, username, password, doNav, type, token, isTest);
     }
 
     checkOriginForController(): Promise<any> {
@@ -62,18 +62,18 @@ export class ControllerLoginService extends LoginServiceClass {
         });
     }
 
-    controllerLogin(prefix: string, url: string, username: string, password: string, doNav = true, type?, token?): Promise<any> {
+    controllerLogin(prefix: string, url: string, username: string, password: string, doNav = true, type?, token?, isTest?): Promise<any> {
         this.domain = url;
         const serviceUrl = url + prefix;
-        return lastValueFrom(this.observeLogin(serviceUrl, username, password, doNav, type, token)
+        return lastValueFrom(this.observeLogin(serviceUrl, username, password, doNav, type, token, isTest)
         ).then(() => {
-            if (doNav) {
+            if (doNav && !isTest) {
                 this.router.navigate(['/']);
             }
         });
     }
 
-    observeLogin(serviceUrl: string, username?: string, password?: string, doNav = true, type?, token?) {
+    observeLogin(serviceUrl: string, username?: string, password?: string, doNav = true, type?, token?, isTest?) {
         if (this.loginInProgress) {
             return of(false);
         }
@@ -95,13 +95,17 @@ export class ControllerLoginService extends LoginServiceClass {
         return this.httpClient.post(endpoint + queryParams, requestBody, { headers })
             .pipe(
                 switchMap((body: any) => {
-                    return this.handleLoginResponse.bind(this)(body, username, password).pipe(switchMap(body => {
+                    return this.handleLoginResponse.bind(this)(body, username, password, isTest).pipe(switchMap(body => {
                         this.serviceUrl = serviceUrl;
                         this.isCertBasedAuth = isCertBased;
                         return of(body);
                     }))
                 }),
                 catchError((err: any) => {
+                    if (isTest) {
+                        throw err;
+                        return undefined;
+                    }
                     let errorMessage, growlerData;
                     if (err.code === "ECONNREFUSED") {
                         errorMessage = `Server Not Accessible. Please make sure controller is online.`;
@@ -140,7 +144,10 @@ export class ControllerLoginService extends LoginServiceClass {
             );
     }
 
-    private handleLoginResponse(body: any, username: string, password: string): Observable<any> {
+    private handleLoginResponse(body: any, username: string, password: string, isTest = false): Observable<any> {
+        if (isTest) {
+            return of([body.data?.token]);
+        }
         if (body.error) throw body.error;
         const settings = {
             ...this.settingsService.settings, session: {
