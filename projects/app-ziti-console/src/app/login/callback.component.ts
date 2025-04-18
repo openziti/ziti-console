@@ -48,11 +48,14 @@ export class CallbackComponent implements OnInit {
                                 doNav = false;
                                 isTest = true;
                             }
+                            const claimsObj = this.loginService.decodeJwt(token);
+                            const claimsStr = JSON.stringify(claimsObj, null, 2);
                             this.loginService.login(prefix, url, undefined, undefined, doNav, 'ext-jwt', token, isTest).then((result) => {
                                 if (!isEmpty(redirectRoute)) {
                                     this.router.navigate([redirectRoute], {
                                         queryParams: {
                                             oidcAuthResult: 'success',
+                                            oidcAuthTokenClaims: claimsStr
                                         }
                                     });
                                 }
@@ -76,7 +79,9 @@ export class CallbackComponent implements OnInit {
                                     this.router.navigate([redirectRoute], {
                                         queryParams: {
                                             oidcAuthResult: 'failed',
-                                            oidcAuthErrorMessage: errorMessage
+                                            oidcAuthErrorMessageDetail: errorMessage,
+                                            oidcAuthErrorMessageSource: 'Ziti Controller Error',
+                                            oidcAuthTokenClaims: claimsStr
                                         }
                                     });
                                 } else {
@@ -94,7 +99,8 @@ export class CallbackComponent implements OnInit {
                             this.router.navigate(['/login'], {
                                 queryParams: {
                                     oidcAuthResult: 'failed',
-                                    oidcAuthErrorMessage: 'Failed to get ziti session ID from controller using OIDC token'
+                                    oidcAuthErrorMessageDetail: 'Unable to initialize OAuth login. Empty response of OAuth service.',
+                                    oidcAuthErrorMessageSource: 'OAuth Login Error',
                                 }
                             });
                         }
@@ -111,7 +117,8 @@ export class CallbackComponent implements OnInit {
                             this.router.navigate([redirectRoute], {
                                 queryParams: {
                                     oidcAuthResult: 'failed',
-                                    oidcAuthErrorMessage: errorMessage
+                                    oidcAuthErrorMessageDetail: errorMessage,
+                                    oidcAuthErrorMessageSource: 'OAuth Login Error',
                                 }
                             });
                         }
@@ -129,7 +136,8 @@ export class CallbackComponent implements OnInit {
                         this.router.navigate([redirectRoute], {
                             queryParams: {
                                 oidcAuthResult: 'failed',
-                                oidcAuthErrorMessage: errorMessage
+                                oidcAuthErrorMessageDetail: errorMessage,
+                                oidcAuthErrorMessageSource: 'OAuth Login Error',
                             }
                         });
                     }

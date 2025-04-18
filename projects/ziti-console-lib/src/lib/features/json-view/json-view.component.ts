@@ -43,9 +43,11 @@ export class JsonViewComponent implements AfterViewInit, OnChanges {
   @Input() readOnly: boolean = false;
   @Input() jsonInvalid: boolean = false;
   @Input() showCopy: boolean = false;
+  @Input() showLineNumbers = true;
   @Output() dataChange: EventEmitter<any> = new EventEmitter();
   @Output() jsonChange: EventEmitter<any> = new EventEmitter();
   @Output() jsonInvalidChange: EventEmitter<any> = new EventEmitter();
+
   onChangeDebounced;
   schemaRefs: any;
   content: any;

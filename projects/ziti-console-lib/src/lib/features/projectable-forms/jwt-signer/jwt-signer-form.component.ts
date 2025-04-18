@@ -40,6 +40,7 @@ import {ValidationService} from "../../../services/validation.service";
 import {OAuthService} from "angular-oauth2-oidc";
 import {LoginServiceClass, ZAC_LOGIN_SERVICE} from "../../../services/login-service.class";
 import {AuthService} from "../../../services/auth.service";
+import {HttpClient} from "@angular/common/http";
 
 @Component({
     selector: 'lib-configuration',
@@ -65,7 +66,10 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
     configKey = 'oauth_test_callback_config';
     tokenTypeKey = 'oauth_test_callback_token_type';
     oidcVerified = false;
-    oidcErrorMessage;
+    oidcErrorMessageSource;
+    oidcErrorMessageDetail;
+    oidcAuthTokenClaims;
+    oidcClaims;
     overrideFormData;
     override entityType = 'external-jwt-signers';
     override entityClass = JwtSigner;
@@ -86,6 +90,7 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         private validationService: ValidationService,
         private authService: AuthService,
         private oauthService: OAuthService,
+        private http: HttpClient,
         @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass,
 
     ) {
@@ -466,8 +471,17 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         );
     }
 
-    testOIDCAuthentication() {
+    async testOIDCAuthentication() {
         this.oauthLoading = true;
+        this.oidcAuthTokenClaims = undefined;
+        this.oidcErrorMessageSource = undefined;
+        this.oidcErrorMessageDetail = undefined;
+        const jwksValid = await this.testJWKS();
+        if (!jwksValid) {
+            this.oidcVerified = false;
+            this.oauthLoading = false
+            return;
+        }
         const callbackParams = `redirectRoute=jwt-signers/${this.formData.id}/test-auth`;
         localStorage.setItem('oidc_callback_test_config', JSON.stringify(this.formData));
         this.authService.configureOAuth(this.formData, callbackParams).then((result) => {
@@ -485,16 +499,59 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
 
     handleOAuthCallback() {
         this.showMore = true;
-        const errorMessage = this.route.snapshot.queryParamMap.get('oidcAuthErrorMessage');
+        const errorMessageDetail = this.route.snapshot.queryParamMap.get('oidcAuthErrorMessageDetail');
+        const errorMessageSource = this.route.snapshot.queryParamMap.get('oidcAuthErrorMessageSource');
+        const oidcAuthTokenClaims = this.route.snapshot.queryParamMap.get('oidcAuthTokenClaims');
         const result = this.route.snapshot.queryParamMap.get('oidcAuthResult');
         if (result === 'success') {
             this.oidcVerified = true;
+            if (oidcAuthTokenClaims) {
+                this.oidcAuthTokenClaims = JSON.parse(oidcAuthTokenClaims);
+            }
         } else {
-            this.oidcErrorMessage = errorMessage;
+            this.oidcErrorMessageDetail = errorMessageDetail;
+            this.oidcErrorMessageSource = errorMessageSource;
+            if (oidcAuthTokenClaims) {
+                this.oidcAuthTokenClaims = JSON.parse(oidcAuthTokenClaims);
+            }
         }
         const formData = localStorage.getItem('oidc_callback_test_config');
         if (!isEmpty(formData)) {
             this.overrideFormData = JSON.parse(formData);
         }
+    }
+
+    async testJWKS() {
+        this.errors.jwksEndpoint = false;
+        try {
+            const response: any = await this.http.get(this.formData.jwksEndpoint).toPromise().catch((error) => {
+                this.oidcErrorMessageSource = 'JWKS Endpoint Error';
+                this.oidcErrorMessageDetail = `HTTP error returned. Status: ${error.status}. Message: ${error.message}`;
+                this.errors.jwksEndpoint = true;
+                return false;
+            });
+            if (response) {
+                // Basic structural validation
+                if (!response?.keys || !Array.isArray(response?.keys)) {
+                    this.oidcErrorMessageSource = 'JWKS Endpoint Error';
+                    this.oidcErrorMessageDetail = `Invalid JWKS: "keys" property missing or not an array`;
+                    this.errors.jwksEndpoint = true;
+                }
+            }
+        } catch (error: any) {
+            this.oidcErrorMessageSource = 'JWKS Endpoint Error';
+            this.oidcErrorMessageDetail = `${error.message}`;
+            this.errors.jwksEndpoint = true;
+        }
+        const growlerData = new GrowlerModel(
+            'error',
+            'Invalid',
+            this.oidcErrorMessageSource,
+            this.oidcErrorMessageDetail,
+        );
+        if (this.errors.jwksEndpoint) {
+            this.growlerService.show(growlerData);
+        }
+        return !this.errors.jwksEndpoint;
     }
 }
