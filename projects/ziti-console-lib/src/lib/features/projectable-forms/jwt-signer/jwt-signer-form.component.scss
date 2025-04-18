@@ -234,16 +234,67 @@
   }
 }
 
-.oidc-error-message {
-  background-color: var(--lightRed);
-  height: var(--defaultInputHeight);
+.oidc-token-claims-container {
+  background-color: var(--backgroundMuted);
+  height: fit-content;
   display: flex;
-  flex-direction: row;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: var(--paddingMedium);
+  border-radius: var(--inputBorderRadius);
+  color: var(--tableText);
+  font-weight: 600;
+  overflow: auto;
+
+  .oidc-token-claims-title {
+    font-weight: 600;
+    font-size: 1rem;
+    white-space: nowrap;
+    margin-bottom: var(--marginMedium);
+  }
+}
+
+.oidc-error-message-container {
+  background-color: var(--lightRed);
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
   padding: var(--paddingMedium);
   border-radius: var(--inputBorderRadius);
   color: var(--red);
   font-weight: 600;
+  overflow: auto;
+
+  .oidc-error-message-source {
+    font-weight: 600;
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+
+  .oidc-error-message-detail {
+    margin-top: var(--marginSmall);
+    font-weight: 400;
+    white-space: nowrap;
+  }
+
+  &::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--menu);
+    border-radius: 10px;
+  }
+
+  &:hover {
+    &::-webkit-scrollbar-thumb {
+      background-clip: unset !important;
+    }
+  }
 }
 
 .read-only-2 {

@@ -60,7 +60,7 @@ body {
   --inputBorderRadius: 0.4375rem;
   --inputBorderWidth: 0.125rem;
   --formFieldBorder: none;
-  --jsonEditorBorder: solid 0.125rem var(--inputBorderRadius);
+  --jsonEditorBorder: 0.125rem solid var(--stroke);
 
   --spinnerSizeMedium: 1.25rem;
   --spinnerSizeLarge: 2rem;
@@ -1766,4 +1766,21 @@ a {
   border-left: var(--spinnerBorderLeftMedium);
   animation: loading .5s infinite linear;
   margin-left: var(--marginSmall);
+}
+
+#jsoneditor {
+  .jse-main .jse-text-mode .jse-contents {
+    border: none;
+  }
+  &.hide-line-numbers {
+    .jse-status-bar {
+      display: none;
+    }
+    .cm-gutters {
+      min-height: 458px;
+      position: sticky;
+      opacity: 0;
+      max-width: 0.5rem;
+    }
+  }
 }
