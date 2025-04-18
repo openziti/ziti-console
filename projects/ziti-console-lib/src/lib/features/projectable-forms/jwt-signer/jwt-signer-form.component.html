@@ -155,7 +155,7 @@
                     <lib-form-field-container
                         [title]="'Verify OIDC Authentication'"
                         class="form-field-advanced"
-                        [ngClass]="{'formFieldError': !oidcVerified && oidcErrorMessage, 'formFieldSuccess': oidcVerified}"
+                        [ngClass]="{'formFieldError': !oidcVerified && oidcErrorMessageDetail, 'formFieldSuccess': oidcVerified}"
                     >
                         <div class="form-field-row" #oidcVerification>
                             <div class="form-field-label-container">
@@ -181,7 +181,14 @@
                                 <input type="checkbox" [disabled]="true" [checked]="true" class="success-check" *ngIf="oidcVerified">
                             </div>
                         </div>
-                        <span class="oidc-error-message" *ngIf="oidcErrorMessage">{{oidcErrorMessage}}</span>
+                        <div class="oidc-error-message-container" *ngIf="oidcErrorMessageDetail">
+                            <code class="oidc-error-message-source">{{oidcErrorMessageSource}}: </code>
+                            <code class="oidc-error-message-detail">{{oidcErrorMessageDetail}}</code>
+                        </div>
+                        <div class="oidc-token-claims-container" *ngIf="oidcAuthTokenClaims">
+                            <code class="oidc-token-claims-title">OAuth Token Claims: </code>
+                            <lib-json-view [showLineNumbers]="false" [(data)]="oidcAuthTokenClaims"></lib-json-view>
+                        </div>
                     </lib-form-field-container>
                     <lib-form-field-container
                             [title]="'Custom Tags'"
@@ -218,7 +225,7 @@
                                     <span class="form-field-title">JWKS Endpoint</span>
                                 </div>
                             </div>
-                            <input class="form-field-input read-only" placeholder="Enter endpoint URL" [(ngModel)]="formData.jwksEndpoint" [ngClass]="{error: errors['certPem']}"/>
+                            <input class="form-field-input read-only" placeholder="Enter endpoint URL" [(ngModel)]="formData.jwksEndpoint" [ngClass]="{error: errors['jwksEndpoint']}"/>
                         </div>
                     </div>
                     <div *ngIf="signatureMethod === 'CERT_PEM'" class="form-field-input-group">
@@ -274,7 +281,7 @@
                         <input class="form-field-input" [value]="apiCallURL"/>
                         <div class="icon-copy copy" (click)="copyToClipboard(apiCallURL)"></div>
                     </div>
-                    <lib-json-view *ngIf="formData" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
+                    <lib-json-view *ngIf="formData" [showLineNumbers]="false" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
                 </lib-form-field-container>
             </div>
         </div>
