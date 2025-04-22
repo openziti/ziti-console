@@ -184,6 +184,7 @@
                         <div class="oidc-error-message-container" *ngIf="oidcErrorMessageDetail">
                             <code class="oidc-error-message-source">{{oidcErrorMessageSource}}: </code>
                             <code class="oidc-error-message-detail">{{oidcErrorMessageDetail}}</code>
+                            <code class="oidc-error-message-detail2" *ngIf="oidcErrorMessageDetail2">{{oidcErrorMessageDetail2}}</code>
                         </div>
                         <div class="oidc-token-claims-container" *ngIf="oidcAuthTokenClaims">
                             <code class="oidc-token-claims-title">OAuth Token Claims: </code>

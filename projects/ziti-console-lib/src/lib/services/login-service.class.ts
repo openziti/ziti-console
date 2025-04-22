@@ -18,6 +18,7 @@ export abstract class LoginServiceClass {
     public certBasedAttempted = false;
     public serviceUrl = '';
     public loginInProgress = false;
+    public callbackRoute = '/callback';
 
     abstract init();
     abstract login(prefix: string, url: string, username: string, password: string, doNav?, type?, token?, isTest?);

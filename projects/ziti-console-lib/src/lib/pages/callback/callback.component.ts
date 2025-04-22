@@ -2,7 +2,12 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {OAuthService} from "angular-oauth2-oidc";
 import {ActivatedRoute, Router} from "@angular/router";
 import {isEmpty} from "lodash";
-import {GrowlerModel, GrowlerService, LoginServiceClass, SettingsServiceClass, ZitiDataService, ZAC_LOGIN_SERVICE, SETTINGS_SERVICE, ZITI_DATA_SERVICE} from "ziti-console-lib";
+import {GrowlerModel} from "../../features/messaging/growler.model";
+import {GrowlerService} from "../../features/messaging/growler.service";
+import {LoginServiceClass, ZAC_LOGIN_SERVICE} from "../../services/login-service.class";
+import {SettingsServiceClass} from "../../services/settings-service.class";
+import {ZITI_DATA_SERVICE, ZitiDataService} from "../../services/ziti-data.service";
+import {SETTINGS_SERVICE} from "../../services/settings.service";
 
 @Component({
     selector: 'app-callback',
@@ -31,6 +36,7 @@ export class CallbackComponent implements OnInit {
             if (!isEmpty(oauthConfig)) {
                 this.oauthService.configure(oauthConfig);
                 this.oauthService.loadDiscoveryDocument().then((loadResult) => {
+                    console.log(loadResult);
                     this.oauthService.tryLogin().then((result) => {
                         if (result) {
                             // Handle post-login
@@ -105,6 +111,7 @@ export class CallbackComponent implements OnInit {
                             });
                         }
                     }).catch((error) => {
+                        console.log(error);
                         const errorMessage = `${error.params ? error.params.error + ': ' + error.params.error_description : ''}`;
                         const growlerData = new GrowlerModel(
                             'error',
