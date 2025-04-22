@@ -29,7 +29,7 @@ import {GrowlerService} from "../../messaging/growler.service";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../../extendable/extensions-noop.service";
 
 import semver from 'semver';
-import {cloneDeep, defer, delay, forOwn, keys, invert, isEmpty, isNil, unset, trim} from 'lodash';
+import {cloneDeep, defer, delay, forOwn, get, keys, invert, invoke, isEmpty, isNil, unset, trim} from 'lodash';
 import {GrowlerModel} from "../../messaging/growler.model";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
@@ -37,7 +37,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {JwtSigner} from "../../../models/jwt-signer";
 import {Location} from "@angular/common";
 import {ValidationService} from "../../../services/validation.service";
-import {OAuthService} from "angular-oauth2-oidc";
+import {OAuthErrorEvent, OAuthService} from "angular-oauth2-oidc";
 import {LoginServiceClass, ZAC_LOGIN_SERVICE} from "../../../services/login-service.class";
 import {AuthService} from "../../../services/auth.service";
 import {HttpClient} from "@angular/common/http";
@@ -68,9 +68,12 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
     oidcVerified = false;
     oidcErrorMessageSource;
     oidcErrorMessageDetail;
+    oidcErrorMessageDetail2;
+    jwksValidationError;
     oidcAuthTokenClaims;
     oidcClaims;
     overrideFormData;
+    override usePreviousLocation = false
     override entityType = 'external-jwt-signers';
     override entityClass = JwtSigner;
 
@@ -461,7 +464,7 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
     }
 
     get callbackURL() {
-        return window.location.origin + this.baseHref + `callback`
+        return window.location.origin + (this.baseHref + this.loginService.callbackRoute).replace('//', '/');
     }
 
     copyCallbackURL() {
@@ -476,23 +479,32 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         this.oidcAuthTokenClaims = undefined;
         this.oidcErrorMessageSource = undefined;
         this.oidcErrorMessageDetail = undefined;
+        this.oidcErrorMessageDetail2 = undefined;
+        this.jwksValidationError = undefined;
         const jwksValid = await this.testJWKS();
         if (!jwksValid) {
             this.oidcVerified = false;
             this.oauthLoading = false
             return;
         }
-        const callbackParams = `redirectRoute=jwt-signers/${this.formData.id}/test-auth`;
+        const callbackParams = `${this.loginService.callbackRoute}?redirectRoute=jwt-signers/${this.formData.id}/test-auth`;
         localStorage.setItem('oidc_callback_test_config', JSON.stringify(this.formData));
         this.authService.configureOAuth(this.formData, callbackParams).then((result) => {
-            if (result) {
+            if (result.success) {
                 delay(() => {
                     this.oauthLoading = false;
                 }, 4000);
             } else {
                 delay(() => {
+                    this.oidcErrorMessageDetail = result.message;
+                    this.oidcErrorMessageSource = 'OAuth Configuration Error';
+                    if (this.jwksValidationError) {
+                        this.oidcErrorMessageDetail2 = this.jwksValidationError;
+                    }
                     this.oauthLoading = false;
+                    this.oidcVerified = false;
                 }, 700);
+
             }
         });
     }
@@ -503,6 +515,10 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         const errorMessageSource = this.route.snapshot.queryParamMap.get('oidcAuthErrorMessageSource');
         const oidcAuthTokenClaims = this.route.snapshot.queryParamMap.get('oidcAuthTokenClaims');
         const result = this.route.snapshot.queryParamMap.get('oidcAuthResult');
+        const formData = localStorage.getItem('oidc_callback_test_config');
+        if (!isEmpty(formData)) {
+            this.overrideFormData = JSON.parse(formData);
+        }
         if (result === 'success') {
             this.oidcVerified = true;
             if (oidcAuthTokenClaims) {
@@ -513,11 +529,26 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
             this.oidcErrorMessageSource = errorMessageSource;
             if (oidcAuthTokenClaims) {
                 this.oidcAuthTokenClaims = JSON.parse(oidcAuthTokenClaims);
+                this.validateTokenClaims(this.oidcAuthTokenClaims, this.overrideFormData);
             }
         }
-        const formData = localStorage.getItem('oidc_callback_test_config');
-        if (!isEmpty(formData)) {
-            this.overrideFormData = JSON.parse(formData);
+    }
+
+    validateTokenClaims(token, formData) {
+        if (!token.aud) {
+            this.errors.audience = true;
+            this.oidcErrorMessageDetail2 = 'Audience is missing from token claims'
+        } else {
+            let audError = true;
+            token.aud.forEach((audItem) => {
+                if (audItem === formData.audience) {
+                    audError = false;
+                }
+            });
+            if (audError) {
+                this.errors.audience = true;
+                this.oidcErrorMessageDetail2 = 'Audience in token does not match External JWT Signer configuration.'
+            }
         }
     }
 
@@ -536,6 +567,16 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
                     this.oidcErrorMessageSource = 'JWKS Endpoint Error';
                     this.oidcErrorMessageDetail = `Invalid JWKS: "keys" property missing or not an array`;
                     this.errors.jwksEndpoint = true;
+                } else {
+                    const logError: any = get(this.oauthService, 'logger.error');
+                    this.oauthService['logger'].error = (...args) => {
+                        this.jwksValidationError = '';
+                        args.forEach((arg) => {
+                            this.jwksValidationError += arg + ' ';
+                        });
+                        logError.apply(this, args);
+                    }
+                    const result = invoke(this.oauthService, 'validateDiscoveryDocument', response);
                 }
             }
         } catch (error: any) {

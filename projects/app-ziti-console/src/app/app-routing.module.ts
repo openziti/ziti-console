@@ -56,12 +56,12 @@ import {
   SessionsPageComponent,
   APISessionsPageComponent,
   SessionFormComponent,
-  APISessionFormComponent
+  APISessionFormComponent,
+  CallbackComponent
 } from "ziti-console-lib";
 import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
 import {AuthenticationGuard} from "./guards/authentication.guard";
-import {CallbackComponent} from "./login/callback.component";
 
 const routes: Routes = [
   {
