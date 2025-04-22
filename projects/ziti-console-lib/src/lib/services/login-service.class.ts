@@ -18,6 +18,7 @@ export abstract class LoginServiceClass {
     public certBasedAttempted = false;
     public serviceUrl = '';
     public loginInProgress = false;
+    public callbackRoute = '/callback';
 
     abstract init();
     abstract login(prefix: string, url: string, username: string, password: string, doNav?, type?, token?, isTest?);
@@ -42,5 +43,16 @@ export abstract class LoginServiceClass {
             responseType: 'text' as const,
         };
         return options;
+    }
+
+    decodeJwt(token: string): any {
+        const parts = token.split('.');
+        if (parts.length !== 3) {
+            throw new Error('Invalid JWT token');
+        }
+
+        const payload = parts[1];
+        const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+        return JSON.parse(decoded);
     }
 }

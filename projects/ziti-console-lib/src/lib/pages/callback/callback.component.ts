@@ -2,10 +2,15 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {OAuthService} from "angular-oauth2-oidc";
 import {ActivatedRoute, Router} from "@angular/router";
 import {isEmpty} from "lodash";
-import {GrowlerModel, GrowlerService, LoginServiceClass, SettingsServiceClass, ZitiDataService, ZAC_LOGIN_SERVICE, SETTINGS_SERVICE, ZITI_DATA_SERVICE} from "ziti-console-lib";
+import {GrowlerModel} from "../../features/messaging/growler.model";
+import {GrowlerService} from "../../features/messaging/growler.service";
+import {LoginServiceClass, ZAC_LOGIN_SERVICE} from "../../services/login-service.class";
+import {SettingsServiceClass} from "../../services/settings-service.class";
+import {ZITI_DATA_SERVICE, ZitiDataService} from "../../services/ziti-data.service";
+import {SETTINGS_SERVICE} from "../../services/settings.service";
 
 @Component({
-    selector: 'app-callback',
+    selector: 'lib-callback',
     template: '<lib-loading-indicator [isLoading]="true"></lib-loading-indicator>',
 })
 export class CallbackComponent implements OnInit {
@@ -31,6 +36,7 @@ export class CallbackComponent implements OnInit {
             if (!isEmpty(oauthConfig)) {
                 this.oauthService.configure(oauthConfig);
                 this.oauthService.loadDiscoveryDocument().then((loadResult) => {
+                    console.log(loadResult);
                     this.oauthService.tryLogin().then((result) => {
                         if (result) {
                             // Handle post-login
@@ -48,11 +54,14 @@ export class CallbackComponent implements OnInit {
                                 doNav = false;
                                 isTest = true;
                             }
+                            const claimsObj = this.loginService.decodeJwt(token);
+                            const claimsStr = JSON.stringify(claimsObj, null, 2);
                             this.loginService.login(prefix, url, undefined, undefined, doNav, 'ext-jwt', token, isTest).then((result) => {
                                 if (!isEmpty(redirectRoute)) {
                                     this.router.navigate([redirectRoute], {
                                         queryParams: {
                                             oidcAuthResult: 'success',
+                                            oidcAuthTokenClaims: claimsStr
                                         }
                                     });
                                 }
@@ -76,7 +85,9 @@ export class CallbackComponent implements OnInit {
                                     this.router.navigate([redirectRoute], {
                                         queryParams: {
                                             oidcAuthResult: 'failed',
-                                            oidcAuthErrorMessage: errorMessage
+                                            oidcAuthErrorMessageDetail: errorMessage,
+                                            oidcAuthErrorMessageSource: 'Ziti Controller Error',
+                                            oidcAuthTokenClaims: claimsStr
                                         }
                                     });
                                 } else {
@@ -94,11 +105,13 @@ export class CallbackComponent implements OnInit {
                             this.router.navigate(['/login'], {
                                 queryParams: {
                                     oidcAuthResult: 'failed',
-                                    oidcAuthErrorMessage: 'Failed to get ziti session ID from controller using OIDC token'
+                                    oidcAuthErrorMessageDetail: 'Unable to initialize OAuth login. Empty response of OAuth service.',
+                                    oidcAuthErrorMessageSource: 'OAuth Login Error',
                                 }
                             });
                         }
                     }).catch((error) => {
+                        console.log(error);
                         const errorMessage = `${error.params ? error.params.error + ': ' + error.params.error_description : ''}`;
                         const growlerData = new GrowlerModel(
                             'error',
@@ -111,7 +124,8 @@ export class CallbackComponent implements OnInit {
                             this.router.navigate([redirectRoute], {
                                 queryParams: {
                                     oidcAuthResult: 'failed',
-                                    oidcAuthErrorMessage: errorMessage
+                                    oidcAuthErrorMessageDetail: errorMessage,
+                                    oidcAuthErrorMessageSource: 'OAuth Login Error',
                                 }
                             });
                         }
@@ -129,7 +143,8 @@ export class CallbackComponent implements OnInit {
                         this.router.navigate([redirectRoute], {
                             queryParams: {
                                 oidcAuthResult: 'failed',
-                                oidcAuthErrorMessage: errorMessage
+                                oidcAuthErrorMessageDetail: errorMessage,
+                                oidcAuthErrorMessageSource: 'OAuth Login Error',
                             }
                         });
                     }

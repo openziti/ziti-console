@@ -52,7 +52,7 @@ import {
     IDENTITY_EXTENSION_SERVICE,
     SERVICE_POLICY_EXTENSION_SERVICE,
     EDGE_ROUTER_POLICY_EXTENSION_SERVICE,
-    SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE,
+    SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE
 } from "ziti-console-lib";
 
 import {AppRoutingModule} from "./app-routing.module";
@@ -70,7 +70,6 @@ import {NodeLoginService} from "./login/node-login.service";
 import {NodeSettingsService} from "./services/node-settings.service";
 import {NoopHttpInterceptor} from "./interceptors/noop-http.interceptor";
 import {NodeApiInterceptor} from "./interceptors/node-api.interceptor";
-import {CallbackComponent} from "./login/callback.component";
 
 let loginService, zitiDataService, settingsService, wrapperService, apiInterceptor;
 if (environment.nodeIntegration) {
@@ -91,8 +90,7 @@ if (environment.nodeIntegration) {
     declarations: [
         AppComponent,
         PageNotFoundComponent,
-        LoginComponent,
-        CallbackComponent
+        LoginComponent
     ],
     imports: [
         BrowserModule,

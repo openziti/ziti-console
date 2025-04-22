@@ -37,12 +37,12 @@ export class AuthService {
         this.oauthService.configure({});
     }
 
-    public configureOAuth(extJwtSigner, callbackParams?, configKey?, tokenTypeKey?): Promise<any> {
+    public configureOAuth(extJwtSigner, callbackUrl = '/callback', configKey?, tokenTypeKey?): Promise<any> {
         let basePath = document.querySelector('base')?.getAttribute('href') || '/';
         basePath = basePath.endsWith('/') ? basePath.slice(0, -1) : basePath;
         const scopes = extJwtSigner.scopes || [];
         const scope = scopes.join(' ');
-        const redirectPath = basePath + `/callback${callbackParams ? `?${callbackParams}` : ''}`;
+        const redirectPath = basePath + callbackUrl;
         const oauthConfig = {
             issuer: extJwtSigner.externalAuthUrl,
             redirectUri: window.location.origin + redirectPath,
@@ -74,17 +74,18 @@ export class AuthService {
                 );
                 this.growlerService.show(growlerData);
             }
-            return initSuccess;
+            return {success: initSuccess, message: ''};
         }).catch((error) => {
+            const errorMessage = 'Unable to initialize OAuth login: ' + (error?.message ? error.message : error);
             const growlerData = new GrowlerModel(
                 'error',
                 'Error',
                 `Login Error`,
-                'Unable to initialize OAuth login: ' + (error?.message ? error.message : error),
+                errorMessage,
             );
             this.growlerService.show(growlerData);
             this.resetOAuthService();
-            return false;
+            return {success: false, message: errorMessage};
         });
     }
 
