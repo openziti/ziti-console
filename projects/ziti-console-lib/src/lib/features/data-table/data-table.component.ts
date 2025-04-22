@@ -740,8 +740,23 @@ export class DataTableComponent implements OnChanges, OnInit {
 
   updateEntityTypeLabel() {
     switch(this.svc.tableId) {
+      case 'api-sessions':
+        this.entityTypeLabel = 'API Sessions';
+        break;
+      case 'auth-policies':
+        this.entityTypeLabel = 'Auth Policies';
+        break;
+      case 'certificate-authorities':
+        this.entityTypeLabel = 'Certificate Authorities';
+        break;
+      case 'ext-jwt-signers':
+        this.entityTypeLabel = 'External JWT Signers';
+        break;
       case 'identities':
         this.entityTypeLabel = 'Identities';
+        break;
+      case 'posture-checks':
+        this.entityTypeLabel = 'Posture Checks';
         break;
       case 'edge-routers':
         this.entityTypeLabel = 'Edge Routers';
@@ -752,6 +767,9 @@ export class DataTableComponent implements OnChanges, OnInit {
       case 'configurations':
         this.entityTypeLabel = 'Configs';
         break;
+      case 'config-types':
+        this.entityTypeLabel = 'Config Types';
+        break;
       case 'service-policies':
         this.entityTypeLabel = 'Service Policies';
         break;
@@ -760,6 +778,15 @@ export class DataTableComponent implements OnChanges, OnInit {
         break;
       case 'service-edge-router-policies':
         this.entityTypeLabel = 'Service Edge Router Policies';
+        break
+      case 'sessions':
+        this.entityTypeLabel = 'Sessions';
+        break;
+      case 'terminators':
+        this.entityTypeLabel = 'Terminators';
+        break;
+      case 'transit-routers':
+        this.entityTypeLabel = 'Transit Routers';
         break;
     }
   }
@@ -810,7 +837,11 @@ export class DataTableComponent implements OnChanges, OnInit {
           this.menuColumnDefinition.headerComponentParams;
     } else if ( (this.options.noSelect && this.options.noMenu)) {
       // Don't add any additional columns
-    } else if (this._view !== 'upload') {
+    } else if ( (this.options.noSelect && !this.options.noMenu)) {
+      this.mergedColumnDefinitions.push(this.menuColumnDefinition);
+    } else if ( !this.options.noSelect && this.options.noMenu) {
+      this.mergedColumnDefinitions.push(this.selectColumnDefinition);
+    }  else if (this._view !== 'upload') {
       this.mergedColumnDefinitions.splice(0, 0, this.selectColumnDefinition);
       this.mergedColumnDefinitions.push(this.menuColumnDefinition);
     }

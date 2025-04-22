@@ -13,9 +13,10 @@
                     [totalCount]="totalCount"
                     [emptyMsg]="'No Sessions defined'"
                     [filterApplied]="filterApplied"
-                    [filterColumn]="'service'"
-                    [filterName]="'service'"
+                    [filterColumn]="'id'"
+                    [filterName]="'id'"
                     [menuItems]="svc.menuItems"
+                    [showNoItemsAdd]="false"
                     (gridReady)="gridReady($event)"
     >
     </lib-data-table>
