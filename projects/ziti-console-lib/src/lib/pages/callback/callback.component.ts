@@ -10,7 +10,7 @@ import {ZITI_DATA_SERVICE, ZitiDataService} from "../../services/ziti-data.servi
 import {SETTINGS_SERVICE} from "../../services/settings.service";
 
 @Component({
-    selector: 'app-callback',
+    selector: 'lib-callback',
     template: '<lib-loading-indicator [isLoading]="true"></lib-loading-indicator>',
 })
 export class CallbackComponent implements OnInit {

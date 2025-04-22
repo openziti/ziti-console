@@ -52,8 +52,7 @@ import {
     IDENTITY_EXTENSION_SERVICE,
     SERVICE_POLICY_EXTENSION_SERVICE,
     EDGE_ROUTER_POLICY_EXTENSION_SERVICE,
-    SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE,
-    CallbackComponent
+    SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE
 } from "ziti-console-lib";
 
 import {AppRoutingModule} from "./app-routing.module";
@@ -91,8 +90,7 @@ if (environment.nodeIntegration) {
     declarations: [
         AppComponent,
         PageNotFoundComponent,
-        LoginComponent,
-        CallbackComponent
+        LoginComponent
     ],
     imports: [
         BrowserModule,
