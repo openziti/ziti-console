@@ -101,7 +101,27 @@ export class TerminatorsPageService extends ListPageServiceClass {
             {
                 colId: 'router.name',
                 field: 'router.name',
-                headerName: 'Router',
+                headerName: 'Router Name',
+                headerComponent: TableColumnDefaultComponent,
+                headerComponentParams: this.headerComponentParams,
+                cellRenderer: TableCellNameComponent,
+                cellRendererParams: { pathRoot: this.basePath },
+                onCellClicked: (data) => {
+                    if (this.hasSelectedText()) {
+                        return;
+                    }
+                    this.openEditForm(data?.data?.id);
+                },
+                resizable: true,
+                cellClass: 'nf-cell-vert-align tCol',
+                sortable: false,
+                filter: true,
+                sortColumn: this.sort.bind(this)
+            },
+            {
+                colId: 'router',
+                field: 'router.id',
+                headerName: 'Router ID',
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
                 cellRenderer: TableCellNameComponent,
@@ -121,7 +141,27 @@ export class TerminatorsPageService extends ListPageServiceClass {
             {
                 colId: 'service.name',
                 field: 'service.name',
-                headerName: 'Service',
+                headerName: 'Service Name',
+                headerComponent: TableColumnDefaultComponent,
+                headerComponentParams: this.headerComponentParams,
+                cellRenderer: TableCellNameComponent,
+                cellRendererParams: { pathRoot: this.basePath },
+                onCellClicked: (data) => {
+                    if (this.hasSelectedText()) {
+                        return;
+                    }
+                    this.openEditForm(data?.data?.id);
+                },
+                resizable: true,
+                cellClass: 'nf-cell-vert-align tCol',
+                sortable: false,
+                filter: true,
+                sortColumn: this.sort.bind(this)
+            },
+            {
+                colId: 'service',
+                field: 'service.id',
+                headerName: 'Service ID',
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
                 cellRenderer: TableCellNameComponent,

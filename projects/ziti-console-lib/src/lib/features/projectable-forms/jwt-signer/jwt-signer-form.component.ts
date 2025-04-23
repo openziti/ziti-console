@@ -69,6 +69,7 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
     oidcErrorMessageSource;
     oidcErrorMessageDetail;
     oidcErrorMessageDetail2;
+    oidcErrorMessageDetail3;
     jwksValidationError;
     oidcAuthTokenClaims;
     oidcClaims;
@@ -480,6 +481,7 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         this.oidcErrorMessageSource = undefined;
         this.oidcErrorMessageDetail = undefined;
         this.oidcErrorMessageDetail2 = undefined;
+        this.oidcErrorMessageDetail3 = undefined;
         this.jwksValidationError = undefined;
         const jwksValid = await this.testJWKS();
         if (!jwksValid) {
@@ -529,6 +531,7 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
             this.oidcErrorMessageSource = errorMessageSource;
             if (oidcAuthTokenClaims) {
                 this.oidcAuthTokenClaims = JSON.parse(oidcAuthTokenClaims);
+                this.oidcErrorMessageDetail3 = 'Check the list of auth token claims below to confirm if your provider is returning the correct details.'
                 this.validateTokenClaims(this.oidcAuthTokenClaims, this.overrideFormData);
             }
         }

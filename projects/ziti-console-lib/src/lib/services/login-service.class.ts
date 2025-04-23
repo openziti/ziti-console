@@ -1,10 +1,11 @@
 import { Inject } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Router } from "@angular/router";
-import {InjectionToken} from '@angular/core';
+import { InjectionToken } from '@angular/core';
 import { SETTINGS_SERVICE } from "./settings.service";
 import { SettingsServiceClass } from "./settings-service.class";
-import {GrowlerService} from "../features/messaging/growler.service";
+import { GrowlerService } from "../features/messaging/growler.service";
+import { isEmpty } from 'lodash';
 
 export const ZAC_LOGIN_SERVICE = new InjectionToken<any>('ZAC_LOGIN_SERVICE');
 
@@ -46,6 +47,9 @@ export abstract class LoginServiceClass {
     }
 
     decodeJwt(token: string): any {
+        if (isEmpty(token)) {
+            return {};
+        }
         const parts = token.split('.');
         if (parts.length !== 3) {
             throw new Error('Invalid JWT token');
