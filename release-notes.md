@@ -1,3 +1,10 @@
+# app-ziti-console-v3.12.1
+# ziti-console-lib-v0.12.1
+## Feature/Improvements
+* [Issue #670](https://github.com/openziti/ziti-console/pull/670) - Enable testing and verification of an external JWT signer from create/edit form
+* [Issue #675](https://github.com/openziti/ziti-console/pull/675) - Cleanup of sessions and terminators list pages
+
+
 # app-ziti-console-v3.12.0
 # ziti-console-lib-v0.12.0
 ## Feature/Improvements

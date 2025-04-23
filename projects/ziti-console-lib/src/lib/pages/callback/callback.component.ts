@@ -106,7 +106,7 @@ export class CallbackComponent implements OnInit {
                                 queryParams: {
                                     oidcAuthResult: 'failed',
                                     oidcAuthErrorMessageDetail: 'Unable to initialize OAuth login. Empty response of OAuth service.',
-                                    oidcAuthErrorMessageSource: 'OAuth Login Error',
+                                    oidcAuthErrorMessageSource: 'OAuth Provider Error',
                                 }
                             });
                         }
@@ -125,7 +125,7 @@ export class CallbackComponent implements OnInit {
                                 queryParams: {
                                     oidcAuthResult: 'failed',
                                     oidcAuthErrorMessageDetail: errorMessage,
-                                    oidcAuthErrorMessageSource: 'OAuth Login Error',
+                                    oidcAuthErrorMessageSource: 'OAuth Provider Error',
                                 }
                             });
                         }
@@ -144,7 +144,7 @@ export class CallbackComponent implements OnInit {
                             queryParams: {
                                 oidcAuthResult: 'failed',
                                 oidcAuthErrorMessageDetail: errorMessage,
-                                oidcAuthErrorMessageSource: 'OAuth Login Error',
+                                oidcAuthErrorMessageSource: 'OAuth Provider Error',
                             }
                         });
                     }

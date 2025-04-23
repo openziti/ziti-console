@@ -6,6 +6,18 @@ import {includes, isEmpty, isNil, isNumber} from "lodash";
 })
 export class ValidationService {
 
+    validateIdentity(identity: any) {
+        const errors = {};
+        if (isEmpty(identity.name)) {
+            errors['name'] = true;
+        }
+        if (isEmpty(identity.authPolicyId)) {
+            errors['authPolicyId'] = true;
+        }
+        const isValid = isEmpty(errors);
+        return { isValid, errors };
+    }
+
     getPortRanges(allowedPortRanges) {
         if (!allowedPortRanges) {
             return undefined;

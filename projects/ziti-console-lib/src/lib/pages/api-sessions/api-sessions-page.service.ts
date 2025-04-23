@@ -83,18 +83,56 @@ export class ApiSessionsPageService extends ListPageServiceClass {
 
         return [
             {
-                colId: 'identity',
-                field: 'identity.name',
-                headerName: 'Identity',
+                colId: 'id',
+                field: 'id',
+                headerName: 'ID',
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
                 cellRenderer: TableCellNameComponent,
                 cellRendererParams: { pathRoot: this.basePath },
+                resizable: true,
+                cellClass: 'nf-cell-vert-align tCol',
+                width: this.remToPx(10),
+                hide: false,
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
                         return;
                     }
                     this.openEditForm(data?.data?.id);
+                },
+            },
+            {
+                colId: 'identity.name',
+                field: 'identity.name',
+                headerName: 'Identity Name',
+                headerComponent: TableColumnDefaultComponent,
+                cellRenderer: TableCellNameComponent,
+                cellRendererParams: { pathRoot: 'identities', itemProp: 'identity.id' },
+                onCellClicked: (data) => {
+                    if (this.hasSelectedText()) {
+                        return;
+                    }
+                    this.openIdentityForm(data?.data?.identityId);
+                },
+                resizable: true,
+                cellClass: 'nf-cell-vert-align tCol',
+                sortable: false,
+                filter: true,
+                sortColumn: this.sort.bind(this),
+            },
+            {
+                colId: 'identity',
+                field: 'identity.id',
+                headerName: 'Identity ID',
+                headerComponent: TableColumnDefaultComponent,
+                headerComponentParams: this.headerComponentParams,
+                cellRenderer: TableCellNameComponent,
+                cellRendererParams: { pathRoot: 'identities', itemProp: 'identity.id' },
+                onCellClicked: (data) => {
+                    if (this.hasSelectedText()) {
+                        return;
+                    }
+                    this.openIdentityForm(data?.data?.identityId);
                 },
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
@@ -106,6 +144,7 @@ export class ApiSessionsPageService extends ListPageServiceClass {
                 colId: 'ipAddress',
                 field: 'ipAddress',
                 headerName: 'IP Address',
+                headerComponentParams: this.headerComponentParams,
                 headerComponent: TableColumnDefaultComponent,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
@@ -114,20 +153,22 @@ export class ApiSessionsPageService extends ListPageServiceClass {
             {
                 colId: 'isMfaRequired',
                 field: 'isMfaRequired',
-                headerName: 'Is System',
+                headerName: 'MFA Required',
                 headerComponent: TableColumnDefaultComponent,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
                 width: this.remToPx(10),
+                hide: true
             },
             {
                 colId: 'isMfaComplete',
                 field: 'isMfaComplete',
-                headerName: 'Is System',
+                headerName: 'MFA Complete',
                 headerComponent: TableColumnDefaultComponent,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
                 width: this.remToPx(10),
+                hide: true
             },
             {
                 colId: 'lastActivity',
@@ -139,16 +180,6 @@ export class ApiSessionsPageService extends ListPageServiceClass {
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
                 width: this.remToPx(10),
-            },
-            {
-                colId: 'id',
-                field: 'id',
-                headerName: 'ID',
-                headerComponent: TableColumnDefaultComponent,
-                resizable: true,
-                cellClass: 'nf-cell-vert-align tCol',
-                width: this.remToPx(10),
-                hide: true
             },
             {
                 colId: 'createdAt',
@@ -165,9 +196,17 @@ export class ApiSessionsPageService extends ListPageServiceClass {
         ];
     }
 
+    public openIdentityForm(itemId = '', basePath?) {
+        if (isEmpty(itemId)) {
+            itemId = 'create';
+        }
+        basePath = basePath ? basePath : this.basePath;
+        this.router?.navigateByUrl(`identities/${itemId}`);
+    }
+
     getData(filters?: FilterObj[], sort?: any) {
         if (sort.sortBy === 'name') {
-            sort.sortBy = 'identity';
+            sort.sortBy = 'id';
         }
         // we can customize filters or sorting here before moving on...
         return super.getTableData('api-sessions', this.paging, filters, sort)

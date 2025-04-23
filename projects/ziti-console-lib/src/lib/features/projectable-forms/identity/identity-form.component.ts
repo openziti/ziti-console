@@ -288,7 +288,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     });
   }
 
-  validate() {
+  validate(identity?) {
     this.errors = {};
     if (isEmpty(this.formData.name)) {
       this.errors['name'] = true;
