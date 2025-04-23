@@ -49,6 +49,7 @@ export * from './lib/services/ziti-domain-controller.service';
 export * from './lib/services/deactivate-guard.service';
 export * from './lib/services/csv-download.service';
 export * from './lib/services/auth.service';
+export * from './lib/services/validation.service';
 export * from './lib/features/projectable-forms/configuration/configuration.service';
 export * from './lib/features/projectable-forms/configuration/configuration-form.component';
 export * from './lib/features/extendable/extendable.component';

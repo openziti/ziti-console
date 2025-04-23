@@ -39,11 +39,11 @@ export class TableCellNameComponent  implements ICellRendererAngularComp {
         if (!result?.confirmed) {
           return;
         }
-        this.router.navigateByUrl(`${this.cellParams.pathRoot}/${this.item.id}`);
+        this.router.navigateByUrl(`${this.cellParams.pathRoot}/${get(this.item, this.cellParams.itemProp, this.item.id)}`);
       })
       return;
     }
-    this.router.navigateByUrl(`${this.cellParams.pathRoot}/${this.item.id}`);
+    this.router.navigateByUrl(`${this.cellParams.pathRoot}/${get(this.item, this.cellParams.itemProp, this.item.id)}`);
   }
 
   get cellText() {

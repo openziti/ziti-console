@@ -109,7 +109,7 @@ export class SessionsPageService extends ListPageServiceClass {
                 },
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
-                sortable: false,
+                sortable: true,
                 filter: false,
                 sortColumn: this.sort.bind(this),
             },
@@ -119,7 +119,7 @@ export class SessionsPageService extends ListPageServiceClass {
                 headerName: 'Service Name',
                 headerComponent: TableColumnDefaultComponent,
                 cellRenderer: TableCellNameComponent,
-                cellRendererParams: { pathRoot: this.basePath },
+                cellRendererParams: { pathRoot: 'services/advanced', itemProp: 'service.id' },
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
                         return;
@@ -139,7 +139,7 @@ export class SessionsPageService extends ListPageServiceClass {
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
                 cellRenderer: TableCellNameComponent,
-                cellRendererParams: { pathRoot: this.basePath },
+                cellRendererParams: { pathRoot: 'services/advanced', itemProp: 'service.id' },
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
                         return;
