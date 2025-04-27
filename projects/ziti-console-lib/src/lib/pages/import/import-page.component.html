@@ -1,0 +1,63 @@
+<div class="ziti-page-container ziti-import-export-container">
+  <lib-regular-page-header
+    [title]="title"
+    [tabs]="tabs"
+  ></lib-regular-page-header>
+
+  <!-- ───────────────────────────── IMPORT PANEL ────────────────────────────── -->
+  <section class="import-panel" *ngIf="selectedTab === 'import'">
+    <p class="panel-description" *ngIf="!parsedData">
+      Add a JSON or YAML file below to preview and import Ziti resources (services, configs, routers, etc).
+    </p>
+
+    <div class="file-input-wrapper">
+      <input
+        type="file"
+        id="fileInput"
+        (change)="fileSelected($event)"
+        accept=".json,.yaml,.yml"
+      />
+    </div>
+
+    <label class="drop-zone"
+          (drop)="fileDropped($event)"
+          (dragover)="dragOver($event)"
+          *ngIf="!parsedData">
+      Drag & Drop file here or click to select a file
+      <input
+        type="file"
+        (change)="fileSelected($event)"
+        accept=".json,.yaml,.yml"
+        hidden
+      />
+    </label>
+
+    <section class="ziti-import-preview" *ngIf="parsedData">
+      <h3>Detected Resources</h3>
+      <div *ngFor="let resource of resourceTypes">
+        <div class="resource-container" *ngIf="parsedData[resource].length > 0">
+          <h4>{{ resource | titlecase }} ({{ parsedData[resource]?.length || 0 }})</h4>
+          <lib-data-table
+            [options]="{noSelect:true,noMenu:true}"
+            [rowData]="parsedData[resource]"
+            [columnDefinitions]="getColumnDefsFor(resource)"
+            [tableId]="'import-' + resource"
+            [menuItems]="[]"
+            [startCount]="1"
+            [endCount]="parsedData[resource]?.length || 0"
+            [totalCount]="parsedData[resource]?.length || 0"
+            [currentPage]="1"
+            [isLoading]="false"
+          ></lib-data-table>
+        </div>
+      </div>
+    </section>
+
+    <section class="button-container">
+      <button class="button import-btn" (click)="upload()" *ngIf="file">Import</button>
+      <button class="button reset-btn" (click)="reset()" *ngIf="file">Cancel</button>
+    </section>
+
+    <pre class="import-result" *ngIf="importResult">{{ importResult | json }}</pre>
+  </section>
+</div>

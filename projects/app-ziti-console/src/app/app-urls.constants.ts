@@ -16,6 +16,8 @@
 
 export const URLS = {
     ZITI_DASHBOARD: '/dashboard',
+    ZITI_IMPORT: '/import',
+    ZITI_EXPORT: '/export',
     ZITI_ATTRIBUTES: '/attributes',
     ZITI_IDENTITIES: '/identities',
     ZITI_JWT_SIGNERS: '/jwt-signers',

@@ -85,6 +85,12 @@ export const OPEN_ZITI_NAVIGATOR = {
                     iconClass: 'icon-time',
                     selectedRoutes: [URLS.ZITI_SESSIONS]
                 },
+                {
+                    label: 'Import / Export',
+                    route: URLS.ZITI_IMPORT,
+                    iconClass: 'icon-box-add',
+                    selectedRoutes: [URLS.ZITI_IMPORT, URLS.ZITI_EXPORT]
+                },
             ]
         }
     ]
@@ -149,6 +155,12 @@ export const CLASSIC_ZITI_NAVIGATOR = {
                     route: URLS.ZITI_SESSIONS,
                     iconClass: 'icon-time',
                     selectedRoutes: [URLS.ZITI_SESSIONS]
+                },
+                {
+                    label: 'Import / Export',
+                    route: URLS.ZITI_IMPORT,
+                    iconClass: 'icon-box-add',
+                    selectedRoutes: [URLS.ZITI_IMPORT, URLS.ZITI_EXPORT]
                 },
             ]
         }
