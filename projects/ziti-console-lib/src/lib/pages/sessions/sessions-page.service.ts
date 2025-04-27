@@ -41,8 +41,8 @@ export class SessionsPageService extends ListPageServiceClass {
         noSearch: false,
         order: "asc",
         page: 1,
-        searchOn: "service",
-        sort: "service",
+        searchOn: "id",
+        sort: "id",
         total: 50
     }
 
@@ -53,7 +53,7 @@ export class SessionsPageService extends ListPageServiceClass {
     modalType = '';
 
     override menuItems = [
-        {name: 'Edit', action: 'update'},
+        {name: 'View', action: 'update'},
         {name: 'Delete', action: 'delete'},
     ]
 
@@ -94,13 +94,52 @@ export class SessionsPageService extends ListPageServiceClass {
         };
         return [
             {
-                colId: 'serviceName',
-                field: 'service.name',
-                headerName: 'Service',
+                colId: 'id',
+                field: 'id',
+                headerName: 'ID',
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
                 cellRenderer: TableCellNameComponent,
                 cellRendererParams: { pathRoot: this.basePath },
+                onCellClicked: (data) => {
+                    if (this.hasSelectedText()) {
+                        return;
+                    }
+                    this.openEditForm(data?.data?.id);
+                },
+                resizable: true,
+                cellClass: 'nf-cell-vert-align tCol',
+                sortable: true,
+                filter: false,
+                sortColumn: this.sort.bind(this),
+            },
+            {
+                colId: 'service.name',
+                field: 'service.name',
+                headerName: 'Service Name',
+                headerComponent: TableColumnDefaultComponent,
+                cellRenderer: TableCellNameComponent,
+                cellRendererParams: { pathRoot: 'services/advanced', itemProp: 'service.id' },
+                onCellClicked: (data) => {
+                    if (this.hasSelectedText()) {
+                        return;
+                    }
+                    this.openEditForm(data?.data?.id);
+                },
+                resizable: true,
+                cellClass: 'nf-cell-vert-align tCol',
+                sortable: false,
+                filter: false,
+                sortColumn: this.sort.bind(this),
+            },
+            {
+                colId: 'service',
+                field: 'service.id',
+                headerName: 'Service ID',
+                headerComponent: TableColumnDefaultComponent,
+                headerComponentParams: this.headerComponentParams,
+                cellRenderer: TableCellNameComponent,
+                cellRendererParams: { pathRoot: 'services/advanced', itemProp: 'service.id' },
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
                         return;
@@ -152,23 +191,13 @@ export class SessionsPageService extends ListPageServiceClass {
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
                 width: this.remToPx(10),
-            },
-            {
-                colId: 'id',
-                field: 'id',
-                headerName: 'ID',
-                headerComponent: TableColumnDefaultComponent,
-                resizable: true,
-                cellClass: 'nf-cell-vert-align tCol',
-                width: this.remToPx(10),
-                hide: true
             }
         ];
     }
 
     getData(filters?: FilterObj[], sort?: any) {
         if (sort.sortBy === 'name') {
-            sort.sortBy = 'service';
+            sort.sortBy = 'id';
         }
         // we can customize filters or sorting here before moving on...
         return super.getTableData('sessions', this.paging, filters, sort)

@@ -73,6 +73,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     protected entityType = 'identities';
     protected entityClass: any = Entity;
     protected isLoading = false;
+    protected usePreviousLocation = true;
     moreActions: any[] = [];
     tagElements: any = [];
     tagData: any = [];
@@ -282,7 +283,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     }
 
     returnToListPage() {
-        if (this.location && this.previousRoute) {
+        if (this.location && this.previousRoute && this.usePreviousLocation) {
             this.location.back();
         } else {
             this.router?.navigateByUrl(`${this.basePath}`);

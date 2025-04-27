@@ -8,8 +8,9 @@ export class APISession {
     identityId: string;
     service: any;
     edgeRouters: any[];
-    apiSessionId: string;
-    apiSession: any;
+    isCertExtendable: boolean;
+    isMfaComplete: boolean;
+    isMfaRequired: boolean;
     updatedAt: any;
     createdAt: any;
     id: string;

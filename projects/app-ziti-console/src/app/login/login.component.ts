@@ -106,7 +106,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     handleOAuthLogin(extJwtSigner: any) {
         this.oauthLoading = extJwtSigner.name;
         this.authService.configureOAuth(extJwtSigner).then((result) => {
-            if (result) {
+            if (result?.success) {
                 delay(() => {
                     this.oauthLoading = '';
                 }, 4000);
