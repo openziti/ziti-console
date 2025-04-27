@@ -1,0 +1,39 @@
+<div class="ziti-page-container ziti-export-container" *ngIf="selectedTab === 'export'">
+  <lib-regular-page-header
+    [title]="title"
+    [tabs]="tabs"
+  ></lib-regular-page-header>
+
+  <section class="export-panel">
+    <p class="panel-description">
+      Select the resources you would like to export and click <b>Download</b>.
+    </p>
+
+    <form id="entities-form" class="checkbox-form">
+      <div class="checkbox-grid">
+        <lib-boolean-toggle-input
+          *ngFor="let t of entityTypes"
+          [fieldName]="t.label"
+          [(fieldValue)]="selected[t.id]"
+          (fieldValueChange)="onToggle(t.id)"
+        >
+        </lib-boolean-toggle-input>
+      </div>
+
+      <div class="button-container">
+        <button class="button export-btn" type="button" [disabled]="!hasSelection() || isLoading" (click)="downloadSelected('json')">
+          <ng-container *ngIf="!isLoading; else loadingTpl">Download as JSON</ng-container>
+        </button>
+        <button class="button export-btn" type="button" [disabled]="!hasSelection() || isLoading" (click)="downloadSelected('yaml')">
+          <ng-container *ngIf="!isLoading; else loadingTpl">Download as YAML</ng-container>
+        </button>
+        <ng-template #loadingTpl>
+          <span class="loading-wrapper">
+            <span class="spinner"></span>
+            <span>Exporting…</span>
+          </span>
+        </ng-template>
+      </div>
+    </form>
+  </section>
+</div>

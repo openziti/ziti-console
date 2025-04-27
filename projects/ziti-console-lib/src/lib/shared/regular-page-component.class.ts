@@ -1,0 +1,44 @@
+/*
+  Copyright NetFoundry Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  https://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+import { OnInit, OnDestroy, Injectable } from '@angular/core';
+import { Subscription } from 'rxjs';
+// import { ConsoleEventsService } from '../services/console-events.service';
+import { RegularPageServiceClass } from './regular-page-service.class';
+
+@Injectable()
+export abstract class RegularPageComponent {
+  abstract isLoading: boolean;
+  abstract title;
+  abstract tabs: { url: string; label: string }[];
+
+  subscription: Subscription = new Subscription();
+
+  constructor(
+    public svc: RegularPageServiceClass,
+    // protected consoleEvents: ConsoleEventsService,
+  ) {}
+
+  ngOnInit(): void {
+    this.init();
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+  protected abstract init(): void;
+}
