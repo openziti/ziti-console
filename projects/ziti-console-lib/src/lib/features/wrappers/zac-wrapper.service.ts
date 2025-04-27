@@ -62,6 +62,10 @@ export const COMPONENTS: any = {
                  <div class="navigate prev icon-prev disabled"></div>
                  <div class="navigate next icon-next disabled"></div>
             </div>`,
+    tabImportExport: `<div class="tabs">
+                        <div class="tab" data-go="/import" data-i18n="Import"></div>
+                        <div class="tab" data-go="/export" data-i18n="Export"></div>
+                    </div>`,
     tabIdentities: `<div class="tabs">
                       <div class="tab" data-go="/identities" data-i18n="Identities"></div>
                       <div class="tab" data-go="/recipes" data-i18n="Recipes"></div>
@@ -149,6 +153,16 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
             case '':
                 this.page = 'index';
                 route = this.URLS.ZITI_DASHBOARD;
+                break;
+            case '/import':
+            case 'import':
+                this.page = 'import';
+                route = this.URLS.ZITI_IMPORT;
+                break;
+            case '/export':
+            case 'export':
+                this.page = 'export';
+                route = this.URLS.ZITI_EXPORT;
                 break;
             case '/identities':
             case 'identities':

@@ -21,6 +21,11 @@ export class TabNameService {
 
     pageToTabsMap = new Map<string, any[]>(
         [
+            ["import-export", [
+                {label: 'Import', url: '/import'},
+                {label: 'Export', url: '/export'},
+            ]
+            ],
             ["identities", [
                 {label: 'Identities', url: '/identities'},
                 {label: 'Recipes', url: '/recipes', hidden: !this.settings.supportedFeatures?.recipies},
