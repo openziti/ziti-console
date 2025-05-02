@@ -76,6 +76,7 @@ export * from './lib/pages/posture-checks/posture-checks-page.service';
 export * from './lib/pages/terminators/terminators-page.component';
 export * from './lib/pages/terminators/terminators-page.service';
 export * from './lib/ziti-console.constants';
+export * from './lib/features/json-view/json-view.component';
 export * from './lib/features/side-modal/side-modal.component';
 export * from './lib/features/projectable-forms/identity/identity-form.component';
 export * from './lib/features/projectable-forms/identity/identity-form.service';
