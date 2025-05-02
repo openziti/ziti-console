@@ -49,8 +49,9 @@ export class CallbackComponent implements OnInit {
                             const prefix = '/edge/client/v1';
                             const url = this.settingsService.settings.selectedEdgeController;
                             let doNav = true;
-                            let isTest = true;
+                            let isTest = false;
                             if (!isEmpty(redirectRoute)) {
+                                
                                 doNav = false;
                                 isTest = true;
                             }

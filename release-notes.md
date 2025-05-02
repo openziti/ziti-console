@@ -1,3 +1,9 @@
+# app-ziti-console-v3.12.2
+# ziti-console-lib-v0.12.2
+## Bug Fixes
+* [Issue #681](https://github.com/openziti/ziti-console/pull/681) - External JWT Signer authentication does not redirect after callback/login attempt
+
+
 # app-ziti-console-v3.12.1
 # ziti-console-lib-v0.12.1
 ## Feature/Improvements

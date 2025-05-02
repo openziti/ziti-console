@@ -301,7 +301,9 @@ export function playerFactory() {
         SessionFormComponent,
         APISessionsPageComponent,
         APISessionFormComponent,
-        CallbackComponent
+        CallbackComponent,
+        FormHeaderComponent,
+        JsonViewComponent
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},
