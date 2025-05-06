@@ -294,7 +294,7 @@ export class ZitiControllerDataService extends ZitiDataService {
             let filterVal = '';
             switch (filter.type) {
                 case 'TEXTINPUT':
-                    const verb = filter.verb ? filter.verb : 'contains';
+                    const verb = filter.verb ? filter.verb : 'icontains';
                     filterVal = `${filter.columnId} ${verb} "${filter.value}"`;
                     break;
                 case 'SELECT':
@@ -312,7 +312,7 @@ export class ZitiControllerDataService extends ZitiDataService {
                     filterVal = `${filter.columnId}=${filter.value}`;
                     break;
                 default:
-                    filterVal = `${filter.columnId} contains "${filter.value}"`;
+                    filterVal = `${filter.columnId} icontains "${filter.value}"`;
                     break;
             }
             if (index <= 0) {
