@@ -1,0 +1,10 @@
+<div class="header">
+  <div class="title">
+      <span>{{title}}</span>
+  </div>
+  <div class="bread"></div>
+  <div class="line"></div>
+  <div class="tabs">
+      <div *ngFor="let tab of tabs" class="tab" [ngClass]="{selected: tabSelected(tab)}" [routerLink]="tab.url">{{tab.label}}</div>
+  </div>
+</div>
