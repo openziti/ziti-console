@@ -1,3 +1,9 @@
+# app-ziti-console-v3.12.3
+# ziti-console-lib-v0.12.3
+## Bug Fixes
+* [Issue #685](https://github.com/openziti/ziti-console/pull/685) - Update connection status icons to support new "hasEdgeRouterConnection" property
+
+
 # app-ziti-console-v3.12.2
 # ziti-console-lib-v0.12.2
 ## Bug Fixes
