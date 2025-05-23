@@ -17,3 +17,12 @@
   justify-content: center;
   gap: 0.25rem;
 }
+
+.circle {
+  &.online {
+    background-color: var(--green);
+  }
+  &.unknown {
+    background-color: var(--highlighted);
+  }
+}
