@@ -94,7 +94,8 @@ export class ConfigTypesPageService extends ListPageServiceClass {
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
                 width: this.remToPx(10),
-            }
+            },
+            this.ID_COLUMN_DEF
         ];
     }
 

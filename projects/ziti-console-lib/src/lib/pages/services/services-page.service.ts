@@ -161,7 +161,8 @@ export class ServicesPageService extends ListPageServiceClass {
                     this.serviceType = '';
                     this.openAdvanced(data.data.id);
                 },
-            }
+            },
+            this.ID_COLUMN_DEF
         ];
     }
 

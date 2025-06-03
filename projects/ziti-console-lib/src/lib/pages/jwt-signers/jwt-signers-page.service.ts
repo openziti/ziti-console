@@ -138,7 +138,8 @@ export class JwtSignersPageService extends ListPageServiceClass {
                 valueFormatter: this.createdAtFormatter,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
-            }
+            },
+            this.ID_COLUMN_DEF
         ];
     }
 

@@ -330,7 +330,8 @@ export class EdgeRouterPoliciesPageService extends ListPageServiceClass {
                     this.openEditForm(data.data.id);
                 },
                 hide: true
-            }
+            },
+            this.ID_COLUMN_DEF
         ];
     }
 

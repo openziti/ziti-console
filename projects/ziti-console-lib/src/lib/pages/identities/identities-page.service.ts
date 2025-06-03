@@ -302,7 +302,8 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
                 width: 100,
-            }
+            },
+            this.ID_COLUMN_DEF
         ];
     }
 

@@ -196,7 +196,8 @@ export class TerminatorsPageService extends ListPageServiceClass {
                     this.openEditForm(data.data.id);
                 },
                 hide: false
-            }
+            },
+            this.ID_COLUMN_DEF
         ];
     }
 

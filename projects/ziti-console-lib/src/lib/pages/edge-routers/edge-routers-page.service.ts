@@ -256,7 +256,8 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
                 cellRenderer: 'cellTokenComponent',
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
-            }
+            },
+            this.ID_COLUMN_DEF
         ];
 
         if (this.extService.processTableColumns) {

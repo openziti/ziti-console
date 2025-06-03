@@ -1,3 +1,11 @@
+# app-ziti-console-v3.12.4
+# ziti-console-lib-v0.12.5
+## Feature/Improvements
+* [Issue #688](https://github.com/openziti/ziti-console/issues/688) - Add id columns for entity list pages
+## Bug Fixes
+* [Issue #690](https://github.com/openziti/ziti-console/issues/690) - Duplicate entries for associated entities on policy create/edit forms
+
+
 # app-ziti-console-v3.12.3
 # ziti-console-lib-v0.12.3
 ## Bug Fixes
