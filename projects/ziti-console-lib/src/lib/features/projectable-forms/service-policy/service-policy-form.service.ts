@@ -6,7 +6,7 @@ import {GrowlerModel} from "../../messaging/growler.model";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 import {ExtensionService} from "../../extendable/extensions-noop.service";
 
-import {sortedUniq} from 'lodash';
+import {sortBy, sortedUniq} from 'lodash';
 
 import {ServicePolicy} from "../../../models/service-policy";
 
@@ -123,6 +123,7 @@ export class ServicePolicyFormService {
                 return svc.name;
             });
             this.associatedServiceNames = [...this.associatedServiceNames, ...namedAttributes];
+            this.associatedServiceNames = sortBy(this.associatedServices);
             this.associatedServiceNames = sortedUniq(this.associatedServiceNames);
             return this.associatedServices;
         });
@@ -143,6 +144,7 @@ export class ServicePolicyFormService {
                 return svc.name;
             });
             this.associatedIdentityNames = [...this.associatedIdentityNames, ...namedAttributes];
+            this.associatedIdentityNames = sortBy(this.associatedIdentityNames);
             this.associatedIdentityNames = sortedUniq(this.associatedIdentityNames);
         });
     }
