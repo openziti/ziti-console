@@ -172,7 +172,26 @@ export class PostureChecksPageService extends ListPageServiceClass {
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
                 width: this.remToPx(10),
-            }
+            },
+            {
+                colId: 'id',
+                field: 'id',
+                headerName: 'ID',
+                headerComponent: TableColumnDefaultComponent,
+                headerComponentParams: this.headerComponentParams,
+                cellRendererParams: { pathRoot: this.basePath, showIdentityIcons: true },
+                onCellClicked: (data) => {
+                    if (this.hasSelectedText()) {
+                        return;
+                    }
+                    this.openEditForm(data?.data?.id);
+                },
+                resizable: true,
+                cellClass: 'nf-cell-vert-align tCol',
+                sortable: true,
+                filter: true,
+                hide: true,
+            },
         ];
     }
 
