@@ -29,6 +29,9 @@ import {SettingsServiceClass} from "../services/settings-service.class";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../features/extendable/extensions-noop.service";
 import moment from "moment/moment";
 import {NavigationEnd, Router} from "@angular/router";
+import {
+    TableColumnDefaultComponent
+} from "../features/data-table/column-headers/table-column-default/table-column-default.component";
 
 export abstract class ListPageServiceClass {
 
@@ -48,6 +51,26 @@ export abstract class ListPageServiceClass {
     headerComponentParams = {
         filterType: 'TEXTINPUT',
         enableSorting: true
+    };
+
+    ID_COLUMN_DEF = {
+        colId: 'id',
+        field: 'id',
+        headerName: 'ID',
+        headerComponent: TableColumnDefaultComponent,
+        headerComponentParams: this.headerComponentParams,
+        cellRendererParams: { pathRoot: this.basePath, showIdentityIcons: true },
+        onCellClicked: (data) => {
+            if (this.hasSelectedText()) {
+                return;
+            }
+            this.openEditForm(data?.data?.id);
+        },
+        resizable: true,
+        cellClass: 'nf-cell-vert-align tCol',
+        sortable: true,
+        filter: true,
+        hide: true,
     };
 
     DEFAULT_PAGING: any = {
