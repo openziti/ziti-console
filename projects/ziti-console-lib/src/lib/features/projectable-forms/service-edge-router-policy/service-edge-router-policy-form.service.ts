@@ -1,5 +1,5 @@
 import {Injectable, Inject, InjectionToken} from "@angular/core";
-import {isEmpty, unset, keys} from 'lodash';
+import {isEmpty, unset, keys, sortBy} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
@@ -91,6 +91,7 @@ export class ServiceEdgeRouterPolicyFormService {
                 return svc.name;
             });
             this.associatedEdgeRouterNames = [...this.associatedEdgeRouterNames, ...namedAttributes];
+            this.associatedEdgeRouterNames = sortBy(this.associatedEdgeRouterNames);
             this.associatedEdgeRouterNames = sortedUniq(this.associatedEdgeRouterNames);
         });
     }
@@ -110,6 +111,7 @@ export class ServiceEdgeRouterPolicyFormService {
                 return svc.name;
             });
             this.associatedServiceNames = [...this.associatedServiceNames, ...namedAttributes];
+            this.associatedServiceNames = sortBy(this.associatedServiceNames);
             this.associatedServiceNames = sortedUniq(this.associatedServiceNames);
         });
     }
