@@ -324,11 +324,16 @@ export class IdentityServicePathHelper {
             node.id = ePoint.id;
             node.name = ePoint.name;
             node.type = 'Identity';
-            node.apiSession = ePoint.hasApiSession === false ? 'No' : 'Yes';
-            node.routerConnection = ePoint.hasEdgeRouterConnection === false ? 'No' : 'Yes';
-            node.os = ePoint.envInfo? ePoint.envInfo.os : '';
-            node.mfaEnabled = ePoint.isMfaEnabled;
-            node.status = ePoint.envInfo && ePoint.envInfo.os !== null ? 'Registered' : 'Un-Registered';
+            if (_.has(ePoint,'edgeRouterConnectionStatus') ) {
+              node.routerConnection = ePoint.edgeRouterConnectionStatus === 'offline' ? 'No' : 'Yes';
+              node.apiSession =  node.routerConnection;
+            } else {
+              node.routerConnection = ePoint['hasEdgeRouterConnection'] === false ? 'No' : 'Yes';
+              node.apiSession =  ePoint['hasApiSession'] === false ? 'No' : 'Yes';
+            }
+             node.os = ePoint.envInfo? ePoint.envInfo.os : '';
+             node.mfaEnabled = ePoint.isMfaEnabled;
+             node.status = ePoint.envInfo && ePoint.envInfo.os !== null ? 'Registered' : 'Un-Registered';
             return node;
         }
 
@@ -381,7 +386,7 @@ export class IdentityServicePathHelper {
                 linkstate = -1;
             } else if (endpointNode.apiSession === 'No') {
                 linkstate = 0;
-            } else if (endpointNode.status === 'Registered' && endpointNode.apiSession === 'Yes') {
+            } else if (endpointNode.status === 'Registered' && endpointNode.routerConnection === 'Yes') {
                 linkstate = 1;
             } else {
                 linkstate = 0;
