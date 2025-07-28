@@ -1,4 +1,4 @@
-#IdentityVisualizerDataModal {
+#IdentityVisualizer {
     overflow: hidden;
     width: 75%;
     height: 85%;
@@ -30,7 +30,7 @@
     .clear-svc-icon {
       font-size: 1.4375rem;
       font-weight: 600;
-      position: absolute;
+      position: relative;
       top: 0.9375rem;
       right: 2.5rem;
       color: var(--icon);
@@ -45,7 +45,7 @@
         height: 100%;
         border-radius: 0;
     }
-
+}
     .ep-topology-filter-container {
         width: 37%;
         display: flex;
@@ -72,11 +72,18 @@
         margin-top: 0.625rem;
         flex-direction: column;
         cursor: grab;
-        background: #f5e9f2;
-        background-image: linear-gradient(#ecd3e6 0.125rem, transparent 0), linear-gradient(90deg, #ecd3e6 0.125rem, transparent 0), linear-gradient(#ecd3e6 0.0625rem, transparent 0), linear-gradient(90deg, #ecd3e6 0.0625rem, transparent 0);
-        background-size: 2.5rem 2.5rem, 2.5rem 2.5rem, 0.625rem 0.625rem, 0.625rem 0.625rem;
     }
-
+     .lightMode {
+       background: #f5e9f2;
+       background-image: linear-gradient(#ecd3e6 0.125rem, transparent 0), linear-gradient(90deg, #ecd3e6 0.125rem, transparent 0), linear-gradient(#ecd3e6 0.0625rem, transparent 0), linear-gradient(90deg, #ecd3e6 0.0625rem, transparent 0);
+       background-size: 2.5rem 2.5rem, 2.5rem 2.5rem, 0.625rem 0.625rem, 0.625rem 0.625rem;
+    }
+    .darkMode {
+       background: #000a17;
+       background-image: linear-gradient(#001127 0.125rem, transparent 0), linear-gradient(90deg, #001127 0.125rem, transparent 0),
+       linear-gradient(#001127 1px, transparent 0), linear-gradient(90deg, #001127 1px, transparent 0);
+       background-size: 2.5rem 2.5rem, 2.5rem 2.5rem, 0.625rem 0.625rem, 0.625rem 0.625rem;
+    }
     .tp-data-header {
         height: 2.5rem;
         font-size: 1.5625rem;
@@ -98,16 +105,16 @@
     }
 
     .modaltitle {
-        filter: brightness(50%);
-        padding-top: 0.375rem;
-        padding-left: 0.3125rem;
+       padding-top: 0.375rem;
+       padding-left: 0.3125rem;
+       color: var(--primaryColor);
     }
 
     .modalbuttons {
         padding-right: 1.25rem;
     }
 
- .listBox.row .close, {
+   .listBox.row .close{
        position: fixed;
         display: flex;
         flex-direction: column;
@@ -123,7 +130,6 @@
         text-align: center;
         font-size: 2.1875rem;
         line-height: 2.5rem;
-       // position: absolute;
         left: 35%;
         top: 17%;
         width: 2.5rem;
@@ -136,19 +142,18 @@
         transition: 0.3s;
         justify-content: end;
         align-items: center;
+
+
     }
 
     .tp-topo-data-header {
         border: 0rem solid black;
         height: 75rem;
-
         font-size: 0.75rem;
         font-weight: 400;
         margin-left: 0.75rem;
         margin-top: 0.1875rem;
-        //font-family: "Russo One";
         color: var(--primaryColor);
-        // text-transform: uppercase;
     }
 
     .services-select {
@@ -187,7 +192,7 @@
         display: none;
         position: fixed;
         background: var(--navigation);
-        border: 0rem;
+        border: 0.1rem;
         border-radius: 0.75rem;
         pointer-events: none;
         box-shadow: 0rem 1.25rem 1.4375rem 0rem var(--shadow);
@@ -198,7 +203,7 @@
         color: var(--tableText);
         z-index: 2000;
         opacity: 1;
-        max-width: 28.125rem;
+        padding: 1rem;
     }
 
     .topology-legendA {
@@ -279,7 +284,6 @@
     .legend-circle.linkerrored {
         background-image: url('/assets/images/visualizer/link-cut.png');
         background-size: contain;
-        // background-color: #ff004e;
     }
 
     .legend-text {
@@ -310,85 +314,6 @@
         color: var(--tableText);
         padding-left: 0.125rem;
         padding-bottom: 0.25rem;
-    }
-    .filters-area {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-end;
-        margin-top: 0.625rem;
-    }
-    .dateTimeField input {
-        // width: 5rem; //18.75rem;
-        height: 2.5rem;
-        vertical-align: middle;
-        margin-right: 0.0625rem;
-    }
-    .p-datepicker table td {
-        padding: 0rem;
-    }
-    .p-datepicker table td > span {
-        padding: 0rem;
-    }
-    .p-timepicker {
-        padding: 0.0625rem;
-    }
-    .p-datepicker-header {
-        padding: 0rem;
-    }
-    .p-datepicker-header-group {
-        padding: 0rem;
-    }
-    .p-datepicker .p-timepicker button:last-child {
-        height: 0.9375rem;
-    }
-    .p-datepicker .p-timepicker button {
-        height: 0.9375rem;
-    }
-    .ng-tns-c15-3 {
-        font-size: 0.9375rem;
-        font-weight: 700;
-    }
-    .p-datepicker .p-datepicker-buttonbar {
-        padding: 0rem;
-    }
-
-    .reset-button {
-        height: 3.125rem;
-        width: 3.125rem;
-        margin-top: -7%;
-        margin-left: 70%;
-        border-radius: 3.125rem;
-        margin-right: 0.625rem;
-        background-size: contain;
-        --background-image: url(/assets/svgs/refresh.svg);
-        cursor: pointer;
-        overflow: hidden;
-        z-index: 24;
-        box-shadow: 0rem 1.25rem 1.4375rem 0rem var(--shadow);
-        transition: 0.3s;
-    }
-    .refresh-button {
-        position: absolute;
-        display: inline-block;
-        height: 2.6875rem;
-        width: 7.625rem;
-        margin-top: -5.3125rem;
-        margin-left: 65%;
-        border-radius: 0.625rem;
-        margin-right: 0.625rem;
-        font-color: blue;
-        font-weight: 700;
-    }
-    .reset-button:hover {
-        filter: brightness(90%);
-        transform: scale(0.97);
-        transition: 0.3s;
-    }
-
-    .reset-button:active {
-        transform: scale(0.9);
-        transition: 0.3s;
     }
 
     @-webkit-keyframes rotating /* Safari and Chrome */ {
@@ -426,29 +351,47 @@
         -o-animation: rotating 2s linear infinite;
         animation: rotating 2s linear infinite;
     }
-}
+
 
 .tool-tip-container {
   .prop-row {
-    display: grid;/* direct children will be displayed into the grid set */
-    grid-template-columns: 2fr 3fr;
+    display: grid;
+    grid-template-columns: auto auto;
     grid-gap: 0.625rem;
-    grid-template-areas: "propName propVal";
     height: fit-content;
+    width: fit-content;
     min-height: 1.5625rem;
     align-items: center;
-    padding: 0 0.625rem;
+    padding: 0.5rem;
 
     &:nth-child(even) {
       background-color: var(--formBackground);
     }
-    .prop-name {
-      grid-area: propName;
-      font-weight: 700;
-    }
+  }
+}
 
-    .prop-val {
-      grid-area: propVal;
-    }
+::ng-deep
+{
+   .cdk-overlay-pane:not(.mat-mdc-autocomplete-panel-above) div.mat-mdc-autocomplete-panel {
+    border-radius: 14px;
+    background: var(--background);
+    color: var(--tableText);
+  }
+  .mat-mdc-option.mdc-list-item
+  {
+     align-items: center;
+     color: var(--tableText);
+  }
+  .mat-mdc-option.mdc-list-item:hover:not(.mat-option-disabled),
+                         .mat-mdc-option.mdc-list-item:focus:not(.mat-option-disabled) {
+    border-color: var(--primaryColor);
+    border-radius:14px;
+    border: 0.01rem solid var(--primaryColor);
+  }
+  .mat-mdc-raised-button .mdc-button__ripple {
+     border: 0.1rem solid var(--primaryColor);
+  }
+  .p-button.p-button-icon-only {
+     width: 1.357rem;
   }
 }
