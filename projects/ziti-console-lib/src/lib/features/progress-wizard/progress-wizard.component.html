@@ -1,0 +1,79 @@
+<div class="firewall-configuration-wrapper">
+  <div class="row">
+    <div class="firewall-configuration-container">
+      <div (click)="cancel()" class="close cancel"></div>
+      <div class="side-progress-bar">
+        <div class="progress-steps">
+          <div class="progress-track"></div>
+          <div *ngFor="let step of steps" class="progress-step" [ngClass]="{'step-complete': step.index === 1}" (click)="goToStep(step)">
+            <div class="progress-step-number">{{step.index}}</div>
+            <div class="progress-step-number-background"></div>
+            <div class="progress-step-step-label">{{step.label}}</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="center-content-container">
+          <div class="login-container">
+            <div class="header-title-container" style="display: flex; flex-direction: row; gap: var(--gapSmall);align-items: center;">
+              <div class="setup-title-image"></div>
+              <div class="setup-title-container">
+                <div class="setup-title">{{title}}</div>
+              </div>
+            </div>
+            <form name="form" class="step-content-wrapper">
+              <ng-content></ng-content>
+              <div class="toggle-table-container">
+                <div style="display: flex;align-items: flex-start;font-size: 1rem;gap: 1rem;width: 100%;height: 6rem;">
+                  <div class="progress-bar-container">
+                    <div
+                            *ngFor="let step of steps; let index = index"
+                            [ngClass]="{ 'last-step': index === steps.length - 1 }"
+                            class="progress-step-container"
+                    >
+                      <div class="progress-step-item" [ngClass]="{'in-progress': index === step.id}">
+                        <div class="progress-step-ball" [ngClass]="{'progress-step-complete': step.complete, 'step-in-progress': currentProgressStep === index}">
+                        </div>
+                        <div *ngIf="currentProgressStep === index" class="spinner"></div>
+                        <div class="progress-step-label" [ngClass]="{'step-in-progress': currentProgressStep === index}">{{ step.name }}</div>
+                      </div>
+                      <div *ngIf="index !== steps.length - 1">
+                        <div class="progress-step-bar"
+                             [ngClass]="{
+                              'progress-step-complete': getProgressBarStyle(index),
+                              'step-in-progress': currentProgressStep === index + 1
+                            }"
+                        >
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="buttons-container">
+                <div *ngIf="currentStep === 1">
+                </div>
+                <button *ngIf="currentStep > 1" name="action" type="submit" class="btn btn-primary btn-block btn-init-login" (click)="prevStep()">
+                  Back
+                </button>
+                <button *ngIf="currentStep <= 3" name="action" type="submit" class="btn btn-primary btn-block btn-init-login" (click)="nextStep()" [disabled]="continueDisabled">
+                  Continue
+                </button>
+                <button *ngIf="currentStep >= 4 && !updatingFirewallConfig && !configUpdated" name="action" type="submit" class="btn btn-primary btn-block btn-init-login" (click)="setDefaultConfiguration()">
+                  Save
+                </button>
+                <button *ngIf="currentStep >= 4 && updatingFirewallConfig && !configUpdated" name="action" type="submit" class="btn btn-primary btn-block btn-init-login saving-button">
+                  Saving
+                  <div class="spinner"></div>
+                </button>
+                <button *ngIf="currentStep >= 4 && configUpdated" name="action" type="submit" class="btn btn-primary btn-block btn-init-login" (click)="nextStep()">
+                  Done
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
