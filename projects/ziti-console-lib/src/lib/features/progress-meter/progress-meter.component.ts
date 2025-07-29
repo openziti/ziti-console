@@ -1,15 +1,15 @@
-import {Component, EventEmitter, Inject, Input, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 
 export class ProgressMeterStep {
   index = 0;
-  label: '';
-  state: 'TO_DO' | 'IN_PROGRESS' | 'COMPLETE' | 'FAILED'
+  label: string = '';
+  state: '' | 'TO_DO' | 'IN_PROGRESS' | 'COMPLETE' | 'ERROR' | 'WARNING' = '';
 };
 
 @Component({
-  selector: 'lib-progress-wizard',
-  templateUrl: './progress-wizard.component.html',
-  styleUrls: ['./progress-wizard.component.scss']
+  selector: 'lib-progress-meter',
+  templateUrl: './progress-meter.component.html',
+  styleUrls: ['./progress-meter.component.scss']
 })
 export class ProgressMeterComponent {
 
@@ -20,17 +20,7 @@ export class ProgressMeterComponent {
   @Input() currentStepIndex = 0;
   @Output() currentStepChange = new EventEmitter<any>;
 
-  @Output() close = new EventEmitter<any>;
-
   constructor() {}
-
-  cancel() {
-    this.close.emit();
-  }
-
-  confirm() {
-    this.close.emit();
-  }
 
   getProgressBarStyle(index) {
     const step = this.steps[index];

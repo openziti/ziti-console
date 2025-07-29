@@ -131,6 +131,8 @@ import {SessionFormComponent} from "./features/projectable-forms/session/session
 import {APISessionsPageComponent} from "./pages/api-sessions/api-sessions-page.component";
 import {APISessionFormComponent} from "./features/projectable-forms/api-session/api-session-form.component";
 import {CallbackComponent} from "./pages/callback/callback.component";
+import {ProgressMeterComponent} from "./features/progress-meter/progress-meter.component";
+import {ProgressWizardComponent} from "./features/progress-wizard/progress-wizard.component";
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -230,7 +232,9 @@ export function playerFactory() {
         SessionFormComponent,
         APISessionsPageComponent,
         APISessionFormComponent,
-        CallbackComponent
+        CallbackComponent,
+        ProgressMeterComponent,
+        ProgressWizardComponent
     ],
     imports: [
         CommonModule,
@@ -303,7 +307,11 @@ export function playerFactory() {
         APISessionFormComponent,
         CallbackComponent,
         FormHeaderComponent,
-        JsonViewComponent
+        JsonViewComponent,
+        PreviewListComponent,
+        TagSelectorComponent,
+        ProgressMeterComponent,
+        ProgressWizardComponent
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},

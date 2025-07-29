@@ -1,0 +1,117 @@
+.progress-meter-wrapper {
+  display: flex;
+  align-items: flex-start;
+  font-size: 1rem;
+  gap: 1rem;
+  width: 100%;
+  height: 6rem;
+
+  .progress-meter-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+    height: 3.4375rem;
+    z-index: 999999999;
+
+    .progress-meter-step-container {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      width: 18rem;
+      height: 100%;
+
+      &.last-step {
+        width: 1.875rem;
+      }
+
+      .progress-step-item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        width: 1.875rem;
+
+        .progress-step-ball {
+          width: 1.875rem;
+          height: 1.875rem;
+          border-radius: 1.875rem;
+          border: none;
+          background-size: 45%;
+          background-position: center center;
+          background-color: var(--placeholder);
+          opacity: .35;
+
+          &.progress-step-complete {
+            background-color: var(--green);
+            background-image: url(/assets/images/Icon_Check.png);
+            border: none;
+            opacity: 1;
+          }
+
+          &.step-in-progress {
+            opacity: .35;
+          }
+        }
+
+        .spinner {
+          display: inline-block;
+          width: 2rem;
+          height: 2rem;
+          border-radius: 50%;
+          background: transparent;
+          border-top: 0.25rem solid var(--stroke);
+          border-right: 0.25rem solid var(--stroke);
+          border-bottom: 0.25rem solid transparent;
+          border-left: 0.25rem solid transparent;
+          -webkit-animation: loading 0.5s infinite linear;
+          animation: loading 0.5s infinite linear;
+          margin-left: -.125rem;
+          margin-top: -.125rem;
+          position: absolute;
+        }
+
+        .progress-step-label {
+          height: 1.25rem;
+          font-size: 0.9375rem;
+          margin-top: 0.3125rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: absolute;
+          top: 3.4375rem;
+          color: var(--tableText);
+          text-align: center;
+          width: 9.5rem;
+          font-weight: 600;
+          opacity: .5;
+
+          &.step-in-progress {
+            opacity: 1;
+          }
+        }
+      }
+
+      .progress-step-bar {
+        background-color: var(--placeholder);
+        border: none;
+        width: 16.2rem;
+        height: 0.5rem;
+        opacity: .35;
+
+        &.progress-step-complete {
+          background-color: var(--green);
+          opacity: 1;
+        }
+
+        &.step-in-progress {
+          opacity: 1;
+        }
+      }
+    }
+  }
+}
