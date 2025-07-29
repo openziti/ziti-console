@@ -108,6 +108,17 @@
     min-width: 10rem;
     background: var(--primaryColor) !important;
     cursor: pointer;
+
+    &:hover {
+      outline: 0 !important;
+      box-shadow: 0rem 0.3125rem 1.25rem 0rem rgba(0, 0, 0, 0.05) !important;
+    }
+
+    &:active {
+      filter: brightness(95%) !important;
+      box-shadow: none !important;
+      transform: translateY(1px) !important;
+    }
   }
 
   button.btn-primary {
@@ -120,30 +131,6 @@
       opacity: .5;
       pointer-events: none;
     }
-  }
-
-  .save-button {
-    background-color: var(--primaryColor) !important;
-    box-shadow: 0 0.1875rem 0.5625rem 0 var(--primaryColorOpaque) !important;
-    color: white !important;
-    display: inline-block !important;
-    line-height: 2.5rem !important;
-    height: 3.125rem !important;
-    border: none !important;
-    vertical-align: middle !important;
-    text-align: center !important;
-    position: relative !important;
-    z-index: 1 !important;
-    backface-visibility: hidden !important;
-    -moz-osx-font-smoothing: grayscale !important;
-    overflow: hidden !important;
-    transition: color 0.2s !important;
-    font-size: 0.875rem !important;
-    font-weight: 600 !important;
-    font-family: "Open Sans" !important;
-    text-transform: uppercase !important;
-    border-radius: 0.5rem !important;
-    cursor: pointer !important;
   }
 
   .saving-button {
