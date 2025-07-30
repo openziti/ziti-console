@@ -51,6 +51,7 @@ export * from './lib/features/projectable-forms/configuration/configuration-form
 export * from './lib/features/extendable/extendable.component';
 export * from './lib/features/data-table/data-table-filter.service';
 export * from './lib/features/card-list/card-list.component';
+export * from './lib/features/preview-list/preview-list.component';
 export * from './lib/features/login/login-dialog.component';
 export * from './lib/features/sidebars/side-toolbar/side-toolbar.component';
 export * from './lib/features/sidebars/side-navbar/side-navbar.component';
@@ -69,6 +70,7 @@ export * from './lib/features/messaging/growler.component';
 export * from './lib/features/messaging/growler.service';
 export * from './lib/features/messaging/growler.model';
 export * from './lib/features/messaging/logger.service';
+export * from './lib/features/tag-selector/tag-selector.component';
 export * from './lib/pages/configurations/configurations-page.component';
 export * from './lib/pages/config-types/config-types-page.component';
 export * from './lib/pages/posture-checks/posture-checks-page.component';
@@ -106,6 +108,8 @@ export * from './lib/features/projectable-forms/config-type/config-type-form.com
 export * from './lib/features/projectable-forms/posture-check/posture-check-form.component';
 export * from './lib/features/projectable-forms/session/session-form.component';
 export * from './lib/features/projectable-forms/api-session/api-session-form.component';
+export * from './lib/features/progress-meter/progress-meter.component';
+export * from './lib/features/progress-wizard/progress-wizard.component';
 export * from './lib/features/reset-enrollment/reset-enrollment.service';
 export * from './lib/features/extendable/extensions-noop.service';
 export * from './lib/features/projectable-forms/form-header/form-header.component';
