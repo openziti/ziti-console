@@ -1,3 +1,13 @@
+# app-ziti-console-v3.12.5
+# ziti-console-lib-v0.12.6
+## Feature/Improvements
+* [Issue #701](https://github.com/openziti/ziti-console/issues/701) - Create new shareable components for displaying guided & numbered walkthroughs
+## Bug Fixes
+* [Issue #698](https://github.com/openziti/ziti-console/issues/698) - Enhance the identity visualizer with dark mode enabled styling
+* [Issue #692](https://github.com/openziti/ziti-console/issues/692) - Visualizer identity status fix for HA identity
+* [Issue #690](https://github.com/openziti/ziti-console/issues/690) - Remove duplicate entries from associated entities lists on policy forms
+
+
 # app-ziti-console-v3.12.4
 # ziti-console-lib-v0.12.5
 ## Feature/Improvements
