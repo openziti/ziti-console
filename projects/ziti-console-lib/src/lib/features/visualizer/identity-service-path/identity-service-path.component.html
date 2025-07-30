@@ -1,12 +1,10 @@
-<div [ngClass]="{ 'full-screen': fullScreen }" class="modal solid" id="IdentityVisualizerDataModal">
+<div [ngClass]="{ 'full-screen': fullScreen }" class="modal solid" id="IdentityVisualizer">
     <div class="tp-data-header">
         <div class="modaltitle">Identity Service Path</div>
         <div (click)="hide()" class="buttonBall icon-close" id="EscZEndpointClose"></div>
         <div (click)="toggleModalSize()" class="buttonBall resize" id="ResizeModalButton"></div>
     </div>
-
-    <div class="identity-topology-container">
-
+    <div [ngClass]="isDarkMode==true?'darkMode':'lightMode'" class="identity-topology-container">
         <div style="width: 100%; height: 80px; float: left">
             <div class="ep-topology-filter-container listBox row">
                 <input

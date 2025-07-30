@@ -27,12 +27,12 @@ import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-identity-visualizer',
-  encapsulation: ViewEncapsulation.None,
   templateUrl: './identity-service-path.component.html',
   styleUrls: ['./identity-service-path.component.scss'],
 })
 export class IdentityServicePathComponent implements OnInit {
   public d3;
+  isDarkMode = false;
   refreshRotate = false;
   closeRotate = true;
   filterText = 'fetching services..';
@@ -70,6 +70,8 @@ export class IdentityServicePathComponent implements OnInit {
     this.getEndpointNetworkAsCode();
     this.autocompleteOptions = [];
     this.isLoading = true;
+    const bgCol = d3.color(d3.select('body').style("background-color")).formatHex();
+    this.isDarkMode = bgCol =='#18191d' ? true: false;
   }
 
   getEndpointNetworkAsCode() {
@@ -381,16 +383,15 @@ export class IdentityServicePathComponent implements OnInit {
     link.each(function (this: any, d: any, i) {
       const _this = d3.select(this);
       if (d.status === 1) {
-        let doInUsage = true; // false;
+        let doInUsage = true;
         _this
           .append('text')
-          // .text(d.netspeed)
           .style('fill', 'rgb(255,198,22)')
           .style('font-size', '11');
         _this
           .append('rect')
           .attr('fill', function (d) {
-            return '#555';
+            return 'white';
           })
           .attr('width', function (d) {
             if (doInUsage) {
@@ -476,15 +477,12 @@ export class IdentityServicePathComponent implements OnInit {
       .attr('width', '40')
       .attr('height', '40');
 
-    // node.append('title') .text(function (d) {return d.name;});
-
     node
       .append('text')
       .attr('x', 10)
       .attr('y', 12)
-      .style('font-weight', '600')
+      .attr('fill', 'var(--tableText)')
       .text(function (d) {
-        // const name = d.type.includes('Service') ? d.alias : d.name;
         return d.name;
       });
 
@@ -593,7 +591,7 @@ export class IdentityServicePathComponent implements OnInit {
       document.getElementById('epTooltip').innerHTML = readKeyValues(
         d,
         endpointUtlizationJson
-      ); // readObjectValues(d);
+      );
       tooltip.style('display', 'block');
       tooltip.style('white-space', 'pre-wrap');
       const x = event.pageX + 'px';
@@ -630,32 +628,32 @@ export class IdentityServicePathComponent implements OnInit {
         } else if (k === 'children') {
           const kVal: any = d[k];
           if (kVal && kVal !== '') {
-            info = info + '<div class="prop-row"><div class="prop-name">' + k + ':</div><div class="prop-val">' + kVal.length + '</div></div>';
+             info = info + '<div class="prop-row">' + k + ': ' + kVal.length + '</div>';
           }
         } else {
           if (isAnObject(d[k])) {
             const kVal: any = d[k];
             if (kVal && kVal !== '') {
-              info = info + '<div class="prop-row"><div class="prop-name">' + k + ':</div><div class="prop-val">' + kVal.name + '</div></div>';
+              info = info + '<div class="prop-row">' + k + ': ' + kVal.name + '</div>';
             }
           } else if (d[k] instanceof Array) {
             info =
               info +
-              '<div class="prop-row"><div class="prop-name">' +
+              '<div class="prop-row">' +
               k +
-              ':</div><div class="prop-val">' +
+              ': ' +
               d[k].join('<br> &nbsp;&nbsp; &nbsp;&nbsp;') +
-              '</div></div>';
+              '</div>';
           } else {
             const vo = d[k];
             if (vo && vo !== '') {
               info =
                 info +
-                '<div class="prop-row"><div class="prop-name">' +
+                '<div class="prop-row">' +
                 k +
-                ':</div><div class="prop-val">' +
+                ': ' +
                 (vo !== null || vo !== '' ? d[k] : 'N/A') +
-                '</div></div>';
+                '</div>';
             }
           }
         }
