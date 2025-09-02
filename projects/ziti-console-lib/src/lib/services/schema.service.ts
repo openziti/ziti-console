@@ -574,7 +574,7 @@ export class SchemaService {
             return;
         }
         this.subscriptions.add(
-            item?.component?.instance?.itemAdded.subscribe((event) => {
+            item?.component?.instance?.itemAdded?.subscribe((event) => {
                 if (!this.itemDataValid(item)) {
                     const growlerData = new GrowlerModel(
                         'error',
@@ -594,7 +594,7 @@ export class SchemaService {
             })
         );
         this.subscriptions.add(
-            item?.component?.instance?.itemRemoved.subscribe(() => {
+            item?.component?.instance?.itemRemoved?.subscribe(() => {
                 item.addedItems = item.component?.instance?.addedItems;
             })
         );
