@@ -195,7 +195,11 @@ export class ConfigEditorComponent implements OnInit {
         if (item?.component?.instance?.getProperties) {
           props = item?.component?.instance?.getProperties();
         } else if (item?.component?.instance) {
-          props = [{key: item.key, value: item.component.instance.fieldValue}];
+          let val = item.component.instance.fieldValue;
+          if (Array.isArray(val) && val[0] && typeof val[0] === 'string') {
+            val = val?.map(item => item.trim());
+          }
+          props = [{key: item.key, value: val}];
         }
         props.forEach((prop) => {
           data[prop.key] = prop.value;

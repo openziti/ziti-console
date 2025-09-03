@@ -109,4 +109,12 @@ export class PreviewListComponent {
     this.router.navigateByUrl(item.href);
     event.preventDefault();
   }
+
+  getHrefVal(href) {
+    let hrefVal = href;
+    if(hrefVal?.indexOf('/') === 0) {
+      hrefVal = hrefVal.slice(1);
+    }
+    return './' + hrefVal;
+  }
 }

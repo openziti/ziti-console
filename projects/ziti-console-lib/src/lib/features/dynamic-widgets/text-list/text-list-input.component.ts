@@ -80,6 +80,9 @@ export class TextListInputComponent {
 
   emitEventsDebounced = debounce(this.emitEvents.bind(this), 500);
   emitEvents() {
+    if(this._fieldValue) {
+      this._fieldValue = this._fieldValue?.map(item => item.trim());
+    }
     this.fieldValueChange.emit(this.fieldValue);
     this.valueChange.next(this.fieldValue);
   }
