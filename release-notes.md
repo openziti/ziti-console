@@ -1,3 +1,12 @@
+# app-ziti-console-v3.12.6
+# ziti-console-lib-v0.12.7
+## Feature/Improvements
+* [Issue #695](https://github.com/openziti/ziti-console/issues/706) - Make the table columns extendable for the identities page
+## Bug Fixes
+* [Issue #704](https://github.com/openziti/ziti-console/issues/704) - Move Tab View from Identities to Services for Terminators
+* [Issue #695](https://github.com/openziti/ziti-console/issues/695) - Space ends up in intercept config
+
+
 # app-ziti-console-v3.12.5
 # ziti-console-lib-v0.12.6
 ## Feature/Improvements

@@ -100,7 +100,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
         override csvDownloadService: CsvDownloadService,
         private growlerService: GrowlerService,
         private dialogForm: MatDialog,
-        @Inject(IDENTITY_EXTENSION_SERVICE) extService: ExtensionService,
+        @Inject(IDENTITY_EXTENSION_SERVICE) private extService: ExtensionService,
         protected override router: Router
     ) {
         super(settings, filterService, csvDownloadService, extService, router);
@@ -187,7 +187,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
             ]
         };
 
-        return [
+        let tableColumns = [
             {
                 colId: 'name',
                 field: 'name',
@@ -305,6 +305,10 @@ export class IdentitiesPageService extends ListPageServiceClass {
             },
             this.ID_COLUMN_DEF
         ];
+        if (this.extService.processTableColumns) {
+            tableColumns = this.extService.processTableColumns(tableColumns);
+        }
+        return tableColumns;
     }
 
     getData(filters?: FilterObj[], sort?: any, page?: any): Promise<any> {
