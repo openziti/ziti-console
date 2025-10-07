@@ -311,7 +311,8 @@ export function playerFactory() {
         PreviewListComponent,
         TagSelectorComponent,
         ProgressMeterComponent,
-        ProgressWizardComponent
+        ProgressWizardComponent,
+        ConfigEditorComponent
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},
