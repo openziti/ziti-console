@@ -1,0 +1,105 @@
+.ziti-import-export-container {
+  height: 100%;
+
+  ::ng-deep {
+    .zac-wrapper-container {
+      height: 0rem;
+      left: -62499.9375rem;
+      position: fixed;
+      .action {
+        display: none;
+      }
+    }
+  }
+
+  .ziti-import-preview {
+    max-height: 70vh;
+    overflow-y: scroll;
+
+    h4 {
+      margin-block-end: 0;
+    }
+  }
+
+  .drop-zone {
+    display: block;
+    cursor: pointer;
+  }
+
+  ::ng-deep lib-table-filter-bar, ::ng-deep lib-table-hidden-columns-bar {
+    display: none;
+  }
+
+  ::ng-deep .ziti-ag-grid {
+    width: 100%;
+    position: relative;
+  
+    ::ng-deep .ziti-ag-grid-table {
+      height: 100%;
+
+      ::ng-deep .ag-root-wrapper {
+        position: relative;
+        height: 100%;
+        border-bottom-style: none;
+
+        ::ng-deep .ag-root-wrapper-body {
+          height: 100%;
+        }
+      }
+  
+      ::ng-deep .ag-cell {
+        align-items: center;
+        display: flex;
+      }
+    }
+  }
+
+  .panel-description {
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+  }
+
+  .drop-zone {
+    border: 0.125rem dashed var(--inputBorder);
+    border-radius: var(--inputBorderRadius);
+    padding: 2rem;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    &:hover {
+      background-color: var(--primaryColorShadowLight);
+    }
+  }
+
+  .button-container {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .import-btn,
+  .reset-btn {
+    margin-top: 1rem;
+    width: fit-content;
+  }
+
+  .import-result {
+    background-color: var(--background);
+    border: 0.0625rem solid var(--inputBorder);
+    padding: 1rem;
+    margin-top: 1rem;
+    max-height: 15rem;
+    overflow: auto;
+  }
+}
+
+.ziti-page-container {
+  .action {
+    line-height: 3.75rem;
+    top: 1.5625rem;
+    right: 1.5625rem;
+    z-index: 999;
+  }
+}
+
+app-zac-wrapper {
+  z-index: 999999;
+}
