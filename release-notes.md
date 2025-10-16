@@ -1,3 +1,9 @@
+# ziti-console-lib-v0.12.8
+## Feature/Improvements
+* [Issue #710](https://github.com/openziti/ziti-console/issues/710) - Fix Wizard Template header Index
+## Bug Fixes
+* [Issue #708](https://github.com/openziti/ziti-console/issues/708) - Export Config Schema Component
+
 # app-ziti-console-v3.12.6
 # ziti-console-lib-v0.12.7
 ## Feature/Improvements
