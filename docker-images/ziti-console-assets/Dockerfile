@@ -12,7 +12,7 @@ RUN npm install -g @angular/cli@16.0.0-next.0
 
 COPY . .
 
-RUN --mount=type=cache,target=/usr/src/app/node_modules \
+RUN --mount=type=cache,target=/root/.npm \
     --mount=type=cache,target=/usr/src/app/.angular/cache \
     npm install --omit=optional && \
     ng build ziti-console --base-href ${BASE_HREF} --configuration "production"
