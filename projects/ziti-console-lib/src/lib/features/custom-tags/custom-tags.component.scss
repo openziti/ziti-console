@@ -5,3 +5,83 @@
     }
   }
 }
+
+.no-tags-container {
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  color: var(--tableText);
+  opacity: .65;
+  font-weight: 600;
+}
+
+.add-button-container {
+  position: absolute;
+  right: 0;
+  top: -1.5rem;
+  display: flex;
+  flex-direction: row;
+  height: 1.75rem;
+  align-items: center;
+  margin-right: 0;
+  border-radius: var(--inputBorderRadius);
+  padding: var(--paddingSmall);
+  background: var(--mainBackground);
+  cursor: pointer;
+  transition: .3s;
+  background-color: var(--primaryColor) !important;
+  width: -moz-fit-content;
+  width: fit-content;
+  margin-top: -.25rem;
+  color: var(--offWhite_ALWAYS);
+  gap: var(--gapSmall);
+
+  .icon-add {
+    font-size: 1rem;
+    position: relative;
+    top: unset;
+    left: unset;
+    right: unset;
+    color: var(--background);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+  &:hover {
+    filter: brightness(0.93);
+  }
+}
+
+.tag-actions {
+  position: absolute;
+  top: 0;
+  right: 0rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100%;
+  margin-right: .5rem;
+  gap: var(--gapSmall);
+
+  .addIcon {
+    position: relative;
+    font-size: 1.125rem;
+    color: var(--primary);
+    cursor: pointer;
+    transition: var(--transition);
+    top: unset;
+    right: unset;
+  }
+  .removeIcon {
+    position: relative;
+    font-size: 1.125rem;
+    color: var(--primary);
+    cursor: pointer;
+    font-weight: normal;
+    transition: var(--transition);
+    top: unset;
+    right: unset;
+  }
+}
