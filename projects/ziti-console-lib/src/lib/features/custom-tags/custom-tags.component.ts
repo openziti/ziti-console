@@ -15,7 +15,7 @@
 */
 
 import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
-import {isEmpty, map, unset} from "lodash";
+import {forEach, isEmpty, map, unset, debounce, cloneDeep, set} from "lodash";
 
 @Component({
   selector: 'lib-custom-tags',
@@ -27,49 +27,65 @@ export class CustomTagsComponent implements OnInit, OnChanges {
   @Input() tags: any = {};
   @Output() tagsChange: EventEmitter<any> = new EventEmitter<any>();
 
-  tagsArray = [];
+  tagsArray: any = [];
   newTagName = '';
   newTagValue = '';
   errors: any = {};
   object = Object;
 
+  newTag = {name: '', value: '', initName: '', initVal: '', showNewTag: true, errors: {}};
+
+  tagNameChangedDebounced = debounce(this.tagNameChanged, 350);
+  tagValueChangedDebounced = debounce(this.tagValueChanged, 350);
+  updateTagsArrayDebounced = debounce(this.updateTagsArray, 350);
+  updateTagsObjectDebounced = debounce(this.updateTagsObject, 350);
+
   constructor() {}
 
   ngOnInit() {
-    this.updateTagsArray();
+    this.updateTagsArray({});
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    this.updateTagsArray()
+    this.updateTagsArray({});
   }
 
-  updateTagsArray() {
+  updateTagsArray(event?: any) {
     this.tagsArray = map(this.tags, (value, key) => {
-      return {name: key, value: value}
+      return {name: key, value: value, initName: key, initVal: value, errors: {}}
+    });
+    this.tagsChange.emit(this.tags);
+    event?.srcElement?.focus();
+  }
+
+  updateTagsObject(event?: any) {
+    this.tagsArray.forEach((tag) => {
+      if (tag.initName !== tag.name) {
+        unset(this.tags, tag.initName);
+        tag.initName = tag.name;
+      }
+      if (isEmpty(tag.name) && isEmpty(tag.value)) {
+        unset(this.tags, tag.name);
+      }
+      this.tags[tag.name] = tag.value;
     });
     this.tagsChange.emit(this.tags);
   }
 
-  addTag() {
-    this.errors = {};
-    if(isEmpty(this.newTagName)) {
-      this.errors['name'] = true;
-    }
-    if(isEmpty(this.newTagValue)) {
-      this.errors['value'] = true;
-    }
-    if(!isEmpty(this.errors)) {
-      return;
-    }
-    this.tags[this.newTagName] = this.newTagValue;
-    this.newTagName = '';
-    this.newTagValue = '';
-    this.updateTagsArray();
+  addTag(event?) {
+    this.validate();
+    set(this.tagsArray, `[${this.tagsArray.length - 1}].showNewTag`, false);
+    const newTag = cloneDeep(this.newTag);
+    this.tagsArray = [...this.tagsArray, newTag];
+    this.updateTagsObject();
+    event?.stopPropagation();
+    event?.preventDefault();
   }
 
   removeTag(tagName: string) {
     unset(this.tags, tagName);
-    this.updateTagsArray();
+    this.updateTagsArray({});
+    set(this.tagsArray, `[${this.tagsArray.length - 1}].showNewTag`, true);
   }
 
   enterKeyPressed(event) {
@@ -77,4 +93,26 @@ export class CustomTagsComponent implements OnInit, OnChanges {
     event.stopPropagation();
     event.preventDefault();
   }
+
+  tagNameChanged(tag: any, event?) {
+    this.updateTagsObjectDebounced(event);
+  }
+
+  tagValueChanged(tag: any, event?) {
+    this.updateTagsObjectDebounced(event);
+  }
+
+  validate(event?) {
+    this.tagsArray.forEach((tag) => {
+      const errors = {};
+      if (isEmpty(tag.name)) {
+        errors['name'] = true;
+      }
+      if (isEmpty(tag.value)) {
+        errors['value'] = true;
+      }
+      tag.errors = errors;
+    });
+  }
+
 }
