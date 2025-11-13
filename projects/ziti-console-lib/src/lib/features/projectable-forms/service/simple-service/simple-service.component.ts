@@ -8,13 +8,15 @@ import {ExtensionService} from "../../../extendable/extensions-noop.service";
 import {GrowlerModel} from "../../../messaging/growler.model";
 import {MatDialog} from "@angular/material/dialog";
 import {CreationSummaryDialogComponent} from "../../../creation-summary-dialog/creation-summary-dialog.component";
-import {isEmpty, isNil, isNaN, unset, cloneDeep, isEqual, forEach} from 'lodash';
+import {isEmpty, isNil, isNaN, unset, cloneDeep, isEqual, forEach, set, get} from 'lodash';
 import {ValidationService} from '../../../../services/validation.service';
 import {ServicesPageService} from "../../../../pages/services/services-page.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {FilterObj} from "../../../data-table/data-table-filter.service";
 import {ConfirmComponent} from "../../../confirm/confirm.component";
 import {Location} from "@angular/common";
+import {URLS} from "../../../../urls";
+import {BehaviorSubject, forkJoin, Observable, of} from "rxjs";
 
 // @ts-ignore
 const {app} = window;
@@ -29,6 +31,7 @@ export class SimpleServiceComponent extends ProjectableForm {
   @Input() identityRoleAttributes: any[] = [];
   @Input() identityNamedAttributes: any[] = [];
 
+  dataInit = false;
   showForm = true;
   formView = 'simple';
   controllerDomain = '';
@@ -94,12 +97,12 @@ export class SimpleServiceComponent extends ProjectableForm {
   bindPolicyNamedAttributes = [];
   bindPolicyRoleAttributes = [];
   identitiesNameIdMap = {};
+  identitiesIdNameMap = {};
   interceptConfigId;
   hostConfigId;
   serviceId;
   sdkOnlyDial = false;
   sdkOnlyBind = false;
-  formData = {};
   dialogRef: any;
 
   interceptIncrement = -1;
@@ -113,6 +116,14 @@ export class SimpleServiceComponent extends ProjectableForm {
   hostDataChange = false;
   dialDataChange = false;
   bindDataChange = false;
+  identitiesInit: BehaviorSubject<any> = new BehaviorSubject<any>(false);
+  entitiesInit = false;
+
+  multiActions = [
+    {id: 'convert-to-advanced', label: 'Convert to Advanced', hidden: false},
+  ];
+
+  override entityType = 'services';
 
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
   @Output() selected: EventEmitter<any> = new EventEmitter<any>();
@@ -131,6 +142,21 @@ export class SimpleServiceComponent extends ProjectableForm {
       location: Location
   ) {
     super(growlerService, extService, zitiService, router, route, location, settingsService);
+    this.formData = {};
+  }
+
+  @Input() set formData(data) {
+    if (!data?.configs) {
+      data.configs = [];
+    }
+    this.svc.formData = data;
+    if (!isEmpty(data?.id)) {
+      this.initAssociatedData();
+    }
+  }
+
+  get formData(): any {
+    return this.svc?.formData;
   }
 
   override ngOnInit() {
@@ -175,6 +201,73 @@ export class SimpleServiceComponent extends ProjectableForm {
     });
   }
 
+  initAssociatedData() {
+    if (this.entitiesInit) {
+      return;
+    }
+    this.entitiesInit = true;
+    this.serviceApiData = this.svc.formData;
+    this.identitiesInit.subscribe((val) => {
+      if (val === true) {
+        const configsPromise = this.getAssociatedConfigs();
+        const policiesPromise = this.getAssocaitedPolicies();
+        Promise.all([configsPromise, policiesPromise]).finally(() => {
+          this.dataInit = true;
+        });
+      }
+    });
+  }
+
+  getAssociatedConfigs(): Promise<any> {
+    return this.zitiService.getSubdata('services', this.formData.id, 'configs').then((result: any) => {
+      const associatedConfigs = result.data;
+      associatedConfigs.forEach((config) => {
+        if (config.configTypeId == this.initInterceptConfigApiData.configTypeId) {
+          this.interceptConfigApiData = config;
+          const portRange = this.interceptConfigApiData.data.portRanges[0];
+          this.interceptPort = portRange?.high;
+        } else if (config.configTypeId == this.initHostConfigApiData.configTypeId) {
+          this.hostConfigApiData = config;
+        }
+      });
+    });
+  }
+
+  getAssocaitedPolicies(): Promise<any> {
+    return this.zitiService.getSubdata('services', this.formData.id, 'service-policies').then((result: any) => {
+      const associatedServicePolicies = result.data;
+      associatedServicePolicies.forEach((policy) => {
+        if (policy.type?.toLowerCase() == 'dial') {
+          this.dialPolicyApiData = policy;
+          const roleAttributes = [];
+          const namedAttributes = [];
+          policy.identityRoles.forEach((attr) => {
+            if (attr.charAt(0) === '#') {
+              roleAttributes.push(attr.slice(1));
+            } else if (attr.charAt(0) === '@') {
+              namedAttributes.push(this.identitiesIdNameMap[attr.slice(1)]);
+            }
+          });
+          this.dialPolicyRoleAttributes = roleAttributes;
+          this.dialPolicyNamedAttributes = namedAttributes;
+        } else if (policy.type?.toLowerCase() == 'bind') {
+          const roleAttributes = [];
+          const namedAttributes = [];
+          policy.identityRoles.forEach((attr) => {
+            if (attr.charAt(0) === '#') {
+              roleAttributes.push(attr.slice(1));
+            } else if (attr.charAt(0) === '@') {
+              namedAttributes.push(this.identitiesIdNameMap[attr.slice(1)]);
+            }
+          });
+          this.bindPolicyRoleAttributes = roleAttributes;
+          this.bindPolicyNamedAttributes = namedAttributes;
+          this.bindPolicyApiData = policy;
+        }
+      });
+    })
+  }
+
   getIdentityNamedAttributes(filter?) {
     const paging = {
       searchOn: 'name',
@@ -197,10 +290,23 @@ export class SimpleServiceComponent extends ProjectableForm {
     this.zitiService.get('identities', paging, filters).then((result) => {
       const namedAttributes = result.data.map((identity) => {
         this.identitiesNameIdMap[identity.name] = identity.id;
+        this.identitiesIdNameMap[identity.id] = identity.name;
+        this.identitiesInit.next(true);
         return identity.name;
       });
       this.identityNamedAttributes = namedAttributes;
     });
+  }
+
+  multiActionRequested(action) {
+    switch(action.id) {
+      case 'save':
+        this.save();
+        break;
+      case 'convert-to-advanced':
+        this.convertToAdvanced();
+        break;
+    }
   }
 
   headerActionRequested(action) {
@@ -209,7 +315,11 @@ export class SimpleServiceComponent extends ProjectableForm {
         this.save();
         break;
       case 'close':
-        this.router?.navigateByUrl(`/services/select`);
+        if (this.isEdit) {
+          this.router?.navigateByUrl(URLS.ZITI_SERVICES);
+        } else {
+          this.router?.navigateByUrl(URLS.ZITI_SERVICE_SELECT);
+        }
         break;
       case 'toggle-view':
         this.formView = action.data;
@@ -259,25 +369,22 @@ export class SimpleServiceComponent extends ProjectableForm {
     if (!this.validate()) {
       return;
     }
-    const hasConflicts: any = await this.checkNameConflicts();
-    if (hasConflicts) {
-      return;
+    const isNewService = isEmpty(this.serviceApiData?.id);
+    if (isNewService) {
+      const hasConflicts: any = await this.checkNameConflicts();
+      if (hasConflicts) {
+        return;
+      }
     }
+
     const summaryData = this.showSummary();
     this.serviceApiData.configs = [];
-    await this.createInterceptConfig(summaryData);
-    await this.createHostConfig(summaryData);
-    await this.createService(summaryData);
-    await this.createPolicy(summaryData, 'Dial');
-    await this.createPolicy(summaryData, 'Bind');
 
-    const growlerData = new GrowlerModel(
-        'success',
-        'Success',
-        `Simple Service ${this.serviceApiData.name} Created`,
-        `Successfully created entities for simple service ${this.serviceApiData.name}`,
-    );
-    this.growlerService.show(growlerData);
+    const interceptCfgPromise = await this.saveInterceptConfig(summaryData);
+    const hostCfgPromise = await this.saveHostConfig(summaryData);
+    const servicePromise = await this.saveService(summaryData);
+    const dialPolicyPromise = await this.savePolicy(summaryData, 'Dial');
+    const bindPolicyPromise = await this.savePolicy(summaryData, 'Bind');
 
     summaryData?.forEach((entityType) => {
       entityType.entities?.forEach((entity) => {
@@ -311,7 +418,7 @@ export class SimpleServiceComponent extends ProjectableForm {
       apiRequest: '',
       apiUrl: this.interceptConfigApiUrl,
       status: 'loading',
-      retry: this.createInterceptConfig.bind(this),
+      retry: this.saveInterceptConfig.bind(this),
     };
     const hostSummary = {
       name: this.hostConfigApiData.name,
@@ -322,7 +429,7 @@ export class SimpleServiceComponent extends ProjectableForm {
       apiRequest: '',
       apiUrl: this.hostConfigApiUrl,
       status: 'loading',
-      retry: this.createHostConfig.bind(this)
+      retry: this.saveHostConfig.bind(this)
     };
     const summaryData: any = [
       {
@@ -336,7 +443,7 @@ export class SimpleServiceComponent extends ProjectableForm {
             apiRequest: '',
             apiUrl: this.serviceApiUrl,
             status: 'loading',
-            retry: this.createService.bind(this)
+            retry: this.saveService.bind(this)
           }
         ]
       },
@@ -352,7 +459,7 @@ export class SimpleServiceComponent extends ProjectableForm {
             apiRequest: '',
             apiUrl: this.dialPolicyApiUrl,
             status: 'loading',
-            retry: (summaryData) => { this.createPolicy(summaryData, 'Dial') }
+            retry: (summaryData) => { this.savePolicy(summaryData, 'Dial') }
           },
           {
             name: this.bindPolicyApiData.name,
@@ -363,7 +470,7 @@ export class SimpleServiceComponent extends ProjectableForm {
             apiRequest: '',
             apiUrl: this.bindPolicyApiUrl,
             status: 'loading',
-            retry: (summaryData) => { this.createPolicy(summaryData, 'Bind') }
+            retry: (summaryData) => { this.savePolicy(summaryData, 'Bind') }
           }
         ]
       }
@@ -385,7 +492,8 @@ export class SimpleServiceComponent extends ProjectableForm {
       });
     }
     const data = {
-      summaryData: summaryData
+      summaryData: summaryData,
+      isEdit: this.isEdit
     };
     this.dialogRef = this.dialogForm.open(CreationSummaryDialogComponent, {
       data: data,
@@ -491,79 +599,128 @@ export class SimpleServiceComponent extends ProjectableForm {
       this.nameFieldInput.nativeElement.focus();
     })
   }
-  async createInterceptConfig(summaryData) {
-    if (this.sdkOnlyDial) {
+
+  async saveInterceptConfig(summaryData) {
+    const isNewConfig = isEmpty(this.interceptConfigApiData?.id);
+
+    // Conditional Deletion (Identical Logic)
+    if (this.sdkOnlyDial && !isNewConfig) {
+      return this.zitiService.delete('configs', this.interceptConfigApiData.id);
+    } else if (this.sdkOnlyDial && isNewConfig) {
       return;
     }
-    let status;
-    this.interceptIncrement++;
-    let postFix = '';
-    if (this.interceptIncrement > 0) {
-      postFix = '_' + this.interceptIncrement;
-    }
-    this.interceptConfigApiData.name = this.interceptConfigApiData.name + postFix;
-    const interceptConfigResult: any = await this.zitiService.post('configs', this.interceptConfigApiData, true).catch((result) => {
-      return result;
-    });
-    if (interceptConfigResult.error) {
-      status = 'error';
-    } else {
-      this.interceptConfigId = interceptConfigResult.id ? interceptConfigResult.id : interceptConfigResult.data.id;
-      this.serviceApiData.configs.push(this.interceptConfigId);
-      this.interceptConfigCliCommand = `ziti edge create config '${this.interceptConfigApiData.name}' '${this.interceptConfigApiData.configTypeId}' '${JSON.stringify(this.interceptConfigApiData.data)}'`;
-      status = 'done';
-      this.interceptIncrement = -1;
-    }
+
+    // Use the Helper Function
+    const { status } = await this.saveConfig(
+        this.interceptConfigApiData,
+        'interceptIncrement',
+        'interceptConfigId',
+        'interceptConfigCliCommand'
+    );
+
+    // Apply final status logic
     summaryData[0].entities[0].status = status;
   }
 
-  async createHostConfig(summaryData) {
-    if (this.sdkOnlyBind) {
+  async saveHostConfig(summaryData) {
+    const isNewConfig = isEmpty(this.hostConfigApiData?.id);
+
+    // Conditional Deletion (Identical Logic)
+    if (this.sdkOnlyDial && !isNewConfig) {
+      return this.zitiService.delete('configs', this.hostConfigApiData.id);
+    } else if (this.sdkOnlyDial && isNewConfig) {
       return;
     }
-    let status;
-    this.hostIncrement++;
-    let postFix = '';
-    if (this.hostIncrement > 0) {
-      postFix = '_' + this.hostIncrement;
-    }
-    this.hostConfigApiData.name = this.hostConfigApiData.name + postFix;
-    const hostConfigResult: any = await this.zitiService.post('configs', this.hostConfigApiData, true).catch((result) => {
-      return result;
-    });
-    if (hostConfigResult.error) {
-      status = 'error';
-    } else {
-      this.hostConfigId = hostConfigResult.id ? hostConfigResult.id : hostConfigResult.data.id;
-      this.serviceApiData.configs.push(this.hostConfigId);
-      this.hostConfigCliCommand = `ziti edge create config '${this.hostConfigApiData.name}' '${this.hostConfigApiData.configTypeId}' '${JSON.stringify(this.hostConfigApiData.data)}'`;
-      status = 'done';
-      this.hostIncrement = -1;
-    }
+
+    // Use the Helper Function
+    const { status, configApiData } = await this.saveConfig(
+        this.hostConfigApiData,
+        'hostIncrement',
+        'hostConfigId',
+        'hostConfigCliCommand'
+    );
+
+    // Apply final status logic (slightly different than intercept)
     if (this.sdkOnlyDial) {
       summaryData[0].entities[0].status = status;
-      summaryData[0].entities[0].apiData = this.hostConfigApiData;
+      summaryData[0].entities[0].apiData = configApiData;
     } else {
       summaryData[0].entities[1].status = status;
-      summaryData[0].entities[0].apiData = this.hostConfigApiData;
+      summaryData[0].entities[0].apiData = configApiData;
     }
   }
 
-  async createService(summaryData) {
-    this.serviceIncrement++;
-    let postFix = '';
-    if (this.serviceIncrement > 0) {
-      postFix = '_' + this.serviceIncrement;
+  async saveConfig(
+      configApiData: any,      // e.g., this.interceptConfigApiData
+      incrementer: string,     // The name of the incrementer property ('interceptIncrement' or 'hostIncrement')
+      configIdProp: string,    // The name of the ID property ('interceptConfigId' or 'hostConfigId')
+      cliCommandProp: string   // The name of the CLI command property ('interceptConfigCliCommand' or 'hostConfigCliCommand')
+  ): Promise<any> {
+
+    const isNewConfig = isEmpty(configApiData?.id);
+    const incrementValue = this[incrementer] as number; // Get current increment value
+    let status: string;
+    let configResult: any;
+
+    if (isNewConfig) {
+      this[incrementer] = incrementValue + 1; // Increment for naming
+
+      let postFix = '';
+      if (this[incrementer] > 0) {
+        postFix = '_' + this[incrementer];
+      }
+
+      configApiData.name = configApiData.name + postFix;
+
+      configResult = await this.saveEntity('configs', configApiData).catch((result) => result);
+    } else {
+      configResult = await this.updateEntity('configs', configApiData).catch((result) => result);
     }
-    this.serviceApiData.name = this.serviceApiData.name + postFix;
-    const serviceResult: any = await this.zitiService.post('services', this.serviceApiData, true).catch((result) => {
-      return result;
-    });
+
+    if (configResult.error) {
+      status = 'error';
+    } else {
+      // Set the config ID property dynamically (e.g., this.interceptConfigId)
+      this[configIdProp] = configApiData.id || configResult.id || configResult.data.id;
+
+      // Add the new config ID to serviceApiData (assuming serviceApiData is accessible via 'this')
+      this.serviceApiData.configs.push(this[configIdProp]);
+
+      // Set the CLI command dynamically
+      this[cliCommandProp] = `ziti edge create config '${configApiData.name}' '${configApiData.configTypeId}' '${JSON.stringify(configApiData.data)}'`;
+
+      status = 'done';
+      this[incrementer] = -1; // Reset incrementer
+    }
+
+    return { status, configResult, configApiData };
+  }
+
+  async saveService(summaryData) {
+    const isNewService = isEmpty(this.serviceApiData?.id);
+
+    let serviceResult;
+    if (isNewService) {
+      this.serviceIncrement++;
+      let postFix = '';
+      if (this.serviceIncrement > 0) {
+        postFix = '_' + this.serviceIncrement;
+      }
+      this.serviceApiData.name = this.serviceApiData.name + postFix;
+      serviceResult = await this.saveEntity('services', this.serviceApiData).catch((result) => {
+        return result;
+      });
+    } else {
+      serviceResult = await this.updateEntity('services', this.serviceApiData).catch((result) => {
+        return result;
+      });
+    }
+
     let serviceStatus;
     if (serviceResult.error) {
       serviceStatus = 'error';
     } else {
-      this.serviceId = serviceResult.id ? serviceResult.id : serviceResult.data.id;
+      this.serviceId = this.serviceApiData.id ? this.serviceApiData.id : (serviceResult.id ? serviceResult.id : serviceResult.data.id);
       serviceStatus = 'done';
       let cliConfigIds = '';
       if (!this.sdkOnlyDial && !this.sdkOnlyBind) {
@@ -580,46 +737,73 @@ export class SimpleServiceComponent extends ProjectableForm {
     summaryData[summaryIndex].entities[0].status = serviceStatus;
   }
 
-  async createPolicy(summaryData, type = 'Dial') {
-    let policyApiData, roleAttributes, namedAttributes;
-    if (type === 'Dial') {
-      this.dialIncrement++;
-      let postFix = '';
-      if (this.dialIncrement > 0) {
-        postFix = '_' + this.dialIncrement;
-      }
-      this.dialPolicyApiData.name = this.dialPolicyApiData.name + postFix;
-      policyApiData = this.dialPolicyApiData;
-      roleAttributes = this.dialPolicyRoleAttributes;
-      namedAttributes = this.dialPolicyNamedAttributes;
-    } else {
-      this.bindIncrement++;
-      let postFix = '';
-      if (this.bindIncrement > 0) {
-        postFix = '_' + this.bindIncrement;
-      }
-      this.bindPolicyApiData.name = this.bindPolicyApiData.name + postFix;
-      policyApiData = this.bindPolicyApiData;
-      roleAttributes = this.bindPolicyRoleAttributes;
-      namedAttributes = this.bindPolicyNamedAttributes;
-    }
+  async savePolicy(summaryData, type = 'Dial') {
+    const isNewPolicy = isEmpty(this.serviceApiData?.id);
 
-    policyApiData.serviceRoles = [`@${this.serviceId}`];
+    let policyApiData, policyResult, roleAttributes, namedAttributes;
     let cliRoles = '';
     let status = '';
-    policyApiData.identityRoles = namedAttributes.map((name) => {
-      cliRoles += '@' + this.identitiesNameIdMap[name] + ',';
-      return '@' + this.identitiesNameIdMap[name];
-    });
-    policyApiData.identityRoles = [...policyApiData.identityRoles, ...roleAttributes.map((role) => {
-      cliRoles += '#' + role + ',';
-      return '#' + role;
-    })];
-    cliRoles = cliRoles.slice(0, -1);
-    const dialPolicyResult = await this.zitiService.post('service-policies', policyApiData).catch((result) => {
-      return result;
-    });
-    if (dialPolicyResult.error) {
+    if (isNewPolicy) {
+      if (type === 'Dial') {
+        this.dialIncrement++;
+        let postFix = '';
+        if (this.dialIncrement > 0) {
+          postFix = '_' + this.dialIncrement;
+        }
+        this.dialPolicyApiData.name = this.dialPolicyApiData.name + postFix;
+        policyApiData = this.dialPolicyApiData;
+        roleAttributes = this.dialPolicyRoleAttributes;
+        namedAttributes = this.dialPolicyNamedAttributes;
+      } else {
+        this.bindIncrement++;
+        let postFix = '';
+        if (this.bindIncrement > 0) {
+          postFix = '_' + this.bindIncrement;
+        }
+        this.bindPolicyApiData.name = this.bindPolicyApiData.name + postFix;
+        policyApiData = this.bindPolicyApiData;
+        roleAttributes = this.bindPolicyRoleAttributes;
+        namedAttributes = this.bindPolicyNamedAttributes;
+      }
+      policyApiData.serviceRoles = [`@${this.serviceId}`];
+      policyApiData.identityRoles = namedAttributes.map((name) => {
+        cliRoles += '@' + this.identitiesNameIdMap[name] + ',';
+        return '@' + this.identitiesNameIdMap[name];
+      });
+      policyApiData.identityRoles = [...policyApiData.identityRoles, ...roleAttributes.map((role) => {
+        cliRoles += '#' + role + ',';
+        return '#' + role;
+      })];
+      cliRoles = cliRoles.slice(0, -1);
+      policyResult = await this.saveEntity('service-policies', policyApiData).catch((result) => {
+        return result;
+      });
+    } else {
+      if (type === 'Dial') {
+        policyApiData = this.dialPolicyApiData;
+        roleAttributes = this.dialPolicyRoleAttributes;
+        namedAttributes = this.dialPolicyNamedAttributes;
+      } else {
+        policyApiData = this.bindPolicyApiData;
+        roleAttributes = this.bindPolicyRoleAttributes;
+        namedAttributes = this.bindPolicyNamedAttributes;
+      }
+      policyApiData.serviceRoles = [`@${this.serviceId}`];
+      policyApiData.identityRoles = namedAttributes.map((name) => {
+        cliRoles += '@' + this.identitiesNameIdMap[name] + ',';
+        return '@' + this.identitiesNameIdMap[name];
+      });
+      policyApiData.identityRoles = [...policyApiData.identityRoles, ...roleAttributes.map((role) => {
+        cliRoles += '#' + role + ',';
+        return '#' + role;
+      })];
+      cliRoles = cliRoles.slice(0, -1);
+      policyResult = await this.updateEntity('service-policies', policyApiData).catch((result) => {
+        return result;
+      });
+    }
+
+    if (policyResult.error) {
       status = 'error';
     } else {
       status = 'done';
@@ -638,6 +822,14 @@ export class SimpleServiceComponent extends ProjectableForm {
     } else {
       this.bindPolicyCliCommand = cliCommand;
     }
+  }
+
+  saveEntity(type, data) {
+    return this.zitiService.post(type, data, true);
+  }
+
+  updateEntity(type, data) {
+    return this.zitiService.patch(type, data, data.id, true);
   }
 
   validate() {
@@ -775,6 +967,49 @@ export class SimpleServiceComponent extends ProjectableForm {
     this.hostConfigApiData.data = this.initHostConfigApiData.data;
     this.dialPolicyApiData = this.initDialPolicyApiData;
     this.bindPolicyApiData = this.initBindPolicyApiData;
+  }
+
+  convertToAdvanced() {
+    const data = {
+      appendId: 'ConvertSimpleService',
+      title: 'Convert Service',
+      message: `Are you sure you would like to convert this simple service to an advanced service? This change cannot be undone.`,
+      bulletList: [],
+      confirmLabel: 'Yes',
+      cancelLabel: 'Oops, no get me out of here',
+      imageUrl: '../../assets/svgs/Growl_Warning.svg',
+      showCancelLink: true
+    };
+    this.dialogRef = this.dialogForm.open(ConfirmComponent, {
+      data: data,
+      autoFocus: false,
+    });
+    this.dialogRef.afterClosed().subscribe((result) => {
+      if (result?.confirmed) {
+        this.serviceApiData.tags['service-type'] = 'advanced';
+        this.updateEntity('services', this.serviceApiData)
+          .then(() => {
+            const growlerData = new GrowlerModel(
+                'success',
+                'Success',
+                `Service Updated`,
+                `Successfully converted ${this.serviceApiData.name} to an advanced service.`,
+            );
+            this.growlerService.show(growlerData);
+            this.router.navigate([URLS.ZITI_ADVANCED_SERVICE + '/' + this.serviceApiData.id]);
+          })
+          .catch((result) => {
+            const growlerData = new GrowlerModel(
+                'error',
+                'Error',
+                `Failed to Update Service`,
+                `Unable to convert ${this.serviceApiData.name} to an advanced service.`,
+            );
+            this.growlerService.show(growlerData);
+          });
+      }
+    });
+
   }
 
   override checkDataChange() {

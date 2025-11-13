@@ -5,11 +5,15 @@
 >
     <lib-form-header
             [data]="formData"
-            [title]="showForm ? 'Create a Simple Service' : 'Service Creation Summary'"
+            [title]="isEdit ? 'Edit Simple Service' : 'Create a Simple Service'"
             [actionButtonText]="'Save'"
+            [multiActions]="multiActions"
             (actionRequested)="headerActionRequested($event)"
+            (multiActionRequested)="multiActionRequested($event)"
             [(formView)]="formView"
+            [moreActions]="moreActions"
     ></lib-form-header>
+
     <div class="simple-service-form-container projectable-form-container">
         <div class="form-group-column three-fifths" *ngIf="showForm">
             <div  id="InlineServiceArea" class="anyadd">

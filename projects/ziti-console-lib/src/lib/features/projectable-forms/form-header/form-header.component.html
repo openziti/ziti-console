@@ -53,12 +53,17 @@
                 </div>
             </div>
             <div class="save-button"
-                 *ngIf="showHeaderButton"
+                 *ngIf="!hasMultiActions && showHeaderButton"
                  (click)="requestAction({name: 'save'})"
                  [ngClass]="{'save-disabled': saveDisabled}"
                  matTooltip="{{saveDisabled ? saveTooltip : ''}}"
                  matTooltipPosition="below"
             >{{actionButtonText}}</div>
+            <lib-multi-action-button
+                    *ngIf="hasMultiActions"
+                [actions]="saveActions"
+                (actionRequested)="actionClicked($event)"
+            ></lib-multi-action-button>
         </div>
     </div>
     <div class="form-header-group badges-container">

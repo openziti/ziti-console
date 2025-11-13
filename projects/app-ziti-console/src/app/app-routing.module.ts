@@ -156,6 +156,12 @@ const routes: Routes = [
     runGuardsAndResolvers: 'always',
   },
   {
+    path: 'services/simple/:id',
+    component: SimpleServiceComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    runGuardsAndResolvers: 'always',
+  },
+  {
     path: 'services/select',
     component: CardListComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),

@@ -1782,3 +1782,51 @@ a {
     }
   }
 }
+
+///////
+// Simple Service Form
+///////
+
+.simple-service-wrapper {
+  lib-form-header {
+    .form-header-container {
+      lib-multi-action-button {
+        .multi-action-button-container {
+          position: relative;
+          height: 2.0125rem;
+          top: unset;
+          right: unset;
+
+          .form-field-action {
+            height: 2.0125rem;
+          }
+          .multi-action-button-dropdown ul li {
+            width: 10rem;
+            white-space: nowrap;
+            background: var(--background);
+            border-top-style: solid;
+            border-color: var(--inputBorder);
+            padding-top: var(--paddingMedium) !important;
+            padding-bottom: var(--paddingMedium) !important;
+            border-width: 1px;
+            font-weight: 600;
+
+            &:first-child {
+              border-top-style: none;
+            }
+          }
+          .multi-action-button-dropdown {
+            position: absolute;
+            background: var(--background);
+            width: 10rem;
+            box-shadow: 0rem 0.1875rem 0.3125rem 0.0625rem var(--boxShadow);
+            border-bottom-left-radius: 0.625rem;
+            border-bottom-right-radius: 0.625rem;
+            overflow: hidden;
+          }
+        }
+      }
+    }
+  }
+}
+

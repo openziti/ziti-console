@@ -11,7 +11,7 @@
     </div>
     <div class="multi-action-button-dropdown" *ngIf="showMoreActions">
         <ul>
-            <li *ngFor="let action of actions" class="confirm-item-name" (click)="actionClicked(action)">{{action.label}}</li>
+            <li *ngFor="let action of actions" [hidden]="action.hidden" class="confirm-item-name" (click)="actionClicked(action)">{{action.label}}</li>
         </ul>
     </div>
 </div>

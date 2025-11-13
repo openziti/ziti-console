@@ -2,6 +2,7 @@
      (keyup.enter)="save($event)"
      (keyup.escape)="returnToListPage()"
      tabindex="0"
+     *ngIf="dataInit"
 >
     <lib-form-header
         [data]="formData"

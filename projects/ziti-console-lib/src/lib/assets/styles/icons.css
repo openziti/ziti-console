@@ -177,3 +177,6 @@
 .icon-back-arrow:before {
   content: "\e971";
 }
+.icon-upgrade:before {
+  content: "\e97b";
+}
