@@ -37,6 +37,10 @@ export class CardListComponent extends ProjectableForm {
   save(): void {
   }
 
+  back() {
+    this.router?.navigateByUrl(`${this.basePath}`);
+  }
+
   cardSelected(type) {
     this.router.navigateByUrl(`/services/${type}`);
   }

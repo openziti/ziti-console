@@ -14,15 +14,15 @@
     limitations under the License.
 */
 
-import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {isFunction, defer} from 'lodash';
+import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {isFunction, defer, isEmpty} from 'lodash';
 
 @Component({
   selector: 'lib-form-header',
   templateUrl: './form-header.component.html',
   styleUrls: ['./form-header.component.scss']
 })
-export class FormHeaderComponent {
+export class FormHeaderComponent implements OnChanges {
   @Input() data: any = {};
   @Input() badges: any = [];
   @Input() title = '';
@@ -34,12 +34,20 @@ export class FormHeaderComponent {
   @Input() moreActionsText = 'More Actions';
   @Input() showHeaderToggle = true;
   @Input() showHeaderButton = true;
+  @Input() multiActions: any[] = [];
   @Output() formViewChange: EventEmitter<string> = new EventEmitter<string>();
   @Output() actionRequested: EventEmitter<any> = new EventEmitter<any>();
+  @Output() multiActionRequested: EventEmitter<any> = new EventEmitter<any>();
 
+  _saveActions = [{id: 'save', label: 'Save', hidden: true}];
+  saveActions = [];
   showActionsDropDown = false;
 
   constructor() {}
+
+  ngOnChanges(changes: SimpleChanges) {
+    this.saveActions = [...this._saveActions, ...this.multiActions];
+  }
 
   get hasMoreActions() {
     let hasMoreActions = false;
@@ -49,6 +57,13 @@ export class FormHeaderComponent {
       }
     });
     return hasMoreActions;
+  }
+
+  actionClicked(event) {
+    if (event?.id === 'save' && this.saveDisabled) {
+      return;
+    }
+    this.multiActionRequested.emit({id: event?.id});
   }
 
   requestAction(action) {
@@ -81,6 +96,10 @@ export class FormHeaderComponent {
     defer(() => {
       this.showActionsDropDown = false;
     });
+  }
+
+  get hasMultiActions() {
+    return !isEmpty(this.multiActions);
   }
 
   get headerBadges() {

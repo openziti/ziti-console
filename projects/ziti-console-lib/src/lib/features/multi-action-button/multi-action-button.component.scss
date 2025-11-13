@@ -87,6 +87,9 @@
                 padding-left: 0.625rem;
                 cursor: pointer;
 
+                &[hidden] {
+                    display: none;
+                }
                 &:hover {
                   background-color: var(--inputBorder);
                 }

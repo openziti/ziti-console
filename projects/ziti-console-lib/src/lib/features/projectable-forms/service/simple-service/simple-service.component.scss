@@ -1,9 +1,10 @@
 
-.ziti-entity-header-container {
+.service-header-container {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  position: relative;
 }
 
 .simple-service-wrapper {
@@ -192,6 +193,18 @@
       color: white;
     }
   }
+}
+
+.convert-service-button {
+  background-color: var(--primaryColor);
+  width: 2.0625rem;
+  height: 2.0625rem;
+  color: var(--white);
+  font-family: 'icomoon' !important;
+  font-size: 1.5rem;
+  border: none;
+  border-radius: var(--inputBorderRadius);
+  position: relative;
 }
 
 ::ng-deep .simple-service-wrapper {

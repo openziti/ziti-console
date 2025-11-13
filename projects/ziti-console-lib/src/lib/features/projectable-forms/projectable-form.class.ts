@@ -145,6 +145,10 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         this.initBaseHref();
     }
 
+    get isEdit() {
+        return !isEmpty(this.formData.id);
+    }
+
     override ngAfterViewInit(skipFocus = false) {
         super.ngAfterViewInit();
         this.errors = {};
