@@ -33,7 +33,7 @@ import {Subscription} from 'rxjs';
 import {ProjectableForm, KEY_CODES} from "../projectable-form.class";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 
-import {isEmpty, forEach, debounce, delay, unset, keys, defer, cloneDeep, isEqual, some, filter} from 'lodash';
+import {get, isEmpty, forEach, debounce, delay, unset, keys, defer, cloneDeep, isEqual, some, filter} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
@@ -44,6 +44,7 @@ import {ConfigEditorComponent} from "../../config-editor/config-editor.component
 import {Service} from "../../../models/service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {Location} from "@angular/common";
+import {URLS} from "../../../urls";
 
 @Component({
   selector: 'lib-service-form',
@@ -62,6 +63,15 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
       data.configs = [];
     }
     this.svc.formData = data;
+    if (!isEmpty(data?.id)) {
+      if (get(data, 'tags["service-type"]') === 'simple') {
+        this.router.navigate([URLS.ZITI_SIMPLE_SERVICE + '/' + data?.id]);
+      } else {
+        this.dataInit = true;
+      }
+    } else if (this.entityId === 'create') {
+      this.dataInit = true;
+    }
   }
 
   get formData(): any {
@@ -71,6 +81,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   @Input() serviceRoleAttributes: any[] = [];
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
+  dataInit = false;
   isEditing = false;
   enrollmentExpiration: any;
   jwt: any;

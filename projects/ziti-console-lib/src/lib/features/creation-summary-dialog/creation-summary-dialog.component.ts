@@ -18,6 +18,7 @@ export class CreationSummaryDialogComponent {
   selectedEntityType = 'service';
   selectedEntityName = '';
 
+  isEdit = false;
   summaryData: any = [];
   showAPI = false;
   hasError = false;
@@ -25,6 +26,7 @@ export class CreationSummaryDialogComponent {
 
   constructor(private dialogRef: MatDialogRef<ConfirmComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private growlerService: GrowlerService) {
     this.summaryData = data.summaryData;
+    this.isEdit = data.isEdit === true;
   }
 
   get hasCreationError() {

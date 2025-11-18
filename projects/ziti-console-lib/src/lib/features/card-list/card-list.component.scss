@@ -3,19 +3,64 @@
 }
 
 .card-list-wrapper {
+  align-items: center;
 
-  >.title {
-    font-size: 1.625rem;
-    filter: brightness(50%);
-    padding-top: 2.1875rem;
-    text-align: center;
-    width: 100%;
-    color: var(--primaryColor);
-    font-family: "Russo One";
-    text-transform: uppercase;
-    position: relative;
-    font-weight: 400;
+  .card-list-content {
+    width: fit-content;
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
   }
+
+  .card-list-title-container {
+    width: 100%;
+    position: relative;
+
+    .icon-back-arrow {
+      position: absolute;
+      left: 0;
+      height: 2rem;
+      width: 1.325rem;
+      top: 2.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      transform: scaleX(1.25);
+      margin-left: 1.25rem;
+      min-width: 1.325rem;
+      padding-left: .125rem;
+      cursor: pointer;
+      font-family: icomoon !important;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-top: .05rem;
+      color: var(--tableText);
+      z-index: 9999999;
+
+      &:hover {
+        background-color: #fff;
+        border-radius: var(--inputBorderRadius);
+        filter: brightness(90%);
+        transition: .3s;
+      }
+    }
+
+    >.title {
+      font-size: 1.625rem;
+      filter: brightness(50%);
+      padding-top: 2.1875rem;
+      text-align: center;
+      width: 100%;
+      color: var(--primaryColor);
+      font-family: "Russo One";
+      text-transform: uppercase;
+      position: relative;
+      font-weight: 400;
+    }
+  }
+
   >.subtitle {
     text-align: center;
     width: 100%;

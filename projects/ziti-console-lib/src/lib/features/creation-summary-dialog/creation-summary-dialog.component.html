@@ -17,10 +17,10 @@
                     <div class="summary-group-title">{{group.title}}</div>
                     <ul>
                         <li
-                                *ngFor="let entity of group.entities"
-                                (click)="selectZitiEntity(entity.name, 'all')"
-                                [ngClass]="{selected: selectedEntityType === 'all'}"
-                                class="entity-item drop-target-svc"
+                            *ngFor="let entity of group.entities"
+                            (click)="selectZitiEntity(entity.name, 'all')"
+                            [ngClass]="{selected: selectedEntityType === 'all'}"
+                            class="entity-item drop-target-svc"
                         >
                             <span class="spinner" *ngIf="entity.status === 'loading'"></span>
                             <input type="checkbox" [disabled]="true" [checked]="true" class="success-check" *ngIf="entity.status === 'done'">
@@ -52,6 +52,6 @@
 
     <div class="confirm-buttons-container">
         <button class="button save alert" (click)="done()">Done</button>
-        <button class="button save cancel" (click)="confirm()">Create another</button>
+        <button class="button save cancel" (click)="confirm()" *ngIf="!isEdit">Create another</button>
     </div>
 </div>
