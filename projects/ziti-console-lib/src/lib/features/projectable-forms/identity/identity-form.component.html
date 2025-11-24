@@ -67,6 +67,42 @@
                 <lib-form-field-toggle [(toggleOn)]="showMore" (toggleOnChange)="showMoreChanged($event)" style="margin: 0px 10px"></lib-form-field-toggle>
                 <div [hidden]="!showMore" class="form-group-column">
                     <lib-form-field-container
+                            [layout]="'row'"
+                            [showHeader]="false"
+                            class="form-field-advanced is-admin-container"
+                    >
+                        <div class="config-item">
+                            <div class="config-container toggle-container">
+                                <div class="config-container-label">Disable Identity</div>
+                                <div
+                                        (click)="toggleDisableIdentity()"
+                                        [ngClass]="{ on: formData.isAdmin }"
+                                        class="toggle"
+                                >
+                                    <span [hidden]="!identityDisabled" class="on-label">YES</span>
+                                    <span [hidden]="identityDisabled" class="off-label">NO</span>
+                                    <div class="switch"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="config-item">
+                            <div class="config-container toggle-container">
+                                <div class="config-container-label">Duration</div>
+                                <input
+                                        *ngIf="enrollmentType === 'updb' && !isEditing"
+                                        [ngClass]="{disabled: isEditing, error: errors.disableDuration}"
+                                        [(ngModel)]="disableDuration"
+                                        (keyup)="updateEnrollment()"
+                                        class="form-field-input"
+                                        id="UPDBName"
+                                        type="text"
+                                        maxlength="500"
+                                        placeholder="Enter a name"
+                                >
+                            </div>
+                        </div>
+                    </lib-form-field-container>
+                    <lib-form-field-container
                         [title]="'Enrollment Type'"
                         [title2]="enrollmentTypeTitle"
                         [layout]="'row'"

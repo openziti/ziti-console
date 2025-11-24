@@ -707,6 +707,7 @@ export class SimpleServiceComponent extends ProjectableForm {
         postFix = '_' + this.serviceIncrement;
       }
       this.serviceApiData.name = this.serviceApiData.name + postFix;
+      set(this.serviceApiData, 'tags.service-type', 'simple');
       serviceResult = await this.saveEntity('services', this.serviceApiData).catch((result) => {
         return result;
       });

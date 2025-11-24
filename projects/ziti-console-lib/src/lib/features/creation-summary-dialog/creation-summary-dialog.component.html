@@ -2,7 +2,7 @@
     <div class="close icon-close" (click)="close()"></div>
     <div class="title-row">
         <span class="title">Execution Summary</span>
-        <span class="subtitle">The following entities were created for this service</span>
+        <span class="subtitle">The following entities were {{isEdit ? 'updated' : 'created'}} for this service</span>
     </div>
     <lib-form-field-container [showHeader]="false">
         <div class="copy-links-container">

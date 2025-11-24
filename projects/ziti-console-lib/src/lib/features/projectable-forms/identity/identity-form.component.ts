@@ -346,6 +346,12 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     });
   }
 
+  identityDisabled = false;
+  disableDuration = 0;
+  toggleDisableIdentity() {
+    this.identityDisabled = !this.identityDisabled;
+  }
+
   toggleIsAdmin() {
     this.formData.isAdmin = !this.formData.isAdmin;
   }
