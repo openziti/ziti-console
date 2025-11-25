@@ -1,3 +1,11 @@
+# app-ziti-console-v3.12.7
+# ziti-console-lib-v0.12.9
+## Feature/Improvements
+* [Issue #716](https://github.com/openziti/ziti-console/issues/716) - Improve UX around tag editing/creating/removing
+* [Issue #718](https://github.com/openziti/ziti-console/issues/718) - Allow "Simple" services to be edited in the Simple Service editor
+* [Issue #720](https://github.com/openziti/ziti-console/issues/720) - Add controller to disable/enable an entity
+
+
 # ziti-console-lib-v0.12.8
 ## Feature/Improvements
 * [Issue #710](https://github.com/openziti/ziti-console/issues/710) - Fix Wizard Template header Index
