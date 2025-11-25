@@ -1830,3 +1830,56 @@ a {
   }
 }
 
+
+/////////
+// Prime NG Calendar
+/////////
+
+p-calendar {
+  position: relative;
+  display: flex;
+  width: 100%;
+
+  .p-calendar {
+    width: 100%;
+
+    .p-inputtext {
+      font-family: "Open Sans", sans-serif;
+      font-size: 1rem;
+      color: var(--tableText);
+      background: var(--table);
+      padding: 0.5rem;
+      border: 0.0625rem solid var(--inputBorder);
+      transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+      border-radius: var(--inputBorderRadius);
+      box-shadow: none;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      border-style: solid;
+      border-color: var(--inputBorder);
+      height: var(--defaultInputHeight);
+      border-width: .125rem;
+    }
+
+    .p-button {
+      color: #fff;
+      background: var(--primaryColor);
+      border: .0625rem solid var(--primaryColor);
+      padding: .495rem 1rem;
+      font-size: 1rem;
+      transition: background-color .2s, color .2s, border-color .2s, box-shadow .2s;
+      border-radius: var(--inputBorderRadius);
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    .p-datepicker {
+      z-index: 99999999;
+      .p-timepicker button.p-element {
+        background-color: var(--primaryColor);
+      }
+    }
+  }
+}
+
