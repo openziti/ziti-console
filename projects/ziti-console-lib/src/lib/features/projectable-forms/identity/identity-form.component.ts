@@ -32,12 +32,16 @@ import {isEmpty, isNil, forOwn, cloneDeep, set, unset} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {IDENTITY_EXTENSION_SERVICE, IdentityFormService} from './identity-form.service';
-import {MatDialogRef} from "@angular/material/dialog";
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {IdentitiesPageService} from "../../../pages/identities/identities-page.service";
 import {ExtensionService} from "../../extendable/extensions-noop.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {Identity} from "../../../models/identity";
 import {Location} from "@angular/common";
+import moment from "moment/moment";
+import {FilterObj} from "../../data-table/data-table-filter.service";
+import {ConfirmComponent} from "../../confirm/confirm.component";
+import {GrowlerModel} from "../../messaging/growler.model";
 
 @Component({
   selector: 'lib-identity-form',
@@ -78,6 +82,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   testResultOpen = false;
 
   cas = [];
+  dialogRef: any;
 
   constructor(
       @Inject(SETTINGS_SERVICE) protected override settingsService: SettingsService,
@@ -88,7 +93,8 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       @Inject(IDENTITY_EXTENSION_SERVICE) extService: ExtensionService,
       protected override router: Router,
       protected override route: ActivatedRoute,
-      location: Location
+      location: Location,
+      protected dialogForm: MatDialog,
   ) {
     super(growlerService, extService, zitiService, router, route, location, settingsService);
     this.identityRoleAttributes = [];
@@ -122,6 +128,9 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       }
       if (this.formData.enrollment?.ott) {
         this.formData.badges.push({label: 'Unregistered', class: 'unreg'});
+      }
+      if (this.formData.disabled) {
+        this.formData.badges.push({label: 'Disabled', class: 'unreg'});
       }
       this.jwt = this.identitiesService.getJWT(this.formData);
       this.enrollmentExpiration = this.identitiesService.getEnrollmentExpiration(this.formData);
@@ -346,8 +355,25 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     });
   }
 
+  selectedRange
+  disableDurationType = 'indefinite';
+  identityDisabled = false;
+  disableDuration =  new Date();
+  minDate = new Date();
+
+  toggleDisableIdentity() {
+    this.identityDisabled = !this.identityDisabled;
+  }
+
   toggleIsAdmin() {
     this.formData.isAdmin = !this.formData.isAdmin;
+  }
+
+  setDisabledDate(range) {
+    let label;
+    let date = moment();
+    let closeCalendar = true;
+    const dateEncoded = encodeURIComponent(date.toISOString());
   }
 
   get identityType() {
@@ -360,6 +386,92 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     } else {
       set(this.formData, 'type', type);
     }
+  }
+
+  get entityDisabled() {
+    return this.formData?.disabled;
+  }
+
+  disableIdentity() {
+    const localDate = moment(this.disableDuration).local();
+    const minutesDifference = localDate.diff(moment(), 'minutes');
+    const confirmData = {
+      appendId: 'DisableIdentity',
+      title: 'Disable Identity',
+      message: `Are you sure you would like to disable this identity ${this.disableDurationType === 'indefinite' ? 'indefinitely' : `until: <br>${localDate}`}?`,
+      confirmLabel: 'Yes',
+      cancelLabel: 'Oops, no get me out of here',
+      showCancelLink: true,
+      imageUrl: '../../assets/svgs/Growl_Warning.svg',
+    };
+    this.dialogRef = this.dialogForm.open(ConfirmComponent, {
+      data: confirmData,
+      autoFocus: false,
+    });
+    this.dialogRef.afterClosed().subscribe({
+      next: (result) => {
+        this.zitiService.post(`/identities/${this.formData.id}/disable`, {durationMinutes: minutesDifference}).then((result) => {
+          const growlerData = new GrowlerModel(
+              'success',
+              'Success',
+              `Identity Disabled`,
+              `Successfully disabled identity`,
+          );
+          this.growlerService.show(growlerData);
+          this.refreshIdentity();
+        }).catch((error) => {
+          const errorMessage = this.zitiService.getErrorMessage(error);
+          const growlerData = new GrowlerModel(
+              'error',
+              'Error',
+              `Failed to Disabled`,
+              `Unable to disable identity: "${errorMessage}"`,
+          );
+          this.growlerService.show(growlerData);
+          this.refreshIdentity();
+        });
+      },
+    })
+  }
+
+  enableIdentity() {
+    const confirmData = {
+      appendId: 'EnableIdentity',
+      title: 'Enable Identity',
+      message: `Are you sure you would like to enable this identity?`,
+      confirmLabel: 'Yes',
+      cancelLabel: 'Oops, no get me out of here',
+      showCancelLink: true,
+      imageUrl: '../../assets/svgs/Growl_Warning.svg',
+    };
+    this.dialogRef = this.dialogForm.open(ConfirmComponent, {
+      data: confirmData,
+      autoFocus: false,
+    });
+    this.dialogRef.afterClosed().subscribe({
+      next: (result) => {
+        this.zitiService.post(`/identities/${this.formData.id}/enable`, {durationMinutes: 0}).then((result) => {
+          const growlerData = new GrowlerModel(
+              'success',
+              'Success',
+              `Identity Enabled`,
+              `Successfully enabled identity`,
+          );
+          this.growlerService.show(growlerData);
+          this.refreshIdentity();
+        }).catch((error) => {
+          const errorMessage = this.zitiService.getErrorMessage(error);
+          const growlerData = new GrowlerModel(
+              'error',
+              'Error',
+              `Failed to Enable`,
+              `Unable to enable identity: "${errorMessage}"`,
+          );
+          this.growlerService.show(growlerData);
+          this.refreshIdentity();
+        });
+      },
+    })
   }
 
   closeTestResult() {

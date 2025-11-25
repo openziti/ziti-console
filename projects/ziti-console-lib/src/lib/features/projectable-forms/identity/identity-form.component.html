@@ -185,6 +185,46 @@
                     ></lib-qr-code>
                 </lib-form-field-container>
                 <lib-form-field-container
+                        *ngIf="isEdit"
+                        [showHeader]="false"
+                        [layout]="'column'"
+                        [contentStyle]="'z-index: 99999999'"
+                >
+                    <div *ngIf="entityDisabled" class="disable-identity-button-container" (click)="enableIdentity()">
+                        <div class="disable-identity-background"></div>
+                        <button class="download-button disable-identity-button">Enable Identity</button>
+                    </div>
+                    <div *ngIf="!entityDisabled" class="disable-identity-button-container" (click)="disableIdentity()">
+                        <div class="disable-identity-background"></div>
+                        <button class="download-button disable-identity-button">Disable Identity</button>
+                    </div>
+                    <div *ngIf="!entityDisabled" class="form-field-label-container" style="gap: var(--paddingMedium)">
+                        <div class="form-field-header">
+                            <div class="form-field-title-container">
+                                <span class="form-field-title">Disable Until:</span>
+                            </div>
+                        </div>
+                        <div class="disable-identity-duration-container">
+                            <select [(ngModel)]="disableDurationType" id="DurationType" class="form-field-dropdown">
+                                <option value="indefinite">Indefinite</option>
+                                <option value="pick-date">Pick a Date & Time</option>
+                            </select>
+                            <p-calendar
+                                *ngIf="disableDurationType === 'pick-date'"
+                                [(ngModel)]="disableDuration"
+                                (onSelect)="setDisabledDate($event)"
+                                [showIcon]="true"
+                                [showTime]="true"
+                                [minDate]="minDate"
+                                placeholder="Select a date"
+                                selectionMode="single"
+                                #calendar
+                            >
+                            </p-calendar>
+                        </div>
+                    </div>
+                </lib-form-field-container>
+                <lib-form-field-container
                         *ngIf="formData.id"
                         [title]="'Associated Services'"
                         [count]="associatedServices.length"

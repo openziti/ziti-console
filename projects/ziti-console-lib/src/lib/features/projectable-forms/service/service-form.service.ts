@@ -15,23 +15,17 @@
 */
 
 import {Injectable, Inject, InjectionToken} from "@angular/core";
-import {isEmpty, isString, keys, some, defer, cloneDeep, filter, forEach, isNil, isBoolean} from 'lodash';
+import {isEmpty, isString, keys, some, defer, cloneDeep, filter, forEach, isNil, isBoolean, set} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 import {ExtensionService} from "../../extendable/extensions-noop.service";
 import {Service} from "../../../models/service";
-import moment from 'moment';
-import dynamic from "ajv/dist/vocabularies/dynamic";
 import {SchemaService} from "../../../services/schema.service";
 import {Subscription} from "rxjs";
 import {ConfigEditorComponent} from "../../config-editor/config-editor.component";
 import {ValidationService} from "../../../services/validation.service";
-import {
-    TableColumnDefaultComponent
-} from "../../data-table/column-headers/table-column-default/table-column-default.component";
-import {TableCellNameComponent} from "../../data-table/cells/table-cell-name/table-cell-name.component";
 import {Router} from "@angular/router";
 
 export const SERVICE_EXTENSION_SERVICE = new InjectionToken<any>('SERVICE_EXTENSION_SERVICE');
