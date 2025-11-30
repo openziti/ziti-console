@@ -119,9 +119,7 @@ export class SimpleServiceComponent extends ProjectableForm {
   identitiesInit: BehaviorSubject<any> = new BehaviorSubject<any>(false);
   entitiesInit = false;
 
-  multiActions = [
-    {id: 'convert-to-advanced', label: 'Convert to Advanced', hidden: false},
-  ];
+  multiActions = [];
 
   override entityType = 'services';
 
@@ -152,6 +150,13 @@ export class SimpleServiceComponent extends ProjectableForm {
     this.svc.formData = data;
     if (!isEmpty(data?.id)) {
       this.initAssociatedData();
+      if (get(this.formData, 'tags.service-type') === 'simple') {
+        this.multiActions = [
+          {id: 'convert-to-advanced', label: 'Convert to Advanced', hidden: false}
+        ]
+      } else {
+        this.multiActions = []
+      }
     }
   }
 
