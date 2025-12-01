@@ -123,7 +123,7 @@ export class ServicePolicyFormService {
                 return svc.name;
             });
             this.associatedServiceNames = [...this.associatedServiceNames, ...namedAttributes];
-            this.associatedServiceNames = sortBy(this.associatedServices);
+            this.associatedServiceNames = sortBy(this.associatedServiceNames);
             this.associatedServiceNames = sortedUniq(this.associatedServiceNames);
             return this.associatedServices;
         });
