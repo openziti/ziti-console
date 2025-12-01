@@ -28,7 +28,7 @@ import {
 import {ProjectableForm} from "../projectable-form.class";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 
-import {isEmpty, isNil, forOwn, cloneDeep, set, unset} from 'lodash';
+import {has, isEmpty, isNil, forOwn, cloneDeep, set, unset} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {IDENTITY_EXTENSION_SERVICE, IdentityFormService} from './identity-form.service';
@@ -121,7 +121,16 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   override entityUpdated() {
     if (this.formData.id) {
       this.formData.badges = [];
-      if (this.formData.hasApiSession || this.formData.hasEdgeRouterConnection) {
+      const hasERConnectionProp = has(this.formData, 'edgeRouterConnectionStatus')
+      if (hasERConnectionProp) {
+        if (this.formData.edgeRouterConnectionStatus === 'online') {
+          this.formData.badges.push({label: 'Online', class: 'online', circle: 'true'});
+        } else if (this.formData.edgeRouterConnectionStatus === 'offline') {
+          this.formData.badges.push({label: 'Offline', class: 'offline', circle: 'false'});
+        } else {
+          this.formData.badges.push({label: 'Connection Status Unknown', class: 'unknown', circle: 'false'});
+        }
+      } else if (this.formData.hasApiSession || this.formData.hasEdgeRouterConnection) {
         this.formData.badges.push({label: 'Online', class: 'online', circle: 'true'});
       } else {
         this.formData.badges.push({label: 'Offline', class: 'offline', circle: 'false'});

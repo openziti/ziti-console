@@ -350,4 +350,11 @@
       }
     }
   }
+
+  &.unknown {
+    background-color: var(--highlightedOpaque);
+    .circle {
+      background-color: var(--highlighted);
+    }
+  }
 }
