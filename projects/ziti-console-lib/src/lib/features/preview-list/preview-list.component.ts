@@ -33,8 +33,10 @@ export class PreviewListComponent {
   @Input() allowRemove = false
   @Input() tooltip = '';
   @Input() showfilter = true;
+  @Input() localFilter = true;
   @Output() itemSelected = new EventEmitter<string>();
   @Output() itemRemoved = new EventEmitter<string>();
+  @Output() filterChanged = new EventEmitter<string>();
   public previewItems = [];
   private hideOption = 'asdf';
   filterFor = '';
@@ -62,6 +64,10 @@ export class PreviewListComponent {
   }
 
   onKeydownEvent() {
+    if (!this.localFilter) {
+      this.filterChanged.emit(this.filterFor);
+      return;
+    }
     this.previewItems = [];
     for (let i = 0; i < this.allNames.length; i++) {
       if (!isEmpty(this.allNames)) {

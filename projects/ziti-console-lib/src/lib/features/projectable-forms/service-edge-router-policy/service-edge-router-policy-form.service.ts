@@ -93,6 +93,7 @@ export class ServiceEdgeRouterPolicyFormService {
             this.associatedEdgeRouterNames = [...this.associatedEdgeRouterNames, ...namedAttributes];
             this.associatedEdgeRouterNames = sortBy(this.associatedEdgeRouterNames);
             this.associatedEdgeRouterNames = sortedUniq(this.associatedEdgeRouterNames);
+            this.associatedEdgeRouterNames = this.associatedEdgeRouterNames.filter(item => item !== undefined);
         });
     }
 
@@ -113,6 +114,7 @@ export class ServiceEdgeRouterPolicyFormService {
             this.associatedServiceNames = [...this.associatedServiceNames, ...namedAttributes];
             this.associatedServiceNames = sortBy(this.associatedServiceNames);
             this.associatedServiceNames = sortedUniq(this.associatedServiceNames);
+            this.associatedServiceNames = this.associatedServiceNames.filter(item => item !== undefined);
         });
     }
 

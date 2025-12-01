@@ -108,6 +108,9 @@
     &.preview-placeholder {
         font-style: italic;
     }
+    &.no-items-preview {
+        font-weight: 400;
+    }
 }
 
 .preview-item-icon {
@@ -117,6 +120,20 @@
 
 .preview-more-results {
     margin-top: 0.3125rem;
+
+    .preview-name {
+        font-weight: 600;
+        border-top-width: 1px;
+        text-transform: uppercase;
+        font-size: .825rem;
+        font-style: italic;
+
+        &:after {
+            content: "\e939";
+            font-family: icomoon !important;
+            font-style: normal;
+        }
+    }
 }
 
 .spinner-container {

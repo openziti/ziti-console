@@ -15,7 +15,7 @@
 */
 
 import {Injectable, Inject, InjectionToken} from "@angular/core";
-import {isEmpty, isString, keys, some, defer, cloneDeep, filter, forEach, isNil, isBoolean, set} from 'lodash';
+import {isEmpty, isString, keys, map, some, defer, cloneDeep, filter, forEach, isNil, isBoolean, set, debounce} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
@@ -84,10 +84,12 @@ export class ServiceFormService {
     associatedTerminatorNames: any = [];
     associatedTerminatorsMap: any = {};
     associatedTerminatorsTotal = 0;
+    associatedTerminatorsFilter = '';
     associatedServicePolicies: any = [];
     associatedServicePolicyNames: any = [];
     associatedServicePoliciesMap: any = {};
     associatedServicePoliciesTotal = 0;
+    associatedServicePoliciesFilter = '';
     associatedConfigsLoading = false;
     associatedServicePoliciesLoading = false;
     associatedTerminatorsLoading = false;
@@ -112,6 +114,9 @@ export class ServiceFormService {
     subscription: Subscription = new Subscription();
 
     configEditor: ConfigEditorComponent;
+    getAssociatedServicePoliciesDebounced = debounce(this.getAssociatedServicePolicies.bind(this), 300);
+    getAssociatedTerminatorsDebounced = debounce(this.getAssociatedTerminators.bind(this), 300);
+
     constructor(
         @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
         @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
@@ -175,11 +180,24 @@ export class ServiceFormService {
         })
     }
 
-    getAssociatedServicePolicies() {
+    getAssociatedServicePolicies(nameFilter?) {
         const paging = this.zitiService.DEFAULT_PAGING;
         paging.total = 5;
         this.associatedServicePoliciesLoading = true;
-        this.zitiService.getSubdata('services', this.formData.id, 'service-policies', paging).then((result: any) => {
+        const filters: any[] = [];
+        if (!isEmpty(nameFilter)) {
+            paging.noSearch = false;
+            filters.push({
+                columnId: 'name',
+                value: nameFilter,
+                label: nameFilter,
+                filterName: 'Service Policy Name',
+                type: 'TEXTINPUT',
+                verb: 'icontains'
+            });
+        }
+        this.associatedServicePoliciesFilter = nameFilter;
+        this.zitiService.getSubdata('services', this.formData.id, 'service-policies', paging, undefined, filters).then((result: any) => {
             this.associatedServicePolicies = result.data;
             this.associatedServicePoliciesTotal = result.meta?.pagination.totalCount || 0;
             this.associatedServicePolicyNames = this.associatedServicePolicies.map((policy) => {
@@ -190,8 +208,8 @@ export class ServiceFormService {
             if (this.associatedServicePoliciesTotal > 5) {
                 let roleAttributes = cloneDeep(this.formData.roleAttributes);
 
-                roleAttributes = roleAttributes.map((attribute) => {
-                    return '%23' + attribute;
+                roleAttributes = map(roleAttributes, (attribute) => {
+                    return ('%23' + attribute);
                 });
                 roleAttributes.push('%40' + this.formData.id);
                 let urlParam = '';
@@ -210,7 +228,7 @@ export class ServiceFormService {
                 };
                 localStorage.setItem('search_filters', JSON.stringify([searchFilter]));
                 this.associatedServicePolicies.push({
-                    name: 'show more results...',
+                    name: 'view all results ',
                     href: '/service-policies?serviceRoles=' + urlParam,
                     linkClass: 'preview-more-results',
                     //iconClass: 'icon-open',
@@ -222,12 +240,28 @@ export class ServiceFormService {
         });
     }
 
-    getAssociatedTerminators() {
+    getAssociatedTerminators(nameFilter?) {
         this.associatedTerminatorsLoading = true;
-        this.zitiService.getSubdata('services', this.formData.id, 'terminators').then((result: any) => {
+        this.associatedTerminatorsFilter = nameFilter;
+        const paging = this.zitiService.DEFAULT_PAGING;
+        paging.total = 5;
+        paging.sort = 'createdAt';
+        const filters: any[] = [];
+        if (!isEmpty(nameFilter)) {
+            paging.noSearch = false;
+            filters.push({
+                columnId: 'service.name',
+                value: nameFilter,
+                label: nameFilter,
+                filterName: 'Service Name',
+                type: 'TEXTINPUT',
+                verb: 'icontains'
+            });
+        }
+        this.zitiService.getSubdata('services', this.formData.id, 'terminators', paging, undefined, filters).then((result: any) => {
             this.associatedTerminators = result.data;
             this.associatedTerminatorsTotal = result.meta?.pagination.totalCount || 0;
-            this.associatedTerminatorNames = this.associatedTerminators.map((terminator) => {
+            this.associatedTerminatorNames = map(this.associatedTerminators, (terminator) => {
                 this.associatedTerminatorsMap[terminator.id] = terminator.binding + ':      ' + terminator.address;
                 terminator.name = terminator.router.name + ':       ' + terminator.address;
                 terminator.href = '/terminators/' + terminator.id;
@@ -244,7 +278,7 @@ export class ServiceFormService {
                 };
                 localStorage.setItem('search_filters', JSON.stringify([searchFilter]));
                 this.associatedTerminators.push({
-                    name: 'show more results...',
+                    name: 'view all results ',
                     href: '/terminators?service=' + this.formData.id,
                     linkClass: 'preview-more-results',
                     //iconClass: 'icon-open',
@@ -323,7 +357,7 @@ export class ServiceFormService {
         });
     }
 
-    getAssociatedConfigs() {
+    getAssociatedConfigs(nameFilter?) {
         this.associatedConfigsLoading = true;
         this.zitiService.getSubdata('services', this.formData.id, 'configs').then((result: any) => {
             this.associatedConfigs = result.data;
@@ -562,6 +596,14 @@ export class ServiceFormService {
             this.configErrors['name'] = true;
         }
         return isEmpty(this.configErrors);
+    }
+
+    get showServicePoliciesFilter() {
+        return !isEmpty(this.associatedServicePoliciesFilter) || this.associatedServicePoliciesTotal > 5;
+    }
+
+    get showTerminatorsFilter() {
+        return !isEmpty(this.associatedTerminatorsFilter) || this.associatedTerminatorsTotal > 5;
     }
 
     _apiData = {};

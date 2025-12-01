@@ -2,7 +2,7 @@
     <input *ngIf="showfilter" (keyup)="onKeydownEvent()" [(ngModel)]="filterFor" placeholder="Type to Filter"/>
     <div class="text row">
         <div *ngIf="previewItems.length <= 0" class="listText">
-            <span class="preview-name preview-placeholder">no items to display...</span>
+            <span class="preview-name preview-placeholder no-items-preview">no items to display...</span>
         </div>
         <div (click)="selected(item)" *ngFor="let item of previewItems" [ngClass]="{ clickable: clickable }" class="listText">
             <div *ngIf="allowRemove" class="icon-clear" (click)="remove(item)"></div>

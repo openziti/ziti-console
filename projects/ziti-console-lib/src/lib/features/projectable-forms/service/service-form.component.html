@@ -207,7 +207,7 @@
             <div class="form-group-column two-fifths">
                 <lib-form-field-container
                     [title]="'Associated Entities'"
-                    [label]="'Click for detailed view'"
+                    [label]="'click item to view details'"
                     [helpText]="'List the configs, policies, and terminators that are associated with this service. Click on the entity name to navigate to the entity\'s detailed view.'"
                     [class]="'no-gap'"
                 >
@@ -222,8 +222,8 @@
                         [allNames]="svc.addedConfigs"
                         [allowRemove]="true"
                         [clickable]="true"
-                        [showfilter]="false"
                         [tooltip]="'View Config'"
+                        [showfilter]="false"
                         (itemRemoved)="svc.removeConfig($event)"
                         (itemSelected)="svc.previewConfig($event, router)"
                     ></lib-preview-list>
@@ -234,26 +234,31 @@
                         <span class="form-field-count">{{svc.associatedServicePoliciesTotal}}</span>
                     </div>
                     <lib-preview-list
-                            [isLoading]="svc.associatedServicePoliciesLoading"
-                            [clickable]="true"
-                            (itemSelected)="svc.previewPolicy($event, router)"
-                            [tooltip]="'View Service Policy'"
-                            [allNames]="svc.associatedServicePolicies"
-                            [showfilter]="false"
+                        [isLoading]="svc.associatedServicePoliciesLoading"
+                        [clickable]="true"
+                        (itemSelected)="svc.previewPolicy($event, router)"
+                        [tooltip]="'View Service Policy'"
+                        [allNames]="svc.associatedServicePolicies"
+                        [showfilter]="svc.showServicePoliciesFilter"
+                        [localFilter]="false"
+                        (filterChanged)="svc.getAssociatedServicePoliciesDebounced($event)"
                     ></lib-preview-list>
                     <div class="form-row space-between">
                         <div class="config-title-row">
                             <span class="form-field-title">Terminators</span>
                         </div>
-                        <span class="form-field-count">{{svc.associatedTerminators ? svc.associatedTerminators.length : 0}}</span>
+                        <span class="form-field-count">{{svc.associatedTerminatorsTotal}}</span>
                     </div>
                     <lib-preview-list
-                            [isLoading]="svc.associatedTerminatorsLoading"
-                            [clickable]="true"
-                            (itemSelected)="svc.previewTerminator($event, router)"
-                            [tooltip]="'View Terminator'"
-                            [allNames]="svc.associatedTerminators"
-                            [showfilter]="false"
+                        [isLoading]="svc.associatedTerminatorsLoading"
+                        [clickable]="true"
+                        (itemSelected)="svc.previewTerminator($event, router)"
+                        [tooltip]="'View Terminator'"
+                        [allNames]="svc.associatedTerminators"
+                        [showfilter]="false"
+                        [showfilter]="svc.showTerminatorsFilter"
+                        [localFilter]="false"
+                        (filterChanged)="svc.getAssociatedTerminatorsDebounced($event)"
                     ></lib-preview-list>
                 </lib-form-field-container>
 <!--                <lib-form-field-container
