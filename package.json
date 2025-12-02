@@ -128,8 +128,5 @@
     "onchange": "^7.1.0",
     "shx": "^0.3.4",
     "typescript": "~5.0.2"
-  },
-  "overrides": {
-    "form-data": "3.0.4"
   }
 }
