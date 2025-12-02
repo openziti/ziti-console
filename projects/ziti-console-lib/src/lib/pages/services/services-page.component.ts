@@ -43,8 +43,6 @@ import {SERVICE_EXTENSION_SERVICE} from "../../features/projectable-forms/servic
 export class ServicesPageComponent extends ListPageComponent implements OnInit, OnDestroy  {
 
   serviceType = '';
-  serviceRoleAttributes: any[] = [];
-  identityRoleAttributes: any[] = [];
   formDataChanged = false;
   isLoading: boolean;
   tabs: { url: string; label: string }[];
@@ -70,8 +68,8 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
 
   override ngOnInit() {
     super.ngOnInit();
-    this.getServiceRoleAttributes();
     this.tabs = this.tabNames.getTabs('services');
+    this.svc.getServiceRoleAttributes();
   }
 
   headerActionClicked(action: string) {
@@ -127,15 +125,6 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
     this.openBulkDelete([item], 'service');
   }
 
-  getServiceRoleAttributes() {
-    this.svc.getServiceRoleAttributes().then((result: any) => {
-      this.serviceRoleAttributes = result.data;
-    });
-    this.svc.getIdentityRoleAttributes().then((result: any) => {
-      this.identityRoleAttributes = result.data;
-    });
-  }
-
   dataChanged(event) {
     this.formDataChanged = event;
   }
@@ -153,7 +142,6 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
     this.svc.sideModalOpen = false;
     if(event?.refresh) {
       this.refreshData();
-      this.getServiceRoleAttributes();
     }
   }
 

@@ -61,7 +61,8 @@ export class ServicesPageService extends ListPageServiceClass {
         os: '',
         createdAt: '',
     };
-
+    roleAttributes: any[] = [];
+    selectedRoleAttributes: any[] = [];
     override menuItems = [
         {name: 'Edit', action: 'update'},
         {name: 'Delete', action: 'delete'},
@@ -101,7 +102,33 @@ export class ServicesPageService extends ListPageServiceClass {
             });
             return roles;
         }
-
+        const self = this;
+        const serviceRolesHeaderComponentParams = {
+            filterType: 'ATTRIBUTE',
+            enableSorting: true,
+            appendAttributeHash: false,
+            getRoleAttributes: () => {
+                return self.roleAttributes;
+            },
+            getNamedAttributes: () => {
+                return [];
+            },
+            getSelectedRoleAttributes: () => {
+                return self.selectedRoleAttributes;
+            },
+            getSelectedNamedAttributes: () => {
+                return [];
+            },
+            setSelectedRoleAttributes: (attributes) => {
+                self.selectedRoleAttributes = attributes;
+            },
+            setSelectedNamedAttributes: (attributes) => {
+                // no-op
+            },
+            getNamedAttributesMap: () => {
+                return {};
+            }
+        };
         return [
             {
                 colId: 'name',
@@ -131,6 +158,7 @@ export class ServicesPageService extends ListPageServiceClass {
                 field: 'roleAttributes',
                 headerName: 'Roles',
                 headerComponent: TableColumnDefaultComponent,
+                headerComponentParams: serviceRolesHeaderComponentParams,
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
                         return;
@@ -194,7 +222,10 @@ export class ServicesPageService extends ListPageServiceClass {
     }
 
     public getServiceRoleAttributes() {
-        return this.zitiService.get('service-role-attributes', {}, []);
+        return this.zitiService.get('service-role-attributes', {}, []).then((result: any) => {
+            this.roleAttributes = result.data;
+            return result;
+        });
     }
 
     public getIdentityNamedAttributes() {
