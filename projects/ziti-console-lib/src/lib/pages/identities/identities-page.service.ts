@@ -68,6 +68,8 @@ export class IdentitiesPageService extends ListPageServiceClass {
         {label: 'ID', path: 'id'},
     ];
 
+    identityRoleAttributes: any[] = [];
+    selectedIdentityRoleAttributes: any[] = [];
     selectedIdentity: any = new Identity();
     columnFilters: any = {
         name: '',
@@ -104,6 +106,19 @@ export class IdentitiesPageService extends ListPageServiceClass {
         protected override router: Router
     ) {
         super(settings, filterService, csvDownloadService, extService, router);
+        this.filterService.filtersChanged.subscribe(filters => {
+            let identityFilter;
+            filters.forEach((filter) => {
+                switch (filter.columnId) {
+                    case 'identityRoles':
+                        identityFilter = true;
+                        break;
+                }
+            });
+            if (!identityFilter) {
+                this.selectedIdentityRoleAttributes = [];
+            }
+        });
     }
 
     validate = (formData): Promise<CallbackResults> => {
@@ -112,7 +127,33 @@ export class IdentitiesPageService extends ListPageServiceClass {
 
     initTableColumns(): any {
         this.initMenuActions();
-
+        const self = this;
+        const identityRolesHeaderComponentParams = {
+            filterType: 'ATTRIBUTE',
+            enableSorting: true,
+            appendAttributeHash: false,
+            getRoleAttributes: () => {
+                return self.identityRoleAttributes;
+            },
+            getNamedAttributes: () => {
+                return [];
+            },
+            getSelectedRoleAttributes: () => {
+                return self.selectedIdentityRoleAttributes;
+            },
+            getSelectedNamedAttributes: () => {
+                return [];
+            },
+            setSelectedRoleAttributes: (attributes) => {
+                self.selectedIdentityRoleAttributes = attributes;
+            },
+            setSelectedNamedAttributes: (attributes) => {
+                // no-op
+            },
+            getNamedAttributesMap: () => {
+                return {};
+            }
+        };
         const nameRenderer = (row) => {
             return `<a href="./identities/${row?.data?.id}">
                         <div class="col cell-name-renderer" data-id="${row?.data?.id}">
@@ -215,6 +256,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 field: 'roleAttributes',
                 headerName: 'Roles',
                 headerComponent: TableColumnDefaultComponent,
+                headerComponentParams: identityRolesHeaderComponentParams,
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
                         return;
@@ -309,6 +351,13 @@ export class IdentitiesPageService extends ListPageServiceClass {
             tableColumns = this.extService.processTableColumns(tableColumns);
         }
         return tableColumns;
+    }
+
+    public getIdentityRoleAttributes() {
+        return this.zitiService.get('identity-role-attributes', {}, []).then((result) => {
+            this.identityRoleAttributes = result.data;
+            return result;
+        });
     }
 
     getData(filters?: FilterObj[], sort?: any, page?: any): Promise<any> {

@@ -105,6 +105,7 @@ export class DataTableComponent implements OnChanges, OnInit {
   showFilterOptions;
   showDateTimePicker;
   showTagSelector;
+  appendAttributeHash = true;
   attributesColumn = '';
   dateTimeColumn = '';
   dateTimeFilterLabel = '';
@@ -355,6 +356,7 @@ export class DataTableComponent implements OnChanges, OnInit {
         this.calendar.toggle();
       }, 100);
     } else if (type === 'ATTRIBUTE') {
+      this.appendAttributeHash = headerComponentParams.appendAttributeHash !== false;
       this.attributesColumn = columnId;
       this.roleAttributes = headerComponentParams?.getRoleAttributes();
       this.namedAttributes = headerComponentParams?.getNamedAttributes();
@@ -445,8 +447,8 @@ export class DataTableComponent implements OnChanges, OnInit {
           label += ', ';
           value += ', ';
         }
-        label += '#' + attr;
-        value += '%23' + attr;
+        label += ((this.appendAttributeHash ? '#' : '') + attr);
+        value += ((this.appendAttributeHash ? '%23' : '') + attr);
       });
     } else {
       this.selectedRoleAttributes = [];

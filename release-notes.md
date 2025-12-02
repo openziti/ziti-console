@@ -1,3 +1,16 @@
+# app-ziti-console-v3.12.8
+# ziti-console-lib-v0.12.10
+## Feature/Improvements
+* [Issue #722](https://github.com/openziti/ziti-console/issues/716) - Update Identity details page to use 'edgeRouterConnectionStatus" property
+* [Issue #731](https://github.com/openziti/ziti-console/issues/731) - Enable filtering by role attributes on Identities and Services list pages
+* [Issue #728](https://github.com/openziti/ziti-console/issues/728) - Allow for server side filtering/searching beyond the first 5 associated service policies
+## Bug Fixes
+* [Issue #723](https://github.com/openziti/ziti-console/issues/723) - Issue displaying associated services when adding both role attributes and named attributes to a service policy
+* [Issue #726](https://github.com/openziti/ziti-console/issues/726) - Only show the "convert to advanced" action for existing simple services
+* [Issue #727](https://github.com/openziti/ziti-console/issues/727) - Identity/Service details pages only shows the first 5 associated entities
+* [Issue #729](https://github.com/openziti/ziti-console/issues/729) - Need to warn users when trying to delete "system" flagged entities
+
+
 # app-ziti-console-v3.12.7
 # ziti-console-lib-v0.12.9
 ## Feature/Improvements

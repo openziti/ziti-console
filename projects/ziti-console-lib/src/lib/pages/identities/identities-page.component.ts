@@ -39,7 +39,6 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   title = 'Identities'
   tabs: { url: string, label: string }[] ;
   isLoading = false;
-  identityRoleAttributes: any[] = [];
   formDataChanged = false;
 
   constructor(
@@ -71,7 +70,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       })
     );
     this.zacWrapperService.resetZacEvents();
-    this.getIdentityRoleAttributes();
+    this.svc.getIdentityRoleAttributes();
     super.ngOnInit();
   }
 
@@ -98,7 +97,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
     this.svc.sideModalOpen = false;
     if(event?.refresh) {
       this.refreshData();
-      this.getIdentityRoleAttributes();
+      this.svc.getIdentityRoleAttributes();
     }
   }
 
@@ -188,12 +187,6 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
 
   deleteItem(item: any) {
     this.openBulkDelete([item], 'identity');
-  }
-
-  getIdentityRoleAttributes() {
-    this.svc.getIdentitiesRoleAttributes().then((result: any) => {
-      this.identityRoleAttributes = result.data;
-    });
   }
 
   openIdentityVisualizer(identity) {
