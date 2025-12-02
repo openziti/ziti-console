@@ -125,6 +125,7 @@ export class ServicePolicyFormService {
             this.associatedServiceNames = [...this.associatedServiceNames, ...namedAttributes];
             this.associatedServiceNames = sortBy(this.associatedServiceNames);
             this.associatedServiceNames = sortedUniq(this.associatedServiceNames);
+            this.associatedIdentityNames = this.associatedServiceNames.filter(item => item !== undefined);
             return this.associatedServices;
         });
     }
@@ -146,6 +147,7 @@ export class ServicePolicyFormService {
             this.associatedIdentityNames = [...this.associatedIdentityNames, ...namedAttributes];
             this.associatedIdentityNames = sortBy(this.associatedIdentityNames);
             this.associatedIdentityNames = sortedUniq(this.associatedIdentityNames);
+            this.associatedIdentityNames = this.associatedIdentityNames.filter(item => item !== undefined);
         });
     }
 

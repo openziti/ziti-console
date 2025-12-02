@@ -129,13 +129,13 @@ export class ZitiControllerDataService extends ZitiDataService {
         );
     }
 
-    getSubdata(entityType: string, id: any, dataType: string, paging?: any, contentType?: any): Promise<any> {
+    getSubdata(entityType: string, id: any, dataType: string, paging?: any, contentType?: any, filters: any[] = []): Promise<any> {
         const apiVersions = this.settingsService.apiVersions || {};
         const prefix = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
 
         let urlFilter = '';
         if (!isEmpty(paging)) {
-            urlFilter = this.getUrlFilter(paging, []);
+            urlFilter = this.getUrlFilter(paging, filters);
         }
         const url = this.settingsService.settings.selectedEdgeController + `${prefix}/${entityType}/${id}/${dataType}/${urlFilter}`;
 

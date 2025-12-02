@@ -111,6 +111,7 @@ export class EdgeRouterPolicyFormService {
             this.associatedEdgeRouterNames = [...this.associatedEdgeRouterNames, ...namedAttributes];
             this.associatedEdgeRouterNames = sortBy(this.associatedEdgeRouterNames);
             this.associatedEdgeRouterNames = sortedUniq(this.associatedEdgeRouterNames);
+            this.associatedEdgeRouterNames = this.associatedEdgeRouterNames.filter(item => item !== undefined);
         });
     }
 
@@ -131,6 +132,7 @@ export class EdgeRouterPolicyFormService {
             this.associatedIdentityNames = [...this.associatedIdentityNames, ...namedAttributes];
             this.associatedIdentityNames = sortBy(this.associatedIdentityNames);
             this.associatedIdentityNames = sortedUniq(this.associatedIdentityNames);
+            this.associatedIdentityNames = this.associatedIdentityNames.filter(item => item !== undefined);
         });
     }
 
