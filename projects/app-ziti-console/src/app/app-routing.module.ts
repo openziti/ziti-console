@@ -57,6 +57,8 @@ import {
   APISessionsPageComponent,
   SessionFormComponent,
   APISessionFormComponent,
+  ImportPageComponent,
+  ExportPageComponent,
   CallbackComponent
 } from "ziti-console-lib";
 import {environment} from "./environments/environment";
@@ -85,6 +87,18 @@ const routes: Routes = [
   {
     path: 'dashboard',
     component: ZacWrapperComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'import',
+    component: ImportPageComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'export',
+    component: ExportPageComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
   },

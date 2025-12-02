@@ -43,6 +43,7 @@ import {SideBannerComponent} from './features/sidebars/side-banner/side-banner.c
 import {PasswordInputComponent} from './features/dynamic-widgets/password/password-input.component';
 import {ConfigurationsPageComponent} from './pages/configurations/configurations-page.component';
 import {ListPageHeaderComponent} from './features/list-page-features/list-page-header/list-page-header.component';
+import {RegularPageHeaderComponent} from './features/regular-page-features/regular-page-header/regular-page-header.component';
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatRadioModule} from '@angular/material/radio';
 import {TerminatorFormComponent} from "./features/projectable-forms/terminator/terminator-form.component";
@@ -57,6 +58,8 @@ import {TableColumnFilterComponent} from "./features/data-table/column-headers/t
 import {HiddenColumnsBarComponent} from "./features/data-table/table-hidden-columns-bar/hidden-columns-bar.component";
 import {FilterBarComponent} from "./features/data-table/table-filter-bar/filter-bar.component";
 import {AgGridModule} from "ag-grid-angular";
+import {ImportPageComponent} from "./pages/import/import-page.component";
+import {ExportPageComponent} from "./pages/export/export-page.component";
 import {IdentitiesPageComponent} from "./pages/identities/identities-page.component";
 import {EdgeRoutersPageComponent} from "./pages/edge-routers/edge-routers-page.component";
 import {TransitRoutersPageComponent} from "./pages/transit-routers/transit-routers-page.component";
@@ -160,8 +163,11 @@ export function playerFactory() {
         ConfigTypesPageComponent,
         ConfigTypeFormComponent,
         ListPageHeaderComponent,
+        RegularPageHeaderComponent,
         FilterBarComponent,
         ListPageFormComponent,
+        ImportPageComponent,
+        ExportPageComponent,
         IdentitiesPageComponent,
         EdgeRoutersPageComponent,
         TransitRoutersPageComponent,
@@ -278,6 +284,8 @@ export function playerFactory() {
         EdgeRouterFormComponent,
         TransitRouterFormComponent,
         IdentitiesPageComponent,
+        ImportPageComponent,
+        ExportPageComponent,
         EdgeRoutersPageComponent,
         TransitRoutersPageComponent,
         ServicesPageComponent,
