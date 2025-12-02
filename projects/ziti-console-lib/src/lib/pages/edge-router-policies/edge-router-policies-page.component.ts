@@ -80,7 +80,12 @@ export class EdgeRouterPoliciesPageComponent extends ListPageComponent implement
     switch(event?.action) {
       case 'toggleAll':
       case 'toggleItem':
-        this.itemToggled(event.item)
+        this.itemToggled(event.item);
+        this.rowData.forEach((item) => {
+          if (item.isSystem) {
+            item.selected = false;
+          }
+        });
         break;
       case 'update':
         this.svc.serviceType = 'advanced';

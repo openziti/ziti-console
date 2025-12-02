@@ -32,6 +32,7 @@ import {NavigationEnd, Router} from "@angular/router";
 import {
     TableColumnDefaultComponent
 } from "../features/data-table/column-headers/table-column-default/table-column-default.component";
+import {GrowlerModel} from "../features/messaging/growler.model";
 
 export abstract class ListPageServiceClass {
 
@@ -249,7 +250,10 @@ export abstract class ListPageServiceClass {
             const prom = this.dataService.delete(this.resourceType, id);
             promises.push(prom);
         });
-        return Promise.all(promises);
+        return Promise.all(promises).catch((response) => {
+            const message = this.dataService.getErrorMessage(response);
+            throw message;
+        });
     }
 
     sort(sortBy, ordering= 'asc') {

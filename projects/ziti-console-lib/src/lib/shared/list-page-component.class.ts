@@ -196,6 +196,14 @@ export abstract class ListPageComponent {
             if (result?.confirmed) {
                 this.svc.removeItems(selectedIds).then(() => {
                     this.refreshData(this.svc.currentSort);
+                }).catch((errorMessage) => {
+                    const growlerData = new GrowlerModel(
+                        'error',
+                        'Error',
+                        `Delete Failed`,
+                        `Failed to delete item(s): ${errorMessage}`,
+                    );
+                    this.growlerSvc.show(growlerData);
                 });
             }
         });

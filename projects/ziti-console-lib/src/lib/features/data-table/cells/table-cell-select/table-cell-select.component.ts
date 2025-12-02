@@ -10,7 +10,7 @@ import _ from 'lodash';
 })
 export class TableCellSelectComponent implements ICellRendererAngularComp {
   cellParams;
-  item = {
+  item: any = {
     id: '',
     name: '',
     selected: false,
@@ -24,7 +24,8 @@ export class TableCellSelectComponent implements ICellRendererAngularComp {
     this.disableToggle =
       _.get(this.item, 'typeId') === 'Router' ||
       _.get(this.item, 'exclusiveTo') ||
-      _.get(this.item, 'reserved') === true;
+      _.get(this.item, 'reserved') === true ||
+      _.get(this.item, 'isSystem') === true;
   }
 
   refresh(params: ICellRendererParams): boolean {
@@ -33,7 +34,8 @@ export class TableCellSelectComponent implements ICellRendererAngularComp {
     this.disableToggle =
       _.get(this.item, 'typeId') === 'Router' ||
       _.get(this.item, 'exclusiveTo') ||
-      _.get(this.item, 'reserved') === true;
+      _.get(this.item, 'reserved') === true ||
+      _.get(this.item, 'isSystem') === true;
     return true;
   }
 
@@ -42,5 +44,15 @@ export class TableCellSelectComponent implements ICellRendererAngularComp {
       return;
     }
     this.cellParams.toggleItem(item, this.cellParams);
+  }
+
+  get tooltip() {
+    let tooltip = '';
+    if (this.item?.isSystem) {
+      tooltip = 'Deleting "system" entities is not allowed';
+    } else if (this.item?.typeId === 'Router') {
+      tooltip = 'Unable to delete "Router" Identities. Please delete the associated Router instead.';
+    }
+    return tooltip;
   }
 }
