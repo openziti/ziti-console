@@ -246,7 +246,7 @@ export class ZitiControllerDataService extends ZitiDataService {
         return firstValueFrom(this.httpClient.delete(serviceUrl, {}).pipe(
                 catchError((err: any) => {
                     const error = "Server Not Accessible";
-                    if (err.code != "ECONNREFUSED") throw({error: err.code});
+                    if (err.code != "ECONNREFUSED") throw err;
                     throw({error: error});
                 }),
                 map((results: any) => {

@@ -5,12 +5,15 @@
     border: .1rem var(--stroke) solid;
     border-radius: 0.9375rem;
     cursor: pointer;
-    transition: background-color 0.5s;
     position: absolute;
     top: 0.8125rem;
     left: 0.625rem;
     background-color: var(--navigation);
-    transition: var(--transition);
+
+    &:hover {
+      border: 0.125rem var(--placeholder) solid;
+      background-color: var(--background);
+    }
 
     &.selected {
       background-color: var(--green);
@@ -21,20 +24,13 @@
     }
 
     &.disabled {
-      opacity: 0.6;
+      opacity: 0.3;
       cursor: not-allowed;
       transform: initial !important;
 
       &:hover {
-        width: 1.5625rem;
-        height: 1.5625rem;
-        border: 0.125rem var(--offWhite) solid;
-        border-radius: 0.9375rem;
-        transition: background-color 0.5s;
-        position: absolute;
-        top: 0.8125rem;
-        left: 1.0625rem;
-        background-color: var(--background);
+        border: .1rem var(--stroke) solid;
+        background-color: var(--navigation);
       }
     }
   }
