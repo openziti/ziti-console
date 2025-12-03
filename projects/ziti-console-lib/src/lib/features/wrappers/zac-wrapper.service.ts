@@ -65,7 +65,6 @@ export const COMPONENTS: any = {
     tabIdentities: `<div class="tabs">
                       <div class="tab" data-go="/identities" data-i18n="Identities"></div>
                       <div class="tab" data-go="/recipes" data-i18n="Recipes"></div>
-                      <div class="tab" data-go="/terminators" data-i18n="Terminators"></div>
                       <div class="tab" data-go="/posture-checks" data-i18n="PostureChecks"></div>
                   </div>`,
     tabPolicies: `<div class="tabs">
@@ -89,6 +88,7 @@ export const COMPONENTS: any = {
     tabServices: `<div class="tabs">
                   <div class="tab" data-go="/services" data-i18n="Services"></div>
                   <div class="tab" data-go="/configs" data-i18n="Configurations"></div>
+                  <div class="tab" data-go="/terminators" data-i18n="Terminators"></div>
                   <div class="tab" data-go="/config-types" data-i18n="ConfigTypes"></div>
               </div>`,
     tabSessions: `<div class="tabs">
