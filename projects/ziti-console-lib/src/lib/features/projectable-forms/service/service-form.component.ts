@@ -88,9 +88,9 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   token: any;
   strategies = [
     {id: 'smartrouting', label: 'Smart Routing'},
+    {id: 'sticky', label: 'Sticky'},
     {id: 'weighted', label: 'Weighted'},
     {id: 'random', label: 'Random'},
-    {id: 'ha', label: 'High Availability'},
   ];
   bindingTypes = [
     {id: 'udp', name: 'UDP'},
