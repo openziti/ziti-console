@@ -101,6 +101,7 @@
                 page.map.setView(new L.LatLng(41.850033, -87.6500523), 4);
 
                 page.idsObject = new Data("identities");
+                page.ersObject = new Data("edge-routers");
 
                 page.services = new Selector("Services","services","services");
                 page.identities = new Selector("Identities","identities","identities");
@@ -122,11 +123,14 @@
                 page.events();
 
                 page.idsObject.init(true);
+                page.ersObject.init(true);
                 summary.get();
                 page.showVisualizer();
             }, 
             events: function() {
+                page.markers = [];
                 context.addListener(page.idsObject.name, page.idsLoaded);
+                context.addListener(page.ersObject.name, page.ersLoaded);
                 context.addListener(summary.name, page.getLoaded);
             },
             getLoaded: function(e) {
@@ -138,27 +142,66 @@
                 $("#TotalServicePolicies").html(page.data.servicePolicies);
                 $("#TotalSessions").html(page.data.sessions);
             },
+            ersLoaded: function (e) {
+                var erMarker = L.icon({
+                    iconUrl:       '/assets/svgs/router-marker.svg',
+                    iconRetinaUrl: '/assets/svgs/router-marker.svg',
+                    shadowUrl:     '/assets/scripts/components/leaflet/images/marker-shadow.png',
+                    iconSize:    [40, 70],
+                    iconAnchor:  [0, 0],
+                    popupAnchor: [1, -34],
+                    tooltipAnchor: [16, -28],
+                    shadowSize:  [67, 67]
+                });
+                for (var i=0; i<page.ersObject.data.length; i++) {
+                    if (page.ersObject.data[i].tags&&page.ersObject.data[i].tags.geolocation&&page.ersObject.data[i].tags.geolocation.split(',').length==2) {
+                        var items = page.ersObject.data[i].tags.geolocation.split(',');
+                        if (!isNaN(items[0])&&!isNaN(items[1])) {
+                            var marker = L.marker([items[0], items[1]], {icon: erMarker});
+                            marker.addTo(page.map).bindPopup(page.ersObject.data[i].name);
+                            page.markers.push(marker);
+                        }
+                    }
+                }
+                page.ersInit = true;
+                page.initMap();
+            },
             idsLoaded: function(e) {
-                var markers = [];
+                var identMarker = L.icon({
+                    iconUrl: '/assets/svgs/identity-marker.svg',
+                    iconRetinaUrl: '/assets/svgs/identity-marker.svg',
+                    shadowUrl:     '/assets/scripts/components/leaflet/images/marker-shadow.png',
+                    iconSize:    [40, 70],
+                    iconAnchor:  [0, 0],
+                    popupAnchor: [1, -34],
+                    tooltipAnchor: [16, -28],
+                    shadowSize:  [67, 67]
+                });
                 for (var i=0; i<page.idsObject.data.length; i++) {
                     if (page.idsObject.data[i].tags&&page.idsObject.data[i].tags.geolocation&&page.idsObject.data[i].tags.geolocation.split(',').length==2) {
                         var items = page.idsObject.data[i].tags.geolocation.split(',');
                         if (!isNaN(items[0])&&!isNaN(items[1])) {
-                            var marker = L.marker([items[0], items[1]]);
+                            var marker = L.marker([items[0], items[1]], {icon: identMarker});
                             marker.addTo(page.map).bindPopup(page.idsObject.data[i].name);
-                            markers.push(marker);
+                            page.markers.push(marker);
                         }
                     }
                 }
-                if (markers.length>0) {
-                    var group = new L.featureGroup(markers);
+                page.idsInit = true;
+                page.initMap();
+            },
+            initMap: function () {
+                if (!page.ersInit || !page.idsInit) {
+                    return;
+                }
+                if (page.markers.length>0) {
+                    var group = new L.featureGroup(page.markers);
                     tempGroup = group;
-                    console.log(group);
                     page.map.fitBounds(group.getBounds());
                 }
                 setTimeout(function() {
                     page.map.invalidateSize();
-                }, 1000);   
+                }, 1000);
             },
             reset: function(e) {
                 $("#Host").val("localhost");
