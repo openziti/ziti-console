@@ -119,6 +119,19 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   }
 
   override entityUpdated() {
+    this.updateBadges();
+    this.initEnrollmentType();
+    this.getIdentityRoleAttributes();
+    this.getAssociatedServices();
+    this.getAssociatedServicePolicies();
+    this.getCertificateAuthorities();
+    this.loadTags();
+    unset(this.formData, '_links');
+    this.initData = cloneDeep(this.formData);
+    this.extService.updateFormData(this.formData);
+  }
+
+  updateBadges() {
     if (this.formData.id) {
       this.formData.badges = [];
       const hasERConnectionProp = has(this.formData, 'edgeRouterConnectionStatus')
@@ -144,15 +157,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       this.jwt = this.identitiesService.getJWT(this.formData);
       this.enrollmentExpiration = this.identitiesService.getEnrollmentExpiration(this.formData);
     }
-    this.initEnrollmentType();
-    this.getIdentityRoleAttributes();
-    this.getAssociatedServices();
-    this.getAssociatedServicePolicies();
-    this.getCertificateAuthorities();
-    this.loadTags();
-    unset(this.formData, '_links');
-    this.initData = cloneDeep(this.formData);
-    this.extService.updateFormData(this.formData);
   }
 
   refreshIdentity() {
@@ -161,6 +165,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       this.initData = cloneDeep(this.formData);
       this.enrollmentExpiration = this.identitiesService.getEnrollmentExpiration(this.formData);
       this.jwt = this.identitiesService.getJWT(this.formData);
+      this.updateBadges();
       this.extService.updateFormData(this.formData);
     })
   }
@@ -419,6 +424,9 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     });
     this.dialogRef.afterClosed().subscribe({
       next: (result) => {
+        if (!result?.confirmed) {
+          return;
+        }
         this.zitiService.post(`/identities/${this.formData.id}/disable`, {durationMinutes: minutesDifference}).then((result) => {
           const growlerData = new GrowlerModel(
               'success',
@@ -459,6 +467,9 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     });
     this.dialogRef.afterClosed().subscribe({
       next: (result) => {
+        if (!result?.confirmed) {
+          return;
+        }
         this.zitiService.post(`/identities/${this.formData.id}/enable`, {durationMinutes: 0}).then((result) => {
           const growlerData = new GrowlerModel(
               'success',
