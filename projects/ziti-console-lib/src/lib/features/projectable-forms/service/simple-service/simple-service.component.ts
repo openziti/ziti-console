@@ -218,6 +218,11 @@ export class SimpleServiceComponent extends ProjectableForm {
         const policiesPromise = this.getAssocaitedPolicies();
         Promise.all([configsPromise, policiesPromise]).finally(() => {
           this.dataInit = true;
+          this.initServiceApiData = cloneDeep(this.serviceApiData);
+          this.initInterceptConfigApiData = cloneDeep(this.interceptConfigApiData);
+          this.initHostConfigApiData = cloneDeep(this.hostConfigApiData);
+          this.initDialPolicyApiData = cloneDeep(this.dialPolicyApiData);
+          this.initBindPolicyApiData = cloneDeep(this.bindPolicyApiData);
         });
       }
     });
