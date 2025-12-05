@@ -126,7 +126,7 @@
                 page.ersObject.init(true);
                 summary.get();
                 page.showVisualizer();
-            }, 
+            },
             events: function() {
                 page.markers = [];
                 context.addListener(page.idsObject.name, page.idsLoaded);
@@ -148,8 +148,8 @@
                     iconRetinaUrl: '/assets/svgs/router-marker.svg',
                     shadowUrl:     '/assets/scripts/components/leaflet/images/marker-shadow.png',
                     iconSize:    [40, 70],
-                    iconAnchor:  [0, 0],
-                    popupAnchor: [1, -34],
+                    iconAnchor:  [20, 60],
+                    popupAnchor: [20, 5],
                     tooltipAnchor: [16, -28],
                     shadowSize:  [67, 67]
                 });
@@ -172,8 +172,8 @@
                     iconRetinaUrl: '/assets/svgs/identity-marker.svg',
                     shadowUrl:     '/assets/scripts/components/leaflet/images/marker-shadow.png',
                     iconSize:    [40, 70],
-                    iconAnchor:  [0, 0],
-                    popupAnchor: [1, -34],
+                    iconAnchor:  [20, 60],
+                    popupAnchor: [20, 5],
                     tooltipAnchor: [16, -28],
                     shadowSize:  [67, 67]
                 });
