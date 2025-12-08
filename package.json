@@ -1,6 +1,6 @@
 {
   "name": "io.netfoundry.zac",
-  "version": "3.12.8",
+  "version": "3.12.9",
   "description": "Ziti Administration Console",
   "main": "server.js",
   "type": "module",
