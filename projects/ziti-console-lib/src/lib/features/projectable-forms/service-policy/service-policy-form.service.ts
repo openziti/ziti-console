@@ -125,7 +125,7 @@ export class ServicePolicyFormService {
             this.associatedServiceNames = [...this.associatedServiceNames, ...namedAttributes];
             this.associatedServiceNames = sortBy(this.associatedServiceNames);
             this.associatedServiceNames = sortedUniq(this.associatedServiceNames);
-            this.associatedIdentityNames = this.associatedServiceNames.filter(item => item !== undefined);
+            this.associatedServiceNames = this.associatedServiceNames.filter(item => item !== undefined);
             return this.associatedServices;
         });
     }
