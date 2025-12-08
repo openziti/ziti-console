@@ -86,7 +86,7 @@ export class AuthPoliciesPageService extends ListPageServiceClass {
                 cellRenderer: TableCellNameComponent,
                 cellRendererParams: { pathRoot: this.basePath, cellNamePreCheck: (data) => {
                     this.checkDefaultAuthPolicy(data).then((result) => {
-                        if (!result) {
+                        if (!result?.confirmed) {
                             return;
                         }
                         this.openEditForm(data?.id);
@@ -97,7 +97,7 @@ export class AuthPoliciesPageService extends ListPageServiceClass {
                         return;
                     }
                     this.checkDefaultAuthPolicy(data?.data).then((result: any) => {
-                        if (!result) {
+                        if (!result?.confirmed) {
                             return;
                         }
                         this.openEditForm(data?.data?.id);
