@@ -1,3 +1,16 @@
+# app-ziti-console-v3.12.9
+# ziti-console-lib-v0.12.11
+## Feature/Improvements
+* [Issue #737](https://github.com/openziti/ziti-console/issues/737) - moves terminator tab to services tab group
+* [Issue #719](https://github.com/openziti/ziti-console/issues/719) - Support for placing edge routers on dashboard map
+* [Issue #741](https://github.com/openziti/ziti-console/issues/741) - Updated terminator strategy on service create/edit form
+## Bug Fixes
+* [Issue #717](https://github.com/openziti/ziti-console/issues/717) - Update inital data model when editing a simple service
+* [Issue #720](https://github.com/openziti/ziti-console/issues/720) - Prevent enable/disable action when canceling out of confirmation modal
+* [Issue #733](https://github.com/openziti/ziti-console/issues/733) - Remove unused dependency "z-schema" from package.json
+* [Issue #735](https://github.com/openziti/ziti-console/issues/735) - Update form-data dependency to use patched version 3.0.4
+
+
 # app-ziti-console-v3.12.8
 # ziti-console-lib-v0.12.10
 ## Feature/Improvements
