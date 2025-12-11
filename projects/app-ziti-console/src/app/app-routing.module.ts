@@ -153,12 +153,14 @@ const routes: Routes = [
     path: 'services/simple',
     component: SimpleServiceComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
+    canDeactivate: [DeactivateGuardService],
     runGuardsAndResolvers: 'always',
   },
   {
     path: 'services/simple/:id',
     component: SimpleServiceComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
+    canDeactivate: [DeactivateGuardService],
     runGuardsAndResolvers: 'always',
   },
   {
@@ -176,6 +178,7 @@ const routes: Routes = [
     path: 'services/advanced/:id',
     component: ServiceFormComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
+    canDeactivate: [DeactivateGuardService],
     runGuardsAndResolvers: 'always',
   },
   {

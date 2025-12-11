@@ -218,14 +218,19 @@ export class SimpleServiceComponent extends ProjectableForm {
         const policiesPromise = this.getAssocaitedPolicies();
         Promise.all([configsPromise, policiesPromise]).finally(() => {
           this.dataInit = true;
-          this.initServiceApiData = cloneDeep(this.serviceApiData);
-          this.initInterceptConfigApiData = cloneDeep(this.interceptConfigApiData);
-          this.initHostConfigApiData = cloneDeep(this.hostConfigApiData);
-          this.initDialPolicyApiData = cloneDeep(this.dialPolicyApiData);
-          this.initBindPolicyApiData = cloneDeep(this.bindPolicyApiData);
+          this.setInitData();
         });
       }
     });
+  }
+
+  setInitData() {
+    this.initServiceApiData = cloneDeep(this.serviceApiData);
+    this.initInterceptConfigApiData = cloneDeep(this.interceptConfigApiData);
+    this.initHostConfigApiData = cloneDeep(this.hostConfigApiData);
+    this.initDialPolicyApiData = cloneDeep(this.dialPolicyApiData);
+    this.initBindPolicyApiData = cloneDeep(this.bindPolicyApiData);
+    this._dataChange = false;
   }
 
   getAssociatedConfigs(): Promise<any> {
@@ -1007,6 +1012,7 @@ export class SimpleServiceComponent extends ProjectableForm {
                 `Successfully converted ${this.serviceApiData.name} to an advanced service.`,
             );
             this.growlerService.show(growlerData);
+            this.setInitData();
             this.router.navigate([URLS.ZITI_ADVANCED_SERVICE + '/' + this.serviceApiData.id]);
           })
           .catch((result) => {
