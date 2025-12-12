@@ -1,0 +1,42 @@
+<div class="progress-wizard-wrapper">
+  <div class="progress-wizard-container">
+    <div *ngIf="showCloseButton" (click)="cancel()" class="close cancel"></div>
+    <div class="side-progress-bar">
+      <div class="progress-steps">
+        <div class="progress-track" style="height: {{progressTrackHeight}}"></div>
+        <div *ngFor="let step of steps" class="progress-step" [ngClass]="{'step-active': step.index === currentStepIndex}" (click)="goToStep(step)">
+          <div class="progress-step-number">{{step.index + 1}}</div>
+          <div class="progress-step-number-background"></div>
+          <div class="progress-step-label">{{step.label}}</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="center-content-container">
+        <div class="center-content">
+          <div class="header-title-container" style="display: flex; flex-direction: row; gap: var(--gapSmall);align-items: center;">
+            <div class="header-title-image" style="background-image: url({{titleImageSrc}});"></div>
+            <div class="header-title-container">
+              <div class="header-title">{{title}}</div>
+            </div>
+          </div>
+          <form name="form" class="step-content-form">
+            <div class="step-content-wrapper">
+              <ng-content></ng-content>
+            </div>
+            <div class="buttons-container">
+              <div *ngIf="currentStepIndex === 0">
+              </div>
+              <button *ngIf="currentStepIndex > 0" name="action" type="submit" class="btn-primary" (click)="prevStep()">
+                {{backButtonLabel}}
+              </button>
+              <button name="action" type="submit" class="btn-primary" (click)="nextStep()" [disabled]="nextButtonDisabled">
+                {{nextButtonLabel}}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
