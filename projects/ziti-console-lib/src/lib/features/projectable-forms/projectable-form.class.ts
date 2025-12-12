@@ -165,6 +165,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
             if (this.entityId === 'create') {
                 this.formData = new this.entityClass();
                 this.initData = cloneDeep(this.formData);
+                this._dataChange = false;
                 this.entityUpdated();
                 return;
             }
@@ -172,6 +173,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
             this.zitiService.getSubdata(this.entityType, this.entityId, '').then((entity: any) => {
                 this.formData = entity?.data;
                 this.initData = cloneDeep(this.formData);
+                this._dataChange = false;
                 this.entityUpdated();
             }).finally(() => {
                 this.isLoading = false;

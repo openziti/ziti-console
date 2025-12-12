@@ -55,7 +55,7 @@
                 <lib-form-field-container
                         [title]="'ACCESSING CONFIGURATION'"
                         [contentStyle]="'z-index: 10001'"
-                        [helpText]="'How will client applications use this service? Specify a hostname/IP and port, or use the &quot;SDK Only&quot; toggle for an application embedded configuration.'"
+                        [helpText]="'How will client applications use this service? Specify an address and port, or use the &quot;SDK Only&quot; toggle for an application embedded configuration.'"
                 >
                     <div class="form-field-input-group accessing-group">
                         <div class="form-field-sub-group">
@@ -101,13 +101,13 @@
                                 </div>
                                 <div class="config-item-container" [ngClass]="{disabled: sdkOnlyDial}">
                                     <div class="config-hostname-label">
-                                        <span class="config-item-label">HOSTNAME / IP</span>
+                                        <span class="config-item-label">Address</span>
                                         <div
                                             class="form-field-info infoicon"
                                             matTooltip="Accessing hostnames must include a '.'"
                                             matTooltipPosition="above"
                                         ></div>
-                                        <span *ngIf="errors.interceptAddressFormat" class="error-label">Accessing hostnames must include a '.'</span>
+                                        <span *ngIf="errors.interceptAddressFormat" class="error-label">Accessing address must include a '.'</span>
                                     </div>
                                     <input id="HowTo" type="text" maxlength="100" data-i18n="EgHost" (change)="validateInterceptAddress()" [ngClass]="{error: errors.interceptAddress}" [placeholder]="sdkOnlyDial ? '' : 'e.g. myservice.ziti'" [(ngModel)]="sdkOnlyDial ? '' : interceptConfigApiData.data.addresses[0]">
                                 </div>
@@ -122,7 +122,7 @@
                 <lib-form-field-container
                         [title]="'HOSTING CONFIGURATION'"
                         [contentStyle]="'z-index: 10000'"
-                        [helpText]="'Where should traffic for this service be sent? Specify a protocol, hostname/IP, and port, or use the &quot;SDK Only&quot; toggle for an application embedded configuration.'"
+                        [helpText]="'Where should traffic for this service be sent? Specify a protocol, address, and port, or use the &quot;SDK Only&quot; toggle for an application embedded configuration.'"
 
                 >
                     <div class="form-field-input-group hosting-group">
@@ -176,7 +176,7 @@
                                     </select>
                                 </div>
                                 <div class="config-item-container" [ngClass]="{disabled: sdkOnlyBind}">
-                                    <span class="config-item-label">HOSTNAME / IP</span>
+                                    <span class="config-item-label">Address</span>
                                     <input id="HostedHost" type="text" maxlength="100" data-i18n="EgHost" (change)="validateHostAddress()" [ngClass]="{error: errors.hostAddress}" [placeholder]="sdkOnlyBind ? '' : 'e.g. myservice.ziti'" [(ngModel)]="sdkOnlyBind ? '' : hostConfigApiData.data.address">
                                 </div>
                                 <div class="config-item-container" [ngClass]="{disabled: sdkOnlyBind}">
