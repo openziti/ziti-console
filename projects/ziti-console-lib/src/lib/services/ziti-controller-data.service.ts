@@ -237,6 +237,23 @@ export class ZitiControllerDataService extends ZitiDataService {
         );
     }
 
+    resetPassword(oldPass, newPass, confirmPass) {
+        const apiVersions = this.settingsService.apiVersions || {};
+        const prefix = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
+        const authenticatorsUrl = this.settingsService.settings.selectedEdgeController + `${prefix}/current-identity/authenticators?filter=method=\"updb\"`;
+        return firstValueFrom(this.httpClient.get(authenticatorsUrl)).then((authenticatorResult: any) => {
+            const id = authenticatorResult?.data[0].id;
+            const username = authenticatorResult.data[0].username;
+            const params = {
+                currentPassword: oldPass,
+                password: newPass,
+                username: username
+            }
+            const resetUrl = this.settingsService.settings.selectedEdgeController + `${prefix}/current-identity/authenticators/${id}`;
+            return firstValueFrom(this.httpClient.put(resetUrl, params));
+        });
+    }
+
     delete(type: string, id: string): Promise<any> {
         const apiVersions = this.settingsService.apiVersions || {};
         const prefix = apiVersions["edge-management"]?.v1?.path;

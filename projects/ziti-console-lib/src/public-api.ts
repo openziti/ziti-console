@@ -33,6 +33,8 @@ export * from './lib/pages/sessions/sessions-page.service';
 export * from './lib/pages/api-sessions/api-sessions-page.component';
 export * from './lib/pages/api-sessions/api-sessions-page.service';
 export * from './lib/pages/callback/callback.component';
+export * from './lib/pages/settings/settings.component';
+export * from './lib/pages/profile/profile.component';
 export * from './lib/services/login-service.class';
 export * from './lib/services/noop-login.service';
 export * from './lib/services/settings-service.class';

@@ -95,6 +95,10 @@ export class SideToolbarComponent {
     this.addAnyOpen = false;
   }
 
+  openSettingsPage() {
+    this.router.navigate(['/settings']);
+  }
+
   showAdd() {
     modal?.close();
     this.addAnyOpen = true;
