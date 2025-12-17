@@ -24,12 +24,12 @@ export class TabNameService {
             ["identities", [
                 {label: 'Identities', url: '/identities'},
                 {label: 'Recipes', url: '/recipes', hidden: !this.settings.supportedFeatures?.recipies},
-                {label: 'Terminators', url: '/terminators'},
                 {label: 'Posture Checks', url: '/posture-checks'},
             ]
             ],
             ["services", [
                 {label: 'Services', url: '/services'},
+                {label: 'Terminators', url: '/terminators'},
                 {label: 'Configurations', url: '/configs'},
                 {label: 'Config Types', url: '/config-types'},
             ]
