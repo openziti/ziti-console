@@ -1,0 +1,71 @@
+<div class="projectable-form-wrapper">
+    <div class="overlay"></div>
+    <div class="header">
+        <div class="title">
+            <span>{{pageTitle}}</span>
+        </div>
+    </div>
+    <div class="grid dashboard header-row" [class.exp]="showVisualizer">
+        <div class="grid numbers" [class.exp]="showVisualizer">
+            <div class="dial"></div>
+            <a routerLink="/identities">
+                <div class="totalPod">
+                    <div class="total">{{totalIdentities}}</div>
+                    <div class="label">Identities</div>
+                </div>
+            </a>
+            <a routerLink="/services">
+                <div class="totalPod">
+                    <div class="total">{{totalServices}}</div>
+                    <div class="label">Services</div>
+                </div>
+            </a>
+            <a routerLink="/configs" class="desktop">
+                <div class="totalPod">
+                    <div class="total">{{totalConfigs}}</div>
+                    <div class="label">Configurations</div>
+                </div>
+            </a>
+            <a routerLink="/routers" class="desktop">
+                <div class="totalPod">
+                    <div class="total">{{totalEdgeRouters}}</div>
+                    <div class="label">Routers</div>
+                </div>
+            </a>
+            <a routerLink="/sessions" class="desktop">
+                <div class="totalPod">
+                    <div class="total">{{totalSessions}}</div>
+                    <div class="label">Sessions</div>
+                </div>
+            </a>
+            <a routerLink="/service-policies" class="desktop">
+                <div class="totalPod">
+                    <div class="total">{{totalServicePolicies}}</div>
+                    <div class="label">Service Policies</div>
+                </div>
+            </a>
+        </div>
+        <div class="grid split wide" [class.exp]="showVisualizer">
+            <a id="NetVisualizer" routerLink="/network-visualizer" *ngIf="showVisualizer">
+                <div class="iconLink">
+                    <div class="network-visualizer"></div>
+                    <div class="label">Network</div>
+                    <div class="label">Visualizer</div>
+                </div>
+            </a>
+            <a href="https://docs.openziti.io/docs/downloads" target="_blank">
+                <div class="iconLink">
+                    <div class="downloads"></div>
+                    <div class="label">Downloads</div>
+                </div>
+            </a>
+            <a href="https://docs.openziti.io/" target="_blank">
+                <div class="iconLink">
+                    <div class="docs"></div>
+                    <div class="label">Docs</div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div id="MainMap"></div>
+</div>

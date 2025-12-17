@@ -135,6 +135,7 @@ import {ProgressMeterComponent} from "./features/progress-meter/progress-meter.c
 import {ProgressWizardComponent} from "./features/progress-wizard/progress-wizard.component";
 import { SettingsComponent } from './pages/settings/settings.component';
 import { ProfileComponent } from './pages/profile/profile.component';
+import { GeolocateComponent } from './pages/geolocate/geolocate.component';
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -238,7 +239,8 @@ export function playerFactory() {
         ProgressMeterComponent,
         ProgressWizardComponent,
         SettingsComponent,
-        ProfileComponent
+        ProfileComponent,
+        GeolocateComponent
     ],
     imports: [
         CommonModule,
@@ -318,7 +320,8 @@ export function playerFactory() {
         ProgressWizardComponent,
         ConfigEditorComponent,
         SettingsComponent,
-        ProfileComponent
+        ProfileComponent,
+        GeolocateComponent
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},

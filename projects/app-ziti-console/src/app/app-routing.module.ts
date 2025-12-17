@@ -59,7 +59,8 @@ import {
   APISessionFormComponent,
   CallbackComponent,
   SettingsComponent,
-  ProfileComponent
+  ProfileComponent,
+  GeolocateComponent
 } from "ziti-console-lib";
 import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
@@ -86,7 +87,7 @@ const routes: Routes = [
   },
   {
     path: 'dashboard',
-    component: ZacWrapperComponent,
+    component: GeolocateComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
   },
