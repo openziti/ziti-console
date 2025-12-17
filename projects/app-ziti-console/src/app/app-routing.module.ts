@@ -57,7 +57,9 @@ import {
   APISessionsPageComponent,
   SessionFormComponent,
   APISessionFormComponent,
-  CallbackComponent
+  CallbackComponent,
+  SettingsComponent,
+  ProfileComponent
 } from "ziti-console-lib";
 import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
@@ -356,7 +358,7 @@ const routes: Routes = [
   },
   {
     path: 'profile',
-    component: ZacWrapperComponent,
+    component: ProfileComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
   },
@@ -398,7 +400,7 @@ const routes: Routes = [
   },
   {
     path: 'settings',
-    component: ZacWrapperComponent,
+    component: SettingsComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
   },

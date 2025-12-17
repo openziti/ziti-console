@@ -1,0 +1,9 @@
+.header {
+    .constrained {
+        .grid {
+            &.split {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    }
+}

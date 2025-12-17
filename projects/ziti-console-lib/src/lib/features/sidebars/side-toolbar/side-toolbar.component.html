@@ -46,8 +46,8 @@
             <div class="icon"></div>
             <div id="ProfileMenu" class="menu" [ngClass]="{open: menuOpen}">
                 <div class="menutitle"></div>
-                <div id="ProfileButton" class="link" data-go="/profile" data-i18n="EditProfile">Edit Profile</div>
-                <div id="SettingsButton" class="link" data-go="/settings" data-i18n="PersonalSettings">Personal
+                <div id="ProfileButton" class="link" data-go="/profile" >Edit Profile</div>
+                <div id="SettingsButton" class="link" (click)="openSettingsPage()" )>Personal
                     Settings
                 </div>
                 <div id="LogoutButton" class="link" (click)="doLogout()">Logout</div>

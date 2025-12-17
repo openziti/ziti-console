@@ -1,0 +1,53 @@
+<div class="projectable-form-wrapper">
+    <div class="header">
+        <div class="title">Manage <span>{{pageTitle}}</span></div>
+        <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span>{{pageTitle}}</span></div>
+        <div class="line"></div>
+        <div class="tabs">
+          <div class="tab selected">Manage <span>{{pageTitle}}</span></div>
+          <div class="tab" routerLink="/profile">Manage Profile</div>
+        </div>
+        <div class="constrained">
+            <div class="grid split">
+                <div>
+                    <label>Filter after Save</label>
+                    <div class="toggle" [class.on]="isFilterAfterSave" (click)="isFilterAfterSave = !isFilterAfterSave; filterAfter()">
+                        <div class="switch"></div>
+                        <div class="label"></div>
+                    </div>
+                </div>
+                <div>
+                    <label>Dark mode</label>
+                    <div class="toggle" [class.on]="isDark" (click)="isDark = !isDark; swap()">
+                        <div class="switch"></div>
+                        <div class="label"></div>
+                    </div>
+                </div>
+                <div>
+                    <label>Hide Tags</label>
+                    <div class="toggle" [class.on]="hideTags" (click)="hideTags = !hideTags; hide()">
+                        <div class="switch"></div>
+                        <div class="label"></div>
+                    </div>
+                </div>
+                <div>
+                    <label>Transitions</label>
+                    <div class="toggle" [class.on]="transitions" (click)="transitions = !transitions; transitionsChange()">
+                        <div class="switch"></div>
+                        <div class="label"></div>
+                    </div>
+                </div>
+
+                <div class="personal">
+                    <label>Primary Color</label>
+                    <input type="text" class="colors" [(ngModel)]="primaryColor" (ngModelChange)="onPrimaryColorChange($event)"/>
+                </div>
+
+                <div class="personal">
+                    <label>Secondary Color</label>
+                    <input type="text" class="colors" [(ngModel)]="secondaryColor" (ngModelChange)="onSecondaryColorChange($event)"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

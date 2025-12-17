@@ -256,6 +256,32 @@ export class NodeDataService extends ZitiDataService {
         );
     }
 
+    resetPassword(oldPass, newPass, confirmPass) {
+        const nodeServerURL = window.location.origin;
+        const serviceUrl = nodeServerURL + '/api/reset';
+        const options = {
+            body: {
+                password: oldPass,
+                newpassword: newPass,
+                confirm: confirmPass
+            }
+        };
+        return firstValueFrom(this.httpClient.delete(serviceUrl, options).pipe(
+                catchError((err: any) => {
+                    const error = "Server Not Accessible";
+                    if (err.code != "ECONNREFUSED") throw({error: err.code});
+                    throw({error: error});
+                }),
+                map((results: any) => {
+                    if(!isEmpty(results.error)) {
+                        throw({error: results.error});
+                    }
+                    return results;
+                })
+            )
+        );
+    }
+
     override deleteSubdata(entityType: string, id: any, dataType: string, data: any): Promise<any> {
         const nodeServerURL = window.location.origin;
         const serviceUrl = nodeServerURL + '/api/subSave';

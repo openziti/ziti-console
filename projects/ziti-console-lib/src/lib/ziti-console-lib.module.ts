@@ -133,6 +133,8 @@ import {APISessionFormComponent} from "./features/projectable-forms/api-session/
 import {CallbackComponent} from "./pages/callback/callback.component";
 import {ProgressMeterComponent} from "./features/progress-meter/progress-meter.component";
 import {ProgressWizardComponent} from "./features/progress-wizard/progress-wizard.component";
+import { SettingsComponent } from './pages/settings/settings.component';
+import { ProfileComponent } from './pages/profile/profile.component';
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -234,7 +236,9 @@ export function playerFactory() {
         APISessionFormComponent,
         CallbackComponent,
         ProgressMeterComponent,
-        ProgressWizardComponent
+        ProgressWizardComponent,
+        SettingsComponent,
+        ProfileComponent
     ],
     imports: [
         CommonModule,
@@ -312,7 +316,9 @@ export function playerFactory() {
         TagSelectorComponent,
         ProgressMeterComponent,
         ProgressWizardComponent,
-        ConfigEditorComponent
+        ConfigEditorComponent,
+        SettingsComponent,
+        ProfileComponent
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},
