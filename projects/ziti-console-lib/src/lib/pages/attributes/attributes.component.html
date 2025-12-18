@@ -1,0 +1,61 @@
+<div class="ziti-page-container">
+    <div class="header">
+        <div class="title"><span>Manage Attributes</span></div>
+        <div class="bread"><span>Ziti Network</span> <span class="secondary">/</span> <span>Manage</span> <span>Attributes</span></div>
+        <div class="line"></div>
+        <div class="tabs">
+            <div class="tab selected"><span>Manage Attributes</span></div>
+        </div>
+    </div>
+    <div class="data-table-container">
+        <div *ngIf="attributes.length === 0" class="noitems"></div>
+        <div class="table" *ngIf="attributes.length > 0">
+            <div class="head data-table columns">
+                <div class="col">Name<div class="dragger"></div></div>
+                <div class="col">Identities<div class="dragger"></div></div>
+                <div class="col">Services<div class="dragger"></div></div>
+                <div class="col">Routers<div class="dragger"></div></div>
+                <div class="col">Posture Checks<div class="dragger"></div></div>
+                <div class="col"></div>
+            </div>
+            <div class="rows">
+                <div *ngFor="let attr of attributes" class="row data-table columns">
+                    <div class="col" style="padding-left: 10px;"><a (click)="editAttribute(attr.name)">{{attr.name}}</a></div>
+                    <div class="col desktop">{{attr.identities}}</div>
+                    <div class="col desktop">{{attr.services}}</div>
+                    <div class="col desktop">{{attr.routers}}</div>
+                    <div class="col desktop">{{attr.postureChecks}}</div>
+                    <div class="col allowOver">
+                        <div class="dots" (click)="editAttribute(attr.name)">...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="nodata" *ngIf="attributes.length === 0">
+            <span>No</span>
+            <span>Attributes</span>
+            <span>None Defined</span>
+            <span>Attributes</span>.
+        </div>
+    </div>
+
+    <div id="DetailModal" class="details-modal" *ngIf="selectedAttribute">
+        <div class="center-content-container">
+            <div class="close icon-close" (click)="closeModal()"></div>
+            <div class="title">
+                <span>View Attribute</span>
+            </div>
+            <div class="subtitle">Attribute Details</div>
+            <label for="Name">Name</label>
+            <div id="Name">{{selectedAttribute.name}}</div>
+            <label for="Identities">Identities</label>
+            <div id="Identities" [innerHTML]="getAssociatedItems(identities, selectedAttribute.name) || '-'"></div>
+            <label for="Services">Services</label>
+            <div id="Services" [innerHTML]="getAssociatedItems(services, selectedAttribute.name) || '-'"></div>
+            <label for="Routers">Routers</label>
+            <div id="Routers" [innerHTML]="getAssociatedItems(edgeRouters, selectedAttribute.name) || '-'"></div>
+            <label for="PostureChecks">Posture Checks</label>
+            <div id="PostureChecks" [innerHTML]="getAssociatedItems(postureChecks, selectedAttribute.name) || '-'"></div>
+        </div>
+    </div>
+</div>

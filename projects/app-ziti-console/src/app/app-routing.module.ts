@@ -60,7 +60,8 @@ import {
   CallbackComponent,
   SettingsComponent,
   ProfileComponent,
-  GeolocateComponent
+  GeolocateComponent,
+  AttributesComponent
 } from "ziti-console-lib";
 import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
@@ -93,7 +94,7 @@ const routes: Routes = [
   },
   {
     path: 'attributes',
-    component: ZacWrapperComponent,
+    component: AttributesComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
   },
