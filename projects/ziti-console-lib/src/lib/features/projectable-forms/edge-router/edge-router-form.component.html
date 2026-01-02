@@ -43,14 +43,13 @@
                         [layout]="'row'"
                         class="form-field-advanced"
                     >
-                        <div class="config-item">
+                        <div class="config-item" [class.disabled]="extService.checkTunnelerDisabled">
                             <div class="config-container toggle-container">
                                 <div class="config-container-label">TUNNELER ENABLED</div>
-                                <div
-                                        (click)="toggleTunnelerEnabled()"
-                                        [ngClass]="{ on: formData.isTunnelerEnabled }"
-                                        class="toggle"
-                                >
+                                <div (click)="!extService.checkTunnelerDisabled && toggleTunnelerEnabled()"
+                                    [ngClass]="{ on: formData.isTunnelerEnabled,disabled: extService.checkTunnelerDisabled }" class="toggle"
+                                    [matTooltip]="extService.checkTunnelerDisabled ? 'Disabled because already hosted by netfoundry ' : ''"
+                                    matTooltipPosition="above" style="pointer-events: auto;">
                                     <span [hidden]="!formData.isTunnelerEnabled" class="on-label">YES</span>
                                     <span [hidden]="formData.isTunnelerEnabled" class="off-label">NO</span>
                                     <div class="switch"></div>

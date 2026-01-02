@@ -48,8 +48,8 @@ export class AppComponent implements OnInit {
         this.loading = true;
         this.settingsService.settingsChange.subscribe((results:any) => {
             this.version = results.version;
-            this.displayNav = !results.hideNav ?? true;
-            this.displayTool = !results.hideTool ?? true;
+            this.displayNav = !(results.hideNav ?? false);
+            this.displayTool = !(results.hideTool ?? false);
             this.loading = false;
             this.checkSession();
             this.handleUserSettings();

@@ -23,6 +23,8 @@ import {ExtensionService} from "../../extendable/extensions-noop.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {EdgeRouter} from "../../../models/edge-router";
 import {Location} from "@angular/common";
+import { DEFAULT_APP_CONFIG } from '../../../ziti-console.constants';
+import { DefaultAppConfig } from '../../../default-app-config';
 
 @Component({
   selector: 'lib-edge-router-form',
@@ -59,6 +61,7 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
       @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
       growlerService: GrowlerService,
       @Inject(EDGE_ROUTER_EXTENSION_SERVICE) extService: ExtensionService,
+      @Inject(DEFAULT_APP_CONFIG) public config: DefaultAppConfig,
       protected override router: Router,
       protected override route: ActivatedRoute,
       location: Location
