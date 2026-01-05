@@ -25,12 +25,14 @@ export interface ExtensionService {
   closeAfterSave: boolean;
   moreActions?: any[];
   listActions?: any[];
+  disabledComponents?: any[];
   extendOnInit(): void;
   extendAfterViewInits(extentionPoints: any): void;
   updateFormData(data: any): void;
   validateData(): Promise<any>;
   formDataSaved(data: any): Promise<any>;
   processTableColumns(tableColumns: any): any[];
+  get checkTunnelerDisabled(): boolean;
 }
 
 @Injectable({
@@ -42,6 +44,7 @@ export class ExtensionsNoopService implements ExtensionService {
   closed: EventEmitter<any> = new EventEmitter<any>();
   closeAfterSave = true;
   moreActions = [];
+  disabledComponents = [];
 
   constructor() { }
 
@@ -64,5 +67,9 @@ export class ExtensionsNoopService implements ExtensionService {
 
   processTableColumns(tableColumns: any): any[] {
     return tableColumns;
+  }
+
+  get checkTunnelerDisabled(): boolean {
+    return false;
   }
 }
