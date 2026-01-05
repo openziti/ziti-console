@@ -3,7 +3,7 @@ import {ActivatedRoute, ActivatedRouteSnapshot, Router, UrlSegmentGroup} from '@
 import {ConfirmComponent} from "../confirm/confirm.component";
 import {MatDialog} from "@angular/material/dialog";
 import {LoginServiceClass, ZAC_LOGIN_SERVICE} from "../../services/login-service.class";
-//import {QuickAddComponent} from "../quick-add/quick-add.component";
+import {QuickAddComponent} from "../quick-add/quick-add.component";
 
 @Component({
   selector: 'lib-header-bar',
@@ -31,7 +31,7 @@ export class HeaderBarComponent {
 
   openQuickAdd() {
     const data = {};
-    this.dialogRef = this.dialogForm.open(ConfirmComponent, {
+    this.dialogRef = this.dialogForm.open(QuickAddComponent, {
       data: data,
     });
     this.dialogRef.afterClosed().subscribe((result: any) => {

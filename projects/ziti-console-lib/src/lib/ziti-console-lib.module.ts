@@ -37,7 +37,6 @@ import {QRCodeModule} from 'angularx-qrcode';
 import {
     ProtocolAddressPortInputComponent
 } from './features/dynamic-widgets/protocol-address-port/protocol-address-port-input.component';
-import {SideToolbarComponent} from './features/sidebars/side-toolbar/side-toolbar.component';
 import {SideNavbarComponent} from './features/sidebars/side-navbar/side-navbar.component';
 import {PasswordInputComponent} from './features/dynamic-widgets/password/password-input.component';
 import {ConfigurationsPageComponent} from './pages/configurations/configurations-page.component';
@@ -138,6 +137,7 @@ import { GeolocateComponent } from './pages/geolocate/geolocate.component';
 import { AttributesComponent } from './pages/attributes/attributes.component';
 import {SideNavigatorComponent} from "./features/side-navigator/side-navigator.component";
 import {HeaderBarComponent} from "./features/header-bar/header-bar.component";
+import {QuickAddComponent} from "./features/quick-add/quick-add.component";
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -156,7 +156,6 @@ export function playerFactory() {
         TextListInputComponent,
         CheckboxListInputComponent,
         ProtocolAddressPortInputComponent,
-        SideToolbarComponent,
         SideNavbarComponent,
         PasswordInputComponent,
         TerminatorFormComponent,
@@ -245,6 +244,7 @@ export function playerFactory() {
         AttributesComponent,
         SideNavigatorComponent,
         HeaderBarComponent,
+        QuickAddComponent
     ],
     imports: [
         CommonModule,
@@ -267,7 +267,6 @@ export function playerFactory() {
     exports: [
         ZacWrapperComponent,
         ExtendableComponent,
-        SideToolbarComponent,
         SideNavbarComponent,
         StringInputComponent,
         SelectorInputComponent,
@@ -328,6 +327,7 @@ export function playerFactory() {
         AttributesComponent,
         SideNavigatorComponent,
         HeaderBarComponent,
+        QuickAddComponent
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},

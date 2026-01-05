@@ -1,0 +1,21 @@
+<div class="quick-add-modal-container">
+  <div class="close icon-close" (click)="close()"></div>
+  <div class="quick-add-modal-body">
+    <div class="quick-add-modal-content">
+      <div class="quick-add-title-container">
+        <span class="quick-add-title">Quick Add</span>
+        <span class="quick-add-subtitle">Select the entity type you would like to create</span>
+      </div>
+    </div>
+    <div class="quick-add-options-container">
+      <a href="./identities/create" class="add-identity-button quick-add-button" (click)="identityLinkClicked($event)">
+        <div class="option-icon icon-identity"></div>
+        <div class="option-label">Add Identity</div>
+      </a>
+      <a href="./services/simple" class="add-service-button quick-add-button" (click)="serviceLinkClicked($event)">
+        <div class="option-icon icon-services"></div>
+        <div class="option-label">Add Service</div>
+      </a>
+    </div>
+  </div>
+</div>
