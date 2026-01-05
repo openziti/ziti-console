@@ -32,6 +32,24 @@
     lib-password-input {
       width: 100%;
     }
+    .username-pass-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      gap: var(--gapXL);
+    }
+
+    .input-fields-container {
+      width: 100%;
+      margin-bottom: var(--marginSmall);
+      position: relative;
+
+      .input-field-label {
+        font-size: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+    }
   }
   .login-title-container {
     width: 100%;

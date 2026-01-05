@@ -24,7 +24,7 @@ import {SettingsServiceClass} from "../../services/settings-service.class";
 import {isEmpty} from "lodash";
 
 @Component({
-  selector: 'lib-confirm',
+  selector: 'lib-login-dialog',
   templateUrl: './login-dialog.component.html',
   styleUrls: ['./login-dialog.component.scss']
 })
@@ -36,6 +36,7 @@ export class LoginDialogComponent implements OnInit {
   password = '';
   loginFailed = false;
   edgeControllerList = [];
+  showNoControllers = false;
 
   constructor(
     @Inject(ZAC_LOGIN_SERVICE) public svc: LoginServiceClass,

@@ -39,7 +39,6 @@ import {
 } from './features/dynamic-widgets/protocol-address-port/protocol-address-port-input.component';
 import {SideToolbarComponent} from './features/sidebars/side-toolbar/side-toolbar.component';
 import {SideNavbarComponent} from './features/sidebars/side-navbar/side-navbar.component';
-import {SideBannerComponent} from './features/sidebars/side-banner/side-banner.component';
 import {PasswordInputComponent} from './features/dynamic-widgets/password/password-input.component';
 import {ConfigurationsPageComponent} from './pages/configurations/configurations-page.component';
 import {ListPageHeaderComponent} from './features/list-page-features/list-page-header/list-page-header.component';
@@ -157,7 +156,6 @@ export function playerFactory() {
         ProtocolAddressPortInputComponent,
         SideToolbarComponent,
         SideNavbarComponent,
-        SideBannerComponent,
         PasswordInputComponent,
         TerminatorFormComponent,
         ConfigurationsPageComponent,
@@ -267,7 +265,6 @@ export function playerFactory() {
         ExtendableComponent,
         SideToolbarComponent,
         SideNavbarComponent,
-        SideBannerComponent,
         StringInputComponent,
         SelectorInputComponent,
         PasswordInputComponent,
