@@ -1,7 +1,7 @@
 export type DefaultAppConfig = {
-    tunnelerDisabled: boolean;
+    tunnelerEnabledReadOnly: boolean;
 };
 
 export const DEFAULT_APP_CONFIG_PROP = {
-    tunnelerDisabled: false,
+    tunnelerEnabledReadOnly: false,
 };
