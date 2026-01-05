@@ -9,10 +9,10 @@
         <div class="ziti-logo"></div>
         <div class="ziti-logo-text">
           <div class="title-text-row title-top-text">Ziti Admin Console</div>
-          <div class="title-text-row title-bottom-text">By <div class="nf-name-text">NetFoundry</div></div>
+          <div class="title-text-row title-bottom-text">By <a href="https://netfoundry.io" class="nf-name-text">NetFoundry</a></div>
         </div>
       </div>
-      <div class="welcome-text">Welcome. Enter your login credentials below.</div>
+      <div class="welcome-text">Welcome. Enter your admin credentials below.</div>
       <span *ngIf="errors['loginFailed']" class="error-message">{{errors['loginFailed']}}</span>
       <span *ngIf="!errors['loginFailed']" class="error-message error-message-placeholder">&nbsp;</span>
       <div class="username-pass-container">
@@ -29,7 +29,7 @@
         <div class="ziti-logo"></div>
         <div class="ziti-logo-text">
           <div class="title-text-row title-top-text">Ziti Admin Console</div>
-          <div class="title-text-row title-bottom-text">By <div class="nf-name-text">NetFoundry</div></div>
+          <div class="title-text-row title-bottom-text">By <a href="https://netfoundry.io" class="nf-name-text">NetFoundry</a></div>
         </div>
       </div>
       <div class="welcome-text">Welcome. Enter your login credentials below.</div>
@@ -65,7 +65,7 @@
             autocomplete="on"
             required
             [ngClass]="{'login-disabled': showNoControllers}"
-            [placeholder]="'Enter your ziti admin username'"
+            [placeholder]="'Enter your admin username'"
             (change)="usernameChange($event)"
             (keyup)="usernameChange($event)"
           >
@@ -80,7 +80,7 @@
           autocomplete="on"
           required
           [ngClass]="{'login-disabled': showNoControllers}"
-          [placeholder]="'Enter your ziti admin password'"
+          [placeholder]="'Enter your admin password'"
           (change)="passwordChange($event)"
           (keyup)="passwordChange($event)"
         >
