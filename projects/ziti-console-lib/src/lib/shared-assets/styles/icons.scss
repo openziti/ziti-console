@@ -1,0 +1,640 @@
+@font-face {
+  font-family: 'icomoon';
+  src: url('/assets/fonts/icomoon.eot');
+  src: url('/assets/fonts/icomoon.eot') format('embedded-opentype'),
+  url('/assets/fonts/icomoon.woff2') format('woff2'), url('/assets/fonts/icomoon.ttf') format('truetype'),
+  url('/assets/fonts/icomoon.woff') format('woff'), url('/assets/fonts/icomoon.svg?') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^='icon-'],
+[class*=' icon-'] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-BrowZer:before {
+  content: '\e96a';
+}
+.icon-Processes:before {
+  content: '\e967';
+}
+.icon-policies:before {
+  content: '\e968';
+}
+.icon-AttributeExplorer:before {
+  content: '\e969';
+}
+.icon-Network-Failure:before {
+  content: '\e966';
+}
+.icon-Events:before {
+  content: '\e965';
+}
+
+.icon-QuickStart:before {
+  content: '\e964';
+}
+
+.icon-community:before {
+  content: '\e963';
+}
+
+.icon-refresh:before {
+  content: '\e962';
+}
+
+.icon-integrations:before {
+  content: '\e961';
+}
+
+.icon-posturechecks:before {
+  content: '\e960';
+}
+
+.icon-routerpolicy:before {
+  content: '\e95f';
+}
+
+.icon-L2:before {
+  content: '\e95e';
+}
+
+.icon-routers:before {
+  content: '\e95d';
+}
+
+.icon-LockOpen:before {
+  content: '\e95b';
+}
+
+.icon-LockClosed:before {
+  content: '\e95c';
+}
+
+.icon-expand:before {
+  content: '\e959';
+}
+
+.icon-collapse:before {
+  content: '\e979';
+}
+
+.icon-downloaddata:before {
+  content: '\e95a';
+}
+
+.icon-CAs:before {
+  content: '\e958';
+}
+
+.icon-AnalyticsReports:before {
+  content: '\e957';
+}
+
+.icon-ResetMFA-RBAC:before {
+  content: '\e955';
+}
+
+.icon-RotatePassword-RBAC:before {
+  content: '\e956';
+}
+
+.icon-Deploy-RBAC:before {
+  content: '\e94d';
+}
+
+.icon-Revoke-RBAC:before {
+  content: '\e94e';
+}
+
+.icon-Activate-RBAC:before {
+  content: '\e94f';
+}
+
+.icon-DeActivate-RBAC:before {
+  content: '\e950';
+}
+
+.icon-Create-RBAC:before {
+  content: '\e951';
+}
+
+.icon-Read-RBAC:before {
+  content: '\e952';
+}
+
+.icon-Update-RBAC:before {
+  content: '\e953';
+}
+
+.icon-Delete-RBAC:before {
+  content: '\e954';
+}
+
+.icon-WhatsNew:before {
+  content: '\e94c';
+}
+
+.icon-Manage-Roles:before {
+  content: '\e94b';
+}
+
+.icon-SmTaptoEditAdvanced:before {
+  content: '\e94a';
+}
+
+.icon-Edit:before {
+  content: '\e949';
+}
+
+.icon-ManageOrg:before {
+  content: '\e948';
+}
+
+.icon-InlineHelp:before {
+  content: '\e946';
+}
+
+.icon-ModalHelp:before {
+  content: '\e947';
+}
+
+.icon-IAM:before {
+  content: '\e944';
+}
+
+.icon-ManageNetworks:before {
+  content: '\e945';
+}
+
+.icon-appwan:before {
+  content: '\e93b';
+}
+
+.icon-email:before {
+  content: "\e972";
+}
+
+.icon-clients:before {
+  content: '\e93c';
+  color: #0373fb;
+}
+
+.icon-gateways:before {
+  content: '\e93d';
+  color: #0373fb;
+}
+
+.icon-groups:before {
+  content: '\e93e';
+  color: #0373fb;
+}
+
+.icon-networks:before {
+  content: '\e941';
+  color: #0373fb;
+}
+
+.icon-controllers {
+  overflow: hidden;
+  font-size: 2.1rem;
+}
+
+.icon-controllers:before {
+  content: '\e970';
+  color: #0373fb;
+}
+
+.icon-addServices:before {
+  content: '\e942';
+  color: #0373fb;
+}
+
+.icon-lock:before {
+  content: '\e93a';
+  color: #e6e6ee;
+}
+
+.icon-Filter:before {
+  content: '\e936';
+  color: #c9c9d3;
+}
+
+.icon-BigSoftPlus:before {
+  content: '\e937';
+  color: #fff;
+}
+
+.icon-BigSoftMinus:before {
+  content: '\e943';
+  color: #fff;
+}
+
+.icon-prev:before {
+  content: '\e938';
+}
+
+.icon-next:before {
+  content: '\e939';
+}
+
+.icon-hub:before {
+  content: '\e935';
+  color: #036cff;
+}
+
+.icon-tour:before {
+  content: '\e940';
+  color: #0373fb;
+}
+
+.icon-Ticket:before {
+  content: '\e934';
+  color: #1078ff;
+}
+
+.icon-OrgEvents:before {
+  content: '\e92f';
+  color: #0373fb;
+}
+
+.icon-OrgSettings:before {
+  content: '\e930';
+  color: #0373fb;
+}
+
+.icon-ManageUsers:before {
+  content: '\e931';
+  color: #0373fb;
+}
+
+.icon-ManageBilling:before {
+  content: '\e932';
+  color: #036cff;
+}
+
+.icon-ManageAPIAccounts:before {
+  content: '\e933';
+  color: #0373fb;
+}
+
+.icon-PageTour:before {
+  content: '\e93f';
+  color: #0373fb;
+}
+
+.icon-virtualwans:before {
+  content: '\e92d';
+  color: #658292;
+}
+
+.icon-identity:before {
+  content: '\e92e';
+  color: #658292;
+}
+
+.icon-ManageSubscriptions:before {
+  content: '\e92b';
+}
+
+.icon-TaptoEditAdvanced:before {
+  content: '\e92a';
+  color: #97a0b2;
+}
+
+.icon-TaptoClone:before {
+  content: '\e929';
+  color: #658292;
+}
+
+.icon-AdvancedOptions:before {
+  content: '\e928';
+  color: #036cff;
+}
+
+.icon-support:before {
+  content: '\e927';
+}
+
+.icon-ha:before {
+  content: '\e925';
+  color: #036cff;
+}
+
+.icon-s:before {
+  content: '\e926';
+}
+
+.icon-HamburgerApp:before {
+  content: '\e900';
+  color: #658292;
+}
+
+.icon-HamburgerAppClose:before {
+  content: '\e905';
+  color: #658292;
+}
+
+.icon-Bell:before {
+  content: '\e90a';
+  color: #658292;
+}
+
+.icon-dashboard:before {
+  content: '\e916';
+  color: #658292;
+}
+
+.icon-Icon_Gateway:before {
+  content: '\e919';
+  color: #658292;
+}
+
+.icon-Icon_CL:before {
+  content: '\e913';
+  color: #658292;
+}
+
+.icon-Icon_GP:before {
+  content: '\e91b';
+  color: #658292;
+}
+
+.icon-services:before {
+  content: '\e942';
+  color: #658292;
+}
+
+.icon-appwans:before {
+  content: '\e906';
+  color: #658292;
+}
+
+.icon-Icon_Events:before {
+  content: '\e918';
+  color: #658292;
+}
+
+.icon-ArrowActive:before {
+  content: '\e907';
+  color: #658292;
+}
+
+.icon-Icon_Yes:before {
+  content: '\e91e';
+  color: #658292;
+}
+
+.icon-Icon_No:before {
+  content: '\e904';
+  color: #658292;
+}
+
+.icon-Growl_Bug:before {
+  content: '\e90d';
+  color: #658292;
+}
+
+.icon-Growl_Info:before {
+  content: '\e90f';
+  color: #658292;
+}
+
+.icon-Growl_Success:before {
+  content: '\e910';
+  color: #658292;
+}
+
+.icon-Growl_Warning:before {
+  content: '\e911';
+  color: #658292;
+}
+
+.icon-Growl_Error:before {
+  content: '\e90e';
+  color: #658292;
+}
+
+.icon-ArrowLeft:before {
+  content: '\e908';
+  color: #658292;
+}
+
+.icon-ArrowRight:before {
+  content: '\e909';
+  color: #658292;
+}
+
+.icon-ClickIcon:before {
+  content: '\e90b';
+}
+
+.icon-DownloadtoCSV:before {
+  content: '\e90c';
+  color: #658292;
+}
+
+.icon-Icon_Alarm:before {
+  content: '\e902';
+  color: #658292;
+}
+
+.icon-Icon_Check:before {
+  content: '\e912';
+  color: #658292;
+}
+
+.icon-Icon_Crop:before {
+  content: '\e915';
+  color: #658292;
+}
+
+.icon-Icon_Delete:before {
+  content: '\e917';
+  color: #658292;
+}
+
+.icon-Icon_Globe:before {
+  content: '\e91a';
+  color: #658292;
+}
+
+.icon-Icon_Add:before {
+  content: '\e901';
+  color: #658292;
+}
+
+.icon-Icon_Minus:before {
+  content: '\e903';
+  color: #658292;
+}
+
+.icon-Icon_Search:before {
+  content: '\e91c';
+  color: #658292;
+}
+
+.icon-Icon_Share:before {
+  content: '\e91d';
+}
+
+.icon-Sort_Down:before {
+  content: '\e920';
+  color: #658292;
+}
+
+.icon-Sort_Up:before {
+  content: '\e921';
+  color: #658292;
+}
+
+.icon-Squares:before {
+  content: '\e922';
+  color: #658292;
+}
+
+.icon-StatusGear:before {
+  content: '\e92c';
+  color: #658292;
+}
+
+.icon-StatusClient:before {
+  content: '\e914';
+  color: #658292;
+}
+
+.icon-Location:before {
+  content: '\e923';
+  color: #658292;
+}
+
+.icon-VirtualWans:before {
+  content: '\e924';
+  color: #658292;
+}
+
+.icon-autoScaling:before {
+  content: url(/assets/svgs/AutoScale.svg);
+}
+
+.icon-clientMfa:before {
+  content: url(/assets/svgs/MFAToggle.svg);
+}
+
+.haInfo.icon-autoScaling {
+  top: 0.625rem;
+}
+
+.icon-ClientMFAEnabled:before {
+  content: url(/assets/svgs/MFAEnabled.svg);
+}
+
+.icon-NFAuthorizationSessionManagement:before {
+  content: url(/assets/svgs/NFAuthorizationSessionManagement.svg);
+}
+
+.icon-NFAuthConnected {
+  content: url(/assets/svgs/Connected.svg);
+  width: 1.875rem;
+  padding-left: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.icon-NFAuthDisconnected {
+  content: url(/assets/svgs/Disconnected.svg);
+  width: 1.875rem;
+  padding-left: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.icon-customers:before {
+  content: "\e973";
+}
+
+.icon-customer:before {
+  content: "\e974";
+}
+
+.icon-back-arrow:before {
+  content: "\e971";
+}
+
+.icon-time:before {
+  content: "\e96b";
+}
+
+.icon-ha-leader-icon-crown:before {
+  content: "\e96c";
+}
+
+.icon-table:before {
+  content: "\ea70";
+}
+
+.icon-table2:before {
+  content: "\ea71";
+}
+
+.icon-tree-table:before {
+  content: "\e975";
+}
+
+.icon-ziti-fw:before {
+  content: "\e976";
+}
+
+.icon-RightPage:before {
+  content: "\e939";
+}
+
+.icon-copy:before {
+  content: "\e978";
+}
+
+.icon-Share-RBAC:before {
+  content: "\e950";
+}
+
+.icon-profile:before {
+  content: "\e97d";
+}
+
+.icon-close:before {
+  content: "\e905";
+}
+
+.icon-add:before {
+  content: "\e901";
+}
+
+.icon-plus:before {
+  content: "\e901";
+}
+
+.icon-minus:before {
+  content: "\e903";
+}
+
+.icon-delete:before {
+  content: "\e903";
+}
+
+.icon-clear:before {
+  content: "\e97e";
+}
+
+.icon-hash:before {
+  content: "\e97f";
+}
