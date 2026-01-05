@@ -1,13 +1,15 @@
-<div *ngIf="!loading" class="main" [ngClass]="{sideNavClosed: !displayNav}">
-    <div class="side">
-        <ng-container *ngIf="isAuthorized">
-            <lib-side-toolbar *ngIf="displayTool" ></lib-side-toolbar>
-            <lib-side-navbar *ngIf="displayNav" [version]="version"></lib-side-navbar>
-        </ng-container>
-    </div>
-    <div class="page">
-        <router-outlet></router-outlet>
-    </div>
+<div *ngIf="!loading" class="main main-content-column" [ngClass]="{sideNavClosed: !displayNav, loggedIn: isAuthorized}">
+  <lib-header-bar *ngIf="isAuthorized" [headerTitle]="headerTitle"></lib-header-bar>
+  <div class="main-content-row">
+    <ng-container *ngIf="isAuthorized; else login">
+      <lib-side-navigator *ngIf="displayNav" [version]="versionDetails"></lib-side-navigator>
+    </ng-container>
+    <ng-template #login>
+    </ng-template>
+    <main>
+      <router-outlet></router-outlet>
+    </main>
+  </div>
 </div>
 <lib-growler></lib-growler>
 <lib-loading-indicator *ngIf="loading" [isLoading]="loading"></lib-loading-indicator>

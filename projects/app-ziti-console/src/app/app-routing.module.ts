@@ -22,7 +22,6 @@ import {
   ConfigurationsPageComponent,
   ConfigTypeFormComponent,
   ConfigTypesPageComponent,
-  ZacWrapperComponent,
   IdentitiesPageComponent,
   DeactivateGuardService,
   EdgeRoutersPageComponent,
@@ -255,24 +254,6 @@ const routes: Routes = [
     runGuardsAndResolvers: 'always',
   },
   {
-    path: 'recipies',
-    component: ZacWrapperComponent,
-    canActivate: mapToCanActivate([AuthenticationGuard]),
-    runGuardsAndResolvers: 'always',
-  },
-  {
-    path: 'terminators',
-    component: ZacWrapperComponent,
-    canActivate: mapToCanActivate([AuthenticationGuard]),
-    runGuardsAndResolvers: 'always',
-  },
-  {
-    path: 'terminators/:id',
-    component: ZacWrapperComponent,
-    canActivate: mapToCanActivate([AuthenticationGuard]),
-    runGuardsAndResolvers: 'always',
-  },
-  {
     path: 'service-policies',
     component: ServicePoliciesPageComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
@@ -293,12 +274,6 @@ const routes: Routes = [
   {
     path: 'router-policies/:id',
     component: EdgeRouterPolicyFormComponent,
-    canActivate: mapToCanActivate([AuthenticationGuard]),
-    runGuardsAndResolvers: 'always',
-  },
-  {
-    path: 'auth-policies',
-    component: ZacWrapperComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
   },
@@ -347,26 +322,8 @@ const routes: Routes = [
     runGuardsAndResolvers: 'always',
   },
   {
-    path: 'recipes',
-    component: ZacWrapperComponent,
-    canActivate: mapToCanActivate([AuthenticationGuard]),
-    runGuardsAndResolvers: 'always',
-  },
-  {
-    path: 'organization',
-    component: ZacWrapperComponent,
-    canActivate: mapToCanActivate([AuthenticationGuard]),
-    runGuardsAndResolvers: 'always',
-  },
-  {
     path: 'profile',
     component: ProfileComponent,
-    canActivate: mapToCanActivate([AuthenticationGuard]),
-    runGuardsAndResolvers: 'always',
-  },
-  {
-    path: 'servers',
-    component: ZacWrapperComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
   },
@@ -403,12 +360,6 @@ const routes: Routes = [
   {
     path: 'settings',
     component: SettingsComponent,
-    canActivate: mapToCanActivate([AuthenticationGuard]),
-    runGuardsAndResolvers: 'always',
-  },
-  {
-    path: 'custom-fields',
-    component: ZacWrapperComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
   },

@@ -19,7 +19,7 @@ import {SettingsServiceClass, LoginServiceClass, SETTINGS_SERVICE, ZITI_DOMAIN_C
 import { SimpleZitiDomainControllerService} from './services/simple-ziti-domain-controller.service';
 import { Router } from '@angular/router';
 import {MatDialog} from "@angular/material/dialog";
-import {VERSION} from "ziti-console-lib";
+import {ZAC_VERSION} from "ziti-console-lib";
 
 @Component({
     selector: 'app-root',
@@ -36,6 +36,8 @@ export class AppComponent implements OnInit {
     loading = true;
     darkmodeEnabled = false;
 
+    headerTitle = 'Ziti Admin Console';
+
     constructor(
         @Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
         @Inject(ZITI_DOMAIN_CONTROLLER) private zitiControllerService: SimpleZitiDomainControllerService,
@@ -46,10 +48,9 @@ export class AppComponent implements OnInit {
 
     ngOnInit() {
         this.loading = true;
-        this.settingsService.settingsChange.subscribe((results:any) => {
-            this.version = results.version;
-            this.displayNav = !results.hideNav ?? true;
-            this.displayTool = !results.hideTool ?? true;
+        this.settingsService.settingsChange.subscribe((settings:any) => {
+            this.displayNav = !settings.hideNav ?? true;
+            this.displayTool = !settings.hideTool ?? true;
             this.loading = false;
             this.checkSession();
             this.handleUserSettings();
@@ -94,15 +95,19 @@ export class AppComponent implements OnInit {
             'client-theme'
         ) as HTMLLinkElement;
         if (themeLink) {
-            themeLink.href = `./assets/styles/dark.css?v=${VERSION.version}`;
+            themeLink.href = `./assets/styles/dark.css?v=${ZAC_VERSION.version}`;
         } else {
             const style = document.createElement('link');
             style.id = 'client-theme';
             style.rel = 'stylesheet';
             style.type = 'text/css';
-            style.href = `./assets/styles/dark.css?v=${VERSION.version}`; //<--add assets
+            style.href = `./assets/styles/dark.css?v=${ZAC_VERSION.version}`; //<--add assets
 
             head.appendChild(style);
         }
+    }
+
+    get versionDetails() {
+      return "Controller: "+(this.settingsService?.zitiSemver || '') +" ZAC: "+(ZAC_VERSION?.version || '');
     }
 }
