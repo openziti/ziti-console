@@ -1,0 +1,42 @@
+<div class="side-navigator-wrapper">
+  <div [ngClass]="{ 'nav-expanded': navExpanded, 'nav-hiddnen': navHidden }" class="side-navigator-container" (mouseenter)="showExpandCollapse($event)" (mouseleave)="hideExpandCollapse($event)">
+    <div cdkScrollable class="side-navigator-menu-container" [ngClass]="{'hide-menu-nav-bar': hideMenuNavBar}">
+      <div *ngFor="let group of currentNav.groups" class="side-navigator-menu-group">
+        <span class="side-navigator-menu-group-label">{{ group.label }}</span>
+        <div class="side-navigator-header-buffer" *ngIf="group.headerBuffer"></div>
+        <div *ngFor="let item of group.menuItems" class="{{item.class}}">
+          <a
+            *ngIf="(!item.isBetaFeature || (item.isBetaFeature && betaFeaturesEnabled))"
+            class="side-navigator-menu-item {{ item.className }}"
+            (click)="doNavAction($event, item)"
+            [ngClass]="{
+              selected: navItemSelected(item),
+              disabled: isNavItemDisabled(item)
+            }"
+            [title]="item.tooltip"
+            [href]="'./'+item.route"
+          >
+            <div class="side-navigator-menu-item-icon">
+              <div class="image" class="{{ item.iconClass }}"></div>
+              <span *ngIf="item.badgeCount" class="counterBadge">{{ item.badgeCount }}</span>
+            </div>
+            <span class="side-navigator-menu-item-label">
+              {{ item.label }}
+                <span class="side-navigator-menu-item-sublabel">{{ item.sublabel }}</span>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="side-navigator-footer-container">
+      <div class="side-navigator-version-container">
+        <div style="font-size: .875rem;" class="networkInfo" id="NetworkVersion">
+          <span class="network-semver">{{ version }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="expand-collapse-hitbox-container" [ngClass]="{'expand-collapse-container-closed': !navExpanded}" (mouseenter)="showExpandCollapse($event)" (mouseleave)="hideExpandCollapse($event)">
+    <div class="expand-collapse-icon icon-prev" [ngClass]="{'expand-collapse-icon-visible': expandCollapseIconVisible}" (click)="toggleNavigationExpanded($event)"></div>
+  </div>
+</div>

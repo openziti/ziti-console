@@ -28,7 +28,7 @@ import {ZacWrapperServiceClass} from "./zac-wrapper-service.class";
 import {GrowlerService} from "../messaging/growler.service";
 import {GrowlerModel} from "../messaging/growler.model";
 import {LoggerService} from "../messaging/logger.service";
-import {VERSION} from "../../version";
+import {ZAC_VERSION} from "../../ZAC_VERSION";
 import {ValidationService} from "../../services/validation.service";
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../services/ziti-data.service";
 
@@ -45,7 +45,7 @@ export const COMPONENTS: any = {
             <div class="related">
                 <textarea id="ApiParams" autocapitalize="off" style="height:500px"></textarea>
                 <div class="icon-copy copy swap" data-copy="ApiParams"></div>
-            </div> 
+            </div>
           </div>`,
     add: `<div class="action icon-plus" data-action="add"></div>`,
     line: `<div class="line"></div>`,
@@ -450,7 +450,7 @@ export class ZacWrapperService extends ZacWrapperServiceClass {
                     const versionData = {
                         "data": result.data,
                         "serviceUrl": "/edge/management/v1",
-                        "zac": VERSION.version,
+                        "zac": ZAC_VERSION.version,
                         "baseUrl": this.settingsService?.settings?.selectedEdgeController
                     }
                     returnTo(versionData);

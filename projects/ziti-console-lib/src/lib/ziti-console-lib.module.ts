@@ -136,6 +136,8 @@ import { SettingsComponent } from './pages/settings/settings.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { GeolocateComponent } from './pages/geolocate/geolocate.component';
 import { AttributesComponent } from './pages/attributes/attributes.component';
+import {SideNavigatorComponent} from "./features/side-navigator/side-navigator.component";
+import {HeaderBarComponent} from "./features/header-bar/header-bar.component";
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -240,7 +242,9 @@ export function playerFactory() {
         SettingsComponent,
         ProfileComponent,
         GeolocateComponent,
-        AttributesComponent
+        AttributesComponent,
+        SideNavigatorComponent,
+        HeaderBarComponent,
     ],
     imports: [
         CommonModule,
@@ -321,7 +325,9 @@ export function playerFactory() {
         SettingsComponent,
         ProfileComponent,
         GeolocateComponent,
-        AttributesComponent
+        AttributesComponent,
+        SideNavigatorComponent,
+        HeaderBarComponent,
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},

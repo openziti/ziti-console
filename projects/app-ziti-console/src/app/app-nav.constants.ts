@@ -17,7 +17,7 @@
 import {URLS} from "./app-urls.constants";
 import {environment} from "./environments/environment";
 
-export const OPEN_ZITI_NAVIGATOR = {
+export const ZITI_CONSOLE_NAVIGATOR = {
     groups: [
         {
             label: '',
@@ -48,7 +48,7 @@ export const OPEN_ZITI_NAVIGATOR = {
                 {
                     label: 'Routers',
                     route: URLS.ZITI_ROUTERS,
-                    iconClass: 'icon-network-hub',
+                    iconClass: 'icon-routers',
                     selectedRoutes: [URLS.ZITI_ROUTERS]
                 }
             ]
@@ -59,13 +59,13 @@ export const OPEN_ZITI_NAVIGATOR = {
                 {
                     label: 'Policies',
                     route: URLS.ZITI_SERVICE_POLICIES,
-                    iconClass: 'icon-servicepolicy',
+                    iconClass: 'icon-policies',
                     selectedRoutes: [URLS.ZITI_SERVICE_POLICIES]
                 },
                 {
                     label: 'Posture Checks',
                     route: URLS.ZITI_POSTURE_CHECKS,
-                    iconClass: 'icon-posture',
+                    iconClass: 'icon-posturechecks',
                     selectedRoutes: [URLS.ZITI_POSTURE_CHECKS]
                 }
             ]
@@ -76,7 +76,7 @@ export const OPEN_ZITI_NAVIGATOR = {
                 {
                     label: 'Authentication',
                     route: URLS.ZITI_CERT_AUTHORITIES,
-                    iconClass: 'icon-certificates',
+                    iconClass: 'icon-CAs',
                     selectedRoutes: [URLS.ZITI_CERT_AUTHORITIES]
                 },
                 {
