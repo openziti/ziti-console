@@ -60,7 +60,7 @@ import {SimpleZitiDomainControllerService} from "./services/simple-ziti-domain-c
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MatDialogModule} from "@angular/material/dialog";
 import {URLS} from "./app-urls.constants";
-import {CLASSIC_ZITI_NAVIGATOR, OPEN_ZITI_NAVIGATOR} from "./app-nav.constants";
+import {CLASSIC_ZITI_NAVIGATOR, ZITI_CONSOLE_NAVIGATOR} from "./app-nav.constants";
 import {ZitiApiInterceptor} from "./interceptors/ziti-api.interceptor";
 import {LoggerModule, NgxLoggerLevel} from "ngx-logger";
 import {ErrorInterceptor} from "./interceptors/error-handler.interceptor";
