@@ -109,7 +109,7 @@ if (environment.nodeIntegration) {
         {provide: ZITI_DOMAIN_CONTROLLER, useClass: SimpleZitiDomainControllerService},
         {provide: ZAC_WRAPPER_SERVICE, useClass: wrapperService},
         {provide: ZITI_URLS, useValue: URLS},
-        {provide: ZITI_NAVIGATOR, useValue: CLASSIC_ZITI_NAVIGATOR},
+        {provide: ZITI_NAVIGATOR, useValue: ZITI_CONSOLE_NAVIGATOR},
         {provide: ZITI_TAB_OVERRIDES, useClass: NoopTabInterceptorService},
         {provide: HTTP_INTERCEPTORS, useClass: apiInterceptor, multi: true},
         {provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true},
