@@ -11,6 +11,26 @@
   padding-top: 1rem;
   padding-bottom:1rem;
 
+  .hover {
+    white-space: nowrap;
+    position: absolute;
+    pointer-events: none;
+    left: 3.375rem;
+    top: 0.4375rem;
+    background-color: var(--menu);
+    padding: 0.625rem;
+    border-radius: 0.25rem;
+    box-shadow: var(--shadows);
+    font-size: 0.875rem;
+    color: var(--white);
+    letter-spacing: 0.0625rem;
+    height: 0rem;
+    opacity: 0;
+    font-family: Open Sans;
+    font-weight: 600;
+    transition: 0.2s;
+  }
+
   .topButtons {
     display:flex;
     flex-direction:column;

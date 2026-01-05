@@ -2028,6 +2028,82 @@ p-calendar {
   }
 }
 
+#NotificationsMenu {
+  position: absolute;
+  left: -5rem;
+}
+
+#ProfileMenu {
+  position: absolute;
+  bottom: -3.4375rem;
+  left: 2.8125rem;
+}
+
+#ProfileMenu.open {
+  bottom: -0.3125rem;
+}
+
+#AlertButton .count {
+  width: 0.8125rem;
+  height: 0.8125rem;
+  border-radius: 50%;
+  font-weight: 400;
+  font-family: 'Open Sans', Arial, sans-serif;
+  background-color: var(--secondary);
+  z-index: 20;
+  color: var(--white);
+  font-size: 0.5rem;
+  line-height: 0.75rem;
+  font-weight: bold;
+  position: absolute;
+  right: 0.8125rem;
+  top: 0.9375rem;
+  text-align: center;
+  box-shadow: var(--shadows);
+}
+
+.menu {
+  background-color: var(--menu);
+  border-radius: var(--inputBorderRadius);
+  box-shadow: 0 0 0 0.0625rem var(--shadow), 0 0.5rem 1rem var(--shadow);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--white);
+  letter-spacing: 0.0625rem;
+  height: 0rem;
+  opacity: 0;
+  transition: 0.2s;
+  z-index: 50;
+  padding-bottom: 0.625rem;
+  padding-top: 0.625rem;
+}
+
+.menu.open {
+  height: unset;
+  opacity: 1.0;
+}
+
+.menu .link {
+  cursor: pointer;
+  line-height: 2.25rem;
+  white-space: nowrap;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  transition: 0.2s;
+}
+
+.menu .link:hover {
+  background-color: var(--primary);
+}
+
+.menu .menutitle {
+  opacity: 0.8;
+  white-space: nowrap;
+  line-height: 2.25rem;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
 
 ////////
 /// Icon Fonts
