@@ -1,73 +1,106 @@
-<div class="loginForm standard-form-fields" (keyup.enter)="next()">
-    <div *ngIf="!isLoading">
-        <div class="title">Ziti Admin Console</div>
-        <div class="subtitle">Welcome, please log in to continue</div>
-        <div *ngIf="showAddController">
-            <lib-string-input [fieldName]="'Edge Controller Name'" [(fieldValue)]="edgeName" [error]="edgeNameError" [placeholder]="'enter a name for your controller'"></lib-string-input>
-            <lib-string-input [fieldName]="'URL'" [(fieldValue)]="edgeUrl" [error]="edgeUrlError" [placeholder]="'e.g. https://example.domain.io:1280'" [helpText]="helpText" [fieldClass]="controllerInvalid ? 'invalid' : ''"></lib-string-input>
-            <div id="CreateArea" class="edgecreate buttons">
-                <div id="BackToLogin" *ngIf="edgeControllerList.length > 0" class="linkButton" (click)="reset()">Back To Login</div>
-                <button class="button" (click)="create()" [disabled]="!edgeName ||!edgeUrl">Set Controller</button>
-            </div>
+<div class="login-page" (keyup.enter)="next()">
+  <div class="gradientbg">
+    <div class="right-rect"></div>
+    <div class="left-rect"></div>
+  </div>
+  <div class="splash-page-wrapper">
+    <div class="splash-page-container" *ngIf="showAddController">
+      <div class="ziti-logo-container">
+        <div class="ziti-logo"></div>
+        <div class="ziti-logo-text">
+          <div class="title-text-row title-top-text">Ziti Admin Console</div>
+          <div class="title-text-row title-bottom-text">By <a href="https://netfoundry.io" class="nf-name-text">NetFoundry</a></div>
         </div>
-        <div *ngIf="!showAddController">
-            <lib-selector-input
-                    *ngIf="!svc.originIsController && !showNoControllers"
-                    [fieldName]="'Edge Controller'"
-                    [(fieldValue)]="selectedEdgeController"
-                    [error]="edgeNameError"
-                    [placeholder]="controllerSelectPlaceholder"
-                    [valueList]="edgeControllerList"
-                    [helpText]="helpText"
-                    [fieldClass]="controllerInvalid ? 'invalid' : ''"
-                    (fieldValueChange)="edgeChanged($event)"
-            >
-            </lib-selector-input>
-            <div *ngIf="showNoControllers"class="no-controllers-warning">
-                <span class="warning-title"><b>No Controllers Available</b></span>
-                <span>You must set at least one controller URL, prior to starting the ZAC node server</span>
-                <span>Set an environment variable named <b class="env-var-text">ZAC_CONTROLLER_URLS</b> before starting the server</span>
-                <span>It must be a comma seperated list of 1 or more URLs. For Example:</span>
-                <code>ZAC_CONTROLLER_URLS=https://localhost:1280,https://example.domain.io:443</code>
-            </div>
-            <label for="Username" class="userlogin open" [ngClass]="{'login-disabled': showNoControllers}">Username</label>
-            <input
-                    id="Username"
-                    name="username"
-                    type="text"
-                    autocomplete="on"
-                    required
-                    [ngClass]="{'login-disabled': showNoControllers}"
-                    [placeholder]="'enter username of controller'"
-                    (change)="usernameChange($event)"
-                    (keyup)="usernameChange($event)"
-            >
-            <label for="Password" class="userlogin open" [ngClass]="{'login-disabled': showNoControllers}">Password</label>
-            <input
-                    id="Password"
-                    name="password"
-                    type="password"
-                    autocomplete="on"
-                    required
-                    [ngClass]="{'login-disabled': showNoControllers}"
-                    [placeholder]="'enter password of controller'"
-                    (change)="passwordChange($event)"
-                    (keyup)="passwordChange($event)"
-            >
-            <div class="buttons">
-                <button class="button" (click)="login()" [ngClass]="{'login-disabled': showNoControllers}">Log in</button>
-            </div>
-            <div *ngIf='extJwtSigners && extJwtSigners.length > 0' class="divider-container"><div class="idp-divider"></div><span class="id-divider-label">or log in with</span><div class="idp-divider"></div></div>
-            <div *ngIf='extJwtSigners && extJwtSigners.length > 0' class="idp-buttons-container">
-                <div class="idp-button"
-                     *ngFor="let jwtSigner of extJwtSigners"
-                     (click)="handleOAuthLogin(jwtSigner)"
-                >
-                    {{jwtSigner.name}}
-                    <div class="spinner" *ngIf="oauthLoading === jwtSigner.name"></div>
-                </div>
-            </div>
-        </div>
+      </div>
+      <div class="welcome-text">Welcome. Enter your admin credentials below.</div>
+      <span *ngIf="errors['loginFailed']" class="error-message">{{errors['loginFailed']}}</span>
+      <span *ngIf="!errors['loginFailed']" class="error-message error-message-placeholder">&nbsp;</span>
+      <div class="username-pass-container">
+        <lib-string-input [fieldName]="'Edge Controller Name'" [(fieldValue)]="edgeName" [error]="edgeNameError" [placeholder]="'enter a name for your controller'"></lib-string-input>
+        <lib-string-input [fieldName]="'URL'" [(fieldValue)]="edgeUrl" [error]="edgeUrlError" [placeholder]="'e.g. https://example.domain.io:1280'" [helpText]="helpText" [fieldClass]="controllerInvalid ? 'invalid' : ''"></lib-string-input>
+      </div>
+      <div id="CreateArea" class="edgecreate buttons">
+        <div id="BackToLogin" *ngIf="edgeControllerList.length > 0" class="linkButton" (click)="reset()">Back To Login</div>
+        <button class="button" (click)="create()" [disabled]="!edgeName ||!edgeUrl">Set Controller</button>
+      </div>
     </div>
+    <div class="splash-page-container" *ngIf="!showAddController" [class.noControllers]="showNoControllers">
+      <div class="ziti-logo-container">
+        <div class="ziti-logo"></div>
+        <div class="ziti-logo-text">
+          <div class="title-text-row title-top-text">Ziti Admin Console</div>
+          <div class="title-text-row title-bottom-text">By <a href="https://netfoundry.io" class="nf-name-text">NetFoundry</a></div>
+        </div>
+      </div>
+      <div class="welcome-text">Welcome. Enter your login credentials below.</div>
+      <span *ngIf="errors['loginFailed']" class="error-message">{{errors['loginFailed']}}</span>
+      <span *ngIf="!errors['loginFailed']" class="error-message error-message-placeholder">&nbsp;</span>
+      <lib-selector-input
+        *ngIf="!svc.originIsController && !showNoControllers"
+        [fieldName]="'Edge Controller'"
+        [(fieldValue)]="selectedEdgeController"
+        [error]="edgeNameError"
+        [placeholder]="controllerSelectPlaceholder"
+        [valueList]="edgeControllerList"
+        [helpText]="helpText"
+        [fieldClass]="controllerInvalid ? 'invalid' : ''"
+        (fieldValueChange)="edgeChanged($event)"
+      >
+      </lib-selector-input>
+      <div *ngIf="showNoControllers"class="no-controllers-warning">
+        <span class="warning-title"><b>No Controllers Available</b></span>
+        <span>You must set at least one controller URL, prior to starting the ZAC node server</span>
+        <span>Set an environment variable named <b class="env-var-text">ZAC_CONTROLLER_URLS</b> before starting the server</span>
+        <span>It must be a comma seperated list of 1 or more URLs. For Example:</span>
+        <code>ZAC_CONTROLLER_URLS=https://localhost:1280,https://example.domain.io:443</code>
+      </div>
+
+      <div class="username-pass-container">
+        <div class="input-fields-container">
+          <label for="Username" class="userlogin open" [ngClass]="{'login-disabled': showNoControllers}">Username</label>
+          <input
+            id="Username"
+            name="username"
+            type="text"
+            autocomplete="on"
+            required
+            [ngClass]="{'login-disabled': showNoControllers}"
+            [placeholder]="'Enter your admin username'"
+            (change)="usernameChange($event)"
+            (keyup)="usernameChange($event)"
+          >
+        </div>
+      </div>
+      <div class="input-fields-container">
+        <label for="Password" class="userlogin open" [ngClass]="{'login-disabled': showNoControllers}">Password</label>
+        <input
+          id="Password"
+          name="password"
+          type="password"
+          autocomplete="on"
+          required
+          [ngClass]="{'login-disabled': showNoControllers}"
+          [placeholder]="'Enter your admin password'"
+          (change)="passwordChange($event)"
+          (keyup)="passwordChange($event)"
+        >
+      </div>
+      <div class="buttons-container">
+        <button class="primary-button login-button" (click)="login()" [ngClass]="{'login-disabled': showNoControllers}">Log in</button>
+      </div>
+      <div class="idp-container" *ngIf='extJwtSigners && extJwtSigners.length > 0'>
+        <div class="divider-container"><div class="idp-divider"></div><span class="id-divider-label">or log in with</span><div class="idp-divider"></div></div>
+        <div class="idp-buttons-container">
+          <div class="idp-button"
+               *ngFor="let jwtSigner of extJwtSigners"
+               (click)="handleOAuthLogin(jwtSigner)"
+          >
+            {{jwtSigner.name}}
+            <div class="spinner" *ngIf="oauthLoading === jwtSigner.name"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 <lib-loading-indicator [isLoading]="isLoading || extJwtSignersLoading"></lib-loading-indicator>

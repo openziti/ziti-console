@@ -1,12 +1,9 @@
 <div *ngIf="!loading" class="main" [ngClass]="{sideNavClosed: !displayNav}">
     <div class="side">
-        <ng-container *ngIf="isAuthorized; else login">
+        <ng-container *ngIf="isAuthorized">
             <lib-side-toolbar *ngIf="displayTool" ></lib-side-toolbar>
             <lib-side-navbar *ngIf="displayNav" [version]="version"></lib-side-navbar>
         </ng-container>
-        <ng-template #login>
-            <lib-side-banner></lib-side-banner>
-        </ng-template>
     </div>
     <div class="page">
         <router-outlet></router-outlet>

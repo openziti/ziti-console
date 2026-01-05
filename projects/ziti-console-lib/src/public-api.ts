@@ -59,7 +59,6 @@ export * from './lib/features/preview-list/preview-list.component';
 export * from './lib/features/login/login-dialog.component';
 export * from './lib/features/sidebars/side-toolbar/side-toolbar.component';
 export * from './lib/features/sidebars/side-navbar/side-navbar.component';
-export * from './lib/features/sidebars/side-banner/side-banner.component';
 export * from './lib/features/dynamic-widgets/string/string-input.component';
 export * from './lib/features/dynamic-widgets/number/number-input.component';
 export * from './lib/features/dynamic-widgets/selector/selector-input.component';
