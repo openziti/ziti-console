@@ -1,7 +1,7 @@
 .tSelectHeader {
   &.tSelect {
-    width: 1.325rem;
-    height: 1.325rem;
+    width: var(--checkboxHeightWidth);
+    height: var(--checkboxHeightWidth);
     border: 0.1rem var(--inputBorder) solid;
     border-radius: var(--inputBorderRadius);
     cursor: pointer;

@@ -9,7 +9,7 @@
   z-index: 100001;
 
   &.is-scrolled {
-    box-shadow: 0 10px 10px -10px var(--boxShadow);
+    box-shadow: 0 0.625rem 0.625rem -0.625rem var(--boxShadow);
   }
 }
 
