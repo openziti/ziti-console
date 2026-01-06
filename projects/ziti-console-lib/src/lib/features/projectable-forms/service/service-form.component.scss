@@ -36,7 +36,7 @@
     flex-direction: row;
     width: 1.875rem;
     height: 1.125rem;
-    border-radius: 0.625rem;
+    border-radius: var(--formHeaderToggleRadius);
     border-color: var(--inputBorder);
     border-style: solid;
     border-width: var(--inputBorderWidth);

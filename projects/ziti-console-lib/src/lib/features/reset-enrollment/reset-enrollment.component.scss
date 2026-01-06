@@ -6,7 +6,7 @@
   padding: 1.25rem;
   gap: 0.9375rem;
   background-color: var(--background);
-  border-radius: 0.625rem;
+  border-radius: var(--formFieldBorderRadius);
   overflow: visible;
 }
 
