@@ -1,9 +1,9 @@
 .row-toggle {
   &.tSelect {
-    width: 1.5625rem;
-    height: 1.5625rem;
-    border: .1rem var(--stroke) solid;
-    border-radius: 0.9375rem;
+    width: var(--checkboxHeightWidth);
+    height: var(--checkboxHeightWidth);
+    border: 0.1rem var(--inputBorder) solid;
+    border-radius: var(--inputBorderRadius);
     cursor: pointer;
     position: absolute;
     top: 0.8125rem;
