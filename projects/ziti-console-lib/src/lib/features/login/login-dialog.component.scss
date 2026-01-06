@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   background-color: var(--background);
-  border-radius: 1.5625rem;
+  border-radius: var(--inputBorderRadius);
   width: 25rem;
   padding: var(--paddingXXL);
 

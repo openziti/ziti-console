@@ -38,7 +38,6 @@ import {Session} from "../../../models/session";
   ]
 })
 export class SessionFormComponent extends ProjectableForm implements OnInit, OnChanges, OnDestroy, AfterViewInit {
-  @Input() formData: any = {};
   @Input() edgeRouterRoleAttributes: any[] = [];
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
   @Input() headerToggle = false;
@@ -166,7 +165,7 @@ export class SessionFormComponent extends ProjectableForm implements OnInit, OnC
   }
 
   ngOnDestroy() {
-    this.extService.closed.emit({});
+    this.extService?.closed?.emit({});
     this.subscription.unsubscribe();
   }
 

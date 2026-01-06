@@ -55,7 +55,6 @@ import {GrowlerModel} from "../../messaging/growler.model";
   ],
 })
 export class IdentityFormComponent extends ProjectableForm implements OnInit, OnChanges, AfterViewInit {
-  @Input() formData: any = {};
   @Input() identityRoleAttributes: any[] = [];
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
 

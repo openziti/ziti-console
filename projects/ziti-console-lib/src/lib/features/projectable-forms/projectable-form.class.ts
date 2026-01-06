@@ -15,20 +15,9 @@
 */
 
 import {ExtendableComponent} from "../extendable/extendable.component";
-import {
-    Component,
-    DoCheck,
-    ElementRef,
-    EventEmitter,
-    Inject,
-    Input,
-    OnDestroy,
-    OnInit,
-    Output,
-    ViewChild
-} from "@angular/core";
+import {Component, DoCheck, ElementRef, EventEmitter, HostListener, Inject, Input, OnDestroy, OnInit, Output, ViewChild} from "@angular/core";
 
-import {defer, isEqual, unset, debounce, cloneDeep, forEach, isArray, isEmpty, isObject, isNil, map, omitBy, slice} from "lodash";
+import {defer, isEqual, unset, debounce, cloneDeep, forEach, isArray, isEmpty, isObject, isNil, map, omitBy, slice, get} from "lodash";
 import {GrowlerModel} from "../messaging/growler.model";
 import {GrowlerService} from "../messaging/growler.service";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../extendable/extensions-noop.service";
@@ -41,6 +30,7 @@ import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service
 
 // @ts-ignore
 const {context, tags, resources, service, app} = window;
+import {URLS} from "../../urls";
 
 export class Entity {
     name: ''
@@ -59,9 +49,26 @@ export const KEY_CODES = {
 })
 export abstract class ProjectableForm extends ExtendableComponent implements DoCheck, OnInit {
     @Input() isModal = false;
-    @Input() entityId: String;
-    @Input() abstract formData: any;
     @Output() abstract close: EventEmitter<any>;
+
+    _formData: any = {};
+    @Input() set formData(data) {
+      this._formData = data;
+      this.dataInit = true;
+    }
+    get formData(): any {
+      return this._formData;
+    }
+
+    _entityId: String;
+    @Input() set entityId(data: String) {
+      this._entityId = data;
+    }
+
+    get entityId(): String {
+      return this._entityId;
+    }
+
     @Output() dataChange: EventEmitter<any> = new EventEmitter<any>();
     @ViewChild('nameFieldInput') nameFieldInput: ElementRef;
     @ViewChild('scrollContainer') scrollContainer: ElementRef;
@@ -69,6 +76,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     abstract clear(): void;
     abstract save(): void;
 
+    public dataInit = false;
     public errors: any = {};
     protected entityType = 'identities';
     protected entityClass: any = Entity;
@@ -89,10 +97,13 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     _settings: any = {};
     checkDataChangeDebounced = debounce(this.checkDataChange, 100, {maxWait: 100});
     ignoreDataChange = false;
+    isScrolled = false;
 
     subscription: Subscription = new Subscription();
 
     formInit = false;
+
+    @ViewChild('formContainer') formContainer!: ElementRef;
 
     protected constructor(
         protected growlerService: GrowlerService,
@@ -110,6 +121,8 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
                 const id = params['id'];
                 if (!isEmpty(id)) {
                     this.entityId = id;
+                } else {
+                    this.entityId = undefined;
                 }
             })
         );
@@ -158,6 +171,9 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         if (this.extService?.moreActions) {
             this.moreActions = [...this.moreActions, ...this.extService.moreActions];
         }
+        this.formContainer?.nativeElement?.addEventListener('scroll', () => {
+          this.isScrolled = this.formContainer.nativeElement.scrollTop > 0;
+        });
     }
 
     ngOnInit() {
