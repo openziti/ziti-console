@@ -1,12 +1,12 @@
-<div class="projectable-form-wrapper">
+<div class="ziti-page-container">
     <div class="overlay"></div>
     <div class="header">
         <div class="title">
             <span>{{pageTitle}}</span>
         </div>
     </div>
-    <div class="grid dashboard header-row" [class.exp]="showVisualizer">
-        <div class="grid numbers" [class.exp]="showVisualizer">
+    <div class="header-row-container" [class.exp]="showVisualizer">
+        <div class="entity-count-container" [class.exp]="showVisualizer">
             <div class="dial"></div>
             <a routerLink="/identities">
                 <div class="totalPod">
@@ -45,27 +45,27 @@
                 </div>
             </a>
         </div>
-        <div class="grid split wide" [class.exp]="showVisualizer">
+        <div class="icon-links-container" [class.exp]="showVisualizer">
             <a id="NetVisualizer" routerLink="/network-visualizer" *ngIf="showVisualizer">
-                <div class="iconLink">
+                <div class="icon-link-pod">
                     <div class="network-visualizer"></div>
                     <div class="label">Network</div>
                     <div class="label">Visualizer</div>
                 </div>
             </a>
             <a href="https://docs.openziti.io/docs/downloads" target="_blank">
-                <div class="iconLink">
+                <div class="icon-link-pod">
                     <div class="downloads"></div>
                     <div class="label">Downloads</div>
                 </div>
             </a>
             <a href="https://docs.openziti.io/" target="_blank">
-                <div class="iconLink">
+                <div class="icon-link-pod">
                     <div class="docs"></div>
                     <div class="label">Docs</div>
                 </div>
             </a>
         </div>
     </div>
-    <div id="MainMap"></div>
+    <div id="MainMap" class="map-container"></div>
 </div>

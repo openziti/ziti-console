@@ -20,6 +20,7 @@
         <lib-string-input [fieldName]="'URL'" [(fieldValue)]="edgeUrl" [error]="edgeUrlError" [placeholder]="'e.g. https://example.domain.io:1280'" [helpText]="helpText" [fieldClass]="controllerInvalid ? 'invalid' : ''"></lib-string-input>
       </div>
       <div id="CreateArea" class="edgecreate buttons">
+        <div *ngIf="edgeControllerList.length <= 0"></div>
         <div id="BackToLogin" *ngIf="edgeControllerList.length > 0" class="linkButton" (click)="reset()">Back To Login</div>
         <button class="button" (click)="create()" [disabled]="!edgeName ||!edgeUrl">Set Controller</button>
       </div>
