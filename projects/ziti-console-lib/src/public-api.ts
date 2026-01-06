@@ -4,10 +4,6 @@
 
 export * from './lib/ziti-console-lib.module';
 export * from './lib/zac-routing.module';
-export * from './lib/features/wrappers/zac-wrapper.component';
-export * from './lib/features/wrappers/zac-wrapper.service';
-export * from './lib/features/wrappers/zac-wrapper-service.class';
-export * from './lib/features/wrappers/node-wrapper.service';
 export * from './lib/pages/identities/identities-page.component';
 export * from './lib/pages/identities/identities-page.service';
 export * from './lib/pages/edge-routers/edge-routers-page.component';

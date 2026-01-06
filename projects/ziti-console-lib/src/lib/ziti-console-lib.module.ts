@@ -15,7 +15,6 @@
 */
 
 import {APP_INITIALIZER, InjectionToken, Injector, NgModule} from '@angular/core';
-import {ZacWrapperComponent} from "./features/wrappers/zac-wrapper.component";
 import {SafePipe} from "./safe.pipe";
 import {HttpClientModule, HttpClient} from "@angular/common/http";
 import {CommonModule} from "@angular/common";
@@ -145,7 +144,6 @@ export function playerFactory() {
 
 @NgModule({
     declarations: [
-        ZacWrapperComponent,
         SafePipe,
         ExtendableComponent,
         StringInputComponent,
@@ -265,7 +263,6 @@ export function playerFactory() {
         DropdownModule
     ],
     exports: [
-        ZacWrapperComponent,
         ExtendableComponent,
         SideNavbarComponent,
         StringInputComponent,
