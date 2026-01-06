@@ -32,7 +32,6 @@ export interface ExtensionService {
   validateData(): Promise<any>;
   formDataSaved(data: any): Promise<any>;
   processTableColumns(tableColumns: any): any[];
-  get checkTunnelerDisabled(): boolean;
 }
 
 @Injectable({
@@ -69,7 +68,4 @@ export class ExtensionsNoopService implements ExtensionService {
     return tableColumns;
   }
 
-  get checkTunnelerDisabled(): boolean {
-    return false;
-  }
 }

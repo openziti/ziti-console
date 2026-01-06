@@ -229,4 +229,14 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
 
   clear(): void {
   }
+
+  isTunnelerDisabled(): boolean {
+    return this.extService.disabledComponents.some(
+      item => item.key === 'tunneler-disabled'
+    );
+  }
+
+  get checkTunnelerDisabled(): boolean {
+    return this.config.isOpenZiti ? false : this.isTunnelerDisabled()
+  }
 }
