@@ -170,7 +170,6 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   override ngAfterViewInit() {
     super.ngAfterViewInit();
     this.nameFieldInput.nativeElement.focus();
-    this.resetTags();
     this.svc.configEditor = this.configEditor;
     this.svc.getConfigTypes();
     this.svc.getRouters();

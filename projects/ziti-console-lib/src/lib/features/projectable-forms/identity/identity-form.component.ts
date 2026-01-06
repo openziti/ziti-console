@@ -110,7 +110,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   override ngAfterViewInit() {
     super.ngAfterViewInit();
     this.nameFieldInput.nativeElement.focus();
-    this.resetTags();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -260,7 +259,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
         break;
       case 'toggle-view':
         this.formView = action.data;
-        this.resetTags();
         break;
     }
   }
