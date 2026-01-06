@@ -44,7 +44,6 @@ import {CertificateAuthority} from "../../../../models/certificate-authority";
 })
 export class VerifyCertificateComponent extends ProjectableForm implements OnInit, OnDestroy {
 
-    @Input() override formData: any = new CertificateAuthority();
     @Input() override errors: any = {};
     @Output() close: EventEmitter<void> = new EventEmitter<void>();
 

@@ -44,7 +44,6 @@ import {PostureCheck} from "../../../models/posture-check";
 })
 export class PostureCheckFormComponent extends ProjectableForm implements OnInit, OnDestroy {
 
-    @Input() override formData: any = {};
     @Input() override errors: any = {};
     @Output() close: EventEmitter<void> = new EventEmitter<void>();
 
