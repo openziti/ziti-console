@@ -21,7 +21,6 @@ import {DataTableFilterService, FilterObj} from "../../features/data-table/data-
 import {ListPageComponent} from "../../shared/list-page-component.class";
 import {TabNameService} from "../../services/tab-name.service";
 import {MatDialog} from "@angular/material/dialog";
-import {ZacWrapperServiceClass, ZAC_WRAPPER_SERVICE} from "../../features/wrappers/zac-wrapper-service.class";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {QrCodeComponent} from "../../features/qr-code/qr-code.component";
 import {ResetEnrollmentComponent} from "../../features/reset-enrollment/reset-enrollment.component";
@@ -46,7 +45,6 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       filterService: DataTableFilterService,
       dialogForm: MatDialog,
       private tabNames: TabNameService,
-      @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperServiceClass,
       private router: Router,
       consoleEvents: ConsoleEventsService,
       @Inject(IDENTITY_EXTENSION_SERVICE) private extService: ExtensionService,
@@ -58,18 +56,12 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
     this.tabs = this.tabNames.getTabs('identities');
     this.svc.refreshData = this.refreshData;
     this.subscription.add(
-      this.zacWrapperService.zitiUpdated.subscribe(() => {
-        this.refreshData();
-      })
-    );
-    this.subscription.add(
       this.router.events.subscribe((event: any) => {
         if (event instanceof NavigationEnd) {
           this.refreshData();
         }
       })
     );
-    this.zacWrapperService.resetZacEvents();
     this.svc.getIdentityRoleAttributes();
     super.ngOnInit();
   }

@@ -29,17 +29,12 @@ import {
     NoopTabInterceptorService,
     OpenZitiConsoleLibModule,
     SettingsService,
-    ZacWrapperServiceClass,
-    ZacWrapperService,
-    NodeWrapperService,
     GrowlerModule,
     DeactivateGuardService,
-    ZitiDataService,
     NodeDataService,
     ZitiControllerDataService,
     SETTINGS_SERVICE,
     ZITI_DATA_SERVICE,
-    ZAC_WRAPPER_SERVICE,
     ZITI_DOMAIN_CONTROLLER,
     ZITI_NAVIGATOR,
     ZITI_TAB_OVERRIDES,
@@ -76,13 +71,11 @@ if (environment.nodeIntegration) {
     loginService = NodeLoginService;
     zitiDataService = NodeDataService;
     settingsService = NodeSettingsService;
-    wrapperService = NodeWrapperService;
     apiInterceptor = NodeApiInterceptor;
 }else {
     loginService = ControllerLoginService;
     zitiDataService = ZitiControllerDataService;
     settingsService = SettingsService;
-    wrapperService = ZacWrapperService;
     apiInterceptor = ZitiApiInterceptor;
 }
 
@@ -107,7 +100,6 @@ if (environment.nodeIntegration) {
     exports: [],
     providers: [
         {provide: ZITI_DOMAIN_CONTROLLER, useClass: SimpleZitiDomainControllerService},
-        {provide: ZAC_WRAPPER_SERVICE, useClass: wrapperService},
         {provide: ZITI_URLS, useValue: URLS},
         {provide: ZITI_NAVIGATOR, useValue: ZITI_CONSOLE_NAVIGATOR},
         {provide: ZITI_TAB_OVERRIDES, useClass: NoopTabInterceptorService},

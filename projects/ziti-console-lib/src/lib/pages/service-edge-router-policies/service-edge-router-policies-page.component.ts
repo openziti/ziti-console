@@ -20,7 +20,6 @@ import {DataTableFilterService} from "../../features/data-table/data-table-filte
 import {MatDialog} from "@angular/material/dialog";
 import {TabNameService} from "../../services/tab-name.service";
 import {ConsoleEventsService} from "../../services/console-events.service";
-import {ZAC_WRAPPER_SERVICE, ZacWrapperServiceClass} from "../../features/wrappers/zac-wrapper-service.class";
 import {ServiceEdgeRouterPoliciesPageService} from "./service-edge-router-policies-page.service";
 
 @Component({
@@ -42,8 +41,7 @@ export class ServiceEdgeRouterPoliciesPageComponent extends ListPageComponent im
       filterService: DataTableFilterService,
       dialogForm: MatDialog,
       private tabNames: TabNameService,
-      consoleEvents: ConsoleEventsService,
-      @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperServiceClass,
+      consoleEvents: ConsoleEventsService
   ) {
     super(filterService, svc, consoleEvents, dialogForm);
     let userLang = navigator.language || 'en-us';
