@@ -52,6 +52,14 @@
   }
 }
 
+.dial {
+  background-image: url(/assets/svgs/dial.svg);
+  background-size: contain;
+  width: 3.75rem;
+  height: 100%;
+  background-position: center;
+}
+
 .icon-link-pod {
   border-width: .1875rem;
   border-style: solid;
@@ -123,5 +131,38 @@
     box-shadow: var(--shadowLarge);
     margin-top: 1.25rem;
     box-shadow: var(--formFieldBoxShaddow);
+  }
+}
+
+.totalPod {
+  width: 100%;
+  height: 3.75rem;
+  color: var(--black);
+  padding: 0.75rem;
+  text-align: center;
+  border-right: var(--white);
+  border-right-width: 0.1875rem;
+  border-right-style: none;
+  padding-top: 0rem;
+  cursor: pointer;
+  transition: var(--transition);
+
+  .total {
+    font-size: 2rem;
+    color: var(--primary);
+    font-weight: 600;
+    transition: var(--transition);
+    line-height: 2.5rem;
+  }
+
+  .label {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    color: var(--menu);
+    font-weight: 600;
+    transition: var(--transition);
+    margin-top: -0.1875rem;
+    width: 100%;
+    text-align: center;
   }
 }

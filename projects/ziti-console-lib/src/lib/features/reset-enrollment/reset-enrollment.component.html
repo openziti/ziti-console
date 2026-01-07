@@ -18,6 +18,7 @@
         ></p-calendar>
     </div>
     <div class="reset-buttons-container">
-        <div id="ResetEnrollButton" class="button" (click)="handleAction()">{{type === 'reset' ? 'Reset' : 'Reissue'}} Enrollment</div>
+        <div class="linkButton cancel" (click)="cancel()">Oops, no get me out of here</div>
+        <div id="ResetEnrollButton" class="button" (click)="handleAction()">Submit</div>
     </div>
 </div>

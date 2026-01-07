@@ -53,3 +53,57 @@ label {
   text-overflow: ellipsis;
   line-height: var(--defaultLineHeight);
 }
+
+.constrained {
+  width: 37.5rem;
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.split {
+  display: grid;
+  grid-gap: 0.625rem;
+  grid-template-columns: auto 50%;
+}
+
+.header {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.line {
+  position: absolute;
+  width: 100%;
+  top: 2.5rem;
+  height: 0.25rem;
+  background-color: var(--stroke);
+}
+
+.tabs {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  font-size: 0.875rem;
+  min-height: 2.5rem;
+  padding-top: 0.9375rem;
+
+  .tab {
+    position: relative;
+    float: left;
+    margin-right: 1.25rem;
+    padding-bottom: 0.3125rem;
+    margin-bottom: 0.625rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+
+    &.selected {
+      border-bottom-width: 0.25rem;
+      border-bottom-color: var(--primary);
+      border-bottom-style: solid;
+    }
+  }
+}

@@ -324,7 +324,7 @@
                 >
                     <div class="form-row">
                         <input class="form-field-input" [value]="apiCallURL"/>
-                        <div class="icon-copy copy" (click)="copyToClipboard(apiCallURL)"></div>
+                        <div class="icon-copy copy-text" (click)="copyToClipboard(apiCallURL)"></div>
                     </div>
                     <lib-json-view *ngIf="formData" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
                 </lib-form-field-container>

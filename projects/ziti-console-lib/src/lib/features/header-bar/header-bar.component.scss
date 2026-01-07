@@ -434,11 +434,18 @@ header #ApplicationButton {
     justify-content: flex-start;
     align-items: baseline;
     gap: .175rem;
-    font-size: .75rem;
+    font-size: 1rem;
+
     .nf-name-text {
       font-variant: small-caps;
       font-size-adjust: 0.47;
-      font-size: .975rem;
+      font-size: 1.125rem;
+      font-weight: 400;
+      color: var(--primaryColor);
+
+      &:hover {
+        text-decoration: underline !important;
+      }
     }
   }
 }
