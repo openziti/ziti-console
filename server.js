@@ -129,25 +129,9 @@ const zacVersion = packageJson.version;
 
 var serviceUrl = "";
 var baseUrl = "";
-var headerFile = __dirname+__assets + "/templates/header.htm";
-var footerFile = __dirname+__assets + "/templates/footer.htm";
-var header = fs.readFileSync(headerFile, 'utf8');
-var footer = fs.readFileSync(footerFile, 'utf8');
 var onlyDeleteSelfController = true;
 var isDebugging = false;
 var tlsServer;
-
-/**
- * Watch for header and footer file changes and load them
- */
-fs.watchFile(headerFile, (curr, prev) => {
-	log(headerFile+" file Changed");
-	header = fs.readFileSync(headerFile, 'utf8');
-});
-fs.watchFile(footerFile, (curr, prev) => {
-	log(footerFile+" file Changed");
-	footer = fs.readFileSync(footerFile, 'utf8');
-});
 
 var errors = {
 	access: "You Do Not Have Access To Perform This Operations",
@@ -259,12 +243,6 @@ if (!settingsPath.endsWith("/")) settingsPath = settingsPath+"/";
 if (!fs.existsSync(__dirname+settingsPath)) {
 	fs.mkdirSync(__dirname+settingsPath);
 }
-if (!fs.existsSync(__dirname+settingsPath+'tags.json')) {
-	fs.copyFileSync(__dirname+__assets + '/data/tags.json', __dirname+settingsPath+'tags.json');
-}
-if (!fs.existsSync(__dirname+settingsPath+'templates.json')) {
-	fs.copyFileSync(__dirname+__assets + '/data/templates.json', __dirname+settingsPath+'templates.json');
-}
 if (fs.existsSync(__dirname+settingsPath+'settings.json')&&updateSettings) {
 	console.log("Updating Settings File - Backing Up Previous Settings");
 	fs.renameSync(__dirname+settingsPath+'settings.json', __dirname+settingsPath+'settings.'+moment().unix());
@@ -276,11 +254,6 @@ if (!fs.existsSync(__dirname+settingsPath+'/resources')) {
 	fs.mkdirSync(__dirname+settingsPath+'/resources');
 	fse.copySync(__dirname+__assets + '/resources/',__dirname+settingsPath+'/resources/');
 }
-
-
-var pages = JSON.parse(fs.readFileSync(__dirname+__assets + '/data/site.json', 'utf8'));
-var tags = JSON.parse(fs.readFileSync(__dirname+settingsPath+'tags.json', 'utf8'));
-var templates = JSON.parse(fs.readFileSync(__dirname+settingsPath+'templates.json', 'utf8'));
 
 var settings = JSON.parse(fs.readFileSync(__dirname+settingsPath+'settings.json', 'utf8'));
 
@@ -321,23 +294,6 @@ for (var i=0; i<process.argv.length; i++) {
 	}
 }
 
-var components = {};
-var comFiles = fs.readdirSync(__dirname+__assets + "/components");
-for (let i=0; i<comFiles.length; i++) {
-	var name = path.parse(comFiles[i]).name;
-	components[name] = fs.readFileSync(__dirname+__assets + "/components/"+comFiles[i], 'utf8');
-}
-components["canStyle"] = true;
-if (settings.allowPersonal != null) components["canStyle"] = settings.allowPersonal;
-components["style"] = ":root {\n";
-if (settings.primary && settings.primary!="") components["style"] += "\t\t--primary: "+settings.primary+";\n";
-else components["style"] += "\t\t--primary: #0027ab;\n";
-if (settings.secondary && settings.secondary!="") components["style"] += "\t\t--secondary: "+settings.secondary+";\n";
-else components["style"] += "\t\t--secondary: #fe0029;\n";
-components["style"] += "\n\t}";
-if (settings.logo && settings.logo!="") {
-	components["style"] += "\n\n\t#CustomLogo {\n\t\tbackground-image: url("+settings.logo+");\n\t\tdisplay: inline-block;\n\t}";
-}
 console.log(settings);
 
 for (var i=0; i<settings.edgeControllers.length; i++) {
@@ -409,44 +365,7 @@ app.post("/api/login", function(request, response) {
 	}
 });
 
-if (integration === 'classic') {
-  for (var i=0; i<pages.length; i++) {
-  	app.get(pages[i].url, function(request, response) {
-  		if (!baseUrl||baseUrl.trim().length==0&&request.session.baseUrl) baseUrl = request.session.baseUrl;
-  		if (!serviceUrl||serviceUrl.trim().length==0&&request.session.serviceUrl) serviceUrl = request.session.serviceUrl;
-  		var page = pages[0];
-  		for (var i=0; i<pages.length; i++) {
-  			if (pages[i].url==request.url) {
-  				page = pages[i];
-  				break;
-  			}
-  		}
-  		if (page.access=="") {
-  			if (page.url=="/login") request.session.user = null;
-  			var headerNow = header.split("{{title}}").join(page.title);
-  			headerNow = headerNow.split("{{auth}}").join("");
-  			fs.readFile(__dirname+__html+page.page, 'utf8', function(err, data) {
-  				var html = headerNow+data+footer;
-  				for (let prop in components) html = html.split('{{html.'+prop+'}}').join(components[prop]);
-  				response.send(html);
-  			});
-  		} else {
-  			if (request.session.user==null||request.session.user=="") response.redirect("/login");
-  			else {
-  				if (Number(page.access)<=Number(request.session.authorization)) {
-  					var headerNow = header.split("{{title}}").join(page.title);
-  					headerNow = headerNow.split("{{auth}}").join(" loggedIn");
-  					fs.readFile(__dirname+__html+page.page, 'utf8', function(err, data) {
-  						var html = headerNow+data+footer;
-  						for (let prop in components) html = html.split('{{html.'+prop+'}}').join(components[prop]);
-  						response.send(html);
-  					});
-  				} else response.redirect('/login');
-  			}
-  		}
-  	});
-  }
-} else if (integration === 'edge-api') {
+if (integration === 'edge-api') {
     app.use(bodyParser.urlencoded({extended:false}));
 
     app.use('/', express.static(__dirname + '/dist/app-ziti-console'));
@@ -1588,114 +1507,7 @@ function GetResources(type, response) {
 			});
 			response.json({ type: type, data: toReturn });
 		}
-	});	
-}
-
-
-
-/**------------- ZAC only specified tag Section -------------**/
-
-
-
-/**
- * Get the current well defined list of tags that ZAC uses to display
- * UI defined tag definitions.
- */
-app.post("/api/tags", function(request, response) {
-	response.json(tags);
-});
-
-/**
- * Save the current tag data to the system.
- */
-app.post("/api/tagSave", function(request, response) {
-	var user = request.session.user;
-	tags = request.body.tags;
-	if (hasAccess(user)) {
-		let data = JSON.stringify(tags);  
-		fs.writeFileSync(__dirname+settingsPath+'/tags.json', data);
-	}
-	response.json(tags);
-});
-
-
-
-/**------------- ZAC only specified template Section -------------**/
-
-
-
-/**
- * Get the current well defined list of templates that ZAC has defined
- */
-app.post("/api/templates", function(request, response) {
-	response.json(templates);
-});
-
-/**
- * Get the current well defined list of templates that ZAC has defined
- */
-app.delete("/api/templates", function(request, response) {
-	var ids = request.body.ids;
-
-	var user = request.session.user;
-	//Authenticate(request).then((results) => {
-		if (hasAccess(user)) {
-
-			var newTemplates = [];
-
-			for (var i=0; i<templates.length; i++) {
-				if (!ids.includes(templates[i].id)) newTemplates.push(templates[i]);
-			}
-
-			templates = newTemplates;
-			
-			let data = JSON.stringify(templates);  
-			fs.writeFileSync(__dirname+settingsPath+'/templates.json', data);
-
-			response.json(templates);
-		} else response.json(templates);
-	//});
-});
-
-/**
- * Save the current template data to the system.
- */
-app.post("/api/template", function(request, response) {
-	var user = request.session.user;
-	//Authenticate(request).then((results) => {
-		if (hasAccess(user)) {
-			if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
-			else {
-				if (crypto.randomUUID) {
-					var template = request.body.template;
-					if (template.id == null) template.id = crypto.randomUUID();
-					var found = false;
-					for (var i=0; i<templates.length; i++) {
-						if (template.id==templates[i].id) {
-							templates[i] = template;
-							found = true;
-							break;
-						}
-					}
-					if (!found) templates.push(template);
-					let data = JSON.stringify(templates);  
-					fs.writeFileSync(__dirname+settingsPath+'/templates.json', data);
-				} else {
-					growler.error("Please update your version of Node JS.")
-				}
-			}
-			response.json(templates);
-		}
-	//});
-});
-
-function GetTemplate(id) {
-	for (var i=0; i<templates.length; i++) {
-		if (templates[i].id==id) {
-			return templates[i];
-		}
-	}
-	return null;
+	});
 }
 
 app.post("/api/execute", function(request, response) {

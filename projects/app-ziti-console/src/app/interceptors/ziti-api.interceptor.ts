@@ -34,9 +34,6 @@ import {MatDialog} from "@angular/material/dialog";
 
 import {defer} from 'lodash';
 
-// @ts-ignore
-const {growler} = window;
-
 /** Pass untouched request through to the next request handler. */
 @Injectable({
     providedIn: 'root'
@@ -136,10 +133,8 @@ export class ZitiApiInterceptor implements HttpInterceptor {
                 return true;
             } else if (result?.returnToLogin) {
                 // User is unauthorized. redirect user back to login page
-                growler.disabled = true;
                 defer(() => {
                     this.dialogRef.closeAll();
-                    growler.disabled = false;
                 });
                 if (this.settingsService?.settings?.session) {
                     this.settingsService.settings.session.id = undefined;

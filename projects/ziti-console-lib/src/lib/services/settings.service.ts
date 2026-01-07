@@ -26,8 +26,6 @@ import moment from "moment/moment";
 
 export const SETTINGS_SERVICE = new InjectionToken<SettingsServiceClass>('SETTINGS_SERVICE');
 
-// @ts-ignore
-const {service, growler, context, page, settings} = window;
 const DEFAULTS = {
     "session": {},
     "edgeControllers": [],
@@ -120,7 +118,12 @@ export class SettingsService extends SettingsServiceClass {
         }))).then((body: any) => {
             try {
                 if (body.error) {
-                    growler.error("Invalid Edge Controller: " + body.error);
+                  let growlerData = new GrowlerModel(
+                    'error',
+                    'Error',
+                    'Invalid Edge Controller: ' + body.error,
+                  );
+                  this.growlerService.show(growlerData);
                 } else {
                     if (body?.data?.apiVersions?.edge?.v1 != null) {
                         this.apiVersions = body.data.apiVersions;
@@ -149,14 +152,29 @@ export class SettingsService extends SettingsServiceClass {
                         this.set(this.settings);
 
                     } else {
-                        growler.error("Invalid Edge Controller: " + JSON.stringify(body));
+                      let growlerData = new GrowlerModel(
+                        'error',
+                        'Error',
+                        'Invalid Edge Controller: ' + JSON.stringify(body),
+                      );
+                      this.growlerService.show(growlerData);
                     }
                 }
             } catch (e) {
-                growler.error("Invalid Edge Controller: " + e);
+                let growlerData = new GrowlerModel(
+                  'error',
+                  'Error',
+                  'Invalid Edge Controller: ' + e,
+                );
+                this.growlerService.show(growlerData);
             }
         }).catch(err => {
-            growler.error(err);
+            let growlerData = new GrowlerModel(
+              'error',
+              'Error',
+              'Invalid Edge Controller: ' + err,
+            );
+            this.growlerService.show(growlerData);
         });
     }
 
@@ -170,13 +188,23 @@ export class SettingsService extends SettingsServiceClass {
                 tap((body: any) => {
                     try {
                         if (body.error) {
-                            growler.error("Invalid Edge Controller: " + body.error);
+                            let growlerData = new GrowlerModel(
+                              'error',
+                              'Error',
+                              'Invalid Edge Controller: ' + body.error,
+                            );
+                            this.growlerService.show(growlerData);
                         } else {
                             this.apiVersions = body.data.apiVersions;
                             this.zitiSemver = body.data?.version?.replace("v", "");
                         }
                     } catch (e) {
-                        growler.error("Invalid Edge Controller: " + body);
+                        let growlerData = new GrowlerModel(
+                          'error',
+                          'Error',
+                          'Invalid Edge Controller: ' + body,
+                        );
+                        this.growlerService.show(growlerData);
                     }
                 }),
                 catchError((err: any) => {

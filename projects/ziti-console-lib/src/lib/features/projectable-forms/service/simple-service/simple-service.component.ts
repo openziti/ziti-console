@@ -18,9 +18,6 @@ import {Location} from "@angular/common";
 import {URLS} from "../../../../urls";
 import {BehaviorSubject, forkJoin, Observable, of} from "rxjs";
 
-// @ts-ignore
-const {app} = window;
-
 @Component({
   selector: 'lib-simple-service',
   templateUrl: './simple-service.component.html',
@@ -1082,7 +1079,6 @@ export class SimpleServiceComponent extends ProjectableForm {
       this.dataChange.emit(dataChange);
     }
     this._dataChange = serviceDataChange || interceptDataChange || hostDataChange || dialDataChange || bindDataChange;
-    app.isDirty = false;
   }
 
   clear(): void {
