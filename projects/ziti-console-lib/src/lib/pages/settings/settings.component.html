@@ -1,7 +1,6 @@
 <div class="projectable-form-wrapper">
     <div class="header">
         <div class="title">Manage <span>{{pageTitle}}</span></div>
-        <div class="bread">Ziti Network <span class="secondary">/</span> Manage <span>{{pageTitle}}</span></div>
         <div class="line"></div>
         <div class="tabs">
           <div class="tab selected">Manage <span>{{pageTitle}}</span></div>
@@ -36,16 +35,6 @@
                         <div class="switch"></div>
                         <div class="label"></div>
                     </div>
-                </div>
-
-                <div class="personal">
-                    <label>Primary Color</label>
-                    <input type="text" class="colors" [(ngModel)]="primaryColor" (ngModelChange)="onPrimaryColorChange($event)"/>
-                </div>
-
-                <div class="personal">
-                    <label>Secondary Color</label>
-                    <input type="text" class="colors" [(ngModel)]="secondaryColor" (ngModelChange)="onSecondaryColorChange($event)"/>
                 </div>
             </div>
         </div>

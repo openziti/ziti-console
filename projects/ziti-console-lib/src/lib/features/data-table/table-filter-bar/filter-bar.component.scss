@@ -8,6 +8,12 @@
     padding: 0.3126rem;
     display: flex;
     align-items: center;
+    .navigate {
+      &:before {
+        color: var(--placeholder);
+        transition: var(--transition);
+      }
+    }
   }
 
   input {

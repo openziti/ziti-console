@@ -1,4 +1,7 @@
 .header {
+  position: relative;
+  display: inline-block;
+  width: 100%;
 
   [class^="icon-"], [class*=" icon-"] {
     font-family: 'icomoon', serif !important;
@@ -54,9 +57,19 @@
     }
   }
   .line {
+    position: absolute;
     width: 100%;
+    top: 2.5rem;
     height: 0.25rem;
     background-color: var(--stroke);
+  }
+  .bread {
+    position: absolute;
+    right: 4.375rem;
+    top: 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
   }
   .tabs {
     position: relative;

@@ -1,5 +1,23 @@
 @import 'node_modules/vanilla-jsoneditor/themes/jse-theme-dark.css';
 
+@font-face {
+  font-family: 'Russo One';
+  src: url('../../assets/fonts/RussoOne-Regular.woff2') format('woff2'),
+  url('../../assets/fonts/RussoOne-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  src: url('../../assets/fonts/OpenSans-Regular.woff2') format('woff2'),
+  url('../../assets/fonts/OpenSans-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 body {
   --mainBackground: #ffffff;
   --navigationOpaque: rgba(236, 238, 242, 0.85);
@@ -31,6 +49,7 @@ body {
   --shadowColor: rgba(0,0,0,0.08);
   --transition: 0.5s;
   --offWhite: #FCFCFC;
+  --offWhite_ALWAYS: #FCFCFC;
   --dark: #28292B;
   --formBase: #919ca5;
   --formGroup: #232f3e;
@@ -45,6 +64,7 @@ body {
   --navContainerBorderWidth: 0.125rem;
   --navContainerBackground: var(--mainBackground);
   --navHeaderPadding: var(--paddingXXL);
+  --navItemSelectedColor  : #DEE2F8;
   --headerButtonColor: #22222a;
 
   --buttonHeightSmall: 1.5625rem;
@@ -106,7 +126,27 @@ body {
 }
 
 body {
-  overflow: hidden;
+  &.ziti-admin-console {
+    overflow: hidden;
+    font-family: "Open Sans";
+    font-size: 0.875rem;
+    color: var(--text);
+    margin: 0rem;
+    color: var(--text);
+    background-color: var(--background);
+    font-size: 0.875rem;
+    height: 100%;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+}
+
+div {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  background-repeat: no-repeat;
 }
 
 textarea,
@@ -154,6 +194,25 @@ label {
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: var(--defaultLineHeight);
+}
+
+a {
+  color: var(--tableText);
+  font-weight: bold;
+  transition: var(--transition);
+
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+a,
+a:hover {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+  text-decoration-thickness: initial !important;
+  text-decoration-style: initial !important;
+  text-decoration-color: initial !important;
 }
 
 .button {
@@ -208,6 +267,74 @@ label {
   border-radius: var(--inputBorderRadius);
 }
 
+.linkButton {
+  color: var(--menu);
+  line-height: 2.5rem;
+  cursor: pointer;
+  transition: var(--transition);
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.title {
+  font-family: 'Russo One';
+  color: var(--primary);
+  -webkit-filter: brightness(50%);
+  filter: brightness(50%);
+  font-size: 1.875rem;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+.circle {
+  display: inline-block;
+  width: 0.625rem;
+  height: 0.625rem;
+  background-color: var(--stroke);
+  border-radius: 0.625rem;
+  margin-right: 0.125rem;
+  &.true {
+    background-color: var(--green);
+  }
+}
+
+.hashtag,
+.attag {
+  padding-left: 0.625rem;
+  padding-right: 0.625rem;
+  background-color: var(--primary);
+  color: transparent;
+  position: absolute;
+  float: left;
+  line-height: 1.875rem;
+  border-radius: var(--inputBorderRadius);
+  margin-left: 0.125rem;
+  margin-bottom: 0.625rem;
+  margin-top: 0.625rem;
+  transition: var(--transition);
+}
+
+.attag {
+  background-color: var(--secondary);
+  filter: brightness(90%);
+  position: absolute;
+}
+
+.tag-name {
+  padding-left: 0.625rem;
+  padding-right: 0.625rem;
+  color: #FFF;
+  position: relative;
+  float: left;
+  line-height: 1.875rem;
+  border-radius: var(--inputBorderRadius);
+  margin-left: 0.125rem;
+  margin-bottom: 0.625rem;
+  margin-top: 0.625rem;
+  transition: var(--transition);
+}
+
 .tagError {
   border-color: var(--red);
   background-color: var(--lightRed) !important;
@@ -215,6 +342,22 @@ label {
   &::placeholder {
     color: var(--formBase) !important;
   }
+}
+
+.copy-text {
+  position: absolute;
+  right: 0.875rem;
+  top: 1rem;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: var(--transition);
+  z-index: 150;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: auto;
+  grid-gap: 0.1875rem;
 }
 
 .modal.box.full {
@@ -773,7 +916,7 @@ lib-form-field-container {
   text-transform: uppercase;
 }
 
-.icon-copy.copy {
+.icon-copy.copy-text {
   right: 0.625rem;
   top: 0.3125rem;
   width: 1.25rem;
@@ -786,6 +929,7 @@ lib-form-field-container {
   &:hover {
     filter: brightness(1.2);
     transform: scale(1.10);
+    color: var(--primary);
   }
 
   &:active {
@@ -794,7 +938,7 @@ lib-form-field-container {
 }
 
 .api-call-container {
-  .icon-copy.copy {
+  .icon-copy.copy-text {
     background-color: var(--navigation);
   }
 }
@@ -865,7 +1009,7 @@ a {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     position: relative;
-    width: 2.8125rem;
+    width: 3.8125rem;
     background-size: contain;
     background-repeat: no-repeat;
   }
@@ -1166,11 +1310,22 @@ a {
 
 .icon-close {
   &.close {
-    font-size: 1.5625rem;
-    top: 0.9375rem;
-    right: 0.9375rem;
+    font-size: 1.725rem;
+    top: var(--marginLarge);
+    right: var(--marginLarge);
     width: 2.1875rem;
     font-weight: 600;
+    position: absolute;
+    z-index: 10;
+    height: 2.5rem;
+    line-height: 2.5rem;
+    cursor: pointer;
+    color: var(--stroke);
+    transition: var(--transition);
+
+    &:hover {
+      color: var(--text);
+    }
   }
 }
 
@@ -1928,6 +2083,69 @@ a {
       max-width: 0.5rem;
     }
   }
+}
+
+///////
+// Tabel Cell Renderers
+///////
+
+.os {
+  cursor: pointer;
+  width: 1.875rem;
+  height: 1.875rem;
+  position: relative;
+  display: inline-block;
+  top: 0.3125rem;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
+  transition: var(--transition);
+
+  &.windows {
+    background-image: url(/assets/images/windows.png);
+  }
+  &.apple {
+    background-image: url(/assets/images/apple.png);
+  }
+  &.android {
+    background-image: url(/assets/images/android.png);
+  }
+  &.linux {
+    background-image: url(/assets/images/linux.png);
+  }
+  &.other {
+    background-image: url(/assets/images/other.png);
+  }
+}
+
+.cert {
+  cursor: pointer;
+  width: 1.875rem;
+  height: 1.875rem;
+  position: relative;
+  display: inline-block;
+  top: 0.3125rem;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-image: url(/assets/svgs/cert.svg);
+  transition: var(--transition);
+}
+
+.qr {
+  cursor: pointer;
+  width: 1.875rem;
+  height: 1.875rem;
+  position: relative;
+  display: inline-block;
+  top: 0.125rem;
+  transition: var(--transition);
+  font-size: 1.75rem;
+  margin-left: 0.3125rem;
+  line-height: 1.75rem;
+  text-align: center;
+  color: var(--black);
+  text-align: center;
 }
 
 ///////
