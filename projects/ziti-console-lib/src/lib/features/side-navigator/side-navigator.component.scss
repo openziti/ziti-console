@@ -155,13 +155,18 @@
       padding-left: var(--navItemPadding);
       margin-left: var(--navItemMargin);
       margin-right: var(--navItemMargin);
-      border-radius: var(--navItemBorderRadius);
+      border-radius: var(--inputBorderRadius);
 
       &.selected {
-        background-color: var(--hoverBackground);
+        background-color: var(--navItemSelectedColor);
         border-right-color: var(--secondaryColor);
         border-right-width: 0.25rem;
         border-right-style: none;
+
+        &:focus,
+        &:focus-visible {
+          background-color: var(--navItemSelectedColor);
+        }
       }
 
       &.disabled {
@@ -174,6 +179,11 @@
       }
 
       &:hover {
+        background-color: var(--hoverBackground);
+      }
+
+      &:focus,
+      &:focus-visible {
         background-color: var(--hoverBackground);
       }
 
