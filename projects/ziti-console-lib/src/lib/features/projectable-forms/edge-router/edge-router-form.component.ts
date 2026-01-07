@@ -236,7 +236,7 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
     );
   }
 
-  get tunnelerDisabledReadOnly(): boolean {
-    return this.config.isOpenZiti ? false : this.isTunnelerDisabled()
+  get tunnelerEnabledReadOnly(): boolean {
+    return this.config.isOpenZiti ? true : !this.isTunnelerDisabled()
   }
 }

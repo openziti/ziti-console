@@ -43,12 +43,12 @@
                         [layout]="'row'"
                         class="form-field-advanced"
                     >
-                        <div class="config-item" [class.disabled]="tunnelerDisabledReadOnly">
+                        <div class="config-item" [class.disabled]="!tunnelerEnabledReadOnly">
                             <div class="config-container toggle-container">
                                 <div class="config-container-label">TUNNELER ENABLED</div>
-                                <div (click)="!tunnelerDisabledReadOnly && toggleTunnelerEnabled()"
-                                    [ngClass]="{ on: formData.isTunnelerEnabled,disabled: tunnelerDisabledReadOnly }" class="toggle"
-                                    [matTooltip]="tunnelerDisabledReadOnly ? 'Disabled because already hosted by netfoundry ' : ''"
+                                <div (click)="tunnelerEnabledReadOnly && toggleTunnelerEnabled()"
+                                    [ngClass]="{ on: formData.isTunnelerEnabled,disabled: !tunnelerEnabledReadOnly }" class="toggle"
+                                    [matTooltip]="!tunnelerEnabledReadOnly ? 'Disabled because already hosted by netfoundry ' : ''"
                                     matTooltipPosition="above" style="pointer-events: auto;">
                                     <span [hidden]="!formData.isTunnelerEnabled" class="on-label">YES</span>
                                     <span [hidden]="formData.isTunnelerEnabled" class="off-label">NO</span>
