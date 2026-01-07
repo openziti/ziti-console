@@ -20,9 +20,8 @@ import {HttpBackend, HttpClient} from "@angular/common/http";
 import {BehaviorSubject, firstValueFrom, map, tap} from "rxjs";
 import {catchError} from "rxjs/operators";
 import {GrowlerService} from "../features/messaging/growler.service";
+import {GrowlerModel} from "../features/messaging/growler.model";
 
-// @ts-ignore
-const {service, growler, context, page, settings} = window;
 const DEFAULTS = {
     "session": {},
     "edgeControllers": [],
@@ -92,33 +91,19 @@ export abstract class SettingsServiceClass {
             this.settings = {...DEFAULTS};
             localStorage.setItem('ziti.settings', JSON.stringify(this.settings));
         }
-        settings.data = this.settings;
-        context.set(this.name, this.settings);
         this.settingsChange.next(this.settings)
     }
 
     public set(data: any) {
         this.settings = data;
         localStorage.setItem('ziti.settings', JSON.stringify(data));
-        context.set(this.name, this.settings);
         this.settingsChange.next(this.settings);
     }
 
     public version() {
         this.versionData = localStorage.getItem('ziti.version');
-        context.set("version", this.versionData);
         this.settings = {...this.settings, version: this.versionData};
         this.settingsChange.next(this.settings)
-    }
-
-    public delete(url: string) {
-        service.call("server", {url: url}, this.deleted, "DELETE");
-    }
-
-    public deleted(e: any) {
-        if (page != null && page.deleting != null && page.deleting == this.versionData.baseUrl) {
-            window.location.href = "/login";
-        }
     }
 
     public getHttpOptions() {
@@ -134,7 +119,12 @@ export abstract class SettingsServiceClass {
 
     public addContoller(name: string, url: string) {
         if (name.trim().length == 0 || url.trim().length == 0) {
-            growler.error("Name and URL required");
+            let growlerData = new GrowlerModel(
+              'error',
+              'Error',
+              'Name and URL required',
+            );
+            this.growlerService.show(growlerData);
         } else {
             return this.controllerSave(name, url);
         }

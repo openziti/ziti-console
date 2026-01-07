@@ -1,6 +1,7 @@
 <div class="projectable-form-wrapper"
      (keyup.enter)="save($event)"
      (keyup.escape)="closeModal(false)"
+     [class.projectable-form-hidden]="!dataInit"
 >
     <lib-form-header
         [data]="formData"
@@ -8,8 +9,9 @@
         [moreActions]="moreActions"
         (actionRequested)="headerActionRequested($event)"
         [(formView)]="formView"
+        [class.is-scrolled]="isScrolled"
     ></lib-form-header>
-    <div class="edge-router-form-container projectable-form-container">
+    <div class="edge-router-form-container projectable-form-container" #formContainer>
         <div class="projectable-form-main-column form-group-row" *ngIf="formView === 'simple'">
             <div class="form-group-column three-fifths">
                 <lib-form-field-container [title]="'Edge Router Name'" [label]="'REQUIRED'">
@@ -145,4 +147,4 @@
         </div>
     </div>
 </div>
-<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
+<lib-loading-indicator *ngIf="isLoading || !dataInit" [isLoading]="isLoading || !dataInit"></lib-loading-indicator>

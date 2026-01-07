@@ -44,7 +44,6 @@ import {AuthPolicy} from "../../../models/auth-policy";
 })
 export class AuthPolicyFormComponent extends ProjectableForm implements OnInit, OnDestroy {
 
-    @Input() override formData: any = new AuthPolicy();
     @Input() override errors: any = {};
     @Output() close: EventEmitter<void> = new EventEmitter<void>();
 

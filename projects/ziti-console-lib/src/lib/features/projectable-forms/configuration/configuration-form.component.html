@@ -2,6 +2,7 @@
      (keyup.enter)="save($event)"
      (keyup.escape)="closeModal(false)"
      tabindex="0"
+     [class.projectable-form-hidden]="!dataInit"
 >
     <lib-form-header
             [data]="formData"
@@ -11,8 +12,9 @@
             [(formView)]="formView"
             [saveDisabled]="svc.saveDisabled || formDataInvalid"
             [saveTooltip]="saveButtonTooltip"
+            [class.is-scrolled]="isScrolled"
     ></lib-form-header>
-    <div class="config-form-container projectable-form-container">
+    <div class="config-form-container projectable-form-container" #formContainer>
         <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
             <div class="form-group-column three-fifths">
                 <lib-form-field-container [title]="'Config Name'" [label]="'Required'">
@@ -114,4 +116,4 @@
         </div>
     </div>
 </div>
-<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
+<lib-loading-indicator *ngIf="isLoading || !dataInit" [isLoading]="isLoading || !dataInit"></lib-loading-indicator>

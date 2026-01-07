@@ -55,7 +55,6 @@ import {GrowlerModel} from "../../messaging/growler.model";
   ],
 })
 export class IdentityFormComponent extends ProjectableForm implements OnInit, OnChanges, AfterViewInit {
-  @Input() formData: any = {};
   @Input() identityRoleAttributes: any[] = [];
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
@@ -111,7 +110,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   override ngAfterViewInit() {
     super.ngAfterViewInit();
     this.nameFieldInput.nativeElement.focus();
-    this.resetTags();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -261,7 +259,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
         break;
       case 'toggle-view':
         this.formView = action.data;
-        this.resetTags();
         break;
     }
   }

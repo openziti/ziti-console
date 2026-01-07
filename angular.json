@@ -42,6 +42,7 @@
             ],
             "styles": [
               "projects/ziti-console-lib/src/lib/shared-assets/styles/global.scss",
+              "projects/ziti-console-lib/src/lib/shared-assets/styles/icons.scss",
               "projects/app-ziti-console/src/styles.scss",
               "node_modules/primeng/resources/themes/saga-blue/theme.css",
               "node_modules/primeng/resources/primeng.min.css",
@@ -69,8 +70,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
+                  "maximumWarning": "5kb",
+                  "maximumError": "10kb"
                 }
               ],
               "outputHashing": "all",
@@ -210,6 +211,7 @@
             ],
             "styles": [
               "projects/ziti-console-lib/src/lib/shared-assets/styles/global.scss",
+              "projects/ziti-console-lib/src/lib/shared-assets/styles/icons.scss",
               "projects/app-ziti-console/src/styles.scss",
               "node_modules/primeng/resources/themes/saga-blue/theme.css",
               "node_modules/primeng/resources/primeng.min.css",

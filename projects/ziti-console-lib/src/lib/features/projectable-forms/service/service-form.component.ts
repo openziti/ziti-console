@@ -58,7 +58,7 @@ import {URLS} from "../../../urls";
   ]
 })
 export class ServiceFormComponent extends ProjectableForm implements OnInit, OnChanges, OnDestroy, AfterViewInit {
-  @Input() set formData(data) {
+  @Input() override set formData(data) {
     if (!data?.configs) {
       data.configs = [];
     }
@@ -74,14 +74,13 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     }
   }
 
-  get formData(): any {
+  override get formData(): any {
     return this.svc?.formData;
   }
 
   @Input() serviceRoleAttributes: any[] = [];
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
-  dataInit = false;
   isEditing = false;
   enrollmentExpiration: any;
   jwt: any;
@@ -164,14 +163,13 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   }
 
   ngOnDestroy() {
-    this.extService.closed.emit({});
+    this.extService?.closed?.emit({});
     this.subscription.unsubscribe();
   }
 
   override ngAfterViewInit() {
     super.ngAfterViewInit();
     this.nameFieldInput.nativeElement.focus();
-    this.resetTags();
     this.svc.configEditor = this.configEditor;
     this.svc.getConfigTypes();
     this.svc.getRouters();

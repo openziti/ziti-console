@@ -6,7 +6,6 @@ import {ListPageComponent} from "../../shared/list-page-component.class";
 import {TabNameService} from "../../services/tab-name.service";
 
 import {MatDialog} from "@angular/material/dialog";
-import {ZacWrapperServiceClass, ZAC_WRAPPER_SERVICE} from "../../features/wrappers/zac-wrapper-service.class";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
 
@@ -29,7 +28,6 @@ export class TransitRoutersPageComponent extends ListPageComponent implements On
       dialogForm: MatDialog,
       private tabNames: TabNameService,
       consoleEvents: ConsoleEventsService,
-      @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperServiceClass,
       @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService,
   ) {
     super(filterService, svc, consoleEvents, dialogForm, extService);
@@ -38,10 +36,6 @@ export class TransitRoutersPageComponent extends ListPageComponent implements On
   override ngOnInit() {
     this.tabs = this.tabNames.getTabs('routers');
     this.svc.refreshData = this.refreshData;
-    this.zacWrapperService.zitiUpdated.subscribe(() => {
-      this.refreshData();
-    });
-    this.zacWrapperService.resetZacEvents();
     super.ngOnInit();
   }
 

@@ -7,3 +7,83 @@
         }
     }
 }
+
+label {
+  color: var(--dark);
+  text-transform: uppercase;
+  margin-top: var(--marginMedium);
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 0.1875rem;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  font-weight: 600;
+  font-family: 'Open Sans';
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: var(--defaultLineHeight);
+}
+
+.toggle {
+  width: 3.75rem;
+  height: 1.875rem;
+  background-color: var(--black);
+  color: var(--white);
+  cursor: pointer;
+  border-radius: 6.25rem;
+  position: relative;
+  display: inline-block;
+  margin-top: var(--marginMedium);
+  transition: var(--transition);
+  float: left;
+  margin-right: var(--marginXL);
+}
+
+.toggle.on {
+  background-color: var(--green);
+}
+
+.toggle.on .switch {
+  left: 2.1875rem;
+}
+
+.toggle.on .label {
+  left: 0.625rem;
+  content: "YES";
+}
+
+.toggle.on .label::before {
+  content: "YES";
+}
+
+.toggle .switch {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.625rem;
+  background-color: var(--white);
+  transition: var(--transition);
+  position: absolute;
+  left: 0.3125rem;
+  top: 0.3125rem;
+  z-index: 10;
+}
+
+.toggle .label {
+  right: 0.625rem;
+  line-height: 1.875rem;
+  font-size: 0.75rem;
+  color: var(--white);
+  position: absolute;
+  z-index: 8;
+  transition: var(--transition);
+  text-transform: uppercase;
+}
+
+.toggleLabel {
+  line-height: 3.125rem;
+}
+
+.toggle .label::before {
+  content: "NO";
+}
