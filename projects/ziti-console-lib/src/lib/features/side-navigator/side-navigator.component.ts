@@ -49,64 +49,68 @@ export class SideNavigatorComponent implements OnInit, OnDestroy {
   }
 
   private updateSelectedNavItem(url: string) {
-    // Find the matching nav item from all groups
+    let bestMatch: any = null;
+    let bestMatchScore = -1;
+
     for (const group of this.currentNav.groups) {
       for (const item of group.menuItems) {
-        if (this.isRouteMatch(url, item)) {
-          this.selectedNavItem = item;
-          return;
+        const matchScore = this.getRouteMatchScore(url, item);
+        if (matchScore > bestMatchScore) {
+          bestMatchScore = matchScore;
+          bestMatch = item;
         }
       }
     }
-    // No match found, clear selection
-    this.selectedNavItem = null;
+
+    this.selectedNavItem = bestMatch;
   }
 
-  private isRouteMatch(currentUrl: string, navItem: any): boolean {
+  private getRouteMatchScore(currentUrl: string, navItem: any): number {
     if (!navItem.route) {
-      return false;
+      return -1;
     }
 
-    // Check if the nav item has a selectedRoutes array
+    let highestScore = -1;
+
     if (navItem.selectedRoutes && Array.isArray(navItem.selectedRoutes)) {
-      return navItem.selectedRoutes.some((route: string) => {
-        return this.matchRoute(currentUrl, route);
-      });
+      for (const route of navItem.selectedRoutes) {
+        const score = this.calculateMatchScore(currentUrl, route);
+        if (score > highestScore) {
+          highestScore = score;
+        }
+      }
+    } else {
+      highestScore = this.calculateMatchScore(currentUrl, navItem.route);
     }
 
-    // Fallback to checking the main route property
-    return this.matchRoute(currentUrl, navItem.route);
+    return highestScore;
+  }
+
+  private calculateMatchScore(currentUrl: string, navRoute: string): number {
+    const cleanUrl = currentUrl.split('?')[0].split('#')[0];
+
+    const normalizedUrl = cleanUrl.replace(/^\/|\/$/g, '');
+    const normalizedRoute = navRoute.replace(/^\/|\/$/g, '');
+
+    const urlSegments = normalizedUrl.split('/');
+    const routeSegments = normalizedRoute.split('/');
+
+    if (routeSegments.length > urlSegments.length) {
+      return -1;
+    }
+
+    const allSegmentsMatch = routeSegments.every((segment, index) => segment === urlSegments[index]);
+
+    if (!allSegmentsMatch) {
+      return -1; // No match
+    }
+
+    return routeSegments.length;
   }
 
 
   navItemSelected(navItem: any): boolean {
     return this.selectedNavItem === navItem;
-  }
-
-  private matchRoute(currentUrl: string, navRoute: string): boolean {
-    // Remove query parameters and hash from current URL
-    const cleanUrl = currentUrl.split('?')[0].split('#')[0];
-
-    // Remove leading/trailing slashes for consistent comparison
-    const normalizedUrl = cleanUrl.replace(/^\/|\/$/g, '');
-    const normalizedRoute = navRoute.replace(/^\/|\/$/g, '');
-
-    // Exact match
-    if (normalizedUrl === normalizedRoute) {
-      return true;
-    }
-
-    // Check if current URL starts with the nav route (for child routes like /identities/abcd123)
-    // Split by '/' and compare the base segments
-    const urlSegments = normalizedUrl.split('/');
-    const routeSegments = normalizedRoute.split('/');
-
-    // If the route has fewer segments than the URL, check if the base matches
-    if (routeSegments.length <= urlSegments.length) {
-      return routeSegments.every((segment, index) => segment === urlSegments[index]);
-    }
-
-    return false;
   }
 
   isNavItemDisabled(navItem: any) {
@@ -117,7 +121,7 @@ export class SideNavigatorComponent implements OnInit, OnDestroy {
     const isCommandOrCtrl = event.metaKey || event.ctrlKey;
 
     if (isCommandOrCtrl) {
-      // No-Op allow the native browser behavior (open in new window)
+      // No-Op allow the native browser behavior (ie. open in new window)
     } else {
       this.router.navigate([navItem.route]);
       event.preventDefault();
