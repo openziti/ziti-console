@@ -47,7 +47,8 @@ import {
     IDENTITY_EXTENSION_SERVICE,
     SERVICE_POLICY_EXTENSION_SERVICE,
     EDGE_ROUTER_POLICY_EXTENSION_SERVICE,
-    SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE
+    SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE,
+    DEFAULT_APP_CONFIG,
 } from "ziti-console-lib";
 
 import {AppRoutingModule} from "./app-routing.module";
@@ -65,6 +66,7 @@ import {NodeLoginService} from "./login/node-login.service";
 import {NodeSettingsService} from "./services/node-settings.service";
 import {NoopHttpInterceptor} from "./interceptors/noop-http.interceptor";
 import {NodeApiInterceptor} from "./interceptors/node-api.interceptor";
+import { DEFAULT_APP_CONFIG_PROP } from 'projects/ziti-console-lib/src/lib/default-app-config';
 
 let loginService, zitiDataService, settingsService, wrapperService, apiInterceptor;
 if (environment.nodeIntegration) {
@@ -115,6 +117,7 @@ if (environment.nodeIntegration) {
         {provide: SERVICE_EXTENSION_SERVICE, useClass: ExtensionsNoopService},
         {provide: SERVICE_POLICY_EXTENSION_SERVICE, useClass: ExtensionsNoopService},
         {provide: EDGE_ROUTER_POLICY_EXTENSION_SERVICE, useClass: ExtensionsNoopService},
+        {provide: DEFAULT_APP_CONFIG, useValue: DEFAULT_APP_CONFIG_PROP},
         {provide: SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE, useClass: ExtensionsNoopService},
     ],
     bootstrap: [AppComponent]

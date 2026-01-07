@@ -48,9 +48,10 @@ export class AppComponent implements OnInit {
 
     ngOnInit() {
         this.loading = true;
-        this.settingsService.settingsChange.subscribe((settings:any) => {
-            this.displayNav = !settings.hideNav ?? true;
-            this.displayTool = !settings.hideTool ?? true;
+        this.settingsService.settingsChange.subscribe((results:any) => {
+            this.version = results.version;
+            this.displayNav = !(results.hideNav ?? false);
+            this.displayTool = !(results.hideTool ?? false);
             this.loading = false;
             this.checkSession();
             this.handleUserSettings();
