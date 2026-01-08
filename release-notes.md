@@ -13,7 +13,6 @@
 * [Issue #776](https://github.com/openziti/ziti-console/issues/776) - Show box-shadow when form content scrolls underneath header bar container
 * [Issue #778](https://github.com/openziti/ziti-console/issues/778) - Remove Wrapper Component and Wrapper Services used for legacy pages
 
-*
 ## Bug Fixes
 * [Issue #782](https://github.com/openziti/ziti-console/issues/782) - Highlight active nav item from the left side navigation menu
 * [Issue #784](https://github.com/openziti/ziti-console/issues/784) - Corrected State-Driven Injection of download-selected TableHeaderAction
