@@ -69,7 +69,6 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
 
     override tableHeaderActions = [
         {name: 'Download All', action: 'download-all'},
-        {name: 'Download Selected', action: 'download-selected'},
     ]
 
     resourceType = 'edge-routers';
