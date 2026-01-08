@@ -1,3 +1,24 @@
+# app-ziti-console-v4.0.0
+# ziti-console-lib-v1.0.0
+## Feature/Improvements
+* [Issue #754](https://github.com/openziti/ziti-console/issues/754) - Replace legacy Settings & Profile pages with angular pages
+* [Issue #756](https://github.com/openziti/ziti-console/issues/756) - Removed unused legacy HTML/CSS/JS content
+* [Issue #757](https://github.com/openziti/ziti-console/issues/757) - Replace Legacy Dashboard/Map page with new angular page
+* [Issue #760](https://github.com/openziti/ziti-console/issues/760) - Replace legacy Attributes Explorer page
+* [Issue #763](https://github.com/openziti/ziti-console/issues/763) - Allow form fields and controls to be disabled via extension service
+* [Issue #768](https://github.com/openziti/ziti-console/issues/768) - Update login page layout and styles
+* [Issue #770](https://github.com/openziti/ziti-console/issues/770) - Add new header bar and side navigation components to app layout
+* [Issue #772](https://github.com/openziti/ziti-console/issues/772) - Replace "Quick Add" modal for adding Identities or Services from the nav bar
+* [Issue #774](https://github.com/openziti/ziti-console/issues/774) - Update component stylesheets to match new layouts and css variables
+* [Issue #776](https://github.com/openziti/ziti-console/issues/776) - Show box-shadow when form content scrolls underneath header bar container
+* [Issue #778](https://github.com/openziti/ziti-console/issues/778) - Remove Wrapper Component and Wrapper Services used for legacy pages
+
+*
+## Bug Fixes
+* [Issue #782](https://github.com/openziti/ziti-console/issues/782) - Highlight active nav item from the left side navigation menu
+* [Issue #784](https://github.com/openziti/ziti-console/issues/784) - Corrected State-Driven Injection of download-selected TableHeaderAction
+
+
 # app-ziti-console-v3.12.9
 # ziti-console-lib-v0.12.11
 ## Feature/Improvements
@@ -265,7 +286,7 @@ On Windows:
 * [Issue #534](https://github.com/openziti/ziti-console/issues/534) - Allow re-arrangement of sub tabs via extension service
 * [Issue #539](https://github.com/openziti/ziti-console/issues/539) - Add ability to download network JWT
 * [Issue #523](https://github.com/openziti/ziti-console/issues/523) - lock git revision to dependency versions
-* 
+*
 ## Bug Fixes
 * [Issue #520](https://github.com/openziti/ziti-console/issues/520) - Data doesn't show when loading config editor
 * [Issue #526](https://github.com/openziti/ziti-console/issues/526) - Prevent default policy warning from showing when it isn't selected
