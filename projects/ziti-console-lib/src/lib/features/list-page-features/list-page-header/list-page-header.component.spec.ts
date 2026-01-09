@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ListPageHeaderComponent } from './list-page-header.component';
+import { ListPageHeaderComponent } from './-header.component';
 
 describe('ListPageHeaderComponent', () => {
   let component: ListPageHeaderComponent;
