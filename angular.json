@@ -137,10 +137,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "ziti-console:build:production"
+              "buildTarget": "ziti-console:build:production"
             },
             "development": {
-              "browserTarget": "ziti-console:build:development"
+              "buildTarget": "ziti-console:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -148,7 +148,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "ziti-console:build"
+            "buildTarget": "ziti-console:build"
           }
         },
         "test": {
@@ -285,10 +285,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "ziti-console:build:production"
+              "buildTarget": "ziti-console:build:production"
             },
             "development": {
-              "browserTarget": "ziti-console:build:development"
+              "buildTarget": "ziti-console:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -296,7 +296,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "ziti-console:build"
+            "buildTarget": "ziti-console:build"
           }
         },
         "test": {
