@@ -223,7 +223,7 @@
 
   &:checked {
     background-color: var(--green) !important;
-    background-image: url(../../assets/images/check.png);
+    background-image: url(/projects/ziti-console-lib/src/assets/images/check.png);
     background-size: .675rem;
     background-position: center center;
     background-repeat: no-repeat;
@@ -344,7 +344,7 @@
   height: 100%;
   width: 2.575rem;
   margin-left: .125rem;
-  background: url(/assets/svgs/copy.svg) no-repeat;
+  background: url(/projects/ziti-console-lib/src/assets/svgs/copy.svg) no-repeat;
   background-size: 1.125rem 1.125rem;
   background-position: center;
   cursor: pointer;

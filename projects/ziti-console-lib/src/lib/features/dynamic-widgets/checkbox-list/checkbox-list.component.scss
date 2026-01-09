@@ -22,7 +22,7 @@ input:checked {
     border: 0.125rem var(--offWhite) solid;
     &:checked {
       background-color: var(--green);
-      background-image: url(../../../assets/images/check.png);
+      background-image: url(/projects/ziti-console-lib/src/assets/images/check.png);
       background-size: 45%;
       background-position: center center;
       background-repeat: no-repeat;

@@ -109,11 +109,11 @@
                                         ></div>
                                         <span *ngIf="errors.interceptAddressFormat" class="error-label">Accessing address must include a '.'</span>
                                     </div>
-                                    <input id="HowTo" type="text" maxlength="100" data-i18n="EgHost" (change)="validateInterceptAddress()" [ngClass]="{error: errors.interceptAddress}" [placeholder]="sdkOnlyDial ? '' : 'e.g. myservice.ziti'" [ngModel]="sdkOnlyDial ? '' : interceptConfigApiData.data.addresses[0]" (ngModelChange)="sdkOnlyDial ? "" : interceptConfigApiData.data.addresses[0] = $event">
+                                    <input id="HowTo" type="text" maxlength="100" data-i18n="EgHost" (change)="validateInterceptAddress()" [ngClass]="{error: errors.interceptAddress}" [placeholder]="sdkOnlyDial ? '' : 'e.g. myservice.ziti'" [ngModel]="sdkOnlyDial ? '' : interceptConfigApiData.data.addresses[0]" (ngModelChange)="sdkOnlyDial ? '' : interceptConfigApiData.data.addresses[0] = $event"/>
                                 </div>
                                 <div class="config-item-container" [ngClass]="{disabled: sdkOnlyDial}">
                                     <span class="config-item-label">PORT</span>
-                                    <input id="HowToPort" type="number" maxlength="10" (change)="validateInterceptPort()" [ngClass]="{error: errors.interceptPort}" [placeholder]="sdkOnlyDial ? '' : 443" (keyup)="interceptPortChanged($event)" [ngModel]="sdkOnlyDial ? '' : interceptPort" (ngModelChange)="sdkOnlyDial ? "" : interceptPort = $event">
+                                    <input id="HowToPort" type="number" maxlength="10" (change)="validateInterceptPort()" [ngClass]="{error: errors.interceptPort}" [placeholder]="sdkOnlyDial ? '' : 443" (keyup)="interceptPortChanged($event)" [ngModel]="sdkOnlyDial ? '' : interceptPort" (ngModelChange)="sdkOnlyDial ? '' : interceptPort = $event"/>
                                 </div>
                             </div>
                         </div>
@@ -169,7 +169,7 @@
                                 </div>
                                 <div class="config-item-container" [ngClass]="{disabled: sdkOnlyBind}">
                                     <span class="config-item-label">PROTOCOL</span>
-                                    <select id="HostedProtocol" (change)="hostProtocolsChanged($event)" [ngModel]="sdkOnlyBind ? '' : hostProtocol" (ngModelChange)="sdkOnlyBind ? "" : hostProtocol = $event">
+                                    <select id="HostedProtocol" (change)="hostProtocolsChanged($event)" [ngModel]="sdkOnlyBind ? '' : hostProtocol" (ngModelChange)="sdkOnlyBind ? '' : hostProtocol = $event">
                                         <option value="tcp">TCP</option>
                                         <option value="udp" >UDP</option>
                                         <option value="both" >TCP/UDP</option>
@@ -177,11 +177,11 @@
                                 </div>
                                 <div class="config-item-container" [ngClass]="{disabled: sdkOnlyBind}">
                                     <span class="config-item-label">Address</span>
-                                    <input id="HostedHost" type="text" maxlength="100" data-i18n="EgHost" (change)="validateHostAddress()" [ngClass]="{error: errors.hostAddress}" [placeholder]="sdkOnlyBind ? '' : 'e.g. myservice.ziti'" [ngModel]="sdkOnlyBind ? '' : hostConfigApiData.data.address" (ngModelChange)="sdkOnlyBind ? "" : hostConfigApiData.data.address = $event">
+                                    <input id="HostedHost" type="text" maxlength="100" data-i18n="EgHost" (change)="validateHostAddress()" [ngClass]="{error: errors.hostAddress}" [placeholder]="sdkOnlyBind ? '' : 'e.g. myservice.ziti'" [ngModel]="sdkOnlyBind ? '' : hostConfigApiData.data.address" (ngModelChange)="sdkOnlyBind ? '' : hostConfigApiData.data.address = $event"/>
                                 </div>
                                 <div class="config-item-container" [ngClass]="{disabled: sdkOnlyBind}">
                                     <span class="config-item-label">PORT</span>
-                                    <input id="HostedPort" type="number" maxlength="10" (change)="validateHostPort()" [ngClass]="{error: errors.hostPort}" [placeholder]="sdkOnlyBind ? '' : 443" [ngModel]="sdkOnlyBind ? '' : hostConfigApiData.data.port" (ngModelChange)="sdkOnlyBind ? "" : hostConfigApiData.data.port = $event">
+                                    <input id="HostedPort" type="number" maxlength="10" (change)="validateHostPort()" [ngClass]="{error: errors.hostPort}" [placeholder]="sdkOnlyBind ? '' : 443" [ngModel]="sdkOnlyBind ? '' : hostConfigApiData.data.port" (ngModelChange)="sdkOnlyBind ? '' : hostConfigApiData.data.port = $event"/>
                                 </div>
                             </div>
                         </div>
