@@ -39,8 +39,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 24
           registry-url: 'https://registry.npmjs.org'
+          
+      - name: Running npm ci
+      - run: npm ci
 
       - name: Set VERSION Environment Variable
         run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
