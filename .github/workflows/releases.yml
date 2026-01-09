@@ -4,6 +4,10 @@ on:
 
 name: Create Releases
 
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
+
 jobs:
   build-and-publish-app-ziti-console:
     if: startsWith(github.event.release.name, 'app-ziti-console-v')
@@ -34,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
           registry-url: 'https://registry.npmjs.org'
