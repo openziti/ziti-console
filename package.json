@@ -138,5 +138,8 @@
   },
   "overrides": {
     "form-data": "3.0.4"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
