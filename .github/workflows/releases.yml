@@ -5,7 +5,7 @@ on:
 name: Create Releases
 
 permissions:
-  id-token: write  # Required for OIDC
+  id-token: write  # Required for OIDC. see https://docs.npmjs.com/trusted-publishers#supported-cicd-providers
   contents: read
 
 jobs:
