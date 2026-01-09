@@ -33,7 +33,6 @@ jobs:
     if: startsWith(github.event.release.name, 'ziti-console-lib-v')
     runs-on: ubuntu-latest
     env:
-      NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       BUILD_CONFIG: "Release"
     steps:
       - uses: actions/checkout@v3
