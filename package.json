@@ -96,7 +96,7 @@
     "nodemailer": "^6.9.1",
     "npm": "^9.4.0",
     "primeicons": "^7.0.0",
-    "primeng": "^18.0.2",
+    "primeng": "^17.18.15",
     "request": "^2.88.2",
     "rxjs": "~7.8.0",
     "sanitize-html": "^2.13.0",
