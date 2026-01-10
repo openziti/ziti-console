@@ -21,8 +21,14 @@ import {BehaviorSubject, firstValueFrom, map, tap} from "rxjs";
 import {catchError} from "rxjs/operators";
 import {GrowlerService} from "../features/messaging/growler.service";
 
+// Provide safe defaults for global helpers that may not exist in some environments
 // @ts-ignore
-const {service, growler, context, page, settings} = window;
+const _w: any = window;
+const service = _w.service || { call: () => {} };
+const growler = _w.growler || { error: () => {} };
+const context = _w.context || { set: () => {} };
+const page = _w.page || {};
+const settings = _w.settings || {};
 const DEFAULTS = {
     "session": {},
     "edgeControllers": [],
