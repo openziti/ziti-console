@@ -17,7 +17,7 @@
 import {Injectable, Inject} from '@angular/core';
 import {BehaviorSubject, Observable, Subscription} from "rxjs";
 import {GrowlerModel, GrowlerService, SettingsServiceClass, ZitiDomainControllerService, ZitiSessionData, SETTINGS_SERVICE} from "ziti-console-lib";
-import {HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 import {isEmpty, unset} from 'lodash';
 import {Router} from "@angular/router";

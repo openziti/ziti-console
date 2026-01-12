@@ -1,6 +1,6 @@
 import {ZacWrapperService, COMPONENTS} from "./zac-wrapper.service";
 import {EventEmitter, Inject, Injectable} from "@angular/core";
-import {HttpClient} from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import {Router} from "@angular/router";
 import {ZITI_DOMAIN_CONTROLLER, ZitiDomainControllerService} from "../../services/ziti-domain-controller.service";
 import {ZITI_URLS} from "../../ziti-console.constants";

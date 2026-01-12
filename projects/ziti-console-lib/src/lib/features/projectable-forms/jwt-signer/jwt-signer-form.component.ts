@@ -40,7 +40,7 @@ import {ValidationService} from "../../../services/validation.service";
 import {OAuthErrorEvent, OAuthService} from "angular-oauth2-oidc";
 import {LoginServiceClass, ZAC_LOGIN_SERVICE} from "../../../services/login-service.class";
 import {AuthService} from "../../../services/auth.service";
-import {HttpClient} from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 
 @Component({
     selector: 'lib-configuration',

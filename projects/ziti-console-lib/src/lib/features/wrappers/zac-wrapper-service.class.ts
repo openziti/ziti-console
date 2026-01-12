@@ -3,7 +3,7 @@ import {Router} from "@angular/router";
 import {ZITI_DOMAIN_CONTROLLER, ZitiDomainControllerService} from "../../services/ziti-domain-controller.service";
 import {ZITI_URLS} from "../../ziti-console.constants";
 import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service";
-import {HttpClient} from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import {Subscription} from "rxjs";
 import {GrowlerService} from "../messaging/growler.service";
 import {LoggerService} from "../messaging/logger.service";

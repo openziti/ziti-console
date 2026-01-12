@@ -17,7 +17,7 @@
 import {APP_INITIALIZER, InjectionToken, Injector, NgModule} from '@angular/core';
 import {ZacWrapperComponent} from "./features/wrappers/zac-wrapper.component";
 import {SafePipe} from "./safe.pipe";
-import {HttpClientModule, HttpClient} from "@angular/common/http";
+import { HttpClient, provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {ZacRoutingModule} from "./zac-routing.module";
@@ -142,8 +142,7 @@ export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
 }
 
-@NgModule({
-    declarations: [
+@NgModule({ declarations: [
         ZacWrapperComponent,
         SafePipe,
         ExtendableComponent,
@@ -241,24 +240,6 @@ export function playerFactory() {
         GeolocateComponent,
         AttributesComponent
     ],
-    imports: [
-        CommonModule,
-        FormsModule,
-        MatDialogModule,
-        MatRadioModule,
-        HttpClientModule,
-        ZacRoutingModule,
-        ChipsModule,
-        CalendarModule,
-        AgGridModule,
-        QRCodeModule,
-        ClickOutsideModule,
-        NgJsonEditorModule,
-        MatTooltipModule,
-        MatAutocompleteModule,
-        LottieModule.forRoot({player: playerFactory}),
-        DropdownModule
-    ],
     exports: [
         ZacWrapperComponent,
         ExtendableComponent,
@@ -322,17 +303,30 @@ export function playerFactory() {
         ProfileComponent,
         GeolocateComponent,
         AttributesComponent
-    ],
-    providers: [
-        {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},
-        {provide: ZITI_NAVIGATOR, useValue: {}},
+    ], imports: [CommonModule,
+        FormsModule,
+        MatDialogModule,
+        MatRadioModule,
+        ZacRoutingModule,
+        ChipsModule,
+        CalendarModule,
+        AgGridModule,
+        QRCodeModule,
+        ClickOutsideModule,
+        NgJsonEditorModule,
+        MatTooltipModule,
+        MatAutocompleteModule,
+        LottieModule.forRoot({ player: playerFactory }),
+        DropdownModule], providers: [
+        { provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService },
+        { provide: ZITI_NAVIGATOR, useValue: {} },
         {
             provide: APP_INITIALIZER,
             useFactory: onAppInit,
             deps: [Injector],
             multi: true
         },
-    ],
-})
+        provideHttpClient(withInterceptorsFromDi()),
+    ] })
 export class OpenZitiConsoleLibModule {
 }

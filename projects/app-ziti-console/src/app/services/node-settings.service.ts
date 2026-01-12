@@ -16,7 +16,7 @@
 
 import {Injectable} from '@angular/core';
 import {isEmpty, defer} from "lodash";
-import {HttpBackend} from "@angular/common/http";
+import { HttpBackend } from "@angular/common/http";
 import {SettingsServiceClass, GrowlerService, GrowlerModel} from "ziti-console-lib";
 import {firstValueFrom, map, tap} from "rxjs";
 import {catchError} from "rxjs/operators";

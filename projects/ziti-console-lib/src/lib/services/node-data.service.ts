@@ -21,7 +21,7 @@ import {GrowlerService} from "../features/messaging/growler.service";
 import {SETTINGS_SERVICE, SettingsService} from "./settings.service";
 import {firstValueFrom, map} from "rxjs";
 import {catchError} from "rxjs/operators";
-import {HttpClient} from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import {FilterObj} from "../features/data-table/data-table-filter.service";
 import {isEmpty, get, isArray, isNumber, set, isBoolean} from "lodash";
 import {ZitiDataService} from "./ziti-data.service";

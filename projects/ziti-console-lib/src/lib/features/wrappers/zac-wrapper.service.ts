@@ -15,7 +15,7 @@
 */
 
 import {EventEmitter, Inject, Injectable, InjectionToken} from '@angular/core';
-import {HttpClient, HttpHeaders} from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import {Subject, Subscription} from "rxjs";
 import {NavigationEnd, Router} from "@angular/router";
 import {Resolver} from "@stoplight/json-ref-resolver";

@@ -29,7 +29,7 @@ import { Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { take, tap } from 'rxjs/operators';
 import { MatIconModule } from '@angular/material/icon';
-import { HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { TreeNodeProcessor } from './network-visualizer.treenodeprocessor';
 import { NetworkVisualizerHelper } from './network-visualizer.helper';
 import {LoggerService} from "../../messaging/logger.service";
