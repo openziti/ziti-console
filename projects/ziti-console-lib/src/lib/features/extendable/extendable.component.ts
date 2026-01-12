@@ -18,7 +18,8 @@ import {Component, inject, ViewChild, ViewContainerRef} from "@angular/core";
 import {ExtensionService, SHAREDZ_EXTENSION} from "./extensions-noop.service";
 
 @Component({
-  template: ` `
+    template: ` `,
+    standalone: false
 })
 export class ExtendableComponent {
   @ViewChild("beforetitleext", {read: ViewContainerRef}) beforeTitleVC: ViewContainerRef | undefined;

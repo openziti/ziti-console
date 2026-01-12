@@ -3,8 +3,8 @@ import {Subject} from "rxjs";
 import {debounce} from "lodash";
 
 @Component({
-  selector: 'lib-number-input',
-  template: `
+    selector: 'lib-number-input',
+    template: `
     <div [ngClass]="fieldClass + (!_isValid ? 'invalid' : '')" class="{{!_isValid ? 'invalid' : ''}} number-input-container">
       <div class="label-container">
         <label for="schema_{{parentage?parentage+'_':''}}{{_idName}}"  [ngStyle]="{'color': labelColor}">{{_fieldName}}</label>
@@ -23,7 +23,8 @@ import {debounce} from "lodash";
       <div *ngIf="error" class="error">{{error}}</div>
     </div>
   `,
-  styleUrls: ['number-input.component.scss']
+    styleUrls: ['number-input.component.scss'],
+    standalone: false
 })
 export class NumberInputComponent {
   _fieldName = 'Field Label';

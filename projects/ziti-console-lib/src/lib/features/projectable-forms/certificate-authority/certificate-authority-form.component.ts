@@ -40,7 +40,8 @@ import {CertificateAuthority} from "../../../models/certificate-authority";
 @Component({
     selector: 'lib-certificate-authority',
     templateUrl: './certificate-authority-form.component.html',
-    styleUrls: ['./certificate-authority-form.component.scss']
+    styleUrls: ['./certificate-authority-form.component.scss'],
+    standalone: false
 })
 export class CertificateAuthorityFormComponent extends ProjectableForm implements OnInit, OnDestroy {
 

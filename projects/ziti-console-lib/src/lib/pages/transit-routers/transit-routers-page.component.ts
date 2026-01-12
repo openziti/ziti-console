@@ -11,9 +11,10 @@ import {ConsoleEventsService} from "../../services/console-events.service";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
 
 @Component({
-  selector: 'lib-edge-routers',
-  templateUrl: './transit-routers-page.component.html',
-  styleUrls: ['./transit-routers-page.component.scss']
+    selector: 'lib-edge-routers',
+    templateUrl: './transit-routers-page.component.html',
+    styleUrls: ['./transit-routers-page.component.scss'],
+    standalone: false
 })
 export class TransitRoutersPageComponent extends ListPageComponent implements OnInit, OnDestroy {
 

@@ -22,9 +22,10 @@ import {BehaviorSubject, forkJoin, Observable, of} from "rxjs";
 const {app} = window;
 
 @Component({
-  selector: 'lib-simple-service',
-  templateUrl: './simple-service.component.html',
-  styleUrls: ['./simple-service.component.scss']
+    selector: 'lib-simple-service',
+    templateUrl: './simple-service.component.html',
+    styleUrls: ['./simple-service.component.scss'],
+    standalone: false
 })
 export class SimpleServiceComponent extends ProjectableForm {
   @Input() serviceRoleAttributes: any[] = [];

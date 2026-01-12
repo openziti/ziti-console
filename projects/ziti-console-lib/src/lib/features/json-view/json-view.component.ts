@@ -32,9 +32,10 @@ import _ from 'lodash';
 import {createAjvValidator, createJSONEditor, Mode} from "vanilla-jsoneditor";
 
 @Component({
-  selector: 'lib-json-view',
-  templateUrl: './json-view.component.html',
-  styleUrls: ['./json-view.component.scss'],
+    selector: 'lib-json-view',
+    templateUrl: './json-view.component.html',
+    styleUrls: ['./json-view.component.scss'],
+    standalone: false
 })
 export class JsonViewComponent implements AfterViewInit, OnChanges {
 

@@ -9,9 +9,10 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {Location} from "@angular/common";
 
 @Component({
-  selector: 'lib-card-list',
-  templateUrl: './card-list.component.html',
-  styleUrls: ['./card-list.component.scss']
+    selector: 'lib-card-list',
+    templateUrl: './card-list.component.html',
+    styleUrls: ['./card-list.component.scss'],
+    standalone: false
 })
 export class CardListComponent extends ProjectableForm {
   formData: any = {};

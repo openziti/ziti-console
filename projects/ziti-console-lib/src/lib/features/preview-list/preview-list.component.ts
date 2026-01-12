@@ -19,9 +19,10 @@ import {isEmpty} from 'lodash';
 import {Router} from "@angular/router";
 
 @Component({
-  selector: 'lib-preview-list',
-  templateUrl: './preview-list.component.html',
-  styleUrls: ['./preview-list.component.scss']
+    selector: 'lib-preview-list',
+    templateUrl: './preview-list.component.html',
+    styleUrls: ['./preview-list.component.scss'],
+    standalone: false
 })
 export class PreviewListComponent {
   //@Input() hideOption: string;

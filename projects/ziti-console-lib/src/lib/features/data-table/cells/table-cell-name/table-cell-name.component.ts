@@ -7,9 +7,10 @@ import {Router} from "@angular/router";
 import {isEmpty, isFunction, get} from 'lodash';
 
 @Component({
-  selector: 'lib-table-cell-name',
-  templateUrl: './table-cell-name.component.html',
-  styleUrls: ['./table-cell-name.component.scss']
+    selector: 'lib-table-cell-name',
+    templateUrl: './table-cell-name.component.html',
+    styleUrls: ['./table-cell-name.component.scss'],
+    standalone: false
 })
 export class TableCellNameComponent  implements ICellRendererAngularComp {
 

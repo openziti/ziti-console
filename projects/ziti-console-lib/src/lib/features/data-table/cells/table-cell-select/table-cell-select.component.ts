@@ -4,9 +4,10 @@ import {ICellRendererParams} from 'ag-grid-community';
 import _ from 'lodash';
 
 @Component({
-  selector: 'app-table-cell-select',
-  templateUrl: './table-cell-select.component.html',
-  styleUrls: ['./table-cell-select.component.scss'],
+    selector: 'app-table-cell-select',
+    templateUrl: './table-cell-select.component.html',
+    styleUrls: ['./table-cell-select.component.scss'],
+    standalone: false
 })
 export class TableCellSelectComponent implements ICellRendererAngularComp {
   cellParams;

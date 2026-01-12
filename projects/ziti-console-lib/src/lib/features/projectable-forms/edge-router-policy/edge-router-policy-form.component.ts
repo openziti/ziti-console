@@ -26,15 +26,16 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {Location} from "@angular/common";
 
 @Component({
-  selector: 'lib-edge-router-policy-form',
-  templateUrl: './edge-router-policy-form.component.html',
-  styleUrls: ['./edge-router-policy-form.component.scss'],
-  providers: [
-    {
-      provide: MatDialogRef,
-      useValue: {}
-    }
-  ]
+    selector: 'lib-edge-router-policy-form',
+    templateUrl: './edge-router-policy-form.component.html',
+    styleUrls: ['./edge-router-policy-form.component.scss'],
+    providers: [
+        {
+            provide: MatDialogRef,
+            useValue: {}
+        }
+    ],
+    standalone: false
 })
 export class EdgeRouterPolicyFormComponent extends ProjectableForm implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @Input() formData: EdgeRouterPolicy | any = {};

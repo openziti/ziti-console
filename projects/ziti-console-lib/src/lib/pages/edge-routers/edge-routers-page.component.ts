@@ -18,9 +18,10 @@ import {EDGE_ROUTER_EXTENSION_SERVICE} from "../../features/projectable-forms/ed
 import {ExtensionService} from "../../features/extendable/extensions-noop.service";
 
 @Component({
-  selector: 'lib-edge-routers',
-  templateUrl: './edge-routers-page.component.html',
-  styleUrls: ['./edge-routers-page.component.scss']
+    selector: 'lib-edge-routers',
+    templateUrl: './edge-routers-page.component.html',
+    styleUrls: ['./edge-routers-page.component.scss'],
+    standalone: false
 })
 export class EdgeRoutersPageComponent extends ListPageComponent implements OnInit, OnDestroy {
 

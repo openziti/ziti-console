@@ -42,9 +42,10 @@ import {DataTableFilterService, FilterObj} from "./data-table-filter.service";
 import {Subscription} from "rxjs";
 
 @Component({
-  selector: 'lib-data-table',
-  templateUrl: './data-table.component.html',
-  styleUrls: ['./data-table.component.scss'],
+    selector: 'lib-data-table',
+    templateUrl: './data-table.component.html',
+    styleUrls: ['./data-table.component.scss'],
+    standalone: false
 })
 export class DataTableComponent implements OnChanges, OnInit {
   @Input() rowData: any;

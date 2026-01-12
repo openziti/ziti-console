@@ -26,9 +26,10 @@ import { take, tap } from 'rxjs/operators';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-  selector: 'app-identity-visualizer',
-  templateUrl: './identity-service-path.component.html',
-  styleUrls: ['./identity-service-path.component.scss'],
+    selector: 'app-identity-visualizer',
+    templateUrl: './identity-service-path.component.html',
+    styleUrls: ['./identity-service-path.component.scss'],
+    standalone: false
 })
 export class IdentityServicePathComponent implements OnInit {
   public d3;

@@ -28,15 +28,16 @@ import {Location} from "@angular/common";
 import {APISession} from "../../../models/api-session";
 
 @Component({
-  selector: 'lib-sessions-form',
-  templateUrl: './api-session-form.component.html',
-  styleUrls: ['./api-session-form.component.scss'],
-  providers: [
-    {
-      provide: MatDialogRef,
-      useValue: {}
-    }
-  ]
+    selector: 'lib-sessions-form',
+    templateUrl: './api-session-form.component.html',
+    styleUrls: ['./api-session-form.component.scss'],
+    providers: [
+        {
+            provide: MatDialogRef,
+            useValue: {}
+        }
+    ],
+    standalone: false
 })
 export class APISessionFormComponent extends ProjectableForm implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @Input() formData: any = {};

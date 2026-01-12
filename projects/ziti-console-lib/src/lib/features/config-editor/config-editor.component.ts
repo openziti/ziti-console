@@ -8,9 +8,10 @@ import {GrowlerModel} from "../messaging/growler.model";
 import {GrowlerService} from "../messaging/growler.service";  // Import ajv-formats
 
 @Component({
-  selector: 'lib-config-editor',
-  templateUrl: './config-editor.component.html',
-  styleUrls: ['./config-editor.component.scss']
+    selector: 'lib-config-editor',
+    templateUrl: './config-editor.component.html',
+    styleUrls: ['./config-editor.component.scss'],
+    standalone: false
 })
 export class ConfigEditorComponent implements OnInit {
 

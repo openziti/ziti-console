@@ -10,7 +10,7 @@
     "esModuleInterop": true
   },
   "angularCompilerOptions": {
-    "compilationMode": "partial"
+    "compilationMode": "full"
   },
   "exclude": [
     "**/*.spec.ts"

@@ -19,9 +19,10 @@ import {OverridesService} from "./overrides.service";
 import {isEmpty, debounce} from "lodash"
 
 @Component({
-  selector: 'lib-overrides',
-  templateUrl: './overrides.component.html',
-  styleUrls: ['./overrides.component.scss']
+    selector: 'lib-overrides',
+    templateUrl: './overrides.component.html',
+    styleUrls: ['./overrides.component.scss'],
+    standalone: false
 })
 export class OverridesComponent implements OnInit {
   @Input() identity: any = {};

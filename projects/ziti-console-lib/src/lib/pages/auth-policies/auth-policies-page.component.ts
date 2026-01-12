@@ -28,7 +28,8 @@ import {firstValueFrom} from "rxjs";
 @Component({
     selector: 'lib-auth-policies',
     templateUrl: './auth-policies-page.component.html',
-    styleUrls: ['./auth-policies-page.component.scss']
+    styleUrls: ['./auth-policies-page.component.scss'],
+    standalone: false
 })
 export class AuthPoliciesPageComponent extends ListPageComponent implements OnInit {
     title = 'Auth Policies'

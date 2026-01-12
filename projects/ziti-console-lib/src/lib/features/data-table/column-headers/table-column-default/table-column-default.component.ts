@@ -22,9 +22,10 @@ import {Subscription} from "rxjs";
 import {DataTableFilterService} from "../../data-table-filter.service";
 
 @Component({
-  selector: 'app-table-column-default',
-  templateUrl: './table-column-default.component.html',
-  styleUrls: ['./table-column-default.component.scss'],
+    selector: 'app-table-column-default',
+    templateUrl: './table-column-default.component.html',
+    styleUrls: ['./table-column-default.component.scss'],
+    standalone: false
 })
 export class TableColumnDefaultComponent implements IHeaderAngularComp, AfterViewInit, OnInit {
   item: {

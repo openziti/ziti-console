@@ -18,9 +18,10 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ConsoleEventsService} from "../../services/console-events.service";
 
 @Component({
-  selector: 'lib-side-modal',
-  templateUrl: './side-modal.component.html',
-  styleUrls: ['./side-modal.component.scss']
+    selector: 'lib-side-modal',
+    templateUrl: './side-modal.component.html',
+    styleUrls: ['./side-modal.component.scss'],
+    standalone: false
 })
 export class SideModalComponent implements OnInit {
 

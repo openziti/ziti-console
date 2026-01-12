@@ -26,7 +26,8 @@ const {growler, context} = window;
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
-    styleUrls: ['./login.component.scss']
+    styleUrls: ['./login.component.scss'],
+    standalone: false
 })
 export class LoginComponent implements OnInit, OnDestroy {
     edgeControllerList: any[] = [];
@@ -52,8 +53,8 @@ export class LoginComponent implements OnInit, OnDestroy {
         @Inject(ZAC_LOGIN_SERVICE) public svc: LoginServiceClass,
         @Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
         @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
-        private authService: AuthService,
         private router: Router,
+        @Inject(AuthService) public authService: AuthService,
         ) { }
 
     ngOnInit() {

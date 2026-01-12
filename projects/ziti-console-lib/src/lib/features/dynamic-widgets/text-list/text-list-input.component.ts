@@ -19,8 +19,8 @@ import {Subject} from "rxjs";
 import {debounce, isEmpty} from "lodash";
 
 @Component({
-  selector: 'lib-text-list-input',
-  template: `
+    selector: 'lib-text-list-input',
+    template: `
     <div [ngClass]="fieldClass + (!_isValid ? ' invalid' : '')">
       <label for="schema_{{parentage?parentage+'_':''}}{{_idName}}"  [ngStyle]="{'color': labelColor}">{{_fieldName}}</label>
       <p-chips id="schema_{{parentage?parentage+'_':''}}{{_idName}}"
@@ -37,7 +37,8 @@ import {debounce, isEmpty} from "lodash";
       <div *ngIf="error" class="error">{{error}}</div>
     </div>
  `,
-  styleUrls:['./text-list-input.component.scss'  ]
+    styleUrls: ['./text-list-input.component.scss'],
+    standalone: false
 })
 export class TextListInputComponent {
   _fieldName = 'Field Label';

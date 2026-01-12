@@ -25,15 +25,16 @@ import {EdgeRouter} from "../../../models/edge-router";
 import {Location} from "@angular/common";
 
 @Component({
-  selector: 'lib-transit-router-form',
-  templateUrl: './transit-router-form.component.html',
-  styleUrls: ['./transit-router-form.component.scss'],
-  providers: [
-    {
-      provide: MatDialogRef,
-      useValue: {}
-    }
-  ]
+    selector: 'lib-transit-router-form',
+    templateUrl: './transit-router-form.component.html',
+    styleUrls: ['./transit-router-form.component.scss'],
+    providers: [
+        {
+            provide: MatDialogRef,
+            useValue: {}
+        }
+    ],
+    standalone: false
 })
 export class TransitRouterFormComponent extends ProjectableForm implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @Input() formData: any = {};

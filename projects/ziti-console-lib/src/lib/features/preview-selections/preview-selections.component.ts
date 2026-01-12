@@ -26,9 +26,10 @@ import {GrowlerModel} from "../messaging/growler.model";
 import {GrowlerService} from "../messaging/growler.service";
 
 @Component({
-  selector: 'preview-selections',
-  templateUrl: './preview-selections.component.html',
-  styleUrls: ['./preview-selections.component.scss']
+    selector: 'preview-selections',
+    templateUrl: './preview-selections.component.html',
+    styleUrls: ['./preview-selections.component.scss'],
+    standalone: false
 })
 export class PreviewSelectionsComponent implements OnInit {
 

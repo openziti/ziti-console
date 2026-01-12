@@ -41,7 +41,8 @@ import {Location} from "@angular/common";
 @Component({
     selector: 'lib-configuration',
     templateUrl: './terminator-form.component.html',
-    styleUrls: ['./terminator-form.component.scss']
+    styleUrls: ['./terminator-form.component.scss'],
+    standalone: false
 })
 export class TerminatorFormComponent extends ProjectableForm implements OnInit, OnDestroy {
 

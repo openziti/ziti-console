@@ -44,15 +44,16 @@ import {ConfirmComponent} from "../../confirm/confirm.component";
 import {GrowlerModel} from "../../messaging/growler.model";
 
 @Component({
-  selector: 'lib-identity-form',
-  templateUrl: './identity-form.component.html',
-  styleUrls: ['./identity-form.component.scss'],
-  providers: [
-    {
-      provide: MatDialogRef,
-      useValue: {}
-    }
-  ],
+    selector: 'lib-identity-form',
+    templateUrl: './identity-form.component.html',
+    styleUrls: ['./identity-form.component.scss'],
+    providers: [
+        {
+            provide: MatDialogRef,
+            useValue: {}
+        }
+    ],
+    standalone: false
 })
 export class IdentityFormComponent extends ProjectableForm implements OnInit, OnChanges, AfterViewInit {
   @Input() formData: any = {};

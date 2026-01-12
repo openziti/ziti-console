@@ -3,8 +3,8 @@ import {Subject} from "rxjs";
 import {debounce} from "lodash";
 
 @Component({
-  selector: 'lib-boolean-toggle-input',
-  template: `
+    selector: 'lib-boolean-toggle-input',
+    template: `
     <div [ngClass]="fieldClass">
       <label for="schema_{{parentage?parentage+'_':''}}{{_idName}}"  [ngStyle]="{'color': labelColor}">{{_fieldName}}</label>
       <div id="schema_{{parentage?parentage+'_':''}}{{_idName}}" (click)="toggle()" 
@@ -16,7 +16,8 @@ import {debounce} from "lodash";
       <div *ngIf="error" class="error">{{error}}</div>
     </div>
   `,
-  styleUrls:['./boolean-toggle-input.component.scss'  ]
+    styleUrls: ['./boolean-toggle-input.component.scss'],
+    standalone: false
 })
 export class BooleanToggleInputComponent {
   _fieldName = 'Field Label';

@@ -1,8 +1,8 @@
 import {Component, EventEmitter, Input, Output, ViewChild, ViewContainerRef} from '@angular/core';
 
 @Component({
-  selector: 'lib-object',
-  template: `
+    selector: 'lib-object',
+    template: `
     <div id="schema_{{parentage?parentage+'_':''}}{{_idName}}" class="wrapper" [ngStyle]="{'background-color': bcolor}" [ngClass]="{closed: !open}" (click)="toggleOpen($event, 'wrapper')">
       <div class="object-header-container">
         <div class="object-header-title" (click)="toggleOpen($event, 'header')">
@@ -25,7 +25,8 @@ import {Component, EventEmitter, Input, Output, ViewChild, ViewContainerRef} fro
       </div>
     </div>
   `,
-  styleUrls: ['./object.component.scss']
+    styleUrls: ['./object.component.scss'],
+    standalone: false
 })
 export class ObjectComponent {
   @ViewChild("wrappercontents", {read: ViewContainerRef, static: true}) public wrapperContents!: ViewContainerRef;

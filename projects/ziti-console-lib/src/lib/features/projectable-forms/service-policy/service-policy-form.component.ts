@@ -26,15 +26,16 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {Location} from "@angular/common";
 
 @Component({
-  selector: 'lib-service-policy-form',
-  templateUrl: './service-policy-form.component.html',
-  styleUrls: ['./service-policy-form.component.scss'],
-  providers: [
-    {
-      provide: MatDialogRef,
-      useValue: {}
-    }
-  ]
+    selector: 'lib-service-policy-form',
+    templateUrl: './service-policy-form.component.html',
+    styleUrls: ['./service-policy-form.component.scss'],
+    providers: [
+        {
+            provide: MatDialogRef,
+            useValue: {}
+        }
+    ],
+    standalone: false
 })
 export class ServicePolicyFormComponent extends ProjectableForm implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @Input() formData: ServicePolicy | any = {};

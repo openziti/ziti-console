@@ -21,9 +21,10 @@ import {isEmpty, isNil, unset} from "lodash";
 import {ProtocolAddressPortInputComponent} from "../protocol-address-port/protocol-address-port-input.component";
 
 @Component({
-  selector: 'lib-forwarding-config',
-  templateUrl: './forwarding-config.component.html',
-  styleUrls: ['./forwarding-config.component.scss']
+    selector: 'lib-forwarding-config',
+    templateUrl: './forwarding-config.component.html',
+    styleUrls: ['./forwarding-config.component.scss'],
+    standalone: false
 })
 export class ForwardingConfigComponent {
 

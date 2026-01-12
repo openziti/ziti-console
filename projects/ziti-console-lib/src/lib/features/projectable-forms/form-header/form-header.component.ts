@@ -18,9 +18,10 @@ import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '
 import {isFunction, defer, isEmpty} from 'lodash';
 
 @Component({
-  selector: 'lib-form-header',
-  templateUrl: './form-header.component.html',
-  styleUrls: ['./form-header.component.scss']
+    selector: 'lib-form-header',
+    templateUrl: './form-header.component.html',
+    styleUrls: ['./form-header.component.scss'],
+    standalone: false
 })
 export class FormHeaderComponent implements OnChanges {
   @Input() data: any = {};

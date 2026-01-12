@@ -6,9 +6,10 @@ import {GrowlerService} from "../../features/messaging/growler.service";
 const { L } = window as any;
 
 @Component({
-  selector: 'lib-geolocate',
-  templateUrl: './geolocate.component.html',
-  styleUrls: ['./geolocate.component.scss']
+    selector: 'lib-geolocate',
+    templateUrl: './geolocate.component.html',
+    styleUrls: ['./geolocate.component.scss'],
+    standalone: false
 })
 export class GeolocateComponent implements OnInit, OnDestroy {
   isLoading = false;

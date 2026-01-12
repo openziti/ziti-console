@@ -8,9 +8,10 @@ export class ProgressWizardStep {
 };
 
 @Component({
-  selector: 'lib-progress-wizard',
-  templateUrl: './progress-wizard.component.html',
-  styleUrls: ['./progress-wizard.component.scss']
+    selector: 'lib-progress-wizard',
+    templateUrl: './progress-wizard.component.html',
+    styleUrls: ['./progress-wizard.component.scss'],
+    standalone: false
 })
 export class ProgressWizardComponent {
 

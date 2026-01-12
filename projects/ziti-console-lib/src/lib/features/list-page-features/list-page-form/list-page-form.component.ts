@@ -29,7 +29,8 @@ export type ValidatorCallback = (data: any, payload?:any) => Promise<CallbackRes
             </div>
         </div>
     `,
-    styleUrls: ['./list-page-form.component.scss']
+    styleUrls: ['./list-page-form.component.scss'],
+    standalone: false
 })
 export class ListPageFormComponent extends ExtendableComponent implements AfterViewInit {
 

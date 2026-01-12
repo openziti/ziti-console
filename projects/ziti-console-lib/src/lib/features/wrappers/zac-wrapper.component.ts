@@ -30,6 +30,7 @@ const context = window['context'];
     selector: 'app-zac-wrapper',
     templateUrl: './zac-wrapper.component.html',
     styleUrls: ['./zac-wrapper.component.scss'],
+    standalone: false
 })
 export class ZacWrapperComponent implements OnInit, OnDestroy {
 

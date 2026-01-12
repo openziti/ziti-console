@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-import {APP_INITIALIZER, InjectionToken, Injector, NgModule} from '@angular/core';
+import { InjectionToken, Injector, NgModule, inject, provideAppInitializer } from '@angular/core';
 import {ZacWrapperComponent} from "./features/wrappers/zac-wrapper.component";
 import {SafePipe} from "./safe.pipe";
 import { HttpClient, provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
@@ -67,7 +67,7 @@ import { ConfirmComponent } from './features/confirm/confirm.component';
 import {onAppInit} from "./app.initializer";
 import {ClickOutsideModule} from "ng-click-outside";
 import {NgJsonEditorModule} from "ang-jsoneditor";
-import {LottieModule} from "ngx-lottie";
+import { LottieComponent, provideLottieOptions } from "ngx-lottie";
 import { NoItemsComponent } from './features/no-items/no-items.component';
 import { SideModalComponent } from './features/side-modal/side-modal.component';
 import { IdentityFormComponent } from "./features/projectable-forms/identity/identity-form.component";
@@ -303,7 +303,8 @@ export function playerFactory() {
         ProfileComponent,
         GeolocateComponent,
         AttributesComponent
-    ], imports: [CommonModule,
+    ], imports: [
+        CommonModule,
         FormsModule,
         MatDialogModule,
         MatRadioModule,
@@ -316,16 +317,17 @@ export function playerFactory() {
         NgJsonEditorModule,
         MatTooltipModule,
         MatAutocompleteModule,
-        LottieModule.forRoot({ player: playerFactory }),
+        LottieComponent,
         DropdownModule], providers: [
         { provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService },
         { provide: ZITI_NAVIGATOR, useValue: {} },
-        {
-            provide: APP_INITIALIZER,
-            useFactory: onAppInit,
-            deps: [Injector],
-            multi: true
-        },
+        provideLottieOptions({
+            player: playerFactory
+          }),
+        provideAppInitializer(() => {
+            const initializerFn = (onAppInit)(inject(Injector));
+        return initializerFn();
+      }),
         provideHttpClient(withInterceptorsFromDi()),
     ] })
 export class OpenZitiConsoleLibModule {

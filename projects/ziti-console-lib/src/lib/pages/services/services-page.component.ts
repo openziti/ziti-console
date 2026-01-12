@@ -36,9 +36,10 @@ import {ExtensionService} from "../../features/extendable/extensions-noop.servic
 import {SERVICE_EXTENSION_SERVICE} from "../../features/projectable-forms/service/service-form.service";
 
 @Component({
-  selector: 'lib-services',
-  templateUrl: './services-page.component.html',
-  styleUrls: ['./services-page.component.scss']
+    selector: 'lib-services',
+    templateUrl: './services-page.component.html',
+    styleUrls: ['./services-page.component.scss'],
+    standalone: false
 })
 export class ServicesPageComponent extends ListPageComponent implements OnInit, OnDestroy  {
 

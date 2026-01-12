@@ -3,8 +3,8 @@ import {Subject} from "rxjs";
 import {debounce} from "lodash";
 
 @Component({
-  selector: 'lib-string-input',
-  template: `
+    selector: 'lib-string-input',
+    template: `
       <div [ngClass]="fieldClass + (!_isValid ? 'invalid' : '')" class="string-input-container">
           <div class="label-container">
               <label for="schema_{{parentage?parentage+'_':''}}{{_idName}}"  [ngStyle]="{'color': labelColor}">{{_fieldName}}</label>
@@ -25,7 +25,8 @@ import {debounce} from "lodash";
           <div *ngIf="error" class="error">{{error}}</div>
       </div>
   `,
-    styleUrls: ['string-input.component.scss']
+    styleUrls: ['string-input.component.scss'],
+    standalone: false
 })
 export class StringInputComponent {
     _fieldName = 'Field Label';

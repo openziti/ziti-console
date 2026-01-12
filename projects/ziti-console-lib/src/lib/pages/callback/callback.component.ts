@@ -12,6 +12,7 @@ import {SETTINGS_SERVICE} from "../../services/settings.service";
 @Component({
     selector: 'lib-callback',
     template: '<lib-loading-indicator [isLoading]="true"></lib-loading-indicator>',
+    standalone: false
 })
 export class CallbackComponent implements OnInit {
     constructor(

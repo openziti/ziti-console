@@ -61,7 +61,7 @@ export abstract class ListPageServiceClass {
         headerComponent: TableColumnDefaultComponent,
         headerComponentParams: this.headerComponentParams,
         cellRendererParams: { pathRoot: this.basePath, showIdentityIcons: true },
-        onCellClicked: (data) => {
+        onCellClicked: (data: { data: { id: string; }; }) => {
             if (this.hasSelectedText()) {
                 return;
             }
@@ -98,17 +98,17 @@ export abstract class ListPageServiceClass {
         ordering: 'asc'
     };
 
-    nameColumnRenderer = (row) => {
+    nameColumnRenderer = (row: { data: { id: any; name: any; }; }) => {
         return `<div class="col cell-name-renderer" data-id="${row?.data?.id}">
                     <strong>${row?.data?.name}</strong>
                 </div>`
     }
 
-    rolesRenderer = (row) => {
+    rolesRenderer = (row: { column: { colId: any; }; data: { [x: string]: any[]; }; }) => {
         const colId = row.column.colId;
         let roles = '';
         if (row?.data?.[colId + 'Display']) {
-            row?.data?.[colId + 'Display'].forEach((attr) => {
+            row?.data?.[colId + 'Display'].forEach((attr: { name: string | string[]; }) => {
                 const className = attr?.name?.indexOf('@') === 0 ? 'attag' : 'hashtag';
                 roles += `<div>
                             <div class="${className}">${attr.name}</div>
@@ -116,7 +116,7 @@ export abstract class ListPageServiceClass {
                           </div>`;
             });
         } else {
-            row?.data?.[colId]?.forEach((attr) => {
+            row?.data?.[colId]?.forEach((attr: string | string[]) => {
                 const className = attr.indexOf('@') === 0 ? 'attag' : 'hashtag';
                 roles += `<div>
                             <div class="${className}">${attr}</div>
@@ -127,7 +127,7 @@ export abstract class ListPageServiceClass {
         return roles;
     }
 
-    createdAtFormatter = (row) => {
+    createdAtFormatter = (row: { data: { createdAt: moment.MomentInput; }; }) => {
         return moment(row?.data?.createdAt).local().format('M/D/YYYY HH:mm A');
     }
 
@@ -148,19 +148,21 @@ export abstract class ListPageServiceClass {
             this.currentSettings = settings;
         });
         router.events.subscribe((event: any) => {
-            if (event => event instanceof NavigationEnd) {
-                if (!event?.snapshot?.routeConfig?.path) {
-                    return;
+            if (event instanceof NavigationEnd) {
+                const snapshot = this.router.routerState.snapshot.root;
+                const routeConfig = snapshot.firstChild?.routeConfig;
+                if (!routeConfig?.path) {
+                  return;
                 }
-                const pathSegments = event.snapshot.routeConfig.path.split('/');
+                const pathSegments = routeConfig.path.split('/');
                 this.basePath = pathSegments[0];
-            }
+              }
         });
     }
 
     initMenuActions() {
         if (this.extensionService.listActions) {
-            this.menuItems = this.menuItems.map((item) => {
+            this.menuItems = this.menuItems.map((item: { action: any; }) => {
                 this.extensionService.listActions.forEach((extItem) => {
                     if (item.action === extItem.action) {
                         item = extItem;
@@ -169,7 +171,7 @@ export abstract class ListPageServiceClass {
                 return item;
             });
             let filteredActions = this.extensionService.listActions.filter((extItem) => {
-                return !this.menuItems.some((item) => {
+                return !this.menuItems.some((item: { action: any; }) => {
                     return item.action === extItem.action;
                 });
             });
@@ -177,7 +179,7 @@ export abstract class ListPageServiceClass {
         }
     }
 
-    addListItemExtensionActions(row) {
+    addListItemExtensionActions(row: { actionList: any[]; }) {
         if (this.extensionService.listActions) {
             const keys = this.extensionService.listActions.map((action) => {
                 return action.action;
@@ -186,7 +188,7 @@ export abstract class ListPageServiceClass {
         }
     }
 
-    downloadItems(selectedItems) {
+    downloadItems(selectedItems: any[]) {
         this.csvDownloadService.download(
             this.resourceType,
             selectedItems,
@@ -227,10 +229,10 @@ export abstract class ListPageServiceClass {
         });
     }
 
-    checkForAssociatedEntities(items, type, associatedType) {
+    checkForAssociatedEntities(items: any[], type: string, associatedType: string) {
         const itemsWithAssociations = [];
         const promises = [];
-        items.forEach((config) => {
+        items.forEach((config: { id: any; }) => {
             const prom = this.dataService.getSubdata(type, config.id, associatedType).then((result: any) => {
                 const services = result.data || [];
                 if (services.length > 0) {
@@ -256,7 +258,7 @@ export abstract class ListPageServiceClass {
         });
     }
 
-    sort(sortBy, ordering= 'asc') {
+    sort(sortBy: any, ordering= 'asc') {
         this.currentSort = {sortBy, ordering};
         if(this.refreshData) this.refreshData({sortBy, ordering});
     }
@@ -273,15 +275,15 @@ export abstract class ListPageServiceClass {
         return this.dataService.get('network-jwts', {}, []);
     }
 
-    public openEditForm(itemId = '', basePath?) {
+    public openEditForm(itemId = '', basePath?: undefined) {
         if (isEmpty(itemId)) {
             itemId = 'create';
         }
-        basePath = basePath ? basePath : this.basePath;
-        this.router?.navigateByUrl(`${basePath}/${itemId}`);
+        const finalBasePath: string = basePath ?? this.basePath ?? '';
+        this.router?.navigateByUrl(`${finalBasePath}/${itemId}`);
     }
 
-    remToPx(remValue) {
+    remToPx(remValue: number) {
         const rootFontSize: any = parseFloat(window.getComputedStyle(document.documentElement).fontSize);
         return remValue * rootFontSize;
     };

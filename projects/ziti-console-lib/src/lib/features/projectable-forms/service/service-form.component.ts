@@ -47,15 +47,16 @@ import {Location} from "@angular/common";
 import {URLS} from "../../../urls";
 
 @Component({
-  selector: 'lib-service-form',
-  templateUrl: './service-form.component.html',
-  styleUrls: ['./service-form.component.scss'],
-  providers: [
-    {
-      provide: MatDialogRef,
-      useValue: {}
-    }
-  ]
+    selector: 'lib-service-form',
+    templateUrl: './service-form.component.html',
+    styleUrls: ['./service-form.component.scss'],
+    providers: [
+        {
+            provide: MatDialogRef,
+            useValue: {}
+        }
+    ],
+    standalone: false
 })
 export class ServiceFormComponent extends ProjectableForm implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @Input() set formData(data) {

@@ -27,7 +27,8 @@ import {ConfirmComponent} from "../../features/confirm/confirm.component";
 @Component({
     selector: 'lib-configurations',
     templateUrl: './configurations-page.component.html',
-    styleUrls: ['./configurations-page.component.scss']
+    styleUrls: ['./configurations-page.component.scss'],
+    standalone: false
 })
 export class ConfigurationsPageComponent extends ListPageComponent implements OnInit {
     title = 'Configurations'

@@ -7,9 +7,10 @@ export class ProgressMeterStep {
 };
 
 @Component({
-  selector: 'lib-progress-meter',
-  templateUrl: './progress-meter.component.html',
-  styleUrls: ['./progress-meter.component.scss']
+    selector: 'lib-progress-meter',
+    templateUrl: './progress-meter.component.html',
+    styleUrls: ['./progress-meter.component.scss'],
+    standalone: false
 })
 export class ProgressMeterComponent {
 

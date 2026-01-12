@@ -30,9 +30,10 @@ import {ConsoleEventsService} from "../../../services/console-events.service";
 // @ts-ignore
 const {header, app, commands, modal, $} = window;
 @Component({
-  selector: 'lib-side-toolbar',
-  templateUrl: './side-toolbar.component.html',
-  styleUrls: ['./side-toolbar.component.scss']
+    selector: 'lib-side-toolbar',
+    templateUrl: './side-toolbar.component.html',
+    styleUrls: ['./side-toolbar.component.scss'],
+    standalone: false
 })
 export class SideToolbarComponent {
   hideNav:boolean | undefined;

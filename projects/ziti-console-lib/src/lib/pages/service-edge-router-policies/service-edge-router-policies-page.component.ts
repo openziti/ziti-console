@@ -24,9 +24,10 @@ import {ZAC_WRAPPER_SERVICE, ZacWrapperServiceClass} from "../../features/wrappe
 import {ServiceEdgeRouterPoliciesPageService} from "./service-edge-router-policies-page.service";
 
 @Component({
-  selector: 'lib-service-edge-router-policies-page',
-  templateUrl: './service-edge-router-policies-page.component.html',
-  styleUrls: ['./service-edge-router-policies-page.component.scss']
+    selector: 'lib-service-edge-router-policies-page',
+    templateUrl: './service-edge-router-policies-page.component.html',
+    styleUrls: ['./service-edge-router-policies-page.component.scss'],
+    standalone: false
 })
 export class ServiceEdgeRouterPoliciesPageComponent extends ListPageComponent implements OnInit, OnDestroy  {
 

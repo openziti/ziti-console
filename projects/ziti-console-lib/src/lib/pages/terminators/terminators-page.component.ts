@@ -26,7 +26,8 @@ import {MatDialog} from "@angular/material/dialog";
 @Component({
     selector: 'lib-configurations',
     templateUrl: './terminators-page.component.html',
-    styleUrls: ['./terminators-page.component.scss']
+    styleUrls: ['./terminators-page.component.scss'],
+    standalone: false
 })
 export class TerminatorsPageComponent extends ListPageComponent implements OnInit {
     title = 'Terminators'

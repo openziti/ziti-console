@@ -43,8 +43,6 @@
             "styles": [
               "projects/ziti-console-lib/src/lib/shared-assets/styles/global.scss",
               "projects/app-ziti-console/src/styles.scss",
-              "node_modules/primeng/resources/themes/saga-blue/theme.css",
-              "node_modules/primeng/resources/primeng.min.css",
               "node_modules/primeicons/primeicons.css"
             ],
             "scripts": [],
@@ -55,6 +53,9 @@
                 "lottie-web",
                 "moment/moment",
                 "lodash",
+                "ajv",
+                "ajv-formats",
+                "semver",
                 "@stoplight/json-ref-resolver",
                 "angular-csv-ext/dist/Angular-csv"
              ]
@@ -211,8 +212,6 @@
             "styles": [
               "projects/ziti-console-lib/src/lib/shared-assets/styles/global.scss",
               "projects/app-ziti-console/src/styles.scss",
-              "node_modules/primeng/resources/themes/saga-blue/theme.css",
-              "node_modules/primeng/resources/primeng.min.css",
               "node_modules/primeicons/primeicons.css"
             ],
             "scripts": [],

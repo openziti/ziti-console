@@ -45,7 +45,8 @@ import { HttpClient } from "@angular/common/http";
 @Component({
     selector: 'lib-configuration',
     templateUrl: './jwt-signer-form.component.html',
-    styleUrls: ['./jwt-signer-form.component.scss']
+    styleUrls: ['./jwt-signer-form.component.scss'],
+    standalone: false
 })
 export class JwtSignerFormComponent extends ProjectableForm implements OnInit, OnDestroy {
 

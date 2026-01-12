@@ -27,15 +27,16 @@ import {Location} from "@angular/common";
 import {Session} from "../../../models/session";
 
 @Component({
-  selector: 'lib-sessions-form',
-  templateUrl: './session-form.component.html',
-  styleUrls: ['./session-form.component.scss'],
-  providers: [
-    {
-      provide: MatDialogRef,
-      useValue: {}
-    }
-  ]
+    selector: 'lib-sessions-form',
+    templateUrl: './session-form.component.html',
+    styleUrls: ['./session-form.component.scss'],
+    providers: [
+        {
+            provide: MatDialogRef,
+            useValue: {}
+        }
+    ],
+    standalone: false
 })
 export class SessionFormComponent extends ProjectableForm implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @Input() formData: any = {};

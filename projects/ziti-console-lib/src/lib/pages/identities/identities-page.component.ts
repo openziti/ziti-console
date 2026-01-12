@@ -30,9 +30,10 @@ import {ExtensionService} from "../../features/extendable/extensions-noop.servic
 import { IdentityServicePathComponent } from "../../features/visualizer/identity-service-path/identity-service-path.component";
 
 @Component({
-  selector: 'lib-identities',
-  templateUrl: './identities-page.component.html',
-  styleUrls: ['./identities-page.component.scss']
+    selector: 'lib-identities',
+    templateUrl: './identities-page.component.html',
+    styleUrls: ['./identities-page.component.scss'],
+    standalone: false
 })
 export class IdentitiesPageComponent extends ListPageComponent implements OnInit, OnDestroy {
 

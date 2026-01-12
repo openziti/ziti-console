@@ -1,9 +1,10 @@
 import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 
 @Component({
-  selector: 'lib-tag-selector',
-  templateUrl: './tag-selector.component.html',
-  styleUrls: ['./tag-selector.component.scss'],
+    selector: 'lib-tag-selector',
+    templateUrl: './tag-selector.component.html',
+    styleUrls: ['./tag-selector.component.scss'],
+    standalone: false
 })
 export class TagSelectorComponent implements AfterViewInit {
   _availableRoleAttributes: any[] = [];

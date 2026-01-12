@@ -4,9 +4,10 @@ import {IHeaderParams} from 'ag-grid-community';
 import _ from 'lodash';
 
 @Component({
-  selector: 'app-table-column-menu',
-  templateUrl: './table-column-menu.component.html',
-  styleUrls: ['./table-column-menu.component.scss'],
+    selector: 'app-table-column-menu',
+    templateUrl: './table-column-menu.component.html',
+    styleUrls: ['./table-column-menu.component.scss'],
+    standalone: false
 })
 export class TableColumnMenuComponent implements IHeaderAngularComp {
   item = {

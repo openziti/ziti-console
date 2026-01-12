@@ -40,7 +40,8 @@ import {PostureCheck} from "../../../models/posture-check";
 @Component({
     selector: 'lib-posture-check',
     templateUrl: './posture-check-form.component.html',
-    styleUrls: ['./posture-check-form.component.scss']
+    styleUrls: ['./posture-check-form.component.scss'],
+    standalone: false
 })
 export class PostureCheckFormComponent extends ProjectableForm implements OnInit, OnDestroy {
 

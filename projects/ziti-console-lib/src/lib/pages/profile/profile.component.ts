@@ -5,9 +5,10 @@ import {GrowlerService} from "../../features/messaging/growler.service";
 import {isEmpty} from 'lodash';
 
 @Component({
-  selector: 'lib-profile',
-  templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.scss']
+    selector: 'lib-profile',
+    templateUrl: './profile.component.html',
+    styleUrls: ['./profile.component.scss'],
+    standalone: false
 })
 export class ProfileComponent {
   pageTitle = 'Profile';

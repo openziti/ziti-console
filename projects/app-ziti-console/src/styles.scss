@@ -1,8 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
+@use './assets/styles/tables.scss';
 @import 'ag-grid-community/styles/ag-grid.css';
 @import 'ag-grid-community/styles/ag-theme-alpine.css';
-@import './assets/styles/tables.scss';
-@import 'node_modules/@angular/material/prebuilt-themes/indigo-pink.css';
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
 
 :root {
   --navigation: #ffffff;

@@ -19,8 +19,8 @@ import {Subject} from "rxjs";
 import {defer, isEmpty} from "lodash";
 
 @Component({
-  selector: 'lib-checkbox-list-input',
-  template: `
+    selector: 'lib-checkbox-list-input',
+    template: `
     <div [ngClass]="fieldClass + (!_isValid ? ' invalid' : '')">
       <label [ngStyle]="{'color': labelColor}">{{_fieldName}}</label>
       <div  *ngFor="let item of items">
@@ -33,7 +33,8 @@ import {defer, isEmpty} from "lodash";
       <div *ngIf="error" class="error">{{error}}</div>
     </div>
   `,
-  styleUrls: ['./checkbox-list.component.scss'],
+    styleUrls: ['./checkbox-list.component.scss'],
+    standalone: false
 })
 export class CheckboxListInputComponent {
   items: any[] = [];

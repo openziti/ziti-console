@@ -27,7 +27,8 @@ import {ConfirmComponent} from "../../features/confirm/confirm.component";
 @Component({
     selector: 'lib-sessions',
     templateUrl: './sessions-page.component.html',
-    styleUrls: ['./sessions-page.component.scss']
+    styleUrls: ['./sessions-page.component.scss'],
+    standalone: false
 })
 export class SessionsPageComponent extends ListPageComponent implements OnInit {
     title = 'Sessions'

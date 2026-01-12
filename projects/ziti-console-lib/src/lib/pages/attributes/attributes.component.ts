@@ -4,9 +4,10 @@ import { Subscription } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'lib-attributes',
-  templateUrl: './attributes.component.html',
-  styleUrls: ['./attributes.component.scss']
+    selector: 'lib-attributes',
+    templateUrl: './attributes.component.html',
+    styleUrls: ['./attributes.component.scss'],
+    standalone: false
 })
 export class AttributesComponent implements OnInit, OnDestroy {
   attributes: any[] = [];

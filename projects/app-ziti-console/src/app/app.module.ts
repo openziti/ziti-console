@@ -24,6 +24,8 @@ import {LoginComponent} from './login/login.component';
 import {FormsModule} from "@angular/forms";
 import { OAuthModule } from 'angular-oauth2-oidc';
 import {environment} from "./environments/environment";
+import { providePrimeNG } from 'primeng/config';
+import Lara from '@primeng/themes/lara';
 
 import {
     NoopTabInterceptorService,
@@ -120,6 +122,11 @@ if (environment.nodeIntegration) {
         { provide: EDGE_ROUTER_POLICY_EXTENSION_SERVICE, useClass: ExtensionsNoopService },
         { provide: SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE, useClass: ExtensionsNoopService },
         provideHttpClient(withInterceptorsFromDi()),
+        providePrimeNG({
+            theme: {
+                preset: Lara
+            }
+        }),
     ] })
 export class AppModule {
 }

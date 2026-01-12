@@ -18,9 +18,10 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {ValidationService} from "../../../services/validation.service";
 
 @Component({
-  selector: 'lib-port-ranges',
-  templateUrl: './port-ranges.component.html',
-  styleUrls: ['./port-ranges.component.scss']
+    selector: 'lib-port-ranges',
+    templateUrl: './port-ranges.component.html',
+    styleUrls: ['./port-ranges.component.scss'],
+    standalone: false
 })
 export class PortRangesComponent {
 

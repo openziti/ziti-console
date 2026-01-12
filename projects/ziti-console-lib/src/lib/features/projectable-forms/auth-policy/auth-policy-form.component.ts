@@ -40,7 +40,8 @@ import {AuthPolicy} from "../../../models/auth-policy";
 @Component({
     selector: 'lib-configuration',
     templateUrl: './auth-policy-form.component.html',
-    styleUrls: ['./auth-policy-form.component.scss']
+    styleUrls: ['./auth-policy-form.component.scss'],
+    standalone: false
 })
 export class AuthPolicyFormComponent extends ProjectableForm implements OnInit, OnDestroy {
 

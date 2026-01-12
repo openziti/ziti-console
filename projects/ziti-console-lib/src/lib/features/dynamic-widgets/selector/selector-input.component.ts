@@ -3,8 +3,8 @@ import {Subject} from "rxjs";
 import {debounce, defer} from "lodash";
 
 @Component({
-  selector: 'lib-selector-input',
-  template: `
+    selector: 'lib-selector-input',
+    template: `
     <div [ngClass]="fieldClass + (!_isValid ? 'invalid' : '')" class="selector-input-container">
       <div class="label-container">
         <label [ngStyle]="{'color': labelColor}">{{_fieldName}}</label>
@@ -42,7 +42,8 @@ import {debounce, defer} from "lodash";
       <div *ngIf="error" class="error">{{error}}</div>
     </div>
   `,
-  styleUrls: ['selector-input.component.scss']
+    styleUrls: ['selector-input.component.scss'],
+    standalone: false
 })
 export class SelectorInputComponent {
   _fieldName = 'Field Label';

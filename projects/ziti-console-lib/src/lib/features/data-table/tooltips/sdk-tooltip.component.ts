@@ -40,7 +40,8 @@ import {isEmpty} from "lodash";
                 white-space: nowrap;
             }
         `
-    ]
+    ],
+    standalone: false
 })
 export class SDKTooltipComponent implements ITooltipAngularComp {
     private params!: {color: string} & ITooltipParams;

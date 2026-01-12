@@ -35,10 +35,11 @@ import { NetworkVisualizerHelper } from './network-visualizer.helper';
 import {LoggerService} from "../../messaging/logger.service";
 
 @Component({
-  selector: 'app-network-visualizer',
-  encapsulation: ViewEncapsulation.None,
-  templateUrl: './network-visualizer.component.html',
-  styleUrls: ['./network-visualizer.component.scss'],
+    selector: 'app-network-visualizer',
+    encapsulation: ViewEncapsulation.None,
+    templateUrl: './network-visualizer.component.html',
+    styleUrls: ['./network-visualizer.component.scss'],
+    standalone: false
 })
 
 export class NetworkVisualizerComponent extends VisualizerServiceClass implements OnInit {

@@ -55,7 +55,8 @@ export const KEY_CODES = {
 
 @Component({
     template: '',
-    styleUrls: ['./projectable-form.class.scss']
+    styleUrls: ['./projectable-form.class.scss'],
+    standalone: false
 })
 export abstract class ProjectableForm extends ExtendableComponent implements DoCheck, OnInit {
     @Input() isModal = false;
@@ -115,11 +116,13 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         );
         this.subscription.add(
             router.events.subscribe((event: any) => {
-                if (event => event instanceof NavigationEnd) {
-                    if (!event?.snapshot?.routeConfig?.path) {
-                        return;
+                if (event instanceof NavigationEnd) {
+                    const snapshot = this.router.routerState.snapshot.root;
+                    const routeConfig = snapshot.firstChild?.routeConfig;
+                    if (!routeConfig?.path) {
+                      return;
                     }
-                    const pathSegments = event.snapshot.routeConfig.path.split('/');
+                    const pathSegments = routeConfig.path.split('/');
                     this.basePath = pathSegments[0];
                 }
             })

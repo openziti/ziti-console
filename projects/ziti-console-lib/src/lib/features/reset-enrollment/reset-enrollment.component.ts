@@ -24,9 +24,10 @@ import moment from "moment";
 import {ResetEnrollmentService} from "./reset-enrollment.service";
 
 @Component({
-  selector: 'lib-reset-enrollment',
-  templateUrl: './reset-enrollment.component.html',
-  styleUrls: ['./reset-enrollment.component.scss']
+    selector: 'lib-reset-enrollment',
+    templateUrl: './reset-enrollment.component.html',
+    styleUrls: ['./reset-enrollment.component.scss'],
+    standalone: false
 })
 export class ResetEnrollmentComponent implements OnInit {
 

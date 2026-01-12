@@ -42,7 +42,8 @@ import {ValidationService} from "../../../services/validation.service";
 @Component({
     selector: 'lib-configuration',
     templateUrl: './config-type-form.component.html',
-    styleUrls: ['./config-type-form.component.scss']
+    styleUrls: ['./config-type-form.component.scss'],
+    standalone: false
 })
 export class ConfigTypeFormComponent extends ProjectableForm implements OnInit, OnDestroy {
 
