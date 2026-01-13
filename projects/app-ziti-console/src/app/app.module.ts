@@ -25,7 +25,7 @@ import {FormsModule} from "@angular/forms";
 import { OAuthModule } from 'angular-oauth2-oidc';
 import {environment} from "./environments/environment";
 import { providePrimeNG } from 'primeng/config';
-import Lara from '@primeng/themes/lara';
+import Aura from '@primeng/themes/aura';
 
 import {
     NoopTabInterceptorService,
@@ -124,7 +124,7 @@ if (environment.nodeIntegration) {
         provideHttpClient(withInterceptorsFromDi()),
         providePrimeNG({
             theme: {
-                preset: Lara
+                preset: Aura
             }
         }),
     ] })
