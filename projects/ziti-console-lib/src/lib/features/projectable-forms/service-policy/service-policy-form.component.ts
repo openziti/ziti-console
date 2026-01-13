@@ -154,6 +154,10 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
         this.selectedPostureRoleAttributes.push(attr.substring(1));
       }
     });
+    this.updateAssociations();
+  }
+
+  updateAssociations() {
     this.svc.getAssociatedServicesByAttribute(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.formData.semantic);
     this.svc.getAssociatedIdentitiesByAttribute(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.formData.semantic);
     this.svc.getAssociatedPostureChecksByAttribute(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes, this.formData.semantic);

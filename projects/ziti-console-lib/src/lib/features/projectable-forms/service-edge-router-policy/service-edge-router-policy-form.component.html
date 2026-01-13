@@ -62,6 +62,7 @@
                 >
                     <select
                             [(ngModel)]="formData.semantic"
+                            (change)="updateAssociations()"
                             id="PolicySemantic"
                             class="form-field-dropdown"
                     >
