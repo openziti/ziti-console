@@ -35,8 +35,8 @@
                             [(selectedNamedAttributes)]="selectedEdgeRouterNamedAttributes"
                             [availableRoleAttributes]="svc.edgeRouterRoleAttributes"
                             [availableNamedAttributes]="svc.edgeRouterNamedAttributes"
-                            (selectedNamedAttributesChange)="svc.getAssociatedEdgeRoutersByAttribute(selectedEdgeRouterRoleAttributes, selectedEdgeRouterNamedAttributes)"
-                            (selectedRoleAttributesChange)="svc.getAssociatedEdgeRoutersByAttribute(selectedEdgeRouterRoleAttributes, selectedEdgeRouterNamedAttributes)"
+                            (selectedNamedAttributesChange)="svc.getAssociatedEdgeRoutersByAttribute(selectedEdgeRouterRoleAttributes, selectedEdgeRouterNamedAttributes, formData.semantic)"
+                            (selectedRoleAttributesChange)="svc.getAssociatedEdgeRoutersByAttribute(selectedEdgeRouterRoleAttributes, selectedEdgeRouterNamedAttributes, formData.semantic)"
                             [placeholder]="'Select edge router attributes'"
                     ></lib-tag-selector>
                 </lib-form-field-container>
@@ -51,8 +51,8 @@
                             [(selectedNamedAttributes)]="selectedServiceNamedAttributes"
                             [availableRoleAttributes]="svc.serviceRoleAttributes"
                             [availableNamedAttributes]="svc.serviceNamedAttributes"
-                            (selectedNamedAttributesChange)="svc.getAssociatedServicesByAttribute(selectedServiceRoleAttributes, selectedServiceNamedAttributes)"
-                            (selectedRoleAttributesChange)="svc.getAssociatedServicesByAttribute(selectedServiceRoleAttributes, selectedServiceNamedAttributes)"
+                            (selectedNamedAttributesChange)="svc.getAssociatedServicesByAttribute(selectedServiceRoleAttributes, selectedServiceNamedAttributes, formData.semantic)"
+                            (selectedRoleAttributesChange)="svc.getAssociatedServicesByAttribute(selectedServiceRoleAttributes, selectedServiceNamedAttributes, formData.semantic)"
                             [placeholder]="'Select service attributes'"
                     ></lib-tag-selector>
                 </lib-form-field-container>

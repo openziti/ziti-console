@@ -164,8 +164,8 @@ export class ServiceEdgeRouterPolicyFormComponent extends ProjectableForm implem
       }
     });
 
-    this.svc.getAssociatedEdgeRoutersByAttribute(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes);
-    this.svc.getAssociatedServicesByAttribute(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes);
+    this.svc.getAssociatedEdgeRoutersByAttribute(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes, this.formData?.semantic);
+    this.svc.getAssociatedServicesByAttribute(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.formData?.semantic);
   }
 
   headerActionRequested(action) {

@@ -165,8 +165,8 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
       }
     });
 
-    this.svc.getAssociatedEdgeRoutersByAttribute(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes);
-    this.svc.getAssociatedIdentitiesByAttribute(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes);
+    this.svc.getAssociatedEdgeRoutersByAttribute(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes, this.formData?.semantic);
+    this.svc.getAssociatedIdentitiesByAttribute(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.formData?.semantic);
   }
 
   headerActionRequested(action) {
