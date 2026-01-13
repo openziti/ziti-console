@@ -1,3 +1,10 @@
+# app-ziti-console-v4.0.1
+# ziti-console-lib-v1.0.1
+## Bug Fixes
+* [Issue #793](https://github.com/openziti/ziti-console/issues/793) - Associated Identities list is not reflecting correctly based on the selected semantic of "all of" vs "any off"
+* [Issue #795](https://github.com/openziti/ziti-console/issues/795) - Darkmode issues with new layouts & styling
+
+
 # app-ziti-console-v4.0.0
 # ziti-console-lib-v1.0.0
 ## Feature/Improvements

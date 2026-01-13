@@ -5,14 +5,17 @@ body {
     --red: #ff104b;
     --white: #18191D;
     --green: #00db48;
-	--menu: #434c5e;
-	--stroke: #2A2B31;
-	--black: #FFF;
-	--shaded: #1D2024;
+    --menu: #434c5e;
+    --stroke: #2A2B31;
+    --black: #FFF;
+    --shaded: #1D2024;
     --formBackground: #1D2024;
-	--background: #18191D;
-	--placeholder: #97a0b2;
-	--text: #FFF;
+    --background: #18191D;
+    --mainBackground: var(--navigation);
+    --filterBarBackground: #2a2b31;
+    --inputBorder: #2a2b31;
+    --placeholder: #97a0b2;
+    --text: #FFF;
     --tableText: #FFF;
     --subText: #97a0b2;
     --shadow: 0rem 0rem 0.5rem 0.125rem rgba(255,255,255,0.08);
@@ -22,6 +25,10 @@ body {
     --offWhite_ALWAYS: #e6eced;
     --formFieldBorder: solid 0.125rem var(--stroke);
     --jsonEditorBorder: solid 0.125rem var(--stroke);
+    --navItemSelectedColor: #35394c;
+    --hoverBackground: #2b2d30;
+    --brightnessDark: 1;
+    --headerButtonColor: var(--offWhite_ALWAYS);
 
     // vanilla json editor dark theming
     --jse-key-color: var(--tableText);
