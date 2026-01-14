@@ -163,9 +163,7 @@ export class ServiceEdgeRouterPolicyFormComponent extends ProjectableForm implem
         this.selectedServiceRoleAttributes.push(attr.substring(1));
       }
     });
-
-    this.svc.getAssociatedEdgeRoutersByAttribute(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes);
-    this.svc.getAssociatedServicesByAttribute(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes);
+    this.updateAssociations();
   }
 
   headerActionRequested(action) {
@@ -239,6 +237,11 @@ export class ServiceEdgeRouterPolicyFormComponent extends ProjectableForm implem
         this.copyCURLCommand();
         break;
     }
+  }
+
+  updateAssociations() {
+    this.svc.getAssociatedEdgeRoutersByAttribute(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes, this.formData?.semantic);
+    this.svc.getAssociatedServicesByAttribute(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.formData?.semantic);
   }
 
   copyCLICommand() {

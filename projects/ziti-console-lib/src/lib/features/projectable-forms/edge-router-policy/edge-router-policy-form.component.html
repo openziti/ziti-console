@@ -35,8 +35,8 @@
                             [(selectedNamedAttributes)]="selectedEdgeRouterNamedAttributes"
                             [availableRoleAttributes]="svc.edgeRouterRoleAttributes"
                             [availableNamedAttributes]="svc.edgeRouterNamedAttributes"
-                            (selectedNamedAttributesChange)="svc.getAssociatedEdgeRoutersByAttribute(selectedEdgeRouterRoleAttributes, selectedEdgeRouterNamedAttributes)"
-                            (selectedRoleAttributesChange)="svc.getAssociatedEdgeRoutersByAttribute(selectedEdgeRouterRoleAttributes, selectedEdgeRouterNamedAttributes)"
+                            (selectedNamedAttributesChange)="svc.getAssociatedEdgeRoutersByAttribute(selectedEdgeRouterRoleAttributes, selectedEdgeRouterNamedAttributes, formData.semantic)"
+                            (selectedRoleAttributesChange)="svc.getAssociatedEdgeRoutersByAttribute(selectedEdgeRouterRoleAttributes, selectedEdgeRouterNamedAttributes, formData.semantic)"
                             [placeholder]="'Select edge router attributes'"
                     ></lib-tag-selector>
                 </lib-form-field-container>
@@ -51,8 +51,8 @@
                             [(selectedNamedAttributes)]="selectedIdentityNamedAttributes"
                             [availableRoleAttributes]="svc.identityRoleAttributes"
                             [availableNamedAttributes]="svc.identityNamedAttributes"
-                            (selectedNamedAttributesChange)="svc.getAssociatedIdentitiesByAttribute(selectedIdentityRoleAttributes, selectedIdentityNamedAttributes)"
-                            (selectedRoleAttributesChange)="svc.getAssociatedIdentitiesByAttribute(selectedIdentityRoleAttributes, selectedIdentityNamedAttributes)"
+                            (selectedNamedAttributesChange)="svc.getAssociatedIdentitiesByAttribute(selectedIdentityRoleAttributes, selectedIdentityNamedAttributes, formData.semantic)"
+                            (selectedRoleAttributesChange)="svc.getAssociatedIdentitiesByAttribute(selectedIdentityRoleAttributes, selectedIdentityNamedAttributes, formData.semantic)"
                             [placeholder]="'Select identity attributes'"
                     ></lib-tag-selector>
                 </lib-form-field-container>
@@ -62,6 +62,7 @@
                 >
                     <select
                             [(ngModel)]="formData.semantic"
+                            (change)="updateAssociations()"
                             id="PolicySemantic"
                             class="form-field-dropdown"
                     >

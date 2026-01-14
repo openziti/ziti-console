@@ -323,7 +323,7 @@ export class ZitiControllerDataService extends ZitiDataService {
                     filterVal = `${filter.columnId} >= datetime(${filter.value[0]}) and ${filter.columnId} <= datetime(${filter.value[1]})`;
                     break;
                 case 'ATTRIBUTE':
-                    filterVal = this.getAttributeFilter(filter.value, filter.columnId);
+                    filterVal = this.getAttributeFilter(filter.value, filter.columnId, filter.semantic);
                     break;
                 case 'BOOLEAN':
                     filterVal = `${filter.columnId}=${filter.value}`;
@@ -356,12 +356,12 @@ export class ZitiControllerDataService extends ZitiDataService {
         return schema.result;
     }
 
-    getAttributeFilter(val, columnId) {
+    getAttributeFilter(val, columnId, semantic = 'AnyOf') {
         let filter = '';
         if (isArray(val)) {
             val.forEach((attr, index) => {
                 if (index > 0) {
-                    filter += ' or ';
+                    filter += ` ${semantic === 'AllOf' ? 'and' : 'or'} `;
                 }
                 filter += `anyOf(${columnId}) = "${attr}"`;
             });

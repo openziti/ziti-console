@@ -35,8 +35,8 @@
                             [(selectedNamedAttributes)]="selectedServiceNamedAttributes"
                             [availableRoleAttributes]="svc.serviceRoleAttributes"
                             [availableNamedAttributes]="svc.serviceNamedAttributes"
-                            (selectedNamedAttributesChange)="svc.getAssociatedServicesByAttribute(selectedServiceRoleAttributes, selectedServiceNamedAttributes)"
-                            (selectedRoleAttributesChange)="svc.getAssociatedServicesByAttribute(selectedServiceRoleAttributes, selectedServiceNamedAttributes)"
+                            (selectedNamedAttributesChange)="svc.getAssociatedServicesByAttribute(selectedServiceRoleAttributes, selectedServiceNamedAttributes, formData.semantic)"
+                            (selectedRoleAttributesChange)="svc.getAssociatedServicesByAttribute(selectedServiceRoleAttributes, selectedServiceNamedAttributes, formData.semantic)"
                             [placeholder]="'Select service attributes'"
                     ></lib-tag-selector>
                 </lib-form-field-container>
@@ -51,8 +51,8 @@
                             [(selectedNamedAttributes)]="selectedIdentityNamedAttributes"
                             [availableRoleAttributes]="svc.identityRoleAttributes"
                             [availableNamedAttributes]="svc.identityNamedAttributes"
-                            (selectedNamedAttributesChange)="svc.getAssociatedIdentitiesByAttribute(selectedIdentityRoleAttributes, selectedIdentityNamedAttributes)"
-                            (selectedRoleAttributesChange)="svc.getAssociatedIdentitiesByAttribute(selectedIdentityRoleAttributes, selectedIdentityNamedAttributes)"
+                            (selectedNamedAttributesChange)="svc.getAssociatedIdentitiesByAttribute(selectedIdentityRoleAttributes, selectedIdentityNamedAttributes, formData.semantic)"
+                            (selectedRoleAttributesChange)="svc.getAssociatedIdentitiesByAttribute(selectedIdentityRoleAttributes, selectedIdentityNamedAttributes, formData.semantic)"
                             [placeholder]="'Select identity attributes'"
                     ></lib-tag-selector>
                 </lib-form-field-container>
@@ -67,8 +67,8 @@
                             [(selectedNamedAttributes)]="selectedPostureNamedAttributes"
                             [(selectedRoleAttributes)]="svc.postureRoleAttributes"
                             [availableNamedAttributes]="svc.postureNamedAttributes"
-                            (selectedNamedAttributesChange)="svc.getAssociatedPostureChecksByAttribute(selectedPostureRoleAttributes, selectedPostureNamedAttributes)"
-                            (selectedRoleAttributesChange)="svc.getAssociatedPostureChecksByAttribute(selectedPostureRoleAttributes, selectedPostureNamedAttributes)"
+                            (selectedNamedAttributesChange)="svc.getAssociatedPostureChecksByAttribute(selectedPostureRoleAttributes, selectedPostureNamedAttributes, formData.semantic)"
+                            (selectedRoleAttributesChange)="svc.getAssociatedPostureChecksByAttribute(selectedPostureRoleAttributes, selectedPostureNamedAttributes, formData.semantic)"
                             [placeholder]="'Select posture check attributes'"
                     ></lib-tag-selector>
                 </lib-form-field-container>
@@ -87,6 +87,7 @@
                     </select>
                     <select
                             [(ngModel)]="formData.semantic"
+                            (change)="updateAssociations()"
                             id="PolicySemantic"
                             class="form-field-dropdown"
                     >

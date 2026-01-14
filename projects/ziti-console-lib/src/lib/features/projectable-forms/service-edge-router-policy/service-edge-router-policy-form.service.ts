@@ -76,13 +76,13 @@ export class ServiceEdgeRouterPolicyFormService {
         })
     }
 
-    getAssociatedEdgeRoutersByAttribute(roleAttributes, namedAttributes) {
+    getAssociatedEdgeRoutersByAttribute(roleAttributes, namedAttributes, semantic = 'AnyOf') {
         this.associatedEdgeRouterNames = [];
         if (isEmpty(roleAttributes)) {
             this.associatedEdgeRouterNames = [...namedAttributes];
             return;
         }
-        const filters = this.zitiService.getRoleFilter(roleAttributes);
+        const filters = this.zitiService.getRoleFilter(roleAttributes, semantic);
         const paging = this.zitiService.DEFAULT_PAGING;
         paging.noSearch = false;
         this.zitiService.get('edge-routers', paging, filters).then((result: any) => {
@@ -97,13 +97,13 @@ export class ServiceEdgeRouterPolicyFormService {
         });
     }
 
-    getAssociatedServicesByAttribute(roleAttributes, namedAttributes) {
+    getAssociatedServicesByAttribute(roleAttributes, namedAttributes, semantic = 'AnyOf') {
         this.associatedServiceNames = [];
         if (isEmpty(roleAttributes)) {
             this.associatedServiceNames = [...namedAttributes];
             return;
         }
-        const filters = this.zitiService.getRoleFilter(roleAttributes);
+        const filters = this.zitiService.getRoleFilter(roleAttributes, semantic);
         const paging = this.zitiService.DEFAULT_PAGING;
         paging.noSearch = false;
         this.zitiService.get('services', paging, filters).then((result: any) => {
