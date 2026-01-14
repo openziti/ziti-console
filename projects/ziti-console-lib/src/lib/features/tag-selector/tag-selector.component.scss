@@ -81,7 +81,7 @@
   &.hashtag {
     background-color: var(--primary);
     position: relative;
-    color: var(--white);
+    color: var(--offWhite_ALWAYS);
   }
   &.attag {
     background-color: var(--secondary);
@@ -91,7 +91,7 @@
   &.tag-name {
     background-color: transparent;
     position: relative;
-    color: var(--white);
+    color: var(--offWhite_ALWAYS);
   }
 }
 
@@ -104,7 +104,7 @@
   border-width: var(--inputBorderWidth);
   border-color: var(--inputBorder);
   border-style: solid;
-  color: var(--white);
+  color: var(--offWhite_ALWAYS);
   padding-left: 0rem;
 
   &.select2-selection-focus {
@@ -298,7 +298,7 @@
   margin: 0;
   width: 100%;
   background-color: var(--background);
-  border-radius: 0.3125rem;
+  border-radius: 0;
   border-top-right-radius: 0;
   border-top-left-radius: 0;
   display: flex;

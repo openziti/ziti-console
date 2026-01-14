@@ -20,7 +20,7 @@
   }
   .action {
     text-align: center;
-    color: var(--white);
+    color: var(--offWhite_ALWAYS);
     line-height: 3rem;
     font-size: 1.875rem;
     width: 3rem;
@@ -111,8 +111,8 @@
     overflow: hidden;
     font-family: 'Russo One', serif;
     color: var(--primary);
-    -webkit-filter: brightness(50%);
-    filter: brightness(50%);
+    -webkit-filter: brightness(var(--brightnessDark));
+    filter: brightness(var(--brightnessDark));
     font-size: 1.875rem;
     text-transform: uppercase;
     font-weight: 400;
