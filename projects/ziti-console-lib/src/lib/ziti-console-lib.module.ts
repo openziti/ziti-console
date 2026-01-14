@@ -299,7 +299,9 @@ export function playerFactory() {
         SettingsComponent,
         ProfileComponent,
         GeolocateComponent,
-        AttributesComponent
+        AttributesComponent,
+        HeaderBarComponent,
+        SideNavigatorComponent
     ], imports: [
         CommonModule,
         FormsModule,
