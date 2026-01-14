@@ -1,5 +1,10 @@
 .grid {
   &.tags {
+    grid-template-columns: 50% auto;
+    position: relative;
+    width: 100%;
+    margin-bottom: 0.625rem;
+
     .invalid {
       border-color: var(--red);
     }

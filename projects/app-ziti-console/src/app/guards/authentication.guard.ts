@@ -28,8 +28,6 @@ import {
 import {defer} from "lodash";
 import {MatDialog} from "@angular/material/dialog";
 import {map, Observable, of} from "rxjs";
-// @ts-ignore
-const {growler} = window;
 
 export const AUTHENTICATION_GUARD = new InjectionToken<any>('AUTHENTICATION_GUARD');
 

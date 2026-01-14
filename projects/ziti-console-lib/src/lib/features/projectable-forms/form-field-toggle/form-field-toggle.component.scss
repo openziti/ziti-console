@@ -46,21 +46,21 @@
     cursor: pointer;
     position: relative;
     float: left;
-    border-radius: 0.8125rem;
+    border-radius: var(--toggleBorderRadius);
     &.on {
       background-color: var(--green);
     }
     .switch {
       width: 1.25rem;
       height: 1.25rem;
-      border-radius: 0.625rem;
+      border-radius: var(--toggleBorderRadius);
       background-color: var(--white);
       transition: var(--transition);
       position: absolute;
       top: 0.1875rem;
       z-index: 10;
       &.on {
-        left: 2.1875rem;
+        left: 2.2275rem;
       }
     }
     .on-label {

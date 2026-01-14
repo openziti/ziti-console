@@ -46,7 +46,6 @@ import {Location} from "@angular/common";
 })
 export class ConfigurationFormComponent extends ProjectableForm implements OnInit, OnDestroy {
 
-    @Input() override formData: any = {};
     @Input() override errors: any = {};
     @Output() close: EventEmitter<void> = new EventEmitter<void>();
 

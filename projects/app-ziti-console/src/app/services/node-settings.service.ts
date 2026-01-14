@@ -22,9 +22,6 @@ import {firstValueFrom, map, tap} from "rxjs";
 import {catchError} from "rxjs/operators";
 import {get} from "lodash";
 
-// @ts-ignore
-const {growler} = window;
-
 @Injectable({
     providedIn: 'root'
 })
@@ -150,13 +147,23 @@ export class NodeSettingsService extends SettingsServiceClass {
                 tap((body: any) => {
                     try {
                         if (body.error) {
-                            growler.error("Invalid Edge Controller: " + body.error);
+                            let growlerData = new GrowlerModel(
+                              'error',
+                              'Error',
+                              'Invalid Edge Controller: ' + body.error,
+                            );
+                            this.growlerService.show(growlerData);
                         } else {
                             this.apiVersions = body.data.apiVersions;
                             this.zitiSemver = body.data?.version?.replace("v", "");
                         }
                     } catch (e) {
-                        growler.error("Invalid Edge Controller: " + body);
+                      let growlerData = new GrowlerModel(
+                        'error',
+                        'Error',
+                        'Invalid Edge Controller: ' + body,
+                      );
+                      this.growlerService.show(growlerData);
                     }
                 }),
                 catchError((err: any) => {

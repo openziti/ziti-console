@@ -38,7 +38,6 @@ import {Location} from "@angular/common";
     standalone: false
 })
 export class ServicePolicyFormComponent extends ProjectableForm implements OnInit, OnChanges, OnDestroy, AfterViewInit {
-  @Input() formData: ServicePolicy | any = {};
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
   selectedServiceRoleAttributes = [];
@@ -108,7 +107,7 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
   }
 
   ngOnDestroy() {
-    this.extService.closed.emit({});
+    this.extService?.closed?.emit({});
     this.subscription.unsubscribe();
   }
 
@@ -156,9 +155,13 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
         this.selectedPostureRoleAttributes.push(attr.substring(1));
       }
     });
-    this.svc.getAssociatedServicesByAttribute(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes);
-    this.svc.getAssociatedIdentitiesByAttribute(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes);
-    this.svc.getAssociatedPostureChecksByAttribute(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes);
+    this.updateAssociations();
+  }
+
+  updateAssociations() {
+    this.svc.getAssociatedServicesByAttribute(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.formData.semantic);
+    this.svc.getAssociatedIdentitiesByAttribute(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.formData.semantic);
+    this.svc.getAssociatedPostureChecksByAttribute(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes, this.formData.semantic);
   }
 
   headerActionRequested(action) {

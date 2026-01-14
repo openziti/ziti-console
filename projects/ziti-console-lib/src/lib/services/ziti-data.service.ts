@@ -72,7 +72,7 @@ export abstract class ZitiDataService {
   abstract resetPassword(oldPass, newPass, confirmPass): Promise<any>;
   abstract schema(data: any): Promise<any>;
 
-  getRoleFilter(roleAttributes) {
+  getRoleFilter(roleAttributes, semantic = 'AnyOf') {
     let hasAll = false;
     roleAttributes.forEach((attr) => {
       if (attr === 'all') {
@@ -87,7 +87,8 @@ export abstract class ZitiDataService {
           filterName: "Attributes",
           label: "",
           type: "ATTRIBUTE",
-          value: roleAttributes
+          value: roleAttributes,
+          semantic
         }
       ];
     }

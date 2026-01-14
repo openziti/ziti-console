@@ -4,10 +4,16 @@ on:
 
 name: Create Releases
 
+permissions:
+  id-token: write  # Required for OIDC. see https://docs.npmjs.com/trusted-publishers#supported-cicd-providers
+  contents: read
+
 jobs:
   build-and-publish-app-ziti-console:
     if: startsWith(github.event.release.name, 'app-ziti-console-v')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     env:
       NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       BUILD_CONFIG: "Release"
@@ -29,14 +35,13 @@ jobs:
     if: startsWith(github.event.release.name, 'ziti-console-lib-v')
     runs-on: ubuntu-latest
     env:
-      NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       BUILD_CONFIG: "Release"
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 24
           registry-url: 'https://registry.npmjs.org'
 
       - name: Set VERSION Environment Variable

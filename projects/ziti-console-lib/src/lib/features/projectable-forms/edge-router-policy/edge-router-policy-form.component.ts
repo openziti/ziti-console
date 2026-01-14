@@ -38,7 +38,7 @@ import {Location} from "@angular/common";
     standalone: false
 })
 export class EdgeRouterPolicyFormComponent extends ProjectableForm implements OnInit, OnChanges, OnDestroy, AfterViewInit {
-  @Input() formData: EdgeRouterPolicy | any = {};
+
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
   selectedEdgeRouterRoleAttributes = [];
@@ -118,7 +118,7 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
   }
 
   ngOnDestroy() {
-    this.extService.closed.emit({});
+    this.extService?.closed?.emit({});
     this.subscription.unsubscribe();
   }
 
@@ -166,8 +166,12 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
       }
     });
 
-    this.svc.getAssociatedEdgeRoutersByAttribute(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes);
-    this.svc.getAssociatedIdentitiesByAttribute(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes);
+    this.updateAssociations();
+  }
+
+  updateAssociations() {
+    this.svc.getAssociatedEdgeRoutersByAttribute(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes, this.formData?.semantic);
+    this.svc.getAssociatedIdentitiesByAttribute(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.formData?.semantic);
   }
 
   headerActionRequested(action) {

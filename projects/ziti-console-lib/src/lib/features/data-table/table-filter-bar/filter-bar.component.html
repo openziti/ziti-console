@@ -1,4 +1,4 @@
-<div class="filters">
+<div class="filter-bar-container filters">
     <input
         id="SearchFilter"
         data-defined="search"
@@ -8,7 +8,6 @@
         (keyup)="inputChangedDebounced()"
         [(ngModel)]="filterString"
     />
-    <div class="clear icon-clear" data-defined="clear"></div>
     <div class="searchButton icon-search"></div>
     <div class="filtered-columns-list" id="ColumnFilterContainer">
         <div

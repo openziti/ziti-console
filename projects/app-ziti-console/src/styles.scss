@@ -29,18 +29,32 @@
   --shadowColor: rgba(0, 0, 0, 0.08);
   --greenShadow: rgba(82, 255, 13, 0.3);
   --redShadow: rgba(255, 13, 73, 0.3);
-  --boxShadow: rgba(0, 0, 0, 0.08);
+  --boxShadow: rgba(0, 0, 0, 0.13);
   --redText: #9c0027;
+  --hoverBackground: #ebeef3;
   overflow: hidden;
+}
+
+html {
+  font-size: 90%;
+}
+
+input {
+  &::placeholder {
+    color: var(--placeholder);
+    font-weight: 600;
+  }
 }
 
 .ziti-page-container .filters {
   position: relative !important;
   width: 100% !important;
-  height: 3.75rem !important;
-  background-color: var(--shaded) !important;
-  border-radius: 3.125rem !important;
-  padding: 0.625rem !important;
+  height: 2.75rem !important;
+  background-color: var(--filterBarBackground) !important;
+  border-radius: var(--filterBorderRadius) !important;
+  padding: 0.3126rem !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
 .ziti-page-container {

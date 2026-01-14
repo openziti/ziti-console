@@ -50,7 +50,6 @@ import { HttpClient } from "@angular/common/http";
 })
 export class JwtSignerFormComponent extends ProjectableForm implements OnInit, OnDestroy {
 
-    @Input() override formData: any = {};
     @Input() override errors: any = {};
     @Output() close: EventEmitter<void> = new EventEmitter<void>();
 
@@ -109,8 +108,6 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         });
         if (window.location.href.indexOf('test-auth') > 0) {
             this.handleOAuthCallback();
-        } else {
-            this.authService.resetOAuthService(this.configKey, this.tokenTypeKey);
         }
     }
 

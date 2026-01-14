@@ -25,6 +25,7 @@ export interface ExtensionService {
   closeAfterSave: boolean;
   moreActions?: any[];
   listActions?: any[];
+  disabledComponents?: any[];
   extendOnInit(): void;
   extendAfterViewInits(extentionPoints: any): void;
   updateFormData(data: any): void;
@@ -42,6 +43,7 @@ export class ExtensionsNoopService implements ExtensionService {
   closed: EventEmitter<any> = new EventEmitter<any>();
   closeAfterSave = true;
   moreActions = [];
+  disabledComponents = [];
 
   constructor() { }
 
@@ -65,4 +67,5 @@ export class ExtensionsNoopService implements ExtensionService {
   processTableColumns(tableColumns: any): any[] {
     return tableColumns;
   }
+
 }

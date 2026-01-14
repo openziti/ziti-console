@@ -17,14 +17,34 @@
                             (fieldValueChange)="edgeChanged($event)"
                     >
                     </lib-selector-input>
-                    <lib-string-input [fieldName]="'Username'"
-                                      [(fieldValue)]="username"
-                                      [autocomplete]="'username'"
-                                      [placeholder]="'enter username of controller'"></lib-string-input>
-                    <lib-password-input [fieldName]="'Password'"
-                                        [(fieldValue)]="password"
-                                        [autocomplete]="'current-password'"
-                                        [placeholder]="'enter password of controller'"></lib-password-input>
+                    <div class="username-pass-container">
+                      <div class="input-fields-container">
+                        <label for="Username" class="userlogin open" [ngClass]="{'login-disabled': showNoControllers}">Username</label>
+                        <input
+                          id="Username"
+                          name="username"
+                          type="text"
+                          autocomplete="on"
+                          required
+                          [ngClass]="{'login-disabled': showNoControllers}"
+                          [placeholder]="'Enter your ziti admin username'"
+                          [(ngModel)]="username"
+                        >
+                      </div>
+                    </div>
+                    <div class="input-fields-container">
+                      <label for="Password" class="userlogin open" [ngClass]="{'login-disabled': showNoControllers}">Password</label>
+                      <input
+                        id="Password"
+                        name="password"
+                        type="password"
+                        autocomplete="on"
+                        required
+                        [ngClass]="{'login-disabled': showNoControllers}"
+                        [placeholder]="'Enter your ziti admin password'"
+                        [(ngModel)]="password"
+                      >
+                    </div>
                     <span class="login-error-message" *ngIf="loginFailed">Login Failed</span>
                 </div>
             </div>

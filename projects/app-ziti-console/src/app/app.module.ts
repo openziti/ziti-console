@@ -31,17 +31,12 @@ import {
     NoopTabInterceptorService,
     OpenZitiConsoleLibModule,
     SettingsService,
-    ZacWrapperServiceClass,
-    ZacWrapperService,
-    NodeWrapperService,
     GrowlerModule,
     DeactivateGuardService,
-    ZitiDataService,
     NodeDataService,
     ZitiControllerDataService,
     SETTINGS_SERVICE,
     ZITI_DATA_SERVICE,
-    ZAC_WRAPPER_SERVICE,
     ZITI_DOMAIN_CONTROLLER,
     ZITI_NAVIGATOR,
     ZITI_TAB_OVERRIDES,
@@ -54,7 +49,8 @@ import {
     IDENTITY_EXTENSION_SERVICE,
     SERVICE_POLICY_EXTENSION_SERVICE,
     EDGE_ROUTER_POLICY_EXTENSION_SERVICE,
-    SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE
+    SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE,
+    DEFAULT_APP_CONFIG
 } from "ziti-console-lib";
 
 import {AppRoutingModule} from "./app-routing.module";
@@ -62,7 +58,7 @@ import {SimpleZitiDomainControllerService} from "./services/simple-ziti-domain-c
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MatDialogModule} from "@angular/material/dialog";
 import {URLS} from "./app-urls.constants";
-import {CLASSIC_ZITI_NAVIGATOR, OPEN_ZITI_NAVIGATOR} from "./app-nav.constants";
+import {CLASSIC_ZITI_NAVIGATOR, ZITI_CONSOLE_NAVIGATOR} from "./app-nav.constants";
 import {ZitiApiInterceptor} from "./interceptors/ziti-api.interceptor";
 import {LoggerModule, NgxLoggerLevel} from "ngx-logger";
 import {ErrorInterceptor} from "./interceptors/error-handler.interceptor";
@@ -72,19 +68,18 @@ import {NodeLoginService} from "./login/node-login.service";
 import {NodeSettingsService} from "./services/node-settings.service";
 import {NoopHttpInterceptor} from "./interceptors/noop-http.interceptor";
 import {NodeApiInterceptor} from "./interceptors/node-api.interceptor";
+import { DEFAULT_APP_CONFIG_PROP } from 'projects/ziti-console-lib/src/lib/default-app-config';
 
 let loginService, zitiDataService, settingsService, wrapperService, apiInterceptor;
 if (environment.nodeIntegration) {
     loginService = NodeLoginService;
     zitiDataService = NodeDataService;
     settingsService = NodeSettingsService;
-    wrapperService = NodeWrapperService;
     apiInterceptor = NodeApiInterceptor;
 }else {
     loginService = ControllerLoginService;
     zitiDataService = ZitiControllerDataService;
     settingsService = SettingsService;
-    wrapperService = ZacWrapperService;
     apiInterceptor = ZitiApiInterceptor;
 }
 
@@ -104,7 +99,6 @@ if (environment.nodeIntegration) {
         LoggerModule.forRoot({ level: NgxLoggerLevel.DEBUG, serverLogLevel: NgxLoggerLevel.ERROR }),
         OAuthModule.forRoot()], providers: [
         { provide: ZITI_DOMAIN_CONTROLLER, useClass: SimpleZitiDomainControllerService },
-        { provide: ZAC_WRAPPER_SERVICE, useClass: wrapperService },
         { provide: ZITI_URLS, useValue: URLS },
         { provide: ZITI_NAVIGATOR, useValue: CLASSIC_ZITI_NAVIGATOR },
         { provide: ZITI_TAB_OVERRIDES, useClass: NoopTabInterceptorService },
@@ -116,6 +110,7 @@ if (environment.nodeIntegration) {
         { provide: ZAC_LOGIN_SERVICE, useClass: loginService },
         { provide: SETTINGS_SERVICE, useClass: settingsService },
         { provide: EDGE_ROUTER_EXTENSION_SERVICE, useClass: ExtensionsNoopService },
+        { provide: DEFAULT_APP_CONFIG, useValue: DEFAULT_APP_CONFIG_PROP },
         { provide: IDENTITY_EXTENSION_SERVICE, useClass: ExtensionsNoopService },
         { provide: SERVICE_EXTENSION_SERVICE, useClass: ExtensionsNoopService },
         { provide: SERVICE_POLICY_EXTENSION_SERVICE, useClass: ExtensionsNoopService },

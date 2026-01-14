@@ -17,7 +17,7 @@
 import {URLS} from "./app-urls.constants";
 import {environment} from "./environments/environment";
 
-export const OPEN_ZITI_NAVIGATOR = {
+export const ZITI_CONSOLE_NAVIGATOR = {
     groups: [
         {
             label: '',
@@ -43,13 +43,13 @@ export const OPEN_ZITI_NAVIGATOR = {
                     label: 'Services',
                     route: URLS.ZITI_SERVICES,
                     iconClass: 'icon-services',
-                    selectedRoutes: [URLS.ZITI_SERVICES]
+                    selectedRoutes: [URLS.ZITI_SERVICES, URLS.ZITI_CONFIGS, URLS.ZITI_TERMINATORS, URLS.ZITI_CONFIG_TYPES]
                 },
                 {
                     label: 'Routers',
                     route: URLS.ZITI_ROUTERS,
-                    iconClass: 'icon-network-hub',
-                    selectedRoutes: [URLS.ZITI_ROUTERS]
+                    iconClass: 'icon-routers',
+                    selectedRoutes: [URLS.ZITI_ROUTERS, URLS.ZITI_TRANSIT_ROUTERS]
                 }
             ]
         },
@@ -59,13 +59,13 @@ export const OPEN_ZITI_NAVIGATOR = {
                 {
                     label: 'Policies',
                     route: URLS.ZITI_SERVICE_POLICIES,
-                    iconClass: 'icon-servicepolicy',
-                    selectedRoutes: [URLS.ZITI_SERVICE_POLICIES]
+                    iconClass: 'icon-policies',
+                    selectedRoutes: [URLS.ZITI_SERVICE_POLICIES, URLS.ZITI_ROUTER_POLICIES, URLS.ZITI_SERVICE_ROUTER_POLICIES]
                 },
                 {
                     label: 'Posture Checks',
                     route: URLS.ZITI_POSTURE_CHECKS,
-                    iconClass: 'icon-posture',
+                    iconClass: 'icon-posturechecks',
                     selectedRoutes: [URLS.ZITI_POSTURE_CHECKS]
                 }
             ]
@@ -76,14 +76,14 @@ export const OPEN_ZITI_NAVIGATOR = {
                 {
                     label: 'Authentication',
                     route: URLS.ZITI_CERT_AUTHORITIES,
-                    iconClass: 'icon-certificates',
-                    selectedRoutes: [URLS.ZITI_CERT_AUTHORITIES]
+                    iconClass: 'icon-CAs',
+                    selectedRoutes: [URLS.ZITI_CERT_AUTHORITIES, URLS.ZITI_AUTH_POLICIES, URLS.ZITI_JWT_SIGNERS]
                 },
                 {
                     label: 'Sessions',
                     route: URLS.ZITI_SESSIONS,
                     iconClass: 'icon-time',
-                    selectedRoutes: [URLS.ZITI_SESSIONS]
+                    selectedRoutes: [URLS.ZITI_SESSIONS, URLS.ZITI_API_SESSIONS]
                 },
             ]
         }

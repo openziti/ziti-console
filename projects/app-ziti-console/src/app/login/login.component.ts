@@ -20,9 +20,6 @@ import {AuthService, SettingsServiceClass, LoginServiceClass, ZitiDataService, S
 import {Subscription} from "rxjs";
 import {delay, isEmpty, isNil, get} from "lodash";
 
-// @ts-ignore
-const {growler, context} = window;
-
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
@@ -47,6 +44,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     controllerInvalid = false;
     extJwtSigners = [];
     oauthLoading = '';
+    errors: any = {};
     private subscription = new Subscription();
 
     constructor(
@@ -121,7 +119,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     login() {
         if(this.selectedEdgeController) {
-            context.set("serviceUrl", this.selectedEdgeController);
             const apiVersions = this.settingsService.apiVersions;
             const prefix = apiVersions && apiVersions["edge-management"]?.v1?.path || '';
             this.svc.login(
@@ -133,7 +130,6 @@ export class LoginComponent implements OnInit, OnDestroy {
                 if (result.error) {
                     return;
                 }
-                context.set('serviceUrl', this.selectedEdgeController);
                 this.settingsService.settings.selectedEdgeController = this.selectedEdgeController;
                 this.settingsService.set(this.settingsService.settings);
             }).catch((error) => {
@@ -144,8 +140,8 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     handleControllerInvalid(controllerInvalid = false) {
         if (controllerInvalid) {
-            this.helpText = `NOTE: The controller url is relative to the server running the Ziti Administration Console. \n 
-                    For example, if you are running the ziti controller and ZAC inside docker, the controller URL should be reachable from the same server that's hosting ZAC. \n 
+            this.helpText = `NOTE: The controller url is relative to the server running the Ziti Administration Console. \n
+                    For example, if you are running the ziti controller and ZAC inside docker, the controller URL should be reachable from the same server that's hosting ZAC. \n
                     In this case, that would be the hostname of the container running the ziti controller image. \n `;
             this.controllerInvalid = true;
         } else {
@@ -165,10 +161,9 @@ export class LoginComponent implements OnInit, OnDestroy {
                     return;
                 }
                 this.selectedEdgeController = this.edgeUrl;
-                context.set("serviceUrl", this.edgeUrl);
                 this.settingsService.set(this.settingsService.settings);
             });
-        } else growler.form();
+        }
     }
 
     isValid() {

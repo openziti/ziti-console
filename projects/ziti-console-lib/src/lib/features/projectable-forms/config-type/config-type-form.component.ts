@@ -40,14 +40,13 @@ import {Location} from "@angular/common";
 import {ValidationService} from "../../../services/validation.service";
 
 @Component({
-    selector: 'lib-configuration',
+    selector: 'lib-config-type-form',
     templateUrl: './config-type-form.component.html',
     styleUrls: ['./config-type-form.component.scss'],
     standalone: false
 })
 export class ConfigTypeFormComponent extends ProjectableForm implements OnInit, OnDestroy {
 
-    @Input() override formData: any = {};
     @Input() override errors: any = {};
     @Output() close: EventEmitter<void> = new EventEmitter<void>();
 

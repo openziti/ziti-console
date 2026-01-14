@@ -1,7 +1,10 @@
 .header {
+  position: relative;
+  display: inline-block;
+  width: 100%;
 
   [class^="icon-"], [class*=" icon-"] {
-    font-family: 'zac', serif !important;
+    font-family: 'icomoon', serif !important;
     speak: never;
     font-style: normal;
     font-weight: normal;
@@ -17,15 +20,15 @@
   }
   .action {
     text-align: center;
-    color: var(--white);
-    line-height: 3.75rem;
+    color: var(--offWhite_ALWAYS);
+    line-height: 3rem;
     font-size: 1.875rem;
-    width: 3.75rem;
-    height: 3.75rem;
-    border-radius: 2.5rem;
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--inputBorderRadius);
     position: absolute;
     right: 0;
-    top: 0.75rem;
+    top: 1.125rem;
     background-color: var(--primary);
     cursor: pointer;
     overflow: hidden;
@@ -33,14 +36,40 @@
     box-shadow: var(--shadow);
     transition: var(--transition);
 
+    &:hover {
+      transform: translateY(0);
+    }
+
+    &.icon-delete {
+      &:active {
+        transform: scale(0.9);
+        background-color: var(--formSubGroup);
+      }
+    }
+
+    &:active {
+      transform: scale(0.9);
+      background-color: var(--formSubGroup);
+    }
+
     &.icon-delete {
       background-color: var(--red);
     }
   }
   .line {
+    position: absolute;
     width: 100%;
+    top: 2.5rem;
     height: 0.25rem;
     background-color: var(--stroke);
+  }
+  .bread {
+    position: absolute;
+    right: 4.375rem;
+    top: 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
   }
   .tabs {
     position: relative;
@@ -82,8 +111,8 @@
     overflow: hidden;
     font-family: 'Russo One', serif;
     color: var(--primary);
-    -webkit-filter: brightness(50%);
-    filter: brightness(50%);
+    -webkit-filter: brightness(var(--brightnessDark));
+    filter: brightness(var(--brightnessDark));
     font-size: 1.875rem;
     text-transform: uppercase;
     font-weight: 400;

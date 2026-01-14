@@ -1,7 +1,6 @@
 <div class="ziti-page-container">
     <div class="header">
         <div class="title"><span>Manage Attributes</span></div>
-        <div class="bread"><span>Ziti Network</span> <span class="secondary">/</span> <span>Manage</span> <span>Attributes</span></div>
         <div class="line"></div>
         <div class="tabs">
             <div class="tab selected"><span>Manage Attributes</span></div>
@@ -15,8 +14,7 @@
                 <div class="col">Identities<div class="dragger"></div></div>
                 <div class="col">Services<div class="dragger"></div></div>
                 <div class="col">Routers<div class="dragger"></div></div>
-                <div class="col">Posture Checks<div class="dragger"></div></div>
-                <div class="col"></div>
+                <div class="col">Posture Checks</div>
             </div>
             <div class="rows">
                 <div *ngFor="let attr of attributes" class="row data-table columns">
@@ -25,9 +23,6 @@
                     <div class="col desktop">{{attr.services}}</div>
                     <div class="col desktop">{{attr.routers}}</div>
                     <div class="col desktop">{{attr.postureChecks}}</div>
-                    <div class="col allowOver">
-                        <div class="dots" (click)="editAttribute(attr.name)">...</div>
-                    </div>
                 </div>
             </div>
         </div>

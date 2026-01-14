@@ -11,7 +11,7 @@
     flex-direction: column;
     background-color: var(--navigation);
     padding: 0.9375rem 0.9375rem;
-    border-radius: 0.625rem;
+    border-radius: var(--formFieldBorderRadius);
     gap: var(--marginMedium);
     height: 100%;
     position: relative;

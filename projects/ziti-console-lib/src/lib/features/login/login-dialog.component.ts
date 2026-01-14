@@ -37,6 +37,7 @@ export class LoginDialogComponent implements OnInit {
   password = '';
   loginFailed = false;
   edgeControllerList = [];
+  showNoControllers = false;
 
   constructor(
     @Inject(ZAC_LOGIN_SERVICE) public svc: LoginServiceClass,

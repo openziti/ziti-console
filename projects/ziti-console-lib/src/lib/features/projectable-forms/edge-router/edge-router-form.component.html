@@ -1,6 +1,7 @@
 <div class="projectable-form-wrapper"
      (keyup.enter)="save($event)"
      (keyup.escape)="closeModal(false)"
+     [class.projectable-form-hidden]="!dataInit"
 >
     <lib-form-header
         [data]="formData"
@@ -8,8 +9,9 @@
         [moreActions]="moreActions"
         (actionRequested)="headerActionRequested($event)"
         [(formView)]="formView"
+        [class.is-scrolled]="isScrolled"
     ></lib-form-header>
-    <div class="edge-router-form-container projectable-form-container">
+    <div class="edge-router-form-container projectable-form-container" #formContainer>
         <div class="projectable-form-main-column form-group-row" *ngIf="formView === 'simple'">
             <div class="form-group-column three-fifths">
                 <lib-form-field-container [title]="'Edge Router Name'" [label]="'REQUIRED'">
@@ -43,14 +45,13 @@
                         [layout]="'row'"
                         class="form-field-advanced"
                     >
-                        <div class="config-item">
+                        <div class="config-item" [class.disabled]="!tunnelerEnabledReadOnly">
                             <div class="config-container toggle-container">
                                 <div class="config-container-label">TUNNELER ENABLED</div>
-                                <div
-                                        (click)="toggleTunnelerEnabled()"
-                                        [ngClass]="{ on: formData.isTunnelerEnabled }"
-                                        class="toggle"
-                                >
+                                <div (click)="tunnelerEnabledReadOnly && toggleTunnelerEnabled()"
+                                    [ngClass]="{ on: formData.isTunnelerEnabled,disabled: !tunnelerEnabledReadOnly }" class="toggle"
+                                    [matTooltip]="!tunnelerEnabledReadOnly ? 'Disabled because already hosted by netfoundry ' : ''"
+                                    matTooltipPosition="above" style="pointer-events: auto;">
                                     <span [hidden]="!formData.isTunnelerEnabled" class="on-label">YES</span>
                                     <span [hidden]="formData.isTunnelerEnabled" class="off-label">NO</span>
                                     <div class="switch"></div>
@@ -135,7 +136,7 @@
                 >
                     <div class="form-row">
                         <input class="form-field-input" [value]="apiCallURL"/>
-                        <div class="icon-copy copy" (click)="copyToClipboard(apiCallURL)"></div>
+                        <div class="icon-copy copy-text" (click)="copyToClipboard(apiCallURL)"></div>
                     </div>
                     <lib-json-view *ngIf="formData" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
                 </lib-form-field-container>
@@ -146,4 +147,4 @@
         </div>
     </div>
 </div>
-<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
+<lib-loading-indicator *ngIf="isLoading || !dataInit" [isLoading]="isLoading || !dataInit"></lib-loading-indicator>

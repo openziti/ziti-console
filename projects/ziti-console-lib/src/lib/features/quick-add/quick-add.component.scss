@@ -1,0 +1,107 @@
+.quick-add-modal-container {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background);
+  border-radius: var(--formFieldBorderRadius);
+  width: 37.5rem;
+  padding: var(--paddingXXL);
+
+  .quick-add-modal-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    .quick-add-modal-content {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+    .quick-add-modal-main {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+  .quick-add-title-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    .quick-add-title {
+      color: var(--primaryColor);
+      font-size: 1.875rem;
+      position: relative;
+      padding-left: 0;
+      width: 100%;
+      background: none;
+      text-transform: none;
+      height: auto;
+      font-family: Russo One;
+      filter: brightness(50%);
+    }
+    .quick-add-subtitle {
+      font-size: 1rem;
+    }
+  }
+  .quick-add-options-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+
+    .quick-add-button {
+      height: 9.375rem;
+      position: relative;
+      background-color: var(--white);
+      border-radius: var(--inputBorderRadius);
+      box-sizing: var(--shadow);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      &:focus-visible,
+      &:focus {
+        outline: none;
+        box-shadow: none;
+        border: none;
+      }
+
+      .option-icon {
+        &:before {
+          color: var(--tableText);
+        }
+      }
+
+      &:hover {
+        .option-label {
+          color: var(--primaryColor);
+        }
+        .option-icon {
+          &:before {
+            color: var(--primaryColor);
+          }
+        }
+      }
+
+      .option-icon {
+        font-size: 5rem;
+        height: 5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        &.icon-identity {
+          margin-left: -.125rem;
+        }
+        &.icon-services {
+          font-size: 4rem;
+        }
+      }
+
+      .option-label {
+        font-size: 1.25rem;
+        text-transform: uppercase;
+      }
+    }
+  }
+}

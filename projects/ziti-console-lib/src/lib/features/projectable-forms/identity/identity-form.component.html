@@ -1,6 +1,7 @@
 <div class="projectable-form-wrapper"
      (keyup.enter)="save($event)"
      (keyup.escape)="closeModal(false)"
+     [class.projectable-form-hidden]="!dataInit"
 >
     <lib-form-header
             [data]="formData"
@@ -8,8 +9,9 @@
             [moreActions]="moreActions"
             (actionRequested)="headerActionRequested($event)"
             [(formView)]="formView"
+            [class.is-scrolled]="isScrolled"
     ></lib-form-header>
-    <div class="identity-form-container projectable-form-container">
+    <div class="identity-form-container projectable-form-container" #formContainer>
         <div class="projectable-form-main-column form-group-row" *ngIf="formView === 'simple'">
             <div class="form-group-column three-fifths">
                 <lib-form-field-container [title]="'Identity Name'" [label]="'REQUIRED'">
@@ -171,10 +173,18 @@
             <div class="form-group-column two-fifths">
                 <ng-content select="[slot=column-2-slot-1]"></ng-content>
                 <lib-form-field-container
-                        *ngIf="hasEnrolmentToken || hasAuthenticator"
+                        *ngIf="isEdit"
                         [showHeader]="false"
+                        [layout]="'column'"
+                        [contentStyle]="'z-index: 99999999'"
                 >
-                    <lib-qr-code
+                    <div *ngIf="hasEnrolmentToken || hasAuthenticator" class="form-field-label-container" style="gap: var(--paddingMedium)">
+                      <div class="form-field-header">
+                        <div class="form-field-title-container">
+                          <span class="form-field-title">Enrollment:</span>
+                        </div>
+                      </div>
+                      <lib-qr-code
                         [identity]="formData"
                         [jwt]="jwt"
                         [expiration]="enrollmentExpiration"
@@ -182,21 +192,22 @@
                         [type]="'identity'"
                         [canExpand]="true"
                         (doRefresh)="refreshIdentity()"
-                    ></lib-qr-code>
-                </lib-form-field-container>
-                <lib-form-field-container
-                        *ngIf="isEdit"
-                        [showHeader]="false"
-                        [layout]="'column'"
-                        [contentStyle]="'z-index: 99999999'"
-                >
-                    <div *ngIf="entityDisabled" class="disable-identity-button-container" (click)="enableIdentity()">
-                        <div class="disable-identity-background"></div>
-                        <button class="download-button disable-identity-button">Enable Identity</button>
+                      ></lib-qr-code>
                     </div>
-                    <div *ngIf="!entityDisabled" class="disable-identity-button-container" (click)="disableIdentity()">
-                        <div class="disable-identity-background"></div>
-                        <button class="download-button disable-identity-button">Disable Identity</button>
+                    <div class="form-field-label-container" style="gap: var(--paddingMedium)">
+                      <div class="form-field-header">
+                        <div class="form-field-title-container">
+                          <span class="form-field-title">Enable / Disable:</span>
+                        </div>
+                      </div>
+                      <div *ngIf="entityDisabled" class="disable-identity-button-container" (click)="enableIdentity()">
+                          <div class="disable-identity-background"></div>
+                          <button class="download-button disable-identity-button">Enable Identity</button>
+                      </div>
+                      <div *ngIf="!entityDisabled" class="disable-identity-button-container" (click)="disableIdentity()">
+                          <div class="disable-identity-background"></div>
+                          <button class="download-button disable-identity-button">Disable Identity</button>
+                      </div>
                     </div>
                     <div *ngIf="!entityDisabled" class="form-field-label-container" style="gap: var(--paddingMedium)">
                         <div class="form-field-header">
@@ -261,7 +272,7 @@
                 >
                     <div class="form-row">
                         <input class="form-field-input" [value]="apiCallURL" readonly/>
-                        <div class="url-copy icon-copy copy" (click)="copyToClipboard(apiCallURL)"></div>
+                        <div class="url-copy icon-copy copy-text" (click)="copyToClipboard(apiCallURL)"></div>
                     </div>
                     <lib-json-view *ngIf="formData" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
                 </lib-form-field-container>
@@ -272,4 +283,4 @@
         </div>
     </div>
 </div>
-<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
+<lib-loading-indicator *ngIf="isLoading || !dataInit" [isLoading]="isLoading || !dataInit"></lib-loading-indicator>

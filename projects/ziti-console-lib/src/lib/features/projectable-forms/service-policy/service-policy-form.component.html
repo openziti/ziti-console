@@ -1,6 +1,7 @@
 <div class="projectable-form-wrapper"
      (keyup.enter)="save($event)"
      (keyup.escape)="closeModal(false)"
+     [class.projectable-form-hidden]="!dataInit"
 >
     <lib-form-header
             [data]="formData"
@@ -8,8 +9,9 @@
             [moreActions]="moreActions"
             (actionRequested)="headerActionRequested($event)"
             [(formView)]="formView"
+            [class.is-scrolled]="isScrolled"
     ></lib-form-header>
-    <div class="service-policy-form-container projectable-form-container">
+    <div class="service-policy-form-container projectable-form-container" #formContainer>
         <div class="projectable-form-main-column form-group-row" *ngIf="formView === 'simple'">
             <div class="form-group-column three-fifths">
                 <lib-form-field-container [title]="'Service Policy Name'" [label]="'REQUIRED'">
@@ -33,8 +35,8 @@
                             [(selectedNamedAttributes)]="selectedServiceNamedAttributes"
                             [availableRoleAttributes]="svc.serviceRoleAttributes"
                             [availableNamedAttributes]="svc.serviceNamedAttributes"
-                            (selectedNamedAttributesChange)="svc.getAssociatedServicesByAttribute(selectedServiceRoleAttributes, selectedServiceNamedAttributes)"
-                            (selectedRoleAttributesChange)="svc.getAssociatedServicesByAttribute(selectedServiceRoleAttributes, selectedServiceNamedAttributes)"
+                            (selectedNamedAttributesChange)="svc.getAssociatedServicesByAttribute(selectedServiceRoleAttributes, selectedServiceNamedAttributes, formData.semantic)"
+                            (selectedRoleAttributesChange)="svc.getAssociatedServicesByAttribute(selectedServiceRoleAttributes, selectedServiceNamedAttributes, formData.semantic)"
                             [placeholder]="'Select service attributes'"
                     ></lib-tag-selector>
                 </lib-form-field-container>
@@ -49,8 +51,8 @@
                             [(selectedNamedAttributes)]="selectedIdentityNamedAttributes"
                             [availableRoleAttributes]="svc.identityRoleAttributes"
                             [availableNamedAttributes]="svc.identityNamedAttributes"
-                            (selectedNamedAttributesChange)="svc.getAssociatedIdentitiesByAttribute(selectedIdentityRoleAttributes, selectedIdentityNamedAttributes)"
-                            (selectedRoleAttributesChange)="svc.getAssociatedIdentitiesByAttribute(selectedIdentityRoleAttributes, selectedIdentityNamedAttributes)"
+                            (selectedNamedAttributesChange)="svc.getAssociatedIdentitiesByAttribute(selectedIdentityRoleAttributes, selectedIdentityNamedAttributes, formData.semantic)"
+                            (selectedRoleAttributesChange)="svc.getAssociatedIdentitiesByAttribute(selectedIdentityRoleAttributes, selectedIdentityNamedAttributes, formData.semantic)"
                             [placeholder]="'Select identity attributes'"
                     ></lib-tag-selector>
                 </lib-form-field-container>
@@ -65,8 +67,8 @@
                             [(selectedNamedAttributes)]="selectedPostureNamedAttributes"
                             [(selectedRoleAttributes)]="svc.postureRoleAttributes"
                             [availableNamedAttributes]="svc.postureNamedAttributes"
-                            (selectedNamedAttributesChange)="svc.getAssociatedPostureChecksByAttribute(selectedPostureRoleAttributes, selectedPostureNamedAttributes)"
-                            (selectedRoleAttributesChange)="svc.getAssociatedPostureChecksByAttribute(selectedPostureRoleAttributes, selectedPostureNamedAttributes)"
+                            (selectedNamedAttributesChange)="svc.getAssociatedPostureChecksByAttribute(selectedPostureRoleAttributes, selectedPostureNamedAttributes, formData.semantic)"
+                            (selectedRoleAttributesChange)="svc.getAssociatedPostureChecksByAttribute(selectedPostureRoleAttributes, selectedPostureNamedAttributes, formData.semantic)"
                             [placeholder]="'Select posture check attributes'"
                     ></lib-tag-selector>
                 </lib-form-field-container>
@@ -85,6 +87,7 @@
                     </select>
                     <select
                             [(ngModel)]="formData.semantic"
+                            (change)="updateAssociations()"
                             id="PolicySemantic"
                             class="form-field-dropdown"
                     >
@@ -146,7 +149,7 @@
                 >
                     <div class="form-row">
                         <input class="form-field-input" [value]="apiCallURL"/>
-                        <div class="icon-copy copy" (click)="copyToClipboard(apiCallURL)"></div>
+                        <div class="icon-copy copy-text" (click)="copyToClipboard(apiCallURL)"></div>
                     </div>
                     <lib-json-view *ngIf="formData" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
                 </lib-form-field-container>
@@ -157,4 +160,4 @@
         </div>
     </div>
 </div>
-<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
+<lib-loading-indicator *ngIf="isLoading || !dataInit" [isLoading]="isLoading || !dataInit"></lib-loading-indicator>

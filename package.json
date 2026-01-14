@@ -1,6 +1,6 @@
 {
   "name": "io.netfoundry.zac",
-  "version": "3.12.9",
+  "version": "4.0.1",
   "description": "Ziti Administration Console",
   "main": "server.js",
   "type": "module",
@@ -51,6 +51,17 @@
   "optionalDependencies": {
     "@openziti/ziti-sdk-nodejs": "^0.13.3"
   },
+  "peerDependencies": {
+    "@angular/animations": "^16.2.12",
+    "@angular/common": "^16.2.12",
+    "@angular/core": "^16.2.12",
+    "@angular/forms": "^16.2.12",
+    "@angular/material": "^16.2.12",
+    "@angular/platform-browser": "^16.2.12",
+    "@angular/router": "^16.2.12",
+    "rxjs": "~7.8.0",
+    "zone.js": "0.13.3"
+  },
   "dependencies": {
     "@angular/animations": "^19.2.18",
     "@angular/cdk": "^19.2.19",
@@ -74,20 +85,18 @@
     "angularx-qrcode": "^18.0.2",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
-    "d3": "~7.9.0",
+    "d3": "~7.8.5",
     "d3-hierarchy": "^2.0.0",
     "express-fileupload": "^1.4.0",
     "express-session": "^1.17.3",
-    "file-saver": "^2.0.5",
-    "fse": "^4.0.1",
+    "file-saver": "~2.0.5",
+    "fs-extra": "~10.0.0",
     "helmet": "^6.0.1",
     "influx": "^5.9.3",
-    "jexl": "^2.3.0",
-    "jquery": "^3.7.0",
-    "jsoneditor": "^9.10.2",
+    "jquery": "^3.7.1",
+    "jsoneditor": "^9.5.6",
     "lodash": "^4.17.21",
     "lottie-web": "^5.13.0",
-    "md5": "^2.3.0",
     "moment": "^2.29.4",
     "ng-click-outside": "^9.0.1",
     "ngx-logger": "^5.0.12",
@@ -97,11 +106,9 @@
     "primeng": "^19.1.7-lts",
     "request": "^2.88.2",
     "rxjs": "~7.8.0",
-    "sanitize-html": "^2.13.0",
     "session-file-store": "^1.5.0",
     "tslib": "^2.3.0",
     "vanilla-jsoneditor": "^1.1.2",
-    "ws": "^8.12.0",
     "ziti-console-lib": "file:dist/ziti-console-lib",
     "zone.js": "~0.15.1"
   },
@@ -128,5 +135,8 @@
   },
   "overrides": {
     "form-data": "3.0.4"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -20,6 +20,10 @@
   pointer-events: none;
 }
 
+.toggle.disabled {
+    cursor: not-allowed;
+}
+
 ::ng-deep .admin-toggle {
   width: 100%;
   width: 35%;

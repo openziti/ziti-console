@@ -23,6 +23,8 @@ import {ExtensionService} from "../../extendable/extensions-noop.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {EdgeRouter} from "../../../models/edge-router";
 import {Location} from "@angular/common";
+import { DEFAULT_APP_CONFIG } from '../../../ziti-console.constants';
+import { DefaultAppConfig } from '../../../default-app-config';
 
 @Component({
     selector: 'lib-edge-router-form',
@@ -37,7 +39,6 @@ import {Location} from "@angular/common";
     standalone: false
 })
 export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, OnChanges, OnDestroy, AfterViewInit {
-  @Input() formData: any = {};
   @Input() edgeRouterRoleAttributes: any[] = [];
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
@@ -60,6 +61,7 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
       @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
       growlerService: GrowlerService,
       @Inject(EDGE_ROUTER_EXTENSION_SERVICE) extService: ExtensionService,
+      @Inject(DEFAULT_APP_CONFIG) public config: DefaultAppConfig,
       protected override router: Router,
       protected override route: ActivatedRoute,
       location: Location
@@ -117,7 +119,7 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
   }
 
   ngOnDestroy() {
-    this.extService.closed.emit({});
+    this.extService?.closed?.emit({});
     this.subscription.unsubscribe();
   }
 
@@ -226,5 +228,15 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
   }
 
   clear(): void {
+  }
+
+  isTunnelerDisabled(): boolean {
+    return this.extService.disabledComponents.some(
+      item => item.key === 'tunneler-disabled'
+    );
+  }
+
+  get tunnelerEnabledReadOnly(): boolean {
+    return this.config.isOpenZiti ? true : !this.isTunnelerDisabled()
   }
 }

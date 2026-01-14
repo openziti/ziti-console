@@ -15,7 +15,6 @@
 */
 
 import { InjectionToken, Injector, NgModule, inject, provideAppInitializer } from '@angular/core';
-import {ZacWrapperComponent} from "./features/wrappers/zac-wrapper.component";
 import {SafePipe} from "./safe.pipe";
 import { HttpClient, provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 import {CommonModule} from "@angular/common";
@@ -37,9 +36,7 @@ import {QRCodeModule} from 'angularx-qrcode';
 import {
     ProtocolAddressPortInputComponent
 } from './features/dynamic-widgets/protocol-address-port/protocol-address-port-input.component';
-import {SideToolbarComponent} from './features/sidebars/side-toolbar/side-toolbar.component';
 import {SideNavbarComponent} from './features/sidebars/side-navbar/side-navbar.component';
-import {SideBannerComponent} from './features/sidebars/side-banner/side-banner.component';
 import {PasswordInputComponent} from './features/dynamic-widgets/password/password-input.component';
 import {ConfigurationsPageComponent} from './pages/configurations/configurations-page.component';
 import {ListPageHeaderComponent} from './features/list-page-features/list-page-header/list-page-header.component';
@@ -137,13 +134,15 @@ import { SettingsComponent } from './pages/settings/settings.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { GeolocateComponent } from './pages/geolocate/geolocate.component';
 import { AttributesComponent } from './pages/attributes/attributes.component';
+import {SideNavigatorComponent} from "./features/side-navigator/side-navigator.component";
+import {HeaderBarComponent} from "./features/header-bar/header-bar.component";
+import {QuickAddComponent} from "./features/quick-add/quick-add.component";
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
 }
 
 @NgModule({ declarations: [
-        ZacWrapperComponent,
         SafePipe,
         ExtendableComponent,
         StringInputComponent,
@@ -154,9 +153,7 @@ export function playerFactory() {
         TextListInputComponent,
         CheckboxListInputComponent,
         ProtocolAddressPortInputComponent,
-        SideToolbarComponent,
         SideNavbarComponent,
-        SideBannerComponent,
         PasswordInputComponent,
         TerminatorFormComponent,
         ConfigurationsPageComponent,
@@ -238,14 +235,14 @@ export function playerFactory() {
         SettingsComponent,
         ProfileComponent,
         GeolocateComponent,
-        AttributesComponent
+        AttributesComponent,
+        SideNavigatorComponent,
+        HeaderBarComponent,
+        QuickAddComponent
     ],
     exports: [
-        ZacWrapperComponent,
         ExtendableComponent,
-        SideToolbarComponent,
         SideNavbarComponent,
-        SideBannerComponent,
         StringInputComponent,
         SelectorInputComponent,
         PasswordInputComponent,

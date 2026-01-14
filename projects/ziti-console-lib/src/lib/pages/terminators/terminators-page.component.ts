@@ -46,7 +46,7 @@ export class TerminatorsPageComponent extends ListPageComponent implements OnIni
     }
 
     override ngOnInit() {
-        this.tabs = this.tabNames.getTabs('identities');
+        this.tabs = this.tabNames.getTabs('services');
         this.svc.refreshData = this.refreshData;
         super.ngOnInit();
     }

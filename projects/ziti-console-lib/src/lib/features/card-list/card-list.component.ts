@@ -15,7 +15,6 @@ import {Location} from "@angular/common";
     standalone: false
 })
 export class CardListComponent extends ProjectableForm {
-  formData: any = {};
 
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
   @Output() selected: EventEmitter<any> = new EventEmitter<any>();

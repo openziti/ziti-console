@@ -91,7 +91,7 @@ export class ServicePolicyFormService {
     }
 
     getAssociatedIdentitiesById(id) {
-        this.zitiService.getSubdata('service-policies', id, 'identities').then((result: any) => {
+        return this.zitiService.getSubdata('service-policies', id, 'identities').then((result: any) => {
             this.associatedIdentities = result.data;
             this.associatedIdentityNames = this.associatedIdentities.map((ident) => {
                 return ident.name;
@@ -108,13 +108,13 @@ export class ServicePolicyFormService {
         });
     }
 
-    getAssociatedServicesByAttribute(roleAttributes, namedAttributes) {
+    getAssociatedServicesByAttribute(roleAttributes, namedAttributes, semantic = 'AnyOf') {
         this.associatedServiceNames = [];
         if (isEmpty(roleAttributes)) {
             this.associatedServiceNames = [...namedAttributes];
             return Promise.resolve([]);
         }
-        const filters = this.zitiService.getRoleFilter(roleAttributes);
+        const filters = this.zitiService.getRoleFilter(roleAttributes, semantic);
         const paging = this.zitiService.DEFAULT_PAGING;
         paging.noSearch = false;
         return this.zitiService.get('services', paging, filters).then((result: any) => {
@@ -130,13 +130,13 @@ export class ServicePolicyFormService {
         });
     }
 
-    getAssociatedIdentitiesByAttribute(roleAttributes, namedAttributes) {
+    getAssociatedIdentitiesByAttribute(roleAttributes, namedAttributes, semantic = 'AnyOf') {
         this.associatedIdentityNames = [];
         if (isEmpty(roleAttributes)) {
             this.associatedIdentityNames = [...namedAttributes];
             return;
         }
-        const filters = this.zitiService.getRoleFilter(roleAttributes);
+        const filters = this.zitiService.getRoleFilter(roleAttributes, semantic);
         const paging = this.zitiService.DEFAULT_PAGING;
         paging.noSearch = false;
         this.zitiService.get('identities', paging, filters).then((result: any) => {
@@ -151,13 +151,13 @@ export class ServicePolicyFormService {
         });
     }
 
-    getAssociatedPostureChecksByAttribute(roleAttributes, namedAttributes) {
+    getAssociatedPostureChecksByAttribute(roleAttributes, namedAttributes, semantic = 'AnyOf') {
         this.associatedPostureCheckNames = [];
         if (isEmpty(roleAttributes)) {
             this.associatedPostureCheckNames = [...namedAttributes];
             return;
         }
-        const filters = this.zitiService.getRoleFilter(roleAttributes);
+        const filters = this.zitiService.getRoleFilter(roleAttributes, semantic);
         const paging = this.zitiService.DEFAULT_PAGING;
         paging.noSearch = false;
         this.zitiService.get('posture-checks', paging, filters).then((result: any) => {

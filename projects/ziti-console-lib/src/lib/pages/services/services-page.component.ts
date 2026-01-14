@@ -19,7 +19,6 @@ import {ServicesPageService} from "../services/services-page.service";
 import {DataTableFilterService} from "../../features/data-table/data-table-filter.service";
 import {TabNameService} from "../../services/tab-name.service";
 import {ConsoleEventsService} from "../../services/console-events.service";
-import {ZAC_WRAPPER_SERVICE, ZacWrapperServiceClass} from "../../features/wrappers/zac-wrapper-service.class";
 import {ListPageComponent} from "../../shared/list-page-component.class";
 import {MatDialog} from "@angular/material/dialog";
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
@@ -57,7 +56,6 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
       dialogForm: MatDialog,
       private tabNames: TabNameService,
       consoleEvents: ConsoleEventsService,
-      @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperServiceClass,
       private growlerService: GrowlerService,
       @Inject(SETTINGS_SERVICE) private settingsService: SettingsService,
       @Inject(SERVICE_EXTENSION_SERVICE) protected override extensionService: ExtensionService,

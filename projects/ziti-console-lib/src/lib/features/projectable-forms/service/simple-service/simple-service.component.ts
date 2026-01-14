@@ -18,9 +18,6 @@ import {Location} from "@angular/common";
 import {URLS} from "../../../../urls";
 import {BehaviorSubject, forkJoin, Observable, of} from "rxjs";
 
-// @ts-ignore
-const {app} = window;
-
 @Component({
     selector: 'lib-simple-service',
     templateUrl: './simple-service.component.html',
@@ -32,7 +29,6 @@ export class SimpleServiceComponent extends ProjectableForm {
   @Input() identityRoleAttributes: any[] = [];
   @Input() identityNamedAttributes: any[] = [];
 
-  dataInit = false;
   showForm = true;
   formView = 'simple';
   controllerDomain = '';
@@ -141,10 +137,11 @@ export class SimpleServiceComponent extends ProjectableForm {
       location: Location
   ) {
     super(growlerService, extService, zitiService, router, route, location, settingsService);
-    this.formData = {};
+    this.svc.formData = {};
   }
 
-  @Input() set formData(data) {
+  serviceDataSet: boolean;
+  @Input() override set formData(data) {
     if (!data?.configs) {
       data.configs = [];
     }
@@ -158,11 +155,30 @@ export class SimpleServiceComponent extends ProjectableForm {
       } else {
         this.multiActions = []
       }
+    } else {
+      this.associatedDataInit = true;
     }
+    this.serviceDataSet = true;
+    this.checkAllDataInit();
   }
 
-  get formData(): any {
+  override get formData(): any {
     return this.svc?.formData;
+  }
+
+  entityIdInit: boolean;
+  override set entityId(id: String) {
+    this._entityId = id;
+    if (isEmpty(id) || id === 'create') {
+      this.serviceDataSet = true;
+      this.associatedDataInit = true;
+    }
+    this.entityIdInit = true;
+    this.checkAllDataInit();
+  }
+
+  override get entityId(): String {
+    return this._entityId;
   }
 
   override ngOnInit() {
@@ -173,6 +189,7 @@ export class SimpleServiceComponent extends ProjectableForm {
     this.getIdentityNamedAttributes();
   }
 
+  formDataSet = false;
   initFormData() {
     this.serviceApiUrl = `${this.controllerDomain}/edge/management/v1/services`;
     this.interceptConfigApiUrl = `${this.controllerDomain}/edge/management/v1/configs`;
@@ -199,16 +216,23 @@ export class SimpleServiceComponent extends ProjectableForm {
     this.hostConfigApiData = cloneDeep(this.initHostConfigApiData);
     this.dialPolicyApiData = cloneDeep(this.initDialPolicyApiData);
     this.bindPolicyApiData = cloneDeep(this.initBindPolicyApiData);
-    this.servicesPageService.getServiceRoleAttributes().then((result) => {
+    const serviceRolesPromise = this.servicesPageService.getServiceRoleAttributes().then((result) => {
       this.serviceRoleAttributes = result.data;
     });
-    this.servicesPageService.getIdentityRoleAttributes().then((result) => {
+    const identityRolesPromise = this.servicesPageService.getIdentityRoleAttributes().then((result) => {
       this.identityRoleAttributes = result.data;
+    });
+    return Promise.all([serviceRolesPromise, identityRolesPromise]).finally(() => {
+      this.formDataSet = true;
+      this.checkAllDataInit();
     });
   }
 
+  associatedDataInit: boolean;
   initAssociatedData() {
     if (this.entitiesInit) {
+      this.dataInit = true;
+      this.isLoading = false;
       return;
     }
     this.entitiesInit = true;
@@ -218,8 +242,9 @@ export class SimpleServiceComponent extends ProjectableForm {
         const configsPromise = this.getAssociatedConfigs();
         const policiesPromise = this.getAssocaitedPolicies();
         Promise.all([configsPromise, policiesPromise]).finally(() => {
-          this.dataInit = true;
+          this.associatedDataInit = true;
           this.setInitData();
+          this.checkAllDataInit();
         });
       }
     });
@@ -307,11 +332,19 @@ export class SimpleServiceComponent extends ProjectableForm {
       const namedAttributes = result.data.map((identity) => {
         this.identitiesNameIdMap[identity.name] = identity.id;
         this.identitiesIdNameMap[identity.id] = identity.name;
-        this.identitiesInit.next(true);
         return identity.name;
       });
       this.identityNamedAttributes = namedAttributes;
+    }).finally(() => {
+      this.identitiesInit.next(true);
     });
+  }
+
+  checkAllDataInit() {
+    if (this.associatedDataInit && this.formDataSet && this.entityIdInit && this.serviceDataSet) {
+      this.dataInit = true;
+      this.isLoading = false;
+    }
   }
 
   multiActionRequested(action) {
@@ -1047,7 +1080,6 @@ export class SimpleServiceComponent extends ProjectableForm {
       this.dataChange.emit(dataChange);
     }
     this._dataChange = serviceDataChange || interceptDataChange || hostDataChange || dialDataChange || bindDataChange;
-    app.isDirty = false;
   }
 
   clear(): void {

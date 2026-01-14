@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   background-color: var(--background);
-  border-radius: 1.5625rem;
+  border-radius: var(--formFieldBorderRadius);
   width: 37.5rem;
 
   .confirm-model-body {
@@ -24,7 +24,7 @@
       background-size: contain;
       z-index: 20;
       box-sizing: var(--shadow);
-      margin-left: 0.9375rem;
+      margin-left: var(--marginXXL);
     }
   }
   .confirm-title-container {

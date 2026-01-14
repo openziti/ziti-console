@@ -1,0 +1,85 @@
+<header>
+  <div class="overlay"></div>
+  <div class="left-side-buttons">
+    <div class="apps-button clickable" mattooltip="Select Application" mattooltipposition="below" mattooltipshowdelay="500" (click)="goToDashboard()">
+      <div class="icon"></div>
+    </div>
+    <div class="divider-line"></div>
+    <div class="header-title-wrapper">
+      <div class="header-title-container" (click)="goToDashboard()">
+        <div class="header-title-label">{{headerTitle}}</div>
+        <div class="title-text-row title-bottom-text">By <a class="nf-name-text" href="https://netfoundry.io" target="_blank">NetFoundry</a></div>
+      </div>
+    </div>
+  </div>
+  <div class="right-side-buttons">
+    <div
+      (click)="openQuickAdd()"
+      [ngClass]="{ open: supportOpen }"
+      class="clickable"
+      id="QuickAddButton"
+      matTooltip="Support"
+      matTooltipPosition="below"
+      matTooltipShowDelay="500"
+    >
+      <div class="clicked"></div>
+      <div class="circle"></div>
+      <div class="icon icon-Icon_Add"></div>
+    </div>
+    <div
+      class="clickable"
+      id="AttributesButton"
+      matTooltip="Attributes Explorer"
+      matTooltipPosition="below"
+      matTooltipShowDelay="500"
+      routerLink="/attributes/"
+    >
+      <div class="circle"></div>
+      <div class="icon icon-hash"></div>
+    </div>
+    <div
+      (click)="openAlerts()"
+      class="clickable"
+      id="RecentAlertsButton"
+      matTooltip="Recent Alerts"
+      matTooltipPosition="below"
+      matTooltipShowDelay="500"
+    >
+      <div class="circle"></div>
+      <div class="icon icon-Bell"></div>
+    </div>
+    <div
+      class="clickable main"
+      id="UserButton"
+      (clickOutside)="closeProfileMenu()"
+      (click)="openProfileMenu()"
+    >
+      <div class="main clickable"></div>
+      <div class="circle"></div>
+      <div
+        [ngStyle]="{ 'background-image': 'url(' + profilePhoto + ')' }"
+        class="icon icon-profile"
+      ></div>
+      <div [ngClass]="{ open: profileOpen }" class="header-menu" id="UserMenu">
+        <div class="menutitle" *ngIf="profileOpen">{{ username }}</div>
+        <div
+          *ngIf="profileOpen"
+          class="link"
+          id="EditProfile"
+          routerLink="/profile/"
+        >
+          Edit Profile
+        </div>
+        <div
+          *ngIf="profileOpen"
+          class="link"
+          id="PersonalSettings"
+          routerLink="/settings/"
+        >
+          Personal Settings
+        </div>
+        <div *ngIf="profileOpen" (click)="confirmLogout()" class="link" id="LogoutButton">Logout</div>
+      </div>
+    </div>
+  </div>
+</header>

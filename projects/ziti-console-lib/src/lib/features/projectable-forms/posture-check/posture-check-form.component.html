@@ -2,6 +2,7 @@
      (keyup.enter)="save($event)"
      (keyup.escape)="closeModal(false)"
      tabindex="0"
+     [class.projectable-form-hidden]="!dataInit"
 >
     <lib-form-header
             [data]="formData"
@@ -9,8 +10,9 @@
             [moreActions]="formData.moreActions"
             (actionRequested)="headerActionRequested($event)"
             [(formView)]="formView"
+            [class.is-scrolled]="isScrolled"
     ></lib-form-header>
-    <div class="posture-checkform-container projectable-form-container">
+    <div class="posture-checkform-container projectable-form-container" #formContainer>
         <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
             <div class="form-group-column three-fifths">
                 <lib-form-field-container [title]="'Name'" [label]="'Required'">
@@ -512,7 +514,7 @@
                 >
                     <div class="form-row">
                         <input class="form-field-input" [value]="apiCallURL" readonly/>
-                        <div class="url-copy icon-copy copy" (click)="copyToClipboard(apiCallURL)"></div>
+                        <div class="url-copy icon-copy copy-text" (click)="copyToClipboard(apiCallURL)"></div>
                     </div>
                     <lib-json-view *ngIf="formData" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
                 </lib-form-field-container>
@@ -523,4 +525,4 @@
         </div>
     </div>
 </div>
-<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
+<lib-loading-indicator *ngIf="isLoading || !dataInit" [isLoading]="isLoading || !dataInit"></lib-loading-indicator>

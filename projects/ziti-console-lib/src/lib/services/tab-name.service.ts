@@ -1,6 +1,7 @@
 import {Inject, Injectable, InjectionToken} from '@angular/core';
 import {SettingsServiceClass} from "./settings-service.class";
 import {SETTINGS_SERVICE} from "./settings.service";
+import {URLS} from "../urls";
 
 export const ZITI_TAB_OVERRIDES = new InjectionToken<string>('ZITI_TAB_OVERRIDES');
 
@@ -23,15 +24,14 @@ export class TabNameService {
         [
             ["identities", [
                 {label: 'Identities', url: '/identities'},
-                {label: 'Recipes', url: '/recipes', hidden: !this.settings.supportedFeatures?.recipies},
-                {label: 'Posture Checks', url: '/posture-checks'},
+                {label: 'Recipes', url: '/recipes', hidden: !this.settings.supportedFeatures?.recipies}
             ]
             ],
             ["services", [
                 {label: 'Services', url: '/services'},
-                {label: 'Terminators', url: '/terminators'},
                 {label: 'Configurations', url: '/configs'},
                 {label: 'Config Types', url: '/config-types'},
+                {label: 'Terminators', url: '/terminators'},
             ]
             ],
             ["routers", [
@@ -43,6 +43,10 @@ export class TabNameService {
                 {label: 'Service Policies', url: '/service-policies'},
                 {label: 'Router Policies', url: '/router-policies'},
                 {label: 'Service Router Policies', url: '/service-router-policies'}
+            ]
+            ],
+            ["posture-checks", [
+                {label: 'Posture Checks', url: URLS.ZITI_POSTURE_CHECKS},
             ]
             ],
             ["authentication", [

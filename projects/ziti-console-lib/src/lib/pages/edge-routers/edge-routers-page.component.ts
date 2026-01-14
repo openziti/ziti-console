@@ -10,7 +10,6 @@ import moment from 'moment';
 import $ from 'jquery';
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {MatDialog} from "@angular/material/dialog";
-import {ZacWrapperServiceClass, ZAC_WRAPPER_SERVICE} from "../../features/wrappers/zac-wrapper-service.class";
 import {SettingsService} from "../../services/settings.service";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {EdgeRouter} from "../../models/edge-router";
@@ -37,7 +36,6 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
       dialogForm: MatDialog,
       private tabNames: TabNameService,
       consoleEvents: ConsoleEventsService,
-      @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperServiceClass,
       @Inject(EDGE_ROUTER_EXTENSION_SERVICE) private extService: ExtensionService
   ) {
     super(filterService, svc, consoleEvents, dialogForm);
@@ -46,10 +44,6 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
   override ngOnInit() {
     this.tabs = this.tabNames.getTabs('routers');
     this.svc.refreshData = this.refreshData;
-    this.zacWrapperService.zitiUpdated.subscribe(() => {
-      this.refreshData();
-    });
-    this.zacWrapperService.resetZacEvents();
     this.getEdgeRouterRoleAttributes();
     super.ngOnInit();
   }

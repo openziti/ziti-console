@@ -40,7 +40,6 @@ import {APISession} from "../../../models/api-session";
     standalone: false
 })
 export class APISessionFormComponent extends ProjectableForm implements OnInit, OnChanges, OnDestroy, AfterViewInit {
-  @Input() formData: any = {};
   @Input() edgeRouterRoleAttributes: any[] = [];
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
   @Input() headerToggle = false;
@@ -100,7 +99,7 @@ export class APISessionFormComponent extends ProjectableForm implements OnInit, 
   }
 
   ngOnDestroy() {
-    this.extService.closed.emit({});
+    this.extService?.closed?.emit({});
     this.subscription.unsubscribe();
   }
 

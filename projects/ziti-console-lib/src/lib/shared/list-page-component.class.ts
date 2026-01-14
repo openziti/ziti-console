@@ -98,6 +98,10 @@ export abstract class ListPageComponent {
 
     itemToggled(item: any): void {
         this.updateSelectedItems(item);
+        const hasSelection = this.selectedItems.length > 0;
+        const index = this.svc.tableHeaderActions.findIndex(a => a.action === 'download-selected');
+        hasSelection && index === -1 && this.svc.tableHeaderActions.push({ name: 'Download Selected', action: 'download-selected' });
+        !hasSelection && index !== -1 && this.svc.tableHeaderActions.splice(index, 1);
     }
 
     updateSelectedItems(toggledItem?: any) {

@@ -38,7 +38,7 @@ import {Location} from "@angular/common";
     standalone: false
 })
 export class ServiceEdgeRouterPolicyFormComponent extends ProjectableForm implements OnInit, OnChanges, OnDestroy, AfterViewInit {
-  @Input() formData: ServiceEdgeRouterPolicy | any = {};
+
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
   selectedEdgeRouterRoleAttributes = [];
@@ -117,7 +117,7 @@ export class ServiceEdgeRouterPolicyFormComponent extends ProjectableForm implem
   }
 
   ngOnDestroy() {
-    this.extService.closed.emit({});
+    this.extService?.closed?.emit({});
     this.subscription.unsubscribe();
   }
 
@@ -164,9 +164,7 @@ export class ServiceEdgeRouterPolicyFormComponent extends ProjectableForm implem
         this.selectedServiceRoleAttributes.push(attr.substring(1));
       }
     });
-
-    this.svc.getAssociatedEdgeRoutersByAttribute(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes);
-    this.svc.getAssociatedServicesByAttribute(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes);
+    this.updateAssociations();
   }
 
   headerActionRequested(action) {
@@ -240,6 +238,11 @@ export class ServiceEdgeRouterPolicyFormComponent extends ProjectableForm implem
         this.copyCURLCommand();
         break;
     }
+  }
+
+  updateAssociations() {
+    this.svc.getAssociatedEdgeRoutersByAttribute(this.selectedEdgeRouterRoleAttributes, this.selectedEdgeRouterNamedAttributes, this.formData?.semantic);
+    this.svc.getAssociatedServicesByAttribute(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.formData?.semantic);
   }
 
   copyCLICommand() {

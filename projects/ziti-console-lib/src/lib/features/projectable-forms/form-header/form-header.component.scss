@@ -1,11 +1,16 @@
 :host {
   position: relative;
   width: 100%;
-  margin-bottom: 0.625rem;
+  padding-bottom: 0.625rem;
   display: flex;
   justify-content: center;
   padding-left: 3.125rem;
   padding-right: 3.125rem;
+  z-index: 100001;
+
+  &.is-scrolled {
+    box-shadow: 0 0.625rem 0.625rem -0.625rem var(--boxShadow);
+  }
 }
 
 .form-header-container {
@@ -236,7 +241,7 @@
     flex-direction: row;
     width: 1.875rem;
     height: 1.125rem;
-    border-radius: 0.625rem;
+    border-radius: var(--formHeaderToggleRadius);
     border-color: var(--inputBorder);
     border-style: solid;
     border-width: var(--inputBorderWidth);
@@ -311,7 +316,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  border-radius: 1.875rem;
+  border-radius: var(--formHeaderToggleRadius);
   padding: 0rem 0.75rem;
   font-weight: 600;
   color: var(--tableText);

@@ -146,7 +146,7 @@
         box-shadow: var(--shadow);
         border-color: var(--white);
         transition: var(--transition);
-        border-radius: 0.5rem;
+        border-radius: var(--inputBorderRadius);
         display: flex;
         align-items: center;
         justify-content: center;
