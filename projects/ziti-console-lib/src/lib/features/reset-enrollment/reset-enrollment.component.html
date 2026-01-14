@@ -6,7 +6,7 @@
     </div>
     <div class="reset-content-container">
         <label>Date Enrollment Expires</label>
-        <p-calendar
+        <p-datepicker
                 [(ngModel)]="dateValue"
                 dateFormat="mm/dd/yy"
                 selectionMode="single"
@@ -15,7 +15,7 @@
                 [minDate]="minDate"
                 placeholder="Select Expiration Date"
                 #calendar
-        ></p-calendar>
+        ></p-datepicker>
     </div>
     <div class="reset-buttons-container">
         <div id="ResetEnrollButton" class="button" (click)="handleAction()">{{type === 'reset' ? 'Reset' : 'Reissue'}} Enrollment</div>

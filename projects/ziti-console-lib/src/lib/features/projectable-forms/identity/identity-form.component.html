@@ -209,7 +209,7 @@
                                 <option value="indefinite">Indefinite</option>
                                 <option value="pick-date">Pick a Date & Time</option>
                             </select>
-                            <p-calendar
+                            <p-datepicker
                                 *ngIf="disableDurationType === 'pick-date'"
                                 [(ngModel)]="disableDuration"
                                 (onSelect)="setDisabledDate($event)"
@@ -220,7 +220,7 @@
                                 selectionMode="single"
                                 #calendar
                             >
-                            </p-calendar>
+                            </p-datepicker>
                         </div>
                     </div>
                 </lib-form-field-container>

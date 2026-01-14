@@ -22,7 +22,7 @@
         <div class="grid split override-list-container">
             <div>
                 <label for="ServiceList">Service</label>
-                <p-dropdown
+                <p-select
                     #servicesList
                     id="ServiceList"
                     [options]="services"
@@ -34,11 +34,11 @@
                     (onFocus)="servicesList.show()"
                     (onChange)="serviceSelectionChanged($event)"
                     (keyup)="filterServicesDebounced($event)"
-                ></p-dropdown>
+                ></p-select>
             </div>
             <div>
                 <label for="ConfigList">Configuration</label>
-                <p-dropdown
+                <p-select
                     #configList
                     id="ConfigList"
                     [options]="configs"
@@ -50,7 +50,7 @@
                     (onChange)="configSelectionChanged($event)"
                     (keyup)="filterConfigsDebounced($event)"
                     (onFocus)="configList.show()"
-                ></p-dropdown>
+                ></p-select>
             </div>
         </div>
         <div class="buttons">

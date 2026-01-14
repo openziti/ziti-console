@@ -31,8 +31,8 @@ import {SelectorInputComponent} from './features/dynamic-widgets/selector/select
 import {CheckboxListInputComponent} from './features/dynamic-widgets/checkbox-list/checkbox-list-input.component';
 import {TextListInputComponent} from "./features/dynamic-widgets/text-list/text-list-input.component";
 import {ChipsModule} from "primeng/chips";
-import {DropdownModule} from 'primeng/dropdown';
-import {CalendarModule} from 'primeng/calendar';
+import {SelectModule} from 'primeng/select';
+import {DatePickerModule} from 'primeng/datepicker';
 import {QRCodeModule} from 'angularx-qrcode';
 import {
     ProtocolAddressPortInputComponent
@@ -310,7 +310,7 @@ export function playerFactory() {
         MatRadioModule,
         ZacRoutingModule,
         ChipsModule,
-        CalendarModule,
+        DatePickerModule,
         AgGridModule,
         QRCodeModule,
         ClickOutsideModule,
@@ -318,7 +318,7 @@ export function playerFactory() {
         MatTooltipModule,
         MatAutocompleteModule,
         LottieComponent,
-        DropdownModule], providers: [
+        SelectModule], providers: [
         { provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService },
         { provide: ZITI_NAVIGATOR, useValue: {} },
         provideLottieOptions({

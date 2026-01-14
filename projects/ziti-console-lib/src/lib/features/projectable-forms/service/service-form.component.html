@@ -63,7 +63,7 @@
                             </option>
                         </select>
                         <div class="dropdown-container" [ngClass]="{'dropdown-loading': svc.configsLoading}">
-                            <p-dropdown
+                            <p-select
                                     placeholder="Select configuration..."
                                     optionLabel="name"
                                     optionValue="id"
@@ -94,7 +94,7 @@
                                         <div class="spinner" *ngIf="svc.configsLoading"></div>
                                     </div>
                                 </ng-template>
-                            </p-dropdown>
+                            </p-select>
                         </div>
                         <div *ngIf="!showConfigData && svc.selectedConfigId && svc.selectedConfigId !== '' && svc.selectedConfigId !== 'preview'" class="button-row-right" >
                             <div class="save-button" (click)="svc.attachConfig(svc.selectedConfigId)">
