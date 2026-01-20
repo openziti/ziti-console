@@ -351,7 +351,7 @@ export class NodeDataService extends ZitiDataService {
         );
     }
 
-    call(url) {
+    call(url, prefix?: string) {
         const nodeServerURL = window.location.origin;
         const serviceUrl = nodeServerURL + '/api/call';
         const body = {url: url};

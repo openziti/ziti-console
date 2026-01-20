@@ -287,9 +287,9 @@ export class ZitiControllerDataService extends ZitiDataService {
         );
     }
 
-    call(callUrl) {
+    call(callUrl, prefix?) {
         const apiVersions = this.settingsService.apiVersions || {};
-        const prefix = apiVersions["edge-management"]?.v1?.path;
+        prefix = prefix || apiVersions["edge-management"]?.v1?.path;
         const url = this.settingsService.settings.selectedEdgeController;
         const serviceUrl = url + prefix + "/" + callUrl;
 
