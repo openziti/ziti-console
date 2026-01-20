@@ -1,0 +1,62 @@
+<div class="entity-count-legend">
+  <div class="entity-pod">
+    <div class="pod-top">
+      <div class="pod-left clickable" (click)="showLocatedIdentitiesClicked.emit()">
+        <div class="icon-and-count">
+          <div class="entity-icon entity-identity"></div>
+          <div class="total-count">{{geolocatedIdentities}}</div>
+        </div>
+      </div>
+      <div class="pod-divider"></div>
+      <div class="pod-right clickable" (click)="showUnlocatedIdentitiesClicked.emit()">
+        <div class="icon-and-count">
+          <div class="pod-right-icon unknown-icon"></div>
+          <div class="unlocated-count">{{unlocatedIdentities}}</div>
+        </div>
+      </div>
+    </div>
+    <div class="pod-footer">
+      <div class="entity-name">Identities</div>
+    </div>
+  </div>
+  <div class="entity-pod">
+    <div class="pod-top">
+      <div class="pod-left clickable" (click)="showLocatedRoutersClicked.emit()">
+        <div class="icon-and-count">
+          <div class="entity-icon entity-router"></div>
+          <div class="total-count">{{geolocatedRouters}}</div>
+        </div>
+      </div>
+      <div class="pod-divider"></div>
+      <div class="pod-right clickable" (click)="showUnlocatedRoutersClicked.emit()">
+        <div class="icon-and-count">
+          <div class="pod-right-icon unknown-icon"></div>
+          <div class="unlocated-count">{{unlocatedRouters}}</div>
+        </div>
+      </div>
+    </div>
+    <div class="pod-footer routers-pod">
+      <div class="entity-name">Routers</div>
+    </div>
+  </div>
+  <div class="entity-pod">
+    <div class="pod-top">
+      <div class="pod-left clickable" (click)="showAllServicesClicked.emit()">
+        <div class="icon-and-count">
+          <div class="entity-icon icon-services"></div>
+          <div class="total-count">{{totalServices}}</div>
+        </div>
+      </div>
+      <div class="pod-divider"></div>
+      <div class="pod-right clickable" (click)="showServicesWithActiveCircuitsClicked.emit()">
+        <div class="icon-and-count">
+          <div class="pod-right-icon ziti-icon"></div>
+          <div class="unlocated-count">{{totalActiveCircuits}}</div>
+        </div>
+      </div>
+    </div>
+    <div class="pod-footer services-pod">
+      <div class="entity-name">Services</div>
+    </div>
+  </div>
+</div>

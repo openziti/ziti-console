@@ -134,6 +134,71 @@
   }
 }
 
+.map-legend {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background-color: var(--formBackground);
+  border: 0.1875rem solid var(--white);
+  border-radius: var(--podBorderRadius);
+  padding: 1rem;
+  z-index: 1000;
+  box-shadow: var(--shadowLarge);
+  min-width: 200px;
+
+  .tSelect {
+    position: relative;
+    top: unset;
+    left: unset;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: var(--inputBorderRadius);
+  }
+
+  .legend-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--menu);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--tableBorder);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: .5rem;
+    cursor: pointer;
+    gap: var(--gapSmall);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    input[type="checkbox"] {
+      margin: 0;
+      margin-right: 0.5rem;
+      cursor: pointer;
+      width: 1rem;
+      height: 1rem;
+      accent-color: var(--primary);
+    }
+
+    label {
+      font-size: 0.875rem;
+      color: var(--black);
+      cursor: pointer;
+      user-select: none;
+      margin: 0;
+    }
+
+    &:hover label {
+      color: var(--primary);
+    }
+  }
+}
+
 .totalPod {
   width: 100%;
   height: 3.75rem;
@@ -164,5 +229,282 @@
     margin-top: -0.1875rem;
     width: 100%;
     text-align: center;
+  }
+}
+
+// Leaflet popup styling
+::ng-deep .leaflet-popup-content {
+  margin: 0;
+  min-width: 250px;
+
+  .marker-popup,
+  .circuit-popup {
+    font-family: 'Open Sans', sans-serif;
+
+    .popup-header {
+      color: var(--white);
+      padding: var(--paddingMedium);
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: var(--inputBorderRadius) var(--inputBorderRadius) 0 0;
+      word-break: break-word;
+
+      &.popup-header-identity {
+        background: var(--primaryColor);
+      }
+
+      &.popup-header-router {
+        background: var(--secondaryColor);
+      }
+    }
+
+    .popup-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .875rem;
+      background-color: var(--formBackground);
+      border-radius: 0 0 var(--inputBorderRadius) var(--inputBorderRadius);
+      display: flex;
+      padding: 0 var(--paddingMedium);
+
+      tr {
+        border-bottom: 1px solid var(--tableBorder);
+
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+
+      td {
+        padding: 0.5rem 0;
+        vertical-align: top;
+      }
+
+      .popup-label {
+        font-weight: 600;
+        color: var(--menu);
+        width: 35%;
+        padding-right: 0.5rem;
+      }
+
+      .popup-value {
+        color: var(--black);
+        word-break: break-word;
+
+        &.popup-id {
+          font-family: monospace;
+          font-size: 0.75rem;
+          color: var(--tableData);
+        }
+
+        &.popup-location {
+          font-family: monospace;
+        }
+
+        &.popup-roles {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.25rem;
+        }
+      }
+
+      .status-online {
+        color: var(--successText);
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+
+        &:before {
+          content: "\25cf";
+          margin-right: .25rem;
+          margin-top: -.125rem;
+          font-size: 1.5rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--green);
+        }
+      }
+
+      .status-offline {
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+
+        &:before {
+          content: '●';
+          margin-right: 0.25rem;
+          font-size: 1.5rem;
+          color: var(--inputBorder);
+        }
+      }
+    }
+
+    .popup-hashtag {
+      display: inline-block;
+      position: relative;
+      padding: 0.25rem 0.5rem;
+      background-color: var(--primary);
+      border-radius: var(--inputBorderRadius);
+      margin: 0.125rem;
+      transition: var(--transition);
+      text-decoration: none;
+      cursor: pointer;
+
+      &:hover {
+        background-color: var(--secondary);
+        transform: translateY(-1px);
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.15);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      .popup-tag-name {
+        color: var(--white);
+        font-size: 0.75rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+    }
+
+    .popup-link-row {
+      border-top: 1px solid var(--tableBorder);
+
+      td {
+        padding-top: 0.75rem;
+      }
+
+      .popup-details-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+
+        &:hover {
+          color: var(--secondary);
+          text-decoration: underline;
+        }
+
+        &:active {
+          color: var(--primary);
+        }
+      }
+    }
+  }
+
+  .circuit-popup .popup-header {
+    background: #4A90E2;
+  }
+
+  // Terminator marker styling
+  .terminator-marker {
+    background: transparent !important;
+    border: none !important;
+
+    .terminator-icon {
+      background-color: var(--primary);
+      border: 2px solid var(--white);
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+      transition: transform 0.2s;
+
+      &:hover {
+        transform: scale(1.2);
+      }
+
+      span {
+        color: var(--white);
+        font-size: 0.75rem;
+        font-weight: 700;
+        line-height: 1;
+      }
+    }
+  }
+}
+
+::ng-deep .leaflet-popup-content-wrapper {
+  border-radius: 0.5rem;
+  box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.2);
+  background: transparent;
+}
+
+// Marker cluster styling - Identity clusters
+::ng-deep .marker-cluster-identity {
+  &.marker-cluster-small {
+    background-color: color-mix(in srgb, var(--primaryColor) 40%, transparent);
+
+    div {
+      background-color: color-mix(in srgb, var(--primaryColor) 80%, transparent);
+      color: var(--white);
+      font-weight: 700;
+      font-size: 0.875rem;
+    }
+  }
+
+  &.marker-cluster-medium {
+    background-color: color-mix(in srgb, var(--primaryColor) 40%, transparent);
+
+    div {
+      background-color: color-mix(in srgb, var(--primaryColor) 90%, transparent);
+      color: var(--white);
+      font-weight: 700;
+      font-size: 0.875rem;
+    }
+  }
+
+  &.marker-cluster-large {
+    background-color: color-mix(in srgb, var(--primaryColor) 40%, transparent);
+
+    div {
+      background-color: var(--primaryColor);
+      color: var(--white);
+      font-weight: 700;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+// Marker cluster styling - Router clusters
+::ng-deep .marker-cluster-router {
+  &.marker-cluster-small {
+    background-color: color-mix(in srgb, var(--secondaryColor) 40%, transparent);
+
+    div {
+      background-color: color-mix(in srgb, var(--secondaryColor) 80%, transparent);
+      color: var(--white);
+      font-weight: 700;
+      font-size: 0.875rem;
+    }
+  }
+
+  &.marker-cluster-medium {
+    background-color: color-mix(in srgb, var(--secondaryColor) 60%, transparent);
+
+    div {
+      background-color: color-mix(in srgb, var(--secondaryColor) 90%, transparent);
+      color: var(--white);
+      font-weight: 700;
+      font-size: 0.875rem;
+    }
+  }
+
+  &.marker-cluster-large {
+    background-color: color-mix(in srgb, var(--secondaryColor) 60%, transparent);
+
+    div {
+      background-color: var(--secondaryColor);
+      color: var(--white);
+      font-weight: 700;
+      font-size: 0.875rem;
+    }
   }
 }

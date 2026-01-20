@@ -105,7 +105,7 @@ body {
   --formHeaderToggleRadius: 0.325rem;
   --inputBorderWidth: 0.125rem;
   --formFieldBorder: none;
-  --jsonEditorBorder: 0.125rem solid var(--stroke);
+  --jsonEditorBorder: 0.125rem solid var(--inputBorder);
 
   --formFieldBoxShaddow: 0rem 0.1875rem 0.3125rem 0.0625rem var(--boxShadow);
   --sideNavigatorBoxShadow: none;
@@ -113,12 +113,12 @@ body {
 
   --spinnerSizeMedium: 1.25rem;
   --spinnerSizeLarge: 2rem;
-  --spinnerBorderTopMedium: 0.125rem solid var(--stroke);
-  --spinnerBorderRightMedium: 0.125rem solid var(--stroke);
+  --spinnerBorderTopMedium: 0.125rem solid var(--inputBorder);
+  --spinnerBorderRightMedium: 0.125rem solid var(--inputBorder);
   --spinnerBorderBottomMedium: 0.125rem solid transparent;
   --spinnerBorderLeftMedium: 0.125rem solid transparent;
-  --spinnerBorderTopLarge: 0.175rem solid var(--stroke);
-  --spinnerBorderRightLarge: 0.175rem solid var(--stroke);
+  --spinnerBorderTopLarge: 0.175rem solid var(--inputBorder);
+  --spinnerBorderRightLarge: 0.175rem solid var(--inputBorder);
   --spinnerBorderBottomLarge: 0.175rem solid transparent;
   --spinnerBorderLeftLarge: 0.175rem solid transparent;
   --appLoaderSize: 10.5rem;
@@ -301,7 +301,7 @@ a:hover {
   display: inline-block;
   width: 0.625rem;
   height: 0.625rem;
-  background-color: var(--stroke);
+  background-color: var(--inputBorder);
   border-radius: 0.625rem;
   margin-right: 0.125rem;
   &.true {
@@ -579,7 +579,7 @@ a:hover {
   flex: 1 1 auto;
   border-style: solid;
   border-width: 0.0625rem;
-  border-color: var(--stroke);
+  border-color: var(--inputBorder);
 }
 .form-field-row {
   display: flex;
@@ -697,7 +697,7 @@ a:hover {
 }
 
 .form-field-label {
-  color: var(--stroke);
+  color: var(--inputBorder);
   font-size: 0.875rem;
   font-weight: 600;
   display: flex;
@@ -1393,7 +1393,7 @@ a {
     height: 2.5rem;
     line-height: 2.5rem;
     cursor: pointer;
-    color: var(--stroke);
+    color: var(--inputBorder);
     transition: var(--transition);
 
     &:hover {
@@ -1677,7 +1677,7 @@ p-dropdown {
       border-radius: var(--inputBorderRadius);
       height: var(--defaultInputHeight);
       font-family: 'Open Sans', Arial, sans-serif;
-      border-color: var(--stroke);
+      border-color: var(--inputBorder);
       border-style: solid;
       border-width: var(--inputBorderWidth);
       z-index: 99999;
@@ -1707,7 +1707,7 @@ p-dropdown {
           box-shadow: none;
           border-style: solid;
           border-width: var(--inputBorderWidth);
-          border-color: var(--stroke);
+          border-color: var(--inputBorder);
 
           &:focus {
             border-color: var(--primary);
@@ -1782,7 +1782,7 @@ p-dropdown {
     font-family: "Open Sans", Arial, sans-serif;
     min-height: var(--defaultInputHeight);
     max-height: calc(var(--defaultInputHeight)* 2 + var(--paddingMedium));
-    border-color: var(--stroke);
+    border-color: var(--inputBorder);
     border-style: solid;
     border-width: var(--inputBorderWidth);
     border-radius: var(--inputBorderRadius);
@@ -1895,7 +1895,7 @@ p-dropdown {
         .p-inputtext {
           border-radius: 0;
           border-width: 0.0625rem;
-          border-color: var(--stroke);
+          border-color: var(--inputBorder);
           border-style: solid;
 
           &:focus {
@@ -1960,7 +1960,7 @@ p-dropdown {
 .cSelect {
   width: 1.5625rem;
   height: 1.5625rem;
-  border: 0.125rem var(--stroke) solid;
+  border: 0.125rem var(--inputBorder) solid;
   border-radius: 0.9375rem;
   cursor: pointer;
   -webkit-transition: background-color 0.5s;
