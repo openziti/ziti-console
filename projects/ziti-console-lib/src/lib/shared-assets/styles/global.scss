@@ -30,6 +30,7 @@ body {
   --red: #ff104b;
   --lightRed: #ffedf1;
   --green: #00db48;
+  --activeCircuitColor: #833b82;
   --white: #FFF;
   --menu: #434c5e;
   --stroke: #d4d9e2;
@@ -37,7 +38,8 @@ body {
   --shaded: #f6f7fb;
   --formBackground: #f6f7fb;
   --backgroundMuted: #eaeef1;
-  --filterBarBackground: #eceef3;
+  --filterBarBackground: #d4d9e2;
+  --filterBackgroundColor: #d4d9e2;
   --visualizerBackground: #ffffff80;
   --background: #ffffff;
   --navigation: #ffffff;
@@ -95,13 +97,15 @@ body {
   --gapXL: 0.9375rem;
 
   --defaultInputHeight: 2.6875rem;
+  --defaultButtonHeight: var(--defaultInputHeight);
   --defaultLineHeight: 0.9375rem;
-  --inputBorderRadius: 0.25rem;
-  --formFieldBorderRadius: var(--inputBorderRadius);
-  --toggleBorderRadius: var(--inputBorderRadius);
-  --filterBorderRadius: var(--inputBorderRadius);
-  --podBorderRadius: var(--inputBorderRadius);
-  --modalBorderRadius: var(--inputBorderRadius);
+  --defaultBorderRadius: 0.275rem;
+  --inputBorderRadius: var(--defaultBorderRadius);
+  --formFieldBorderRadius: var(--defaultBorderRadius);
+  --toggleBorderRadius: .15rem;
+  --filterBorderRadius: var(--defaultBorderRadius);
+  --podBorderRadius: var(--defaultBorderRadius);
+  --modalBorderRadius: var(--defaultBorderRadius);
   --formHeaderToggleRadius: 0.325rem;
   --inputBorderWidth: 0.125rem;
   --formFieldBorder: none;
@@ -178,6 +182,10 @@ input {
   background-color: var(--navigation) !important;
   color: var(--text);
   -webkit-appearance: none;
+
+  &:focus {
+    border-color: var(--primaryColor);
+  }
 
   &.error {
     border-color: var(--red);
@@ -920,6 +928,23 @@ a:hover {
 lib-form-field-container {
   box-shadow: 0rem 0.1875rem 0.3125rem 0.0625rem var(--boxShadow);
   border-radius: 0.625rem;
+
+  &.no-shadow {
+    box-shadow: none;
+  }
+
+  &.full-height {
+    height: 100%;
+
+    .form-field-container {
+      height: 100%;
+
+      .form-field-content {
+        height: 100%;
+        overflow: hidden;
+      }
+    }
+  }
 }
 
 .form-field-label {
@@ -978,7 +1003,7 @@ a {
   border-radius: var(--inputBorderRadius);
   cursor: pointer;
   transition: .5s;
-  height: 3.125rem;
+  height: var(--defaultButtonHeight);
 
   &:hover {
     outline: 0;
@@ -1321,33 +1346,50 @@ a {
 
 .toggle {
   width: 3.75rem;
-  height: 1.875rem;
+  height: 1.625rem;
   background-color: var(--black);
   color: var(--white);
   cursor: pointer;
-  border-radius: 6.25rem;
+  border-radius: var(--defaultBorderRadius);
   position: relative;
   display: inline-block;
   margin-top: 0.625rem;
   transition: var(--transition);
   float: left;
   margin-right: 1.25rem;
+
+  .off-label {
+    margin-left: unset;
+    left: unset;
+    position: absolute;
+    right: .35rem;
+  }
+
+  .switch {
+    width: 1.125rem;
+    height: 1.125rem;
+    background-color: var(--white);
+    transition: var(--transition);
+    position: absolute;
+    z-index: 10;
+    left: 0.25rem;
+    border-radius: var(--toggleBorderRadius);
+    top: 0.25rem;
+    z-index: 10;
+  }
+
+  &.on .switch {
+    left: 2.3rem;
+  }
 }
 
-.toggle .switch {
-  width: 1.25rem;
-  height: 1.25rem;
-  border-radius: 0.625rem;
-  background-color: var(--white);
-  transition: var(--transition);
-  position: absolute;
-  left: 0.3125rem;
-  top: 0.3125rem;
-  z-index: 10;
+.checkbox {
+  border-radius: var(--inputBorderRadius) !important;
+  border-width: 1px !important;
 }
 
-.toggle.on .switch {
-  left: 2.1875rem;
+.tSelect.selected {
+  border-width: 0 !important;
 }
 
 .page {
@@ -1986,7 +2028,7 @@ p-dropdown {
 
   &.selected {
     background-color: var(--green);
-    background-image: url(/assets/images/check.png); //REPLACE
+    background-image: url(/assets/images/check.png);
     background-size: 45%;
     background-position: center center;
     border: none;
@@ -2107,7 +2149,7 @@ p-dropdown {
   height: var(--defaultInputHeight);
   padding-left: var(--paddingMedium);
   width: 100%;
-  background-color: var(--stroke);
+  background-color: var(--inputBorder);
   border-radius: var(--inputBorderRadius);
 
   &.config-container-clickable {
