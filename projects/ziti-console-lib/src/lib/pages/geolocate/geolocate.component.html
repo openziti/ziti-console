@@ -1,104 +1,1005 @@
 <div class="ziti-page-container">
-    <div class="overlay"></div>
-    <div class="header">
-        <div class="title">
-            <span>{{pageTitle}}</span>
+  <div *ngIf="false" class="overlay"></div>
+  <div class="ziti-page-wrapper">
+<!--    <div *ngIf="false"class="header">-->
+<!--      <div class="title">-->
+<!--        <span>{{pageTitle}}</span>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--    <div class="ziti-dashboard-header" *ngIf="false">-->
+<!--      <a class="ziti-dashboard-link netfoundry-link" target="_blank" [href]="'https://netfoundry.io'">-->
+<!--        <div class="ziti-dashboard-link-icon"></div>-->
+<!--        <div class="ziti-dashboard-link-label">NetFoundry <br> Home</div>-->
+<!--        <div class="ziti-dashboard-link-nav-arrow icon-RightPage"></div>-->
+<!--      </a>-->
+<!--      <a class="ziti-dashboard-link ziti-api-doc-link" target="_blank" [href]="'https://netfoundry.io/docs/openziti/reference/developer/api/'">-->
+<!--        <div class="ziti-dashboard-link-icon"></div>-->
+<!--        <div class="ziti-dashboard-link-label">API <br> Documentation</div>-->
+<!--        <div class="ziti-dashboard-link-nav-arrow icon-RightPage"></div>-->
+<!--      </a>-->
+<!--      <a class="ziti-dashboard-link ziti-downloads-link" target="_blank" [href]="'https://docs.openziti.io/docs/downloads'">-->
+<!--        <div class="ziti-dashboard-link-icon"></div>-->
+<!--        <div class="ziti-dashboard-link-label">Software <br> Downloads</div>-->
+<!--        <div class="ziti-dashboard-link-nav-arrow icon-RightPage"></div>-->
+<!--      </a>-->
+<!--      <a class="ziti-dashboard-link ziti-docs-link" target="_blank" [href]="'https://openziti.io/'">-->
+<!--        <div class="ziti-dashboard-link-icon"></div>-->
+<!--        <div class="ziti-dashboard-link-label">OpenZiti <br> Home</div>-->
+<!--        <div class="ziti-dashboard-link-nav-arrow icon-RightPage"></div>-->
+<!--      </a>-->
+<!--    </div>-->
+<!--    <lib-form-field-container *ngIf="false" [showHeader]="false" class="no-padding">-->
+<!--      <div class="header-row-container" [class.exp]="showVisualizer">-->
+<!--        <div class="entity-count-container" [class.exp]="showVisualizer">-->
+<!--          <div class="dial"></div>-->
+<!--          <a routerLink="/identities">-->
+<!--            <div class="totalPod">-->
+<!--              <div class="total">{{totalIdentities}}</div>-->
+<!--              <div class="label">Identities</div>-->
+<!--            </div>-->
+<!--          </a>-->
+<!--          <a routerLink="/services">-->
+<!--            <div class="totalPod">-->
+<!--              <div class="total">{{totalServices}}</div>-->
+<!--              <div class="label">Services</div>-->
+<!--            </div>-->
+<!--          </a>-->
+<!--          <a routerLink="/configs" class="desktop">-->
+<!--            <div class="totalPod">-->
+<!--              <div class="total">{{totalConfigs}}</div>-->
+<!--              <div class="label">Configurations</div>-->
+<!--            </div>-->
+<!--          </a>-->
+<!--          <a routerLink="/routers" class="desktop">-->
+<!--            <div class="totalPod">-->
+<!--              <div class="total">{{totalEdgeRouters}}</div>-->
+<!--              <div class="label">Routers</div>-->
+<!--            </div>-->
+<!--          </a>-->
+<!--          <a routerLink="/sessions" class="desktop">-->
+<!--            <div class="totalPod">-->
+<!--              <div class="total">{{totalSessions}}</div>-->
+<!--              <div class="label">Sessions</div>-->
+<!--            </div>-->
+<!--          </a>-->
+<!--          <a routerLink="/service-policies" class="desktop">-->
+<!--            <div class="totalPod">-->
+<!--              <div class="total">{{totalServicePolicies}}</div>-->
+<!--              <div class="label">Service Policies</div>-->
+<!--            </div>-->
+<!--          </a>-->
+<!--        </div>-->
+<!--        <div class="icon-links-container" [class.exp]="showVisualizer">-->
+<!--          <a id="NetVisualizer" routerLink="/network-visualizer" *ngIf="showVisualizer">-->
+<!--            <div class="icon-link-pod">-->
+<!--              <div class="network-visualizer"></div>-->
+<!--              <div class="label">Network</div>-->
+<!--              <div class="label">Visualizer</div>-->
+<!--            </div>-->
+<!--          </a>-->
+<!--          <a href="https://docs.openziti.io/docs/downloads" target="_blank">-->
+<!--            <div class="icon-link-pod">-->
+<!--              <div class="downloads"></div>-->
+<!--              <div class="label">Downloads</div>-->
+<!--            </div>-->
+<!--          </a>-->
+<!--          <a href="https://docs.openziti.io/" target="_blank">-->
+<!--            <div class="icon-link-pod">-->
+<!--              <div class="docs"></div>-->
+<!--              <div class="label">Docs</div>-->
+<!--            </div>-->
+<!--          </a>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </lib-form-field-container>-->
+<!--    <div class="ziti-dashboard-row" *ngIf="false">-->
+<!--      <lib-form-field-container class="no-padding full-height" [showHeader]="false" style="width: calc(75%);">-->
+<!--        <div class="summary-pod">-->
+<!--          <div class="summary-content">-->
+<!--            <div id="MainMap" class="map-container">-->
+<!--              <div class="map-legend">-->
+<!--                <div class="legend-title">Options</div>-->
+<!--                <div *ngIf="false">-->
+<!--                &lt;!&ndash; Service Multi-Select Filter &ndash;&gt;-->
+<!--                  <div class="legend-item filter-item service-filter-container">-->
+<!--                    <label>Filter by Services:</label>-->
+<!--                    <div class="selected-items" *ngIf="selectedServiceFilters.length > 0">-->
+<!--                        <span-->
+<!--                          class="selected-item"-->
+<!--                          *ngFor="let service of selectedServiceFilters"-->
+<!--                        >-->
+<!--                            {{ service.name }}-->
+<!--                          <button-->
+<!--                            class="remove-item-btn"-->
+<!--                            (click)="removeServiceFilter(service)"-->
+<!--                            title="Remove"-->
+<!--                          >-->
+<!--                                ×-->
+<!--                            </button>-->
+<!--                        </span>-->
+<!--                    </div>-->
+<!--                    <input-->
+<!--                      type="text"-->
+<!--                      class="filter-input"-->
+<!--                      [(ngModel)]="serviceFilterText"-->
+<!--                      (input)="onServiceFilterInput($event)"-->
+<!--                      (focus)="showServiceDropdown = true"-->
+<!--                      placeholder="Search services..."-->
+<!--                    />-->
+<!--                    <div class="filter-dropdown" *ngIf="showServiceDropdown && filteredServices.length > 0"-->
+<!--                         (mouseenter)="disableMapScroll()"-->
+<!--                         (mouseleave)="enableMapScroll()">-->
+<!--                      <div-->
+<!--                        class="filter-dropdown-item"-->
+<!--                        *ngFor="let service of filteredServices"-->
+<!--                        (click)="selectService(service)"-->
+<!--                      >-->
+<!--                        {{ service.name }}-->
+<!--                      </div>-->
+<!--                    </div>-->
+<!--                    <button-->
+<!--                      class="clear-all-btn"-->
+<!--                      *ngIf="selectedServiceFilters.length > 0"-->
+<!--                      (click)="clearServiceFilters()"-->
+<!--                      title="Clear all"-->
+<!--                    >-->
+<!--                      Clear All-->
+<!--                    </button>-->
+<!--                  </div>-->
+
+<!--                  &lt;!&ndash; Identity Multi-Select Filter &ndash;&gt;-->
+<!--                  <div class="legend-item filter-item identity-filter-container">-->
+<!--                    <label>Filter by Identities:</label>-->
+<!--                    <div class="selected-items" *ngIf="selectedIdentityFilters.length > 0">-->
+<!--                        <span-->
+<!--                          class="selected-item"-->
+<!--                          *ngFor="let identity of selectedIdentityFilters"-->
+<!--                        >-->
+<!--                            {{ identity.name }}-->
+<!--                          <button-->
+<!--                            class="remove-item-btn"-->
+<!--                            (click)="removeIdentityFilter(identity)"-->
+<!--                            title="Remove"-->
+<!--                          >-->
+<!--                                ×-->
+<!--                            </button>-->
+<!--                        </span>-->
+<!--                    </div>-->
+<!--                    <input-->
+<!--                      type="text"-->
+<!--                      class="filter-input"-->
+<!--                      [(ngModel)]="identityFilterText"-->
+<!--                      (input)="onIdentityFilterInput($event)"-->
+<!--                      (focus)="showIdentityDropdown = true"-->
+<!--                      placeholder="Search identities..."-->
+<!--                    />-->
+<!--                    <div class="filter-dropdown" *ngIf="showIdentityDropdown && filteredIdentities.length > 0"-->
+<!--                         (mouseenter)="disableMapScroll()"-->
+<!--                         (mouseleave)="enableMapScroll()">-->
+<!--                      <div-->
+<!--                        class="filter-dropdown-item"-->
+<!--                        *ngFor="let identity of filteredIdentities"-->
+<!--                        (click)="selectIdentity(identity)"-->
+<!--                      >-->
+<!--                        {{ identity.name }}-->
+<!--                      </div>-->
+<!--                    </div>-->
+<!--                    <button-->
+<!--                      class="clear-all-btn"-->
+<!--                      *ngIf="selectedIdentityFilters.length > 0"-->
+<!--                      (click)="clearIdentityFilters()"-->
+<!--                      title="Clear all"-->
+<!--                    >-->
+<!--                      Clear All-->
+<!--                    </button>-->
+<!--                  </div>-->
+<!--                </div>-->
+
+<!--                <div class="legend-item">-->
+<!--                  <div-->
+<!--                    class="tSelect"-->
+<!--                    [class.selected]="clusteringEnabled"-->
+<!--                    (click)="toggleClustering()"-->
+<!--                  ></div>-->
+<!--                  <label>Enable Clustering</label>-->
+<!--                </div>-->
+<!--                <div class="legend-item">-->
+<!--                  <div-->
+<!--                    class="tSelect"-->
+<!--                    [class.selected]="linksVisible"-->
+<!--                    (click)="toggleLinks()"-->
+<!--                  ></div>-->
+<!--                  <label>Show Links</label>-->
+<!--                </div>-->
+<!--                <div class="legend-item">-->
+<!--                  <div-->
+<!--                    class="tSelect"-->
+<!--                    [class.selected]="activeCircuitsVisible"-->
+<!--                    (click)="toggleActiveCircuits()"-->
+<!--                  ></div>-->
+<!--                  <label>Show Active Circuits</label>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--          <div class="summary-pod-footer">-->
+<!--            <div class="summary-pod-footer-title">Network Overview</div>-->
+<!--            <div class="summary-pod-footer-icon icon-RightPage"></div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </lib-form-field-container>-->
+<!--      <lib-form-field-container class="no-padding full-height" [showHeader]="false" style="width: calc(25% - var(&#45;&#45;gapMedium));">-->
+<!--        <div class="summary-pod">-->
+<!--          <div class="summary-content">-->
+<!--            <div class="summary-content-label main-label" *ngIf="false">-->
+<!--            </div>-->
+<!--            <div class="summary-content-label dashboard-summary-label">-->
+<!--              <a class="summary-content-sub-group sub-group-online" routerLink="/identities">-->
+<!--                <div class="summary-content-sub-icon icon-identity"></div>-->
+<!--                <div class="summary-content-sub-label dashboard-label">-->
+<!--                  {{totalIdentities}}-->
+<!--                  <span class="summary-content-sub-label-footer">Identities</span>-->
+<!--                </div>-->
+<!--              </a>-->
+<!--              <a class="summary-content-sub-group" routerLink="/routers">-->
+<!--                <div class="summary-content-sub-icon icon-routers"></div>-->
+<!--                <div class="summary-content-sub-label dashboard-label">-->
+<!--                  {{totalEdgeRouters}}-->
+<!--                  <span class="summary-content-sub-label-footer">Edge Routers</span>-->
+<!--                </div>-->
+<!--              </a>-->
+<!--              <a class="summary-content-sub-group sub-group-unreg" routerLink="/services">-->
+<!--                <div class="summary-content-sub-icon icon-services"></div>-->
+<!--                <div class="summary-content-sub-label dashboard-label">-->
+<!--                  {{totalServices}}-->
+<!--                  <span class="summary-content-sub-label-footer">Services</span>-->
+<!--                </div>-->
+<!--              </a>-->
+<!--              <a class="summary-content-sub-group sub-group-unreg" routerLink="/configs">-->
+<!--                <div class="summary-content-sub-icon icon-AdvancedOptions"></div>-->
+<!--                <div class="summary-content-sub-label dashboard-label">-->
+<!--                  {{totalConfigs}}-->
+<!--                  <span class="summary-content-sub-label-footer">Configs</span>-->
+<!--                </div>-->
+<!--              </a>-->
+<!--              <a class="summary-content-sub-group sub-group-unreg" routerLink="/service-policies">-->
+<!--                <div class="summary-content-sub-icon icon-policies"></div>-->
+<!--                <div class="summary-content-sub-label dashboard-label">-->
+<!--                  {{totalServicePolicies}}-->
+<!--                  <span class="summary-content-sub-label-footer">Service Policies</span>-->
+<!--                </div>-->
+<!--              </a>-->
+<!--              <a class="summary-content-sub-group sub-group-unreg" routerLink="/sessions">-->
+<!--                <div class="summary-content-sub-icon icon-time"></div>-->
+<!--                <div class="summary-content-sub-label dashboard-label">-->
+<!--                  {{totalSessions}}-->
+<!--                  <span class="summary-content-sub-label-footer">Sessions</span>-->
+<!--                </div>-->
+<!--              </a>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--          <div class="summary-pod-footer summary-pod-footer-secondary">-->
+<!--            <div class="summary-pod-footer-title">Network Summary</div>-->
+<!--            <div class="summary-pod-footer-icon icon-RightPage"></div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </lib-form-field-container>-->
+<!--    </div>-->
+    <lib-form-field-container [showHeader]="false" class="no-padding no-shadow" style="z-index: 9999999;">
+      <div class="dashboard-filters-container">
+        <div class="left-side-filters">
+          <div class="map-filters">
+            <div class="dashboard-multi-filter" (click)="showRouterFilter($event)" [ngClass]="{'filter-open': showRouterFilterSelector, 'filter-applied': selectedRouterAttributes.length > 0}">
+              <span class="dashboard-multi-title">{{selectedRouterAttributes.length > 0 ? '(' + selectedRouterAttributes.length + ') ' : ''}}Routers</span>
+              <div class="expand-collapse-icon icon-RightPage"></div>
+              <div class="filter-dropdown"  *ngIf="showRouterFilterSelector" (clickOutside)="closeRouterFilter($event)">
+                <lib-tag-selector
+                  [(selectedRoleAttributes)]="selectedRouterAttributes"
+                  (selectedRoleAttributesChange)="onRouterRoleAttributesChange($event)"
+                  [availableRoleAttributes]="routerRoleAttributes"
+                  [placeholder]="'Add attributes to group Routers'"
+                  #routerFilterSelector
+                ></lib-tag-selector>
+              </div>
+            </div>
+            <div class="dashboard-multi-filter" (click)="showIdentityFilter($event)" [ngClass]="{'filter-open': showIdentityFilterSelector, 'filter-applied': selectedIdentityAttributes.length > 0 || selectedIdentityNamedAttributes.length > 0}">
+              <span class="dashboard-multi-title">{{(selectedIdentityAttributes.length + selectedIdentityNamedAttributes.length) > 0 ? '(' + (selectedIdentityAttributes.length + selectedIdentityNamedAttributes.length) + ') ' : ''}}Identities</span>
+              <div class="expand-collapse-icon icon-RightPage"></div>
+              <div class="filter-dropdown"  *ngIf="showIdentityFilterSelector" (clickOutside)="closeIdentityFilter($event)">
+                <lib-tag-selector
+                  [(selectedNamedAttributes)]="selectedIdentityNamedAttributes"
+                  [(selectedRoleAttributes)]="selectedIdentityAttributes"
+                  (selectedNamedAttributesChange)="onIdentityNamedAttributesChange($event)"
+                  (selectedRoleAttributesChange)="onIdentityRoleAttributesChange($event)"
+                  [availableNamedAttributes]="identityNamedAttributes"
+                  [availableRoleAttributes]="identityRoleAttributes"
+                  [placeholder]="'Select identity attributes'"
+                  (filterChange)="getIdentityNamedAttributes($event)"
+                  #identityFilterSelector
+                ></lib-tag-selector>
+              </div>
+            </div>
+            <div class="dashboard-multi-filter" (click)="showServiceFilter($event)" [ngClass]="{'filter-open': showServiceFilterSelector, 'filter-applied': selectedServiceAttributes.length > 0}">
+              <span class="dashboard-multi-title">{{selectedServiceAttributes.length > 0 ? '(' + selectedServiceAttributes.length + ') ' : ''}}Services</span>
+              <div class="expand-collapse-icon icon-RightPage"></div>
+              <div class="filter-dropdown"  *ngIf="showServiceFilterSelector" (clickOutside)="closeServiceFilter($event)">
+                <lib-tag-selector
+                  [(selectedRoleAttributes)]="selectedServiceAttributes"
+                  (selectedRoleAttributesChange)="onServiceRoleAttributesChange($event)"
+                  [availableRoleAttributes]="serviceRoleAttributes"
+                  [placeholder]="'Add attributes to group Services'"
+                  #serviceFilterSelector
+                ></lib-tag-selector>
+              </div>
+            </div>
+            <div class="dashboard-multi-filter" (click)="showConnectionStatusFilter($event)" [ngClass]="{'filter-open': showConnectionStatusFilterSelector, 'filter-applied': selectedConnectionStatus !== 'all'}">
+              <span class="dashboard-multi-title">Connection Status</span>
+              <div class="expand-collapse-icon icon-RightPage"></div>
+              <div class="filter-dropdown connection-status-dropdown" *ngIf="showConnectionStatusFilterSelector" (clickOutside)="closeConnectionStatusFilter($event)">
+                <select [(ngModel)]="selectedConnectionStatus" (change)="onConnectionStatusChange($event)" class="connection-status-select form-field-dropdown" #connectionStatusFilterSelector>
+                  <option value="all">All</option>
+                  <option value="online">Online</option>
+                  <option value="offline">Offline</option>
+                </select>
+              </div>
+            </div>
+            <div class="dashboard-filter-actions">
+              <!--<div class="add-filter-container" #addRuleButton (click)="openAddRulesMenu($event, appliedFiltersRule)" [ngClass]="{'config-added': rulesAdded, 'add-filter-open': true}">
+                <div class="add-icon icon-Icon_Add"></div>
+                <span class="add-icon-label">Create Rule</span>
+              </div>-->
+              <div *ngIf="filtersApplied" class="add-filter-container clear-rule-filters" (click)="clearFilters($event)" [ngClass]="{'filters-added': filtersApplied}">
+                <div class="icon-HamburgerAppClose"></div>
+                <span class="add-icon-label">Clear Filters</span>
+              </div>
+            </div>
+          </div>
         </div>
-    </div>
-    <div class="header-row-container" [class.exp]="showVisualizer">
-        <div class="entity-count-container" [class.exp]="showVisualizer">
-            <div class="dial"></div>
-            <a routerLink="/identities">
-                <div class="totalPod">
-                    <div class="total">{{totalIdentities}}</div>
-                    <div class="label">Identities</div>
-                </div>
-            </a>
-            <a routerLink="/services">
-                <div class="totalPod">
-                    <div class="total">{{totalServices}}</div>
-                    <div class="label">Services</div>
-                </div>
-            </a>
-            <a routerLink="/configs" class="desktop">
-                <div class="totalPod">
-                    <div class="total">{{totalConfigs}}</div>
-                    <div class="label">Configurations</div>
-                </div>
-            </a>
-            <a routerLink="/routers" class="desktop">
-                <div class="totalPod">
-                    <div class="total">{{totalEdgeRouters}}</div>
-                    <div class="label">Routers</div>
-                </div>
-            </a>
-            <a routerLink="/sessions" class="desktop">
-                <div class="totalPod">
-                    <div class="total">{{totalSessions}}</div>
-                    <div class="label">Sessions</div>
-                </div>
-            </a>
-            <a routerLink="/service-policies" class="desktop">
-                <div class="totalPod">
-                    <div class="total">{{totalServicePolicies}}</div>
-                    <div class="label">Service Policies</div>
-                </div>
-            </a>
+        <div class="right-side-actions">
+          <button class="unlocated-btn" (click)="showUnlocatedEntities()">
+            <span class="icon-support icon-unlocated"></span>
+            View Unlocated Entities
+          </button>
         </div>
-        <div class="icon-links-container" [class.exp]="showVisualizer">
-            @if (showVisualizer) {
-                <a id="NetVisualizer" routerLink="/network-visualizer">
-                    <div class="icon-link-pod">
-                        <div class="network-visualizer"></div>
-                        <div class="label">Network</div>
-                        <div class="label">Visualizer</div>
+      </div>
+    </lib-form-field-container>
+    <div class="ziti-dashboard-row">
+      <lib-form-field-container [showHeader]="false" class="no-padding full-height no-shadow">
+        <div class="map-layout" [class.side-panel-open]="sidePanelOpen">
+          <div class="map-container"
+               (dragover)="onMapDragOver($event)"
+               (drop)="onMapDrop($event)"
+               (dragleave)="onMapDragLeave($event)">
+            <div id="MainMap"></div>
+            <div class="map-legend">
+              <div class="legend-title">Legend</div>
+              <div class="legend-item router-item">
+                <div class="legend-icon icon-routers"></div>
+                <label>Routers</label>
+                <div
+                  class="tSelect"
+                  [class.selected]="routersVisible"
+                  (click)="toggleRouters()"
+                ></div>
+              </div>
+              <div class="legend-item entity-item identity-item">
+                <div class="legend-icon icon-identity"></div>
+                <label class="legend-label">Identities</label>
+                <div
+                  class="tSelect"
+                  [class.selected]="identitiesVisible"
+                  (click)="toggleIdentities()"
+                ></div>
+              </div>
+              <div class="legend-title options-legend-title">Options</div>
+              <div class="legend-item" *ngIf="false">
+                <div
+                  class="tSelect"
+                  [class.selected]="clusteringEnabled"
+                  (click)="toggleClustering()"
+                ></div>
+                <label>Enable Clustering</label>
+              </div>
+              <div class="legend-item">
+                <div class="legend-line-sample link-sample"></div>
+                <label>Router Links</label>
+                <div
+                  class="tSelect"
+                  [class.selected]="linksVisible"
+                  (click)="toggleLinks()"
+                ></div>
+              </div>
+              <div class="legend-item">
+                <div class="legend-line-sample circuit-sample"></div>
+                <label>Active Circuits</label>
+                <div
+                  class="tSelect"
+                  [class.selected]="activeCircuitsVisible"
+                  [class.indeterminate]="isCircuitSelectionActive()"
+                  (click)="toggleActiveCircuits()"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </lib-form-field-container>
+      <lib-form-field-container *ngIf="sidePanelOpen" [showHeader]="false" class="no-padding full-height side-panel-container">
+        <div class="side-panel">
+          <div class="side-panel-header"
+               [class.header-identity]="sidePanelType === 'marker' && sidePanelData?.type === 'identity'"
+               [class.header-router]="sidePanelType === 'marker' && sidePanelData?.type === 'routers'"
+               [class.header-circuit]="sidePanelType === 'circuit'"
+               [class.header-link]="sidePanelType === 'link'"
+               [class.header-unlocated]="sidePanelType === 'unlocated'">
+            <div class="side-panel-title">
+              <ng-container [ngSwitch]="sidePanelType">
+                <span *ngSwitchCase="'marker'" class="title-with-icon">
+                  <span [class]="sidePanelData?.type === 'identity' ? 'icon-identity' : 'icon-routers'" class="title-icon"></span>
+                  <span class="title-text">{{ sidePanelData?.item?.name }}</span>
+                </span>
+                <span *ngSwitchCase="'link'" class="title-with-icon">
+                  <span class="icon-routers title-icon"></span>
+                  <span class="title-text">Router Link</span>
+                </span>
+                <span *ngSwitchCase="'circuit'" class="title-with-icon">
+                  <span class="title-icon title-icon-svg ziti-logo"></span>
+                  <span class="title-text">Active Circuit</span>
+                </span>
+                <span *ngSwitchCase="'unlocated'" class="title-with-icon">
+                  <span class="icon-support icon-unlocated title-icon"></span>
+                  <span class="title-text">Unlocated Entities</span>
+                </span>
+              </ng-container>
+            </div>
+            <div class="side-panel-close icon-HamburgerAppClose" (click)="closeSidePanel()"></div>
+          </div>
+          <div class="side-panel-content">
+            <!-- Marker Content -->
+            <ng-container *ngIf="sidePanelType === 'marker'">
+              <div class="marker-popup">
+                <table class="popup-table">
+                  <tr>
+                    <td class="popup-label">Type:</td>
+                    <td class="popup-value">{{ sidePanelData?.type === 'identity' ? 'Identity' : 'Router' }}</td>
+                  </tr>
+                  <tr *ngIf="sidePanelData?.item?.isOnline !== undefined || sidePanelData?.item?.connected !== undefined">
+                    <td class="popup-label">Status:</td>
+                    <td class="popup-value">
+                      <span [class]="getEntityOnlineStatus(sidePanelData?.item) ? 'status-online' : 'status-offline'">
+                        {{ getEntityOnlineStatus(sidePanelData?.item) ? 'Online' : 'Offline' }}
+                      </span>
+                    </td>
+                  </tr>
+                  <tr *ngIf="sidePanelData?.type === 'identity' && sidePanelData?.item?.edgeRouterConnectionStatus">
+                    <td class="popup-label">Status:</td>
+                    <td class="popup-value">
+                      <span [class]="sidePanelData?.item?.edgeRouterConnectionStatus === 'online' ? 'status-online' : 'status-offline'">
+                        {{ sidePanelData?.item?.edgeRouterConnectionStatus === 'online' ? 'Connected' : 'Disconnected' }}
+                      </span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="popup-label">Name:</td>
+                    <td class="popup-value">{{ sidePanelData?.item?.name || 'N/A' }}</td>
+                  </tr>
+                  <tr *ngIf="sidePanelData?.item?.id">
+                    <td class="popup-label">ID:</td>
+                    <td class="popup-value popup-id">{{ sidePanelData?.item?.id }}</td>
+                  </tr>
+                  <tr *ngIf="sidePanelData?.location">
+                    <td class="popup-label">Location:</td>
+                    <td class="popup-value popup-location" [class.location-modified]="hasUnsavedLocationChanges(sidePanelData?.item)">
+                      {{ sidePanelData?.location?.lat?.toFixed(4) }}, {{ sidePanelData?.location?.lng?.toFixed(4) }}
+                      <span *ngIf="hasUnsavedLocationChanges(sidePanelData?.item)" class="modified-indicator">*</span>
+                    </td>
+                  </tr>
+                  <tr *ngIf="sidePanelData?.item?.roleAttributes && sidePanelData?.item?.roleAttributes?.length > 0">
+                    <td class="popup-label">Role Attributes:</td>
+                    <td class="popup-value popup-roles">
+                      <span *ngFor="let role of sidePanelData?.item?.roleAttributes" class="popup-hashtag" (click)="navigateToRoleAttribute(role)">
+                        #{{ role }}
+                      </span>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Active Circuits Section -->
+                <div class="circuits-section" *ngIf="sidePanelCircuits.length > 0">
+                  <div class="circuits-container">
+                    <div class="circuits-header">
+                      <span class="circuits-header-icon ziti-logo"></span>
+                      <span class="circuits-header-text">Active Circuits ({{ sidePanelCircuits.length }})</span>
                     </div>
-                </a>
-            }
-            <a href="https://docs.openziti.io/docs/downloads" target="_blank">
-                <div class="icon-link-pod">
-                    <div class="downloads"></div>
-                    <div class="label">Downloads</div>
+                    <div class="circuits-list">
+                      <table class="circuits-table">
+                        <thead>
+                          <tr>
+                            <th>Service</th>
+                            <th>Path</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let circuit of sidePanelCircuits"
+                              (click)="selectCircuit(circuit, false)"
+                              [class.selected-row]="selectedCircuit?.id === circuit.id"
+                              class="clickable-circuit-row">
+                            <td class="circuit-service">{{ circuit.service?.name || circuit.serviceName || 'Unknown Service' }}</td>
+                            <td class="circuit-path">
+                              <span *ngIf="circuit.path?.nodes?.length > 0">{{ circuit.path.nodes.length }} router(s)</span>
+                              <span *ngIf="circuit.path?.length > 0 && !circuit.path?.nodes">{{ circuit.path.length }} router(s)</span>
+                              <span *ngIf="!circuit.path?.nodes?.length && !circuit.path?.length">Direct</span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
-            </a>
-            <a href="https://docs.openziti.io/" target="_blank">
-                <div class="icon-link-pod">
-                    <div class="docs"></div>
-                    <div class="label">Docs</div>
+
+                <!-- Router Path Details Section -->
+                <div class="router-path-section" *ngIf="selectedCircuit && selectedCircuitRouters.length > 0">
+                  <div class="router-path-container">
+                    <div class="router-path-header">
+                      <span class="router-path-icon icon-routers"></span>
+                      <span class="router-path-text">Circuit Path ({{ selectedCircuitRouters.length }} routers)</span>
+                    </div>
+                    <div class="router-path-list">
+                      <table class="router-path-table">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Router Name</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let router of selectedCircuitRouters; let i = index"
+                              (click)="selectCircuitRouter(router.id, 'routers')"
+                              [class.selected-row]="selectedRouterInPath === router.id"
+                              class="clickable-circuit-row">
+                            <td class="path-index">{{ i + 1 }}</td>
+                            <td class="router-name">{{ router.name || router.id }}</td>
+                            <td class="router-status">
+                              <span *ngIf="!router._notFound && router.connected !== undefined"
+                                    [class]="router.connected ? 'status-online' : 'status-offline'">
+                                {{ router.connected ? 'Online' : 'Offline' }}
+                              </span>
+                              <span *ngIf="router._notFound" class="status-unknown">Unknown</span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
-            </a>
+
+                <div class="popup-actions">
+                  <button *ngIf="hasUnsavedLocationChanges(sidePanelData?.item)"
+                          class="save-location-btn"
+                          (click)="saveLocationChanges(sidePanelData?.item, sidePanelData?.type)">
+                    Save Changes
+                  </button>
+                  <a class="popup-details-link" (click)="navigateToDetails(sidePanelData?.type, sidePanelData?.item?.id)">
+                    View Details →
+                  </a>
+                </div>
+              </div>
+            </ng-container>
+
+            <!-- Link Content -->
+            <ng-container *ngIf="sidePanelType === 'link'">
+              <div class="circuit-popup">
+                <table class="popup-table">
+                  <tr>
+                    <td class="popup-label">From:</td>
+                    <td class="popup-value">
+                      <a class="clickable-name" (click)="openRouterPanel(sidePanelData?.sourceRouter)">
+                        {{ sidePanelData?.sourceRouter?.name }}
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="popup-label">To:</td>
+                    <td class="popup-value">
+                      <a class="clickable-name" (click)="openRouterPanel(sidePanelData?.destRouter)">
+                        {{ sidePanelData?.destRouter?.name }}
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="popup-label">State:</td>
+                    <td class="popup-value">{{ sidePanelData?.link?.state || 'Unknown' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="popup-label">Protocol:</td>
+                    <td class="popup-value">{{ sidePanelData?.link?.protocol || 'Unknown' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="popup-label">Cost:</td>
+                    <td class="popup-value">{{ sidePanelData?.link?.cost || 'N/A' }}</td>
+                  </tr>
+                  <tr *ngIf="sidePanelData?.link?.sourceLatency || sidePanelData?.link?.destLatency">
+                    <td class="popup-label">Latency:</td>
+                    <td class="popup-value">
+                      {{ sidePanelData?.link?.sourceLatency ? (sidePanelData?.link?.sourceLatency / 1000000).toFixed(2) + ' ms' : 'N/A' }} /
+                      {{ sidePanelData?.link?.destLatency ? (sidePanelData?.link?.destLatency / 1000000).toFixed(2) + ' ms' : 'N/A' }}
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Connections Sub-Table -->
+                <div class="connections-section" *ngIf="sidePanelData?.link?.connections && sidePanelData?.link?.connections?.length > 0">
+                  <div class="connections-header">
+                    <span class="connections-title">Connections ({{ sidePanelData?.link?.connections?.length }})</span>
+                  </div>
+                  <div class="connections-table-container">
+                    <table class="connections-table">
+                      <thead>
+                        <tr>
+                          <th>Type</th>
+                          <th>Src Protocol</th>
+                          <th>Src Address</th>
+                          <th>Src Port</th>
+                          <th>Dest Protocol</th>
+                          <th>Dest Address</th>
+                          <th>Dest Port</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let connection of sidePanelData?.link?.connections">
+                          <td class="connection-type">{{ parseConnectionType(connection.type) }}</td>
+                          <td class="connection-protocol">{{ parseEndpoint(connection.source).protocol }}</td>
+                          <td class="connection-address">{{ parseEndpoint(connection.source).address }}</td>
+                          <td class="connection-port">{{ parseEndpoint(connection.source).port }}</td>
+                          <td class="connection-protocol">{{ parseEndpoint(connection.dest).protocol }}</td>
+                          <td class="connection-address">{{ parseEndpoint(connection.dest).address }}</td>
+                          <td class="connection-port">{{ parseEndpoint(connection.dest).port }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+
+            <!-- Circuit Content -->
+            <ng-container *ngIf="sidePanelType === 'circuit'">
+              <div class="circuit-popup">
+                <table class="popup-table">
+                  <tr>
+                    <td class="popup-label">Service:</td>
+                    <td class="popup-value">
+                      <a class="clickable-name" (click)="openServicePanel(sidePanelData?.circuit?.service)">
+                        {{ sidePanelData?.circuit?.service?.name || 'Unknown' }}
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="popup-label">Client:</td>
+                    <td class="popup-value">{{ sidePanelData?.circuit?.tags?.hostId || sidePanelData?.circuit?.clientId || 'Unknown' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="popup-label">From:</td>
+                    <td class="popup-value">
+                      <a class="clickable-name" (click)="openEntityPanel(sidePanelData?.segment?.fromId, sidePanelData?.segment?.fromType)">
+                        {{ sidePanelData?.segment?.from }}
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="popup-label">To:</td>
+                    <td class="popup-value">
+                      <a class="clickable-name" (click)="openEntityPanel(sidePanelData?.segment?.toId, sidePanelData?.segment?.toType)">
+                        {{ sidePanelData?.segment?.to }}
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="popup-label">Hop:</td>
+                    <td class="popup-value">{{ sidePanelData?.segment?.index + 1 }} of {{ sidePanelData?.segment?.total }}</td>
+                  </tr>
+                  <tr>
+                    <td class="popup-label">Total Path:</td>
+                    <td class="popup-value">{{ sidePanelData?.pathNodes?.length }} routers</td>
+                  </tr>
+                  <tr *ngIf="sidePanelData?.circuit?.createdAt">
+                    <td class="popup-label">Created:</td>
+                    <td class="popup-value">{{ sidePanelData?.circuit?.createdAt | date:'short' }}</td>
+                  </tr>
+                </table>
+
+                <!-- Circuit Hops Section -->
+                <div class="circuit-hops-section" *ngIf="sidePanelData?.circuitHops && sidePanelData?.circuitHops.length > 0">
+                  <div class="circuit-hops-container">
+                    <div class="router-path-header">
+                      <span class="router-path-icon icon-routers"></span>
+                      <span class="router-path-text">Circuit Hops ({{ sidePanelData?.circuitHops?.length }})</span>
+                    </div>
+                    <div class="router-path-list">
+                      <table class="router-path-table">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>From</th>
+                            <th>To</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let hop of sidePanelData?.circuitHops; let i = index"
+                              (click)="selectCircuitHop(hop, i)"
+                              [class.selected-row]="selectedCircuitSegment?.segmentIndex === i"
+                              class="clickable-circuit-row">
+                            <td class="hop-number">{{ i + 1 }}</td>
+                            <td class="hop-from">{{ hop.from }}</td>
+                            <td class="hop-to">{{ hop.to }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Circuit Routers Section -->
+                <div class="circuit-routers-section" *ngIf="sidePanelData?.circuitRouters && sidePanelData?.circuitRouters.length > 0">
+                  <div class="circuit-routers-container">
+                    <div class="router-path-header">
+                      <span class="router-path-icon icon-routers"></span>
+                      <span class="router-path-text">Routers in Path ({{ sidePanelData?.circuitRouters?.length }})</span>
+                    </div>
+                    <div class="router-path-list">
+                      <table class="router-path-table">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let router of sidePanelData?.circuitRouters; let i = index"
+                              (click)="selectCircuitRouter(router.id, router.type)"
+                              [class.selected-row]="selectedRouterInPath === router.id"
+                              class="clickable-circuit-row">
+                            <td class="router-order">{{ i + 1 }}</td>
+                            <td class="router-name">{{ router.name }}</td>
+                            <td class="router-type">{{ router.type }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+
+            <!-- Unlocated Entities Content -->
+            <ng-container *ngIf="sidePanelType === 'unlocated'">
+              <div class="unlocated-popup">
+                <!-- Identities Section -->
+                <div class="unlocated-section" *ngIf="sidePanelData?.unlocatedIdentities?.length > 0">
+                  <h3 class="section-title section-title-identity">
+                    <span class="icon-identity section-icon"></span>
+                    <span class="section-text">Identities ({{ sidePanelData?.unlocatedIdentities?.length }})</span>
+                  </h3>
+                  <div class="unlocated-table-container">
+                    <table class="unlocated-table">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Type</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let identity of sidePanelData?.unlocatedIdentities"
+                            (click)="openEntityPreview(identity, 'identity')"
+                            class="clickable-row draggable-row"
+                            draggable="true"
+                            (dragstart)="onDragStart($event, identity, 'identity')">
+                          <td class="entity-name">{{ identity.name }}</td>
+                          <td class="entity-type">Identity</td>
+                          <td class="entity-status">
+                            <span [class]="identity.edgeRouterConnectionStatus === 'online' ? 'status-online' : 'status-offline'">
+                              {{ identity.edgeRouterConnectionStatus === 'online' ? 'Connected' : 'Disconnected' }}
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Routers Section -->
+                <div class="unlocated-section" *ngIf="sidePanelData?.unlocatedRouters?.length > 0">
+                  <h3 class="section-title section-title-router">
+                    <span class="icon-routers section-icon"></span>
+                    <span class="section-text">Routers ({{ sidePanelData?.unlocatedRouters?.length }})</span>
+                  </h3>
+                  <div class="unlocated-table-container">
+                    <table class="unlocated-table">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Type</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let router of sidePanelData?.unlocatedRouters"
+                            (click)="openEntityPreview(router, 'routers')"
+                            class="clickable-row draggable-row"
+                            draggable="true"
+                            (dragstart)="onDragStart($event, router, 'routers')">
+                          <td class="entity-name">{{ router.name }}</td>
+                          <td class="entity-type">{{ router._routerType === 'transit-router' ? 'Transit Router' : 'Edge Router' }}</td>
+                          <td class="entity-status">
+                            <span [class]="router.connected ? 'status-online' : 'status-offline'">
+                              {{ router.connected ? 'Online' : 'Offline' }}
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" *ngIf="!sidePanelData?.unlocatedIdentities?.length && !sidePanelData?.unlocatedRouters?.length">
+                  <div class="empty-icon">✓</div>
+                  <div class="empty-message">All entities have location data</div>
+                </div>
+
+                <!-- Entity Preview -->
+                <div class="entity-preview" *ngIf="unlocatedPreviewEntity">
+                  <div class="preview-header"
+                       [class.preview-header-identity]="unlocatedPreviewType === 'identity'"
+                       [class.preview-header-router]="unlocatedPreviewType === 'routers'">
+                    <div class="preview-title">
+                      <span [class]="unlocatedPreviewType === 'identity' ? 'icon-identity' : 'icon-routers'" class="preview-icon"></span>
+                      <span class="preview-text">{{ unlocatedPreviewEntity?.name }}</span>
+                    </div>
+                    <div class="preview-close icon-HamburgerAppClose" (click)="unlocatedPreviewEntity = null"></div>
+                  </div>
+                  <div class="preview-content">
+                    <table class="popup-table">
+                      <tr>
+                        <td class="popup-label">Type:</td>
+                        <td class="popup-value">{{ unlocatedPreviewType === 'identity' ? 'Identity' : 'Router' }}</td>
+                      </tr>
+                      <tr *ngIf="unlocatedPreviewEntity?.isOnline !== undefined || unlocatedPreviewEntity?.connected !== undefined">
+                        <td class="popup-label">Status:</td>
+                        <td class="popup-value">
+                          <span [class]="getEntityOnlineStatus(unlocatedPreviewEntity) ? 'status-online' : 'status-offline'">
+                            {{ getEntityOnlineStatus(unlocatedPreviewEntity) ? 'Online' : 'Offline' }}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr *ngIf="unlocatedPreviewType === 'identity' && unlocatedPreviewEntity?.edgeRouterConnectionStatus">
+                        <td class="popup-label">Status:</td>
+                        <td class="popup-value">
+                          <span [class]="unlocatedPreviewEntity?.edgeRouterConnectionStatus === 'online' ? 'status-online' : 'status-offline'">
+                            {{ unlocatedPreviewEntity?.edgeRouterConnectionStatus === 'online' ? 'Connected' : 'Disconnected' }}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="popup-label">Name:</td>
+                        <td class="popup-value">{{ unlocatedPreviewEntity?.name || 'N/A' }}</td>
+                      </tr>
+                      <tr *ngIf="unlocatedPreviewEntity?.id">
+                        <td class="popup-label">ID:</td>
+                        <td class="popup-value popup-id">{{ unlocatedPreviewEntity?.id }}</td>
+                      </tr>
+                      <tr>
+                        <td class="popup-label">Location:</td>
+                        <td class="popup-value" [class.popup-location-none]="!unlocatedPreviewEntity?.tags?.geolocation">
+                          <span *ngIf="unlocatedPreviewEntity?.tags?.geolocation">
+                            {{ unlocatedPreviewEntity.tags.geolocation }}
+                            <span *ngIf="unlocatedPreviewHasUnsavedLocation" class="unsaved-indicator">(unsaved)</span>
+                          </span>
+                          <span *ngIf="!unlocatedPreviewEntity?.tags?.geolocation">
+                            No geolocation assigned
+                          </span>
+                        </td>
+                      </tr>
+                      <tr *ngIf="unlocatedPreviewEntity?.roleAttributes && unlocatedPreviewEntity?.roleAttributes?.length > 0">
+                        <td class="popup-label">Role Attributes:</td>
+                        <td class="popup-value popup-roles">
+                          <span *ngFor="let role of unlocatedPreviewEntity?.roleAttributes" class="popup-hashtag" (click)="navigateToRoleAttribute(role)">
+                            #{{ role }}
+                          </span>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Active Circuits Section -->
+                    <div class="circuits-section" *ngIf="unlocatedPreviewCircuits.length > 0">
+                      <div class="circuits-container">
+                        <div class="circuits-header">
+                          <span class="circuits-header-icon ziti-logo"></span>
+                          <span class="circuits-header-text">Active Circuits ({{ unlocatedPreviewCircuits.length }})</span>
+                        </div>
+                        <div class="circuits-list">
+                          <table class="circuits-table">
+                            <thead>
+                              <tr>
+                                <th>Service</th>
+                                <th>Path</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let circuit of unlocatedPreviewCircuits"
+                                  (click)="selectCircuit(circuit, true)"
+                                  [class.selected-row]="selectedUnlocatedCircuit?.id === circuit.id"
+                                  class="clickable-circuit-row">
+                                <td class="circuit-service">{{ circuit.service?.name || circuit.serviceName || 'Unknown Service' }}</td>
+                                <td class="circuit-path">
+                                  <span *ngIf="circuit.path?.nodes?.length > 0">{{ circuit.path.nodes.length }} router(s)</span>
+                                  <span *ngIf="circuit.path?.length > 0 && !circuit.path?.nodes">{{ circuit.path.length }} router(s)</span>
+                                  <span *ngIf="!circuit.path?.nodes?.length && !circuit.path?.length">Direct</span>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Router Path Details Section -->
+                    <div class="router-path-section" *ngIf="selectedUnlocatedCircuit && selectedUnlocatedCircuitRouters.length > 0">
+                      <div class="router-path-container">
+                        <div class="router-path-header">
+                          <span class="router-path-icon icon-routers"></span>
+                          <span class="router-path-text">Circuit Path ({{ selectedUnlocatedCircuitRouters.length }} routers)</span>
+                        </div>
+                        <div class="router-path-list">
+                          <table class="router-path-table">
+                            <thead>
+                              <tr>
+                                <th>#</th>
+                                <th>Router Name</th>
+                                <th>Status</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let router of selectedUnlocatedCircuitRouters; let i = index"
+                                  (click)="selectCircuitRouter(router.id, 'routers')"
+                                  [class.selected-row]="selectedRouterInPath === router.id"
+                                  class="clickable-circuit-row">
+                                <td class="path-index">{{ i + 1 }}</td>
+                                <td class="router-name">{{ router.name || router.id }}</td>
+                                <td class="router-status">
+                                  <span *ngIf="!router._notFound && router.connected !== undefined"
+                                        [class]="router.connected ? 'status-online' : 'status-offline'">
+                                    {{ router.connected ? 'Online' : 'Offline' }}
+                                  </span>
+                                  <span *ngIf="router._notFound" class="status-unknown">Unknown</span>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="popup-actions">
+                      <button *ngIf="unlocatedPreviewHasUnsavedLocation"
+                              class="save-location-btn"
+                              (click)="saveUnlocatedPreviewEntity()">
+                        <span class="icon-save"></span>
+                        Save Location
+                      </button>
+                      <a class="popup-details-link" (click)="navigateToDetails(unlocatedPreviewType, unlocatedPreviewEntity?.id)">
+                        View Details →
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+          </div>
         </div>
+      </lib-form-field-container>
     </div>
-    <div id="MainMap" class="map-container">
-        <div class="map-legend">
-            <div class="legend-title">Map Legend</div>
-            <div class="legend-item">
-                <div
-                    class="tSelect"
-                    [class.selected]="clusteringEnabled"
-                    (click)="toggleClustering()"
-                ></div>
-                <label>Enable Marker Clustering</label>
-            </div>
-            <div class="legend-item">
-                <div
-                    class="tSelect"
-                    [class.selected]="linksVisible"
-                    (click)="toggleLinks()"
-                ></div>
-                <label>Show Router Links</label>
-            </div>
-            <div class="legend-item">
-                <div
-                    class="tSelect"
-                    [class.selected]="terminatorsVisible"
-                    (click)="toggleTerminators()"
-                ></div>
-                <label>Show Service Terminators</label>
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
-@if (isLoading) {
-    <lib-loading-indicator [isLoading]="isLoading"></lib-loading-indicator>
-}
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
