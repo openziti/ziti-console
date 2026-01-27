@@ -1,6 +1,74 @@
 <div class="ziti-page-container">
   <div *ngIf="false" class="overlay"></div>
   <div class="ziti-page-wrapper">
+    <div class="pods-container">
+      <div class="entity-pod">
+        <div class="pod-top">
+          <div class="pod-left clickable" (click)="showAllIdentities()">
+            <div class="icon-and-count">
+              <div class="entity-icon entity-identity"></div>
+              <div class="total-count">{{totalIdentities}}</div>
+            </div>
+            <div class="total-label">Total</div>
+          </div>
+          <div class="pod-divider"></div>
+          <div class="pod-right clickable" (click)="showUnlocatedIdentities()">
+            <div class="icon-and-count">
+              <div class="pod-right-icon unknown-icon"></div>
+              <div class="unlocated-count">{{unlocatedIdentities}}</div>
+            </div>
+            <div class="unlocated-label">Unlocated</div>
+          </div>
+        </div>
+        <div class="pod-footer">
+          <div class="entity-name">Identities</div>
+        </div>
+      </div>
+      <div class="entity-pod">
+        <div class="pod-top">
+          <div class="pod-left clickable" (click)="showAllRouters()">
+            <div class="icon-and-count">
+              <div class="entity-icon entity-router"></div>
+              <div class="total-count">{{totalEdgeRouters}}</div>
+            </div>
+            <div class="total-label">Total</div>
+          </div>
+          <div class="pod-divider"></div>
+          <div class="pod-right clickable" (click)="showUnlocatedRouters()">
+            <div class="icon-and-count">
+              <div class="pod-right-icon unknown-icon"></div>
+              <div class="unlocated-count">{{unlocatedRouters}}</div>
+            </div>
+            <div class="unlocated-label">Unlocated</div>
+          </div>
+        </div>
+        <div class="pod-footer">
+          <div class="entity-name">Routers</div>
+        </div>
+      </div>
+      <div class="entity-pod">
+        <div class="pod-top">
+          <div class="pod-left clickable" (click)="showAllServices()">
+            <div class="icon-and-count">
+              <div class="entity-icon icon-services"></div>
+              <div class="total-count">{{totalServices}}</div>
+            </div>
+            <div class="total-label">Total</div>
+          </div>
+          <div class="pod-divider"></div>
+          <div class="pod-right clickable" (click)="showServicesWithActiveCircuits()">
+            <div class="icon-and-count">
+              <div class="pod-right-icon ziti-icon"></div>
+              <div class="unlocated-count">{{servicesWithActiveCircuits}}</div>
+            </div>
+            <div class="unlocated-label">Active Circuits</div>
+          </div>
+        </div>
+        <div class="pod-footer">
+          <div class="entity-name">Services</div>
+        </div>
+      </div>
+    </div>
 <!--    <div *ngIf="false"class="header">-->
 <!--      <div class="title">-->
 <!--        <span>{{pageTitle}}</span>-->
@@ -319,15 +387,19 @@
                 ></lib-tag-selector>
               </div>
             </div>
-            <div class="dashboard-multi-filter" (click)="showServiceFilter($event)" [ngClass]="{'filter-open': showServiceFilterSelector, 'filter-applied': selectedServiceAttributes.length > 0}">
-              <span class="dashboard-multi-title">{{selectedServiceAttributes.length > 0 ? '(' + selectedServiceAttributes.length + ') ' : ''}}Services</span>
+            <div class="dashboard-multi-filter" (click)="showServiceFilter($event)" [ngClass]="{'filter-open': showServiceFilterSelector, 'filter-applied': selectedServiceAttributes.length > 0 || selectedServiceNamedAttributes.length > 0}">
+              <span class="dashboard-multi-title">{{(selectedServiceAttributes.length + selectedServiceNamedAttributes.length) > 0 ? '(' + (selectedServiceAttributes.length + selectedServiceNamedAttributes.length) + ') ' : ''}}Services</span>
               <div class="expand-collapse-icon icon-RightPage"></div>
               <div class="filter-dropdown"  *ngIf="showServiceFilterSelector" (clickOutside)="closeServiceFilter($event)">
                 <lib-tag-selector
+                  [(selectedNamedAttributes)]="selectedServiceNamedAttributes"
                   [(selectedRoleAttributes)]="selectedServiceAttributes"
+                  (selectedNamedAttributesChange)="onServiceNamedAttributesChange($event)"
                   (selectedRoleAttributesChange)="onServiceRoleAttributesChange($event)"
+                  [availableNamedAttributes]="serviceNamedAttributes"
                   [availableRoleAttributes]="serviceRoleAttributes"
-                  [placeholder]="'Add attributes to group Services'"
+                  [placeholder]="'Select service attributes'"
+                  (filterChange)="getServiceNamedAttributes($event)"
                   #serviceFilterSelector
                 ></lib-tag-selector>
               </div>
@@ -426,8 +498,9 @@
       <lib-form-field-container *ngIf="sidePanelOpen" [showHeader]="false" class="no-padding full-height side-panel-container">
         <div class="side-panel">
           <div class="side-panel-header"
-               [class.header-identity]="sidePanelType === 'marker' && sidePanelData?.type === 'identity'"
-               [class.header-router]="sidePanelType === 'marker' && sidePanelData?.type === 'routers'"
+               [class.header-identity]="(sidePanelType === 'marker' && sidePanelData?.type === 'identity') || (sidePanelType === 'entityList' && entityListType === 'identities')"
+               [class.header-router]="(sidePanelType === 'marker' && sidePanelData?.type === 'routers') || (sidePanelType === 'entityList' && entityListType === 'routers')"
+               [class.header-service]="sidePanelType === 'entityList' && entityListType === 'services'"
                [class.header-circuit]="sidePanelType === 'circuit'"
                [class.header-link]="sidePanelType === 'link'"
                [class.header-unlocated]="sidePanelType === 'unlocated'">
@@ -448,6 +521,10 @@
                 <span *ngSwitchCase="'unlocated'" class="title-with-icon">
                   <span class="icon-support icon-unlocated title-icon"></span>
                   <span class="title-text">Unlocated Entities</span>
+                </span>
+                <span *ngSwitchCase="'entityList'" class="title-with-icon">
+                  <span [class]="entityListType === 'identities' ? 'icon-identity' : (entityListType === 'routers' ? 'icon-routers' : 'icon-services')" class="title-icon"></span>
+                  <span class="title-text">{{ entityListType === 'identities' ? 'All Identities' : (entityListType === 'routers' ? 'All Routers' : 'All Services') }}</span>
                 </span>
               </ng-container>
             </div>
@@ -516,6 +593,7 @@
                           <tr>
                             <th>Service</th>
                             <th>Path</th>
+                            <th class="action-column"></th>
                           </tr>
                         </thead>
                         <tbody>
@@ -528,6 +606,9 @@
                               <span *ngIf="circuit.path?.nodes?.length > 0">{{ circuit.path.nodes.length }} router(s)</span>
                               <span *ngIf="circuit.path?.length > 0 && !circuit.path?.nodes">{{ circuit.path.length }} router(s)</span>
                               <span *ngIf="!circuit.path?.nodes?.length && !circuit.path?.length">Direct</span>
+                            </td>
+                            <td class="action-column">
+                              <span class="circuit-nav-icon icon-Share-RBAC" (click)="openCircuitPreview(circuit, $event)" title="View Circuit Details"></span>
                             </td>
                           </tr>
                         </tbody>
@@ -772,6 +853,95 @@
               </div>
             </ng-container>
 
+            <!-- Entity List Content -->
+            <ng-container *ngIf="sidePanelType === 'entityList'">
+              <div class="entity-list-popup">
+                <!-- Search Bar -->
+                <div class="entity-list-search">
+                  <input
+                    type="text"
+                    class="search-input"
+                    [(ngModel)]="entityListSearch"
+                    (input)="onEntityListSearchChange(entityListSearch)"
+                    placeholder="Search by name..."
+                  />
+                </div>
+
+                <!-- Entity Table -->
+                <div class="entity-list-container">
+                  <table class="entity-list-table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th *ngIf="entityListType === 'identities'">Status</th>
+                        <th *ngIf="entityListType === 'routers'">Status</th>
+                        <th *ngIf="entityListType === 'services'">Active Circuits</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let entity of filteredEntityList"
+                          (click)="navigateToDetails(entityListType, entity.id)"
+                          class="clickable-row">
+                        <td class="entity-name">{{ entity.name }}</td>
+                        <td *ngIf="entityListType === 'identities'" class="entity-status">
+                          <span [class]="entity.edgeRouterConnectionStatus === 'online' ? 'status-online' : 'status-offline'">
+                            {{ entity.edgeRouterConnectionStatus === 'online' ? 'Connected' : 'Disconnected' }}
+                          </span>
+                        </td>
+                        <td *ngIf="entityListType === 'routers'" class="entity-status">
+                          <span [class]="entity.connected ? 'status-online' : 'status-offline'">
+                            {{ entity.connected ? 'Online' : 'Offline' }}
+                          </span>
+                        </td>
+                        <td *ngIf="entityListType === 'services'" class="entity-circuits">
+                          {{ entity.activeCircuitCount || 0 }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <!-- Empty State -->
+                  <div class="empty-state" *ngIf="filteredEntityList.length === 0">
+                    <div class="empty-icon">🔍</div>
+                    <div class="empty-message">No {{ entityListType }} found</div>
+                  </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="entity-list-pagination" *ngIf="entityListTotalPages > 1">
+                  <button
+                    class="pagination-btn"
+                    [disabled]="entityListPage === 1"
+                    (click)="onEntityListPageChange(entityListPage - 1)">
+                    &lt;
+                  </button>
+
+                  <ng-container *ngFor="let pageNum of entityListPageNumbers">
+                    <button
+                      *ngIf="pageNum !== -1"
+                      class="pagination-btn page-number"
+                      [class.active]="pageNum === entityListPage"
+                      (click)="onEntityListPageChange(pageNum)">
+                      {{ pageNum }}
+                    </button>
+                    <span *ngIf="pageNum === -1" class="pagination-ellipsis">...</span>
+                  </ng-container>
+
+                  <button
+                    class="pagination-btn"
+                    [disabled]="entityListPage === entityListTotalPages"
+                    (click)="onEntityListPageChange(entityListPage + 1)">
+                    &gt;
+                  </button>
+                </div>
+
+                <!-- Results Info -->
+                <div class="entity-list-info">
+                  Showing {{ (entityListPage - 1) * entityListPageSize + 1 }} - {{ Math.min(entityListPage * entityListPageSize, entityListTotal) }} of {{ entityListTotal }} {{ entityListType }}
+                </div>
+              </div>
+            </ng-container>
+
             <!-- Unlocated Entities Content -->
             <ng-container *ngIf="sidePanelType === 'unlocated'">
               <div class="unlocated-popup">
@@ -843,10 +1013,49 @@
                   </div>
                 </div>
 
+                <!-- Services Section -->
+                <div class="unlocated-section" *ngIf="sidePanelData?.servicesWithCircuits?.length > 0">
+                  <h3 class="section-title section-title-service">
+                    <span class="icon-services section-icon"></span>
+                    <span class="section-text">Services with Active Circuits ({{ sidePanelData?.servicesWithCircuits?.length }})</span>
+                  </h3>
+                  <div class="services-search-container">
+                    <input
+                      type="text"
+                      class="services-search-input"
+                      [(ngModel)]="servicesWithCircuitsSearch"
+                      (input)="onServicesWithCircuitsSearchChange(servicesWithCircuitsSearch)"
+                      placeholder="Search by service name..."
+                    />
+                  </div>
+                  <div class="unlocated-table-container">
+                    <table class="unlocated-table">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Type</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let service of filteredServicesWithCircuits"
+                            (click)="openServiceCircuitPreview(service)"
+                            class="clickable-row">
+                          <td class="entity-name">{{ service.name }}</td>
+                          <td class="entity-type">Service</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <div class="empty-search-state" *ngIf="filteredServicesWithCircuits.length === 0 && servicesWithCircuitsSearch">
+                      <div class="empty-icon">🔍</div>
+                      <div class="empty-message">No services found matching "{{ servicesWithCircuitsSearch }}"</div>
+                    </div>
+                  </div>
+                </div>
+
                 <!-- Empty State -->
-                <div class="empty-state" *ngIf="!sidePanelData?.unlocatedIdentities?.length && !sidePanelData?.unlocatedRouters?.length">
+                <div class="empty-state" *ngIf="!sidePanelData?.unlocatedIdentities?.length && !sidePanelData?.unlocatedRouters?.length && !sidePanelData?.servicesWithCircuits?.length">
                   <div class="empty-icon">✓</div>
-                  <div class="empty-message">All entities have location data</div>
+                  <div class="empty-message">No entities to display</div>
                 </div>
 
                 <!-- Entity Preview -->
@@ -925,6 +1134,7 @@
                               <tr>
                                 <th>Service</th>
                                 <th>Path</th>
+                                <th class="action-column"></th>
                               </tr>
                             </thead>
                             <tbody>
@@ -937,6 +1147,9 @@
                                   <span *ngIf="circuit.path?.nodes?.length > 0">{{ circuit.path.nodes.length }} router(s)</span>
                                   <span *ngIf="circuit.path?.length > 0 && !circuit.path?.nodes">{{ circuit.path.length }} router(s)</span>
                                   <span *ngIf="!circuit.path?.nodes?.length && !circuit.path?.length">Direct</span>
+                                </td>
+                                <td class="action-column">
+                                  <span class="circuit-nav-icon icon-Share-RBAC" (click)="openCircuitPreview(circuit, $event)" title="View Circuit Details"></span>
                                 </td>
                               </tr>
                             </tbody>

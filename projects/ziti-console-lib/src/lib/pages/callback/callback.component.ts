@@ -37,7 +37,6 @@ export class CallbackComponent implements OnInit {
             if (!isEmpty(oauthConfig)) {
                 this.oauthService.configure(oauthConfig);
                 this.oauthService.loadDiscoveryDocument().then((loadResult) => {
-                    console.log(loadResult);
                     this.oauthService.tryLogin().then((result) => {
                         if (result) {
                             // Handle post-login
@@ -113,7 +112,6 @@ export class CallbackComponent implements OnInit {
                             });
                         }
                     }).catch((error) => {
-                        console.log(error);
                         const errorMessage = `${error.params ? error.params.error + ': ' + error.params.error_description : ''}`;
                         const growlerData = new GrowlerModel(
                             'error',

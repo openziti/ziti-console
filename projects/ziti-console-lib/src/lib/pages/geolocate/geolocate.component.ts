@@ -30,6 +30,24 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   totalSessions = 0;
   showVisualizer = false;
 
+  // Counts for entities without geolocation
+  unlocatedIdentities = 0;
+  unlocatedRouters = 0;
+  servicesWithActiveCircuits = 0;
+
+  // Search for services with circuits
+  servicesWithCircuitsSearch = '';
+  filteredServicesWithCircuits: any[] = [];
+
+  // Pagination and search for entity lists
+  entityListSearch = '';
+  entityListPage = 1;
+  entityListPageSize = 20;
+  entityListTotal = 0;
+  filteredEntityList: any[] = [];
+  fullEntityList: any[] = [];
+  entityListType: string = '';
+
   identityMarkers = [];
   routerMarkers = [];
   circuitLines = [];
@@ -70,7 +88,7 @@ export class GeolocateComponent implements OnInit, OnDestroy {
 
   // Side panel
   sidePanelOpen = false;
-  sidePanelType: 'marker' | 'link' | 'circuit' | 'unlocated' | null = null;
+  sidePanelType: 'marker' | 'link' | 'circuit' | 'unlocated' | 'entityList' | null = null;
   sidePanelData: any = null;
   sidePanelCircuits: any[] = [];
   selectedCircuit: any = null;
@@ -94,7 +112,11 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   selectedServiceFilters: any[] = [];
 
   serviceRoleAttributes: any[] = [];
+  serviceNamedAttributes: any[] = [];
   selectedServiceAttributes: any[] = [];
+  selectedServiceNamedAttributes: any[] = [];
+  servicesNameIdMap: { [key: string]: string } = {};
+  servicesIdNameMap: { [key: string]: string } = {};
 
   identityRoleAttributes: any[] = [];
   identityNamedAttributes: any[] = [];
@@ -123,6 +145,9 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   identitiesInit = false;
   isLoading = false;
 
+  // Expose Math to template
+  Math = Math;
+
   dialogRef: any;
 
   constructor(
@@ -140,6 +165,7 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const attributesPromise = this.getRoleAttributest();
     this.getIdentityNamedAttributes(); // Initialize identity names for filtering
+    this.getServiceNamedAttributes(); // Initialize service names for filtering
     this.map = L.map('MainMap', {
       zoomControl: false,
       attributionControl: false
@@ -185,7 +211,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       // Check if we clicked on a marker or on the map itself
       // If currentDraggableMarker exists and we're not clicking on it, disable dragging
       if (this.currentDraggableMarker) {
-        console.log('Map clicked, disabling drag mode');
         this.currentDraggableMarker.dragging.disable();
 
         // Remove visual styling (both classes)
@@ -225,11 +250,9 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       this.identityClusterGroup.on('layeradd', (event: any) => {
         const marker = event.layer;
         if (marker && marker._itemData && marker._itemType) {
-          console.log('Re-binding contextmenu for identity marker:', marker._itemData.name);
           // Ensure the contextmenu event is properly bound after adding to cluster
           marker.off('contextmenu');  // Remove any existing handlers
           marker.on('contextmenu', (e: any) => {
-            console.log('Identity marker contextmenu from cluster:', marker._itemData.name, e);
             e.originalEvent.preventDefault();
             e.originalEvent.stopPropagation();
             this.showMarkerContextMenu(e, marker, marker._itemData, marker._itemType);
@@ -264,11 +287,9 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       this.routerClusterGroup.on('layeradd', (event: any) => {
         const marker = event.layer;
         if (marker && marker._itemData && marker._itemType) {
-          console.log('Re-binding contextmenu for router marker:', marker._itemData.name);
           // Ensure the contextmenu event is properly bound after adding to cluster
           marker.off('contextmenu');  // Remove any existing handlers
           marker.on('contextmenu', (e: any) => {
-            console.log('Router marker contextmenu from cluster:', marker._itemData.name, e);
             e.originalEvent.preventDefault();
             e.originalEvent.stopPropagation();
             this.showMarkerContextMenu(e, marker, marker._itemData, marker._itemType);
@@ -278,10 +299,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       });
 
       this.map.addLayer(this.routerClusterGroup);
-
-      console.log('Marker clustering enabled for identities and routers separately');
-    } else {
-      console.log('Marker clustering not available');
     }
 
     this.isLoading = true;
@@ -364,6 +381,9 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       });
       const uniqueRouters = Array.from(routerMap.values());
 
+      // Calculate unlocated routers count
+      this.unlocatedRouters = uniqueRouters.filter(router => !router.tags?.geolocation).length;
+
       this.addMarkers(uniqueRouters, 'routers');
 
       // Load links, circuits and terminators after routers are loaded and their locations are stored
@@ -386,8 +406,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       order: 'asc'
     };
 
-    console.log('Loading routers from both fabric and edge APIs');
-
     // Load both APIs in parallel
     const fabricPromise = this.zitiDataService.call(fabricUrl, '/fabric/v1').catch(() => ({ data: [] }));
     const edgePromise = this.zitiDataService.get('edge-routers', edgePaging, []).catch(() => ({ data: [] }));
@@ -396,8 +414,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       .then(([fabricResult, edgeResult]) => {
         const fabricRouters = fabricResult?.data || [];
         const edgeRouters = edgeResult?.data || [];
-
-        console.log(`Loaded ${fabricRouters.length} fabric routers and ${edgeRouters.length} edge routers`);
 
         // Create a map of edge routers by ID for quick lookup
         const edgeRouterMap = new Map(edgeRouters.map((r: any) => [r.id, r]));
@@ -427,7 +443,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
 
         const edgeRouterCount = Array.from(this.routerTypes.values()).filter(t => t === 'edge-router').length;
         const transitRouterCount = Array.from(this.routerTypes.values()).filter(t => t === 'transit-router').length;
-        console.log(`Merged into ${mergedRouters.length} routers: ${edgeRouterCount} edge routers, ${transitRouterCount} transit routers`);
 
         // Apply role attribute filtering
         let routersToDisplay = mergedRouters;
@@ -439,7 +454,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
               routerRoles.includes(selectedAttr)
             );
           });
-          console.log(`Filtered routers for display from ${beforeFilterCount} to ${routersToDisplay.length} based on role attributes`);
         }
 
         // Apply connection status filter
@@ -492,28 +506,24 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     }
     return this.zitiDataService.get('identities', paging, identityFilters).then((result) => {
       this.identitiesInit = true;
-      console.log('LoadIdentities - Raw identities from API:', result?.data?.length, 'identityFilters:', identityFilters);
 
       // Filter out identities of type "Router" since those are already shown as red router markers
       let allIdentities = result?.data || [];
-      console.log('LoadIdentities - Before Router filter:', allIdentities.length);
       allIdentities = allIdentities.filter((identity: any) => identity.type?.entity !== 'Router');
-      console.log('LoadIdentities - After Router filter:', allIdentities.length);
 
       // Apply connection status filter
       if (this.selectedConnectionStatus === 'online') {
         allIdentities = allIdentities.filter((identity: any) => identity.edgeRouterConnectionStatus === 'online');
-        console.log('LoadIdentities - After online filter:', allIdentities.length);
       } else if (this.selectedConnectionStatus === 'offline') {
         allIdentities = allIdentities.filter((identity: any) => identity.edgeRouterConnectionStatus !== 'online');
-        console.log('LoadIdentities - After offline filter:', allIdentities.length);
       }
 
       this.identities = allIdentities;
       this.filteredIdentities = [...this.identities];
-      console.log('LoadIdentities - Final identities count:', this.identities.length);
-      console.log('LoadIdentities - Looking for client ID cmkqh4z0h5sn9dhnypvg5ofnk:',
-        this.identities.find(id => id.id === 'cmkqh4z0h5sn9dhnypvg5ofnk') ? 'FOUND' : 'NOT FOUND');
+
+      // Calculate unlocated identities count
+      this.unlocatedIdentities = this.identities.filter(identity => !identity.tags?.geolocation).length;
+
       this.addMarkers(this.identities, 'identity');
     });
   }
@@ -533,10 +543,27 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       const searchFilter = {
         columnId: 'roleAttributes',
         value: this.selectedServiceAttributes,
-        filterName: 'Identity Attributes',
+        filterName: 'Service Attributes',
         type: 'ATTRIBUTE'
       };
       serviceFilters.push(searchFilter);
+    }
+    if (this.selectedServiceNamedAttributes.length > 0) {
+      // Convert service names to IDs for filtering
+      const serviceIds = this.selectedServiceNamedAttributes
+        .map(name => this.servicesNameIdMap[name])
+        .filter(id => id); // Filter out any undefined values
+
+      if (serviceIds.length > 0) {
+        const namedFilter = {
+          columnId: 'id',
+          value: serviceIds,
+          filterName: 'Service Id',
+          type: 'TEXTINPUT',
+          verb: '='
+        };
+        serviceFilters.push(namedFilter);
+      }
     }
     return this.zitiDataService.get('services', paging, serviceFilters).then((result: any) => {
       this.services = result?.data || [];
@@ -570,12 +597,10 @@ export class GeolocateComponent implements OnInit, OnDestroy {
           lng = parseFloat(lngStr);
         } else {
           // Invalid geolocation format - skip this marker
-          console.log(`Skipping ${type} ${item.name} - invalid geolocation format`);
           continue;
         }
       } else {
         // No geolocation tag - skip marker creation
-        console.log(`Skipping ${type} ${item.name} - no geolocation tag`);
         continue;
       }
 
@@ -617,7 +642,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
 
       // Add context menu on right-click - bind directly to marker
       marker.on('contextmenu', (event: any) => {
-        console.log('Marker contextmenu event triggered for:', item.name, event);
         event.originalEvent.preventDefault();
         event.originalEvent.stopPropagation();
         this.showMarkerContextMenu(event, marker, item, type);
@@ -658,7 +682,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       if (clusterGroup) {
         clusterGroup.addLayer(marker);
       } else {
-        console.warn(`No cluster group for ${type}, adding marker directly to map`);
         marker.addTo(this.map);
       }
 
@@ -715,88 +738,73 @@ export class GeolocateComponent implements OnInit, OnDestroy {
 
   loadLinks() {
     const url = '/links?limit=1000';
-    console.log('Loading links from:', url);
 
     this.zitiDataService.call(url, '/fabric/v1')
     .then((result: any) => {
       this.links = result?.data || [];
-      console.log(`Loaded ${this.links.length} links`, this.links);
-      console.log(`Router locations available: ${this.routerLocations.size}`);
       // Links will be drawn when data is ready or when filters change
       if (this.selectedServiceAttributes.length === 0 &&
+          this.selectedServiceNamedAttributes.length === 0 &&
           this.selectedIdentityAttributes.length === 0 &&
+          this.selectedIdentityNamedAttributes.length === 0 &&
           this.selectedRouterAttributes.length === 0) {
         this.drawLinks(this.links);
       }
     })
     .catch((error) => {
-      console.error('Failed to load links:', error);
-      console.log('Links feature unavailable - this might be expected if fabric API is not enabled');
+      // Links feature unavailable - this might be expected if fabric API is not enabled
     });
   }
 
   loadCircuits() {
     const url = '/circuits?limit=1000';
-    console.log('Loading circuits from:', url);
 
     this.zitiDataService.call(url, '/fabric/v1')
     .then((result: any) => {
       this.circuits = result?.data || [];
-      console.log(`Loaded ${this.circuits.length} circuits`, this.circuits);
 
-      // Log circuit structure for debugging
-      if (this.circuits.length > 0) {
-        console.log('Sample circuit structure:', this.circuits[0]);
-        console.log('Circuit keys:', Object.keys(this.circuits[0]));
-        console.log('Circuit has clientId?', this.circuits[0].clientId);
-        console.log('Circuit has client?', this.circuits[0].client);
-        console.log('Circuit tags:', this.circuits[0].tags);
-      }
+      // Calculate count of services with active circuits
+      const uniqueServiceIds = new Set<string>();
+      this.circuits.forEach(circuit => {
+        const serviceId = circuit.service?.id || circuit.serviceId;
+        if (serviceId) {
+          uniqueServiceIds.add(serviceId);
+        }
+      });
+      this.servicesWithActiveCircuits = uniqueServiceIds.size;
 
       // Draw circuits if no filters are active
       if (this.selectedServiceAttributes.length === 0 &&
+          this.selectedServiceNamedAttributes.length === 0 &&
           this.selectedIdentityAttributes.length === 0 &&
+          this.selectedIdentityNamedAttributes.length === 0 &&
           this.selectedRouterAttributes.length === 0) {
         this.drawActiveCircuits(this.circuits);
       }
     })
     .catch((error) => {
-      console.error('Failed to load circuits:', error);
-      console.log('Circuits feature unavailable - this might be expected if fabric API is not enabled');
+      // Circuits feature unavailable - this might be expected if fabric API is not enabled
     });
   }
 
   loadTerminators() {
     const url = '/terminators?limit=1000';
-    console.log('Loading terminators from:', url);
 
     this.zitiDataService.call(url, '/fabric/v1')
     .then((result: any) => {
       this.terminators = result?.data || [];
-      console.log(`Loaded ${this.terminators.length} terminators`, this.terminators);
-
-      // Log terminator structure for debugging
-      if (this.terminators.length > 0) {
-        console.log('Sample terminator structure:', this.terminators[0]);
-        console.log('Terminator keys:', Object.keys(this.terminators[0]));
-      }
 
       // Redraw active circuits now that we have terminators to find hosting identities
       if (this.circuits.length > 0) {
-        console.log('Redrawing active circuits with terminator data...');
         this.drawActiveCircuits(this.circuits);
       }
     })
     .catch((error) => {
-      console.error('Failed to load terminators:', error);
-      console.log('Terminators feature unavailable - this might be expected if fabric API is not enabled');
+      // Terminators feature unavailable - this might be expected if fabric API is not enabled
     });
   }
 
   drawLinks(links: any[]) {
-    console.log('drawLinks called with', links.length, 'links');
-    console.log('Router locations:', Array.from(this.routerLocations.entries()));
-
     // Clear existing circuit lines
     this.circuitLines.forEach(line => {
       this.map.removeLayer(line);
@@ -810,29 +818,21 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     });
 
     links.forEach((link, index) => {
-      console.log(`Link ${index}:`, link);
-
       // Each link has sourceRouter and destRouter
       const sourceRouter = link.sourceRouter;
       const destRouter = link.destRouter;
 
       if (!sourceRouter || !destRouter) {
-        console.log(`  Link ${index} missing source or dest router`);
         return;
       }
 
       // Only show link if both routers are visible
       if (!visibleRouterIds.has(sourceRouter.id) || !visibleRouterIds.has(destRouter.id)) {
-        console.log(`  Skipping link ${index} because one or both routers are not visible`);
         return;
       }
 
-      console.log(`  Looking for router IDs: ${sourceRouter.id} and ${destRouter.id}`);
-
       const loc1 = this.routerLocations.get(sourceRouter.id);
       const loc2 = this.routerLocations.get(destRouter.id);
-
-      console.log(`  Found locations:`, loc1, loc2);
 
       if (loc1 && loc2) {
         // Determine line color based on link state
@@ -869,12 +869,9 @@ export class GeolocateComponent implements OnInit, OnDestroy {
 
         line.addTo(this.map);
         this.circuitLines.push(line);
-      } else {
-        console.warn(`  Missing location for routers: ${sourceRouter.id} (${sourceRouter.name}) or ${destRouter.id} (${destRouter.name})`);
       }
     });
 
-    console.log(`Drew ${this.circuitLines.length} link lines from ${links.length} links`);
     this.checkLinks();
   }
 
@@ -1182,11 +1179,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   }
 
   applyFilters() {
-    console.log('Applying filters:', {
-      services: this.selectedServiceFilters.map(s => s.name),
-      identities: this.selectedIdentityFilters.map(i => i.name)
-    });
-
     const hasFilters = this.selectedServiceFilters.length > 0 || this.selectedIdentityFilters.length > 0;
 
     if (!hasFilters) {
@@ -1198,8 +1190,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
 
     const filteredIdentityIds = this.getFilteredIdentityIds();
     const filteredRouterIds = this.getFilteredRouterIds();
-
-    console.log(`Filtered to ${filteredIdentityIds.size} identities and ${filteredRouterIds.size} routers`);
 
     // Clear all markers from cluster groups
     if (this.identityClusterGroup) {
@@ -1277,8 +1267,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   }
 
   drawFilteredLinks(filteredRouterIds: Set<string>) {
-    console.log('drawFilteredLinks called with', this.links.length, 'total links');
-
     this.links.forEach((link) => {
       const sourceRouter = link.sourceRouter;
       const destRouter = link.destRouter;
@@ -1335,12 +1323,9 @@ export class GeolocateComponent implements OnInit, OnDestroy {
         this.circuitLines.push(line);
       }
     });
-
-    console.log(`Drew ${this.circuitLines.length} filtered link lines`);
   }
 
   drawActiveCircuits(circuits: any[], isSelectedCircuit: boolean = false) {
-    console.log('drawActiveCircuits called with', circuits.length, 'circuits', isSelectedCircuit ? '(selected)' : '');
 
     // Clear existing active circuit lines
     this.activeCircuitLines.forEach(line => {
@@ -1364,41 +1349,18 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       // Handle both old format (path array) and new format (path.nodes array)
       const pathNodes = circuit.path?.nodes || circuit.path;
 
-      console.log('==== PROCESSING CIRCUIT ====');
-      console.log('Full circuit object:', circuit);
-      console.log('Circuit path data:', {
-        serviceName: circuit.service?.name,
-        serviceId: circuit.service?.id,
-        clientId: circuit.clientId,
-        hasPath: !!circuit.path,
-        hasPathNodes: !!circuit.path?.nodes,
-        pathNodes: pathNodes,
-        pathNodesLength: pathNodes?.length
-      });
-      console.log('Available identities:', this.identities.length);
-      console.log('Available terminators:', this.terminators.length);
-      console.log('Router locations map size:', this.routerLocations.size);
-      console.log('Identity locations map size:', this.identityLocations.size);
-
       if (!pathNodes || pathNodes.length < 1) {
-        console.log('Skipping circuit - no path nodes');
         return;
       }
 
       // Check if service filter is applied and if this circuit's service matches
       const circuitServiceId = circuit.service?.id;
       const circuitServiceName = circuit.service?.name;
-      console.log('Circuit service:', circuitServiceName, 'ID:', circuitServiceId);
-      console.log('Visible service IDs:', Array.from(visibleServiceIds));
-      console.log('Selected service attributes:', this.selectedServiceAttributes);
 
-      if (this.selectedServiceAttributes.length > 0) {
+      if (this.selectedServiceAttributes.length > 0 || this.selectedServiceNamedAttributes.length > 0) {
         // Service filter is applied - check if circuit's service is visible
         if (!circuitServiceId || !visibleServiceIds.has(circuitServiceId)) {
-          console.log('Skipping circuit because service does not match filter. Service ID:', circuitServiceId, 'is not in visible services');
           return;
-        } else {
-          console.log('Circuit service matches filter!');
         }
       }
 
@@ -1409,7 +1371,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       });
 
       if (!allRoutersVisible) {
-        console.log('Skipping circuit because not all routers are visible');
         return;
       }
 
@@ -1426,8 +1387,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
                        circuit.client?.id ||
                        circuit.sourceId ||
                        circuit.initiator?.id;
-      console.log('Looking for client identity with ID:', clientId, 'from circuit:', circuit.id);
-      console.log('Circuit tags:', circuit.tags);
 
       if (clientId) {
         const clientIdentity = this.identities.find(id => id.id === clientId);
@@ -1438,16 +1397,8 @@ export class GeolocateComponent implements OnInit, OnDestroy {
             routerNames.push(clientIdentity.name || 'Client');
             entityIds.push(clientIdentity.id);
             entityTypes.push('identity');
-            console.log('Added client identity:', clientIdentity.name, clientLoc);
-          } else {
-            console.log('Client identity found but no location data for:', clientIdentity.name);
           }
-        } else {
-          console.log('Client identity not found in identities array for ID:', clientId);
         }
-      } else {
-        console.log('No clientId found in circuit (checked clientId, tags.clientId, client.id, sourceId, initiator.id)');
-        console.log('Full circuit object for debugging:', JSON.stringify(circuit, null, 2));
       }
 
       // 2. Add all routers in the circuit path
@@ -1455,8 +1406,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
         const routerId = node.id || node.routerId || node;
         const routerName = node.name || routerId;
         const loc = this.routerLocations.get(routerId);
-
-        console.log('Processing path node:', { routerId, routerName, hasLocation: !!loc, location: loc });
 
         if (loc) {
           pathCoordinates.push([loc.lat, loc.lng]);
@@ -1470,7 +1419,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       const serviceId = circuit.service?.id;
       const hostIdFromTags = circuit.tags?.hostId;
       const terminatorIdFromCircuit = circuit.terminator?.id || circuit.terminatorId;
-      console.log('Looking for hosting identity. ServiceId:', serviceId, 'HostId from tags:', hostIdFromTags, 'Terminator ID:', terminatorIdFromCircuit);
 
       // First try to get hostId from circuit tags
       let hostIdentityId = hostIdFromTags;
@@ -1478,10 +1426,8 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       // If not in tags, try to find the specific terminator for this circuit
       if (!hostIdentityId && terminatorIdFromCircuit) {
         const terminator = this.terminators.find(t => t.id === terminatorIdFromCircuit);
-        console.log('Found terminator by circuit terminator ID:', terminator);
         if (terminator) {
           hostIdentityId = terminator.hostId || terminator.identity?.id || terminator.identityId;
-          console.log('Got hostIdentityId from specific terminator:', hostIdentityId);
         }
       }
 
@@ -1492,37 +1438,23 @@ export class GeolocateComponent implements OnInit, OnDestroy {
           t.service === serviceId ||
           t.service?.id === serviceId
         );
-        console.log('Found terminator by service ID (fallback):', terminator);
         if (terminator) {
           hostIdentityId = terminator.hostId || terminator.identity?.id || terminator.identityId;
-          console.log('Got hostIdentityId from terminator:', hostIdentityId);
         }
       }
 
       if (hostIdentityId) {
-        console.log('Looking for hosting identity with ID:', hostIdentityId);
         const hostIdentity = this.identities.find(id => id.id === hostIdentityId);
-        console.log('Found hosting identity:', hostIdentity);
         if (hostIdentity) {
           const hostLoc = this.identityLocations.get(hostIdentity.id);
-          console.log('Hosting identity location:', hostLoc);
           if (hostLoc) {
             pathCoordinates.push([hostLoc.lat, hostLoc.lng]);
             routerNames.push(hostIdentity.name || 'Host');
             entityIds.push(hostIdentity.id);
             entityTypes.push('identity');
-            console.log('Added hosting identity:', hostIdentity.name, hostLoc);
-          } else {
-            console.log('Hosting identity found but no location');
           }
-        } else {
-          console.log('Hosting identity not found in identities array');
         }
-      } else {
-        console.log('No hosting identity ID found (checked tags and terminators)');
       }
-
-      console.log('Path coordinates collected:', pathCoordinates.length, 'nodes (client + routers + host)');
 
       // Draw individual line segments between each hop in the circuit
       if (pathCoordinates.length >= 2) {
@@ -1583,8 +1515,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
         }
       }
     });
-
-    console.log(`Drew ${this.activeCircuitLines.length} active circuit line segments from ${circuits.length} circuits`);
   }
 
   toggleActiveCircuits() {
@@ -1721,7 +1651,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   }
 
   onConnectionStatusChange(event?: any) {
-    console.log('Connection status changed:', this.selectedConnectionStatus);
     this.reloadMapDataWithFilters();
     this.checkAppliedFilters();
   }
@@ -1731,26 +1660,24 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     this.selectedIdentityNamedAttributes = [];
     this.selectedRouterAttributes = [];
     this.selectedServiceAttributes = [];
+    this.selectedServiceNamedAttributes = [];
     this.selectedConnectionStatus = 'all';
     this.reloadMapDataWithFilters();
   }
 
   onRouterRoleAttributesChange(attributes: any[]) {
-    console.log('Router role attributes changed:', attributes);
     this.selectedRouterAttributes = attributes;
     this.reloadMapDataWithFilters();
     this.checkAppliedFilters();
   }
 
   onIdentityRoleAttributesChange(attributes: any[]) {
-    console.log('Identity role attributes changed:', attributes);
     this.selectedIdentityAttributes = attributes;
     this.reloadMapDataWithFilters();
     this.checkAppliedFilters();
   }
 
   onIdentityNamedAttributesChange(attributes: any[]) {
-    console.log('Identity named attributes changed:', attributes);
     this.selectedIdentityNamedAttributes = attributes;
     this.reloadMapDataWithFilters();
     this.checkAppliedFilters();
@@ -1786,10 +1713,44 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   }
 
   onServiceRoleAttributesChange(attributes: any[]) {
-    console.log('Service role attributes changed:', attributes);
     this.selectedServiceAttributes = attributes;
     this.reloadMapDataWithFilters();
     this.checkAppliedFilters();
+  }
+
+  onServiceNamedAttributesChange(attributes: any[]) {
+    this.selectedServiceNamedAttributes = attributes;
+    this.reloadMapDataWithFilters();
+    this.checkAppliedFilters();
+  }
+
+  getServiceNamedAttributes(filter?: string) {
+    const paging = {
+      searchOn: 'name',
+      filter: filter || '',
+      total: 30,
+      page: 1,
+      sort: 'name',
+      order: 'asc'
+    };
+    const filters: FilterObj[] = [];
+    if (filter && filter.trim() !== '') {
+      filters.push({
+        columnId: 'name',
+        value: filter,
+        filterName: '',
+        label: '',
+        type: 'TEXTINPUT',
+      });
+    }
+    this.zitiDataService.get('services', paging, filters).then((result) => {
+      const namedAttributes = result.data.map((service: any) => {
+        this.servicesNameIdMap[service.name] = service.id;
+        this.servicesIdNameMap[service.id] = service.name;
+        return service.name;
+      });
+      this.serviceNamedAttributes = namedAttributes;
+    });
   }
 
   checkAppliedFilters() {
@@ -1797,6 +1758,7 @@ export class GeolocateComponent implements OnInit, OnDestroy {
         this.selectedIdentityAttributes.length === 0 &&
         this.selectedIdentityNamedAttributes.length === 0 &&
         this.selectedServiceAttributes.length === 0 &&
+        this.selectedServiceNamedAttributes.length === 0 &&
         this.selectedConnectionStatus === 'all') {
       this.filtersApplied = false;
     } else {
@@ -1852,17 +1814,12 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     const filteredServiceIds = new Set(this.services.map(s => s.id));
     const filteredRouterIds = new Set(this.edgeRouters.map(r => r.id));
 
-    console.log('Filtering with:', {
-      identityIds: filteredIdentityIds.size,
-      serviceIds: filteredServiceIds.size,
-      routerIds: filteredRouterIds.size
-    });
-
     // If no filters active, show all
     if (this.selectedRouterAttributes.length === 0 &&
         this.selectedIdentityAttributes.length === 0 &&
         this.selectedIdentityNamedAttributes.length === 0 &&
-        this.selectedServiceAttributes.length === 0) {
+        this.selectedServiceAttributes.length === 0 &&
+        this.selectedServiceNamedAttributes.length === 0) {
       // Show all markers
       this.showAllMarkers();
       // Redraw all circuits and links
@@ -1883,15 +1840,23 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       this.routerClusterGroup.clearLayers();
     }
 
-    // Filter circuits to only those involving filtered identities, services, and routers
-    const filteredCircuits = this.circuits.filter(circuit => {
-      const matchesService = filteredServiceIds.size === 0 || filteredServiceIds.has(circuit.service?.id);
-      const circuitClientId = circuit.clientId || circuit.tags?.clientId;
-      const matchesIdentity = filteredIdentityIds.size === 0 || filteredIdentityIds.has(circuitClientId);
+    // Determine if filters are applied for each type
+    const hasIdentityFilter = this.selectedIdentityAttributes.length > 0 || this.selectedIdentityNamedAttributes.length > 0;
+    const hasRouterFilter = this.selectedRouterAttributes.length > 0;
+    const hasServiceFilter = this.selectedServiceAttributes.length > 0 || this.selectedServiceNamedAttributes.length > 0;
 
-      // Check if circuit path contains any of the filtered routers
-      let matchesRouter = this.selectedRouterAttributes.length === 0;
-      if (!matchesRouter) {
+    // Filter circuits to only those involving filtered identities, services, and routers
+    const filteredCircuits = this.circuits.filter((circuit) => {
+      // Check service match - only filter if service filter is active
+      const matchesService = !hasServiceFilter || filteredServiceIds.has(circuit.service?.id);
+
+      // Check identity match - only filter if identity filter is active
+      const circuitClientId = circuit.clientId || circuit.tags?.clientId || circuit.client?.id || circuit.sourceId || circuit.initiator?.id;
+      const matchesIdentity = !hasIdentityFilter || filteredIdentityIds.has(circuitClientId);
+
+      // Check if circuit path contains any of the filtered routers - only filter if router filter is active
+      let matchesRouter = !hasRouterFilter;
+      if (hasRouterFilter) {
         const pathNodes = circuit.path?.nodes || circuit.path;
         if (pathNodes) {
           matchesRouter = pathNodes.some((node: any) => {
@@ -1908,31 +1873,43 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     const identityIdsToShow = new Set<string>();
     const routerIdsToShow = new Set<string>();
 
-    // Start with filtered identities and routers (from role attributes)
-    filteredIdentityIds.forEach(id => identityIdsToShow.add(id));
-    filteredRouterIds.forEach(id => routerIdsToShow.add(id));
+    // Only add explicitly filtered identities if identity filters are applied
+    if (hasIdentityFilter) {
+      filteredIdentityIds.forEach(id => identityIdsToShow.add(id));
+    }
 
-    // Add identities from filtered circuits
-    filteredCircuits.forEach(circuit => {
-      const circuitClientId = circuit.clientId || circuit.tags?.clientId;
+    // Only add explicitly filtered routers if router filters are applied
+    if (hasRouterFilter) {
+      filteredRouterIds.forEach(id => routerIdsToShow.add(id));
+    }
+
+    // Add identities from filtered circuits (both client and host)
+    filteredCircuits.forEach((circuit) => {
+      const circuitClientId = circuit.clientId || circuit.tags?.clientId || circuit.client?.id || circuit.sourceId || circuit.initiator?.id;
       if (circuitClientId) {
         identityIdsToShow.add(circuitClientId);
       }
-    });
-
-    // Add hosting identities from terminators for filtered services
-    this.terminators.forEach(terminator => {
-      const terminatorServiceId = terminator.serviceId || terminator.service?.id;
-      if (filteredServiceIds.has(terminatorServiceId)) {
-        const hostIdentityId = terminator.hostId || terminator.identity?.id || terminator.identityId;
-        if (hostIdentityId) {
-          identityIdsToShow.add(hostIdentityId);
-        }
-        if (terminator.routerId) {
-          routerIdsToShow.add(terminator.routerId);
-        }
+      const circuitHostId = circuit.tags?.hostId || circuit.host?.id || circuit.hostId;
+      if (circuitHostId) {
+        identityIdsToShow.add(circuitHostId);
       }
     });
+
+    // Add hosting identities from terminators for filtered services (only if service filter is active)
+    if (hasServiceFilter) {
+      this.terminators.forEach(terminator => {
+        const terminatorServiceId = terminator.serviceId || terminator.service?.id;
+        if (filteredServiceIds.has(terminatorServiceId)) {
+          const hostIdentityId = terminator.hostId || terminator.identity?.id || terminator.identityId;
+          if (hostIdentityId) {
+            identityIdsToShow.add(hostIdentityId);
+          }
+          if (terminator.routerId) {
+            routerIdsToShow.add(terminator.routerId);
+          }
+        }
+      });
+    }
 
     // Add routers from filtered circuits
     filteredCircuits.forEach(circuit => {
@@ -1945,11 +1922,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
           }
         });
       }
-    });
-
-    console.log('Showing:', {
-      identities: identityIdsToShow.size,
-      routers: routerIdsToShow.size
     });
 
     // Filter and redraw identity markers
@@ -1994,7 +1966,7 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     this.drawLinks(filteredLinks);
   }
 
-  openSidePanel(type: 'marker' | 'link' | 'circuit' | 'unlocated', data: any) {
+  openSidePanel(type: 'marker' | 'link' | 'circuit' | 'unlocated' | 'entityList', data: any) {
     // Clear previous selected marker icon
     if (this.selectedMarker) {
       this.updateMarkerIcon(this.selectedMarker, false);
@@ -2064,13 +2036,324 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       !router.tags?.geolocation || router.tags.geolocation.trim() === ''
     );
 
-    console.log(`Found ${unlocatedIdentities.length} unlocated identities and ${unlocatedRouters.length} unlocated routers`);
-
     // Open side panel with unlocated entities
     this.openSidePanel('unlocated', {
       unlocatedIdentities,
       unlocatedRouters
     });
+  }
+
+  showUnlocatedIdentities() {
+    // Filter identities without geolocation tags
+    const unlocatedIdentities = this.identities.filter(identity =>
+      !identity.tags?.geolocation || identity.tags.geolocation.trim() === ''
+    );
+
+    // Open side panel with only unlocated identities
+    this.openSidePanel('unlocated', {
+      unlocatedIdentities,
+      unlocatedRouters: []
+    });
+  }
+
+  showUnlocatedRouters() {
+    // Filter routers without geolocation tags
+    const unlocatedRouters = this.edgeRouters.filter(router =>
+      !router.tags?.geolocation || router.tags.geolocation.trim() === ''
+    );
+
+    // Open side panel with only unlocated routers
+    this.openSidePanel('unlocated', {
+      unlocatedIdentities: [],
+      unlocatedRouters
+    });
+  }
+
+  showServicesWithActiveCircuits() {
+    // Get unique service IDs from circuits
+    const serviceIdsInCircuits = new Set<string>();
+    this.circuits.forEach(circuit => {
+      const serviceId = circuit.service?.id || circuit.serviceId;
+      if (serviceId) {
+        serviceIdsInCircuits.add(serviceId);
+      }
+    });
+
+    // Filter services that have active circuits
+    const servicesWithCircuits = this.services.filter(service =>
+      serviceIdsInCircuits.has(service.id)
+    );
+
+    // If no services found in filtered list, try to get service info from circuits directly
+    if (servicesWithCircuits.length === 0 && serviceIdsInCircuits.size > 0) {
+      const servicesFromCircuits = [];
+      const addedIds = new Set();
+
+      this.circuits.forEach(circuit => {
+        const service = circuit.service;
+        if (service && !addedIds.has(service.id)) {
+          servicesFromCircuits.push(service);
+          addedIds.add(service.id);
+        }
+      });
+
+      // Initialize search
+      this.servicesWithCircuitsSearch = '';
+      this.filteredServicesWithCircuits = [...servicesFromCircuits];
+
+      // Open side panel with services from circuits
+      this.openSidePanel('unlocated', {
+        unlocatedIdentities: [],
+        unlocatedRouters: [],
+        servicesWithCircuits: servicesFromCircuits
+      });
+    } else {
+      // Initialize search
+      this.servicesWithCircuitsSearch = '';
+      this.filteredServicesWithCircuits = [...servicesWithCircuits];
+
+      // Open side panel with services that have active circuits
+      this.openSidePanel('unlocated', {
+        unlocatedIdentities: [],
+        unlocatedRouters: [],
+        servicesWithCircuits
+      });
+    }
+  }
+
+  onServicesWithCircuitsSearchChange(search: string) {
+    this.servicesWithCircuitsSearch = search;
+    const searchLower = search.toLowerCase().trim();
+
+    if (!searchLower) {
+      // If search is empty, show all services
+      this.filteredServicesWithCircuits = [...(this.sidePanelData?.servicesWithCircuits || [])];
+    } else {
+      // Filter services by name
+      this.filteredServicesWithCircuits = (this.sidePanelData?.servicesWithCircuits || []).filter(service =>
+        service.name?.toLowerCase().includes(searchLower)
+      );
+    }
+  }
+
+  openServiceCircuitPreview(service: any): void {
+    // Find all circuits for this service
+    const serviceCircuits = this.circuits.filter(circuit => {
+      const serviceId = circuit.service?.id || circuit.serviceId;
+      return serviceId === service.id;
+    });
+
+    if (serviceCircuits.length > 0) {
+      // Open the preview for the first circuit
+      const circuit = serviceCircuits[0];
+
+      // Build path data similar to how it's done in openCircuitPreview
+      const pathNodes = circuit.path?.nodes || circuit.path || [];
+      const pathCoordinates: [number, number][] = [];
+      const routerNames: string[] = [];
+      const entityIds: string[] = [];
+      const entityTypes: string[] = [];
+
+      // Get client/host information
+      const clientId = circuit.tags?.clientId || circuit.clientId || circuit.client?.id || circuit.sourceId || circuit.initiator?.id;
+      const hostId = circuit.tags?.hostId || circuit.host?.id;
+
+      // Add client as first point if it has location
+      if (clientId) {
+        const clientLocation = this.identityLocations.get(clientId);
+        if (clientLocation) {
+          pathCoordinates.push([clientLocation.lat, clientLocation.lng]);
+          routerNames.push(clientLocation.name);
+          entityIds.push(clientId);
+          entityTypes.push('identity');
+        }
+      }
+
+      // Add router nodes
+      pathNodes.forEach((node: any) => {
+        const routerId = node.id || node;
+        const routerLocation = this.routerLocations.get(routerId);
+
+        if (routerLocation) {
+          pathCoordinates.push([routerLocation.lat, routerLocation.lng]);
+          routerNames.push(routerLocation.name);
+          entityIds.push(routerId);
+          entityTypes.push('routers');
+        }
+      });
+
+      // Add host as last point if it has location
+      if (hostId) {
+        const hostLocation = this.identityLocations.get(hostId);
+        if (hostLocation) {
+          pathCoordinates.push([hostLocation.lat, hostLocation.lng]);
+          routerNames.push(hostLocation.name);
+          entityIds.push(hostId);
+          entityTypes.push('identity');
+        }
+      }
+
+      // Build circuit hops for display
+      const circuitHops: any[] = [];
+      for (let i = 0; i < routerNames.length - 1; i++) {
+        circuitHops.push({
+          from: routerNames[i],
+          to: routerNames[i + 1],
+          fromId: entityIds[i],
+          toId: entityIds[i + 1],
+          fromType: entityTypes[i],
+          toType: entityTypes[i + 1]
+        });
+      }
+
+      // Build circuit routers list
+      const circuitRouters: any[] = [];
+      pathNodes.forEach((node: any) => {
+        const routerId = node.id || node;
+        const router = this.edgeRouters.find(r => r.id === routerId);
+        if (router) {
+          circuitRouters.push({
+            id: router.id,
+            name: router.name,
+            type: 'routers',
+            connected: router.connected
+          });
+        } else {
+          circuitRouters.push({
+            id: routerId,
+            name: routerId,
+            type: 'routers',
+            _notFound: true
+          });
+        }
+      });
+
+      // Open the circuit panel with the first segment selected
+      if (circuitHops.length > 0) {
+        // Set this circuit as the selected circuit to prevent toggle from affecting it
+        this.selectedCircuit = circuit;
+        this.selectedUnlocatedCircuit = null;
+        this.selectedCircuitSegment = null;
+
+        this.openSidePanel('circuit', {
+          circuit: circuit,
+          segment: {
+            index: 0,
+            total: circuitHops.length,
+            from: circuitHops[0].from,
+            to: circuitHops[0].to,
+            fromId: circuitHops[0].fromId,
+            toId: circuitHops[0].toId,
+            fromType: circuitHops[0].fromType,
+            toType: circuitHops[0].toType
+          },
+          circuitHops: circuitHops,
+          circuitRouters: circuitRouters,
+          pathNodes: pathNodes,
+          pathCoordinates: pathCoordinates,
+          routerNames: routerNames,
+          entityIds: entityIds,
+          entityTypes: entityTypes
+        });
+
+        // Clear all circuits and draw only this one from end to end
+        this.clearActiveCircuits();
+        this.drawActiveCircuits([circuit], false);
+      }
+    }
+  }
+
+  showAllIdentities() {
+    this.initializeEntityList(this.identities, 'identities');
+    this.openSidePanel('entityList', { entityType: 'identities' });
+  }
+
+  showAllRouters() {
+    this.initializeEntityList(this.edgeRouters, 'routers');
+    this.openSidePanel('entityList', { entityType: 'routers' });
+  }
+
+  showAllServices() {
+    this.initializeEntityList(this.services, 'services');
+    this.openSidePanel('entityList', { entityType: 'services' });
+  }
+
+  initializeEntityList(entities: any[], type: string) {
+    this.fullEntityList = [...entities];
+    this.entityListType = type;
+    this.entityListSearch = '';
+    this.entityListPage = 1;
+    this.applyEntityListFilters();
+  }
+
+  applyEntityListFilters() {
+    // Apply search filter
+    let filtered = this.fullEntityList;
+    if (this.entityListSearch.trim()) {
+      const searchLower = this.entityListSearch.toLowerCase();
+      filtered = filtered.filter(entity =>
+        entity.name?.toLowerCase().includes(searchLower) ||
+        entity.id?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    this.entityListTotal = filtered.length;
+
+    // Apply pagination
+    const startIndex = (this.entityListPage - 1) * this.entityListPageSize;
+    const endIndex = startIndex + this.entityListPageSize;
+    this.filteredEntityList = filtered.slice(startIndex, endIndex);
+  }
+
+  onEntityListSearchChange(search: string) {
+    this.entityListSearch = search;
+    this.entityListPage = 1; // Reset to first page on search
+    this.applyEntityListFilters();
+  }
+
+  onEntityListPageChange(page: number) {
+    this.entityListPage = page;
+    this.applyEntityListFilters();
+  }
+
+  get entityListTotalPages(): number {
+    return Math.ceil(this.entityListTotal / this.entityListPageSize);
+  }
+
+  get entityListPageNumbers(): number[] {
+    const total = this.entityListTotalPages;
+    const current = this.entityListPage;
+    const pages: number[] = [];
+
+    // Show max 7 page numbers
+    if (total <= 7) {
+      for (let i = 1; i <= total; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Always show first page
+      pages.push(1);
+
+      if (current > 3) {
+        pages.push(-1); // Ellipsis
+      }
+
+      // Show pages around current
+      const start = Math.max(2, current - 1);
+      const end = Math.min(total - 1, current + 1);
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+
+      if (current < total - 2) {
+        pages.push(-1); // Ellipsis
+      }
+
+      // Always show last page
+      pages.push(total);
+    }
+
+    return pages;
   }
 
   openEntityPreview(entity: any, type: string) {
@@ -2085,7 +2368,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
 
   // Drag and drop handlers for unlocated entities
   onDragStart(event: DragEvent, entity: any, type: string): void {
-    console.log('Drag started for:', entity.name, 'type:', type);
     this.draggedEntity = entity;
     this.draggedEntityType = type;
 
@@ -2118,7 +2400,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
 
   onMapDrop(event: DragEvent): void {
     event.preventDefault();
-    console.log('Drop event on map:', event);
 
     // Remove visual feedback from map container
     const mapContainer = (event.currentTarget as HTMLElement).closest('.map-container');
@@ -2130,14 +2411,12 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     document.body.classList.remove('dragging-entity');
 
     if (!this.draggedEntity) {
-      console.log('No dragged entity');
       return;
     }
 
     // Get the map container element
     const mapElement = document.getElementById('MainMap');
     if (!mapElement) {
-      console.error('Map container not found');
       return;
     }
 
@@ -2148,13 +2427,9 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    console.log('Drop coordinates relative to map:', x, y);
-
     // Convert pixel coordinates to lat/lng
     const point = L.point(x, y);
     const latLng = this.map.containerPointToLatLng(point);
-
-    console.log('Converted to lat/lng:', latLng.lat, latLng.lng);
 
     // Store entity info before clearing drag state
     const droppedEntity = this.draggedEntity;
@@ -2164,7 +2439,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     this.updateGeolocationLocal(droppedEntity, latLng.lat, latLng.lng, droppedEntityType);
 
     // Create marker for the newly located entity
-    console.log('Creating marker for newly located entity:', droppedEntity.name);
     this.addMarkers([droppedEntity], droppedEntityType);
 
     // Enable drag mode on the newly created marker
@@ -2174,7 +2448,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       const newMarker = markers.find((m: any) => m._itemData?.id === droppedEntity.id);
 
       if (newMarker) {
-        console.log('Enabling drag on newly created marker:', droppedEntity.name);
         newMarker.dragging.enable();
         this.currentDraggableMarker = newMarker;
 
@@ -2212,7 +2485,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     }
     // Remove global grabbing cursor
     document.body.classList.remove('dragging-entity');
-    console.log('Drag left map area');
   }
 
   closeSidePanel() {
@@ -2256,7 +2528,7 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     } else if (type === 'routers') {
       this.router.navigateByUrl(`/routers/${id}`);
     } else if (type === 'services') {
-      this.router.navigateByUrl(`/services/${id}`);
+      this.router.navigateByUrl(`/services/advanced/${id}`);
     }
   }
 
@@ -2351,16 +2623,8 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   }
 
   updateGeolocationLocal(item: any, lat: number, lng: number, type: string): void {
-    console.log(`Updating geolocation locally for ${type} ${item.name} (${item.id}) to ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
-
     // Update the item's tags with new geolocation
     const geolocationString = `${lat},${lng}`;
-
-    console.log('Before update:', {
-      itemId: item.id,
-      oldGeolocation: item.tags?.geolocation,
-      newGeolocation: geolocationString
-    });
 
     // Prepare the updated tags
     const updatedTags = {
@@ -2370,11 +2634,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
 
     // Update the item locally (no backend save)
     item.tags = updatedTags;
-
-    console.log('After update:', {
-      itemId: item.id,
-      currentGeolocation: item.tags.geolocation
-    });
 
     // Update the location in our maps
     if (type === 'routers') {
@@ -2393,8 +2652,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   }
 
   showMarkerContextMenu(event: any, marker: any, item: any, type: string): void {
-    console.log('showMarkerContextMenu called', { item: item.name, type, event });
-
     // Remove any existing context menu
     const existingMenu = document.getElementById('marker-context-menu');
     if (existingMenu) {
@@ -2415,8 +2672,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     menu.style.minWidth = '150px';
     menu.style.padding = '0.25rem 0';
 
-    console.log('Menu created at position:', event.originalEvent.clientX, event.originalEvent.clientY);
-
     // Create menu item
     const menuItem = document.createElement('div');
     menuItem.textContent = 'Enable Drag/Drop';
@@ -2436,7 +2691,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     // Add click handler
     menuItem.addEventListener('click', (e) => {
       e.stopPropagation();
-      console.log(`Enabling drag/drop for ${item.name}`);
 
       // Disable any previously draggable marker
       if (this.currentDraggableMarker && this.currentDraggableMarker !== marker) {
@@ -2486,7 +2740,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     // Add click handler for remove
     removeMenuItem.addEventListener('click', (e) => {
       e.stopPropagation();
-      console.log(`Opening confirm dialog for removing geolocation from ${item.name}`);
 
       // Close the context menu first
       menu.remove();
@@ -2510,11 +2763,8 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       this.dialogRef.afterClosed().subscribe({
         next: (result: any) => {
           if (!result?.confirmed) {
-            console.log('Remove geolocation cancelled');
             return;
           }
-
-          console.log(`Removing geolocation for ${item.name}`);
 
           // Remove the marker from the map
           if (type === 'identity') {
@@ -2527,9 +2777,13 @@ export class GeolocateComponent implements OnInit, OnDestroy {
             this.routerLocations.delete(item.id);
           }
 
-          // Remove geolocation tag from item
+          // Remove geolocation tag and add temporary tag to work around API bug
+          // (API has issues when removing the last tag from a resource)
           if (item.tags) {
             delete item.tags.geolocation;
+            item.tags.temp = 'empty';
+          } else {
+            item.tags = { temp: 'empty' };
           }
 
           // Remove from original locations tracking
@@ -2540,25 +2794,34 @@ export class GeolocateComponent implements OnInit, OnDestroy {
             this.currentDraggableMarker = null;
           }
 
-          // Show success message
-          const successGrowler = new GrowlerModel(
-            'success',
-            'Geolocation Removed',
-            `Geolocation removed from ${item.name}. The entity will appear in the unlocated list.`
-          );
-          this.growlerService.show(successGrowler);
+          // Save the changes to persist the removal
+          this.saveLocationChanges(item, type).then(() => {
+            // Show success message
+            const successGrowler = new GrowlerModel(
+              'success',
+              'Geolocation Removed',
+              `Geolocation removed from ${item.name}. The entity will appear in the unlocated list.`
+            );
+            this.growlerService.show(successGrowler);
+          }).catch((error) => {
+            // Show error message
+            const errorGrowler = new GrowlerModel(
+              'error',
+              'Removal Failed',
+              `Failed to persist geolocation removal: ${this.zitiDataService.getErrorMessage(error)}`
+            );
+            this.growlerService.show(errorGrowler);
+          });
         }
       });
     });
 
     menu.appendChild(removeMenuItem);
     document.body.appendChild(menu);
-    console.log('Menu appended to body, total menus:', document.querySelectorAll('#marker-context-menu').length);
 
     // Remove menu when clicking elsewhere
     const removeMenu = (e: Event) => {
       if (!menu.contains(e.target as Node)) {
-        console.log('Removing menu');
         menu.remove();
         document.removeEventListener('click', removeMenu);
       }
@@ -2609,8 +2872,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     if (!item || !item.id) return;
 
     try {
-      console.log(`Saving location changes for ${type} ${item.name} (${item.id})`);
-
       // Prepare the update payload with just the tags
       const updatePayload = {
         tags: item.tags
@@ -2620,7 +2881,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       if (type === 'routers') {
         // Determine router type (edge-router or transit-router)
         const routerType = this.routerTypes.get(item.id) || item._routerType || 'edge-router';
-        console.log(`Router type for ${item.name}: ${routerType}`);
 
         if (routerType === 'transit-router') {
           await this.zitiDataService.patch('transit-routers', updatePayload, item.id);
@@ -2634,7 +2894,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       // Update the original location to the new saved value
       this.originalLocations.set(item.id, item.tags.geolocation);
 
-      console.log(`Successfully saved location for ${item.name}`);
       const successGrowler = new GrowlerModel(
         'success',
         'Location Saved',
@@ -2643,7 +2902,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       this.growlerService.show(successGrowler);
 
     } catch (error) {
-      console.error('Error saving location:', error);
       const errorMessage = this.zitiDataService.getErrorMessage(error);
       const errorGrowler = new GrowlerModel(
         'error',
@@ -2981,6 +3239,116 @@ export class GeolocateComponent implements OnInit, OnDestroy {
         const circuit = this.selectedCircuit || this.selectedUnlocatedCircuit;
         this.drawActiveCircuits([circuit], false);
       }, 0);
+    }
+  }
+
+  openCircuitPreview(circuit: any, event: Event): void {
+    // Stop event propagation to prevent row click
+    event.stopPropagation();
+
+    // Build path data similar to how it's done in drawActiveCircuits
+    const pathNodes = circuit.path?.nodes || circuit.path || [];
+    const pathCoordinates: [number, number][] = [];
+    const routerNames: string[] = [];
+    const entityIds: string[] = [];
+    const entityTypes: string[] = [];
+
+    // Get client/host information
+    const clientId = circuit.tags?.clientId || circuit.clientId || circuit.client?.id || circuit.sourceId || circuit.initiator?.id;
+    const hostId = circuit.tags?.hostId || circuit.host?.id;
+
+    // Add client as first point if it has location
+    if (clientId) {
+      const clientLocation = this.identityLocations.get(clientId);
+      if (clientLocation) {
+        pathCoordinates.push([clientLocation.lat, clientLocation.lng]);
+        routerNames.push(clientLocation.name);
+        entityIds.push(clientId);
+        entityTypes.push('identity');
+      }
+    }
+
+    // Add router nodes
+    pathNodes.forEach((node: any) => {
+      const routerId = node.id || node;
+      const routerLocation = this.routerLocations.get(routerId);
+
+      if (routerLocation) {
+        pathCoordinates.push([routerLocation.lat, routerLocation.lng]);
+        routerNames.push(routerLocation.name);
+        entityIds.push(routerId);
+        entityTypes.push('routers');
+      }
+    });
+
+    // Add host as last point if it has location
+    if (hostId) {
+      const hostLocation = this.identityLocations.get(hostId);
+      if (hostLocation) {
+        pathCoordinates.push([hostLocation.lat, hostLocation.lng]);
+        routerNames.push(hostLocation.name);
+        entityIds.push(hostId);
+        entityTypes.push('identity');
+      }
+    }
+
+    // Build circuit hops for display
+    const circuitHops: any[] = [];
+    for (let i = 0; i < routerNames.length - 1; i++) {
+      circuitHops.push({
+        from: routerNames[i],
+        to: routerNames[i + 1],
+        fromId: entityIds[i],
+        toId: entityIds[i + 1],
+        fromType: entityTypes[i],
+        toType: entityTypes[i + 1]
+      });
+    }
+
+    // Build circuit routers list
+    const circuitRouters: any[] = [];
+    pathNodes.forEach((node: any) => {
+      const routerId = node.id || node;
+      const router = this.edgeRouters.find(r => r.id === routerId);
+      if (router) {
+        circuitRouters.push({
+          id: router.id,
+          name: router.name,
+          type: 'routers',
+          connected: router.connected
+        });
+      } else {
+        circuitRouters.push({
+          id: routerId,
+          name: routerId,
+          type: 'routers',
+          _notFound: true
+        });
+      }
+    });
+
+    // Open the circuit panel with the first segment selected
+    if (circuitHops.length > 0) {
+      this.openSidePanel('circuit', {
+        circuit: circuit,
+        segment: {
+          index: 0,
+          total: circuitHops.length,
+          from: circuitHops[0].from,
+          to: circuitHops[0].to,
+          fromId: circuitHops[0].fromId,
+          toId: circuitHops[0].toId,
+          fromType: circuitHops[0].fromType,
+          toType: circuitHops[0].toType
+        },
+        pathNodes: pathNodes,
+        pathCoordinates: pathCoordinates,
+        routerNames: routerNames,
+        entityIds: entityIds,
+        entityTypes: entityTypes,
+        circuitHops: circuitHops,
+        circuitRouters: circuitRouters
+      });
     }
   }
 

@@ -108,6 +108,17 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     this.settingsService.settingsChange.subscribe((results:any) => {
       this.settings = results;
     });
+    this.subscription.add(this.extService.formDataChanged.subscribe((results:any) => {
+      this.isLoading = true;
+      this.zitiService.getSubdata(this.entityType, this.entityId, '').then((entity: any) => {
+        this.formData = entity?.data;
+        this.initData = cloneDeep(this.formData);
+        this._dataChange = false;
+        this.entityUpdated();
+      }).finally(() => {
+        this.isLoading = false;
+      });
+    }))
   }
 
   override ngAfterViewInit() {

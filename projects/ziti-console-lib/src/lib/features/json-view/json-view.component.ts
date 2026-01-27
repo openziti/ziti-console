@@ -153,7 +153,7 @@ export class JsonViewComponent implements AfterViewInit, OnChanges {
     try {
       newData = this.editor.get();
     } catch (e) {
-      console.log(e);
+      // Error getting editor data
     }
 
     if (newData) {
