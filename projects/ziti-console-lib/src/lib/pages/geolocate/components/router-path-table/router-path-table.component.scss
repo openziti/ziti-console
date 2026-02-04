@@ -1,0 +1,177 @@
+.circuit-routers-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--inputBorder);
+
+  .circuit-routers-container {
+    .router-path-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: var(--secondaryColor);
+      border-bottom: 1px solid var(--inputBorder);
+      border-radius: var(--inputBorderRadius) var(--inputBorderRadius) 0 0;
+
+      .router-path-icon {
+        font-size: 1.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding-right: 0.75rem;
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
+        flex-shrink: 0;
+
+        &:before {
+          color: var(--offWhite_ALWAYS);
+        }
+      }
+
+      .router-path-text {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--offWhite_ALWAYS);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+    }
+
+    .router-path-list {
+      max-height: 15rem;
+      overflow-y: auto;
+      overflow-x: auto;
+      border: 1px solid var(--inputBorder);
+      border-top-style: none;
+      border-radius: var(--defaultBorderRadius);
+
+      .router-path-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.813rem;
+
+        thead {
+          background-color: var(--navigation);
+          position: sticky;
+          top: 0;
+          z-index: 1;
+
+          tr th {
+            padding: var(--paddingSmall);
+            text-align: left;
+            font-weight: 600;
+            color: var(--tableHeader);
+            border-bottom: 0.25rem solid var(--secondary);
+            white-space: nowrap;
+            font-size: 0.75rem;
+            background-color: var(--navigation);
+
+            &:first-child {
+              text-align: center;
+            }
+          }
+        }
+
+        tbody {
+          tr {
+            border-bottom: 1px solid var(--inputBorder);
+            transition: background-color 0.2s ease;
+            background-color: var(--formBackground);
+
+            &:nth-child(odd) {
+              background-color: var(--white);
+            }
+
+            &.clickable-circuit-row {
+              cursor: pointer;
+
+              &:hover {
+                background-color: rgba(33, 150, 243, 0.1) !important;
+              }
+
+              &.selected-row {
+                background-color: rgba(33, 150, 243, 0.2) !important;
+                border-left: 3px solid var(--primary);
+              }
+            }
+
+            &:last-child {
+              border-bottom: none;
+            }
+
+            td {
+              padding: 0.5rem 0.75rem;
+              color: var(--tableText);
+              border-right: 1px solid var(--inputBorder);
+              font-size: 0.813rem;
+
+              &:last-child {
+                border-right: none;
+              }
+
+              &.router-order {
+                font-weight: 600;
+                color: var(--primary);
+                text-align: center;
+                width: 3rem;
+              }
+
+              &.router-name {
+                font-weight: 500;
+              }
+
+              &.router-type {
+                font-size: 0.75rem;
+                color: var(--tableText);
+                text-transform: capitalize;
+              }
+
+              &.action-column {
+                width: 40px;
+                text-align: center;
+                padding: 0.5rem;
+
+                .router-nav-icon {
+                  display: inline-flex;
+                  align-items: center;
+                  justify-content: center;
+                  width: 28px;
+                  height: 28px;
+                  border-radius: 50%;
+                  color: var(--primaryColor);
+                  font-size: 1rem;
+                  cursor: pointer;
+                  transition: all 0.2s ease;
+                  opacity: 0.7;
+                  filter: grayscale(20%);
+
+                  &:hover {
+                    background-color: rgba(33, 150, 243, 0.1);
+                    opacity: 1;
+                    filter: none;
+                    transform: scale(1.1);
+                  }
+
+                  &:before {
+                    color: inherit;
+                  }
+                }
+              }
+            }
+
+            &:hover {
+              td {
+                &.action-column {
+                  .router-nav-icon {
+                    opacity: 1;
+                    filter: none;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

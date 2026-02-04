@@ -1,0 +1,127 @@
+<div class="circuit-popup" *ngIf="circuitData">
+  <table class="popup-table">
+    <tr>
+      <td class="popup-label">Service:</td>
+      <td class="popup-value">
+        <a class="clickable-name" (click)="onServiceClick(circuitData?.circuit?.service)">
+          {{ circuitData?.circuit?.service?.name || 'Unknown' }}
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td class="popup-label">Client:</td>
+      <td class="popup-value">{{ circuitData?.circuit?.tags?.hostId || circuitData?.circuit?.clientId || 'Unknown' }}</td>
+    </tr>
+    <tr>
+      <td class="popup-label">From:</td>
+      <td class="popup-value">
+        <a class="clickable-name" (click)="onEntityClick(circuitData?.segment?.fromId, circuitData?.segment?.fromType)">
+          {{ circuitData?.segment?.from }}
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td class="popup-label">To:</td>
+      <td class="popup-value">
+        <a class="clickable-name" (click)="onEntityClick(circuitData?.segment?.toId, circuitData?.segment?.toType)">
+          {{ circuitData?.segment?.to }}
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td class="popup-label">Hop:</td>
+      <td class="popup-value">{{ circuitData?.segment?.index + 1 }} of {{ circuitData?.segment?.total }}</td>
+    </tr>
+    <tr>
+      <td class="popup-label">Total Path:</td>
+      <td class="popup-value">{{ circuitData?.pathNodes?.length }} routers</td>
+    </tr>
+    <tr *ngIf="circuitData?.circuit?.createdAt">
+      <td class="popup-label">Created:</td>
+      <td class="popup-value">{{ circuitData?.circuit?.createdAt | date:'short' }}</td>
+    </tr>
+  </table>
+
+  <!-- Circuit Hops Section -->
+  <lib-circuit-hops-table
+    [circuitHops]="circuitData?.circuitHops"
+    [selectedSegmentIndex]="selectedSegmentIndex"
+    (hopSelected)="onHopSelected($event)"
+  ></lib-circuit-hops-table>
+
+  <!-- Circuit Routers Section -->
+  <lib-router-path-table
+    [circuitRouters]="circuitData?.circuitRouters"
+    [selectedRouterId]="selectedRouterId"
+    (routerSelected)="onRouterSelected($event)"
+    (entityPanelOpened)="onEntityPanelOpened($event)"
+  ></lib-router-path-table>
+
+  <!-- Entity Preview Section -->
+  <div class="entity-preview-section" *ngIf="previewEntity">
+    <div class="preview-header" [class.preview-header-identity]="previewEntityType === 'identity'" [class.preview-header-router]="previewEntityType === 'routers'">
+      <div class="preview-title">
+        <span class="preview-icon" [class.icon-identity]="previewEntityType === 'identity'" [class.icon-routers]="previewEntityType === 'routers'"></span>
+        <span class="preview-text">{{ previewEntity.name }}</span>
+      </div>
+      <span class="icon-HamburgerAppClose preview-close" (click)="closePreview()"></span>
+    </div>
+    <div class="preview-content">
+      <table class="preview-table">
+        <tr>
+          <td class="preview-label">Type:</td>
+          <td class="preview-value">{{ previewEntityType === 'identity' ? 'Identity' : 'Router' }}</td>
+        </tr>
+        <tr *ngIf="previewEntityType === 'routers'">
+          <td class="preview-label">Status:</td>
+          <td class="preview-value">
+            <span [class]="previewEntity.connected ? 'status-online' : 'status-offline'">
+              {{ previewEntity.connected ? 'Online' : 'Offline' }}
+            </span>
+          </td>
+        </tr>
+        <tr *ngIf="previewEntityType === 'identity'">
+          <td class="preview-label">Status:</td>
+          <td class="preview-value">
+            <span [class]="previewEntity.edgeRouterConnectionStatus === 'online' ? 'status-online' : 'status-offline'">
+              {{ previewEntity.edgeRouterConnectionStatus === 'online' ? 'Connected' : 'Disconnected' }}
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <td class="preview-label">Name:</td>
+          <td class="preview-value">{{ previewEntity.name || 'N/A' }}</td>
+        </tr>
+        <tr *ngIf="previewEntity.id">
+          <td class="preview-label">ID:</td>
+          <td class="preview-value preview-id">{{ previewEntity.id }}</td>
+        </tr>
+        <tr *ngIf="previewEntity._location">
+          <td class="preview-label">Location:</td>
+          <td class="preview-value preview-location">
+            {{ previewEntity._location?.lat?.toFixed(4) }}, {{ previewEntity._location?.lng?.toFixed(4) }}
+          </td>
+        </tr>
+        <tr>
+          <td class="preview-label">Role Attributes:</td>
+          <td class="preview-value preview-roles">
+            <span *ngIf="previewEntity.roleAttributes && previewEntity.roleAttributes.length > 0">
+              <span *ngFor="let role of previewEntity.roleAttributes" class="preview-hashtag">
+                #{{ role }}
+              </span>
+            </span>
+            <span *ngIf="!previewEntity.roleAttributes || previewEntity.roleAttributes.length === 0" class="no-attributes">
+              No attributes assigned
+            </span>
+          </td>
+        </tr>
+      </table>
+
+      <div class="preview-actions">
+        <button class="preview-btn" (click)="onEntityPanelOpened({entityId: previewEntity.id, entityType: previewEntityType})">
+          View Details
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

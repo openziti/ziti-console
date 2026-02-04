@@ -1,0 +1,161 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.circuit-popup {
+  font-family: 'Open Sans', sans-serif;
+
+  .popup-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: .875rem;
+
+    tr {
+      border-bottom: 1px solid var(--inputBorder);
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+
+    td {
+      padding: 0.5rem 0;
+      vertical-align: top;
+    }
+
+    .popup-label {
+      font-weight: 600;
+      color: var(--menu);
+      width: 35%;
+      padding-right: 0.5rem;
+    }
+
+    .popup-value {
+      color: var(--black);
+      word-break: break-word;
+
+      .clickable-name {
+        color: var(--tableLinks);
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s ease;
+
+        &:hover {
+          color: var(--tableLinkHover);
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  // Connections sub-table styles
+  .connections-section {
+    margin-top: 1rem;
+    border-top: 1px solid var(--inputBorder);
+    padding-top: 1rem;
+
+    .connections-header {
+      .connections-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--tableHeader);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+    }
+
+    .connections-table-container {
+      overflow-x: auto;
+      max-height: 300px;
+      overflow-y: auto;
+
+      .connections-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.875rem;
+        border: 1px solid var(--inputBorder);
+        border-radius: var(--inputBorderRadius);
+        overflow: hidden;
+
+        thead {
+          background-color: var(--navigation);
+          position: sticky;
+          top: 0;
+          z-index: 1;
+
+          tr th {
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--tableHeader);
+            border-bottom: 0.25rem solid var(--primary);
+            white-space: nowrap;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background-color: var(--navigation);
+          }
+        }
+
+        tbody {
+          tr {
+            border-bottom: 1px solid var(--inputBorder);
+            transition: background-color 0.2s ease;
+            background-color: var(--formBackground);
+
+            &:nth-child(odd) {
+              background-color: var(--white);
+            }
+
+            &:hover {
+              background-color: rgba(33, 150, 243, 0.1) !important;
+            }
+
+            &:last-child {
+              border-bottom: none;
+            }
+
+            td {
+              padding: 0.5rem;
+              color: var(--tableText);
+
+              &.connection-type {
+                font-size: 0.75rem;
+                font-weight: 500;
+                color: var(--tableHeader);
+                white-space: nowrap;
+                text-transform: capitalize;
+              }
+
+              &.connection-protocol {
+                font-family: monospace;
+                font-size: 0.75rem;
+                font-weight: 600;
+                color: var(--primary);
+                text-transform: uppercase;
+                white-space: nowrap;
+              }
+
+              &.connection-address {
+                font-family: monospace;
+                font-size: 0.75rem;
+                white-space: nowrap;
+              }
+
+              &.connection-port {
+                font-family: monospace;
+                font-size: 0.75rem;
+                font-weight: 500;
+                white-space: nowrap;
+                text-align: right;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

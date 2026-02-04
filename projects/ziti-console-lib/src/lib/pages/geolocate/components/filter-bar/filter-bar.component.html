@@ -1,0 +1,70 @@
+<div class="dashboard-filters-container">
+  <div class="left-side-filters">
+    <div class="map-filters">
+      <div class="dashboard-multi-filter" (click)="routerFilterClicked.emit($event)" [ngClass]="{'filter-open': showRouterFilterSelector, 'filter-applied': selectedRouterAttributes.length > 0}">
+        <span class="dashboard-multi-title">{{selectedRouterAttributes.length > 0 ? '(' + selectedRouterAttributes.length + ') ' : ''}}Routers</span>
+        <div class="expand-collapse-icon icon-RightPage"></div>
+        <div class="filter-dropdown"  *ngIf="showRouterFilterSelector" (clickOutside)="routerFilterClosed.emit($event)">
+          <lib-tag-selector
+            [(selectedRoleAttributes)]="selectedRouterAttributes"
+            (selectedRoleAttributesChange)="routerRoleAttributesChanged.emit($event); selectedRouterAttributesChange.emit($event)"
+            [availableRoleAttributes]="routerRoleAttributes"
+            [placeholder]="'Add attributes to group Routers'"
+            #routerFilterSelector
+          ></lib-tag-selector>
+        </div>
+      </div>
+      <div class="dashboard-multi-filter" (click)="identityFilterClicked.emit($event)" [ngClass]="{'filter-open': showIdentityFilterSelector, 'filter-applied': selectedIdentityAttributes.length > 0 || selectedIdentityNamedAttributes.length > 0}">
+        <span class="dashboard-multi-title">{{(selectedIdentityAttributes.length + selectedIdentityNamedAttributes.length) > 0 ? '(' + (selectedIdentityAttributes.length + selectedIdentityNamedAttributes.length) + ') ' : ''}}Identities</span>
+        <div class="expand-collapse-icon icon-RightPage"></div>
+        <div class="filter-dropdown"  *ngIf="showIdentityFilterSelector" (clickOutside)="identityFilterClosed.emit($event)">
+          <lib-tag-selector
+            [(selectedNamedAttributes)]="selectedIdentityNamedAttributes"
+            [(selectedRoleAttributes)]="selectedIdentityAttributes"
+            (selectedNamedAttributesChange)="identityNamedAttributesChanged.emit($event); selectedIdentityNamedAttributesChange.emit($event)"
+            (selectedRoleAttributesChange)="identityRoleAttributesChanged.emit($event); selectedIdentityAttributesChange.emit($event)"
+            [availableNamedAttributes]="identityNamedAttributes"
+            [availableRoleAttributes]="identityRoleAttributes"
+            [placeholder]="'Select identity attributes'"
+            (filterChange)="identityFilterChanged.emit($event)"
+            #identityFilterSelector
+          ></lib-tag-selector>
+        </div>
+      </div>
+      <div class="dashboard-multi-filter" (click)="serviceFilterClicked.emit($event)" [ngClass]="{'filter-open': showServiceFilterSelector, 'filter-applied': selectedServiceAttributes.length > 0 || selectedServiceNamedAttributes.length > 0}">
+        <span class="dashboard-multi-title">{{(selectedServiceAttributes.length + selectedServiceNamedAttributes.length) > 0 ? '(' + (selectedServiceAttributes.length + selectedServiceNamedAttributes.length) + ') ' : ''}}Services</span>
+        <div class="expand-collapse-icon icon-RightPage"></div>
+        <div class="filter-dropdown"  *ngIf="showServiceFilterSelector" (clickOutside)="serviceFilterClosed.emit($event)">
+          <lib-tag-selector
+            [(selectedNamedAttributes)]="selectedServiceNamedAttributes"
+            [(selectedRoleAttributes)]="selectedServiceAttributes"
+            (selectedNamedAttributesChange)="serviceNamedAttributesChanged.emit($event); selectedServiceNamedAttributesChange.emit($event)"
+            (selectedRoleAttributesChange)="serviceRoleAttributesChanged.emit($event); selectedServiceAttributesChange.emit($event)"
+            [availableNamedAttributes]="serviceNamedAttributes"
+            [availableRoleAttributes]="serviceRoleAttributes"
+            [placeholder]="'Select service attributes'"
+            (filterChange)="serviceFilterChanged.emit($event)"
+            #serviceFilterSelector
+          ></lib-tag-selector>
+        </div>
+      </div>
+      <div class="dashboard-multi-filter" (click)="connectionStatusFilterClicked.emit($event)" [ngClass]="{'filter-open': showConnectionStatusFilterSelector, 'filter-applied': selectedConnectionStatus !== 'all'}">
+        <span class="dashboard-multi-title">Connection Status</span>
+        <div class="expand-collapse-icon icon-RightPage"></div>
+        <div class="filter-dropdown connection-status-dropdown" *ngIf="showConnectionStatusFilterSelector" (clickOutside)="connectionStatusFilterClosed.emit($event)">
+          <select [(ngModel)]="selectedConnectionStatus" (change)="connectionStatusChanged.emit($event); selectedConnectionStatusChange.emit(selectedConnectionStatus)" class="connection-status-select form-field-dropdown" #connectionStatusFilterSelector>
+            <option value="all">All</option>
+            <option value="online">Online</option>
+            <option value="offline">Offline</option>
+          </select>
+        </div>
+      </div>
+      <div class="dashboard-filter-actions">
+        <div *ngIf="filtersApplied" class="add-filter-container clear-rule-filters" (click)="clearFiltersClicked.emit($event)" [ngClass]="{'filters-added': filtersApplied}">
+          <div class="icon-HamburgerAppClose"></div>
+          <span class="add-icon-label">Clear Filters</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

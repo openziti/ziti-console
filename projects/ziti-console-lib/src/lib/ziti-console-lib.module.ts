@@ -139,6 +139,18 @@ import {ProgressWizardComponent} from "./features/progress-wizard/progress-wizar
 import { SettingsComponent } from './pages/settings/settings.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { GeolocateComponent } from './pages/geolocate/geolocate.component';
+import { MapLegendComponent } from './pages/geolocate/components/map-legend/map-legend.component';
+import { EntityCountLegendComponent } from './pages/geolocate/components/entity-count-legend/entity-count-legend.component';
+import { CircuitHopsTableComponent } from './pages/geolocate/components/circuit-hops-table/circuit-hops-table.component';
+import { RouterPathTableComponent } from './pages/geolocate/components/router-path-table/router-path-table.component';
+import { GeolocateFilterBarComponent } from './pages/geolocate/components/filter-bar/filter-bar.component';
+import { SidePanelContainerComponent } from './pages/geolocate/components/side-panel-container/side-panel-container.component';
+import { MarkerPanelComponent } from './pages/geolocate/components/marker-panel/marker-panel.component';
+import { LinkPanelComponent } from './pages/geolocate/components/link-panel/link-panel.component';
+import { CircuitPanelComponent } from './pages/geolocate/components/circuit-panel/circuit-panel.component';
+import { EntityListPanelComponent } from './pages/geolocate/components/entity-list-panel/entity-list-panel.component';
+import { UnlocatedPanelComponent } from './pages/geolocate/components/unlocated-panel/unlocated-panel.component';
+import { ServicesWithCircuitsPanelComponent } from './pages/geolocate/components/services-with-circuits-panel/services-with-circuits-panel.component';
 import { AttributesComponent } from './pages/attributes/attributes.component';
 import {SideNavigatorComponent} from "./features/side-navigator/side-navigator.component";
 import {HeaderBarComponent} from "./features/header-bar/header-bar.component";
@@ -249,6 +261,18 @@ export function playerFactory() {
         SettingsComponent,
         ProfileComponent,
         GeolocateComponent,
+        MapLegendComponent,
+        EntityCountLegendComponent,
+        CircuitHopsTableComponent,
+        RouterPathTableComponent,
+        GeolocateFilterBarComponent,
+        SidePanelContainerComponent,
+        MarkerPanelComponent,
+        LinkPanelComponent,
+        CircuitPanelComponent,
+        EntityListPanelComponent,
+        UnlocatedPanelComponent,
+        ServicesWithCircuitsPanelComponent,
         AttributesComponent,
         SideNavigatorComponent,
         HeaderBarComponent,

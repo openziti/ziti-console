@@ -1,0 +1,146 @@
+<div class="services-with-circuits-wrapper" [class.split-view]="previewCircuit">
+  <!-- Services List Section -->
+  <div class="services-list-section">
+    <div class="services-with-circuits-popup">
+    <!-- Search Bar -->
+    <div class="search-container">
+      <input
+        type="text"
+        class="search-input"
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange(searchTerm)"
+        placeholder="Search by service name..."
+      />
+    </div>
+
+    <!-- Circuits Tree Table -->
+    <div class="services-table-container">
+      <table class="services-table tree-table">
+        <thead>
+          <tr>
+            <th colspan="12" class="service-column">Service Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let group of serviceGroups">
+            <!-- Service Group Row -->
+            <tr class="group-row clickable-row" (click)="toggleGroup(group, $event)">
+              <td colspan="1" class="expand-cell">
+                <span class="expand-icon icon-RightPage" [class.expanded]="group.expanded"></span>
+              </td>
+              <td colspan="11" class="service-name">
+                <span class="icon-Services group-icon"></span>
+                <span class="service-text">{{ group.serviceName }}</span>
+                <span class="circuit-count">({{ group.circuits.length }})</span>
+              </td>
+            </tr>
+
+            <!-- Circuit Rows (shown when expanded) -->
+            <ng-container *ngIf="group.expanded">
+              <!-- Subheader Row -->
+              <tr class="subheader-row">
+                <th colspan="1" class="subheader-indent"></th>
+                <th colspan="4" class="subheader-cell">Client</th>
+                <th colspan="4" class="subheader-cell">Host</th>
+                <th colspan="3" class="subheader-cell">Path</th>
+              </tr>
+
+              <!-- Circuit Data Rows -->
+              <tr *ngFor="let circuit of group.circuits"
+                  (click)="onCircuitClick(circuit, $event)"
+                  [class.selected-row]="previewCircuit?.id === circuit.id"
+                  class="circuit-row clickable-row">
+                <td colspan="1" class="circuit-indent"></td>
+                <td colspan="4" class="circuit-entity">
+                  <span [class]="getClientInfo(circuit).type === 'identity' ? 'icon-identity entity-icon' : 'icon-routers entity-icon'"></span>
+                  <span class="entity-name">{{ getClientInfo(circuit).name }}</span>
+                </td>
+                <td colspan="4" class="circuit-entity">
+                  <span [class]="getHostInfo(circuit).type === 'identity' ? 'icon-identity entity-icon' : 'icon-routers entity-icon'"></span>
+                  <span class="entity-name">{{ getHostInfo(circuit).name }}</span>
+                </td>
+                <td colspan="3" class="circuit-path">
+                  <span *ngIf="circuit.path?.nodes?.length > 0">{{ circuit.path.nodes.length }} router(s)</span>
+                  <span *ngIf="circuit.path?.length > 0 && !circuit.path?.nodes">{{ circuit.path.length }} router(s)</span>
+                  <span *ngIf="!circuit.path?.nodes?.length && !circuit.path?.length">Direct</span>
+                </td>
+              </tr>
+            </ng-container>
+          </ng-container>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="serviceGroups.length === 0 && searchTerm">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-message">No circuits found matching "{{ searchTerm }}"</div>
+      </div>
+
+      <div class="empty-state" *ngIf="serviceGroups.length === 0 && !searchTerm">
+        <div class="empty-icon">✓</div>
+        <div class="empty-message">No active circuits</div>
+      </div>
+    </div>
+
+      <!-- Results Info -->
+      <div class="services-info">
+        Showing {{ getTotalCircuitsInGroups() }} of {{ totalCircuits }} circuits
+      </div>
+    </div>
+  </div>
+
+  <!-- Circuit Preview Section -->
+  <div class="circuit-preview-section" *ngIf="previewCircuit">
+    <div class="preview-header">
+      <span class="preview-title">Circuit Details</span>
+      <span class="icon-HamburgerAppClose preview-close" (click)="closePreview()"></span>
+    </div>
+    <div class="preview-content">
+      <table class="preview-table">
+        <tr>
+          <td class="preview-label">Circuit ID:</td>
+          <td class="preview-value">{{ previewCircuit.id || 'Unknown' }}</td>
+        </tr>
+        <tr>
+          <td class="preview-label">Service:</td>
+          <td class="preview-value service-name">
+            <span class="icon-Services entity-icon"></span>
+            <span>{{ previewCircuit.service?.name || 'Unknown Service' }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="preview-label">Client:</td>
+          <td class="preview-value">
+            <span [class]="getClientInfo(previewCircuit).type === 'identity' ? 'icon-identity entity-icon' : 'icon-routers entity-icon'"></span>
+            <span>{{ getClientInfo(previewCircuit).name }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="preview-label">Host:</td>
+          <td class="preview-value">
+            <span [class]="getHostInfo(previewCircuit).type === 'identity' ? 'icon-identity entity-icon' : 'icon-routers entity-icon'"></span>
+            <span>{{ getHostInfo(previewCircuit).name }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="preview-label">Path:</td>
+          <td class="preview-value">
+            <span *ngIf="previewCircuit.path?.nodes?.length > 0">{{ previewCircuit.path.nodes.length }} router(s)</span>
+            <span *ngIf="previewCircuit.path?.length > 0 && !previewCircuit.path?.nodes">{{ previewCircuit.path.length }} router(s)</span>
+            <span *ngIf="!previewCircuit.path?.nodes?.length && !previewCircuit.path?.length">Direct</span>
+          </td>
+        </tr>
+        <tr *ngIf="previewCircuit.createdAt">
+          <td class="preview-label">Created:</td>
+          <td class="preview-value">{{ previewCircuit.createdAt | date:'short' }}</td>
+        </tr>
+      </table>
+
+      <div class="preview-actions">
+        <button class="preview-btn" (click)="viewFullCircuitDetails()">
+          View Full Details
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

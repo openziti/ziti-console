@@ -1,0 +1,110 @@
+.map-legend {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  background-color: var(--navigation);
+  border: .1875rem solid var(--inputBorder);
+  border-radius: var(--podBorderRadius);
+  padding: 1rem;
+  z-index: 1000;
+  box-shadow: 0rem 0.1875rem 0.3125rem 0.0625rem var(--boxShadow);
+  min-width: 200px;
+  border-width: 1px;
+
+  .tSelect {
+    position: relative;
+    top: unset;
+    left: unset;
+    min-width: 1.25rem;
+    max-width: 1.25rem;
+    min-height: 1.25rem;
+    max-height: 1.25rem;
+    border-radius: var(--inputBorderRadius);
+    border-color: var(--inputBorder);
+    border-style: solid;
+    border-width: 1px;
+
+    &.indeterminate {
+      background-color: rgba(128, 128, 128, 0.3);
+      border-color: var(--tableText);
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        width: 60%;
+        height: 2px;
+        background-color: var(--tableText);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+    }
+  }
+
+  .legend-title {
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--tableText);
+    text-transform: uppercase;
+    margin-bottom: .75rem;
+    border-bottom: 1px solid var(--inputBorder);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: .5rem;
+    cursor: pointer;
+    gap: var(--gapSmall);
+
+    &.identity-item {
+      .legend-icon:before {
+        color: var(--primaryColor) !important;
+      }
+    }
+
+    &.router-item {
+      .legend-icon:before {
+        color: var(--secondaryColor) !important;
+      }
+    }
+
+    .legend-icon {
+      font-size: 1.5rem;
+      width: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .legend-line-sample {
+      width: 1.5rem;
+      height: 3px;
+      border-radius: 2px;
+      position: relative;
+      flex-shrink: 0;
+
+      &.link-sample {
+        background: var(--green);
+      }
+
+      &.circuit-sample {
+        background: var(--activeCircuitColor);
+      }
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      font-size: 0.875rem;
+      color: var(--tableText);
+      cursor: default;
+      user-select: none;
+      margin: 0;
+    }
+  }
+}

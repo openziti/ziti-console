@@ -1,0 +1,137 @@
+<div class="marker-popup" *ngIf="markerData">
+  <table class="popup-table">
+    <tr>
+      <td class="popup-label">Type:</td>
+      <td class="popup-value">{{ markerData?.type === 'identity' ? 'Identity' : 'Router' }}</td>
+    </tr>
+    <tr *ngIf="markerData?.item?.isOnline !== undefined || markerData?.item?.connected !== undefined">
+      <td class="popup-label">Status:</td>
+      <td class="popup-value">
+        <span [class]="getEntityOnlineStatus(markerData?.item) ? 'status-online' : 'status-offline'">
+          {{ getEntityOnlineStatus(markerData?.item) ? 'Online' : 'Offline' }}
+        </span>
+      </td>
+    </tr>
+    <tr *ngIf="markerData?.type === 'identity' && markerData?.item?.edgeRouterConnectionStatus">
+      <td class="popup-label">Status:</td>
+      <td class="popup-value">
+        <span [class]="markerData?.item?.edgeRouterConnectionStatus === 'online' ? 'status-online' : 'status-offline'">
+          {{ markerData?.item?.edgeRouterConnectionStatus === 'online' ? 'Connected' : 'Disconnected' }}
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td class="popup-label">Name:</td>
+      <td class="popup-value">{{ markerData?.item?.name || 'N/A' }}</td>
+    </tr>
+    <tr *ngIf="markerData?.item?.id">
+      <td class="popup-label">ID:</td>
+      <td class="popup-value popup-id">{{ markerData?.item?.id }}</td>
+    </tr>
+    <tr *ngIf="markerData?.location">
+      <td class="popup-label">Location:</td>
+      <td class="popup-value popup-location" [class.location-modified]="hasUnsavedLocationChanges(markerData?.item)">
+        {{ markerData?.location?.lat?.toFixed(4) }}, {{ markerData?.location?.lng?.toFixed(4) }}
+        <span *ngIf="hasUnsavedLocationChanges(markerData?.item)" class="modified-indicator">*</span>
+      </td>
+    </tr>
+    <tr>
+      <td class="popup-label">Role Attributes:</td>
+      <td class="popup-value popup-roles">
+        <span *ngIf="markerData?.item?.roleAttributes && markerData?.item?.roleAttributes?.length > 0">
+          <span *ngFor="let role of markerData?.item?.roleAttributes" class="popup-hashtag" (click)="onRoleAttributeClick(role)">
+            #{{ role }}
+          </span>
+        </span>
+        <span *ngIf="!markerData?.item?.roleAttributes || markerData?.item?.roleAttributes?.length === 0" class="no-attributes">
+          No attributes assigned
+        </span>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Active Circuits Section -->
+  <div class="circuits-section" *ngIf="circuits.length > 0">
+    <div class="circuits-container">
+      <div class="circuits-header">
+        <span class="circuits-header-icon ziti-logo"></span>
+        <span class="circuits-header-text">Active Circuits ({{ circuits.length }})</span>
+      </div>
+      <div class="circuits-list">
+        <table class="circuits-table">
+          <thead>
+            <tr>
+              <th>Service</th>
+              <th>Path</th>
+              <th class="action-column"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let circuit of circuits"
+                (click)="onCircuitSelect(circuit, $event)"
+                [class.selected-row]="selectedCircuit?.id === circuit.id"
+                class="clickable-circuit-row">
+              <td class="circuit-service">{{ circuit.service?.name || circuit.serviceName || 'Unknown Service' }}</td>
+              <td class="circuit-path">
+                <span *ngIf="circuit.path?.nodes?.length > 0">{{ circuit.path.nodes.length }} router(s)</span>
+                <span *ngIf="circuit.path?.length > 0 && !circuit.path?.nodes">{{ circuit.path.length }} router(s)</span>
+                <span *ngIf="!circuit.path?.nodes?.length && !circuit.path?.length">Direct</span>
+              </td>
+              <td class="action-column">
+                <span class="circuit-nav-icon icon-Share-RBAC" (click)="onCircuitPreviewOpen(circuit, $event)" title="View Circuit Details"></span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Router Path Details Section -->
+  <div class="router-path-section" *ngIf="selectedCircuit && selectedCircuitRouters.length > 0">
+    <div class="router-path-container">
+      <div class="router-path-header">
+        <span class="router-path-icon icon-routers"></span>
+        <span class="router-path-text">Circuit Path ({{ selectedCircuitRouters.length }} routers)</span>
+      </div>
+      <div class="router-path-list">
+        <table class="router-path-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Router Name</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let router of selectedCircuitRouters; let i = index"
+                (click)="onRouterInPathSelect(router.id, 'routers')"
+                [class.selected-row]="selectedRouterInPath === router.id"
+                class="clickable-circuit-row">
+              <td class="path-index">{{ i + 1 }}</td>
+              <td class="router-name">{{ router.name || router.id }}</td>
+              <td class="router-status">
+                <span *ngIf="!router._notFound && router.connected !== undefined"
+                      [class]="router.connected ? 'status-online' : 'status-offline'">
+                  {{ router.connected ? 'Online' : 'Offline' }}
+                </span>
+                <span *ngIf="router._notFound" class="status-unknown">Unknown</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="popup-actions">
+    <button *ngIf="hasUnsavedLocationChanges(markerData?.item)"
+            class="save-location-btn"
+            (click)="onSaveLocationChanges()">
+      Save Changes
+    </button>
+    <a class="popup-details-link" (click)="onNavigateToDetails()">
+      View Details →
+    </a>
+  </div>
+</div>
