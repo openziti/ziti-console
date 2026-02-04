@@ -1,0 +1,329 @@
+:host {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  height: 100%;
+}
+
+.side-panel-resizer {
+  width: 12px;
+  height: 100%;
+  cursor: col-resize;
+  background: transparent;
+  position: relative;
+  flex-shrink: 0;
+  z-index: 100;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  // Visual indicator line (only shows on hover)
+  &::after {
+    content: '';
+    width: 3px;
+    height: 40px;
+    background: var(--primaryColor);
+    border-radius: 2px;
+    opacity: 0;
+    transition: opacity 0.2s ease, height 0.2s ease;
+  }
+
+  &:hover {
+    &::after {
+      opacity: 0.6;
+      height: 60px;
+    }
+  }
+
+  &:active {
+    &::after {
+      opacity: 0.9;
+      height: 100%;
+    }
+  }
+}
+
+:host ::ng-deep lib-form-field-container {
+  &.full-height {
+    height: 100%;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  &.side-panel-container {
+    width: var(--side-panel-width, 35rem);
+    flex: 0 0 auto; // Don't flex grow/shrink
+  }
+}
+
+.side-panel {
+  width: 100%;
+  height: 100%;
+  background: var(--formBackground);
+  border-left: 1px solid var(--inputBorder);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideIn 0.3s ease;
+
+  .side-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--paddingMedium);
+    border-bottom: 1px solid var(--inputBorder);
+    background: var(--tableHeaderBackground);
+    transition: background-color 0.3s ease;
+
+    &.header-service {
+      background-color: var(--activeCircuitColor);
+      .title-text {
+        color: var(--offWhite_ALWAYS);
+      }
+      .title-icon {
+        color: var(--offWhite_ALWAYS);
+      }
+    }
+
+    .title-icon {
+      &.icon-services {
+        color: var(--offWhite_ALWAYS);
+      }
+    }
+
+    .side-panel-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--tableText);
+      transition: color 0.3s ease;
+
+      .title-with-icon {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+
+        .icon-unlocated {
+          background-image: url(/assets/svgs/unknown-marker.svg);
+          opacity: .7;
+          background-size: 1.4rem;
+          width: 2rem;
+          height: 2rem;
+          background-repeat: no-repeat;
+        }
+
+        .title-icon {
+          font-size: 2rem;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding-right: 0.6rem;
+          border-right-style: solid;
+          border-right-width: 1px;
+
+          &:before {
+            color: var(--offWhite_ALWAYS) !important;
+          }
+
+          &.title-icon-svg {
+            width: 2.4rem;
+            height: 2.4rem;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+
+            &:before {
+              content: none;
+            }
+
+            &.ziti-logo {
+              background-image: url(/assets/svgs/ziti-logo.svg);
+              height: 2rem;
+              width: 2.92rem;
+              background-position: center;
+              margin-left: -.36rem;
+            }
+          }
+        }
+
+        .title-text {
+          display: inline-flex;
+          align-items: center;
+          font-size: 0.9rem;
+        }
+      }
+    }
+
+    .side-panel-close {
+      cursor: pointer;
+      font-size: 1rem;
+      color: var(--tableText);
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: var(--primaryColor);
+      }
+    }
+
+    // Header color variants based on panel type
+    &.header-identity {
+      background: var(--primaryColor);
+
+      .side-panel-title,
+      .side-panel-close {
+        color: var(--offWhite_ALWAYS);
+      }
+
+      .side-panel-close:hover {
+        color: var(--lightGrey);
+      }
+    }
+
+    &.header-router {
+      background: var(--secondaryColor);
+
+      .side-panel-title,
+      .side-panel-close {
+        color: var(--offWhite_ALWAYS);
+      }
+
+      .side-panel-close:hover {
+        color: var(--lightGrey);
+      }
+    }
+
+    &.header-circuit {
+      background: var(--activeCircuitColor);
+
+      .side-panel-title,
+      .side-panel-close {
+        color: var(--offWhite_ALWAYS);
+      }
+
+      .side-panel-close:hover {
+        color: var(--lightGrey);
+      }
+    }
+
+    &.header-link {
+      background: var(--green);
+
+      .side-panel-title,
+      .side-panel-close {
+        color: var(--offWhite_ALWAYS);
+      }
+
+      .side-panel-close:hover {
+        color: var(--lightGrey);
+      }
+    }
+
+    &.header-link-good {
+      background: #2ECC71;
+
+      .side-panel-title,
+      .side-panel-close {
+        color: var(--offWhite_ALWAYS);
+      }
+
+      .side-panel-close:hover {
+        color: var(--lightGrey);
+      }
+    }
+
+    &.header-link-elevated {
+      background: #F39C12;
+
+      .side-panel-title,
+      .side-panel-close {
+        color: var(--offWhite_ALWAYS);
+      }
+
+      .side-panel-close:hover {
+        color: var(--lightGrey);
+      }
+    }
+
+    &.header-link-poor {
+      background: #E74C3C;
+
+      .side-panel-title,
+      .side-panel-close {
+        color: var(--offWhite_ALWAYS);
+      }
+
+      .side-panel-close:hover {
+        color: var(--lightGrey);
+      }
+    }
+
+    &.header-unlocated {
+      background: var(--filterBackgroundColor);
+
+      .side-panel-title,
+      .side-panel-close {
+        color: var(--tableText);
+      }
+
+      .side-panel-title .title-with-icon .title-icon:before {
+        color: var(--tableText) !important;
+      }
+
+      .side-panel-close:hover {
+        color: var(--tableHeader);
+      }
+    }
+  }
+
+  .side-panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--paddingLarge);
+    color: var(--tableText);
+    min-height: 0; // Important for nested flexbox scrolling
+    display: flex;
+    flex-direction: column;
+
+    // Make all child panel components take full width/height
+    ::ng-deep {
+      lib-marker-panel,
+      lib-link-panel,
+      lib-circuit-panel,
+      lib-entity-list-panel,
+      lib-unlocated-panel,
+      lib-services-with-circuits-panel {
+        display: block;
+        width: 100%;
+        height: auto; // Auto height for scrollable panels
+      }
+
+      // Full height panels need to fill the container
+      lib-entity-list-panel,
+      lib-unlocated-panel,
+      lib-services-with-circuits-panel {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+    }
+
+    // Special handling for entity list and unlocated panels (full-height)
+    &.full-height-panel {
+      overflow-y: hidden; // Don't scroll the content wrapper, scroll inside the popup
+      padding: 0; // Remove padding for these full-height panels
+    }
+  }
+}
+
+// Slide-in animation
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

@@ -927,7 +927,7 @@ a:hover {
 
 lib-form-field-container {
   box-shadow: 0rem 0.1875rem 0.3125rem 0.0625rem var(--boxShadow);
-  border-radius: 0.625rem;
+  border-radius: var(--defaultBorderRadius);
 
   &.no-shadow {
     box-shadow: none;

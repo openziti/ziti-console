@@ -1,0 +1,183 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.dashboard-filters-container {
+  height: fit-content;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  background-color: var(--filterBackgroundColor);
+  padding: var(--paddingSmall);
+  border-radius: 4.25px;
+
+  .left-side-filters {
+    height: 100%;
+    width: fit-content;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: var(--gapXL);
+    margin-left: 0;
+  }
+
+  .map-filters {
+    display: flex;
+    gap: var(--gapMedium);
+    align-items: center;
+    justify-content: flex-start;
+    border-radius: var(--inputBorderRadius);
+  }
+
+  .dashboard-multi-filter {
+    display: flex;
+    flex-direction: row;
+    width: fit-content;
+    cursor: pointer;
+    color: var(--tableText);
+    padding: var(--paddingMedium);
+    border-radius: var(--inputBorderRadius);
+    position: relative;
+    padding: 7px;
+
+    .dashboard-multi-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    &.filter-open,
+    &:hover {
+      color: var(--primaryColor);
+    }
+
+    &.filter-applied {
+      background-color: var(--primary);
+      color: var(--offWhite_ALWAYS);
+    }
+
+    .expand-collapse-icon {
+      font-size: 0.675rem;
+      font-weight: 600;
+      transform: rotate(90deg);
+      cursor: pointer;
+      margin-right: .25rem;
+    }
+  }
+
+  .filter-dropdown {
+    position: absolute;
+    top: 2.625rem;
+    left: 4.25rem;
+    margin-left: -4rem;
+    z-index: 9999999;
+    background: #ffffff;
+    padding: var(--paddingMedium);
+    border-radius: var(--inputBorderRadius);
+    box-shadow: rgb(0 0 0 / 22%) 0px 1px 24px 0px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--placeholder);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    cursor: default;
+    min-width: 15rem;
+
+    lib-tag-selector {
+      min-width: 15rem;
+    }
+
+    &.connection-status-dropdown {
+      min-width: 10rem;
+    }
+
+    .connection-status-select {
+      width: 100%;
+      padding: var(--paddingSmall) var(--paddingMedium);
+      border: 1px solid var(--inputBorder);
+      border-radius: var(--inputBorderRadius);
+      background-color: var(--formBackground);
+      color: var(--tableText);
+      font-size: 0.875rem;
+      cursor: pointer;
+
+      &:focus {
+        outline: none;
+        border-color: var(--primaryColor);
+      }
+    }
+  }
+
+  .dashboard-filter-actions {
+    gap: var(--gapMedium);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+
+    .add-filter-container {
+      display: flex;
+      flex-direction: row;
+      height: 1.625rem;
+      width: fit-content;
+      align-items: center;
+      border-radius: var(--inputBorderRadius);
+      padding: var(--paddingSmall);
+      background: var(--mainBackground);
+      color: var(--inputBorder);
+      cursor: pointer;
+      transition: .3s;
+
+      &.filters-added {
+        background-color: var(--primaryColor) !important;
+
+        &.clear-rule-filters {
+          background: var(--red);
+          background-color: var(--red) !important;
+          opacity: .15;
+          filter: grayscale(1);
+
+          &:hover {
+            opacity: 1;
+            filter: none;
+          }
+        }
+
+        .icon-HamburgerAppClose {
+          font-size: 1.275rem;
+          font-weight: 600;
+          margin-top: 2px;
+          margin-left: -2px;
+
+          &:before {
+            color: var(--white) !important;
+          }
+        }
+
+        .add-icon-label {
+          color: var(--white) !important;
+        }
+      }
+
+      &:hover {
+        filter: brightness(.93);
+      }
+
+      .add-icon-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--stroke);
+      }
+
+      &:active {
+        transform: translateY(1px);
+      }
+    }
+  }
+}

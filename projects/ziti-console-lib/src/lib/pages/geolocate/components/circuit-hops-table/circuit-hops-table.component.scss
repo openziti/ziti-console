@@ -1,0 +1,172 @@
+.circuit-hops-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--inputBorder);
+
+  .circuit-hops-container {
+    .router-path-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: var(--activeCircuitColor);
+      border-bottom: 1px solid var(--inputBorder);
+      border-radius: var(--inputBorderRadius) var(--inputBorderRadius) 0 0;
+
+      .router-path-icon {
+        font-size: 1.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding-right: 0.75rem;
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
+        flex-shrink: 0;
+
+        &:before {
+          color: var(--offWhite_ALWAYS);
+        }
+      }
+
+      .router-path-text {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--offWhite_ALWAYS);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+    }
+
+    .router-path-list {
+      max-height: 15rem;
+      overflow-y: auto;
+      overflow-x: auto;
+      border: 1px solid var(--inputBorder);
+      border-top-style: none;
+      border-radius: var(--defaultBorderRadius);
+
+      .router-path-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.813rem;
+
+        thead {
+          background-color: var(--navigation);
+          position: sticky;
+          top: 0;
+          z-index: 1;
+
+          tr th {
+            padding: var(--paddingSmall);
+            text-align: left;
+            font-weight: 600;
+            color: var(--tableHeader);
+            border-bottom: 0.25rem solid var(--secondary);
+            white-space: nowrap;
+            font-size: 0.75rem;
+            background-color: var(--navigation);
+
+            &:first-child {
+              text-align: center;
+            }
+
+            &:nth-child(3) {
+              text-align: center;
+              width: 3rem;
+            }
+          }
+        }
+
+        tbody {
+          tr {
+            border-bottom: 1px solid var(--inputBorder);
+            transition: background-color 0.2s ease;
+            background-color: var(--formBackground);
+
+            &:nth-child(odd) {
+              background-color: var(--white);
+            }
+
+            &.clickable-circuit-row {
+              cursor: pointer;
+
+              &:hover {
+                background-color: rgba(33, 150, 243, 0.1) !important;
+              }
+
+              &.selected-row {
+                background-color: rgba(33, 150, 243, 0.2) !important;
+                border-left: 3px solid var(--primary);
+              }
+            }
+
+            &:last-child {
+              border-bottom: none;
+            }
+
+            td {
+              padding: var(--paddingSmall);
+              color: var(--tableText);
+              font-size: 0.813rem;
+              text-align: left;
+
+              &.hop-number {
+                font-weight: 600;
+                color: var(--primary);
+                width: 3rem;
+                text-align: center;
+              }
+
+              &.hop-from,
+              &.hop-to {
+                font-weight: 500;
+
+                .hop-entity-icon {
+                  display: inline-flex;
+                  align-items: center;
+                  justify-content: center;
+                  width: 2rem;
+                  margin-right: 0.5rem;
+                  vertical-align: middle;
+
+                  &:before {
+                    color: var(--tableText);
+                  }
+
+                  &.icon-identity {
+                    font-size: 1.5rem;
+
+                    &:before {
+                      color: var(--primaryColor);
+                    }
+                  }
+
+                  &.icon-routers {
+                    font-size: 1rem;
+
+                    &:before {
+                      color: var(--secondaryColor);
+                    }
+                  }
+                }
+
+                .hop-entity-name {
+                  vertical-align: middle;
+                }
+              }
+
+              &.hop-arrow {
+                text-align: center;
+                color: var(--tableHeader);
+                font-size: 1.25rem;
+                font-weight: 400;
+                width: 3rem;
+                padding: var(--paddingSmall) 0;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

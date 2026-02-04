@@ -1,0 +1,33 @@
+<div class="circuit-routers-section" *ngIf="circuitRouters && circuitRouters.length > 0">
+  <div class="circuit-routers-container">
+    <div class="router-path-header">
+      <span class="router-path-icon icon-routers"></span>
+      <span class="router-path-text">Routers in Path ({{ circuitRouters?.length }})</span>
+    </div>
+    <div class="router-path-list">
+      <table class="router-path-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th class="action-column"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let router of circuitRouters; let i = index"
+              (click)="routerSelected.emit({routerId: router.id, routerType: router.type})"
+              [class.selected-row]="selectedRouterId === router.id"
+              class="clickable-circuit-row">
+            <td class="router-order">{{ i + 1 }}</td>
+            <td class="router-name">{{ router.name }}</td>
+            <td class="router-type">{{ router.type }}</td>
+            <td class="action-column">
+              <span class="router-nav-icon icon-Share-RBAC" (click)="onOpenEntityPanel(router, $event)" title="View Details"></span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

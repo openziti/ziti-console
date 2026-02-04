@@ -1,0 +1,48 @@
+<div class="map-legend">
+  <div class="legend-title">Legend</div>
+  <div class="legend-item router-item">
+    <div class="legend-icon icon-routers"></div>
+    <label>Routers</label>
+    <div
+      class="tSelect"
+      [class.selected]="routersVisible"
+      (click)="routersToggled.emit()"
+    ></div>
+  </div>
+  <div class="legend-item entity-item identity-item">
+    <div class="legend-icon icon-identity"></div>
+    <label class="legend-label">Identities</label>
+    <div
+      class="tSelect"
+      [class.selected]="identitiesVisible"
+      (click)="identitiesToggled.emit()"
+    ></div>
+  </div>
+  <div class="legend-item" *ngIf="false">
+    <div
+      class="tSelect"
+      [class.selected]="clusteringEnabled"
+      (click)="clusteringToggled.emit()"
+    ></div>
+    <label>Enable Clustering</label>
+  </div>
+  <div class="legend-item">
+    <div class="legend-line-sample link-sample"></div>
+    <label>Router Links</label>
+    <div
+      class="tSelect"
+      [class.selected]="linksVisible"
+      (click)="linksToggled.emit()"
+    ></div>
+  </div>
+  <div class="legend-item">
+    <div class="legend-line-sample circuit-sample"></div>
+    <label>Active Circuits</label>
+    <div
+      class="tSelect"
+      [class.selected]="activeCircuitsVisible"
+      [class.indeterminate]="isCircuitSelectionActive"
+      (click)="activeCircuitsToggled.emit()"
+    ></div>
+  </div>
+</div>
