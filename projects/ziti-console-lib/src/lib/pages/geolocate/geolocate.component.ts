@@ -1306,6 +1306,7 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     this.mapStateService.selectedServiceNamedAttributes = [];
     this.mapStateService.selectedConnectionStatus = 'all';
     this.reloadMapDataWithFilters();
+    this.checkAppliedFilters();
   }
 
   onRouterRoleAttributesChange(attributes: any[]) {
@@ -1702,8 +1703,10 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       this.mapStateService.selectedUnlocatedCircuitRouters = [];
     }
 
-    // Clear entity preview panel when switching to different side panels
+    // Clear entity preview panels when switching to different side panels
     this.unlocatedPreviewEntity = null;
+    this.entityListPreview = null;
+    this.entityListPreviewType = null;
 
     this.mapStateService.sidePanelType = type;
     this.mapStateService.sidePanelData = data;
@@ -2319,11 +2322,22 @@ export class GeolocateComponent implements OnInit, OnDestroy {
 
         // Apply reduced opacity to all other markers
         this.applyMarkerOpacity(marker);
-      }
-    }
 
-    // Center the map on the entity location (without changing zoom)
-    if (location && location.lat && location.lng) {
+        // Expand cluster and zoom to show the marker if clustering is enabled
+        const clusterGroup = type === 'identity' ? this.identityClusterGroup : this.routerClusterGroup;
+        if (clusterGroup && this.mapStateService.clusteringEnabled) {
+          // zoomToShowLayer zooms to the parent cluster bounds and spiderfies if still clustered
+          clusterGroup.zoomToShowLayer(marker);
+        } else if (location && location.lat && location.lng) {
+          // Fallback: clustering disabled or marker not in cluster, just pan to location
+          this.map.panTo([location.lat, location.lng]);
+        }
+      } else if (location && location.lat && location.lng) {
+        // Marker not found (shouldn't normally happen), just pan to location
+        this.map.panTo([location.lat, location.lng]);
+      }
+    } else if (location && location.lat && location.lng) {
+      // Services don't have markers, just pan to location
       this.map.panTo([location.lat, location.lng]);
     }
   }
@@ -2516,18 +2530,21 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       if (!this.mapStateService.selectedIdentityAttributes.includes(role)) {
         this.mapStateService.selectedIdentityAttributes = [...this.mapStateService.selectedIdentityAttributes, role];
         this.reloadMapDataWithFilters();
+        this.checkAppliedFilters();
       }
     } else if (entityType === 'routers') {
       // Add to router attributes filter if not already present
       if (!this.mapStateService.selectedRouterAttributes.includes(role)) {
         this.mapStateService.selectedRouterAttributes = [...this.mapStateService.selectedRouterAttributes, role];
         this.reloadMapDataWithFilters();
+        this.checkAppliedFilters();
       }
     } else if (entityType === 'service') {
       // Add to service attributes filter if not already present
       if (!this.mapStateService.selectedServiceAttributes.includes(role)) {
         this.mapStateService.selectedServiceAttributes = [...this.mapStateService.selectedServiceAttributes, role];
         this.reloadMapDataWithFilters();
+        this.checkAppliedFilters();
       }
     }
   }
@@ -2902,6 +2919,10 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     this.circuitPreviewEntity = null;
     this.circuitPreviewEntityType = '';
     this.selectedRouterInPath = null;
+
+    // Clear entity list preview state
+    this.entityListPreview = null;
+    this.entityListPreviewType = null;
 
     // Use service to build circuit path data
     const pathData = this.circuitPathBuilderService.buildCircuitPathData(
