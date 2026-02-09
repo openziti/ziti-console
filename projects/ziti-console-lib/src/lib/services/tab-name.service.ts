@@ -42,10 +42,7 @@ export class TabNameService {
             ["policies", [
                 {label: 'Service Policies', url: '/service-policies'},
                 {label: 'Router Policies', url: '/router-policies'},
-                {label: 'Service Router Policies', url: '/service-router-policies'}
-            ]
-            ],
-            ["posture-checks", [
+                {label: 'Service Router Policies', url: '/service-router-policies'},
                 {label: 'Posture Checks', url: URLS.ZITI_POSTURE_CHECKS},
             ]
             ],
