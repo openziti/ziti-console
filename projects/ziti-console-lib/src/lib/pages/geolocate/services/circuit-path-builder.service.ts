@@ -1,17 +1,32 @@
 import { Injectable } from '@angular/core';
 
+export interface CircuitHop {
+  from: string;
+  fromType: string;
+  fromId: string;
+  fromHasLocation: boolean;
+  to: string;
+  toType: string;
+  toId: string;
+  toHasLocation: boolean;
+  isVisible: boolean;
+}
+
 export interface CircuitPathData {
   pathNodes: any[];
   pathCoordinates: [number, number][];
   routerNames: string[];
   entityIds: string[];
   entityTypes: string[];
-  circuitHops: any[];
+  circuitHops: CircuitHop[]; // All logical hops with 'isVisible' flag
   circuitRouters: any[];
   clientId: string | null;
   clientName: string;
   hostId: string | null;
   hostName: string;
+  hasCompleteGeolocation: boolean; // Whether all entities have geolocation data
+  missingLocations: string[]; // List of entity names missing geolocation
+  visibleSegmentToHopIndex: Map<number, number>; // Maps visual segment index to logical hop index
 }
 
 @Injectable({
@@ -41,6 +56,7 @@ export class CircuitPathBuilderService {
     const routerNames: string[] = [];
     const entityIds: string[] = [];
     const entityTypes: string[] = [];
+    const missingLocations: string[] = [];
 
     // Extract client and host information
     const clientId = circuit.tags?.clientId || circuit.clientId || circuit.client?.id || circuit.sourceId || circuit.initiator?.id;
@@ -53,20 +69,21 @@ export class CircuitPathBuilderService {
     const hostIdentity = identities.find(id => id.id === hostId);
     const hostName = hostIdentity?.name || 'Unknown Host';
 
-    // Get client location
+    // Get client location (continue even if not found)
     const clientLocation = identityLocations.get(clientId);
     if (!clientLocation) {
-      console.warn('Client location not found for circuit:', circuit.id);
-      return null;
+      missingLocations.push(clientName);
+    } else {
+      // Add client identity as first node
+      pathCoordinates.push([clientLocation.lat, clientLocation.lng]);
+      entityIds.push(clientId);
+      entityTypes.push('identity');
     }
-
-    // Add client identity as first node
-    pathCoordinates.push([clientLocation.lat, clientLocation.lng]);
-    entityIds.push(clientId);
-    entityTypes.push('identity');
 
     // Add router nodes to path
     for (const routerId of pathNodes) {
+      const router = routers.find(r => r.id === routerId);
+      const routerName = router?.name || routerId;
       const routerLocation = routerLocations.get(routerId);
       if (routerLocation) {
         pathCoordinates.push([routerLocation.lat, routerLocation.lng]);
@@ -74,37 +91,80 @@ export class CircuitPathBuilderService {
         entityIds.push(routerId);
         entityTypes.push('routers');
       } else {
-        console.warn('Router location not found:', routerId);
+        missingLocations.push(routerName);
       }
     }
 
-    // Get host location
+    // Get host location (continue even if not found)
     const hostLocation = identityLocations.get(hostId);
     if (!hostLocation) {
-      console.warn('Host location not found for circuit:', circuit.id);
-      return null;
+      missingLocations.push(hostName);
+    } else {
+      // Add host identity as last node
+      pathCoordinates.push([hostLocation.lat, hostLocation.lng]);
+      entityIds.push(hostId);
+      entityTypes.push('identity');
     }
 
-    // Add host identity as last node
-    pathCoordinates.push([hostLocation.lat, hostLocation.lng]);
-    entityIds.push(hostId);
-    entityTypes.push('identity');
-
     // Build circuit hops for display (from/to pairs for each segment)
-    const circuitHops: any[] = [];
-    const allNodeNames = [clientName, ...routerNames, hostName];
-    const allNodeIds = entityIds;
-    const allNodeTypes = entityTypes;
+    // Include all entities (even those without geolocation) for complete circuit info
+    const circuitHops: CircuitHop[] = [];
+    const allNodeNames: string[] = [];
+    const allNodeIds: string[] = [];
+    const allNodeTypes: string[] = [];
+    const allNodeHasLocation: boolean[] = [];
+
+    // Add client (always, even without geolocation)
+    allNodeNames.push(clientName);
+    allNodeIds.push(clientId || '');
+    allNodeTypes.push('identity');
+    allNodeHasLocation.push(!!clientLocation);
+
+    // Add routers from path
+    for (const routerId of pathNodes) {
+      const router = routers.find(r => r.id === routerId);
+      const routerName = router?.name || routerId;
+      const routerLocation = routerLocations.get(routerId);
+
+      allNodeNames.push(routerLocation?.name || routerName);
+      allNodeIds.push(routerId);
+      allNodeTypes.push('routers');
+      allNodeHasLocation.push(!!routerLocation);
+    }
+
+    // Add host (always, even without geolocation)
+    allNodeNames.push(hostName);
+    allNodeIds.push(hostId || '');
+    allNodeTypes.push('identity');
+    allNodeHasLocation.push(!!hostLocation);
+
+    // Build hops from complete node lists and track which are visible on the map
+    // A hop is visible if both its endpoints have geolocation data
+    const visibleSegmentToHopIndex = new Map<number, number>();
+    let visibleSegmentIndex = 0;
 
     for (let i = 0; i < allNodeNames.length - 1; i++) {
+      const fromHasLocation = allNodeHasLocation[i];
+      const toHasLocation = allNodeHasLocation[i + 1];
+      const isVisible = fromHasLocation && toHasLocation;
+
       circuitHops.push({
         from: allNodeNames[i],
         to: allNodeNames[i + 1],
         fromId: allNodeIds[i],
         toId: allNodeIds[i + 1],
         fromType: allNodeTypes[i],
-        toType: allNodeTypes[i + 1]
+        toType: allNodeTypes[i + 1],
+        isVisible: isVisible,
+        fromHasLocation: fromHasLocation,
+        toHasLocation: toHasLocation
       });
+
+      // Map visual segment index to logical hop index for visible segments
+      if (isVisible) {
+        visibleSegmentToHopIndex.set(visibleSegmentIndex, i);
+        visibleSegmentIndex++;
+      }
     }
 
     // Build detailed router list for circuit path display
@@ -144,7 +204,10 @@ export class CircuitPathBuilderService {
       clientId,
       clientName,
       hostId,
-      hostName
+      hostName,
+      hasCompleteGeolocation: missingLocations.length === 0,
+      missingLocations,
+      visibleSegmentToHopIndex
     };
   }
 

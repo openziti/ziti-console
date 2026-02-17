@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, HostListener, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostListener, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { Subscription, fromEvent } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
 
@@ -7,7 +7,7 @@ import { throttleTime } from 'rxjs/operators';
   templateUrl: './side-panel-container.component.html',
   styleUrls: ['./side-panel-container.component.scss']
 })
-export class SidePanelContainerComponent implements OnInit, OnDestroy {
+export class SidePanelContainerComponent implements OnInit, OnDestroy, OnChanges {
   @Input() isOpen: boolean = false;
   @Input() panelType: 'marker' | 'link' | 'circuit' | 'unlocated' | 'entityList' | 'servicesWithCircuits' | null = null;
   @Input() panelData: any = null;
@@ -46,6 +46,7 @@ export class SidePanelContainerComponent implements OnInit, OnDestroy {
   @Input() allCircuits: any[] = [];
   @Input() allIdentities: any[] = [];
   @Input() allRouters: any[] = [];
+  @Input() allTerminators: any[] = [];
   @Input() servicesWithCircuitsSearch: string = '';
 
   // Outputs
@@ -107,6 +108,13 @@ export class SidePanelContainerComponent implements OnInit, OnDestroy {
     this.updatePanelWidth();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    // Update panel width when isOpen changes
+    if (changes['isOpen']) {
+      this.updatePanelWidth();
+    }
+  }
+
   ngOnDestroy(): void {
     this.cleanupMouseListeners();
   }
@@ -116,7 +124,9 @@ export class SidePanelContainerComponent implements OnInit, OnDestroy {
    */
   getHeaderClass(): string {
     if (this.panelType === 'marker') {
-      return this.panelData?.type === 'identity' ? 'header-identity' : 'header-router';
+      if (this.panelData?.type === 'identity') return 'header-identity';
+      if (this.panelData?.type === 'services') return 'header-service';
+      return 'header-router';
     } else if (this.panelType === 'entityList') {
       if (this.entityListType === 'identities') return 'header-identity';
       if (this.entityListType === 'routers') return 'header-router';
@@ -168,7 +178,7 @@ export class SidePanelContainerComponent implements OnInit, OnDestroy {
         if (this.entityListType === 'services') return 'All Services';
         return '';
       case 'servicesWithCircuits':
-        return 'Active Circuits';
+        return 'Active Services';
       default:
         return '';
     }
@@ -179,7 +189,9 @@ export class SidePanelContainerComponent implements OnInit, OnDestroy {
    */
   getTitleIconClass(): string {
     if (this.panelType === 'marker') {
-      return this.panelData?.type === 'identity' ? 'icon-identity' : 'icon-routers';
+      if (this.panelData?.type === 'identity') return 'icon-identity';
+      if (this.panelData?.type === 'services') return 'icon-services';
+      return 'icon-routers';
     } else if (this.panelType === 'entityList') {
       if (this.entityListType === 'identities') return 'icon-identity';
       if (this.entityListType === 'routers') return 'icon-routers';
@@ -249,7 +261,8 @@ export class SidePanelContainerComponent implements OnInit, OnDestroy {
    * Update CSS variable for panel width
    */
   private updatePanelWidth(): void {
-    document.documentElement.style.setProperty('--side-panel-width', `${this.sidePanelWidth}rem`);
+    const width = this.isOpen ? this.sidePanelWidth : 0;
+    document.documentElement.style.setProperty('--side-panel-width', `${width}rem`);
   }
 
   /**

@@ -1,11 +1,20 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+
+interface ServiceGroup {
+  serviceName: string;
+  serviceId: string;
+  circuits: any[];
+  expanded: boolean;
+  sortBy?: 'created';
+  sortDirection?: 'asc' | 'desc';
+}
 
 @Component({
   selector: 'lib-entity-list-panel',
   templateUrl: './entity-list-panel.component.html',
   styleUrls: ['./entity-list-panel.component.scss']
 })
-export class EntityListPanelComponent {
+export class EntityListPanelComponent implements OnChanges {
   @Input() entityType: string = '';
   @Input() entities: any[] = [];
   @Input() currentPage: number = 1;
@@ -18,6 +27,8 @@ export class EntityListPanelComponent {
   @Input() selectedCircuitRouters: any[] = [];
   @Input() selectedRouterInPath: string | null = null;
   @Input() Math: any = Math;
+  @Input() allIdentities: any[] = [];
+  @Input() allRouters: any[] = [];
 
   @Output() searchChanged = new EventEmitter<string>();
   @Output() pageChanged = new EventEmitter<number>();
@@ -33,6 +44,18 @@ export class EntityListPanelComponent {
 
   sortColumn: string = '';
   sortDirection: 'asc' | 'desc' = 'desc';
+
+  // Service grouping
+  serviceGroups: ServiceGroup[] = [];
+
+  // Filtering state
+  hideOlderCircuits: boolean = false;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['previewCircuits'] || changes['hideOlderCircuits']) {
+      this.updateServiceGroups();
+    }
+  }
 
   /**
    * Get total pages
@@ -187,5 +210,200 @@ export class EntityListPanelComponent {
    */
   onRoleAttributeClick(role: string): void {
     this.roleAttributeNavigated.emit(role);
+  }
+
+  /**
+   * Update service groups - group circuits by service and apply filtering
+   */
+  updateServiceGroups(): void {
+    let processed = [...this.previewCircuits];
+
+    // Pre-compute client/host info for all circuits to avoid repeated computation in templates
+    processed.forEach(circuit => {
+      if (!circuit._clientInfo) {
+        circuit._clientInfo = this.computeClientInfo(circuit);
+      }
+      if (!circuit._hostInfo) {
+        circuit._hostInfo = this.computeHostInfo(circuit);
+      }
+    });
+
+    // Filter duplicates if enabled
+    if (this.hideOlderCircuits && processed.length > 0) {
+      const grouped = new Map<string, any[]>();
+
+      processed.forEach(circuit => {
+        const clientId = circuit.tags?.clientId || circuit.clientId || 'unknown';
+        const hostId = circuit.tags?.hostId || circuit.hostId || 'unknown';
+        const serviceId = circuit.service?.id || circuit.serviceId || 'unknown';
+        const key = `${serviceId}-${clientId}-${hostId}`;
+
+        if (!grouped.has(key)) {
+          grouped.set(key, []);
+        }
+        grouped.get(key)!.push(circuit);
+      });
+
+      // Keep only the most recent circuit per group
+      processed = [];
+      grouped.forEach(circuits => {
+        const sorted = circuits.sort((a, b) => {
+          const dateA = new Date(a.createdAt || 0).getTime();
+          const dateB = new Date(b.createdAt || 0).getTime();
+          return dateB - dateA;
+        });
+        processed.push(sorted[0]);
+      });
+    }
+
+    // Group circuits by service
+    const serviceMap = new Map<string, ServiceGroup>();
+
+    processed.forEach(circuit => {
+      const serviceId = circuit.service?.id || 'unknown';
+      const serviceName = circuit.service?.name || 'Unknown Service';
+
+      if (!serviceMap.has(serviceId)) {
+        serviceMap.set(serviceId, {
+          serviceName,
+          serviceId,
+          circuits: [],
+          expanded: false
+        });
+      }
+
+      serviceMap.get(serviceId)!.circuits.push(circuit);
+    });
+
+    // Convert to array and sort by service name
+    this.serviceGroups = Array.from(serviceMap.values()).sort((a, b) =>
+      a.serviceName.localeCompare(b.serviceName)
+    );
+  }
+
+  /**
+   * Toggle service group expansion
+   */
+  toggleGroup(group: ServiceGroup, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    group.expanded = !group.expanded;
+  }
+
+  /**
+   * Toggle sort for a service group
+   */
+  toggleCircuitSort(group: ServiceGroup): void {
+    if (group.sortBy === 'created') {
+      group.sortDirection = group.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      group.sortBy = 'created';
+      group.sortDirection = 'desc';
+    }
+  }
+
+  /**
+   * Toggle hiding older duplicate circuits
+   */
+  toggleHideOlderCircuits(): void {
+    this.hideOlderCircuits = !this.hideOlderCircuits;
+  }
+
+  /**
+   * Get entity name and type from ID
+   */
+  getEntityInfo(entityId: string): { name: string; type: 'identity' | 'router' } {
+    // Try to find in identities first
+    const identity = this.allIdentities.find(i => i.id === entityId);
+    if (identity) {
+      // Check if this identity is a router type
+      const type = identity.typeId === 'Router' ? 'router' : 'identity';
+      return { name: identity.name || entityId, type };
+    }
+
+    // Try to find in routers
+    const router = this.allRouters.find(r => r.id === entityId);
+    if (router) {
+      return { name: router.name || entityId, type: 'router' };
+    }
+
+    // Unknown entity
+    return { name: entityId, type: 'identity' };
+  }
+
+  /**
+   * Compute client entity info from circuit (called once during data processing)
+   */
+  private computeClientInfo(circuit: any): { name: string; type: 'identity' | 'router' } {
+    // Handle empty strings from API - use explicit checks instead of || operator
+    const clientId = (circuit.tags?.clientId && circuit.tags.clientId.trim()) ||
+                     circuit.clientId ||
+                     circuit.client?.id ||
+                     'Unknown';
+    return this.getEntityInfo(clientId);
+  }
+
+  /**
+   * Compute host entity info from circuit (called once during data processing)
+   */
+  private computeHostInfo(circuit: any): { name: string; type: 'identity' | 'router' } {
+    // Handle empty strings from API - use explicit checks instead of || operator
+    const hostId = (circuit.tags?.hostId && circuit.tags.hostId.trim()) ||
+                   circuit.hostId ||
+                   circuit.host?.id ||
+                   'Unknown';
+    return this.getEntityInfo(hostId);
+  }
+
+  /**
+   * Get cached client entity info from circuit (used in templates)
+   */
+  getClientInfo(circuit: any): { name: string; type: 'identity' | 'router' } {
+    return circuit._clientInfo || this.computeClientInfo(circuit);
+  }
+
+  /**
+   * Get cached host entity info from circuit (used in templates)
+   */
+  getHostInfo(circuit: any): { name: string; type: 'identity' | 'router' } {
+    return circuit._hostInfo || this.computeHostInfo(circuit);
+  }
+
+  /**
+   * Get sorted circuits for a group - dual sort with created date as primary when active
+   */
+  getSortedCircuits(group: ServiceGroup): any[] {
+    return [...group.circuits].sort((a, b) => {
+      // If created sort is active, use it as primary sort
+      if (group.sortBy === 'created') {
+        const dateA = new Date(a.createdAt || 0).getTime();
+        const dateB = new Date(b.createdAt || 0).getTime();
+        const dateCompare = group.sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
+
+        if (dateCompare !== 0) {
+          return dateCompare;
+        }
+
+        // If dates are the same, sort by client name as secondary
+        const clientA = this.getClientInfo(a).name.toLowerCase();
+        const clientB = this.getClientInfo(b).name.toLowerCase();
+        return clientA.localeCompare(clientB);
+      }
+
+      // Default: sort by client name first, then by created date
+      const clientA = this.getClientInfo(a).name.toLowerCase();
+      const clientB = this.getClientInfo(b).name.toLowerCase();
+      const clientCompare = clientA.localeCompare(clientB);
+
+      if (clientCompare !== 0) {
+        return clientCompare;
+      }
+
+      // If client names are the same, sort by created date (descending)
+      const dateA = new Date(a.createdAt || 0).getTime();
+      const dateB = new Date(b.createdAt || 0).getTime();
+      return dateB - dateA;
+    });
   }
 }

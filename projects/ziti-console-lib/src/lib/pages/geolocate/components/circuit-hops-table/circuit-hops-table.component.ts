@@ -1,12 +1,5 @@
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
-
-export interface CircuitHop {
-  from: string;
-  fromType: string;
-  to: string;
-  toType: string;
-  [key: string]: any;
-}
+import { CircuitHop } from '../../services/circuit-path-builder.service';
 
 @Component({
   selector: 'lib-circuit-hops-table',

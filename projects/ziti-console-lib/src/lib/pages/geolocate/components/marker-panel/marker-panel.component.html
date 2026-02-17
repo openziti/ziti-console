@@ -1,10 +1,13 @@
-<div class="marker-popup" *ngIf="markerData">
-  <table class="popup-table">
+<div class="entity-details-panel" *ngIf="markerData">
+  <div class="details-section">
+    <table class="details-table">
     <tr>
       <td class="popup-label">Type:</td>
-      <td class="popup-value">{{ markerData?.type === 'identity' ? 'Identity' : 'Router' }}</td>
+      <td class="popup-value">
+        {{ markerData?.type === 'identity' ? 'Identity' : markerData?.type === 'services' ? 'Service' : 'Router' }}
+      </td>
     </tr>
-    <tr *ngIf="markerData?.item?.isOnline !== undefined || markerData?.item?.connected !== undefined">
+    <tr *ngIf="markerData?.type !== 'services' && (markerData?.item?.isOnline !== undefined || markerData?.item?.connected !== undefined)">
       <td class="popup-label">Status:</td>
       <td class="popup-value">
         <span [class]="getEntityOnlineStatus(markerData?.item) ? 'status-online' : 'status-offline'">
@@ -28,7 +31,7 @@
       <td class="popup-label">ID:</td>
       <td class="popup-value popup-id">{{ markerData?.item?.id }}</td>
     </tr>
-    <tr *ngIf="markerData?.location">
+    <tr *ngIf="markerData?.location && markerData?.type !== 'services'">
       <td class="popup-label">Location:</td>
       <td class="popup-value popup-location" [class.location-modified]="hasUnsavedLocationChanges(markerData?.item)">
         {{ markerData?.location?.lat?.toFixed(4) }}, {{ markerData?.location?.lng?.toFixed(4) }}
@@ -48,39 +51,93 @@
         </span>
       </td>
     </tr>
-  </table>
+    </table>
+  </div>
 
-  <!-- Active Circuits Section -->
+  <!-- Active Services Section -->
   <div class="circuits-section" *ngIf="circuits.length > 0">
     <div class="circuits-container">
       <div class="circuits-header">
         <span class="circuits-header-icon ziti-logo"></span>
-        <span class="circuits-header-text">Active Circuits ({{ circuits.length }})</span>
+        <span class="circuits-header-text">Active Services ({{ serviceGroups.length }})</span>
+      </div>
+      <div class="circuits-controls">
+        <label class="hide-duplicates-checkbox">
+          <span>Hide older circuits</span>
+          <div
+            class="tSelect"
+            [class.selected]="hideOlderCircuits"
+            (click)="toggleHideOlderCircuits()"
+          ></div>
+        </label>
       </div>
       <div class="circuits-list">
-        <table class="circuits-table">
+        <table class="circuits-table tree-table">
+          <colgroup>
+            <col style="width: 30px;">  <!-- Indent -->
+            <col>                        <!-- Client - flexible -->
+            <col>                        <!-- Host - flexible -->
+            <col style="width: 120px;">  <!-- Created -->
+            <col style="width: 26px;">   <!-- Action -->
+          </colgroup>
           <thead>
             <tr>
-              <th>Service</th>
-              <th>Path</th>
-              <th class="action-column"></th>
+              <th colspan="5" class="service-column">Service Name</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let circuit of circuits"
-                (click)="onCircuitSelect(circuit, $event)"
-                [class.selected-row]="selectedCircuit?.id === circuit.id"
-                class="clickable-circuit-row">
-              <td class="circuit-service">{{ circuit.service?.name || circuit.serviceName || 'Unknown Service' }}</td>
-              <td class="circuit-path">
-                <span *ngIf="circuit.path?.nodes?.length > 0">{{ circuit.path.nodes.length }} router(s)</span>
-                <span *ngIf="circuit.path?.length > 0 && !circuit.path?.nodes">{{ circuit.path.length }} router(s)</span>
-                <span *ngIf="!circuit.path?.nodes?.length && !circuit.path?.length">Direct</span>
-              </td>
-              <td class="action-column">
-                <span class="circuit-nav-icon icon-Share-RBAC" (click)="onCircuitPreviewOpen(circuit, $event)" title="View Circuit Details"></span>
-              </td>
-            </tr>
+            <ng-container *ngFor="let group of serviceGroups">
+              <!-- Service Group Row -->
+              <tr class="group-row clickable-row" (click)="toggleGroup(group, $event)">
+                <td class="expand-cell">
+                  <span class="expand-icon icon-RightPage" [class.expanded]="group.expanded"></span>
+                </td>
+                <td colspan="4" class="service-name">
+                  <span class="icon-Services group-icon"></span>
+                  <span class="service-text">{{ group.serviceName }}</span>
+                  <span class="circuit-count">({{ group.circuits.length }})</span>
+                </td>
+              </tr>
+
+              <!-- Circuit Rows (shown when expanded) -->
+              <ng-container *ngIf="group.expanded">
+                <!-- Subheader Row -->
+                <tr class="subheader-row">
+                  <th class="subheader-indent"></th>
+                  <th class="subheader-cell">Client</th>
+                  <th class="subheader-cell">Host</th>
+                  <th class="subheader-cell sortable-header" (click)="toggleSort(group)">
+                    Created
+                    <span class="sort-indicator" *ngIf="group.sortBy === 'created'">
+                      {{ group.sortDirection === 'asc' ? '▲' : '▼' }}
+                    </span>
+                  </th>
+                  <th class="subheader-cell"></th>
+                </tr>
+
+                <!-- Circuit Data Rows -->
+                <tr *ngFor="let circuit of getSortedCircuits(group)"
+                    (click)="onCircuitSelect(circuit, $event)"
+                    [class.selected-row]="selectedCircuit?.id === circuit.id"
+                    class="circuit-row clickable-row">
+                  <td class="circuit-indent"></td>
+                  <td class="circuit-entity">
+                    <span [class]="getClientInfo(circuit).type === 'identity' ? 'icon-identity entity-icon' : 'icon-routers entity-icon'"></span>
+                    <span class="entity-name">{{ getClientInfo(circuit).name }}</span>
+                  </td>
+                  <td class="circuit-entity">
+                    <span [class]="getHostInfo(circuit).type === 'identity' ? 'icon-identity entity-icon' : 'icon-routers entity-icon'"></span>
+                    <span class="entity-name">{{ getHostInfo(circuit).name }}</span>
+                  </td>
+                  <td class="circuit-created">
+                    {{ circuit.createdAt | date:'short' }}
+                  </td>
+                  <td class="action-column">
+                    <span class="circuit-nav-icon icon-Share-RBAC" (click)="onCircuitPreviewOpen(circuit, $event)" title="View Circuit Details"></span>
+                  </td>
+                </tr>
+              </ng-container>
+            </ng-container>
           </tbody>
         </table>
       </div>
@@ -124,14 +181,15 @@
     </div>
   </div>
 
-  <div class="popup-actions">
+  <div class="action-section">
     <button *ngIf="hasUnsavedLocationChanges(markerData?.item)"
             class="save-location-btn"
             (click)="onSaveLocationChanges()">
       Save Changes
     </button>
-    <a class="popup-details-link" (click)="onNavigateToDetails()">
-      View Details →
-    </a>
+    <button class="popup-details-btn" (click)="onNavigateToDetails()">
+      Go To Edit Page
+      <span class="icon-RightPage"></span>
+    </button>
   </div>
 </div>

@@ -1293,7 +1293,7 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     this.mapStateService.showConnectionStatusFilterSelector = false;
   }
 
-  onConnectionStatusChange(event?: any) {
+  onConnectionStatusChange(newStatus?: string) {
     this.reloadMapDataWithFilters();
     this.checkAppliedFilters();
   }
@@ -1485,6 +1485,7 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   }
 
   filterCircuitsAndRouters() {
+
     // Use the already-filtered data from backend
     const filteredIdentityIds = new Set(this.identities.map(i => i.id));
     const filteredServiceIds = new Set(this.services.map(s => s.id));
@@ -1508,8 +1509,8 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // If using mock data and markers don't exist yet, create them
-    if (this.shouldUseMockData() && this.mapMarkerService.identityMarkers.length === 0 && this.mapMarkerService.routerMarkers.length === 0) {
+    // If markers don't exist yet, create them (for all data - not just mock data)
+    if (this.mapMarkerService.identityMarkers.length === 0 && this.mapMarkerService.routerMarkers.length === 0) {
       this.mapMarkerService.addMarkers(
         this.edgeRouters,
         'routers',
@@ -1583,31 +1584,55 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     const identityIdsToShow = new Set<string>();
     const routerIdsToShow = new Set<string>();
 
-    // Only add explicitly filtered identities if identity filters are applied
+    // Handle identity filtering
     if (hasIdentityFilter) {
+      // If identity filter is active, show explicitly filtered identities
       filteredIdentityIds.forEach(id => identityIdsToShow.add(id));
+      // Also add identities from filtered circuits for context
+      filteredCircuits.forEach((circuit) => {
+        const circuitClientId = circuit.clientId || circuit.tags?.clientId || circuit.client?.id || circuit.sourceId || circuit.initiator?.id;
+        const circuitHostId = circuit.tags?.hostId || circuit.host?.id || circuit.hostId;
+        if (circuitClientId) identityIdsToShow.add(circuitClientId);
+        if (circuitHostId) identityIdsToShow.add(circuitHostId);
+      });
+    } else if (hasRouterFilter || hasServiceFilter) {
+      // If only router/service filters are active, extract identities from circuits
+      // Use the SAME logic that draws circuit paths to determine which identities are connected
+
+      // For each filtered circuit, build the circuit path data to extract client/host identities
+      filteredCircuits.forEach(circuit => {
+        const circuitPathData = this.circuitPathBuilderService.buildCircuitPathData(
+          circuit,
+          this.mapStateService.routerLocations,
+          this.mapStateService.identityLocations,
+          this.edgeRouters,
+          this.identities
+        );
+
+        if (circuitPathData) {
+          // Add client identity if present
+          if (circuitPathData.clientId) {
+            identityIdsToShow.add(circuitPathData.clientId);
+          }
+          // Add host identity if present
+          if (circuitPathData.hostId) {
+            identityIdsToShow.add(circuitPathData.hostId);
+          }
+        }
+      });
+    } else {
+      // No filters active - show all identities
+      this.identities.forEach(identity => identityIdsToShow.add(identity.id));
     }
 
-    // Only add explicitly filtered routers if router filters are applied
+    // Handle router filtering
     if (hasRouterFilter) {
+      // If router filter is active, only show filtered routers
       filteredRouterIds.forEach(id => routerIdsToShow.add(id));
     } else {
       // If no router filter is active, show ALL routers
       this.edgeRouters.forEach(router => routerIdsToShow.add(router.id));
     }
-
-    // Add identities from filtered circuits (both client and host)
-    filteredCircuits.forEach((circuit) => {
-      const circuitClientId = circuit.clientId || circuit.tags?.clientId || circuit.client?.id || circuit.sourceId || circuit.initiator?.id;
-      const circuitHostId = circuit.tags?.hostId || circuit.host?.id || circuit.hostId;
-
-      if (circuitClientId) {
-        identityIdsToShow.add(circuitClientId);
-      }
-      if (circuitHostId) {
-        identityIdsToShow.add(circuitHostId);
-      }
-    });
 
     // Add hosting identities from terminators for filtered services (only if service filter is active)
     if (hasServiceFilter) {
@@ -2372,8 +2397,12 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   openServicePanel(service: any) {
     if (!service || !service.id) return;
 
-    // Services don't have a dedicated panel type yet, so navigate to details page
-    this.navigateToDetails('services', service.id);
+    // Open side panel with service data
+    this.openSidePanel('marker', {
+      type: 'services', // Use plural to match getEntityCircuits() logic
+      item: service,
+      location: null // Services don't have location
+    });
   }
 
   openEntityPanel(entityId: string, entityType: string) {
@@ -2894,7 +2923,16 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       const clusterGroup = routerType === 'identity' ? this.identityClusterGroup : this.routerClusterGroup;
 
       if (marker && clusterGroup) {
-        // zoomToShowLayer zooms to the parent cluster bounds and spiderfies if still clustered
+        // Select and highlight the marker first
+        if (this.mapMarkerService.selectedMarker) {
+          this.updateMarkerIcon(this.mapMarkerService.selectedMarker, false);
+          this.resetMarkerOpacity();
+        }
+        this.mapMarkerService.selectedMarker = marker;
+        this.updateMarkerIcon(marker, true);
+        this.applyMarkerOpacity(marker);
+
+        // Then zoom to show it
         clusterGroup.zoomToShowLayer(marker);
       } else {
         // Fallback: marker not found (shouldn't normally happen), just pan
@@ -2938,7 +2976,12 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Open the circuit panel with the first segment selected
+    // Warn if some entities are missing geolocation data
+    if (!pathData.hasCompleteGeolocation) {
+      console.warn('Circuit has entities without geolocation data:', pathData.missingLocations.join(', '));
+    }
+
+    // Open the circuit panel with available data
     if (pathData.circuitHops.length > 0) {
       // Set the selected circuit and draw it on the map
       this.mapStateService.selectedCircuit = circuit;
@@ -2959,7 +3002,8 @@ export class GeolocateComponent implements OnInit, OnDestroy {
           fromId: pathData.circuitHops[0].fromId,
           toId: pathData.circuitHops[0].toId,
           fromType: pathData.circuitHops[0].fromType,
-          toType: pathData.circuitHops[0].toType
+          toType: pathData.circuitHops[0].toType,
+          isVisible: pathData.circuitHops[0].isVisible
         },
         pathNodes: pathData.pathNodes,
         pathCoordinates: pathData.pathCoordinates,
@@ -2967,7 +3011,8 @@ export class GeolocateComponent implements OnInit, OnDestroy {
         entityIds: pathData.entityIds,
         entityTypes: pathData.entityTypes,
         circuitHops: pathData.circuitHops,
-        circuitRouters: pathData.circuitRouters
+        circuitRouters: pathData.circuitRouters,
+        visibleSegmentToHopIndex: pathData.visibleSegmentToHopIndex
       });
     }
   }

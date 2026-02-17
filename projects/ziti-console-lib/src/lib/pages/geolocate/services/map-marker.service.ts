@@ -54,16 +54,18 @@ export class MapMarkerService {
    * @returns Leaflet icon object
    */
   createMarkerIcon(type: string, isSelected: boolean, scale: number = 0.85): any {
+    // Use window.location.origin to ensure URLs use the correct protocol (http/https)
+    const baseUrl = window.location.origin;
     let iconUrl: string;
 
     if (isSelected) {
       iconUrl = type === 'identity'
-        ? '/assets/svgs/identity-marker-selected.svg'
-        : '/assets/svgs/router-marker-selected.svg';
+        ? `${baseUrl}/assets/svgs/identity-marker-selected.svg`
+        : `${baseUrl}/assets/svgs/router-marker-selected.svg`;
     } else {
       iconUrl = type === 'identity'
-        ? '/assets/svgs/identity-marker.svg'
-        : '/assets/svgs/router-marker.svg';
+        ? `${baseUrl}/assets/svgs/identity-marker.svg`
+        : `${baseUrl}/assets/svgs/router-marker.svg`;
     }
 
     // Calculate scaled dimensions
@@ -76,7 +78,7 @@ export class MapMarkerService {
     return L.icon({
       iconUrl,
       iconRetinaUrl: iconUrl,
-      shadowUrl: '/assets/scripts/components/leaflet/images/marker-shadow.png',
+      shadowUrl: `${baseUrl}/assets/scripts/components/leaflet/images/marker-shadow.png`,
       iconSize,
       iconAnchor,
       popupAnchor,

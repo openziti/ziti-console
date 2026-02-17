@@ -52,7 +52,7 @@
         <span class="dashboard-multi-title">Connection Status</span>
         <div class="expand-collapse-icon icon-RightPage"></div>
         <div class="filter-dropdown connection-status-dropdown" *ngIf="showConnectionStatusFilterSelector" (clickOutside)="connectionStatusFilterClosed.emit($event)">
-          <select [(ngModel)]="selectedConnectionStatus" (change)="connectionStatusChanged.emit($event); selectedConnectionStatusChange.emit(selectedConnectionStatus)" class="connection-status-select form-field-dropdown" #connectionStatusFilterSelector>
+          <select [(ngModel)]="selectedConnectionStatus" (change)="selectedConnectionStatusChange.emit(selectedConnectionStatus); connectionStatusChanged.emit(selectedConnectionStatus)" class="connection-status-select form-field-dropdown" #connectionStatusFilterSelector>
             <option value="all">All</option>
             <option value="online">Online</option>
             <option value="offline">Offline</option>

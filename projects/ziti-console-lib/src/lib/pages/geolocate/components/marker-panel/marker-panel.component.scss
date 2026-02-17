@@ -3,10 +3,18 @@
   width: 100%;
 }
 
-.marker-popup {
+.entity-details-panel {
   font-family: 'Open Sans', sans-serif;
+  background: var(--mainBackground);
+  display: flex;
+  flex-direction: column;
 
-  .popup-table {
+  .details-section {
+    padding: var(--paddingLarge);
+    border-bottom: 1px solid var(--inputBorder);
+  }
+
+  .details-table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
@@ -126,18 +134,20 @@
 
   // Circuits sub-table styles
   .circuits-section {
-    margin-top: 1rem;
+    margin-top: var(--gapMedium);
     border-top: 1px solid var(--inputBorder);
 
     .circuits-container {
+      padding: 0 var(--paddingLarge);
+
       .circuits-header {
         display: flex;
         align-items: center;
         gap: 0.75rem;
         padding: 0.5rem 0.75rem;
+        margin: 0 calc(-1 * var(--paddingLarge));
         background: var(--activeCircuitColor);
         border-bottom: 1px solid var(--inputBorder);
-        border-radius: var(--inputBorderRadius) var(--inputBorderRadius) 0 0;
 
         .circuits-header-icon {
           width: 2.85rem;
@@ -167,22 +177,69 @@
         }
       }
 
+      .circuits-controls {
+        padding: 0.5rem 0;
+        padding-bottom: var(--paddingMedium);
+        background-color: transparent;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .hide-duplicates-checkbox {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.813rem;
+          color: var(--tableText);
+          cursor: default;
+          user-select: none;
+          margin: 0;
+
+          .tSelect {
+            position: relative;
+            top: unset;
+            left: unset;
+            min-width: 1.25rem;
+            max-width: 1.25rem;
+            min-height: 1.25rem;
+            max-height: 1.25rem;
+            border-radius: var(--inputBorderRadius);
+            border-color: var(--inputBorder);
+            border-style: solid;
+            border-width: 1px;
+            background-color: var(--navigation);
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background-color 0.2s ease;
+
+            &.selected {
+              background-color: var(--green);
+              background-image: url(/assets/images/check.png);
+              background-size: 45%;
+              background-position: center center;
+              background-repeat: no-repeat;
+              border: none;
+            }
+          }
+        }
+      }
+
       .circuits-list {
         max-height: 25rem;
         overflow-y: auto;
         overflow-x: auto;
         border: 1px solid var(--inputBorder);
-        border-top-style: none;
         border-radius: var(--inputBorderRadius);
 
         .circuits-table {
           width: 100%;
-          border-collapse: separate;
+          border-collapse: collapse;
           border-spacing: 0;
           font-size: 0.813rem;
+          table-layout: fixed;
 
           thead {
-            background-color: var(--navigation);
+            background-color: var(--formBackground);
             position: sticky;
             top: 0;
             z-index: 1;
@@ -192,33 +249,254 @@
               text-align: left;
               font-weight: 600;
               color: var(--tableHeader);
-              border-bottom: 0.25rem solid var(--primary);
+              border-bottom: 1px solid var(--inputBorder);
               white-space: nowrap;
               font-size: 0.75rem;
-              background-color: var(--navigation);
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              background-color: var(--formBackground);
             }
           }
 
           tbody {
             tr {
-              border-bottom: 1px solid var(--inputBorder);
               transition: background-color 0.2s ease;
-              background-color: var(--formBackground);
 
-              &:nth-child(odd) {
-                background-color: var(--white);
-              }
-
-              &.clickable-circuit-row {
-                cursor: pointer;
+              &.group-row {
+                background-color: var(--mainBackground);
+                font-weight: 600;
 
                 &:hover {
                   background-color: rgba(33, 150, 243, 0.1) !important;
                 }
 
-                &.selected-row {
-                  background-color: rgba(33, 150, 243, 0.2) !important;
-                  border-left: 3px solid var(--primary);
+                td.expand-cell {
+                  padding: 0.5rem 0.25rem;
+                  text-align: center;
+                  width: 30px;
+                  min-width: 30px;
+                  max-width: 30px;
+
+                  .expand-icon {
+                    font-size: 0.75rem;
+                    color: var(--tableHeader);
+                    display: inline-flex;
+                    justify-content: center;
+                    align-items: center;
+                    transition: transform 0.2s ease;
+                    transform: rotate(0deg);
+
+                    &.expanded {
+                      transform: rotate(90deg);
+                    }
+                  }
+                }
+
+                td.service-name {
+                  padding: 0.75rem 1rem;
+
+                  .group-icon {
+                    font-size: 1.25rem;
+                    color: var(--servicesColor);
+                    margin-right: 0.5rem;
+                  }
+
+                  .service-text {
+                    font-size: 0.875rem;
+                    color: var(--tableText);
+                  }
+
+                  .circuit-count {
+                    font-size: 0.75rem;
+                    color: var(--tableHeader);
+                    font-weight: 400;
+                    margin-left: 0.5rem;
+                  }
+                }
+              }
+
+              &.subheader-row {
+                background-color: var(--formBackground);
+                border-bottom: 1px solid var(--inputBorder);
+
+                th {
+                  padding: 0.5rem 0.75rem;
+                  text-align: left;
+                  font-weight: 600;
+                  color: var(--tableHeader);
+                  font-size: 0.75rem;
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
+
+                  &.subheader-indent {
+                    width: 30px !important;
+                    min-width: 30px !important;
+                    max-width: 30px !important;
+                  }
+
+                  &.subheader-cell {
+                    background-color: var(--formBackground);
+
+                    &.sortable-header {
+                      cursor: pointer;
+                      user-select: none;
+                      transition: background-color 0.2s ease;
+                      width: 140px !important;
+                      min-width: 140px !important;
+                      max-width: 140px !important;
+
+                      &:hover {
+                        background-color: var(--tableHeaderBackground);
+                        color: var(--primaryColor);
+                      }
+
+                      .sort-indicator {
+                        margin-left: 0.25rem;
+                        font-size: 0.7rem;
+                      }
+                    }
+
+                    &:last-child {
+                      width: 26px !important;
+                      min-width: 26px !important;
+                      max-width: 26px !important;
+                    }
+                  }
+                }
+              }
+
+              &.circuit-row {
+                background-color: var(--white);
+
+                &:nth-child(even) {
+                  background-color: var(--formBackground);
+                }
+
+                &:hover {
+                  background-color: rgba(33, 150, 243, 0.1) !important;
+                }
+
+                &.clickable-row {
+                  cursor: pointer;
+
+                  &.selected-row {
+                    background-color: rgba(33, 150, 243, 0.15) !important;
+                    border-left: 3px solid var(--primaryColor);
+                  }
+                }
+
+                td {
+                  padding: 0.5rem 0.75rem;
+                  color: var(--tableText);
+                  vertical-align: middle;
+
+                  &.circuit-indent {
+                    width: 30px !important;
+                    min-width: 30px !important;
+                    max-width: 30px !important;
+                    padding: 0.5rem 0.25rem !important;
+                  }
+
+                  &.circuit-entity {
+                    white-space: nowrap;
+
+                    > span {
+                      display: inline-block;
+                      vertical-align: middle;
+                    }
+
+                    .entity-icon {
+                      font-size: 1rem;
+                      margin-right: 0.5rem;
+
+                      &.icon-identity {
+                        font-size: 1.284rem;
+                        color: var(--primaryColor) !important;
+
+                        &::before {
+                          color: var(--primaryColor) !important;
+                        }
+                      }
+
+                      &.icon-routers {
+                        font-size: 1.1rem;
+                        color: var(--secondaryColor) !important;
+
+                        &::before {
+                          color: var(--secondaryColor) !important;
+                        }
+                      }
+                    }
+
+                    .entity-name {
+                      font-size: 0.813rem;
+                      overflow: hidden;
+                      text-overflow: ellipsis;
+                      white-space: nowrap;
+                      display: inline-block;
+                      vertical-align: middle;
+                      max-width: calc(100% - 1.5rem);
+                    }
+                  }
+
+                  &.circuit-created {
+                    font-size: 0.75rem;
+                    color: var(--tableText);
+                    white-space: nowrap;
+                    width: 140px !important;
+                    min-width: 140px !important;
+                    max-width: 140px !important;
+                    padding: 0.5rem 0.75rem !important;
+                  }
+
+                  &.action-column {
+                    width: 26px !important;
+                    min-width: 26px !important;
+                    max-width: 26px !important;
+                    text-align: center;
+                    padding: 0.125rem !important;
+
+                    .circuit-nav-icon {
+                      display: inline-flex;
+                      align-items: center;
+                      justify-content: center;
+                      width: 22px;
+                      height: 22px;
+                      border-radius: 50%;
+                      color: var(--primaryColor);
+                      font-size: 0.85rem;
+                      cursor: pointer;
+                      transition: all 0.2s ease;
+                      background-color: transparent;
+                      opacity: .35;
+                      filter: grayscale(1);
+
+                      &:hover {
+                        background-color: var(--primaryColor);
+                        color: var(--white);
+                        transform: scale(1.1);
+                      }
+
+                      &:active {
+                        transform: scale(0.95);
+                      }
+
+                      &:before {
+                        color: inherit;
+                      }
+                    }
+                  }
+                }
+
+                &:hover {
+                  td {
+                    &.action-column {
+                      .circuit-nav-icon {
+                        opacity: 1;
+                        filter: none;
+                      }
+                    }
+                  }
                 }
               }
 
@@ -226,66 +504,8 @@
                 border-bottom: none;
               }
 
-              td {
-                padding: 0.5rem 0.75rem;
-                color: var(--tableText);
-                font-size: 0.813rem;
-
-                &.circuit-service {
-                  font-weight: 500;
-                }
-
-                &.circuit-path {
-                  font-size: 0.75rem;
-                  color: var(--tableText);
-                }
-
-                &.action-column {
-                  width: 40px;
-                  text-align: center;
-                  padding: 0.5rem;
-
-                  .circuit-nav-icon {
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 28px;
-                    height: 28px;
-                    border-radius: 50%;
-                    color: var(--primaryColor);
-                    font-size: 1rem;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                    background-color: transparent;
-                    opacity: .35;
-                    filter: grayscale(1);
-
-                    &:hover {
-                      background-color: var(--primaryColor);
-                      color: var(--white);
-                      transform: scale(1.1);
-                    }
-
-                    &:active {
-                      transform: scale(0.95);
-                    }
-
-                    &:before {
-                      color: inherit;
-                    }
-                  }
-                }
-              }
-
-              &:hover {
-                td {
-                  &.action-column {
-                    .circuit-nav-icon {
-                      opacity: 1;
-                      filter: none;
-                    }
-                  }
-                }
+              &.clickable-row {
+                cursor: pointer;
               }
             }
           }
@@ -296,18 +516,20 @@
 
   // Router path details sub-section
   .router-path-section {
-    margin-top: 1rem;
+    margin-top: var(--gapMedium);
     border-top: 1px solid var(--inputBorder);
 
     .router-path-container {
+      padding: 0 var(--paddingLarge);
+
       .router-path-header {
         display: flex;
         align-items: center;
         gap: 0.75rem;
         padding: 0.75rem 1rem;
+        margin: 0 calc(-1 * var(--paddingLarge));
         background: var(--secondaryColor);
         border-bottom: 1px solid var(--inputBorder);
-        border-radius: var(--inputBorderRadius) var(--inputBorderRadius) 0 0;
 
         .router-path-icon {
           font-size: 1.5rem;
@@ -336,6 +558,7 @@
         max-height: 15rem;
         overflow-y: auto;
         overflow-x: auto;
+        padding-top: var(--paddingMedium);
         border: 1px solid var(--inputBorder);
         border-radius: var(--inputBorderRadius);
 
@@ -365,7 +588,6 @@
 
           tbody {
             tr {
-              border-bottom: 1px solid var(--inputBorder);
               transition: background-color 0.2s ease;
               background-color: var(--formBackground);
 
@@ -457,12 +679,12 @@
     }
   }
 
-  .popup-actions {
-    margin-top: 1rem;
-    padding-top: 1rem;
+  .action-section {
+    margin-top: var(--gapMedium);
+    padding: var(--paddingLarge);
     border-top: 1px solid var(--inputBorder);
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     gap: 1rem;
 
@@ -474,10 +696,9 @@
       border-radius: 4px;
       font-weight: 600;
       cursor: pointer;
-      transition: background-color 0.2s ease;
 
       &:hover {
-        background-color: color-mix(in srgb, var(--primaryColor) 85%, black);
+        filter: brightness(0.9);
       }
 
       &:active {
@@ -485,16 +706,25 @@
       }
     }
 
-    .popup-details-link {
-      color: var(--tableLinks);
+    .popup-details-btn {
+      padding: 0.5rem 1rem;
+      background-color: var(--primaryColor);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      font-weight: 600;
       cursor: pointer;
-      text-decoration: none;
-      font-weight: 500;
-      transition: color 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
 
       &:hover {
-        color: var(--tableLinkHover);
-        text-decoration: underline;
+        filter: brightness(0.9);
+      }
+
+      &:active {
+        transform: scale(0.98);
       }
     }
   }

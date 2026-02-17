@@ -16,19 +16,25 @@
     <!-- Circuits Tree Table -->
     <div class="services-table-container">
       <table class="services-table tree-table">
+        <colgroup>
+          <col style="width: 30px;">  <!-- Indent -->
+          <col>                        <!-- Client - flexible -->
+          <col>                        <!-- Host - flexible -->
+          <col style="width: 120px;">  <!-- Created -->
+        </colgroup>
         <thead>
           <tr>
-            <th colspan="12" class="service-column">Service Name</th>
+            <th colspan="4" class="service-column">Service Name</th>
           </tr>
         </thead>
         <tbody>
           <ng-container *ngFor="let group of serviceGroups">
             <!-- Service Group Row -->
             <tr class="group-row clickable-row" (click)="toggleGroup(group, $event)">
-              <td colspan="1" class="expand-cell">
+              <td class="expand-cell">
                 <span class="expand-icon icon-RightPage" [class.expanded]="group.expanded"></span>
               </td>
-              <td colspan="11" class="service-name">
+              <td colspan="3" class="service-name">
                 <span class="icon-Services group-icon"></span>
                 <span class="service-text">{{ group.serviceName }}</span>
                 <span class="circuit-count">({{ group.circuits.length }})</span>
@@ -39,30 +45,33 @@
             <ng-container *ngIf="group.expanded">
               <!-- Subheader Row -->
               <tr class="subheader-row">
-                <th colspan="1" class="subheader-indent"></th>
-                <th colspan="4" class="subheader-cell">Client</th>
-                <th colspan="4" class="subheader-cell">Host</th>
-                <th colspan="3" class="subheader-cell">Path</th>
+                <th class="subheader-indent"></th>
+                <th class="subheader-cell">Client</th>
+                <th class="subheader-cell">Host</th>
+                <th class="subheader-cell sortable-header" (click)="toggleSort(group)">
+                  Created
+                  <span class="sort-indicator" *ngIf="group.sortBy === 'created'">
+                    {{ group.sortDirection === 'asc' ? '▲' : '▼' }}
+                  </span>
+                </th>
               </tr>
 
               <!-- Circuit Data Rows -->
-              <tr *ngFor="let circuit of group.circuits"
+              <tr *ngFor="let circuit of getSortedCircuits(group)"
                   (click)="onCircuitClick(circuit, $event)"
                   [class.selected-row]="previewCircuit?.id === circuit.id"
                   class="circuit-row clickable-row">
-                <td colspan="1" class="circuit-indent"></td>
-                <td colspan="4" class="circuit-entity">
+                <td class="circuit-indent"></td>
+                <td class="circuit-entity">
                   <span [class]="getClientInfo(circuit).type === 'identity' ? 'icon-identity entity-icon' : 'icon-routers entity-icon'"></span>
                   <span class="entity-name">{{ getClientInfo(circuit).name }}</span>
                 </td>
-                <td colspan="4" class="circuit-entity">
+                <td class="circuit-entity">
                   <span [class]="getHostInfo(circuit).type === 'identity' ? 'icon-identity entity-icon' : 'icon-routers entity-icon'"></span>
                   <span class="entity-name">{{ getHostInfo(circuit).name }}</span>
                 </td>
-                <td colspan="3" class="circuit-path">
-                  <span *ngIf="circuit.path?.nodes?.length > 0">{{ circuit.path.nodes.length }} router(s)</span>
-                  <span *ngIf="circuit.path?.length > 0 && !circuit.path?.nodes">{{ circuit.path.length }} router(s)</span>
-                  <span *ngIf="!circuit.path?.nodes?.length && !circuit.path?.length">Direct</span>
+                <td class="circuit-created">
+                  {{ circuit.createdAt | date:'short' }}
                 </td>
               </tr>
             </ng-container>

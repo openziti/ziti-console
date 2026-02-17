@@ -10,7 +10,8 @@
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  padding: var(--paddingMedium);
+  padding: 0;
+  background: var(--mainBackground);
 
   &.split-view {
     .services-list-section {
@@ -36,11 +37,11 @@
     display: flex;
     flex-direction: column;
     background-color: var(--navigation);
-    border-radius: var(--inputBorderRadius);
     border-style: solid;
     border-width: 1px;
     border-color: var(--inputBorder);
-    margin-top: var(--marginMedium);
+    border-top: none;
+    margin-top: var(--gapMedium);
 
     .preview-header {
       display: flex;
@@ -119,11 +120,21 @@
             font-size: 1rem;
 
             &.icon-identity {
-              color: var(--primaryColor);
+              font-size: 1.284rem;
+              color: var(--primaryColor) !important;
+
+              &::before {
+                color: var(--primaryColor) !important;
+              }
             }
 
             &.icon-routers {
-              color: var(--secondaryColor);
+              font-size: 1.1rem;
+              color: var(--secondaryColor) !important;
+
+              &::before {
+                color: var(--secondaryColor) !important;
+              }
             }
 
             &.icon-Services {
@@ -148,10 +159,13 @@
           font-size: 0.875rem;
           font-weight: 600;
           cursor: pointer;
-          transition: background-color 0.2s ease;
 
           &:hover {
-            background-color: var(--primaryColorDarker);
+            filter: brightness(0.9);
+          }
+
+          &:active {
+            transform: scale(0.98);
           }
         }
       }
@@ -164,6 +178,7 @@
   flex-direction: column;
   gap: var(--gapMedium);
   height: 100%;
+  padding: var(--paddingLarge);
 
   .search-container {
     padding: 0;
@@ -207,7 +222,7 @@
       table-layout: fixed;
 
       thead {
-        background-color: var(--navigation);
+        background-color: var(--formBackground);
         position: sticky;
         top: 0;
         z-index: 1;
@@ -217,32 +232,33 @@
           text-align: left;
           font-weight: 600;
           color: var(--tableHeader);
-          border-bottom: 0.25rem solid var(--primary);
+          border-bottom: 1px solid var(--inputBorder);
           white-space: nowrap;
           font-size: 0.75rem;
           text-transform: uppercase;
           letter-spacing: 0.5px;
-          background-color: var(--navigation);
+          background-color: var(--formBackground);
         }
       }
 
       tbody {
         tr {
-          border-bottom: 1px solid var(--inputBorder);
           transition: background-color 0.2s ease;
 
           &.group-row {
-            background-color: var(--formBackground);
+            background-color: var(--mainBackground);
             font-weight: 600;
 
             &:hover {
-              background-color: rgba(33, 150, 243, 0.05) !important;
+              background-color: rgba(33, 150, 243, 0.1) !important;
             }
 
             td.expand-cell {
-              padding: 0.75rem 0.5rem;
+              padding: 0.5rem 0.25rem;
               text-align: center;
-              width: 3rem;
+              width: 30px !important;
+              min-width: 30px !important;
+              max-width: 30px !important;
 
               .expand-icon {
                 font-size: 0.75rem;
@@ -283,21 +299,42 @@
           }
 
           &.subheader-row {
-            background-color: var(--navigation);
-            border-bottom: 1px solid var(--inputBorder);
+            background-color: var(--formBackground);
 
             th {
-              padding: 0.5rem 1.5rem;
+              padding: 0.5rem 0.75rem;
               text-align: left;
               font-weight: 600;
               color: var(--tableHeader);
               font-size: 0.75rem;
               text-transform: uppercase;
               letter-spacing: 0.5px;
-              width: 33.33%;
+
+              &.subheader-indent {
+                width: 30px !important;
+                min-width: 30px !important;
+                max-width: 30px !important;
+                padding: 0.5rem 0.25rem !important;
+              }
 
               &.subheader-cell {
-                background-color: var(--navigation);
+                background-color: var(--formBackground);
+
+                &.sortable-header {
+                  cursor: pointer;
+                  user-select: none;
+                  transition: background-color 0.2s ease;
+
+                  &:hover {
+                    background-color: var(--tableHeaderBackground);
+                    color: var(--primaryColor);
+                  }
+
+                  .sort-indicator {
+                    margin-left: 0.25rem;
+                    font-size: 0.7rem;
+                  }
+                }
               }
             }
           }
@@ -309,12 +346,12 @@
               background-color: var(--formBackground);
             }
 
+            &:hover {
+              background-color: rgba(33, 150, 243, 0.1) !important;
+            }
+
             &.clickable-row {
               cursor: pointer;
-
-              &:hover {
-                background-color: rgba(33, 150, 243, 0.1) !important;
-              }
 
               &.selected-row {
                 background-color: rgba(33, 150, 243, 0.15) !important;
@@ -323,12 +360,20 @@
             }
 
             td {
-              padding: 0.5rem 1.5rem;
+              padding: 0.5rem 0.75rem;
               color: var(--tableText);
               vertical-align: middle;
-              width: 33.33%;
+
+              &.circuit-indent {
+                width: 30px !important;
+                min-width: 30px !important;
+                max-width: 30px !important;
+                padding: 0.5rem 0.25rem !important;
+              }
 
               &.circuit-entity {
+                white-space: nowrap;
+
                 > span {
                   display: inline-block;
                   vertical-align: middle;
@@ -339,11 +384,21 @@
                   margin-right: 0.5rem;
 
                   &.icon-identity {
-                    color: var(--primaryColor);
+                    font-size: 1.284rem;
+                    color: var(--primaryColor) !important;
+
+                    &::before {
+                      color: var(--primaryColor) !important;
+                    }
                   }
 
                   &.icon-routers {
-                    color: var(--secondaryColor);
+                    font-size: 1.1rem;
+                    color: var(--secondaryColor) !important;
+
+                    &::before {
+                      color: var(--secondaryColor) !important;
+                    }
                   }
                 }
 
@@ -358,9 +413,14 @@
                 }
               }
 
-              &.circuit-path {
-                color: var(--tableHeader);
+              &.circuit-created {
                 font-size: 0.75rem;
+                color: var(--tableText);
+                white-space: nowrap;
+                width: 120px !important;
+                min-width: 120px !important;
+                max-width: 120px !important;
+                padding: 0.5rem 0.75rem !important;
               }
             }
           }

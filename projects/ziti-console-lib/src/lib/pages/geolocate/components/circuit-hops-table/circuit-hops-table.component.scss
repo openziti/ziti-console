@@ -98,6 +98,40 @@
                 background-color: rgba(33, 150, 243, 0.2) !important;
                 border-left: 3px solid var(--primary);
               }
+
+              &.hop-not-visible {
+                // Multiple visual cues for accessibility (don't rely on color alone)
+
+                // 1. Diagonal stripe pattern
+                background-image: repeating-linear-gradient(
+                  45deg,
+                  transparent,
+                  transparent 10px,
+                  rgba(128, 128, 128, 0.08) 10px,
+                  rgba(128, 128, 128, 0.08) 20px
+                ) !important;
+                background-color: var(--formBackground) !important;
+
+                // 2. Dashed left border
+                border-left: 3px dashed rgba(128, 128, 128, 0.4);
+
+                // 3. Different opacity for text (subtle)
+                opacity: 0.85;
+
+                &:hover {
+                  background-image: repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(128, 128, 128, 0.12) 10px,
+                    rgba(128, 128, 128, 0.12) 20px
+                  ) !important;
+                }
+
+                &.selected-row {
+                  border-left: 3px dashed var(--primary);
+                }
+              }
             }
 
             &:last-child {
@@ -115,6 +149,21 @@
                 color: var(--primary);
                 width: 3rem;
                 text-align: center;
+                position: relative;
+
+                .visibility-badge {
+                  display: inline-block;
+                  margin-left: 0.25rem;
+                  font-size: 0.75rem;
+                  vertical-align: middle;
+
+                  .icon-eye-slash {
+                    &:before {
+                      color: var(--tableText);
+                      opacity: 0.6;
+                    }
+                  }
+                }
               }
 
               &.hop-from,
@@ -148,10 +197,27 @@
                       color: var(--secondaryColor);
                     }
                   }
+
+                  &.unlocated-icon {
+                    .unlocated-marker-img {
+                      width: 1.25rem;
+                      height: 1.25rem;
+                      opacity: 0.5;
+                      display: block;
+                    }
+                  }
                 }
 
                 .hop-entity-name {
                   vertical-align: middle;
+
+                  &.missing-location {
+                    // Multiple visual cues for accessibility
+                    font-style: italic;
+                    text-decoration: underline dotted;
+                    text-decoration-thickness: 1px;
+                    text-underline-offset: 2px;
+                  }
                 }
               }
 
