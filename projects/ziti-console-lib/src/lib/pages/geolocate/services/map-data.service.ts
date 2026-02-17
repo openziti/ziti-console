@@ -123,17 +123,39 @@ export class MapDataService {
   }
 
   /**
-   * Fetch terminators from fabric API
+   * Fetch terminators from Edge API
    */
   async fetchTerminators(): Promise<any[]> {
-    const url = '/terminators?limit=1000';
-
     try {
-      const result = await this.zitiDataService.call(url, '/fabric/v1');
+      // Fetch from Edge API
+      const url = '/terminators?limit=1000&filter=identity';
+      const result = await this.zitiDataService.call(url);
       return result?.data || [];
     } catch (error) {
-      // Terminators feature unavailable - this might be expected if fabric API is not enabled
-      return [];
+      // Try without expansion
+      const paging = {
+        searchOn: 'address',
+        filter: '',
+        total: 1000,
+        page: 1,
+        sort: 'address',
+        order: 'asc'
+      };
+
+      try {
+        const result = await this.zitiDataService.get('terminators', paging, []);
+        return result?.data || [];
+      } catch (fallbackError) {
+        // Final fallback to Fabric API
+        try {
+          const url = '/terminators?limit=1000';
+          const result = await this.zitiDataService.call(url, '/fabric/v1');
+          return result?.data || [];
+        } catch (fabricError) {
+          // Terminators feature unavailable
+          return [];
+        }
+      }
     }
   }
 

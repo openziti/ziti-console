@@ -3,10 +3,18 @@
   width: 100%;
 }
 
-.circuit-popup {
+.link-details-panel {
   font-family: 'Open Sans', sans-serif;
+  background: var(--mainBackground);
+  display: flex;
+  flex-direction: column;
 
-  .popup-table {
+  .details-section {
+    padding: var(--paddingLarge);
+    border-bottom: 1px solid var(--inputBorder);
+  }
+
+  .details-table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
@@ -52,9 +60,9 @@
 
   // Connections sub-table styles
   .connections-section {
-    margin-top: 1rem;
+    margin-top: var(--gapMedium);
     border-top: 1px solid var(--inputBorder);
-    padding-top: 1rem;
+    padding: var(--paddingLarge);
 
     .connections-header {
       .connections-title {
@@ -76,9 +84,6 @@
         border-collapse: separate;
         border-spacing: 0;
         font-size: 0.875rem;
-        border: 1px solid var(--inputBorder);
-        border-radius: var(--inputBorderRadius);
-        overflow: hidden;
 
         thead {
           background-color: var(--navigation);

@@ -1,8 +1,20 @@
 :host {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  z-index: 9999998; // Just below filter bar (9999999) but above all other map elements
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  height: 100%;
+  pointer-events: auto;
+  padding: 1rem; // Add padding around panel to show map behind
+  padding-left: 0; // No padding on left (resizer side)
+
+  // Debug: ensure visibility
+  &:not(:empty) {
+    visibility: visible;
+  }
 }
 
 .side-panel-resizer {
@@ -17,6 +29,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: auto; // Always allow resizer interaction
 
   // Visual indicator line (only shows on hover)
   &::after {
@@ -55,6 +68,7 @@
   &.side-panel-container {
     width: var(--side-panel-width, 35rem);
     flex: 0 0 auto; // Don't flex grow/shrink
+    pointer-events: auto; // Enable interactions within the form container
   }
 }
 
@@ -63,10 +77,13 @@
   height: 100%;
   background: var(--formBackground);
   border-left: 1px solid var(--inputBorder);
+  border-radius: var(--podBorderRadius);
+  box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: slideIn 0.3s ease;
+  animation: slideIn 0.15s ease; // Faster animation (was 0.3s)
+  pointer-events: auto; // Enable all interactions within panel
 
   .side-panel-header {
     display: flex;
@@ -279,11 +296,12 @@
   .side-panel-content {
     flex: 1;
     overflow-y: auto;
-    padding: var(--paddingLarge);
+    padding: 0; // Remove all padding to extend panels to full width
     color: var(--tableText);
     min-height: 0; // Important for nested flexbox scrolling
     display: flex;
     flex-direction: column;
+    background: var(--mainBackground); // Background for content area
 
     // Make all child panel components take full width/height
     ::ng-deep {
@@ -311,12 +329,11 @@
     // Special handling for entity list and unlocated panels (full-height)
     &.full-height-panel {
       overflow-y: hidden; // Don't scroll the content wrapper, scroll inside the popup
-      padding: 0; // Remove padding for these full-height panels
     }
   }
 }
 
-// Slide-in animation
+// Slide-in animation (fast)
 @keyframes slideIn {
   from {
     transform: translateX(100%);

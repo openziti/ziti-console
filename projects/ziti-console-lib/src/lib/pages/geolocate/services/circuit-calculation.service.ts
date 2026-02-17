@@ -26,7 +26,8 @@ export class CircuitCalculationService {
     circuit: any,
     terminators: any[]
   ): string | null {
-    const hostIdFromTags = circuit.tags?.hostId;
+    // Handle empty strings explicitly - API returns empty strings instead of null/undefined
+    const hostIdFromTags = (circuit.tags?.hostId && circuit.tags.hostId.trim()) || null;
     const terminatorIdFromCircuit = circuit.terminator?.id || circuit.terminatorId;
     const serviceId = circuit.service?.id;
 
@@ -37,7 +38,13 @@ export class CircuitCalculationService {
     if (!hostIdentityId && terminatorIdFromCircuit) {
       const terminator = terminators.find(t => t.id === terminatorIdFromCircuit);
       if (terminator) {
-        hostIdentityId = terminator.hostId || terminator.identity?.id || terminator.identityId;
+        // Handle empty strings - check for non-empty values explicitly
+        // Try: hostId, identity (string ID), identity.id (expanded object), identityId
+        hostIdentityId = (terminator.hostId && terminator.hostId.trim()) ||
+                         (terminator.identity && typeof terminator.identity === 'string' && terminator.identity.trim()) ||
+                         terminator.identity?.id ||
+                         terminator.identityId ||
+                         null;
       }
     }
 
@@ -49,7 +56,13 @@ export class CircuitCalculationService {
         t.service?.id === serviceId
       );
       if (terminator) {
-        hostIdentityId = terminator.hostId || terminator.identity?.id || terminator.identityId;
+        // Handle empty strings - check for non-empty values explicitly
+        // Try: hostId, identity (string ID), identity.id (expanded object), identityId
+        hostIdentityId = (terminator.hostId && terminator.hostId.trim()) ||
+                         (terminator.identity && typeof terminator.identity === 'string' && terminator.identity.trim()) ||
+                         terminator.identity?.id ||
+                         terminator.identityId ||
+                         null;
       }
     }
 

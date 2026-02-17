@@ -1,5 +1,6 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { CircuitCalculationService } from './circuit-calculation.service';
+import { CircuitPathBuilderService } from './circuit-path-builder.service';
 import L from 'leaflet';
 
 /**
@@ -18,7 +19,10 @@ export class MapRenderingService {
   linkClicked = new EventEmitter<any>();
   circuitSegmentClicked = new EventEmitter<any>();
 
-  constructor(private circuitCalculationService: CircuitCalculationService) {}
+  constructor(
+    private circuitCalculationService: CircuitCalculationService,
+    private circuitPathBuilderService: CircuitPathBuilderService
+  ) {}
 
   /**
    * Draws router links on the map
@@ -290,35 +294,33 @@ export class MapRenderingService {
         return;
       }
 
-      // Build the circuit path using the service
-      const circuitPath = this.circuitCalculationService.buildCircuitPath(
+      // Build the circuit path data with visibility tracking
+      const routers = edgeRouters; // Use edgeRouters as the routers parameter
+      const circuitPathData = this.circuitPathBuilderService.buildCircuitPathData(
         circuit,
-        identities,
-        identityLocations,
         routerLocations,
-        terminators
+        identityLocations,
+        routers,
+        identities
       );
 
-      if (!circuitPath) {
+      if (!circuitPathData) {
         return;
       }
 
-      // Filter the path to only include visible entities (all identities + visible routers)
-      const filteredPath = this.circuitCalculationService.filterCircuitPathToVisible(circuitPath, visibleRouterIds);
-
-      // Only proceed if we have at least 2 visible nodes
-      if (filteredPath.nodes.length < 2) {
+      // Only proceed if we have at least 2 visible coordinates
+      if (circuitPathData.pathCoordinates.length < 2) {
         return;
       }
 
-      const { nodes, coordinates } = filteredPath;
-      const pathCoordinates = coordinates;
-      const routerNames = nodes.map(n => n.name);
-      const entityIds = nodes.map(n => n.id);
-      const entityTypes = nodes.map(n => n.type);
+      const pathCoordinates = circuitPathData.pathCoordinates;
+      const routerNames = circuitPathData.routerNames;
+      const entityIds = circuitPathData.entityIds;
+      const entityTypes = circuitPathData.entityTypes;
+      const visibleSegmentToHopIndex = circuitPathData.visibleSegmentToHopIndex;
 
-      // Track circuit marker IDs
-      nodes.forEach(node => newCircuitMarkerIds.add(node.id));
+      // Track circuit marker IDs for entities with coordinates
+      entityIds.forEach(id => newCircuitMarkerIds.add(id));
 
       // Draw individual line segments between each hop in the circuit
       if (pathCoordinates.length >= 2) {
@@ -329,10 +331,13 @@ export class MapRenderingService {
           // Get the active circuit color from CSS variables
           const activeCircuitColor = getComputedStyle(document.documentElement).getPropertyValue('--activeCircuitColor').trim() || '#833b82';
 
-          // Check if this specific segment is selected
+          // Map visual segment index to logical hop index for selection checking
+          const logicalHopIndex = visibleSegmentToHopIndex.get(i) ?? i;
+
+          // Check if this specific segment is selected (compare against logical hop index)
           const isThisSegmentSelected = selectedCircuitSegment &&
                                         selectedCircuitSegment.circuitId === circuit.id &&
-                                        selectedCircuitSegment.segmentIndex === i;
+                                        selectedCircuitSegment.segmentIndex === logicalHopIndex;
 
           // Check if this circuit has a selected segment (but this particular segment is not it)
           const isCircuitWithSelectedSegment = selectedCircuitSegment &&
@@ -391,23 +396,32 @@ export class MapRenderingService {
 
           // Add click handler to the hitbox line
           hitboxLine.on('click', () => {
+            // Map visual segment index to logical hop index
+            const logicalHopIndex = visibleSegmentToHopIndex.get(i) ?? i;
+            const hop = circuitPathData.circuitHops[logicalHopIndex];
+
             this.circuitSegmentClicked.emit({
               circuit: circuit,
               segment: {
-                index: i,
-                total: pathCoordinates.length - 1,
-                from: routerNames[i],
-                to: routerNames[i + 1],
-                fromId: entityIds[i],
-                toId: entityIds[i + 1],
-                fromType: entityTypes[i],
-                toType: entityTypes[i + 1]
+                index: logicalHopIndex,  // Use logical hop index for correct selection
+                total: circuitPathData.circuitHops.length,
+                from: hop?.from || routerNames[i],
+                to: hop?.to || routerNames[i + 1],
+                fromId: hop?.fromId || entityIds[i],
+                toId: hop?.toId || entityIds[i + 1],
+                fromType: hop?.fromType || entityTypes[i],
+                toType: hop?.toType || entityTypes[i + 1],
+                isVisible: hop?.isVisible ?? true,
+                fromHasLocation: hop?.fromHasLocation ?? true,
+                toHasLocation: hop?.toHasLocation ?? true
               },
-              pathNodes: nodes,
+              pathNodes: circuitPathData.pathNodes,
               pathCoordinates: pathCoordinates,
               routerNames: routerNames,
               entityIds: entityIds,
-              entityTypes: entityTypes
+              entityTypes: entityTypes,
+              circuitHops: circuitPathData.circuitHops,
+              visibleSegmentToHopIndex: visibleSegmentToHopIndex
             });
           });
 

@@ -1,5 +1,6 @@
-<div class="circuit-popup" *ngIf="linkData">
-  <table class="popup-table">
+<div class="link-details-panel" *ngIf="linkData">
+  <div class="details-section">
+    <table class="details-table">
     <tr>
       <td class="popup-label">From:</td>
       <td class="popup-value">
@@ -35,7 +36,8 @@
         {{ linkData?.link?.destLatency ? (linkData?.link?.destLatency / 1000000).toFixed(2) + ' ms' : 'N/A' }}
       </td>
     </tr>
-  </table>
+    </table>
+  </div>
 
   <!-- Connections Sub-Table -->
   <div class="connections-section" *ngIf="linkData?.link?.connections && linkData?.link?.connections?.length > 0">

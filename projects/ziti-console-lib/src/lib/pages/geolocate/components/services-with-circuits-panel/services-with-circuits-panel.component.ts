@@ -5,6 +5,8 @@ interface ServiceGroup {
   serviceId: string;
   circuits: any[];
   expanded: boolean;
+  sortBy?: 'created';
+  sortDirection?: 'asc' | 'desc';
 }
 
 @Component({
@@ -39,6 +41,16 @@ export class ServicesWithCircuitsPanelComponent implements OnChanges {
   updateServiceGroups(): void {
     // Start with all circuits
     let filtered = [...this.allCircuits];
+
+    // Pre-compute client/host info for all circuits to avoid repeated computation in templates
+    filtered.forEach(circuit => {
+      if (!circuit._clientInfo) {
+        circuit._clientInfo = this.computeClientInfo(circuit);
+      }
+      if (!circuit._hostInfo) {
+        circuit._hostInfo = this.computeHostInfo(circuit);
+      }
+    });
 
     // Apply search filter if present
     if (this.searchTerm && this.searchTerm.trim()) {
@@ -128,7 +140,9 @@ export class ServicesWithCircuitsPanelComponent implements OnChanges {
     // Try to find in identities first
     const identity = this.allIdentities.find(i => i.id === entityId);
     if (identity) {
-      return { name: identity.name || entityId, type: 'identity' };
+      // Check if this identity is a router type
+      const type = identity.typeId === 'Router' ? 'router' : 'identity';
+      return { name: identity.name || entityId, type };
     }
 
     // Try to find in routers
@@ -142,19 +156,41 @@ export class ServicesWithCircuitsPanelComponent implements OnChanges {
   }
 
   /**
-   * Get client entity info from circuit
+   * Compute client entity info from circuit (called once during data processing)
    */
-  getClientInfo(circuit: any): { name: string; type: 'identity' | 'router' } {
-    const clientId = circuit.tags?.clientId || circuit.clientId || circuit.client?.id || 'Unknown';
+  private computeClientInfo(circuit: any): { name: string; type: 'identity' | 'router' } {
+    // Handle empty strings from API - use explicit checks instead of || operator
+    const clientId = (circuit.tags?.clientId && circuit.tags.clientId.trim()) ||
+                     circuit.clientId ||
+                     circuit.client?.id ||
+                     'Unknown';
     return this.getEntityInfo(clientId);
   }
 
   /**
-   * Get host entity info from circuit
+   * Compute host entity info from circuit (called once during data processing)
+   */
+  private computeHostInfo(circuit: any): { name: string; type: 'identity' | 'router' } {
+    // Handle empty strings from API - use explicit checks instead of || operator
+    const hostId = (circuit.tags?.hostId && circuit.tags.hostId.trim()) ||
+                   circuit.hostId ||
+                   circuit.host?.id ||
+                   'Unknown';
+    return this.getEntityInfo(hostId);
+  }
+
+  /**
+   * Get cached client entity info from circuit (used in templates)
+   */
+  getClientInfo(circuit: any): { name: string; type: 'identity' | 'router' } {
+    return circuit._clientInfo || this.computeClientInfo(circuit);
+  }
+
+  /**
+   * Get cached host entity info from circuit (used in templates)
    */
   getHostInfo(circuit: any): { name: string; type: 'identity' | 'router' } {
-    const hostId = circuit.tags?.hostId || circuit.hostId || circuit.host?.id || 'Unknown';
-    return this.getEntityInfo(hostId);
+    return circuit._hostInfo || this.computeHostInfo(circuit);
   }
 
   /**
@@ -162,5 +198,47 @@ export class ServicesWithCircuitsPanelComponent implements OnChanges {
    */
   getTotalCircuitsInGroups(): number {
     return this.serviceGroups.reduce((sum, group) => sum + group.circuits.length, 0);
+  }
+
+  /**
+   * Toggle sort for a service group
+   */
+  toggleSort(group: ServiceGroup): void {
+    if (group.sortBy === 'created') {
+      // Toggle direction
+      group.sortDirection = group.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      // Set to sort by created, default to descending (newest first)
+      group.sortBy = 'created';
+      group.sortDirection = 'desc';
+    }
+  }
+
+  /**
+   * Get sorted circuits for a group - always dual sort by client name first, then by created date
+   */
+  getSortedCircuits(group: ServiceGroup): any[] {
+    return [...group.circuits].sort((a, b) => {
+      // First, sort by client name
+      const clientA = this.getClientInfo(a).name.toLowerCase();
+      const clientB = this.getClientInfo(b).name.toLowerCase();
+      const clientCompare = clientA.localeCompare(clientB);
+
+      if (clientCompare !== 0) {
+        return clientCompare;
+      }
+
+      // If client names are the same, sort by created date
+      const dateA = new Date(a.createdAt || 0).getTime();
+      const dateB = new Date(b.createdAt || 0).getTime();
+
+      // Apply direction if sort is enabled, otherwise default to descending
+      const direction = group.sortBy === 'created' ? group.sortDirection : 'desc';
+      if (direction === 'asc') {
+        return dateA - dateB;
+      } else {
+        return dateB - dateA;
+      }
+    });
   }
 }

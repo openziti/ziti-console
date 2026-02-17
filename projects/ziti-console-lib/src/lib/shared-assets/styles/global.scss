@@ -2263,9 +2263,23 @@ a {
   text-align: center;
 }
 
-///////
+////////
+// Geolocation/Dashboard Map
+////////
+
+.ziti-dashboard-row {
+  >lib-form-field-container {
+    >.form-field-container {
+      >.form-field-content {
+        border-radius: 0 !important;
+      }
+    }
+  }
+}
+
+////////
 // Simple Service Form
-///////
+////////
 
 .simple-service-wrapper {
   lib-form-header {

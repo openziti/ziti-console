@@ -18,16 +18,47 @@
           <tr *ngFor="let hop of circuitHops; let i = index"
               (click)="hopSelected.emit({hop, index: i})"
               [class.selected-row]="selectedSegmentIndex === i"
+              [class.hop-not-visible]="!hop.isVisible"
+              [matTooltip]="!hop.isVisible ? 'This hop is not visible on the map due to missing geolocation data' : ''"
+              [matTooltipDisabled]="hop.isVisible"
               class="clickable-circuit-row">
-            <td class="hop-number">{{ i + 1 }}</td>
+            <td class="hop-number">
+              {{ i + 1 }}
+              <span *ngIf="!hop.isVisible"
+                    class="visibility-badge"
+                    matTooltip="Not visible on map"
+                    matTooltipPosition="right">
+                <span class="icon-eye-slash"></span>
+              </span>
+            </td>
             <td class="hop-from">
-              <span [class]="hop.fromType === 'identity' ? 'icon-identity' : 'icon-routers'" class="hop-entity-icon"></span>
-              <span class="hop-entity-name">{{ hop.from }}</span>
+              <span *ngIf="hop.fromHasLocation"
+                    [class]="hop.fromType === 'identity' ? 'icon-identity' : 'icon-routers'"
+                    class="hop-entity-icon"></span>
+              <span *ngIf="!hop.fromHasLocation"
+                    class="hop-entity-icon unlocated-icon"
+                    matTooltip="No geolocation data"
+                    matTooltipPosition="right">
+                <img src="/assets/svgs/unknown-marker.svg" alt="No location" class="unlocated-marker-img">
+              </span>
+              <span class="hop-entity-name" [class.missing-location]="!hop.fromHasLocation">
+                {{ hop.from }}
+              </span>
             </td>
             <td class="hop-arrow">→</td>
             <td class="hop-to">
-              <span [class]="hop.toType === 'identity' ? 'icon-identity' : 'icon-routers'" class="hop-entity-icon"></span>
-              <span class="hop-entity-name">{{ hop.to }}</span>
+              <span *ngIf="hop.toHasLocation"
+                    [class]="hop.toType === 'identity' ? 'icon-identity' : 'icon-routers'"
+                    class="hop-entity-icon"></span>
+              <span *ngIf="!hop.toHasLocation"
+                    class="hop-entity-icon unlocated-icon"
+                    matTooltip="No geolocation data"
+                    matTooltipPosition="right">
+                <img src="/assets/svgs/unknown-marker.svg" alt="No location" class="unlocated-marker-img">
+              </span>
+              <span class="hop-entity-name" [class.missing-location]="!hop.toHasLocation">
+                {{ hop.to }}
+              </span>
             </td>
           </tr>
         </tbody>

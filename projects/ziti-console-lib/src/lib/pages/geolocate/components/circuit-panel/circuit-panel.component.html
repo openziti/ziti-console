@@ -1,5 +1,6 @@
-<div class="circuit-popup" *ngIf="circuitData">
-  <table class="popup-table">
+<div class="circuit-details-panel" *ngIf="circuitData">
+  <div class="details-section">
+    <table class="details-table">
     <tr>
       <td class="popup-label">Service:</td>
       <td class="popup-value">
@@ -40,7 +41,8 @@
       <td class="popup-label">Created:</td>
       <td class="popup-value">{{ circuitData?.circuit?.createdAt | date:'short' }}</td>
     </tr>
-  </table>
+    </table>
+  </div>
 
   <!-- Circuit Hops Section -->
   <lib-circuit-hops-table
@@ -119,7 +121,8 @@
 
       <div class="preview-actions">
         <button class="preview-btn" (click)="onEntityPanelOpened({entityId: previewEntity.id, entityType: previewEntityType})">
-          View Details
+          Go To Edit Page
+          <span class="icon-RightPage"></span>
         </button>
       </div>
     </div>

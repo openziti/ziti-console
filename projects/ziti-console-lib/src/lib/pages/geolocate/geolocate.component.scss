@@ -20,8 +20,17 @@
   justify-content: flex-start;
   flex: 1;
   min-height: 0;
-  gap: var(--gapMedium);
+  gap: 0;
   overflow: hidden;
+
+  // Ensure no padding/margin on form field containers
+  ::ng-deep lib-form-field-container {
+    margin: 0;
+
+    &.no-padding {
+      padding: 0;
+    }
+  }
 }
 
 .header {
@@ -31,11 +40,12 @@
 .ziti-dashboard-row {
   display: flex;
   flex-direction: row;
-  gap: var(--gapSmall);
+  gap: 0;
   flex: 1;
   min-height: 0;
   width: 100%;
-  overflow: hidden;
+  overflow: visible; // Changed from hidden to allow absolute panel to show
+  position: relative;
 }
 
 .overlay {
@@ -54,18 +64,11 @@
   height: 100%;
   width: 100%;
   position: relative;
-  transition: all 0.3s ease;
-
-  &.side-panel-open {
-    .map-container {
-      width: calc(100% - var(--side-panel-width, 35rem) - 12px);
-    }
-  }
 
   .map-container {
-    flex: 1;
+    width: 100%;
+    height: 100%;
     position: relative;
-    transition: width 0.3s ease;
   }
 }
 
@@ -78,29 +81,21 @@
   }
 }
 
-#MainMap {
-    height: 100%;
-    position: absolute;
-}
-
 .ziti-page-container {
-  padding-bottom: 1.25rem;
+  padding: 0;
   align-items: center;
   height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
 
-  #MainMap {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    z-index: 10;
-    border-radius: var(--podBorderRadius);
-    box-shadow: var(--shadowLarge);
-    margin-top: 0;
-    box-shadow: var(--formFieldBoxShaddow);
-  }
+#MainMap {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  margin: 0;
 }
 
 .map-legend {
@@ -111,7 +106,7 @@
   border: .1875rem solid var(--inputBorder);
   border-radius: var(--podBorderRadius);
   padding: 1rem;
-  z-index: 1000;
+  z-index: 1100; // Above side panel (1000) to remain visible
   box-shadow: 0rem 0.1875rem 0.3125rem 0.0625rem var(--boxShadow);
   min-width: 200px;
   border-width: 1px;
@@ -602,20 +597,22 @@
         padding-top: 0.75rem;
       }
 
-      .popup-details-link {
-        color: var(--primary);
-        text-decoration: none;
+      .popup-details-btn {
+        padding: 0.5rem 1rem;
+        background-color: var(--primaryColor);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 0.875rem;
         font-weight: 600;
         cursor: pointer;
-        transition: var(--transition);
 
         &:hover {
-          color: var(--secondary);
-          text-decoration: underline;
+          filter: brightness(0.9);
         }
 
         &:active {
-          color: var(--primary);
+          transform: scale(0.98);
         }
       }
     }

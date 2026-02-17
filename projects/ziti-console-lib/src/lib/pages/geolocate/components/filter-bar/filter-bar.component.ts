@@ -1,11 +1,11 @@
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'lib-geolocate-filter-bar',
   templateUrl: './filter-bar.component.html',
   styleUrls: ['./filter-bar.component.scss']
 })
-export class GeolocateFilterBarComponent {
+export class GeolocateFilterBarComponent implements OnChanges {
   @Input() selectedRouterAttributes: any[] = [];
   @Input() selectedIdentityAttributes: any[] = [];
   @Input() selectedIdentityNamedAttributes: any[] = [];
@@ -51,4 +51,13 @@ export class GeolocateFilterBarComponent {
   @ViewChild('identityFilterSelector') identityFilterSelector: any;
   @ViewChild('serviceFilterSelector') serviceFilterSelector: any;
   @ViewChild('connectionStatusFilterSelector') connectionStatusFilterSelector: any;
+
+  constructor(private cdr: ChangeDetectorRef) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['filtersApplied']) {
+      // Force change detection to update the *ngIf directive
+      this.cdr.detectChanges();
+    }
+  }
 }
