@@ -2968,7 +2968,8 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       this.mapStateService.routerLocations,
       this.mapStateService.identityLocations,
       this.edgeRouters,
-      this.identities
+      this.identities,
+      this.links
     );
 
     if (!pathData) {

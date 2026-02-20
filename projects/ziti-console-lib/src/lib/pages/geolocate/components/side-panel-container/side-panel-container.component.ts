@@ -169,7 +169,7 @@ export class SidePanelContainerComponent implements OnInit, OnDestroy, OnChanges
       case 'link':
         return 'Router Link';
       case 'circuit':
-        return 'Active Circuit';
+        return 'Active Service';
       case 'unlocated':
         return 'Unlocated Entities';
       case 'entityList':
@@ -199,7 +199,7 @@ export class SidePanelContainerComponent implements OnInit, OnDestroy, OnChanges
     } else if (this.panelType === 'link') {
       return 'icon-routers';
     } else if (this.panelType === 'circuit' || this.panelType === 'servicesWithCircuits') {
-      return 'title-icon-svg ziti-logo';
+      return 'icon-services';
     } else if (this.panelType === 'unlocated') {
       return 'icon-unlocated';
     }

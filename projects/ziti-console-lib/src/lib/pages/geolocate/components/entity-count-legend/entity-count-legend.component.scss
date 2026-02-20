@@ -24,9 +24,7 @@
       flex-direction: row;
       flex: 1;
 
-      .pod-left,
-      .pod-right {
-        min-width: 6.25rem;
+      .pod-left {
         opacity: .7;
 
         &:hover {
@@ -105,82 +103,11 @@
       }
     }
 
-    .pod-divider {
-      width: 1px;
-      align-self: stretch;
-      margin: 0.625rem 0;
-      background-color: var(--inputBorder);
-    }
-
-    .pod-right {
-      flex: 0 0 auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 0.625rem;
-      background-color: var(--tableHeaderBackground);
-      transition: all 0.2s ease;
-      gap: 0.3125rem;
-
-      &.clickable {
-        cursor: pointer;
-
-        &:hover {
-          background-color: var(--formBackground);
-
-          .pod-right-icon {
-            opacity: 0.9;
-          }
-        }
-
-        &:active {
-          transform: scale(0.98);
-        }
-      }
-
-      .icon-and-count {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-        gap: 0.4375rem;
-      }
-
-      .pod-right-icon {
-        width: 1.875rem;
-        height: 1.875rem;
-        flex-shrink: 0;
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-        transition: opacity 0.2s ease;
-
-        &.unknown-icon {
-          background-image: url(/assets/svgs/unknown-marker.svg);
-          opacity: 0.7;
-        }
-
-        &.ziti-icon {
-          background-image: url(/assets/svgs/ziti-logo.svg);
-          opacity: 0.8;
-          width: 1.75rem;
-        }
-      }
-
-      .unlocated-count {
-        font-size: 1.5625rem;
-        font-weight: 700;
-        color: var(--tableText);
-        line-height: 1;
-        font-family: Open Sans, Arial, sans-serif;
-      }
-    }
-
     .pod-footer {
       background-color: var(--primaryColor);
       padding: 0.3125rem;
       text-align: center;
+      width: 8rem;
 
       &.routers-pod {
         background-color: var(--secondaryColor);

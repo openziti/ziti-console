@@ -143,25 +143,6 @@
             color: var(--offWhite_ALWAYS) !important;
           }
 
-          &.title-icon-svg {
-            width: 2.4rem;
-            height: 2.4rem;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-
-            &:before {
-              content: none;
-            }
-
-            &.ziti-logo {
-              background-image: url(/assets/svgs/ziti-logo.svg);
-              height: 2rem;
-              width: 2.92rem;
-              background-position: center;
-              margin-left: -.36rem;
-            }
-          }
         }
 
         .title-text {

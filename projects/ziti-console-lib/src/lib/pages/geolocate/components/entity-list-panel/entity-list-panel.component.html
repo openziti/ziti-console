@@ -116,14 +116,6 @@
       <div class="entity-preview-details">
         <div class="details-section">
           <table class="details-table">
-          <tr>
-            <td class="popup-label">Type:</td>
-            <td class="popup-value">
-              {{ previewEntity?.type === 'identity' ? 'Identity' :
-                 previewEntity?.type === 'routers' ? 'Router' :
-                 previewEntity?.type === 'services' ? 'Service' : previewEntity?.type }}
-            </td>
-          </tr>
           <tr *ngIf="previewEntity?.type !== 'services' && (previewEntity?.item?.isOnline !== undefined || previewEntity?.item?.connected !== undefined)">
             <td class="popup-label">Status:</td>
             <td class="popup-value">
@@ -175,18 +167,8 @@
         <div class="circuits-section" *ngIf="previewCircuits.length > 0">
           <div class="circuits-container">
             <div class="circuits-header">
-              <span class="circuits-header-icon ziti-logo"></span>
+              <span class="circuits-header-icon icon-services"></span>
               <span class="circuits-header-text">Active Services ({{ serviceGroups.length }})</span>
-            </div>
-            <div class="circuits-controls">
-              <label class="hide-duplicates-checkbox">
-                <span>Hide older circuits</span>
-                <div
-                  class="tSelect"
-                  [class.selected]="hideOlderCircuits"
-                  (click)="toggleHideOlderCircuits()"
-                ></div>
-              </label>
             </div>
             <div class="circuits-list">
               <table class="circuits-table tree-table">

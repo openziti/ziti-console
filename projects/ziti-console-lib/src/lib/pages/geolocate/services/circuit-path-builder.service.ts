@@ -10,6 +10,7 @@ export interface CircuitHop {
   toId: string;
   toHasLocation: boolean;
   isVisible: boolean;
+  latencyMs?: number; // Average latency for router-to-router hops (in ms), from link data
 }
 
 export interface CircuitPathData {
@@ -40,6 +41,7 @@ export class CircuitPathBuilderService {
    * @param identityLocations - Map of identity IDs to location data
    * @param routers - Array of all router objects
    * @param identities - Array of all identity objects
+   * @param links - Array of all link objects (for latency data on router-to-router hops)
    * @returns Complete circuit path data or null if path cannot be built
    */
   buildCircuitPathData(
@@ -47,7 +49,8 @@ export class CircuitPathBuilderService {
     routerLocations: Map<string, any>,
     identityLocations: Map<string, any>,
     routers: any[],
-    identities: any[]
+    identities: any[],
+    links: any[] = []
   ): CircuitPathData | null {
     // Extract path nodes (handle both string IDs and objects with id property)
     const rawPathNodes = circuit.path?.nodes || circuit.path || [];
@@ -143,10 +146,59 @@ export class CircuitPathBuilderService {
     const visibleSegmentToHopIndex = new Map<number, number>();
     let visibleSegmentIndex = 0;
 
+    // Build a lookup map from link ID to link object for O(1) access
+    const linksById = new Map<string, any>();
+    for (const link of links) {
+      if (link.id) linksById.set(link.id, link);
+    }
+
+    // The circuit's path.links array is ordered to match router-to-router hops:
+    // path.links[0] connects path.nodes[0] to path.nodes[1], etc.
+    // In allNodes: [clientIdentity, router0, router1, ..., hostIdentity]
+    // Router-to-router hop at position i corresponds to circuitPathLinks[i - 1]
+    // (subtracting 1 because client identity occupies index 0)
+    const circuitPathLinks: any[] = circuit.path?.links || [];
+
+
     for (let i = 0; i < allNodeNames.length - 1; i++) {
       const fromHasLocation = allNodeHasLocation[i];
       const toHasLocation = allNodeHasLocation[i + 1];
       const isVisible = fromHasLocation && toHasLocation;
+
+      // Compute latency for router-to-router hops from link data
+      let latencyMs: number | undefined;
+      if (allNodeTypes[i] === 'routers' && allNodeTypes[i + 1] === 'routers' && links.length > 0) {
+        let matchingLink: any;
+
+        // Strategy 1: match via the circuit's ordered path.links array (most precise)
+        // Handles both object format { id: '...' } and plain string IDs
+        if (circuitPathLinks.length > 0) {
+          const linkIndex = i - 1; // offset by 1 since client identity is at index 0
+          const circuitLink = circuitPathLinks[linkIndex];
+          const circuitLinkId = (typeof circuitLink === 'string') ? circuitLink : circuitLink?.id;
+          matchingLink = circuitLinkId ? linksById.get(circuitLinkId) : undefined;
+        }
+
+        // Strategy 2: fallback — match by source/dest router ID pairs
+        // Supports both nested object format (sourceRouter.id) and flat format (sourceRouterId)
+        if (!matchingLink) {
+          const fromId = allNodeIds[i];
+          const toId = allNodeIds[i + 1];
+          matchingLink = links.find(link => {
+            const srcId = link.sourceRouter?.id || link.sourceRouterId || link.src?.id;
+            const dstId = link.destRouter?.id || link.destRouterId || link.dst?.id;
+            return (srcId === fromId && dstId === toId) || (dstId === fromId && srcId === toId);
+          });
+        }
+
+        if (matchingLink) {
+          const srcLatency = matchingLink.sourceLatency || matchingLink.latency || 0;
+          const dstLatency = matchingLink.destLatency || matchingLink.latency || 0;
+          if (srcLatency > 0 || dstLatency > 0) {
+            latencyMs = (srcLatency + dstLatency) / 2 / 1_000_000;
+          }
+        }
+      }
 
       circuitHops.push({
         from: allNodeNames[i],
@@ -157,7 +209,8 @@ export class CircuitPathBuilderService {
         toType: allNodeTypes[i + 1],
         isVisible: isVisible,
         fromHasLocation: fromHasLocation,
-        toHasLocation: toHasLocation
+        toHasLocation: toHasLocation,
+        latencyMs
       });
 
       // Map visual segment index to logical hop index for visible segments

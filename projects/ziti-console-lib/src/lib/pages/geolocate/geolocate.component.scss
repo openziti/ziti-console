@@ -756,6 +756,11 @@
   }
 }
 
+// Subtle elevation shadow on all markers - follows circular SVG shape
+::ng-deep .leaflet-marker-icon {
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.28));
+}
+
 // Style for identity markers in drag mode
 ::ng-deep .marker-draggable-active-identity {
   animation: pulseGlowIdentity 1.5s ease-in-out infinite !important;
