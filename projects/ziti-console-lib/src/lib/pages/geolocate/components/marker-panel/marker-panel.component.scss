@@ -163,8 +163,13 @@
           border-right: 1px solid rgba(255, 255, 255, 0.2);
           flex-shrink: 0;
 
-          &.ziti-logo {
-            background-image: url(/assets/svgs/ziti-logo.svg);
+          &.icon-services {
+            font-size: 1.5rem;
+            background-image: none;
+
+            &:before {
+              color: var(--offWhite_ALWAYS);
+            }
           }
         }
 
@@ -177,59 +182,13 @@
         }
       }
 
-      .circuits-controls {
-        padding: 0.5rem 0;
-        padding-bottom: var(--paddingMedium);
-        background-color: transparent;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-
-        .hide-duplicates-checkbox {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          font-size: 0.813rem;
-          color: var(--tableText);
-          cursor: default;
-          user-select: none;
-          margin: 0;
-
-          .tSelect {
-            position: relative;
-            top: unset;
-            left: unset;
-            min-width: 1.25rem;
-            max-width: 1.25rem;
-            min-height: 1.25rem;
-            max-height: 1.25rem;
-            border-radius: var(--inputBorderRadius);
-            border-color: var(--inputBorder);
-            border-style: solid;
-            border-width: 1px;
-            background-color: var(--navigation);
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: background-color 0.2s ease;
-
-            &.selected {
-              background-color: var(--green);
-              background-image: url(/assets/images/check.png);
-              background-size: 45%;
-              background-position: center center;
-              background-repeat: no-repeat;
-              border: none;
-            }
-          }
-        }
-      }
-
       .circuits-list {
         max-height: 25rem;
         overflow-y: auto;
         overflow-x: auto;
         border: 1px solid var(--inputBorder);
         border-radius: var(--inputBorderRadius);
+        margin-top: var(--marginMedium);
 
         .circuits-table {
           width: 100%;
@@ -558,7 +517,7 @@
         max-height: 15rem;
         overflow-y: auto;
         overflow-x: auto;
-        padding-top: var(--paddingMedium);
+        margin-top: var(--marginMedium);
         border: 1px solid var(--inputBorder);
         border-radius: var(--inputBorderRadius);
 

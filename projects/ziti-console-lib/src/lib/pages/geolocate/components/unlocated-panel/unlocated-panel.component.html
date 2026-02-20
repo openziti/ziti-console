@@ -169,18 +169,8 @@
       <div class="circuits-section" *ngIf="previewCircuits.length > 0">
         <div class="circuits-container">
           <div class="circuits-header">
-            <span class="circuits-header-icon ziti-logo"></span>
+            <span class="circuits-header-icon icon-services"></span>
             <span class="circuits-header-text">Active Services ({{ serviceGroups.length }})</span>
-          </div>
-          <div class="circuits-controls">
-            <label class="hide-duplicates-checkbox">
-              <span>Hide older circuits</span>
-              <div
-                class="tSelect"
-                [class.selected]="hideOlderCircuits"
-                (click)="toggleHideOlderCircuits()"
-              ></div>
-            </label>
           </div>
           <div class="circuits-list">
             <table class="circuits-table tree-table">

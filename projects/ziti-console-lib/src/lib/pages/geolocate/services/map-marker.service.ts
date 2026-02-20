@@ -68,12 +68,12 @@ export class MapMarkerService {
         : `${baseUrl}/assets/svgs/router-marker.svg`;
     }
 
-    // Calculate scaled dimensions
-    const iconSize: [number, number] = [40 * scale, 60 * scale];
-    const iconAnchor: [number, number] = [20 * scale, 54 * scale];
-    const popupAnchor: [number, number] = [0, -50 * scale];
-    const tooltipAnchor: [number, number] = [16 * scale, -28 * scale];
-    const shadowSize: [number, number] = [62 * scale, 62 * scale];
+    // Calculate scaled dimensions (circular icons: square aspect, centered anchor)
+    const iconSize: [number, number] = [40 * scale, 40 * scale];
+    const iconAnchor: [number, number] = [20 * scale, 20 * scale];
+    const popupAnchor: [number, number] = [0, -24 * scale];
+    const tooltipAnchor: [number, number] = [16 * scale, -16 * scale];
+    const shadowSize: [number, number] = [40 * scale, 40 * scale];
 
     return L.icon({
       iconUrl,

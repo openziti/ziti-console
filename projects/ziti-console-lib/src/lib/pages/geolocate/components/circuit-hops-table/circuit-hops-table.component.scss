@@ -1,17 +1,15 @@
 .circuit-hops-section {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--inputBorder);
+  margin-top: var(--marginMedium);
 
   .circuit-hops-container {
     .router-path-header {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      padding: 0.75rem 1rem;
-      background: var(--activeCircuitColor);
+      gap: .75rem;
+      padding: var(--paddingMedium);
+      background: var(--secondaryColor);
       border-bottom: 1px solid var(--inputBorder);
-      border-radius: var(--inputBorderRadius) var(--inputBorderRadius) 0 0;
+      border-radius: 0;
 
       .router-path-icon {
         font-size: 1.5rem;
@@ -21,6 +19,7 @@
         padding-right: 0.75rem;
         border-right: 1px solid rgba(255, 255, 255, 0.2);
         flex-shrink: 0;
+        line-height: 1rem;
 
         &:before {
           color: var(--offWhite_ALWAYS);
@@ -40,15 +39,15 @@
       max-height: 15rem;
       overflow-y: auto;
       overflow-x: auto;
-      border: 1px solid var(--inputBorder);
-      border-top-style: none;
-      border-radius: var(--defaultBorderRadius);
+      padding: var(--paddingMedium);
 
       .router-path-table {
         width: 100%;
         border-collapse: separate;
         border-spacing: 0;
         font-size: 0.813rem;
+        border: 1px solid var(--inputBorder);
+        border-radius: var(--defaultBorderRadius);
 
         thead {
           background-color: var(--navigation);
@@ -229,6 +228,7 @@
                 width: 3rem;
                 padding: var(--paddingSmall) 0;
               }
+
             }
           }
         }

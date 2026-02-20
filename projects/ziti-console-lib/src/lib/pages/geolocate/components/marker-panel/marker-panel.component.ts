@@ -35,13 +35,10 @@ export class MarkerPanelComponent implements OnChanges {
   // Service grouping
   serviceGroups: ServiceGroup[] = [];
 
-  // Filtering state
-  hideOlderCircuits: boolean = false;
-
   constructor(private circuitCalculationService: CircuitCalculationService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['circuits'] || changes['hideOlderCircuits']) {
+    if (changes['circuits']) {
       this.updateServiceGroups();
     }
   }
@@ -138,34 +135,6 @@ export class MarkerPanelComponent implements OnChanges {
       }
     });
 
-    // Filter duplicates if enabled
-    if (this.hideOlderCircuits && processed.length > 0) {
-      const grouped = new Map<string, any[]>();
-
-      processed.forEach(circuit => {
-        const clientId = circuit.tags?.clientId || circuit.clientId || 'unknown';
-        const hostId = circuit.tags?.hostId || circuit.hostId || 'unknown';
-        const serviceId = circuit.service?.id || circuit.serviceId || 'unknown';
-        const key = `${serviceId}-${clientId}-${hostId}`;
-
-        if (!grouped.has(key)) {
-          grouped.set(key, []);
-        }
-        grouped.get(key)!.push(circuit);
-      });
-
-      // Keep only the most recent circuit per group
-      processed = [];
-      grouped.forEach(circuits => {
-        const sorted = circuits.sort((a, b) => {
-          const dateA = new Date(a.createdAt || 0).getTime();
-          const dateB = new Date(b.createdAt || 0).getTime();
-          return dateB - dateA;
-        });
-        processed.push(sorted[0]);
-      });
-    }
-
     // Group circuits by service
     const serviceMap = new Map<string, ServiceGroup>();
 
@@ -211,13 +180,6 @@ export class MarkerPanelComponent implements OnChanges {
       group.sortBy = 'created';
       group.sortDirection = 'desc';
     }
-  }
-
-  /**
-   * Toggle hiding older duplicate circuits
-   */
-  toggleHideOlderCircuits(): void {
-    this.hideOlderCircuits = !this.hideOlderCircuits;
   }
 
   /**
