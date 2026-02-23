@@ -1,37 +1,43 @@
 <div id="TagExtended" (clickOutside)="validate($event)">
-    <div class="add-button-container add-vlan-button add-config-open" (click)="addTag($event)">
-        <div class="icon-add addIcon"></div>
-        <span class="add-icon-label">New Tag</span>
+  <div class="add-button-container add-vlan-button add-config-open" (click)="addTag($event)">
+    <div class="icon-add addIcon"></div>
+    <span class="add-icon-label">New Tag</span>
+  </div>
+  @if (tagsArray.length >= 1) {
+    <div class="grid tags">
+      <label>Name</label><label>Value</label>
     </div>
-    <div *ngIf="tagsArray.length >= 1" class="grid tags">
-        <label>Name</label><label>Value</label>
-    </div>
-    <div id="NewTags" >
-        <div *ngIf="tagsArray.length <= 0" class="no-tags-container">
-            No tags to display...
+  }
+  <div id="NewTags" >
+    @if (tagsArray.length <= 0) {
+      <div class="no-tags-container">
+        No tags to display...
+      </div>
+    }
+    @for (tag of tagsArray; track tag) {
+      <div class="grid tags">
+        <input
+          maxlength="100"
+          placeholder="enter tag name..."
+          [(ngModel)]="tag['name']"
+          [ngClass]="{invalid: tag.errors.name}"
+          (keyup.enter)="enterKeyPressed($event)"
+          (keyup)="tagNameChanged(tag, $event)"
+          (change)="validate($event)"
+          >
+        <input
+          placeholder="enter tag value..."
+          type="text"
+          maxlength="100"
+          [(ngModel)]="tag['value']"
+          (keyup.enter)="enterKeyPressed($event)"
+          (keyup)="tagValueChanged(tag, $event)"
+          (change)="validate($event)"
+          >
+        <div class="tag-actions">
+          <div class="removeIcon icon-clear" (click)="removeTag(tag.name)"></div>
         </div>
-        <div class="grid tags" *ngFor="let tag of tagsArray">
-            <input
-                maxlength="100"
-                placeholder="enter tag name..."
-                [(ngModel)]="tag['name']"
-                [ngClass]="{invalid: tag.errors.name}"
-                (keyup.enter)="enterKeyPressed($event)"
-                (keyup)="tagNameChanged(tag, $event)"
-                (change)="validate($event)"
-            >
-            <input
-                placeholder="enter tag value..."
-                type="text"
-                maxlength="100"
-                [(ngModel)]="tag['value']"
-                (keyup.enter)="enterKeyPressed($event)"
-                (keyup)="tagValueChanged(tag, $event)"
-                (change)="validate($event)"
-            >
-            <div class="tag-actions">
-                <div class="removeIcon icon-clear" (click)="removeTag(tag.name)"></div>
-            </div>
-        </div>
-    </div>
+      </div>
+    }
+  </div>
 </div>

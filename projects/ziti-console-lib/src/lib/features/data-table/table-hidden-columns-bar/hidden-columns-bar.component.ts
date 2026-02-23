@@ -1,9 +1,10 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 
 @Component({
-  selector: 'lib-table-hidden-columns-bar',
-  templateUrl: './hidden-columns-bar.component.html',
-  styleUrls: ['./hidden-columns-bar.component.scss']
+    selector: 'lib-table-hidden-columns-bar',
+    templateUrl: './hidden-columns-bar.component.html',
+    styleUrls: ['./hidden-columns-bar.component.scss'],
+    standalone: false
 })
 export class HiddenColumnsBarComponent {
 

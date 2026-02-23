@@ -47,15 +47,16 @@ import {Location} from "@angular/common";
 import {URLS} from "../../../urls";
 
 @Component({
-  selector: 'lib-service-form',
-  templateUrl: './service-form.component.html',
-  styleUrls: ['./service-form.component.scss'],
-  providers: [
-    {
-      provide: MatDialogRef,
-      useValue: {}
-    }
-  ]
+    selector: 'lib-service-form',
+    templateUrl: './service-form.component.html',
+    styleUrls: ['./service-form.component.scss'],
+    providers: [
+        {
+            provide: MatDialogRef,
+            useValue: {}
+        }
+    ],
+    standalone: false
 })
 export class ServiceFormComponent extends ProjectableForm implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @Input() override set formData(data) {
@@ -104,7 +105,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   formView = 'simple';
   formDataInvalid = false;
   settings: any = {};
-  configFilterChangedDebounced: any = debounce(this.configFilterChanged.bind(this), 300, {trailing: true});
+  configFilterChangedDebounced: any = debounce((filterText: string) => this.configFilterChanged(filterText), 300, {trailing: true});
 
   override entityType = 'services';
   override entityClass = Service;
@@ -186,32 +187,13 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     this.svc.configChanged();
   }
 
-  clearConfigFilter(event) {
+  configFilterChanged(filterText: string) {
     const filters = [];
-    if (this.svc.selectedConfigTypeId) {
-      filters.push({
-        columnId: 'type',
-        value: this.svc.selectedConfigTypeId,
-        label: this.svc.selectedConfigTypeId,
-        filterName: 'Config Type',
-        type: 'TEXTINPUT',
-        verb: '=',
-        rawFilter: true
-      });
-    }
-    this.svc.getConfigs(filters,1);
-  }
-
-  configFilterChanged(event) {
-    if (event?.keyCode === KEY_CODES.LEFT_ARROW || event?.keyCode === KEY_CODES.RIGHT_ARROW || event?.keyCode === KEY_CODES.UP_ARROW || event?.keyCode === KEY_CODES.DOWN_ARROW) {
-      return;
-    }
-    let filters = [];
-    if (event?.target?.value) {
+    if (filterText && filterText !== '') {
       filters.push({
         columnId: 'name',
-        value: event.target.value,
-        label: event.target.value,
+        value: filterText,
+        label: filterText,
         filterName: 'Name',
         type: 'TEXTINPUT',
       });
@@ -227,7 +209,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
         rawFilter: true
       });
     }
-    this.svc.getConfigs(filters,1);
+    this.svc.getConfigs(filters, 1);
   }
 
   configTypeChanged($event) {

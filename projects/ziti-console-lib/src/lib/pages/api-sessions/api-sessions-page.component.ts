@@ -27,7 +27,8 @@ import {ConfirmComponent} from "../../features/confirm/confirm.component";
 @Component({
     selector: 'lib-api-sessions',
     templateUrl: './api-sessions-page.component.html',
-    styleUrls: ['./api-sessions-page.component.scss']
+    styleUrls: ['./api-sessions-page.component.scss'],
+    standalone: false
 })
 export class APISessionsPageComponent extends ListPageComponent implements OnInit {
     title = 'API Sessions'

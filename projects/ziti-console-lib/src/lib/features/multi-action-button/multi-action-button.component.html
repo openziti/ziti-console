@@ -1,17 +1,23 @@
 <div class="multi-action-button-container">
+  @if (actions) {
     <div class="form-field-action"
-         *ngIf="actions"
-         (clickOutside)="closeMoreActionsMenu()"
-    >
-        <div class="primary-action-button" (click)="actionClicked(actions[0])">{{actions[0].label}}</div>
+      (clickOutside)="closeMoreActionsMenu()"
+      >
+      <div class="primary-action-button" (click)="actionClicked(actions[0])">{{actions[0].label}}</div>
+      @if (actions.length > 1) {
         <div class="secondary-action-button"
-             *ngIf="actions.length > 1"
-             (click)="showMoreActionsMenu()"
-        ><div class="secondary-actions-arrow icon-prev"></div></div>
-    </div>
-    <div class="multi-action-button-dropdown" *ngIf="showMoreActions">
+          (click)="showMoreActionsMenu()"
+          ><div class="secondary-actions-arrow icon-prev"></div></div>
+        }
+      </div>
+    }
+    @if (showMoreActions) {
+      <div class="multi-action-button-dropdown">
         <ul>
-            <li *ngFor="let action of actions" [hidden]="action.hidden" class="confirm-item-name" (click)="actionClicked(action)">{{action.label}}</li>
+          @for (action of actions; track action) {
+            <li [hidden]="action.hidden" class="confirm-item-name" (click)="actionClicked(action)">{{action.label}}</li>
+          }
         </ul>
-    </div>
-</div>
+      </div>
+    }
+  </div>

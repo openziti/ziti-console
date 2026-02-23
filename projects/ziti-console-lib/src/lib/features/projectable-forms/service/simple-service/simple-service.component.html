@@ -1,196 +1,203 @@
 <div class="projectable-form-wrapper simple-service-wrapper"
-     (keyup.enter)="save($event)"
-     (keyup.escape)="closeModal(true, false, 'cards', $event)"
-     tabindex="0"
-     [class.projectable-form-hidden]="!dataInit"
->
-    <lib-form-header
-            [data]="formData"
-            [title]="isEdit ? 'Edit Simple Service' : 'Create a Simple Service'"
-            [actionButtonText]="'Save'"
-            [multiActions]="multiActions"
-            (actionRequested)="headerActionRequested($event)"
-            (multiActionRequested)="multiActionRequested($event)"
-            [(formView)]="formView"
-            [moreActions]="moreActions"
-            [class.is-scrolled]="isScrolled"
-    ></lib-form-header>
+  (keyup.enter)="save($event)"
+  (keyup.escape)="closeModal(true, false, 'cards', $event)"
+  tabindex="0"
+  [class.projectable-form-hidden]="!dataInit"
+  >
+  <lib-form-header
+    [data]="formData"
+    [title]="isEdit ? 'Edit Simple Service' : 'Create a Simple Service'"
+    [actionButtonText]="'Save'"
+    [multiActions]="multiActions"
+    (actionRequested)="headerActionRequested($event)"
+    (multiActionRequested)="multiActionRequested($event)"
+    [(formView)]="formView"
+    [moreActions]="moreActions"
+    [class.is-scrolled]="isScrolled"
+  ></lib-form-header>
 
-    <div class="simple-service-form-container projectable-form-container" #formContainer>
-        <div class="form-group-column three-fifths" *ngIf="showForm">
-            <div  id="InlineServiceArea" class="anyadd">
-                <div class="simple-service-inputs">
-                    <lib-form-field-container [title]="'Service Details'">
-                        <div class="form-field-input-group service-group">
-                            <div class="form-field-sub-group">
-                                <div class="config-title-row">
-                                    <span class="form-field-title">Service Name</span>
-                                </div>
-                                <input
-                                    class="form-field-input"
-                                    placeholder="Name this service"
-                                    autofocus
-                                    #nameFieldInput
-                                    [ngClass]="{error: errors.name}"
-                                    [(ngModel)]="serviceApiData.name"
-                                    (keyup)="serviceNameChanged($event)"
-                                    (change)="validateServiceName()"
-                                />
-                            </div>
-                            <div class="form-field-sub-group">
-                                <div class="config-title-row">
-                                    <span class="form-field-title">SELECT OR CREATE SERVICE ATTRIBUTES</span>
-                                </div>
-                                <lib-tag-selector
-                                    [(selectedRoleAttributes)]="serviceApiData.roleAttributes"
-                                    [availableRoleAttributes]="serviceRoleAttributes"
-                                    [placeholder]="'Add attributes to group services'"
-                                ></lib-tag-selector>
-                            </div>
-                        </div>
-                    </lib-form-field-container>
+  <div class="simple-service-form-container projectable-form-container" #formContainer>
+    @if (showForm) {
+      <div class="form-group-column three-fifths">
+        <div  id="InlineServiceArea" class="anyadd">
+          <div class="simple-service-inputs">
+            <lib-form-field-container [title]="'Service Details'">
+              <div class="form-field-input-group service-group">
+                <div class="form-field-sub-group">
+                  <div class="config-title-row">
+                    <span class="form-field-title">Service Name</span>
+                  </div>
+                  <input
+                    class="form-field-input"
+                    placeholder="Name this service"
+                    autofocus
+                    #nameFieldInput
+                    [ngClass]="{error: errors.name}"
+                    [(ngModel)]="serviceApiData.name"
+                    (keyup)="serviceNameChanged($event)"
+                    (change)="validateServiceName()"
+                    />
                 </div>
-            </div>
+                <div class="form-field-sub-group">
+                  <div class="config-title-row">
+                    <span class="form-field-title">SELECT OR CREATE SERVICE ATTRIBUTES</span>
+                  </div>
+                  <lib-tag-selector
+                    [(selectedRoleAttributes)]="serviceApiData.roleAttributes"
+                    [availableRoleAttributes]="serviceRoleAttributes"
+                    [placeholder]="'Add attributes to group services'"
+                  ></lib-tag-selector>
+                </div>
+              </div>
+            </lib-form-field-container>
+          </div>
         </div>
-        <div class="simple-service-center-content" *ngIf="showForm">
-            <div class="form-group-row">
-                <lib-form-field-container
-                        [title]="'ACCESSING CONFIGURATION'"
-                        [contentStyle]="'z-index: 10001'"
-                        [helpText]="'How will client applications use this service? Specify an address and port, or use the &quot;SDK Only&quot; toggle for an application embedded configuration.'"
-                >
-                    <div class="form-field-input-group accessing-group">
-                        <div class="form-field-sub-group">
-                            <div class="config-title-row">
-                                <span class="form-field-title">What identities can access this service?</span>
-                            </div>
-                            <lib-tag-selector
-                                    [(selectedNamedAttributes)]="dialPolicyNamedAttributes"
-                                    [(selectedRoleAttributes)]="dialPolicyRoleAttributes"
-                                    [availableNamedAttributes]="identityNamedAttributes"
-                                    [availableRoleAttributes]="identityRoleAttributes"
-                                    [placeholder]="'Select identity attributes to grant access'"
-                                    [hasError]="errors.dialIdentities"
-                                    (selectedNamedAttributesChange)="validateDialIdentities()"
-                                    (selectedRoleAttributesChange)="validateDialIdentities()"
-                                    (filterChange)="getIdentityNamedAttributes($event)"
-                            ></lib-tag-selector>
+      </div>
+    }
+    @if (showForm) {
+      <div class="simple-service-center-content">
+        <div class="form-group-row">
+          <lib-form-field-container
+            [title]="'ACCESSING CONFIGURATION'"
+            [contentStyle]="'z-index: 10001'"
+            [helpText]="'How will client applications use this service? Specify an address and port, or use the &quot;SDK Only&quot; toggle for an application embedded configuration.'"
+            >
+            <div class="form-field-input-group accessing-group">
+              <div class="form-field-sub-group">
+                <div class="config-title-row">
+                  <span class="form-field-title">What identities can access this service?</span>
+                </div>
+                <lib-tag-selector
+                  [(selectedNamedAttributes)]="dialPolicyNamedAttributes"
+                  [(selectedRoleAttributes)]="dialPolicyRoleAttributes"
+                  [availableNamedAttributes]="identityNamedAttributes"
+                  [availableRoleAttributes]="identityRoleAttributes"
+                  [placeholder]="'Select identity attributes to grant access'"
+                  [hasError]="errors.dialIdentities"
+                  (selectedNamedAttributesChange)="validateDialIdentities()"
+                  (selectedRoleAttributesChange)="validateDialIdentities()"
+                  (filterChange)="getIdentityNamedAttributes($event)"
+                ></lib-tag-selector>
+              </div>
+              <div class="form-field-sub-group">
+                <div class="config-title-row">
+                  <span class="form-field-title">How will the service be accessed?</span>
+                </div>
+                <div class="grid addressPort">
+                  <div class="config-item-container">
+                    <span class="config-item-label">SDK ONLY</span>
+                    <div
+                      class="sdk-toggle form-field-toggle"
+                      >
+                      <div class="switchGrid">
+                        <div>
+                          <div
+                            (click)="toggleSdkOnlyDial()"
+                            [ngClass]="{ on: sdkOnlyDial }"
+                            class="toggle"
+                            >
+                            <span [hidden]="!sdkOnlyDial" class="on-label">YES</span>
+                            <span [hidden]="sdkOnlyDial" class="off-label">NO</span>
+                            <div class="switch"></div>
+                          </div>
                         </div>
-                        <div class="form-field-sub-group">
-                            <div class="config-title-row">
-                                <span class="form-field-title">How will the service be accessed?</span>
-                            </div>
-                            <div class="grid addressPort">
-                                <div class="config-item-container">
-                                    <span class="config-item-label">SDK ONLY</span>
-                                    <div
-                                            class="sdk-toggle form-field-toggle"
-                                    >
-                                        <div class="switchGrid">
-                                            <div>
-                                                <div
-                                                        (click)="toggleSdkOnlyDial()"
-                                                        [ngClass]="{ on: sdkOnlyDial }"
-                                                        class="toggle"
-                                                >
-                                                    <span [hidden]="!sdkOnlyDial" class="on-label">YES</span>
-                                                    <span [hidden]="sdkOnlyDial" class="off-label">NO</span>
-                                                    <div class="switch"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="config-item-container" [ngClass]="{disabled: sdkOnlyDial}">
-                                    <div class="config-hostname-label">
-                                        <span class="config-item-label">Address</span>
-                                        <div
-                                            class="form-field-info infoicon"
-                                            matTooltip="Accessing hostnames must include a '.'"
-                                            matTooltipPosition="above"
-                                        ></div>
-                                        <span *ngIf="errors.interceptAddressFormat" class="error-label">Accessing address must include a '.'</span>
-                                    </div>
-                                    <input id="HowTo" type="text" maxlength="100" data-i18n="EgHost" (change)="validateInterceptAddress()" [ngClass]="{error: errors.interceptAddress}" [placeholder]="sdkOnlyDial ? '' : 'e.g. myservice.ziti'" [(ngModel)]="sdkOnlyDial ? '' : interceptConfigApiData.data.addresses[0]">
-                                </div>
-                                <div class="config-item-container" [ngClass]="{disabled: sdkOnlyDial}">
-                                    <span class="config-item-label">PORT</span>
-                                    <input id="HowToPort" type="number" maxlength="10" (change)="validateInterceptPort()" [ngClass]="{error: errors.interceptPort}" [placeholder]="sdkOnlyDial ? '' : 443" (keyup)="interceptPortChanged($event)" [(ngModel)]="sdkOnlyDial ? '' : interceptPort">
-                                </div>
-                            </div>
-                        </div>
+                      </div>
                     </div>
-                </lib-form-field-container>
-                <lib-form-field-container
-                        [title]="'HOSTING CONFIGURATION'"
-                        [contentStyle]="'z-index: 10000'"
-                        [helpText]="'Where should traffic for this service be sent? Specify a protocol, address, and port, or use the &quot;SDK Only&quot; toggle for an application embedded configuration.'"
-
-                >
-                    <div class="form-field-input-group hosting-group">
-                        <div class="form-field-sub-group">
-                            <div class="config-title-row">
-                                <span class="form-field-title">What identities can host this service?</span>
-                            </div>
-                            <lib-tag-selector
-                                    [(selectedNamedAttributes)]="bindPolicyNamedAttributes"
-                                    [(selectedRoleAttributes)]="bindPolicyRoleAttributes"
-                                    [availableNamedAttributes]="identityNamedAttributes"
-                                    [availableRoleAttributes]="identityRoleAttributes"
-                                    [placeholder]="'Select identity attributes'"
-                                    [hasError]="errors.bindIdentities"
-                                    (selectedNamedAttributesChange)="validateBindIdentities()"
-                                    (selectedRoleAttributesChange)="validateBindIdentities()"
-                                    (filterChange)="getIdentityNamedAttributes($event)"
-                            ></lib-tag-selector>
-                        </div>
-                        <div class="form-field-sub-group">
-                            <div class="config-title-row">
-                                <span class="form-field-title">Where should traffic be sent?</span>
-                            </div>
-                            <div class="grid addressFull">
-                                <div class="config-item-container">
-                                    <span class="config-item-label">SDK ONLY</span>
-                                    <div
-                                            class="sdk-toggle form-field-toggle"
-                                    >
-                                        <div class="switchGrid">
-                                            <div>
-                                                <div
-                                                        (click)="toggleSdkOnlyBind()"
-                                                        [ngClass]="{ on: sdkOnlyBind }"
-                                                        class="toggle"
-                                                >
-                                                    <span [hidden]="!sdkOnlyBind" class="on-label">YES</span>
-                                                    <span [hidden]="sdkOnlyBind" class="off-label">NO</span>
-                                                    <div class="switch"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="config-item-container" [ngClass]="{disabled: sdkOnlyBind}">
-                                    <span class="config-item-label">PROTOCOL</span>
-                                    <select id="HostedProtocol" (change)="hostProtocolsChanged($event)" [(ngModel)]="sdkOnlyBind ? '' : hostProtocol">
-                                        <option value="tcp">TCP</option>
-                                        <option value="udp" >UDP</option>
-                                        <option value="both" >TCP/UDP</option>
-                                    </select>
-                                </div>
-                                <div class="config-item-container" [ngClass]="{disabled: sdkOnlyBind}">
-                                    <span class="config-item-label">Address</span>
-                                    <input id="HostedHost" type="text" maxlength="100" data-i18n="EgHost" (change)="validateHostAddress()" [ngClass]="{error: errors.hostAddress}" [placeholder]="sdkOnlyBind ? '' : 'e.g. myservice.ziti'" [(ngModel)]="sdkOnlyBind ? '' : hostConfigApiData.data.address">
-                                </div>
-                                <div class="config-item-container" [ngClass]="{disabled: sdkOnlyBind}">
-                                    <span class="config-item-label">PORT</span>
-                                    <input id="HostedPort" type="number" maxlength="10" (change)="validateHostPort()" [ngClass]="{error: errors.hostPort}" [placeholder]="sdkOnlyBind ? '' : 443" [(ngModel)]="sdkOnlyBind ? '' : hostConfigApiData.data.port">
-                                </div>
-                            </div>
-                        </div>
+                  </div>
+                  <div class="config-item-container" [ngClass]="{disabled: sdkOnlyDial}">
+                    <div class="config-hostname-label">
+                      <span class="config-item-label">Address</span>
+                      <div
+                        class="form-field-info infoicon"
+                        matTooltip="Accessing hostnames must include a '.'"
+                        matTooltipPosition="above"
+                      ></div>
+                      @if (errors.interceptAddressFormat) {
+                        <span class="error-label">Accessing address must include a '.'</span>
+                      }
                     </div>
-                </lib-form-field-container>
+                    <input id="HowTo" type="text" maxlength="100" data-i18n="EgHost" (change)="validateInterceptAddress()" [ngClass]="{error: errors.interceptAddress}" [placeholder]="sdkOnlyDial ? '' : 'e.g. myservice.ziti'" [ngModel]="sdkOnlyDial ? '' : interceptConfigApiData.data.addresses[0]" (ngModelChange)="sdkOnlyDial ? '' : interceptConfigApiData.data.addresses[0] = $event"/>
+                  </div>
+                  <div class="config-item-container" [ngClass]="{disabled: sdkOnlyDial}">
+                    <span class="config-item-label">PORT</span>
+                    <input id="HowToPort" type="number" maxlength="10" (change)="validateInterceptPort()" [ngClass]="{error: errors.interceptPort}" [placeholder]="sdkOnlyDial ? '' : 443" (keyup)="interceptPortChanged($event)" [ngModel]="sdkOnlyDial ? '' : interceptPort" (ngModelChange)="sdkOnlyDial ? '' : interceptPort = $event"/>
+                  </div>
+                </div>
+              </div>
             </div>
+          </lib-form-field-container>
+          <lib-form-field-container
+            [title]="'HOSTING CONFIGURATION'"
+            [contentStyle]="'z-index: 10000'"
+            [helpText]="'Where should traffic for this service be sent? Specify a protocol, address, and port, or use the &quot;SDK Only&quot; toggle for an application embedded configuration.'"
+            >
+            <div class="form-field-input-group hosting-group">
+              <div class="form-field-sub-group">
+                <div class="config-title-row">
+                  <span class="form-field-title">What identities can host this service?</span>
+                </div>
+                <lib-tag-selector
+                  [(selectedNamedAttributes)]="bindPolicyNamedAttributes"
+                  [(selectedRoleAttributes)]="bindPolicyRoleAttributes"
+                  [availableNamedAttributes]="identityNamedAttributes"
+                  [availableRoleAttributes]="identityRoleAttributes"
+                  [placeholder]="'Select identity attributes'"
+                  [hasError]="errors.bindIdentities"
+                  (selectedNamedAttributesChange)="validateBindIdentities()"
+                  (selectedRoleAttributesChange)="validateBindIdentities()"
+                  (filterChange)="getIdentityNamedAttributes($event)"
+                ></lib-tag-selector>
+              </div>
+              <div class="form-field-sub-group">
+                <div class="config-title-row">
+                  <span class="form-field-title">Where should traffic be sent?</span>
+                </div>
+                <div class="grid addressFull">
+                  <div class="config-item-container">
+                    <span class="config-item-label">SDK ONLY</span>
+                    <div
+                      class="sdk-toggle form-field-toggle"
+                      >
+                      <div class="switchGrid">
+                        <div>
+                          <div
+                            (click)="toggleSdkOnlyBind()"
+                            [ngClass]="{ on: sdkOnlyBind }"
+                            class="toggle"
+                            >
+                            <span [hidden]="!sdkOnlyBind" class="on-label">YES</span>
+                            <span [hidden]="sdkOnlyBind" class="off-label">NO</span>
+                            <div class="switch"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="config-item-container" [ngClass]="{disabled: sdkOnlyBind}">
+                    <span class="config-item-label">PROTOCOL</span>
+                    <select id="HostedProtocol" (change)="hostProtocolsChanged($event)" [ngModel]="sdkOnlyBind ? '' : hostProtocol" (ngModelChange)="sdkOnlyBind ? '' : hostProtocol = $event">
+                      <option value="tcp">TCP</option>
+                      <option value="udp" >UDP</option>
+                      <option value="both" >TCP/UDP</option>
+                    </select>
+                  </div>
+                  <div class="config-item-container" [ngClass]="{disabled: sdkOnlyBind}">
+                    <span class="config-item-label">Address</span>
+                    <input id="HostedHost" type="text" maxlength="100" data-i18n="EgHost" (change)="validateHostAddress()" [ngClass]="{error: errors.hostAddress}" [placeholder]="sdkOnlyBind ? '' : 'e.g. myservice.ziti'" [ngModel]="sdkOnlyBind ? '' : hostConfigApiData.data.address" (ngModelChange)="sdkOnlyBind ? '' : hostConfigApiData.data.address = $event"/>
+                  </div>
+                  <div class="config-item-container" [ngClass]="{disabled: sdkOnlyBind}">
+                    <span class="config-item-label">PORT</span>
+                    <input id="HostedPort" type="number" maxlength="10" (change)="validateHostPort()" [ngClass]="{error: errors.hostPort}" [placeholder]="sdkOnlyBind ? '' : 443" [ngModel]="sdkOnlyBind ? '' : hostConfigApiData.data.port" (ngModelChange)="sdkOnlyBind ? '' : hostConfigApiData.data.port = $event"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </lib-form-field-container>
         </div>
-    </div>
+      </div>
+    }
+  </div>
 </div>
-<lib-loading-indicator *ngIf="isLoading || !dataInit" [isLoading]="isLoading || !dataInit"></lib-loading-indicator>
+@if (isLoading || !dataInit) {
+  <lib-loading-indicator [isLoading]="isLoading || !dataInit"></lib-loading-indicator>
+}

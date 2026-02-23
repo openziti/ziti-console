@@ -1,0 +1,63 @@
+.ziti-calendar-header {
+    padding: 0.5rem 0.75rem 0.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-button-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0 0.25rem;
+    flex-wrap: wrap;
+}
+
+.toggleButton {
+    flex: 1 1 calc(50% - 0.5rem);
+    min-width: 7rem;
+    height: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #d1d5db;
+    color: #374151;
+    border-radius: 0.5rem;
+    padding: 0 0.5rem;
+    font-weight: 600;
+    user-select: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.toggleButton.selected {
+    background: var(--primaryColor);
+    color: white;
+}
+
+.month-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.month-row .pi {
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.month-label {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #374151;
+}
+
+@media only screen and (min-width: 38rem) {
+    .toggleButton {
+        flex: 1 1 0;
+        min-width: 4.5rem;
+    }
+}
+

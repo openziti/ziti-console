@@ -6,16 +6,14 @@
     </div>
     <div class="reset-content-container">
         <label>Date Enrollment Expires</label>
-        <p-calendar
+        <div class="reset-datetime-container">
+            <lib-date-time-picker
                 [(ngModel)]="dateValue"
-                dateFormat="mm/dd/yy"
-                selectionMode="single"
-                [showIcon]="showIcon"
-                [showTime]="true"
                 [minDate]="minDate"
-                placeholder="Select Expiration Date"
-                #calendar
-        ></p-calendar>
+                [closeOnDateSelect]="true"
+                placeholder="Select Expiration Date & Time"
+            ></lib-date-time-picker>
+        </div>
     </div>
     <div class="reset-buttons-container">
         <div class="linkButton cancel" (click)="cancel()">Oops, no get me out of here</div>

@@ -17,9 +17,10 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 
 @Component({
-  selector: 'lib-list-page-header',
-  templateUrl: './list-page-header.component.html',
-  styleUrls: ['./list-page-header.component.scss']
+    selector: 'lib-list-page-header',
+    templateUrl: './list-page-header.component.html',
+    styleUrls: ['./list-page-header.component.scss'],
+    standalone: false
 })
 export class ListPageHeaderComponent {
     @Input() title: string = '';

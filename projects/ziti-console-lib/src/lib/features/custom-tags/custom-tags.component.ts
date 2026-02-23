@@ -18,9 +18,10 @@ import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges
 import {forEach, isEmpty, map, unset, debounce, cloneDeep, set} from "lodash";
 
 @Component({
-  selector: 'lib-custom-tags',
-  templateUrl: './custom-tags.component.html',
-  styleUrls: ['./custom-tags.component.scss']
+    selector: 'lib-custom-tags',
+    templateUrl: './custom-tags.component.html',
+    styleUrls: ['./custom-tags.component.scss'],
+    standalone: false
 })
 export class CustomTagsComponent implements OnInit, OnChanges {
 

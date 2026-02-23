@@ -1,0 +1,152 @@
+:host {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.dtp-field {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.dtp-input {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  cursor: pointer;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.dtp-button {
+  height: var(--defaultInputHeight);
+  min-width: var(--defaultInputHeight);
+  width: var(--defaultInputHeight);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+
+  border-style: solid;
+  border-width: var(--inputBorderWidth);
+  border-color: var(--inputBorder);
+  border-left: none;
+  border-top-right-radius: var(--inputBorderRadius);
+  border-bottom-right-radius: var(--inputBorderRadius);
+
+  background-color: var(--primaryColor);
+  color: var(--white);
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.05);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  .pi {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+}
+
+.dtp-overlay {
+  background-color: var(--background);
+  border-style: solid;
+  border-width: var(--inputBorderWidth);
+  border-color: var(--inputBorder);
+  border-radius: var(--inputBorderRadius);
+  box-shadow: 0rem 0.1875rem 0.3125rem 0.0625rem var(--boxShadow);
+  padding: var(--paddingMedium);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gapMedium);
+
+  width: var(--dtp-panel-width, 22rem);
+  max-width: calc(100vw - 2rem);
+
+  /* Make the Material calendar feel less "tiny" (scoped only to this component). */
+  ::ng-deep .mat-calendar {
+    width: 100%;
+    min-height: 21rem;
+  }
+
+  ::ng-deep .mat-calendar-body-cell-content {
+    height: 2.25rem;
+    width: 2.25rem;
+    line-height: 2.25rem;
+    font-size: 0.95rem;
+  }
+
+  ::ng-deep .mat-calendar-period-button {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+}
+
+.dtp-time {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding-bottom: 0.25rem;
+}
+
+.dtp-time-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.dtp-time-sep {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--tableText);
+}
+
+.dtp-time-value {
+  width: 2.25rem;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--tableText);
+}
+
+.dtp-time-btn {
+  height: 2rem;
+  width: 2rem;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--primaryColor);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover {
+    filter: brightness(1.05);
+  }
+
+  .pi {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+}
+

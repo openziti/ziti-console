@@ -16,7 +16,7 @@
 
 import {Injectable} from '@angular/core';
 import {isEmpty, defer} from "lodash";
-import {HttpBackend, HttpClient} from "@angular/common/http";
+import { HttpBackend, HttpClient } from "@angular/common/http";
 import {BehaviorSubject, firstValueFrom, map, tap} from "rxjs";
 import {catchError} from "rxjs/operators";
 import {GrowlerService} from "../features/messaging/growler.service";

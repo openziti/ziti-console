@@ -28,7 +28,8 @@ import {ConfirmComponent} from "../../features/confirm/confirm.component";
 @Component({
     selector: 'lib-jwt-signers',
     templateUrl: './jwt-signers-page.component.html',
-    styleUrls: ['./jwt-signers-page.component.scss']
+    styleUrls: ['./jwt-signers-page.component.scss'],
+    standalone: false
 })
 export class JwtSignersPageComponent extends ListPageComponent implements OnInit {
     title = 'JWT Signers'

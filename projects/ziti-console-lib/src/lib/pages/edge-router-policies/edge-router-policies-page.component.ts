@@ -23,9 +23,10 @@ import {ConsoleEventsService} from "../../services/console-events.service";
 import {EdgeRouterPoliciesPageService} from "./edge-router-policies-page.service";
 
 @Component({
-  selector: 'lib-edge-router-policies-page',
-  templateUrl: './edge-router-policies-page.component.html',
-  styleUrls: ['./edge-router-policies-page.component.scss']
+    selector: 'lib-edge-router-policies-page',
+    templateUrl: './edge-router-policies-page.component.html',
+    styleUrls: ['./edge-router-policies-page.component.scss'],
+    standalone: false
 })
 export class EdgeRouterPoliciesPageComponent extends ListPageComponent implements OnInit, OnDestroy  {
 

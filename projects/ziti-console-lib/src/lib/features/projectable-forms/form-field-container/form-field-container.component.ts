@@ -17,9 +17,10 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 
 @Component({
-  selector: 'lib-form-field-container',
-  templateUrl: './form-field-container.component.html',
-  styleUrls: ['./form-field-container.component.scss']
+    selector: 'lib-form-field-container',
+    templateUrl: './form-field-container.component.html',
+    styleUrls: ['./form-field-container.component.scss'],
+    standalone: false
 })
 export class FormFieldContainerComponent {
 

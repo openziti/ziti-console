@@ -1,0 +1,67 @@
+<div
+  class="dtp-field"
+  cdkOverlayOrigin
+  #origin="cdkOverlayOrigin"
+>
+  <input
+    class="form-field-input dtp-input"
+    [value]="displayValue"
+    [placeholder]="placeholder"
+    [disabled]="disabled"
+    readonly
+    (click)="toggle()"
+  />
+  <button
+    type="button"
+    class="dtp-button"
+    [disabled]="disabled"
+    (click)="toggle()"
+    [attr.aria-label]="ariaLabel"
+  >
+    <i class="pi pi-calendar" aria-hidden="true"></i>
+  </button>
+</div>
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="origin"
+  [cdkConnectedOverlayOpen]="open"
+  [cdkConnectedOverlayHasBackdrop]="true"
+  [cdkConnectedOverlayBackdropClass]="'cdk-overlay-transparent-backdrop'"
+  (backdropClick)="close()"
+>
+  <div
+    class="dtp-overlay"
+    [style.--dtp-panel-width]="panelWidth"
+    (keydown.escape)="$event.stopPropagation(); close()"
+  >
+    <mat-calendar
+      [selected]="value"
+      [minDate]="minDate"
+      (selectedChange)="onDateSelected($event)"
+    ></mat-calendar>
+
+    <div class="dtp-time">
+      <div class="dtp-time-col">
+        <button type="button" class="dtp-time-btn" (click)="adjustHour(1)" aria-label="Increase hour">
+          <i class="pi pi-chevron-up" aria-hidden="true"></i>
+        </button>
+        <div class="dtp-time-value">{{ twoDigit(hour) }}</div>
+        <button type="button" class="dtp-time-btn" (click)="adjustHour(-1)" aria-label="Decrease hour">
+          <i class="pi pi-chevron-down" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="dtp-time-sep">:</div>
+      <div class="dtp-time-col">
+        <button type="button" class="dtp-time-btn" (click)="adjustMinute(1)" aria-label="Increase minute">
+          <i class="pi pi-chevron-up" aria-hidden="true"></i>
+        </button>
+        <div class="dtp-time-value">{{ twoDigit(minute) }}</div>
+        <button type="button" class="dtp-time-btn" (click)="adjustMinute(-1)" aria-label="Decrease minute">
+          <i class="pi pi-chevron-down" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>
+

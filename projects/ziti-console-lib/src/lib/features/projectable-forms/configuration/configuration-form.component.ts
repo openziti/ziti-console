@@ -41,7 +41,8 @@ import {Location} from "@angular/common";
 @Component({
     selector: 'lib-configuration',
     templateUrl: './configuration-form.component.html',
-    styleUrls: ['./configuration-form.component.scss']
+    styleUrls: ['./configuration-form.component.scss'],
+    standalone: false
 })
 export class ConfigurationFormComponent extends ProjectableForm implements OnInit, OnDestroy {
 

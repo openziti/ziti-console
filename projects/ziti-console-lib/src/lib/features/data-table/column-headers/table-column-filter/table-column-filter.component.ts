@@ -23,6 +23,7 @@ import {Subscription} from "rxjs";
     selector: 'app-table-column-filter',
     templateUrl: './table-column-filter.component.html',
     styleUrls: ['./table-column-filter.component.scss'],
+    standalone: false
 })
 export class TableColumnFilterComponent implements OnInit, AfterViewInit, OnDestroy {
     @Input() type = 'TEXTINPUT';

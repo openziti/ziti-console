@@ -11,6 +11,7 @@ import {filter} from 'rxjs/operators';
   selector: 'lib-side-navigator',
   templateUrl: './side-navigator.component.html',
   styleUrls: ['./side-navigator.component.scss'],
+  standalone: false
 })
 export class SideNavigatorComponent implements OnInit, OnDestroy {
 

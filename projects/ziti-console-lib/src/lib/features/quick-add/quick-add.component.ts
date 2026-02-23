@@ -21,7 +21,8 @@ import {Router} from "@angular/router";
 @Component({
   selector: 'lib-quick-add',
   templateUrl: './quick-add.component.html',
-  styleUrls: ['./quick-add.component.scss']
+  styleUrls: ['./quick-add.component.scss'],
+  standalone: false
 })
 export class QuickAddComponent {
 

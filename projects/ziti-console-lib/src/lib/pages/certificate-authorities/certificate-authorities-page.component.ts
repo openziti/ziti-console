@@ -28,7 +28,8 @@ import {firstValueFrom} from "rxjs";
 @Component({
     selector: 'lib-auth-policies',
     templateUrl: './certificate-authorities-page.component.html',
-    styleUrls: ['./certificate-authorities-page.component.scss']
+    styleUrls: ['./certificate-authorities-page.component.scss'],
+    standalone: false
 })
 export class CertificateAuthoritiesPageComponent extends ListPageComponent implements OnInit {
     title = 'Certificate Authorities'

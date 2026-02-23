@@ -1,32 +1,35 @@
 <div class="ziti-page-container ziti-identities-container">
-    <lib-list-page-header [title]="title"
-                          [tabs]="tabs"
-                          [showAdd]="!itemsSelected"
-                          (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
-    <ng-content select="[slot=list-page-subheader]"></ng-content>
-    <lib-data-table [tableId]="'identities'"
-                    [rowData]="rowData"
-                    [isLoading]="isLoading"
-                    [columnDefinitions]="columnDefs"
-                    (actionRequested)="tableAction($event)"
-                    [startCount]="startCount"
-                    [endCount]="endCount"
-                    [totalCount]="totalCount"
-                    [currentPage]="filterService.currentPage"
-                    [emptyMsg]="'No Identities defined, Click the plus to add an Identity.'"
-                    [filterApplied]="filterApplied"
-                    [menuItems]="svc.menuItems"
-                    [headerActions]="svc.tableHeaderActions"
-                    [noItemsImage]="'No_Clients'"
-                    (gridReady)="gridReady($event)"
+  <lib-list-page-header [title]="title"
+    [tabs]="tabs"
+    [showAdd]="!itemsSelected"
+  (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
+  <ng-content select="[slot=list-page-subheader]"></ng-content>
+  <lib-data-table [tableId]="'identities'"
+    [rowData]="rowData"
+    [isLoading]="isLoading"
+    [columnDefinitions]="columnDefs"
+    (actionRequested)="tableAction($event)"
+    [startCount]="startCount"
+    [endCount]="endCount"
+    [totalCount]="totalCount"
+    [currentPage]="filterService.currentPage"
+    [emptyMsg]="'No Identities defined, Click the plus to add an Identity.'"
+    [filterApplied]="filterApplied"
+    [menuItems]="svc.menuItems"
+    [headerActions]="svc.tableHeaderActions"
+    [noItemsImage]="'No_Clients'"
+    (gridReady)="gridReady($event)"
     >
-    </lib-data-table>
+  </lib-data-table>
 </div>
 <lib-side-modal [(open)]="svc.sideModalOpen" [showClose]="false">
+  @if (svc.modalType === 'overrides' && svc.sideModalOpen) {
     <lib-overrides
-            *ngIf="svc.modalType === 'overrides' && svc.sideModalOpen"
-            [identity]="svc.selectedIdentity"
-            (close)="closeModal($event)"
+      [identity]="svc.selectedIdentity"
+      (close)="closeModal($event)"
     ></lib-overrides>
+  }
 </lib-side-modal>
-<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
+@if (isLoading) {
+  <lib-loading-indicator [isLoading]="isLoading"></lib-loading-indicator>
+}

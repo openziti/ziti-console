@@ -184,4 +184,55 @@
   .form-field-title {
     color: var(--offWhite);
   }
+
+  /* Make the JWT signer select a bit taller (+2px). */
+  :host ::ng-deep .auth-policy__jwt-signer-select {
+    .mat-mdc-text-field-wrapper,
+    .mat-mdc-select-trigger,
+    .mat-mdc-select-value,
+    .mat-mdc-select-placeholder,
+    .mat-mdc-select-arrow-wrapper,
+    .mat-mdc-form-field-icon-suffix {
+      height: 36px !important;
+      min-height: 36px !important;
+    }
+
+    .mat-mdc-select-value,
+    .mat-mdc-select-placeholder,
+    .mat-mdc-select-arrow-wrapper,
+    .mat-mdc-form-field-icon-suffix {
+      display: flex !important;
+      align-items: center !important;
+    }
+
+    /* Bigger placeholder + selected value text */
+    .mat-mdc-select-trigger {
+      font-size: 14px !important;
+      line-height: 1.1 !important;
+    }
+
+    .mat-mdc-select-placeholder {
+      font-size: 14px !important;
+      line-height: 1.1 !important;
+    }
+
+    .mat-mdc-select-value-text,
+    .mat-mdc-select-min-line {
+      font-size: 14px !important;
+      line-height: 1.1 !important;
+    }
+  }
+
+  /* Bigger dropdown option text (scoped to this select via panelClass). */
+  :host ::ng-deep .auth-policy__jwt-signer-select-panel {
+    .mat-mdc-option {
+      min-height: 32px !important;
+      height: 32px !important;
+    }
+
+    .mat-mdc-option .mdc-list-item__primary-text {
+      font-size: 14px !important;
+      line-height: 1.2 !important;
+    }
+  }
 }

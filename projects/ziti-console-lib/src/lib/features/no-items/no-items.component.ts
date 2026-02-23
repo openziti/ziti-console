@@ -1,9 +1,10 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
 
 @Component({
-  selector: 'lib-no-items',
-  templateUrl: './no-items.component.html',
-  styleUrls: ['./no-items.component.scss'],
+    selector: 'lib-no-items',
+    templateUrl: './no-items.component.html',
+    styleUrls: ['./no-items.component.scss'],
+    standalone: false
 })
 export class NoItemsComponent implements OnChanges {
   @Input() image = 'No_Gateways';

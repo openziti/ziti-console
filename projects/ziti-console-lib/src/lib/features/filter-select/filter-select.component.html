@@ -1,0 +1,83 @@
+<mat-form-field class="lib-filter-select" subscriptSizing="dynamic">
+  <mat-select
+    [id]="id"
+    [disabled]="disabled"
+    [placeholder]="placeholder"
+    [value]="value"
+    [panelClass]="resolvedPanelClass"
+    (selectionChange)="onMatSelectionChange($event.value)"
+    (focus)="handleFocus()"
+    >
+    @if (triggerTemplate?.templateRef) {
+      <mat-select-trigger>
+        <ng-container
+                *ngTemplateOutlet="
+                    triggerTemplate.templateRef;
+                    context: { $implicit: selectedOption, option: selectedOption, value: value }
+                "
+        ></ng-container>
+      </mat-select-trigger>
+    }
+
+    @if (searchable) {
+      <mat-option
+        class="lib-filter-select__search-option"
+        >
+        <div
+          class="lib-filter-select__search"
+          (click)="$event.stopPropagation()"
+          (mousedown)="$event.stopPropagation()"
+          >
+          <i class="pi pi-search lib-filter-select__search-icon" aria-hidden="true"></i>
+          <input
+            matInput
+            type="text"
+            [placeholder]="searchPlaceholder"
+            [(ngModel)]="filterText"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="onFilterTextChanged($event)"
+            (keydown)="$event.stopPropagation()"
+            />
+          @if (filterText && filterText.length > 0) {
+            <button
+              mat-icon-button
+              type="button"
+              class="lib-filter-select__search-clear"
+              (click)="clearFilter($event)"
+              aria-label="Clear filter"
+              >
+              <i class="pi pi-times" aria-hidden="true"></i>
+            </button>
+          }
+        </div>
+      </mat-option>
+    }
+
+    @for (option of displayedOptions; track trackByOption($index, option)) {
+      <mat-option
+        [value]="getOptionValue(option)"
+        >
+        @if (optionTemplate?.templateRef) {
+          <ng-container
+            *ngTemplateOutlet="optionTemplate.templateRef; context: { $implicit: option, option: option }"
+          ></ng-container>
+        } @else {
+          {{ getOptionLabel(option) }}
+        }
+      </mat-option>
+    }
+  </mat-select>
+
+  @if (showClear && !disabled && !isValueEmpty) {
+    <button
+      mat-icon-button
+      matSuffix
+      type="button"
+      (click)="clear($event)"
+      aria-label="Clear selection"
+      >
+      <i class="pi pi-times" aria-hidden="true"></i>
+    </button>
+  }
+</mat-form-field>
+

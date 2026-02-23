@@ -21,7 +21,7 @@
       matTooltip="Support"
       matTooltipPosition="below"
       matTooltipShowDelay="500"
-    >
+      >
       <div class="clicked"></div>
       <div class="circle"></div>
       <div class="icon icon-Icon_Add"></div>
@@ -33,7 +33,7 @@
       matTooltipPosition="below"
       matTooltipShowDelay="500"
       routerLink="/attributes/"
-    >
+      >
       <div class="circle"></div>
       <div class="icon icon-hash"></div>
     </div>
@@ -44,7 +44,7 @@
       matTooltip="Recent Alerts"
       matTooltipPosition="below"
       matTooltipShowDelay="500"
-    >
+      >
       <div class="circle"></div>
       <div class="icon icon-Bell"></div>
     </div>
@@ -53,7 +53,7 @@
       id="UserButton"
       (clickOutside)="closeProfileMenu()"
       (click)="openProfileMenu()"
-    >
+      >
       <div class="main clickable"></div>
       <div class="circle"></div>
       <div
@@ -61,24 +61,30 @@
         class="icon icon-profile"
       ></div>
       <div [ngClass]="{ open: profileOpen }" class="header-menu" id="UserMenu">
-        <div class="menutitle" *ngIf="profileOpen">{{ username }}</div>
-        <div
-          *ngIf="profileOpen"
-          class="link"
-          id="EditProfile"
-          routerLink="/profile/"
-        >
-          Edit Profile
-        </div>
-        <div
-          *ngIf="profileOpen"
-          class="link"
-          id="PersonalSettings"
-          routerLink="/settings/"
-        >
-          Personal Settings
-        </div>
-        <div *ngIf="profileOpen" (click)="confirmLogout()" class="link" id="LogoutButton">Logout</div>
+        @if (profileOpen) {
+          <div class="menutitle">{{ username }}</div>
+        }
+        @if (profileOpen) {
+          <div
+            class="link"
+            id="EditProfile"
+            routerLink="/profile/"
+            >
+            Edit Profile
+          </div>
+        }
+        @if (profileOpen) {
+          <div
+            class="link"
+            id="PersonalSettings"
+            routerLink="/settings/"
+            >
+            Personal Settings
+          </div>
+        }
+        @if (profileOpen) {
+          <div (click)="confirmLogout()" class="link" id="LogoutButton">Logout</div>
+        }
       </div>
     </div>
   </div>

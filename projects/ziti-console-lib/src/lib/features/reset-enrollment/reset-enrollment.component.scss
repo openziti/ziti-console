@@ -37,6 +37,13 @@
   flex-direction: column;
 }
 
+.reset-datetime-container {
+  display: flex;
+  gap: var(--paddingMedium);
+  align-items: center;
+  width: 100%;
+}
+
 .reset-buttons-container {
   display: flex;
   flex-direction: row;
@@ -60,14 +67,4 @@
   }
 }
 
-::ng-deep .p-component.p-datepicker {
-  background: var(--background) !important;
-}
-
-::ng-deep .p-datepicker .p-timepicker button.p-element {
-  background-color: var(--primaryColor);
-}
-
-::ng-deep .p-datepicker .p-datepicker-header button.p-element.p-ripple {
-  background-color: var(--primaryColor);
-}
+/* PrimeNG datepicker styles removed (switched to Angular Material datepicker). */

@@ -1,67 +1,67 @@
 <div id="OverrideModal" class="overrides-wrapper">
-    <div class="overrides-container sized large">
-        <div class="form-title-container">
-            <div class="form-title-back-button" (click)="close.emit()">
-                <div class="form-title-back-button-image"></div>
-                <div class="form-title-back-button-line"></div>
-            </div>
-            <span class="title">IDENTITY OVERRIDES</span>
-        </div>
-        <div class="subtitle">Manage the Service Config Identity Overrides</div>
-        <div class="darkened overrides" *ngIf="overrides.length > 0">Current Overrides</div>
-        <div id="OverrideList" class="grid splitRemove overrides">
-            <div id="OverrideTemplate" class="row grid threedelete" *ngFor="let override of overrides">
-                <div>{{override.service.name}}</div>
-                <div>{{override.config.name}}</div>
-                <div class="relative">
-                    <div class="remove icon-minus removeAssoc" (click)="removeOverride(override)"></div>
-                </div>
-            </div>
-        </div>
-        <div class="darkened">ADD OVERRIDE CONFIG</div>
-        <div class="grid split override-list-container">
-            <div>
-                <label for="ServiceList">Service</label>
-                <p-dropdown
-                    #servicesList
-                    id="ServiceList"
-                    [options]="services"
-                    [(ngModel)]="selectedServiceId"
-                    placeholder="Select a service"
-                    [editable]="true"
-                    [optionValue]="'id'"
-                    [optionLabel]="'name'"
-                    (onFocus)="servicesList.show()"
-                    (onChange)="serviceSelectionChanged($event)"
-                    (keyup)="filterServicesDebounced($event)"
-                ></p-dropdown>
-            </div>
-            <div>
-                <label for="ConfigList">Configuration</label>
-                <p-dropdown
-                    #configList
-                    id="ConfigList"
-                    [options]="configs"
-                    [(ngModel)]="selectedConfigId"
-                    placeholder="Select a config"
-                    [editable]="true"
-                    [optionValue]="'id'"
-                    [optionLabel]="'name'"
-                    (onChange)="configSelectionChanged($event)"
-                    (keyup)="filterConfigsDebounced($event)"
-                    (onFocus)="configList.show()"
-                ></p-dropdown>
-            </div>
-        </div>
-        <div class="buttons">
-            <div
-                id="AssociateButton"
-                class="button confirm"
-                [ngClass]="{disabled: disableAddButton}"
-                (click)="addOverride()"
-            >
-                Add
-            </div>
-        </div>
+  <div class="overrides-container sized large">
+    <div class="form-title-container">
+      <div class="form-title-back-button" (click)="close.emit()">
+        <div class="form-title-back-button-image"></div>
+        <div class="form-title-back-button-line"></div>
+      </div>
+      <span class="title">IDENTITY OVERRIDES</span>
     </div>
+    <div class="subtitle">Manage the Service Config Identity Overrides</div>
+    @if (overrides.length > 0) {
+      <div class="darkened overrides">Current Overrides</div>
+    }
+    <div id="OverrideList" class="grid splitRemove overrides">
+      @for (override of overrides; track override) {
+        <div id="OverrideTemplate" class="row grid threedelete">
+          <div>{{override.service.name}}</div>
+          <div>{{override.config.name}}</div>
+          <div class="relative">
+            <div class="remove icon-minus removeAssoc" (click)="removeOverride(override)"></div>
+          </div>
+        </div>
+      }
+    </div>
+    <div class="darkened">ADD OVERRIDE CONFIG</div>
+    <div class="grid split override-list-container">
+      <div>
+        <label for="ServiceList">Service</label>
+        <lib-filter-select
+          #servicesList
+          id="ServiceList"
+          [options]="services"
+          [(ngModel)]="selectedServiceId"
+          placeholder="Select a service"
+          optionValue="id"
+          optionLabel="name"
+          [openOnFocus]="true"
+          (filterChange)="filterServicesDebounced($event)"
+        ></lib-filter-select>
+      </div>
+      <div>
+        <label for="ConfigList">Configuration</label>
+        <lib-filter-select
+          #configList
+          id="ConfigList"
+          [options]="configs"
+          [(ngModel)]="selectedConfigId"
+          placeholder="Select a config"
+          optionValue="id"
+          optionLabel="name"
+          [openOnFocus]="true"
+          (filterChange)="filterConfigsDebounced($event)"
+        ></lib-filter-select>
+      </div>
+    </div>
+    <div class="buttons">
+      <div
+        id="AssociateButton"
+        class="button confirm"
+        [ngClass]="{disabled: disableAddButton}"
+        (click)="addOverride()"
+        >
+        Add
+      </div>
+    </div>
+  </div>
 </div>

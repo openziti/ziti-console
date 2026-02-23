@@ -1,58 +1,73 @@
 <div class="form-field-container" class="{{class}}" [ngClass]="{'form-field-row': layout === 'row'}">
-    <div class="form-field-header" *ngIf="showHeader">
-        <div class="form-field-title-container">
-            <div *ngIf="titleIcon" class="title-icon {{titleIcon}}"></div>
-            <span class="form-field-title">{{title}}</span>
+  @if (showHeader) {
+    <div class="form-field-header">
+      <div class="form-field-title-container">
+        @if (titleIcon) {
+          <div class="title-icon {{titleIcon}}"></div>
+        }
+        <span class="form-field-title">{{title}}</span>
+        @if (helpText) {
+          <div
+            class="form-field-info infoicon"
+            matTooltip="{{helpText}}"
+            matTooltipPosition="above"
+          ></div>
+        }
+      </div>
+      @if (label) {
+        <span class="form-field-label">{{label}}</span>
+      }
+      @if (count || count === 0) {
+        <span class="form-field-count">{{count}}</span>
+      }
+      @if (title2) {
+        <div class="form-field-title-container title-container-2">
+          <span class="form-field-title title2">{{title2}}</span>
+          @if (helpText2) {
             <div
-                *ngIf="helpText"
-                class="form-field-info infoicon"
-                matTooltip="{{helpText}}"
-                matTooltipPosition="above"
+              class="form-field-info infoicon"
+              matTooltip="{{helpText2}}"
+              matTooltipPosition="below"
             ></div>
+          }
         </div>
-        <span class="form-field-label" *ngIf="label">{{label}}</span>
-        <span class="form-field-count" *ngIf="count || count === 0">{{count}}</span>
-        <div class="form-field-title-container title-container-2" *ngIf="title2">
-            <span class="form-field-title title2">{{title2}}</span>
-            <div
-                    *ngIf="helpText2"
-                    class="form-field-info infoicon"
-                    matTooltip="{{helpText2}}"
-                    matTooltipPosition="below"
-            ></div>
-        </div>
-        <div class="form-header-toggle-container" *ngIf="showToggle">
-            <span
-                    class="toggle-option-text"
-                    [ngClass]="{'toggle-option-selected': !headerToggle}"
-                    (click)="toggleHeader('left')"
+      }
+      @if (showToggle) {
+        <div class="form-header-toggle-container">
+          <span
+            class="toggle-option-text"
+            [ngClass]="{'toggle-option-selected': !headerToggle}"
+            (click)="toggleHeader('left')"
             >
-                OFF
-            </span>
-            <div class="form-header-toggle" (click)="toggleHeader()">
-                <div
-                        class="form-toggle-switch form-toggle-switch-inverse"
-                        [ngClass]="{'toggle-left': !headerToggle, 'toggle-right': headerToggle}"
-                >
-                    <div class="form-toggle-indicator"></div>
-                    <div class="form-toggle-indicator"></div>
-                </div>
+            OFF
+          </span>
+          <div class="form-header-toggle" (click)="toggleHeader()">
+            <div
+              class="form-toggle-switch form-toggle-switch-inverse"
+              [ngClass]="{'toggle-left': !headerToggle, 'toggle-right': headerToggle}"
+              >
+              <div class="form-toggle-indicator"></div>
+              <div class="form-toggle-indicator"></div>
             </div>
-            <span
-                    class="toggle-option-text"
-                    [ngClass]="{'toggle-option-selected': headerToggle}"
-                    (click)="toggleHeader('right')"
+          </div>
+          <span
+            class="toggle-option-text"
+            [ngClass]="{'toggle-option-selected': headerToggle}"
+            (click)="toggleHeader('right')"
             >
-                ON
-            </span>
+            ON
+          </span>
         </div>
+      }
     </div>
-    <div class="form-field-content" [style]="contentStyle" class="{{contentClass}}">
-        <ng-content></ng-content>
-    </div>
+  }
+  <div class="form-field-content" [style]="contentStyle" class="{{contentClass}}">
+    <ng-content></ng-content>
+  </div>
+  @if (headerActions) {
     <lib-multi-action-button
-        *ngIf="headerActions"
-        [actions]="headerActions"
-        (actionRequested)="actionClicked($event)"
+      [actions]="headerActions"
+      (actionRequested)="actionClicked($event)"
     ></lib-multi-action-button>
+  }
 </div>

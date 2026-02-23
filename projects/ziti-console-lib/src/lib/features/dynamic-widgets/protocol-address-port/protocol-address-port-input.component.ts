@@ -20,9 +20,10 @@ import _, {debounce, isEmpty, isNumber, isNil, isNaN} from "lodash";
 import {ValidationService} from "../../../services/validation.service";
 
 @Component({
-  selector: 'lib-protocol-address-port-input',
-  templateUrl: './protocol-address-port-input.component.html',
-  styleUrls: ['./protocol-address-port-input.component.scss']
+    selector: 'lib-protocol-address-port-input',
+    templateUrl: './protocol-address-port-input.component.html',
+    styleUrls: ['./protocol-address-port-input.component.scss'],
+    standalone: false
 })
 export class ProtocolAddressPortInputComponent implements OnInit, DoCheck {
   @Input() protocolList: any;

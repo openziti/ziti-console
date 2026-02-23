@@ -4,9 +4,10 @@ import {ICellRendererParams} from 'ag-grid-community';
 import _ from 'lodash';
 
 @Component({
-  selector: 'app-table-cell-menu',
-  templateUrl: './table-cell-menu.component.html',
-  styleUrls: ['./table-cell-menu.component.scss'],
+    selector: 'app-table-cell-menu',
+    templateUrl: './table-cell-menu.component.html',
+    styleUrls: ['./table-cell-menu.component.scss'],
+    standalone: false
 })
 export class TableCellMenuComponent implements ICellRendererAngularComp {
   item: any = {

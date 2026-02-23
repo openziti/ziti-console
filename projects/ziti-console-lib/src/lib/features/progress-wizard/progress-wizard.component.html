@@ -1,14 +1,18 @@
 <div class="progress-wizard-wrapper">
   <div class="progress-wizard-container">
-    <div *ngIf="showCloseButton" (click)="cancel()" class="close cancel"></div>
+    @if (showCloseButton) {
+      <div (click)="cancel()" class="close cancel"></div>
+    }
     <div class="side-progress-bar">
       <div class="progress-steps">
         <div class="progress-track" style="height: {{progressTrackHeight}}"></div>
-        <div *ngFor="let step of steps" class="progress-step" [ngClass]="{'step-active': step.index === currentStepIndex}" (click)="goToStep(step)">
-          <div class="progress-step-number">{{step.index + 1}}</div>
-          <div class="progress-step-number-background"></div>
-          <div class="progress-step-label">{{step.label}}</div>
-        </div>
+        @for (step of steps; track step) {
+          <div class="progress-step" [ngClass]="{'step-active': step.index === currentStepIndex}" (click)="goToStep(step)">
+            <div class="progress-step-number">{{step.index + 1}}</div>
+            <div class="progress-step-number-background"></div>
+            <div class="progress-step-label">{{step.label}}</div>
+          </div>
+        }
       </div>
     </div>
     <div>
@@ -25,11 +29,15 @@
               <ng-content></ng-content>
             </div>
             <div class="buttons-container">
-              <div *ngIf="currentStepIndex === 0">
-              </div>
-              <button *ngIf="currentStepIndex > 0" name="action" type="submit" class="btn-primary" (click)="prevStep()">
-                {{backButtonLabel}}
-              </button>
+              @if (currentStepIndex === 0) {
+                <div>
+                </div>
+              }
+              @if (currentStepIndex > 0) {
+                <button name="action" type="submit" class="btn-primary" (click)="prevStep()">
+                  {{backButtonLabel}}
+                </button>
+              }
               <button name="action" type="submit" class="btn-primary" (click)="nextStep()" [disabled]="nextButtonDisabled">
                 {{nextButtonLabel}}
               </button>

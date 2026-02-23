@@ -18,7 +18,6 @@ import {
 } from '../../../services/ziti-data.service';
 import { IdentityServicePathHelper } from './identity-service-path.helper';
 import * as d3 from 'd3';
-import $ from 'jquery';
 import _ from 'lodash';
 import { Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
@@ -26,9 +25,10 @@ import { take, tap } from 'rxjs/operators';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-  selector: 'app-identity-visualizer',
-  templateUrl: './identity-service-path.component.html',
-  styleUrls: ['./identity-service-path.component.scss'],
+    selector: 'app-identity-visualizer',
+    templateUrl: './identity-service-path.component.html',
+    styleUrls: ['./identity-service-path.component.scss'],
+    standalone: false
 })
 export class IdentityServicePathComponent implements OnInit {
   public d3;

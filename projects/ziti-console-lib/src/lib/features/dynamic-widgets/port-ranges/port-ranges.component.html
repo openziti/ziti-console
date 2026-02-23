@@ -1,13 +1,12 @@
 <label>PORT RANGES</label>
-<p-chips
-        (onAdd)="validateConfig()"
-        (onRemove)="validateConfig()"
-        (keyup)="onKeyup($event)"
-        [(ngModel)]="fieldValue"
-        [allowDuplicate]="false"
-        [ngClass]="{ error: invalid }"
-        [placeholder]="'80 120-125 443 8080'"
-        [addOnBlur]="true"
-        separator=","
->
-</p-chips>
+<lib-chips-input
+  (onAdd)="validateConfig()"
+  (onRemove)="validateConfig()"
+  (keyup)="onKeyup($event)"
+  [(ngModel)]="fieldValue"
+  [allowDuplicate]="false"
+  [invalid]="invalid"
+  [placeholder]="'80 120-125 443 8080'"
+  [addOnBlur]="true"
+  separator=",">
+</lib-chips-input>

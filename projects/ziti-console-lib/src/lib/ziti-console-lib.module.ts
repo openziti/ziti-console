@@ -14,9 +14,9 @@
     limitations under the License.
 */
 
-import {APP_INITIALIZER, InjectionToken, Injector, NgModule} from '@angular/core';
+import { InjectionToken, Injector, NgModule, inject, provideAppInitializer } from '@angular/core';
 import {SafePipe} from "./safe.pipe";
-import {HttpClientModule, HttpClient} from "@angular/common/http";
+import { HttpClient, provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {ZacRoutingModule} from "./zac-routing.module";
@@ -29,10 +29,16 @@ import {ObjectComponent} from './features/dynamic-widgets/object/object.componen
 import {SelectorInputComponent} from './features/dynamic-widgets/selector/selector-input.component';
 import {CheckboxListInputComponent} from './features/dynamic-widgets/checkbox-list/checkbox-list-input.component';
 import {TextListInputComponent} from "./features/dynamic-widgets/text-list/text-list-input.component";
-import {ChipsModule} from "primeng/chips";
-import {DropdownModule} from 'primeng/dropdown';
-import {CalendarModule} from 'primeng/calendar';
-import {QRCodeModule} from 'angularx-qrcode';
+import { ChipsInputComponent } from './features/chips-input/chips-input.component';
+import {QRCodeComponent} from 'angularx-qrcode';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { OverlayModule } from '@angular/cdk/overlay';
 import {
     ProtocolAddressPortInputComponent
 } from './features/dynamic-widgets/protocol-address-port/protocol-address-port-input.component';
@@ -64,7 +70,7 @@ import { ConfirmComponent } from './features/confirm/confirm.component';
 import {onAppInit} from "./app.initializer";
 import {ClickOutsideModule} from "ng-click-outside";
 import {NgJsonEditorModule} from "ang-jsoneditor";
-import {LottieModule} from "ngx-lottie";
+import { LottieComponent, provideLottieOptions } from "ngx-lottie";
 import { NoItemsComponent } from './features/no-items/no-items.component';
 import { SideModalComponent } from './features/side-modal/side-modal.component';
 import { IdentityFormComponent } from "./features/projectable-forms/identity/identity-form.component";
@@ -137,13 +143,19 @@ import { AttributesComponent } from './pages/attributes/attributes.component';
 import {SideNavigatorComponent} from "./features/side-navigator/side-navigator.component";
 import {HeaderBarComponent} from "./features/header-bar/header-bar.component";
 import {QuickAddComponent} from "./features/quick-add/quick-add.component";
+import { DateRangeQuickHeaderComponent } from './features/date-range-quick-header/date-range-quick-header.component';
+import { DateTimePickerComponent } from './features/date-time-picker/date-time-picker.component';
+import { FilterSelectComponent } from './features/filter-select/filter-select.component';
+import {
+    FilterSelectOptionTemplateDirective,
+    FilterSelectTriggerTemplateDirective
+} from './features/filter-select/filter-select-templates.directive';
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
 }
 
-@NgModule({
-    declarations: [
+@NgModule({ declarations: [
         SafePipe,
         ExtendableComponent,
         StringInputComponent,
@@ -152,6 +164,7 @@ export function playerFactory() {
         ObjectComponent,
         SelectorInputComponent,
         TextListInputComponent,
+        ChipsInputComponent,
         CheckboxListInputComponent,
         ProtocolAddressPortInputComponent,
         SideNavbarComponent,
@@ -177,8 +190,6 @@ export function playerFactory() {
         EdgeRouterFormComponent,
         TransitRouterFormComponent,
         HiddenColumnsBarComponent,
-        FilterBarComponent,
-        ExtendableComponent,
         ConfirmComponent,
         NoItemsComponent,
         SideModalComponent,
@@ -216,7 +227,6 @@ export function playerFactory() {
         ServiceEdgeRouterPoliciesPageComponent,
         ServiceEdgeRouterPolicyFormComponent,
         TerminatorsPageComponent,
-        TerminatorFormComponent,
         ConfigurationFormComponent,
         JwtSignersPageComponent,
         JwtSignerFormComponent,
@@ -242,25 +252,11 @@ export function playerFactory() {
         AttributesComponent,
         SideNavigatorComponent,
         HeaderBarComponent,
-        QuickAddComponent
-    ],
-    imports: [
-        CommonModule,
-        FormsModule,
-        MatDialogModule,
-        MatRadioModule,
-        HttpClientModule,
-        ZacRoutingModule,
-        ChipsModule,
-        CalendarModule,
-        AgGridModule,
-        QRCodeModule,
-        ClickOutsideModule,
-        NgJsonEditorModule,
-        MatTooltipModule,
-        MatAutocompleteModule,
-        LottieModule.forRoot({player: playerFactory}),
-        DropdownModule
+        QuickAddComponent,
+        DateRangeQuickHeaderComponent,
+        FilterSelectComponent,
+        FilterSelectOptionTemplateDirective,
+        FilterSelectTriggerTemplateDirective
     ],
     exports: [
         ExtendableComponent,
@@ -272,6 +268,7 @@ export function playerFactory() {
         BooleanToggleInputComponent,
         ObjectComponent,
         TextListInputComponent,
+        ChipsInputComponent,
         IdentityServicePathComponent,
         NetworkVisualizerComponent,
         CheckboxListInputComponent,
@@ -322,20 +319,43 @@ export function playerFactory() {
         ProfileComponent,
         GeolocateComponent,
         AttributesComponent,
-        SideNavigatorComponent,
         HeaderBarComponent,
-        QuickAddComponent
-    ],
-    providers: [
-        {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},
-        {provide: ZITI_NAVIGATOR, useValue: {}},
-        {
-            provide: APP_INITIALIZER,
-            useFactory: onAppInit,
-            deps: [Injector],
-            multi: true
-        },
-    ],
-})
+        SideNavigatorComponent,
+        FilterSelectComponent,
+        FilterSelectOptionTemplateDirective,
+        FilterSelectTriggerTemplateDirective
+    ], imports: [
+        CommonModule,
+        FormsModule,
+        MatDialogModule,
+        MatRadioModule,
+        ZacRoutingModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatButtonModule,
+        MatIconModule,
+        OverlayModule,
+        AgGridModule,
+        QRCodeComponent,
+        ClickOutsideModule,
+        NgJsonEditorModule,
+        MatTooltipModule,
+        MatAutocompleteModule,
+        LottieComponent,
+        DateTimePickerComponent], providers: [
+        { provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService },
+        { provide: ZITI_NAVIGATOR, useValue: {} },
+        provideLottieOptions({
+            player: playerFactory
+          }),
+        provideAppInitializer(() => {
+            const initializerFn = (onAppInit)(inject(Injector));
+        return initializerFn();
+      }),
+        provideHttpClient(withInterceptorsFromDi()),
+    ] })
 export class OpenZitiConsoleLibModule {
 }

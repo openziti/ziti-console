@@ -4,15 +4,18 @@ import {GrowlerService} from "./growler.service";
 import {Subscription} from "rxjs";
 
 @Component({
-  selector: 'lib-growler',
-  template: `
-    <div *ngIf="show" [ngClass]="{ open: show }" class="growler {{ level }}" id="Growler">
-      <div class="title">{{ title }}</div>
-      <div class="subtitle">{{ subtitle }}</div>
-      <div [innerHTML]="content" class="content"></div>
-      <div class="icon"></div>
-    </div>`,
-  styleUrls: ['./growler.component.scss']
+    selector: 'lib-growler',
+    template: `
+    @if (show) {
+      <div [ngClass]="{ open: show }" class="growler {{ level }}" id="Growler">
+        <div class="title">{{ title }}</div>
+        <div class="subtitle">{{ subtitle }}</div>
+        <div [innerHTML]="content" class="content"></div>
+        <div class="icon"></div>
+      </div>
+    }`,
+    styleUrls: ['./growler.component.scss'],
+    standalone: false
 })
 export class GrowlerComponent  implements OnInit, OnDestroy {
   @Input() title = '';

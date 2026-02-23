@@ -37,7 +37,8 @@ import {ITooltipParams} from "ag-grid-community";
                 white-space: nowrap;
             }
         `
-    ]
+    ],
+    standalone: false
 })
 export class OSTooltipComponent implements ITooltipAngularComp {
     private params!: {color: string} & ITooltipParams;

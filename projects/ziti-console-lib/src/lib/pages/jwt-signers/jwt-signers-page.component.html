@@ -1,29 +1,32 @@
 <div class="ziti-page-container ziti-configs-container">
+  @if (_networkJwt) {
     <a
-        *ngIf="_networkJwt"
-        class="network-jwt-link save-button"
-        href="data:application/ziti-jwt;charset=utf-8,{{networkJwt}}"
-        download="{{networkJwtFilename}}.jwt"
-    >
-        Download Network JWT
+      class="network-jwt-link save-button"
+      href="data:application/ziti-jwt;charset=utf-8,{{networkJwt}}"
+      download="{{networkJwtFilename}}.jwt"
+      >
+      Download Network JWT
     </a>
-    <lib-list-page-header [title]="title"
-                          [tabs]="tabs"
-                          [showAdd]="!itemsSelected"
-                          (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
+  }
+  <lib-list-page-header [title]="title"
+    [tabs]="tabs"
+    [showAdd]="!itemsSelected"
+  (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
 
-    <lib-data-table [tableId]="'ext-jwt-signers'"
-                    [rowData]="rowData"
-                    [columnDefinitions]="columnDefs"
-                    (actionRequested)="tableAction($event)"
-                    [startCount]="startCount"
-                    [endCount]="endCount"
-                    [totalCount]="totalCount"
-                    [emptyMsg]="'No Configurations defined, Click the plus to add a Configuration.'"
-                    [filterApplied]="filterApplied"
-                    [menuItems]="svc.menuItems"
-                    (gridReady)="gridReady($event)"
+  <lib-data-table [tableId]="'ext-jwt-signers'"
+    [rowData]="rowData"
+    [columnDefinitions]="columnDefs"
+    (actionRequested)="tableAction($event)"
+    [startCount]="startCount"
+    [endCount]="endCount"
+    [totalCount]="totalCount"
+    [emptyMsg]="'No Configurations defined, Click the plus to add a Configuration.'"
+    [filterApplied]="filterApplied"
+    [menuItems]="svc.menuItems"
+    (gridReady)="gridReady($event)"
     >
-    </lib-data-table>
+  </lib-data-table>
 </div>
-<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
+@if (isLoading) {
+  <lib-loading-indicator [isLoading]="isLoading"></lib-loading-indicator>
+}

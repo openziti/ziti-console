@@ -23,9 +23,10 @@ import {ConsoleEventsService} from "../../services/console-events.service";
 import {ServicePoliciesPageService} from "./service-policies-page.service";
 
 @Component({
-  selector: 'lib-service-policies-page',
-  templateUrl: './service-policies-page.component.html',
-  styleUrls: ['./service-policies-page.component.scss']
+    selector: 'lib-service-policies-page',
+    templateUrl: './service-policies-page.component.html',
+    styleUrls: ['./service-policies-page.component.scss'],
+    standalone: false
 })
 export class ServicePoliciesPageComponent extends ListPageComponent implements OnInit, OnDestroy  {
 

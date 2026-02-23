@@ -3,9 +3,10 @@ import {IHeaderAngularComp} from 'ag-grid-angular';
 import {IHeaderParams} from 'ag-grid-community';
 
 @Component({
-  selector: 'app-table-column-select',
-  templateUrl: './table-column-select.component.html',
-  styleUrls: ['./table-column-select.component.scss'],
+    selector: 'app-table-column-select',
+    templateUrl: './table-column-select.component.html',
+    styleUrls: ['./table-column-select.component.scss'],
+    standalone: false
 })
 export class TableColumnSelectComponent implements IHeaderAngularComp {
   headerParams: any;

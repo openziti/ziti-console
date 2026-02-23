@@ -19,25 +19,30 @@ import {Subject} from "rxjs";
 import {debounce, isEmpty} from "lodash";
 
 @Component({
-  selector: 'lib-text-list-input',
-  template: `
+    selector: 'lib-text-list-input',
+    template: `
     <div [ngClass]="fieldClass + (!_isValid ? ' invalid' : '')">
       <label for="schema_{{parentage?parentage+'_':''}}{{_idName}}"  [ngStyle]="{'color': labelColor}">{{_fieldName}}</label>
-      <p-chips id="schema_{{parentage?parentage+'_':''}}{{_idName}}"
-          (keyup)="onKeyup($event)"
-          [(ngModel)]="fieldValue"
-          [allowDuplicate]="false"
-          [placeholder]="placeholder"
-          [addOnBlur]="true"
-          [ngClass]="fieldClass + (!_isValid ? ' invalid' : '')" 
-          (onBlur)="emitEventsDebounced()"
-          (onModelChange)="emitEvents()"
-          separator=",">
-      </p-chips>
-      <div *ngIf="error" class="error">{{error}}</div>
+      <lib-chips-input
+        [inputId]="'schema_' + (parentage ? parentage + '_' : '') + _idName"
+        (keyup)="onKeyup($event)"
+        [(ngModel)]="fieldValue"
+        [allowDuplicate]="false"
+        [placeholder]="placeholder"
+        [addOnBlur]="true"
+        [invalid]="!_isValid"
+        [ngClass]="fieldClass + (!_isValid ? ' invalid' : '')"
+        (onBlur)="emitEventsDebounced()"
+        (onModelChange)="emitEvents()"
+        separator=","
+      ></lib-chips-input>
+      @if (error) {
+        <div class="error">{{error}}</div>
+      }
     </div>
- `,
-  styleUrls:['./text-list-input.component.scss'  ]
+    `,
+    styleUrls: ['./text-list-input.component.scss'],
+    standalone: false
 })
 export class TextListInputComponent {
   _fieldName = 'Field Label';

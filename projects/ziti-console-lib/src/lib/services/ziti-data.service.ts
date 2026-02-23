@@ -19,7 +19,7 @@ import { Router } from "@angular/router";
 import {LoggerService} from "../features/messaging/logger.service";
 import {GrowlerService} from "../features/messaging/growler.service";
 import {SETTINGS_SERVICE, SettingsService} from "./settings.service";
-import {HttpClient} from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import {FilterObj} from "../features/data-table/data-table-filter.service";
 import { LoginServiceClass } from './login-service.class';
 

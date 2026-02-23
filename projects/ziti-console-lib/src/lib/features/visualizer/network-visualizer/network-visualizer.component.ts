@@ -22,23 +22,23 @@ import {catchError} from "rxjs/operators";
 import {firstValueFrom, map, Observable} from "rxjs";
 import { VisualizerServiceClass  } from '../visualizer-service.class';
 import * as d3 from 'd3';
-import $ from 'jquery';
 import _ from 'lodash';
 import {cloneDeep} from "lodash";
 import { Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { take, tap } from 'rxjs/operators';
 import { MatIconModule } from '@angular/material/icon';
-import { HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { TreeNodeProcessor } from './network-visualizer.treenodeprocessor';
 import { NetworkVisualizerHelper } from './network-visualizer.helper';
 import {LoggerService} from "../../messaging/logger.service";
 
 @Component({
-  selector: 'app-network-visualizer',
-  encapsulation: ViewEncapsulation.None,
-  templateUrl: './network-visualizer.component.html',
-  styleUrls: ['./network-visualizer.component.scss'],
+    selector: 'app-network-visualizer',
+    encapsulation: ViewEncapsulation.None,
+    templateUrl: './network-visualizer.component.html',
+    styleUrls: ['./network-visualizer.component.scss'],
+    standalone: false
 })
 
 export class NetworkVisualizerComponent extends VisualizerServiceClass implements OnInit {

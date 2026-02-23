@@ -21,7 +21,8 @@ import {ZITI_NAVIGATOR} from "../../../ziti-console.constants";
 @Component({
     selector: 'lib-side-navbar',
     templateUrl: './side-navbar.component.html',
-    styleUrls: ['./side-navbar.component.scss']
+    styleUrls: ['./side-navbar.component.scss'],
+    standalone: false
 })
 export class SideNavbarComponent {
     @Input() version = '';

@@ -40,28 +40,50 @@ export class OverridesService {
 
     loadServices(filter): Promise<any> {
         const paging = {
-            searchOn: 'name',
-            filter: filter,
             total: 30,
             page: 1,
             sort: 'name',
             order: 'asc'
         };
-        return this.zitiDataService.get(`services`, paging, []).then((result) => {
+        const filters: any[] = [];
+        if (filter && filter !== '') {
+            const verb =
+                this.zitiDataService.dataServiceType === ZitiDataService.NODE_DATA_SERVICE_TYPE
+                    ? 'contains'
+                    : 'icontains';
+            filters.push({
+                columnId: 'name',
+                type: 'TEXTINPUT',
+                value: filter,
+                verb
+            });
+        }
+        return this.zitiDataService.get(`services`, paging, filters).then((result) => {
             return result;
         });
     }
 
     loadConfigs(filter): Promise<any> {
         const paging = {
-            searchOn: 'name',
-            filter: filter,
             total: 30,
             page: 1,
             sort: 'name',
             order: 'desc'
         };
-        return this.zitiDataService.get(`configs`, paging, []).then((result) => {
+        const filters: any[] = [];
+        if (filter && filter !== '') {
+            const verb =
+                this.zitiDataService.dataServiceType === ZitiDataService.NODE_DATA_SERVICE_TYPE
+                    ? 'contains'
+                    : 'icontains';
+            filters.push({
+                columnId: 'name',
+                type: 'TEXTINPUT',
+                value: filter,
+                verb
+            });
+        }
+        return this.zitiDataService.get(`configs`, paging, filters).then((result) => {
             return result;
         });
     }

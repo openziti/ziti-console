@@ -1,14 +1,20 @@
 <div class="header">
-    <div class="title">
-        <span>{{title}}</span>
-    </div>
-    <div class="bread"></div>
-    <div class="line"></div>
-    <div class="tabs">
-        <div *ngFor="let tab of tabs" class="tab" [ngClass]="{selected: tabSelected(tab)}" [routerLink]="tab.url" [hidden]="tab.hidden">{{tab.label}}</div>
-    </div>
-    <div *ngIf="showAdd" [ngClass]="{hideAction: hideAction}" (click)="clickAction('add')"
-         class="action icon-plus icon-add" data-action="add"></div>
-    <div *ngIf="!showAdd" [ngClass]="{hideAction: hideAction}" (click)="clickAction('delete')"
-         class="action icon-minus icon-delete" data-action="delete"></div>
+  <div class="title">
+    <span>{{title}}</span>
+  </div>
+  <div class="bread"></div>
+  <div class="line"></div>
+  <div class="tabs">
+    @for (tab of tabs; track tab) {
+      <div class="tab" [ngClass]="{selected: tabSelected(tab)}" [routerLink]="tab.url" [hidden]="tab.hidden">{{tab.label}}</div>
+    }
+  </div>
+  @if (showAdd) {
+    <div [ngClass]="{hideAction: hideAction}" (click)="clickAction('add')"
+    class="action icon-plus icon-add" data-action="add"></div>
+  }
+  @if (!showAdd) {
+    <div [ngClass]="{hideAction: hideAction}" (click)="clickAction('delete')"
+    class="action icon-minus icon-delete" data-action="delete"></div>
+  }
 </div>

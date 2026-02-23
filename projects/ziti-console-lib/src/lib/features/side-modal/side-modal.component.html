@@ -1,5 +1,7 @@
 <div class="side-modal-container" [ngClass]="{'side-modal-open': open}">
-    <div class="close icon-close" *ngIf="showClose" (click)="close()"></div>
-    <ng-content></ng-content>
+  @if (showClose) {
+    <div class="close icon-close" (click)="close()"></div>
+  }
+  <ng-content></ng-content>
 </div>
 

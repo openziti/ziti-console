@@ -18,6 +18,10 @@
   font-display: swap;
 }
 
+html {
+  height: 100%;
+}
+
 body {
   --mainBackground: #ffffff;
   --navigationOpaque: rgba(236, 238, 242, 0.85);
@@ -141,6 +145,12 @@ body {
     -moz-box-sizing: border-box;
     box-sizing: border-box;
   }
+}
+
+// When a Material dialog opens, CDK applies `cdk-global-scrollblock` which sets `position: fixed` on <body>.
+// Ensure we retain a real viewport height so app flex layouts (side-nav, ag-grid containers) don't collapse.
+body.ziti-admin-console.cdk-global-scrollblock {
+  height: 100% !important;
 }
 
 div {
@@ -1124,6 +1134,66 @@ a {
 
 .cdk-overlay-container {
   z-index: 99999999 !important;
+}
+
+.lib-filter-select-panel.mat-mdc-select-panel {
+  border-radius: 0.5rem !important;
+  overflow: hidden !important;
+  border: 0.0625rem solid var(--stroke) !important;
+  box-shadow: var(--shadow) !important;
+  margin-top: 0.375rem !important; 
+}
+
+.lib-filter-select-panel.mat-mdc-select-panel.mat-mdc-select-panel-above {
+  margin-top: 0 !important;
+  margin-bottom: 0.375rem !important;
+}
+
+.lib-filter-select-panel .mat-mdc-option:not(.lib-filter-select__search-option) {
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+  min-height: 28px !important;
+  height: auto !important;
+  font-size: 12px !important;
+  align-items: flex-start !important;
+}
+
+.lib-filter-select-panel .mat-mdc-option:not(.lib-filter-select__search-option) .mdc-list-item__primary-text {
+  white-space: normal !important;
+  line-height: 1.2 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.lib-filter-select-panel .lib-filter-select__search-option.mat-mdc-option {
+  padding: 0 10px !important;
+  min-height: unset !important;
+  height: auto !important;
+  background-color: transparent !important;
+  --mat-option-state-layer-color: transparent;
+  --mat-option-hover-state-layer-color: transparent;
+  --mat-option-focus-state-layer-color: transparent;
+  --mat-option-selected-state-layer-color: transparent;
+
+  --mdc-list-list-item-hover-state-layer-color: transparent;
+  --mdc-list-list-item-focus-state-layer-color: transparent;
+  --mdc-list-list-item-pressed-state-layer-color: transparent;
+  --mdc-list-list-item-selected-state-layer-color: transparent;
+}
+
+.lib-filter-select-panel .lib-filter-select__search-option.mat-mdc-option:hover,
+.lib-filter-select-panel .lib-filter-select__search-option.mat-mdc-option.mat-mdc-option-active,
+.lib-filter-select-panel .lib-filter-select__search-option.mat-mdc-option.mdc-list-item--activated,
+.lib-filter-select-panel .lib-filter-select__search-option.mat-mdc-option.mdc-list-item--selected {
+  background-color: transparent !important;
+}
+
+.lib-filter-select-panel .lib-filter-select__search-option .mdc-list-item__ripple::before,
+.lib-filter-select-panel .lib-filter-select__search-option .mdc-list-item__ripple::after {
+  background-color: transparent !important;
+  opacity: 0 !important;
 }
 
 .zac-wrapper-container .dots {

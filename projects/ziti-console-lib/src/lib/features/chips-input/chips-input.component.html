@@ -1,0 +1,38 @@
+<div
+  class="p-inputtext p-chips-multiple-container"
+  [class.p-focus]="focused"
+  [class.error]="invalid"
+  (click)="focusInput()"
+  >
+  @for (chip of value; track chip; let i = $index) {
+    <div class="p-chips-token">
+      <span class="p-chips-token-label">{{ chip }}</span>
+      <span
+        class="p-chips-token-icon"
+        role="button"
+        tabindex="0"
+        aria-label="Remove"
+        (click)="removeAtIndex(i, $event)"
+        (keydown.enter)="removeAtIndex(i, $event)"
+        (keydown.space)="removeAtIndex(i, $event)"
+        >
+        ×
+      </span>
+    </div>
+  }
+
+  <div class="p-chips-input-token">
+    <input
+      #chipInput
+      type="text"
+      [attr.id]="inputId || null"
+      [disabled]="disabled"
+      [placeholder]="placeholder"
+      (keydown)="onKeydown($event)"
+      (paste)="onPaste($event)"
+      (focus)="onFocus()"
+      (blur)="handleBlur($event)"
+      (keyup)="keyup.emit($event)"
+      />
+  </div>
+</div>

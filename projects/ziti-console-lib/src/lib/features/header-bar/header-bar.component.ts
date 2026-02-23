@@ -8,7 +8,8 @@ import {QuickAddComponent} from "../quick-add/quick-add.component";
 @Component({
   selector: 'lib-header-bar',
   templateUrl: './header-bar.component.html',
-  styleUrls: ['./header-bar.component.scss']
+  styleUrls: ['./header-bar.component.scss'],
+  standalone: false
 })
 export class HeaderBarComponent {
 

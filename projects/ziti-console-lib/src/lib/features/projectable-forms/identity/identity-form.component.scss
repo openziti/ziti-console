@@ -41,13 +41,34 @@
   display: flex;
   flex-direction: row;
   gap: var(--gapMedium);
+  flex-wrap: wrap; /* wrap based on available column width to avoid overflow */
+  width: 100%;
+  max-width: 100%;
 
   .form-field-dropdown {
     min-width: 10rem;
+    /* Allow it to grow when it lands on its own row (prevents the "half width" look). */
+    flex: 1 1 10rem;
+    width: 100%;
+    max-width: 100%;
   }
-  p-calendar {
-    min-width: 12rem;
-  }
+}
+
+.disable-identity-datetime-inputs {
+  display: flex;
+  flex-direction: row;
+  gap: var(--gapMedium);
+  align-items: center;
+  flex: 1 1 16.5rem;
+  min-width: 0; /* allow shrinking instead of forcing overflow */
+  max-width: 100%;
+}
+
+.disable-identity-date-time-picker {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  flex: 1 1 16.5rem;
 }
 
 .disable-identity-background {
@@ -146,5 +167,16 @@
 @media (max-width: 1575px) {
   .disable-identity-duration-container {
     flex-wrap: wrap;
+  }
+
+  /* When this section wraps, let the datetime control take the full next row. */
+  .disable-identity-datetime-inputs {
+    width: 100%;
+  }
+
+  .disable-identity-date-time-picker {
+    flex: 1 1 100%;
+    width: 100%;
+    min-width: 100%;
   }
 }

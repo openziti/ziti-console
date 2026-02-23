@@ -885,74 +885,143 @@
     background: transparent;
   }
   &.apple {
-    background-image: url(../../assets/images/apple.png);
+    background-image: url('/assets/images/apple.png');
   }
   &.windows {
-    background-image: url(../../assets/images/windows.png);
+    background-image: url('/assets/images/windows.png');
   }
   &.linux {
-    background-image: url(../../assets/images/linux.png);
+    background-image: url('/assets/images/linux.png');
   }
   &.android {
-    background-image: url(../../assets/images/android.png);
+    background-image: url('/assets/images/android.png');
   }
   &.other {
-    background-image: url(../../assets/images/other.png);
+    background-image: url('/assets/images/other.png');
   }
 }
 
 ::ng-deep .date-time-container {
   &.data-table-date-time {
-    position: fixed;
-    z-index: 9999;
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.75rem;
+
+    /* Opened from header filter icon: only calendar, positioned at icon */
+    &.date-picker-from-header {
+      position: fixed;
+      width: 0;
+      height: 0;
+      margin: 0;
+      min-width: 0;
+      overflow: visible;
+
+      .data-table-date-range-control {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1px;
+        height: 1px;
+        min-width: 0;
+      }
+    }
+
     .p-calendar .p-inputtext {
       height: 0.0625rem;
       width: 0.0625rem;
       padding: 0;
     }
-    .filter-button-container {
-      height: 3.125rem;
+    /* Quick filter buttons are now rendered inside the Material calendar header */
+
+    .data-table-date-range-control {
       display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: center;
-      .toggleButton {
-        padding-left: var(--paddingSmall);
-        padding-right: var(--paddingSmall);
-        text-align: center;
-        background-color: var(--inputBorder);
-        color: var(--tableText);
-        width: unset;
-        height: 1.4375rem;
-        line-height: 1.4375rem;
-        font-size: 0.875rem;
+      align-items: stretch;
+      justify-content: flex-end;
+      position: relative;
+      max-width: 100%;
+    }
+
+    .data-table-date-range-input {
+      height: var(--defaultInputHeight, 3rem);
+      flex: 1 1 auto;
+      min-width: 0;
+      padding: 0 1.25rem;
+      border: 1px solid var(--inputBorder, #d4d9e2);
+      border-right: none;
+      border-top-left-radius: var(--inputBorderRadius, 0.5rem);
+      border-bottom-left-radius: var(--inputBorderRadius, 0.5rem);
+      background: #ffffff;
+      color: var(--menu, #111827);
+      font-size: 1rem;
+      font-weight: 600;
+      outline: none;
+      box-sizing: border-box;
+      cursor: pointer;
+
+      &::placeholder {
+        color: #c6ccd6;
+        font-size: 1rem;
         font-weight: 600;
-        position: relative;
-        float: left;
-        cursor: pointer;
-        border-radius: 0.25rem;
-        margin-right: var(--marginSmall);
-        transition: .3s;
-        &:hover {
-          filter: brightness(90%);
-          transition: .3s;
-        }
       }
     }
-    .p-calendar {
 
-      .p-inputtext {
-        border-top-left-radius: 1.25rem;
-        border-bottom-left-radius: 1.25rem;
-        text-indent: 0.3125rem;
-      }
+    .data-table-date-range-button {
+      height: var(--defaultInputHeight, 3rem);
+      width: var(--defaultInputHeight, 3rem);
+      border: 1px solid var(--primaryColor, #0d6efd);
+      border-top-right-radius: var(--inputBorderRadius, 0.5rem);
+      border-bottom-right-radius: var(--inputBorderRadius, 0.5rem);
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      background: var(--primaryColor, #0d6efd);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
 
-      .p-button-icon-only {
-        border-top-right-radius: 1.25rem;
-        border-bottom-right-radius: 1.25rem;
+      .pi {
+        font-size: 1.5rem;
+        line-height: 1;
       }
+    }
+
+    .data-table-date-range-button:hover:not(:disabled) {
+      filter: brightness(1.03);
+    }
+
+    /* Hidden Material inputs used only for wiring the picker. Position over the visible
+       input+button so the overlay opens below them (not at left:0 which opens to the left). */
+    .data-table-date-range-hidden {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 1px;
+      height: 1px;
+      min-width: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .mdc-floating-label.mat-mdc-floating-label {
+      margin-top: 0rem;
     }
   }
+}
+
+/* Responsive popup sizing for this picker only */
+::ng-deep .ziti-date-range-panel .mat-datepicker-content,
+::ng-deep .mat-datepicker-content.ziti-date-range-panel {
+  width: min(345px, calc(100vw - 1.5rem));
+  max-width: calc(100vw - 1.5rem);
+}
+
+::ng-deep .ziti-date-range-panel .mat-datepicker-content .mat-calendar,
+::ng-deep .mat-datepicker-content.ziti-date-range-panel .mat-calendar {
+  width: 100%;
 }
 
 ::ng-deep .tag-selector-container {

@@ -24,9 +24,10 @@ import moment from "moment";
 import {ResetEnrollmentService} from "./reset-enrollment.service";
 
 @Component({
-  selector: 'lib-reset-enrollment',
-  templateUrl: './reset-enrollment.component.html',
-  styleUrls: ['./reset-enrollment.component.scss']
+    selector: 'lib-reset-enrollment',
+    templateUrl: './reset-enrollment.component.html',
+    styleUrls: ['./reset-enrollment.component.scss'],
+    standalone: false
 })
 export class ResetEnrollmentComponent implements OnInit {
 
@@ -34,8 +35,6 @@ export class ResetEnrollmentComponent implements OnInit {
   type = 'reset';
   identity: any;
   dateValue = moment().add(2, 'days').toDate();
-  showIcon: boolean = true;
-  @ViewChild('calendar', { static: false }) calendar: any;
   constructor(
       private svc: ResetEnrollmentService,
       private dialogRef: MatDialogRef<ResetEnrollmentComponent>,
@@ -81,4 +80,5 @@ export class ResetEnrollmentComponent implements OnInit {
           }
       });
   }
+  // Date/time selection is handled by reusable <lib-date-time-picker>.
 }

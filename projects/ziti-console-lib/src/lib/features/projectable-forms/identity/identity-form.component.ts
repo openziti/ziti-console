@@ -44,15 +44,16 @@ import {ConfirmComponent} from "../../confirm/confirm.component";
 import {GrowlerModel} from "../../messaging/growler.model";
 
 @Component({
-  selector: 'lib-identity-form',
-  templateUrl: './identity-form.component.html',
-  styleUrls: ['./identity-form.component.scss'],
-  providers: [
-    {
-      provide: MatDialogRef,
-      useValue: {}
-    }
-  ],
+    selector: 'lib-identity-form',
+    templateUrl: './identity-form.component.html',
+    styleUrls: ['./identity-form.component.scss'],
+    providers: [
+        {
+            provide: MatDialogRef,
+            useValue: {}
+        }
+    ],
+    standalone: false
 })
 export class IdentityFormComponent extends ProjectableForm implements OnInit, OnChanges, AfterViewInit {
   @Input() identityRoleAttributes: any[] = [];
@@ -380,12 +381,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     this.formData.isAdmin = !this.formData.isAdmin;
   }
 
-  setDisabledDate(range) {
-    let label;
-    let date = moment();
-    let closeCalendar = true;
-    const dateEncoded = encodeURIComponent(date.toISOString());
-  }
+  // Date/time selection is handled by reusable <lib-date-time-picker>.
 
   get identityType() {
     return this.isEditing ? this.formData.type.name : this.formData.type;

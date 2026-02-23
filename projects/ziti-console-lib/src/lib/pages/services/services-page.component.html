@@ -1,22 +1,24 @@
 <div class="ziti-page-container ziti-services-container">
-    <lib-list-page-header [title]="'Services'"
-                          [tabs]="tabs"
-                          [showAdd]="!itemsSelected"
-                          (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
+  <lib-list-page-header [title]="'Services'"
+    [tabs]="tabs"
+    [showAdd]="!itemsSelected"
+  (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
 
-    <lib-data-table [tableId]="'services'"
-                    [rowData]="rowData"
-                    [columnDefinitions]="columnDefs"
-                    (actionRequested)="tableAction($event)"
-                    [startCount]="startCount"
-                    [endCount]="endCount"
-                    [totalCount]="totalCount"
-                    [currentPage]="filterService.currentPage"
-                    [emptyMsg]="'No Services defined, Click the plus to add a service.'"
-                    [filterApplied]="filterApplied"
-                    [menuItems]="svc.menuItems"
-                    [headerActions]="svc.tableHeaderActions"
+  <lib-data-table [tableId]="'services'"
+    [rowData]="rowData"
+    [columnDefinitions]="columnDefs"
+    (actionRequested)="tableAction($event)"
+    [startCount]="startCount"
+    [endCount]="endCount"
+    [totalCount]="totalCount"
+    [currentPage]="filterService.currentPage"
+    [emptyMsg]="'No Services defined, Click the plus to add a service.'"
+    [filterApplied]="filterApplied"
+    [menuItems]="svc.menuItems"
+    [headerActions]="svc.tableHeaderActions"
     >
-    </lib-data-table>
+  </lib-data-table>
 </div>
-<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
+@if (isLoading) {
+  <lib-loading-indicator [isLoading]="isLoading"></lib-loading-indicator>
+}

@@ -25,9 +25,10 @@ import {QrCodeComponent} from "../../../qr-code/qr-code.component";
 import moment from "moment";
 
 @Component({
-  selector: 'lib-table-cell-token',
-  templateUrl: './table-cell-token.component.html',
-  styleUrls: ['./table-cell-token.component.scss']
+    selector: 'lib-table-cell-token',
+    templateUrl: './table-cell-token.component.html',
+    styleUrls: ['./table-cell-token.component.scss'],
+    standalone: false
 })
 export class TableCellTokenComponent implements ICellRendererAngularComp {
 

@@ -1,24 +1,26 @@
 <div class="ziti-page-container ziti-sessions-container">
-    <lib-list-page-header [title]="title"
-                          [tabs]="tabs"
-                          [hideAction]="true"
-                          (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
+  <lib-list-page-header [title]="title"
+    [tabs]="tabs"
+    [hideAction]="true"
+  (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
 
-    <lib-data-table [tableId]="'sessions'"
-                    [rowData]="rowData"
-                    [columnDefinitions]="columnDefs"
-                    (actionRequested)="tableAction($event)"
-                    [startCount]="startCount"
-                    [endCount]="endCount"
-                    [totalCount]="totalCount"
-                    [emptyMsg]="'No Sessions defined'"
-                    [filterApplied]="filterApplied"
-                    [filterColumn]="'id'"
-                    [filterName]="'id'"
-                    [menuItems]="svc.menuItems"
-                    [showNoItemsAdd]="false"
-                    (gridReady)="gridReady($event)"
+  <lib-data-table [tableId]="'sessions'"
+    [rowData]="rowData"
+    [columnDefinitions]="columnDefs"
+    (actionRequested)="tableAction($event)"
+    [startCount]="startCount"
+    [endCount]="endCount"
+    [totalCount]="totalCount"
+    [emptyMsg]="'No Sessions defined'"
+    [filterApplied]="filterApplied"
+    [filterColumn]="'id'"
+    [filterName]="'id'"
+    [menuItems]="svc.menuItems"
+    [showNoItemsAdd]="false"
+    (gridReady)="gridReady($event)"
     >
-    </lib-data-table>
+  </lib-data-table>
 </div>
-<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
+@if (isLoading) {
+  <lib-loading-indicator [isLoading]="isLoading"></lib-loading-indicator>
+}

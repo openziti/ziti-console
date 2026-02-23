@@ -1,0 +1,24 @@
+<div class="ziti-calendar-header">
+  <div class="filter-button-container">
+    @for (opt of options; track opt) {
+      <div
+        class="toggleButton"
+        [ngClass]="{ selected: selectedRange === opt.id }"
+        (click)="quickRange(opt.id)"
+        >
+        {{ opt.label }}
+      </div>
+    }
+  </div>
+
+  <div class="month-row">
+    <button mat-icon-button type="button" (click)="previousClicked()" aria-label="Previous month">
+      <i class="pi pi-chevron-left" aria-hidden="true"></i>
+    </button>
+    <div class="month-label">{{ periodLabel }}</div>
+    <button mat-icon-button type="button" (click)="nextClicked()" aria-label="Next month">
+      <i class="pi pi-chevron-right" aria-hidden="true"></i>
+    </button>
+  </div>
+</div>
+

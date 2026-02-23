@@ -40,7 +40,8 @@ import {CertificateAuthority} from "../../../../models/certificate-authority";
 @Component({
     selector: 'lib-certificate-authority',
     templateUrl: './verify-certificate.component.html',
-    styleUrls: ['./verify-certificate.component.scss']
+    styleUrls: ['./verify-certificate.component.scss'],
+    standalone: false
 })
 export class VerifyCertificateComponent extends ProjectableForm implements OnInit, OnDestroy {
 

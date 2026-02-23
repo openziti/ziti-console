@@ -18,13 +18,14 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {ValidationService} from "../../../services/validation.service";
 
 @Component({
-  selector: 'lib-port-ranges',
-  templateUrl: './port-ranges.component.html',
-  styleUrls: ['./port-ranges.component.scss']
+    selector: 'lib-port-ranges',
+    templateUrl: './port-ranges.component.html',
+    styleUrls: ['./port-ranges.component.scss'],
+    standalone: false
 })
 export class PortRangesComponent {
 
-  @Input() fieldValue: any = '';
+  @Input() fieldValue: string[] = [];
   @Output() fieldValueChanged: EventEmitter<any> = new EventEmitter<any>();
   errors: any = {};
   invalid: boolean = false;
@@ -58,7 +59,7 @@ export class PortRangesComponent {
   }
 
   validateConfig() {
-    if (!this.fieldValue) {
+    if (!this.fieldValue || this.fieldValue.length === 0) {
       this.invalid = false;
       return;
     }
@@ -67,14 +68,14 @@ export class PortRangesComponent {
       const vals = val.split('-');
       if (vals.length === 1) {
         const port = parseInt(val);
-        if (isNaN(port)) {
+        if (!this.validationService.isValidPort(port)) {
           invalid = true;
           return;
         }
       } else if (vals.length === 2) {
         const port1 = parseInt(vals[0]);
         const port2 = parseInt(vals[1]);
-        if (isNaN(port1) || isNaN(port2)) {
+        if (!this.validationService.isValidPort(port1) || !this.validationService.isValidPort(port2)) {
           invalid = true;
           return;
         } else if (port1 > port2) {

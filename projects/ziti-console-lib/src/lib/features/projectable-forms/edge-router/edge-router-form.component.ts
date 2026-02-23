@@ -27,15 +27,16 @@ import { DEFAULT_APP_CONFIG } from '../../../ziti-console.constants';
 import { DefaultAppConfig } from '../../../default-app-config';
 
 @Component({
-  selector: 'lib-edge-router-form',
-  templateUrl: './edge-router-form.component.html',
-  styleUrls: ['./edge-router-form.component.scss'],
-  providers: [
-    {
-      provide: MatDialogRef,
-      useValue: {}
-    }
-  ]
+    selector: 'lib-edge-router-form',
+    templateUrl: './edge-router-form.component.html',
+    styleUrls: ['./edge-router-form.component.scss'],
+    providers: [
+        {
+            provide: MatDialogRef,
+            useValue: {}
+        }
+    ],
+    standalone: false
 })
 export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @Input() edgeRouterRoleAttributes: any[] = [];

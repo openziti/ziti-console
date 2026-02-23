@@ -14,12 +14,7 @@
     limitations under the License.
 */
 
-import {
-    HttpInterceptor,
-    HttpHandler,
-    HttpEvent,
-    HttpRequest
-} from '@angular/common/http';
+import { HttpInterceptor, HttpHandler, HttpEvent, HttpRequest } from '@angular/common/http';
 import {Observable} from 'rxjs';
 
 export class NoopHttpInterceptor implements HttpInterceptor {

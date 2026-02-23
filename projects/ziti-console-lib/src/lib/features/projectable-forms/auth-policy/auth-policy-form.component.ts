@@ -40,7 +40,8 @@ import {AuthPolicy} from "../../../models/auth-policy";
 @Component({
     selector: 'lib-configuration',
     templateUrl: './auth-policy-form.component.html',
-    styleUrls: ['./auth-policy-form.component.scss']
+    styleUrls: ['./auth-policy-form.component.scss'],
+    standalone: false
 })
 export class AuthPolicyFormComponent extends ProjectableForm implements OnInit, OnDestroy {
 
@@ -60,7 +61,7 @@ export class AuthPolicyFormComponent extends ProjectableForm implements OnInit, 
     override entityType = 'auth-policies';
     override entityClass = AuthPolicy;
 
-    jwtSignersFilterChangedDebounced = debounce(this.jwtSignerFilterChanged.bind(this), 200);
+    jwtSignersFilterChangedDebounced = debounce((filterText: string) => this.jwtSignerFilterChanged(filterText), 200);
 
     @ViewChild('fileSelect') filterInput: ElementRef;
 
@@ -347,21 +348,18 @@ export class AuthPolicyFormComponent extends ProjectableForm implements OnInit, 
         }
     }
 
-    jwtSignerFilterChanged(event) {
-        if (event?.keyCode === KEY_CODES.LEFT_ARROW || event?.keyCode === KEY_CODES.RIGHT_ARROW || event?.keyCode === KEY_CODES.UP_ARROW || event?.keyCode === KEY_CODES.DOWN_ARROW) {
-            return;
-        }
-        let filters = [];
-        if (event?.target?.value) {
+    jwtSignerFilterChanged(filterText: string) {
+        const filters = [];
+        if (filterText && filterText !== '') {
             filters.push({
                 columnId: 'name',
-                value: event.target.value,
-                label: event.target.value,
+                value: filterText,
+                label: filterText,
                 filterName: 'Name',
                 type: 'TEXTINPUT',
             });
         }
-        this.svc.getJwtSigners(filters,1);
+        this.svc.getJwtSigners(filters, 1);
     }
 
     secondaryJwtSignerChanged(event) {
@@ -370,8 +368,5 @@ export class AuthPolicyFormComponent extends ProjectableForm implements OnInit, 
         });
     }
 
-    clearJwtSignerFilter(event) {
-        const filters = [];
-        this.svc.getJwtSigners(filters,1);
-    }
+    // clear handled by lib-filter-select (it emits filterChange(''))
 }

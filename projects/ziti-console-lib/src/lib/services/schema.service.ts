@@ -68,6 +68,23 @@ export class SchemaService {
     constructor(private growlerService: GrowlerService) {
     }
 
+    /** DOM helpers (replacing jQuery): id prefix and element access */
+    private _prefix(p: any): string {
+        return (p != null) ? p + '_' : '';
+    }
+
+    private _id(p: any, key: string, suffix = ''): string {
+        return this._prefix(p) + 'schema_' + key + suffix;
+    }
+
+    private _q(id: string): HTMLElement | null {
+        return document.getElementById(id);
+    }
+
+    private _qAll(selector: string): Element[] {
+        return Array.from(document.querySelectorAll(selector));
+    }
+
     getType(property: any) {
         if (property.type == "boolean") return property.type;
         else {
@@ -185,19 +202,29 @@ export class SchemaService {
                 value = "";
             }
         } else if (type == "boolean") {
+            const id = this._id(parentage, key);
+            const el = this._q(id);
             if (value) {
-                $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).addClass("on");
-                $("." + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_area").show();
-                $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key.split("forward").join("").toLowerCase()).prop("disabled", true);
-                if ($("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key.split("forward").join("").toLowerCase()).prop('nodeName') == "INPUT") $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key.split("forward").join("").toLowerCase()).val("");
-            } else $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).removeClass("on");
+                el?.classList.add("on");
+                this._qAll('.' + this._id(parentage, key) + "_area").forEach((area) => ((area as HTMLElement).style.display = ''));
+                const keyLower = key.split("forward").join("").toLowerCase();
+                const disabledEl = this._q(this._prefix(parentage) + "schema_" + keyLower);
+                if (disabledEl) {
+                    (disabledEl as HTMLInputElement).disabled = true;
+                    if (disabledEl.tagName === 'INPUT') (disabledEl as HTMLInputElement).value = '';
+                }
+            } else {
+                el?.classList.remove("on");
+            }
         } else {
             if (type == "array") {
-                $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_selected").html("");
-                if ($("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).hasClass("checkboxList")) {
-                    let total = $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).data("total");
+                const selectedEl = this._q(this._id(parentage, key, '_selected'));
+                if (selectedEl) selectedEl.innerHTML = '';
+                const keyEl = this._q(this._id(parentage, key));
+                if (keyEl?.classList.contains("checkboxList")) {
+                    const total = parseInt(String(keyEl.dataset['total'] ?? 0), 10);
                     for (let i = 0; i < total; i++) {
-                        $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_" + i).removeClass("checked");
+                        this._q(this._id(parentage, key) + '_' + i)?.classList.remove("checked");
                     }
                 }
                 for (let i = 0; i < value.length; i++) {
@@ -207,38 +234,38 @@ export class SchemaService {
                             values.push(prop + ": " + value[i][prop]);
                         }
                         let types = [];
-
-                        let obj = $("#" + ((parentage != null) ? parentage + '_' : '') + 'schema_' + key + '_Button');
-                        let id = obj.data("id");
-                        let vals = obj.data("values").split(',');
+                        const obj = this._q(this._id(parentage, key, '_Button'));
+                        const objId = obj?.dataset['id'];
+                        const vals = (obj?.dataset['values'] ?? '').split(',');
                         for (let j = 0; j < vals.length; j++) {
-                            if ($("#" + id + "_" + vals[j]).attr('type') == "number") {
-                                types.push("number");
-                            } else {
-                                types.push("string");
-                            }
+                            const inputEl = objId ? this._q(objId + "_" + vals[j]) : null;
+                            types.push(inputEl?.getAttribute('type') == "number" ? "number" : "string");
                         }
-
-                        let element = $('<div class="tag obj" data-types="' + types.toString() + '">' + values.toString() + '</div>');
-                        element.click(schema.removeMe);
-                        $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_selected").append(element);
+                        const element = document.createElement('div');
+                        element.className = 'tag obj';
+                        element.dataset['types'] = types.toString();
+                        element.textContent = values.toString();
+                        element.addEventListener('click', schema.removeMe.bind(schema));
+                        this._q(this._id(parentage, key, '_selected'))?.appendChild(element);
                     } else {
-                        if ($("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).hasClass("checkboxList")) {
-                            let total = $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).data("total");
-                            for (let i = 0; i < total; i++) {
-                                if ($("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_" + i).data("value") == value[i]) {
-                                    $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_" + i).addClass("checked");
-                                }
+                        if (keyEl?.classList.contains("checkboxList")) {
+                            const total = parseInt(String(keyEl.dataset['total'] ?? 0), 10);
+                            for (let ii = 0; ii < total; ii++) {
+                                const itemEl = this._q(this._id(parentage, key) + '_' + ii);
+                                if (itemEl?.dataset['value'] == value[i]) itemEl.classList.add("checked");
                             }
                         } else {
-                            let element = $('<div class="tag">' + value[i] + '</div>');
-                            element.click(schema.removeMe);
-                            $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_selected").append(element);
+                            const element = document.createElement('div');
+                            element.className = 'tag';
+                            element.textContent = value[i];
+                            element.addEventListener('click', schema.removeMe.bind(schema));
+                            this._q(this._id(parentage, key, '_selected'))?.appendChild(element);
                         }
                     }
                 }
             } else {
-                $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).val(value);
+                const inputEl = this._q(this._id(parentage, key));
+                if (inputEl && 'value' in inputEl) (inputEl as HTMLInputElement).value = value;
             }
         }
         return value;
@@ -247,68 +274,77 @@ export class SchemaService {
     getValue(key: string, property: any, json: any, parentage: string[]) {
         if (this.getType(property) == "array") {
             json[key] = [];
-            if ($("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).hasClass("checkboxList")) {
-                let obj = $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key);
-                let total = obj.data("total");
+            const keyEl = this._q(this._id(parentage, key));
+            if (keyEl?.classList.contains("checkboxList")) {
+                const total = parseInt(String(keyEl.dataset['total'] ?? 0), 10);
                 for (let i = 0; i < total; i++) {
-                    let item = $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_" + i);
-                    if (item.hasClass("checked")) json[key].push(item.data("value"));
+                    const item = this._q(this._id(parentage, key) + '_' + i);
+                    if (item?.classList.contains("checked")) json[key].push(item.dataset['value']);
                 }
             } else {
-                $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_selected").children().each(function (i, e) {
-                    if ($(e).hasClass("obj")) {
-                        let items = $(e).html().split(',');
-                        let types = $(e).data("types").split(',');
-                        let obj: any = {};
-                        for (let i = 0; i < items.length; i++) {
-                            let info = items[i].split(':');
-                            let prop: any = info.shift();
-                            let value: any = info.join(':').trim();
-                            let type = types[i];
-                            if (type == "number" && !isNaN(value)) {
-                                obj[prop] = Number(value);
-                            } else {
-                                obj[prop] = value;
+                const selectedEl = this._q(this._id(parentage, key, '_selected'));
+                if (selectedEl) {
+                    Array.from(selectedEl.children).forEach((e) => {
+                        const el = e as HTMLElement;
+                        if (el.classList.contains("obj")) {
+                            const items = el.innerHTML.split(',');
+                            const types = (el.dataset['types'] ?? '').split(',');
+                            const obj: any = {};
+                            for (let i = 0; i < items.length; i++) {
+                                const info = items[i].split(':');
+                                const prop: any = info.shift();
+                                const value: any = info.join(':').trim();
+                                const type = types[i];
+                                if (type == "number" && !isNaN(value as any)) {
+                                    obj[prop] = Number(value);
+                                } else {
+                                    obj[prop] = value;
+                                }
                             }
+                            json[key].push(obj);
+                        } else {
+                            json[key].push(el.innerHTML);
                         }
-                        json[key].push(obj);
-                    } else {
-                        json[key].push($(e).html());
-                    }
-                });
+                    });
+                }
             }
         } else if (this.getType(property) == "boolean") {
-            json[key] = $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).hasClass("on");
+            json[key] = this._q(this._id(parentage, key))?.classList.contains("on") ?? false;
         } else if (this.getType(property) == "integer") {
-            let numValue: any = $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).val();
+            const inputEl = this._q(this._id(parentage, key)) as HTMLInputElement | null;
+            let numValue: any = inputEl?.value;
             if (numValue != null && numValue.trim().length > 0) {
                 numValue = numValue.trim();
-                if (numValue == "" || isNaN(numValue)) {
+                if (numValue == "" || isNaN(numValue as any)) {
                     numValue = 0;
                     if (key.toLowerCase().indexOf("timeout") >= 0) numValue = 5000;
                 } else {
-                    numValue = Number(numValue)
+                    numValue = Number(numValue);
                 }
                 json[key] = numValue;
             } else {
                 delete json[key];
             }
         } else {
-            json[key] = $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).val();
+            const inputEl = this._q(this._id(parentage, key)) as HTMLInputElement | null;
+            json[key] = inputEl?.value;
         }
         return json;
     }
 
     getListValue(id: string) {
-        let listItems: any[] = [];
-        $("#" + id + "_selected").children().each(function (i, e) {
-            if ($(e).hasClass("obj")) {
-                let items = $(e).html().split(',');
-                let obj: any = {};
+        const listItems: any[] = [];
+        const container = this._q(id + "_selected");
+        if (!container) return listItems;
+        Array.from(container.children).forEach((e) => {
+            const el = e as HTMLElement;
+            if (el.classList.contains("obj")) {
+                const items = el.innerHTML.split(',');
+                const obj: any = {};
                 for (let i = 0; i < items.length; i++) {
-                    let info = items[i].split(':');
-                    let prop = info.shift();
-                    let value: any = info.join(':').trim();
+                    const info = items[i].split(':');
+                    const prop = info.shift();
+                    const value: any = info.join(':').trim();
                     if (!isNaN(value)) {
                         obj[prop as string] = Number(value);
                     } else {
@@ -317,55 +353,56 @@ export class SchemaService {
                 }
                 listItems.push(obj);
             } else {
-                listItems.push($(e).html());
+                listItems.push(el.innerHTML);
             }
         });
         return listItems;
     }
 
     validateProperty(schema: any, key: string, property: any, parentage: string[]) {
-        let type = this.getType(property);
+        const type = this.getType(property);
         if (type == "object") {
             for (let subKey in property.properties) {
                 this.validateProperty(subKey, property.properties[subKey], key, []);
             }
         } else {
-            let elem = $("#" + ((parentage) ? parentage + "_" : "") + "schema_" + key);
+            const elem = this._q(this._id(parentage, key));
             let theValue: any = '';
-            if (elem.val() != null) theValue = elem.val();
+            if (elem && 'value' in elem) theValue = (elem as HTMLInputElement).value;
             if (type == "integer") {
                 if (schema.required && schema.required.includes(key)) {
-                    let min = null;
-                    let max = null;
+                    let min: number | null = null;
+                    let max: number | null = null;
                     if (property.minimum) min = Number(property.minimum);
                     if (property.maximum) max = Number(property.maximum);
-                    if (isNaN(parseInt(theValue))) elem.addClass("errors");
+                    if (isNaN(parseInt(theValue))) elem?.classList.add("errors");
                     else {
-                        let val = Number(theValue);
-                        if (min != null && val < min) elem.addClass("errors");
-                        if (max != null && val > max) elem.addClass("errors");
+                        const val = Number(theValue);
+                        if (min != null && val < min) elem?.classList.add("errors");
+                        if (max != null && val > max) elem?.classList.add("errors");
                     }
                 }
             } else if (type == "array") {
                 if (schema.data.required && schema.data.required.includes(key)) {
-                    if ($("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).hasClass("checkboxList")) {
-                        let obj = $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key);
-                        let total = obj.data("total");
+                    const keyEl = this._q(this._id(parentage, key));
+                    if (keyEl?.classList.contains("checkboxList")) {
+                        const total = parseInt(String(keyEl.dataset['total'] ?? 0), 10);
                         let hasSelection = false;
                         for (let i = 0; i < total; i++) {
-                            let item = $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_" + i);
-                            if (item.hasClass("checked")) {
+                            const item = this._q(this._id(parentage, key) + '_' + i);
+                            if (item?.classList.contains("checked")) {
                                 hasSelection = true;
                                 break;
                             }
                         }
-                        if (!hasSelection) $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).addClass("errors");
+                        if (!hasSelection) keyEl.classList.add("errors");
                     } else {
-                        if ($("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_selected").children().length == 0) elem.addClass("errors");
+                        const selectedEl = this._q(this._id(parentage, key, '_selected'));
+                        if (selectedEl?.children.length == 0) elem?.classList.add("errors");
                     }
                 }
             } else {
-                if (schema.data.required && schema.data.required.includes(key) && theValue.length == 0) elem.addClass("errors");
+                if (schema.data.required && schema.data.required.includes(key) && theValue.length == 0) elem?.classList.add("errors");
             }
         }
     }

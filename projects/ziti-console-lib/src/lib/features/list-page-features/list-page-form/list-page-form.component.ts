@@ -8,28 +8,33 @@ export type ValidatorCallback = (data: any, payload?:any) => Promise<CallbackRes
 @Component({
     selector: 'lib-list-page-form',
     template: `
-        <div *ngIf="_show" class="fullModal" [ngClass]="formClass">
+        @if (_show) {
+          <div class="fullModal" [ngClass]="formClass">
             <div class="buttonBall close icon-close" (click)="closeThisForm()">
-                <div class="buttonLabel">ESC</div>
+              <div class="buttonLabel">ESC</div>
             </div>
             <div class="innerblock">
-                <ng-container #beforetitleext></ng-container>
-                <div class="title">{{title}}</div>
-                <ng-container #aftertitleext></ng-container>
-                <ng-container #beforesubtitleext></ng-container>
-                <div class="subtitle">{{subTitle}}</div>
-                <ng-container #aftersubtitleext></ng-container>
-                <ng-content></ng-content>
-                <ng-container #beforebuttonsext></ng-container>
-                <div class="buttons" *ngIf="showButtons">
-                    <div class="linkButton closer" (click)="closeThisForm()">Oops, No get me out of here</div>
-                    <div id="SaveButton" class="button" (click)="updateItem()">Save</div>
+              <ng-container #beforetitleext></ng-container>
+              <div class="title">{{title}}</div>
+              <ng-container #aftertitleext></ng-container>
+              <ng-container #beforesubtitleext></ng-container>
+              <div class="subtitle">{{subTitle}}</div>
+              <ng-container #aftersubtitleext></ng-container>
+              <ng-content></ng-content>
+              <ng-container #beforebuttonsext></ng-container>
+              @if (showButtons) {
+                <div class="buttons">
+                  <div class="linkButton closer" (click)="closeThisForm()">Oops, No get me out of here</div>
+                  <div id="SaveButton" class="button" (click)="updateItem()">Save</div>
                 </div>
-                <ng-container #afterbuttonsext></ng-container>
+              }
+              <ng-container #afterbuttonsext></ng-container>
             </div>
-        </div>
-    `,
-    styleUrls: ['./list-page-form.component.scss']
+          </div>
+        }
+        `,
+    styleUrls: ['./list-page-form.component.scss'],
+    standalone: false
 })
 export class ListPageFormComponent extends ExtendableComponent implements AfterViewInit {
 

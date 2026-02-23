@@ -1,23 +1,25 @@
 <div class="ziti-page-container ziti-terminators-container">
-    <lib-list-page-header [title]="title"
-                          [tabs]="tabs"
-                          [hideAction]="true"
-                          (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
-    <lib-data-table [tableId]="'terminators'"
-                    [rowData]="rowData"
-                    [columnDefinitions]="columnDefs"
-                    (actionRequested)="tableAction($event)"
-                    [startCount]="startCount"
-                    [endCount]="endCount"
-                    [totalCount]="totalCount"
-                    [emptyMsg]="'No terminators defined, Click the plus to add a terminator.'"
-                    [filterApplied]="filterApplied"
-                    [filterName]="'Address'"
-                    [filterColumn]="'address'"
-                    [menuItems]="svc.menuItems"
-                    (gridReady)="gridReady($event)"
-                    [options]="{noSelect: true, noMenu: false}"
+  <lib-list-page-header [title]="title"
+    [tabs]="tabs"
+    [hideAction]="true"
+  (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
+  <lib-data-table [tableId]="'terminators'"
+    [rowData]="rowData"
+    [columnDefinitions]="columnDefs"
+    (actionRequested)="tableAction($event)"
+    [startCount]="startCount"
+    [endCount]="endCount"
+    [totalCount]="totalCount"
+    [emptyMsg]="'No terminators defined, Click the plus to add a terminator.'"
+    [filterApplied]="filterApplied"
+    [filterName]="'Address'"
+    [filterColumn]="'address'"
+    [menuItems]="svc.menuItems"
+    (gridReady)="gridReady($event)"
+    [options]="{noSelect: true, noMenu: false}"
     >
-    </lib-data-table>
+  </lib-data-table>
 </div>
-<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
+@if (isLoading) {
+  <lib-loading-indicator [isLoading]="isLoading"></lib-loading-indicator>
+}

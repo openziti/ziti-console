@@ -1,8 +1,8 @@
 import {Component, EventEmitter, Input, Output, ViewChild, ViewContainerRef} from '@angular/core';
 
 @Component({
-  selector: 'lib-object',
-  template: `
+    selector: 'lib-object',
+    template: `
     <div id="schema_{{parentage?parentage+'_':''}}{{_idName}}" class="wrapper" [ngStyle]="{'background-color': bcolor}" [ngClass]="{closed: !open}" (click)="toggleOpen($event, 'wrapper')">
       <div class="object-header-container">
         <div class="object-header-title" (click)="toggleOpen($event, 'header')">
@@ -11,21 +11,28 @@ import {Component, EventEmitter, Input, Output, ViewChild, ViewContainerRef} fro
         </div>
         <div class="added-items-list" [hidden]="!open || !showAdd">
           <div class="object-list-items-container">
-            <span class="none-added-label" *ngIf="!addedItems || addedItems.length <= 0">NONE ADDED...</span>
-            <div (click)="itemClicked(item, i)" *ngFor="let item of addedItems; index as i" class="object-list-item clickable">
-              <div class="icon-clear" (click)="removeItemClicked(item, i)"></div>
-              <span class="preview-name" matTooltip="" matTooltipPosition="below">{{ _fieldName + '_item_' + i  }}</span>
-            </div>
+            @if (!addedItems || addedItems.length <= 0) {
+              <span class="none-added-label">NONE ADDED...</span>
+            }
+            @for (item of addedItems; track item; let i = $index) {
+              <div (click)="itemClicked(item, i)" class="object-list-item clickable">
+                <div class="icon-clear" (click)="removeItemClicked(item, i)"></div>
+                <span class="preview-name" matTooltip="" matTooltipPosition="below">{{ _fieldName + '_item_' + i  }}</span>
+              </div>
+            }
           </div>
         </div>
       </div>
       <div class="object-main-content" [hidden]="!open">
         <ng-container #wrappercontents></ng-container>
-        <div *ngIf="showAdd" class="save-button button" (click)="addClicked()">Add</div>
+        @if (showAdd) {
+          <div class="save-button button" (click)="addClicked()">Add</div>
+        }
       </div>
     </div>
-  `,
-  styleUrls: ['./object.component.scss']
+    `,
+    styleUrls: ['./object.component.scss'],
+    standalone: false
 })
 export class ObjectComponent {
   @ViewChild("wrappercontents", {read: ViewContainerRef, static: true}) public wrapperContents!: ViewContainerRef;

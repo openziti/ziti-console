@@ -19,9 +19,10 @@ import {debounce, isNumber} from "lodash";
 import {DataTableFilterService, FilterObj} from "../data-table-filter.service";
 
 @Component({
-  selector: 'lib-table-filter-bar',
-  templateUrl: './filter-bar.component.html',
-  styleUrls: ['./filter-bar.component.scss']
+    selector: 'lib-table-filter-bar',
+    templateUrl: './filter-bar.component.html',
+    styleUrls: ['./filter-bar.component.scss'],
+    standalone: false
 })
 export class FilterBarComponent {
 

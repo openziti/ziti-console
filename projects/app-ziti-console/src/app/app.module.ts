@@ -19,11 +19,13 @@ import {BrowserModule} from '@angular/platform-browser';
 
 import {AppComponent} from './app.component';
 import {PageNotFoundComponent} from './page-not-found/page-not-found.component';
-import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 import {LoginComponent} from './login/login.component';
 import {FormsModule} from "@angular/forms";
 import { OAuthModule } from 'angular-oauth2-oidc';
 import {environment} from "./environments/environment";
+import { providePrimeNG } from 'primeng/config';
+import Aura from '@primeuix/themes/aura';
 
 import {
     NoopTabInterceptorService,
@@ -48,7 +50,7 @@ import {
     SERVICE_POLICY_EXTENSION_SERVICE,
     EDGE_ROUTER_POLICY_EXTENSION_SERVICE,
     SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE,
-    DEFAULT_APP_CONFIG,
+    DEFAULT_APP_CONFIG
 } from "ziti-console-lib";
 
 import {AppRoutingModule} from "./app-routing.module";
@@ -81,46 +83,45 @@ if (environment.nodeIntegration) {
     apiInterceptor = ZitiApiInterceptor;
 }
 
-@NgModule({
-    declarations: [
+@NgModule({ declarations: [
         AppComponent,
         PageNotFoundComponent,
         LoginComponent
     ],
-    imports: [
-        BrowserModule,
+    exports: [],
+    bootstrap: [AppComponent], imports: [BrowserModule,
         BrowserAnimationsModule,
         FormsModule,
         MatDialogModule,
-        HttpClientModule,
         AppRoutingModule,
         OpenZitiConsoleLibModule,
         GrowlerModule,
-        LoggerModule.forRoot({level: NgxLoggerLevel.DEBUG, serverLogLevel: NgxLoggerLevel.ERROR}),
-        OAuthModule.forRoot()
-    ],
-    exports: [],
-    providers: [
-        {provide: ZITI_DOMAIN_CONTROLLER, useClass: SimpleZitiDomainControllerService},
-        {provide: ZITI_URLS, useValue: URLS},
-        {provide: ZITI_NAVIGATOR, useValue: ZITI_CONSOLE_NAVIGATOR},
-        {provide: ZITI_TAB_OVERRIDES, useClass: NoopTabInterceptorService},
-        {provide: HTTP_INTERCEPTORS, useClass: apiInterceptor, multi: true},
-        {provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true},
-        {provide: HTTP_INTERCEPTORS, useClass: LoggingInterceptor, multi: true},
-        {provide: DEACTIVATE_GUARD, useClass: DeactivateGuardService},
-        {provide: ZITI_DATA_SERVICE, useClass: zitiDataService},
-        {provide: ZAC_LOGIN_SERVICE, useClass: loginService},
-        {provide: SETTINGS_SERVICE, useClass: settingsService},
-        {provide: EDGE_ROUTER_EXTENSION_SERVICE, useClass: ExtensionsNoopService},
-        {provide: IDENTITY_EXTENSION_SERVICE, useClass: ExtensionsNoopService},
-        {provide: SERVICE_EXTENSION_SERVICE, useClass: ExtensionsNoopService},
-        {provide: SERVICE_POLICY_EXTENSION_SERVICE, useClass: ExtensionsNoopService},
-        {provide: EDGE_ROUTER_POLICY_EXTENSION_SERVICE, useClass: ExtensionsNoopService},
-        {provide: DEFAULT_APP_CONFIG, useValue: DEFAULT_APP_CONFIG_PROP},
-        {provide: SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE, useClass: ExtensionsNoopService},
-    ],
-    bootstrap: [AppComponent]
-})
+        LoggerModule.forRoot({ level: NgxLoggerLevel.DEBUG, serverLogLevel: NgxLoggerLevel.ERROR }),
+        OAuthModule.forRoot()], providers: [
+        { provide: ZITI_DOMAIN_CONTROLLER, useClass: SimpleZitiDomainControllerService },
+        { provide: ZITI_URLS, useValue: URLS },
+        { provide: ZITI_NAVIGATOR, useValue: ZITI_CONSOLE_NAVIGATOR },
+        { provide: ZITI_TAB_OVERRIDES, useClass: NoopTabInterceptorService },
+        { provide: HTTP_INTERCEPTORS, useClass: apiInterceptor, multi: true },
+        { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+        { provide: HTTP_INTERCEPTORS, useClass: LoggingInterceptor, multi: true },
+        { provide: DEACTIVATE_GUARD, useClass: DeactivateGuardService },
+        { provide: ZITI_DATA_SERVICE, useClass: zitiDataService },
+        { provide: ZAC_LOGIN_SERVICE, useClass: loginService },
+        { provide: SETTINGS_SERVICE, useClass: settingsService },
+        { provide: EDGE_ROUTER_EXTENSION_SERVICE, useClass: ExtensionsNoopService },
+        { provide: DEFAULT_APP_CONFIG, useValue: DEFAULT_APP_CONFIG_PROP },
+        { provide: IDENTITY_EXTENSION_SERVICE, useClass: ExtensionsNoopService },
+        { provide: SERVICE_EXTENSION_SERVICE, useClass: ExtensionsNoopService },
+        { provide: SERVICE_POLICY_EXTENSION_SERVICE, useClass: ExtensionsNoopService },
+        { provide: EDGE_ROUTER_POLICY_EXTENSION_SERVICE, useClass: ExtensionsNoopService },
+        { provide: SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE, useClass: ExtensionsNoopService },
+        provideHttpClient(withInterceptorsFromDi()),
+        providePrimeNG({
+            theme: {
+                preset: Aura
+            }
+        }),
+    ] })
 export class AppModule {
 }

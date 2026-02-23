@@ -1,10 +1,18 @@
-<div *ngIf="hasEnrolmentToken && !tokenExpired">
+@if (hasEnrolmentToken && !tokenExpired) {
+  <div>
     <span class="cert" (click)="downloadCert()"></span>
-    <span class="qr icon-qr" *ngIf="!item.enrollmentJwt" (click)="showQRCode()"></span>
-</div>
-<div *ngIf="hasEnrolmentToken && tokenExpired">
+    @if (!item.enrollmentJwt) {
+      <span class="qr icon-qr" (click)="showQRCode()"></span>
+    }
+  </div>
+}
+@if (hasEnrolmentToken && tokenExpired) {
+  <div>
     <span>Enrollment Expired</span>
-</div>
-<div *ngIf="!hasEnrolmentToken">
+  </div>
+}
+@if (!hasEnrolmentToken) {
+  <div>
     --
-</div>
+  </div>
+}

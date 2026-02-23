@@ -1,35 +1,43 @@
 <div class="grid {{className}}">
-    <div *ngIf="showProtocol" [ngClass]="{disabled: disableProtocol, invalid: errors['protocol']}">
-        <lib-selector-input [fieldName]="protocolFieldName"
-                      [(fieldValue)]="protocol"
-                      [labelColor]="labelColor"
-                      [placeholder]="undefined"
-                      [valueList]="['tcp', 'udp']"
-                      (fieldValueChange)="update()"
-        ></lib-selector-input>
+  @if (showProtocol) {
+    <div [ngClass]="{disabled: disableProtocol, invalid: errors['protocol']}">
+      <lib-selector-input [fieldName]="protocolFieldName"
+        [(fieldValue)]="protocol"
+        [labelColor]="labelColor"
+        [placeholder]="undefined"
+        [valueList]="['tcp', 'udp']"
+        (fieldValueChange)="update()"
+      ></lib-selector-input>
     </div>
-    <div *ngIf="showAddress" [ngClass]="{disabled: disableAddress, invalid: errors['address']}">
-        <lib-string-input [fieldName]="addressFieldName"
-                    [(fieldValue)]="address"
-                    [labelColor]="labelColor"
-                    [placeholder]="'host.name'"
-                          (fieldValueChange)="update()"
-        ></lib-string-input>
+  }
+  @if (showAddress) {
+    <div [ngClass]="{disabled: disableAddress, invalid: errors['address']}">
+      <lib-string-input [fieldName]="addressFieldName"
+        [(fieldValue)]="address"
+        [labelColor]="labelColor"
+        [placeholder]="'host.name'"
+        (fieldValueChange)="update()"
+      ></lib-string-input>
     </div>
-    <div *ngIf="showHostName" [ngClass]="{disabled: disableHostName, invalid: errors['hostname']}">
-        <lib-string-input [fieldName]="hostnameFieldName"
-                          [(fieldValue)]="hostname"
-                          [labelColor]="labelColor"
-                          [placeholder]="'host.name'"
-                          (fieldValueChange)="update()"
-        ></lib-string-input>
+  }
+  @if (showHostName) {
+    <div [ngClass]="{disabled: disableHostName, invalid: errors['hostname']}">
+      <lib-string-input [fieldName]="hostnameFieldName"
+        [(fieldValue)]="hostname"
+        [labelColor]="labelColor"
+        [placeholder]="'host.name'"
+        (fieldValueChange)="update()"
+      ></lib-string-input>
     </div>
-    <div *ngIf="showPort" [ngClass]="{disabled: disablePort, invalid: errors['port']}">
-        <lib-number-input [fieldName]="portFieldName"
-                    [(fieldValue)]="port"
-                    [labelColor]="labelColor"
-                    [placeholder]="'0'"
-                    (fieldValueChange)="update()"
-        ></lib-number-input>
+  }
+  @if (showPort) {
+    <div [ngClass]="{disabled: disablePort, invalid: errors['port']}">
+      <lib-number-input [fieldName]="portFieldName"
+        [(fieldValue)]="port"
+        [labelColor]="labelColor"
+        [placeholder]="'0'"
+        (fieldValueChange)="update()"
+      ></lib-number-input>
     </div>
+  }
 </div>

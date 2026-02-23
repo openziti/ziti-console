@@ -1,0 +1,115 @@
+:host {
+  display: block;
+  width: 100%;
+  font-weight: 400;
+  font-family: "Open Sans", Arial, sans-serif;
+  min-height: var(--defaultInputHeight, 2.5rem);
+  border: var(--inputBorderWidth, 1px) solid var(--stroke, #cbd5e1);
+  border-radius: var(--inputBorderRadius, 0.25rem);
+  padding-left: 0.625rem;
+  padding-right: 0.625rem;
+  outline: none;
+  box-sizing: border-box;
+  font-size: 0.9375rem;
+  background-color: var(--navigation, #fff);
+  color: var(--text, #111827);
+  overflow: auto;
+}
+
+:host(.p-chips) {
+  display: inline-flex;
+}
+
+:host(.p-chips.p-component) {
+  width: 100%;
+}
+
+:host(.p-focus) {
+  border-color: var(--primary);
+}
+
+:host(.error) {
+  border-color: var(--red, #ef4444);
+  background-color: var(--lightRed, #fee2e2) !important;
+}
+
+:host(.error) .p-inputtext.p-chips-multiple-container {
+  background-color: var(--lightRed, #fee2e2) !important;
+}
+
+.p-inputtext.p-chips-multiple-container {
+  width: 100%;
+  padding: 0;
+  border: 0 none;
+  background-color: transparent;
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+  box-shadow: none;
+}
+
+.p-chips-input-token {
+  flex: 1 1 8rem;
+  min-width: 6rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.p-chips-input-token input {
+  height: 1.5625rem;
+  font-size: 0.875rem;
+  color: inherit;
+  padding: 0;
+  margin: 0;
+  border: 0 none;
+  outline: 0 none;
+  background-color: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  width: 100%;
+}
+
+.p-chips-token {
+  margin-right: 0.5rem;
+  margin-top: 0.3125rem;
+  margin-bottom: 0.3125rem;
+  background: var(--primary);
+  color: var(--offWhite_ALWAYS, #ffffff);
+  border-radius: var(--inputBorderRadius, 0.25rem);
+  cursor: default;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  max-width: 100%;
+  padding: 0.25rem 0.5rem;
+  font-weight: 600;
+}
+
+.p-chips-token-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.p-chips-token-icon {
+  margin-left: 0.5rem;
+  cursor: pointer;
+  color: var(--offWhite_ALWAYS, #ffffff) !important;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  line-height: 1;
+  user-select: none;
+}
+
+.p-chips-token-icon:hover {
+  background: rgba(255, 255, 255, 0.15);
+}

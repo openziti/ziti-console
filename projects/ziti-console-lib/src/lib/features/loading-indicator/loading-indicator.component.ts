@@ -4,9 +4,10 @@ import {AnimationOptions} from 'ngx-lottie';
 import {isEmpty} from 'lodash';
 
 @Component({
-  selector: 'lib-loading-indicator',
-  templateUrl: './loading-indicator.component.html',
-  styleUrls: ['./loading-indicator.component.scss'],
+    selector: 'lib-loading-indicator',
+    templateUrl: './loading-indicator.component.html',
+    styleUrls: ['./loading-indicator.component.scss'],
+    standalone: false
 })
 export class LoadingIndicatorComponent implements OnInit {
   @Input() isLoading = false;

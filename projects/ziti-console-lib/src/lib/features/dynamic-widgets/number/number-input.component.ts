@@ -3,27 +3,31 @@ import {Subject} from "rxjs";
 import {debounce} from "lodash";
 
 @Component({
-  selector: 'lib-number-input',
-  template: `
+    selector: 'lib-number-input',
+    template: `
     <div [ngClass]="fieldClass + (!_isValid ? 'invalid' : '')" class="{{!_isValid ? 'invalid' : ''}} number-input-container">
       <div class="label-container">
         <label for="schema_{{parentage?parentage+'_':''}}{{_idName}}"  [ngStyle]="{'color': labelColor}">{{_fieldName}}</label>
-        <div
-            *ngIf="helpText"
+        @if (helpText) {
+          <div
             class="form-field-info infoicon"
             matTooltip="{{helpText}}"
             matTooltipPosition="above"
             matTooltipClass="wide-tooltip"
-        ></div>
+          ></div>
+        }
       </div>
       <input id="schema_{{parentage?parentage+'_':''}}{{_idName}}"
-         type="number" class="jsonEntry"
-             [ngClass]="{'error': error}"
-         [placeholder]="placeholder" [(ngModel)]="fieldValue" (paste)="onKeyup()" (keyup)="onKeyup()"/>
-      <div *ngIf="error" class="error">{{error}}</div>
+        type="number" class="jsonEntry"
+        [ngClass]="{'error': error}"
+        [placeholder]="placeholder" [(ngModel)]="fieldValue" (paste)="onKeyup()" (keyup)="onKeyup()"/>
+      @if (error) {
+        <div class="error">{{error}}</div>
+      }
     </div>
-  `,
-  styleUrls: ['number-input.component.scss']
+    `,
+    styleUrls: ['number-input.component.scss'],
+    standalone: false
 })
 export class NumberInputComponent {
   _fieldName = 'Field Label';

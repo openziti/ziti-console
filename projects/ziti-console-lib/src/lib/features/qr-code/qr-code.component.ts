@@ -23,9 +23,10 @@ import {DialogRef} from "@angular/cdk/dialog";
 import {EdgeRoutersPageService} from "../../pages/edge-routers/edge-routers-page.service";
 
 @Component({
-  selector: 'lib-qr-code',
-  templateUrl: './qr-code.component.html',
-  styleUrls: ['./qr-code.component.scss']
+    selector: 'lib-qr-code',
+    templateUrl: './qr-code.component.html',
+    styleUrls: ['./qr-code.component.scss'],
+    standalone: false
 })
 export class QrCodeComponent implements OnChanges {
 

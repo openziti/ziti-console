@@ -1,21 +1,23 @@
 <div class="ziti-page-container ziti-service-policies-container">
-    <lib-list-page-header [title]="title"
-                          [tabs]="tabs"
-                          [showAdd]="!itemsSelected"
-                          (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
+  <lib-list-page-header [title]="title"
+    [tabs]="tabs"
+    [showAdd]="!itemsSelected"
+  (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
 
-    <lib-data-table [tableId]="'service-policies'"
-                    [rowData]="rowData"
-                    [columnDefinitions]="columnDefs"
-                    (actionRequested)="tableAction($event)"
-                    [startCount]="startCount"
-                    [endCount]="endCount"
-                    [totalCount]="totalCount"
-                    [emptyMsg]="'No Service Policies defined, Click the plus to add a Service Policy.'"
-                    [filterApplied]="filterApplied"
-                    [menuItems]="svc.menuItems"
-                    (gridReady)="gridReady($event)"
+  <lib-data-table [tableId]="'service-policies'"
+    [rowData]="rowData"
+    [columnDefinitions]="columnDefs"
+    (actionRequested)="tableAction($event)"
+    [startCount]="startCount"
+    [endCount]="endCount"
+    [totalCount]="totalCount"
+    [emptyMsg]="'No Service Policies defined, Click the plus to add a Service Policy.'"
+    [filterApplied]="filterApplied"
+    [menuItems]="svc.menuItems"
+    (gridReady)="gridReady($event)"
     >
-    </lib-data-table>
+  </lib-data-table>
 </div>
-<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
+@if (isLoading) {
+  <lib-loading-indicator [isLoading]="isLoading"></lib-loading-indicator>
+}

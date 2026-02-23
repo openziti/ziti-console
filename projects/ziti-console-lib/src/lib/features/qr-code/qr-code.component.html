@@ -1,58 +1,83 @@
 <div class="qr-code-container" [ngClass]="{'modal-view': isModal}">
-    <div *ngIf="!showQRCode" class="qr-code-buttons">
-        <div *ngIf="hasJWT && !jwtExpired && type !== 'router'" (click)="identitiesSvc.downloadJWT(jwt, identity.name)" class="download-button">
+  @if (!showQRCode) {
+    <div class="qr-code-buttons">
+      @if (hasJWT && !jwtExpired && type !== 'router') {
+        <div (click)="identitiesSvc.downloadJWT(jwt, identity.name)" class="download-button">
           <div class="download-jwt"></div>
           <div>DOWNLOAD JWT</div>
           <div class="tap-to-download icon-download-jwt"></div>
         </div>
-        <div *ngIf="hasJWT && !jwtExpired && type !== 'router'" (click)="expandQRCode()" class="download-button" matTooltip="Show QR Code">
+      }
+      @if (hasJWT && !jwtExpired && type !== 'router') {
+        <div (click)="expandQRCode()" class="download-button" matTooltip="Show QR Code">
           <div class="tap-to-download icon-qr"></div>
           <div>SHOW QR CODE</div>
           <div class="tap-to-download icon-ClickIcon"></div>
         </div>
-        <div (click)="identitiesSvc.copyToken(token)" *ngIf="!jwtExpired && type === 'router'" class="download-button" style="background-color: #232f3e!important;">
-            <div class="download-key"></div>
-            <div>COPY ENROLLMENT TOKEN</div>
-            <div class="tap-to-download icon-ClickIcon"></div>
+      }
+      @if (!jwtExpired && type === 'router') {
+        <div (click)="identitiesSvc.copyToken(token)" class="download-button" style="background-color: #232f3e!important;">
+          <div class="download-key"></div>
+          <div>COPY ENROLLMENT TOKEN</div>
+          <div class="tap-to-download icon-ClickIcon"></div>
         </div>
-        <div (click)="identitiesSvc.resetJWT(identity)" *ngIf="showResetToken" class="download-button" >
-            <div class="download-key"></div>
-            <div>RESET ENROLLMENT</div>
-            <div class="tap-to-download icon-refresh"></div>
+      }
+      @if (showResetToken) {
+        <div (click)="identitiesSvc.resetJWT(identity)" class="download-button" >
+          <div class="download-key"></div>
+          <div>RESET ENROLLMENT</div>
+          <div class="tap-to-download icon-refresh"></div>
         </div>
-        <div (click)="reissue()" *ngIf="showReissueToken" class="download-button" >
-            <div class="download-key"></div>
-            <div>REISSUE ENROLLMENT</div>
-            <div class="tap-to-download icon-refresh"></div>
+      }
+      @if (showReissueToken) {
+        <div (click)="reissue()" class="download-button" >
+          <div class="download-key"></div>
+          <div>REISSUE ENROLLMENT</div>
+          <div class="tap-to-download icon-refresh"></div>
         </div>
-        <div (click)="resetMFA()" *ngIf="showResetMFA || mfaReset" class="download-button" [ngClass]="{'reset-success': mfaReset}">
-            <div class="icon-lock"></div>
-            <div>{{mfaReset ? 'MFA RESET SUCCESSFUL' : 'RESET MFA'}}</div>
-            <div [ngClass]="{spinner: resettingMFA, 'icon-refresh': !resettingMFA, 'tap-to-download': !resettingMFA, 'icon-Icon_Check': mfaReset && !resettingMFA}"></div>
+      }
+      @if (showResetMFA || mfaReset) {
+        <div (click)="resetMFA()" class="download-button" [ngClass]="{'reset-success': mfaReset}">
+          <div class="icon-lock"></div>
+          <div>{{mfaReset ? 'MFA RESET SUCCESSFUL' : 'RESET MFA'}}</div>
+          <div [ngClass]="{spinner: resettingMFA, 'icon-refresh': !resettingMFA, 'tap-to-download': !resettingMFA, 'icon-Icon_Check': mfaReset && !resettingMFA}"></div>
         </div>
+      }
     </div>
+  }
+  @if (showQRCode) {
     <qrcode
-            *ngIf="showQRCode"
-            [errorCorrectionLevel]="'M'" [qrdata]="jwt"
-            [width]="qrCodeSize" (click)="expandQRCode()"
-            [ngClass]="{'qr-code-expandable': canExpand}"
+      [errorCorrectionLevel]="'M'" [qrdata]="jwt"
+      [width]="qrCodeSize" (click)="expandQRCode()"
+      [ngClass]="{'qr-code-expandable': canExpand}"
     ></qrcode>
-    <div *ngIf="!qrOnly" class="qr-code-buttons">
-        <div (click)="deleteEnrollment()" *ngIf="hasJWT && type === 'identity'" class="delete-button">
-          <div class="  tap-to-delete icon-Icon_Delete"></div>
-          <div>DELETE ENROLLMENT</div>
-          <div class="tap-to-delete icon-Icon_Delete"></div>
+  }
+  @if (!qrOnly) {
+    <div class="qr-code-buttons">
+      @if (hasJWT && type === 'identity') {
+          <div (click)="deleteEnrollment()" class="delete-button">
+            <div class="  tap-to-delete icon-Icon_Delete"></div>
+            <div>DELETE ENROLLMENT</div>
+            <div class="tap-to-delete icon-Icon_Delete"></div>
+          </div>
+      }
+      @if (!jwtExpired && type === 'router') {
+        <span class="info-text">OR</span>
+      }
+      @if (!jwtExpired && type === 'router') {
+        <div (click)="identitiesSvc.downloadJWT(jwt, identity.name)" class="download-button">
+          <div class="download-key"></div>
+          <div>DOWNLOAD ENROLLMENT JWT</div>
+          <div class="tap-to-download icon-download-jwt"></div>
         </div>
-        <span class="info-text" *ngIf="!jwtExpired && type === 'router'">OR</span>
-        <div (click)="identitiesSvc.downloadJWT(jwt, identity.name)" *ngIf="!jwtExpired && type === 'router'" class="download-button">
-            <div class="download-key"></div>
-            <div>DOWNLOAD ENROLLMENT JWT</div>
-            <div class="tap-to-download icon-download-jwt"></div>
+      }
+      @if (showReenrollToken) {
+        <div (click)="reenroll()" class="download-button" >
+          <div class="download-key"></div>
+          <div>REISSUE ENROLLMENT</div>
+          <div class="tap-to-download icon-refresh"></div>
         </div>
-        <div (click)="reenroll()" *ngIf="showReenrollToken" class="download-button" >
-            <div class="download-key"></div>
-            <div>REISSUE ENROLLMENT</div>
-            <div class="tap-to-download icon-refresh"></div>
-        </div>
+      }
     </div>
+  }
 </div>

@@ -1,299 +1,326 @@
 <div class="projectable-form-wrapper"
-     (keyup.enter)="save($event)"
-     (keyup.escape)="closeModal(false)"
-     [class.projectable-form-hidden]="!dataInit"
->
-    <lib-form-header
-            [data]="formData"
-            [title]="formData.id ? 'Edit Identity: ' : 'Create New Identity'"
-            [moreActions]="moreActions"
-            (actionRequested)="headerActionRequested($event)"
-            [(formView)]="formView"
-            [class.is-scrolled]="isScrolled"
-    ></lib-form-header>
-    <div class="identity-form-container projectable-form-container" #formContainer>
-        <div class="projectable-form-main-column form-group-row" *ngIf="formView === 'simple'">
-            <div class="form-group-column three-fifths">
-                <lib-form-field-container [title]="'Identity Name'" [label]="'REQUIRED'">
-                    <input
-                        class="form-field-input"
-                        placeholder="Name this identity"
-                        [ngClass]="{error: errors['name']}"
-                        [(ngModel)]="formData.name"
-                        autofocus
-                        #nameFieldInput
-                    />
-                </lib-form-field-container>
-                <lib-form-field-container
-                        [title]="'Select or create Identity attributes'"
-                        [label]="'OPTIONAL'"
-                        [contentStyle]="'z-index: 99999999'"
-                        [helpText]="'Attributes are tags applied to an resource. Apply the same tag to other Identities to form a group of Identities.'"
-                >
-                    <lib-tag-selector
-                            [(selectedRoleAttributes)]="formData.roleAttributes"
-                            [availableRoleAttributes]="identityRoleAttributes"
-                            [placeholder]="'Add attributes to group Identities'"
-                    ></lib-tag-selector>
-                </lib-form-field-container>
-                <ng-content select="[slot=column-1-slot-1]"></ng-content>
-                <lib-form-field-container
-                        [title]="'Auth Policy'"
-                        [label]="'OPTIONAL'"
-                        [helpText]="'Authentication Policies restrict the authentication methods available to identities.'"
-                >
-                    <select
-                            [(ngModel)]="formData.authPolicyId"
-                            id="authPolicyId"
-                            class="form-field-dropdown"
-                    >
-                        <option value="">Select an Authentication Policy</option>
-                        <option
-                            *ngFor="let policy of authPolicies"
-                            [value]="policy.id"
-                        >
-                            {{ policy.name }}
-                        </option>
-                    </select>
-                    <div class="form-field-label-container" style="gap: var(--paddingMedium)">
-                        <div class="form-field-header">
-                            <div class="form-field-title-container">
-                                <span class="form-field-title">External ID</span>
-                            </div>
-                            <span class="form-field-label">OPTIONAL</span>
-                        </div>
-                        <input class="form-field-input" placeholder="Optional External ID" [(ngModel)]="formData.externalId"/>
-                    </div>
-                </lib-form-field-container>
-                <ng-content select="[slot=column-1-slot-2]"></ng-content>
-                <lib-form-field-toggle [(toggleOn)]="showMore" (toggleOnChange)="showMoreChanged($event)" style="margin: 0px 10px"></lib-form-field-toggle>
-                <div [hidden]="!showMore" class="form-group-column">
-                    <lib-form-field-container
-                        [title]="'Enrollment Type'"
-                        [title2]="enrollmentTypeTitle"
-                        [layout]="'row'"
-                        class="form-field-advanced"
-                    >
-                        <select
-                            id="EnrollmentType"
-                            class="form-field-dropdown"
-                            [ngClass]="{disabled: isEditing}"
-                            [(ngModel)]="enrollmentType"
-                            (change)="updateEnrollment()"
-                        >
-                            <option value="ott">One Time Token</option>
-                            <option value="CA">Certificate Authority</option>
-                            <option value="updb">UPDB</option>
-                            <option value="none">None</option>
-                        </select>
-                        <select
-                            id="CertAuthorities"
-                            class="form-field-dropdown"
-                            *ngIf="enrollmentType === 'CA'"
-                            [ngClass]="{disabled: isEditing}"
-                            [(ngModel)]="enrollmentCA"
-                            [ngClass]="{error: errors.enrollmentCA}"
-                            (change)="updateEnrollment()"
-                        >
-                            <option *ngFor="let ca of cas" [value]="ca.id">{{ca.name}}</option>
-                        </select>
-                        <input
-                            *ngIf="enrollmentType === 'updb' && !isEditing"
-                            [ngClass]="{disabled: isEditing, error: errors.enrollmentUPDB}"
-                            [(ngModel)]="enrollmentUPDB"
-                            (keyup)="updateEnrollment()"
-                            class="form-field-input"
-                            id="UPDBName"
-                            type="text"
-                            maxlength="500"
-                            placeholder="Enter a name"
-                        >
-                    </lib-form-field-container>
-                    <lib-form-field-container
-                            [title]="'Admin'"
-                            [layout]="'row'"
-                            class="form-field-advanced is-admin-container"
-                    >
-                        <div class="config-item">
-                            <div class="config-container toggle-container">
-                                <div class="config-container-label">IS ADMIN</div>
-                                <div
-                                        (click)="toggleIsAdmin()"
-                                        [ngClass]="{ on: formData.isAdmin }"
-                                        class="toggle"
-                                >
-                                    <span [hidden]="!formData.isAdmin" class="on-label">YES</span>
-                                    <span [hidden]="formData.isAdmin" class="off-label">NO</span>
-                                    <div class="switch"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </lib-form-field-container>
-                    <lib-form-field-container
-                            [title]="'Hosting Cost'"
-                            [title2]="'Precedence'"
-                            [layout]="'row'"
-                            class="form-field-advanced"
-                    >
-                        <input class="form-field-input" [(ngModel)]="formData.defaultHostingCost" type="number"/>
-                        <select
-                            [(ngModel)]="formData.defaultHostingPrecedence"
-                            id="hostingPrecedence"
-                            class="form-field-dropdown"
-                        >
-                            <option value="default">Default</option>
-                            <option value="required">Required</option>
-                            <option value="failed">Failed</option>
-                        </select>
-                    </lib-form-field-container>
-                    <lib-form-field-container *ngFor="let tagElement of tagElements"
-                            [title]="tagElement.label"
-                            [label]="'OPTIONAL'"
-                            class="form-field-advanced"
-                    >
-                        <div [innerHTML]="tagElement.content | safe"></div>
-                    </lib-form-field-container>
-                    <lib-form-field-container
-                            [title]="'Custom Tags'"
-                            [label]="'OPTIONAL'"
-                            class="form-field-advanced"
-                            *ngIf="!hideTags"
-                    >
-                        <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
-                    </lib-form-field-container>
-                    <lib-form-field-container
-                            [title]="'App Data'"
-                            [label]="'OPTIONAL'"
-                            class="form-field-advanced"
-                    >
-                        <lib-json-view [(data)]="formData.appData"></lib-json-view>
-                    </lib-form-field-container>
+  (keyup.enter)="save($event)"
+  (keyup.escape)="closeModal(false)"
+  [class.projectable-form-hidden]="!dataInit"
+  >
+  <lib-form-header
+    [data]="formData"
+    [title]="formData.id ? 'Edit Identity: ' : 'Create New Identity'"
+    [moreActions]="moreActions"
+    (actionRequested)="headerActionRequested($event)"
+    [(formView)]="formView"
+    [class.is-scrolled]="isScrolled"
+  ></lib-form-header>
+  <div class="identity-form-container projectable-form-container" #formContainer>
+    @if (formView === 'simple') {
+      <div class="projectable-form-main-column form-group-row">
+        <div class="form-group-column three-fifths">
+          <lib-form-field-container [title]="'Identity Name'" [label]="'REQUIRED'">
+            <input
+              class="form-field-input"
+              placeholder="Name this identity"
+              [ngClass]="{error: errors['name']}"
+              [(ngModel)]="formData.name"
+              autofocus
+              #nameFieldInput
+              />
+          </lib-form-field-container>
+          <lib-form-field-container
+            [title]="'Select or create Identity attributes'"
+            [label]="'OPTIONAL'"
+            [contentStyle]="'z-index: 99999999'"
+            [helpText]="'Attributes are tags applied to an resource. Apply the same tag to other Identities to form a group of Identities.'"
+            >
+            <lib-tag-selector
+              [(selectedRoleAttributes)]="formData.roleAttributes"
+              [availableRoleAttributes]="identityRoleAttributes"
+              [placeholder]="'Add attributes to group Identities'"
+            ></lib-tag-selector>
+          </lib-form-field-container>
+          <ng-content select="[slot=column-1-slot-1]"></ng-content>
+          <lib-form-field-container
+            [title]="'Auth Policy'"
+            [label]="'OPTIONAL'"
+            [helpText]="'Authentication Policies restrict the authentication methods available to identities.'"
+            >
+            <select
+              [(ngModel)]="formData.authPolicyId"
+              id="authPolicyId"
+              class="form-field-dropdown"
+              >
+              <option value="">Select an Authentication Policy</option>
+              @for (policy of authPolicies; track policy) {
+                <option
+                  [value]="policy.id"
+                  >
+                  {{ policy.name }}
+                </option>
+              }
+            </select>
+            <div class="form-field-label-container" style="gap: var(--paddingMedium)">
+              <div class="form-field-header">
+                <div class="form-field-title-container">
+                  <span class="form-field-title">External ID</span>
                 </div>
+                <span class="form-field-label">OPTIONAL</span>
+              </div>
+              <input class="form-field-input" placeholder="Optional External ID" [(ngModel)]="formData.externalId"/>
             </div>
-            <div class="form-group-column two-fifths">
-                <ng-content select="[slot=column-2-slot-1]"></ng-content>
-                <lib-form-field-container
-                  *ngIf="isEdit && (hasEnrolmentToken || hasAuthenticator)"
-                  [showHeader]="false"
-                  [layout]="'column'"
-                  [contentStyle]="'z-index: 99999999'"
+          </lib-form-field-container>
+          <ng-content select="[slot=column-1-slot-2]"></ng-content>
+          <lib-form-field-toggle [(toggleOn)]="showMore" (toggleOnChange)="showMoreChanged($event)" style="margin: 0px 10px"></lib-form-field-toggle>
+          <div [hidden]="!showMore" class="form-group-column">
+            <lib-form-field-container
+              [title]="'Enrollment Type'"
+              [title2]="enrollmentTypeTitle"
+              [layout]="'row'"
+              class="form-field-advanced"
+              >
+              <select
+                id="EnrollmentType"
+                class="form-field-dropdown"
+                [ngClass]="{disabled: isEditing}"
+                [(ngModel)]="enrollmentType"
+                (change)="updateEnrollment()"
                 >
-                    <div class="form-field-label-container" style="gap: var(--paddingMedium)">
-                      <div class="form-field-header">
-                        <div class="form-field-title-container">
-                          <span class="form-field-title">Enrollment:</span>
-                        </div>
-                        <span class="form-field-label info-text"
-                              *ngIf="jwtExpired !== undefined && !showResetToken"
-                              [class.expired-text]="jwtExpired"
-                        >
-                          {{jwtExpired ? 'EXPIRED' : 'EXPIRES'}} {{expirationDate}}
-                        </span>
+                <option value="ott">One Time Token</option>
+                <option value="CA">Certificate Authority</option>
+                <option value="updb">UPDB</option>
+                <option value="none">None</option>
+              </select>
+              @if (enrollmentType === 'CA') {
+                <select
+                  id="CertAuthorities"
+                  class="form-field-dropdown"
+                  [ngClass]="{disabled: isEditing}"
+                  [(ngModel)]="enrollmentCA"
+                  [ngClass]="{error: errors.enrollmentCA}"
+                  (change)="updateEnrollment()"
+                  >
+                  @for (ca of cas; track ca) {
+                    <option [value]="ca.id">{{ca.name}}</option>
+                  }
+                </select>
+              }
+              @if (enrollmentType === 'updb' && !isEditing) {
+                <input
+                  [ngClass]="{disabled: isEditing, error: errors.enrollmentUPDB}"
+                  [(ngModel)]="enrollmentUPDB"
+                  (keyup)="updateEnrollment()"
+                  class="form-field-input"
+                  id="UPDBName"
+                  type="text"
+                  maxlength="500"
+                  placeholder="Enter a name"
+                  >
+              }
+            </lib-form-field-container>
+            <lib-form-field-container
+              [title]="'Admin'"
+              [layout]="'row'"
+              class="form-field-advanced is-admin-container"
+              >
+              <div class="config-item">
+                <div class="config-container toggle-container">
+                  <div class="config-container-label">IS ADMIN</div>
+                  <div
+                    (click)="toggleIsAdmin()"
+                    [ngClass]="{ on: formData.isAdmin }"
+                    class="toggle"
+                    >
+                    <span [hidden]="!formData.isAdmin" class="on-label">YES</span>
+                    <span [hidden]="formData.isAdmin" class="off-label">NO</span>
+                    <div class="switch"></div>
+                  </div>
+                </div>
+              </div>
+            </lib-form-field-container>
+            <lib-form-field-container
+              [title]="'Hosting Cost'"
+              [title2]="'Precedence'"
+              [layout]="'row'"
+              class="form-field-advanced"
+              >
+              <input class="form-field-input" [(ngModel)]="formData.defaultHostingCost" type="number"/>
+              <select
+                [(ngModel)]="formData.defaultHostingPrecedence"
+                id="hostingPrecedence"
+                class="form-field-dropdown"
+                >
+                <option value="default">Default</option>
+                <option value="required">Required</option>
+                <option value="failed">Failed</option>
+              </select>
+            </lib-form-field-container>
+            @for (tagElement of tagElements; track tagElement) {
+              <lib-form-field-container
+                [title]="tagElement.label"
+                [label]="'OPTIONAL'"
+                class="form-field-advanced"
+                >
+                <div [innerHTML]="tagElement.content | safe"></div>
+              </lib-form-field-container>
+            }
+            @if (!hideTags) {
+              <lib-form-field-container
+                [title]="'Custom Tags'"
+                [label]="'OPTIONAL'"
+                class="form-field-advanced"
+                >
+                <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
+              </lib-form-field-container>
+            }
+            <lib-form-field-container
+              [title]="'App Data'"
+              [label]="'OPTIONAL'"
+              class="form-field-advanced"
+              >
+              <lib-json-view [(data)]="formData.appData"></lib-json-view>
+            </lib-form-field-container>
+          </div>
+        </div>
+        <div class="form-group-column two-fifths">
+          <ng-content select="[slot=column-2-slot-1]"></ng-content>
+          @if (isEdit && (hasEnrolmentToken || hasAuthenticator)) {
+            <lib-form-field-container
+              [showHeader]="false"
+              [layout]="'column'"
+              [contentStyle]="'z-index: 99999999'"
+              >
+              <div class="form-field-label-container" style="gap: var(--paddingMedium)">
+                <div class="form-field-header">
+                  <div class="form-field-title-container">
+                    <span class="form-field-title">Enrollment:</span>
+                  </div>
+                  @if (jwtExpired !== undefined && !showResetToken) {
+                    <span class="form-field-label info-text"
+                      [class.expired-text]="jwtExpired"
+                      >
+                      {{jwtExpired ? 'EXPIRED' : 'EXPIRES'}} {{expirationDate}}
+                    </span>
+                  }
+                </div>
+                <lib-qr-code
+                  [identity]="formData"
+                  [jwt]="jwt"
+                  [expiration]="enrollmentExpiration"
+                  [authenticators]="formData.authenticators"
+                  [type]="'identity'"
+                  [canExpand]="true"
+                  (doRefresh)="refreshIdentity()"
+                ></lib-qr-code>
+              </div>
+            </lib-form-field-container>
+          }
+          @if (isEdit) {
+            <lib-form-field-container
+              [showHeader]="false"
+              [layout]="'column'"
+              [contentStyle]="'z-index: 99999999'"
+              >
+              <div class="form-field-label-container" style="gap: var(--paddingMedium)">
+                <div class="form-field-header">
+                  <div class="form-field-title-container">
+                    <span class="form-field-title">Enable / Disable:</span>
+                  </div>
+                </div>
+                @if (entityDisabled) {
+                  <div class="disable-identity-button-container" (click)="enableIdentity()">
+                    <div class="disable-identity-background"></div>
+                    <button class="download-button disable-identity-button">Enable Identity</button>
+                  </div>
+                }
+                @if (!entityDisabled) {
+                  <div class="disable-identity-button-container" (click)="disableIdentity()">
+                    <div class="disable-identity-background"></div>
+                    <button class="download-button disable-identity-button">Disable Identity</button>
+                  </div>
+                }
+              </div>
+              @if (!entityDisabled) {
+                <div class="form-field-label-container" style="gap: var(--paddingMedium)">
+                  <div class="form-field-header">
+                    <div class="form-field-title-container">
+                      <span class="form-field-title">Disable Until:</span>
+                    </div>
+                  </div>
+                  <div class="disable-identity-duration-container">
+                    <select [(ngModel)]="disableDurationType" id="DurationType" class="form-field-dropdown">
+                      <option value="indefinite">Indefinite</option>
+                      <option value="pick-date">Pick a Date & Time</option>
+                    </select>
+                    @if (disableDurationType === 'pick-date') {
+                      <div class="disable-identity-datetime-inputs">
+                        <lib-date-time-picker
+                          class="disable-identity-date-time-picker"
+                          [(ngModel)]="disableDuration"
+                          [minDate]="minDate"
+                          [closeOnDateSelect]="true"
+                        ></lib-date-time-picker>
                       </div>
-                      <lib-qr-code
-                        [identity]="formData"
-                        [jwt]="jwt"
-                        [expiration]="enrollmentExpiration"
-                        [authenticators]="formData.authenticators"
-                        [type]="'identity'"
-                        [canExpand]="true"
-                        (doRefresh)="refreshIdentity()"
-                      ></lib-qr-code>
-                    </div>
-                </lib-form-field-container>
-                <lib-form-field-container
-                  *ngIf="isEdit"
-                  [showHeader]="false"
-                  [layout]="'column'"
-                  [contentStyle]="'z-index: 99999999'"
-                >
-                    <div class="form-field-label-container" style="gap: var(--paddingMedium)">
-                      <div class="form-field-header">
-                        <div class="form-field-title-container">
-                          <span class="form-field-title">Enable / Disable:</span>
-                        </div>
-                      </div>
-                      <div *ngIf="entityDisabled" class="disable-identity-button-container" (click)="enableIdentity()">
-                          <div class="disable-identity-background"></div>
-                          <button class="download-button disable-identity-button">Enable Identity</button>
-                      </div>
-                      <div *ngIf="!entityDisabled" class="disable-identity-button-container" (click)="disableIdentity()">
-                          <div class="disable-identity-background"></div>
-                          <button class="download-button disable-identity-button">Disable Identity</button>
-                      </div>
-                    </div>
-                    <div *ngIf="!entityDisabled" class="form-field-label-container" style="gap: var(--paddingMedium)">
-                        <div class="form-field-header">
-                            <div class="form-field-title-container">
-                                <span class="form-field-title">Disable Until:</span>
-                            </div>
-                        </div>
-                        <div class="disable-identity-duration-container">
-                            <select [(ngModel)]="disableDurationType" id="DurationType" class="form-field-dropdown">
-                                <option value="indefinite">Indefinite</option>
-                                <option value="pick-date">Pick a Date & Time</option>
-                            </select>
-                            <p-calendar
-                                *ngIf="disableDurationType === 'pick-date'"
-                                [(ngModel)]="disableDuration"
-                                (onSelect)="setDisabledDate($event)"
-                                [showIcon]="true"
-                                [showTime]="true"
-                                [minDate]="minDate"
-                                placeholder="Select a date"
-                                selectionMode="single"
-                                #calendar
-                            >
-                            </p-calendar>
-                        </div>
-                    </div>
-                </lib-form-field-container>
-                <lib-form-field-container
-                        *ngIf="formData.id"
-                        [title]="'Associated Services'"
-                        [count]="associatedServices.length"
-                        [class]="'hide-overflow'"
-                        [helpText]="'Preview list of all services that this Identity is associated with.'"
-                >
-                    <lib-preview-list
-                        (itemSelected)="serviceSelected($event)"
-                        [clickable]="true"
-                        [isLoading]="servicesLoading"
-                        [allNames]="associatedServiceNames"
-                    ></lib-preview-list>
-                    <div class="svc-test-result" [ngClass]="{'test-result-open': testResultOpen}">
-                        <div class="close icon-close" (click)="closeTestResult()"></div>
-                        <div class="result-container" [innerHTML]="testResult" ></div>
-                    </div>
-                </lib-form-field-container>
-                <lib-form-field-container
-                        *ngIf="formData.id"
-                        [title]="'Associated Service Policies'"
-                        [count]="associatedServicePolicies.length"
-                        [helpText]="'Preview list of all service policies that this Identity is associated with.'"
-                >
-                    <lib-preview-list
-                        (itemSelected)="serviceSelected($event)"
-                        [clickable]="false"
-                        [isLoading]="servicePoliciesLoading"
-                        [allNames]="associatedServicePolicyNames"
-                    ></lib-preview-list>
-                </lib-form-field-container>
-                <lib-form-field-container
-                        [title]="'API Calls'"
-                        [label]="''"
-                >
-                    <div class="form-row">
-                        <input class="form-field-input" [value]="apiCallURL" readonly/>
-                        <div class="url-copy icon-copy copy-text" (click)="copyToClipboard(apiCallURL)"></div>
-                    </div>
-                    <lib-json-view *ngIf="formData" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
-                </lib-form-field-container>
+                    }
+                  </div>
+                </div>
+              }
+            </lib-form-field-container>
+          }
+          @if (formData.id) {
+            <lib-form-field-container
+              [title]="'Associated Services'"
+              [count]="associatedServices.length"
+              [class]="'hide-overflow'"
+              [helpText]="'Preview list of all services that this Identity is associated with.'"
+              >
+              <lib-preview-list
+                (itemSelected)="serviceSelected($event)"
+                [clickable]="true"
+                [isLoading]="servicesLoading"
+                [allNames]="associatedServiceNames"
+              ></lib-preview-list>
+              <div class="svc-test-result" [ngClass]="{'test-result-open': testResultOpen}">
+                <div class="close icon-close" (click)="closeTestResult()"></div>
+                <div class="result-container" [innerHTML]="testResult" ></div>
+              </div>
+            </lib-form-field-container>
+          }
+          @if (formData.id) {
+            <lib-form-field-container
+              [title]="'Associated Service Policies'"
+              [count]="associatedServicePolicies.length"
+              [helpText]="'Preview list of all service policies that this Identity is associated with.'"
+              >
+              <lib-preview-list
+                (itemSelected)="serviceSelected($event)"
+                [clickable]="false"
+                [isLoading]="servicePoliciesLoading"
+                [allNames]="associatedServicePolicyNames"
+              ></lib-preview-list>
+            </lib-form-field-container>
+          }
+          <lib-form-field-container
+            [title]="'API Calls'"
+            [label]="''"
+            >
+            <div class="form-row">
+              <input class="form-field-input" [value]="apiCallURL" readonly/>
+              <div class="url-copy icon-copy copy-text" (click)="copyToClipboard(apiCallURL)"></div>
             </div>
+            @if (formData) {
+              <lib-json-view [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
+            }
+          </lib-form-field-container>
         </div>
-        <div class="form-group-column" *ngIf="formView === 'raw'">
-            <lib-json-view *ngIf="formData" [(data)]="formData"></lib-json-view>
-        </div>
-    </div>
+      </div>
+    }
+    @if (formView === 'raw') {
+      <div class="form-group-column">
+        @if (formData) {
+          <lib-json-view [(data)]="formData"></lib-json-view>
+        }
+      </div>
+    }
+  </div>
 </div>
-<lib-loading-indicator *ngIf="isLoading || !dataInit" [isLoading]="isLoading || !dataInit"></lib-loading-indicator>
+@if (isLoading || !dataInit) {
+  <lib-loading-indicator [isLoading]="isLoading || !dataInit"></lib-loading-indicator>
+}

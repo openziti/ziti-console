@@ -27,7 +27,8 @@ import {ConfirmComponent} from "../../features/confirm/confirm.component";
 @Component({
     selector: 'lib-configurations',
     templateUrl: './posture-checks-page.component.html',
-    styleUrls: ['./posture-checks-page.component.scss']
+    styleUrls: ['./posture-checks-page.component.scss'],
+    standalone: false
 })
 export class PostureChecksPageComponent extends ListPageComponent implements OnInit {
     title = 'Posture Checks'

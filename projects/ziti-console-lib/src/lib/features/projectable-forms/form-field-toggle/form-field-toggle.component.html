@@ -1,12 +1,14 @@
 <div class="form-field-toggle-container" tabindex=0 (keyup.space)="enterKeyPressed($event)" (click)="toggleSwitch()">
-    <span *ngIf="orientation === 'row'" class="form-field-label">{{label}}</span>
-    <div class="form-field-line"></div>
-    <div
-            [ngClass]="{ on: toggleOn }"
-            class="toggle"
+  @if (orientation === 'row') {
+    <span class="form-field-label">{{label}}</span>
+  }
+  <div class="form-field-line"></div>
+  <div
+    [ngClass]="{ on: toggleOn }"
+    class="toggle"
     >
-        <span [hidden]="!toggleOn" class="on-label">{{labelOn}}</span>
-        <span [hidden]="toggleOn" class="off-label">{{labelOff}}</span>
-        <div class="switch"></div>
-    </div>
+    <span [hidden]="!toggleOn" class="on-label">{{labelOn}}</span>
+    <span [hidden]="toggleOn" class="off-label">{{labelOff}}</span>
+    <div class="switch"></div>
+  </div>
 </div>

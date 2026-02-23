@@ -6,9 +6,10 @@ import {GrowlerModel} from "../messaging/growler.model";
 import {GrowlerService} from "../messaging/growler.service";
 
 @Component({
-  selector: 'lib-creation-summary-dialog',
-  templateUrl: './creation-summary-dialog.component.html',
-  styleUrls: ['./creation-summary-dialog.component.scss']
+    selector: 'lib-creation-summary-dialog',
+    templateUrl: './creation-summary-dialog.component.html',
+    styleUrls: ['./creation-summary-dialog.component.scss'],
+    standalone: false
 })
 export class CreationSummaryDialogComponent {
 

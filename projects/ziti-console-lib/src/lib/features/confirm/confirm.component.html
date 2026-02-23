@@ -1,43 +1,56 @@
 <div class="confirm-modal-container" id="ConfirmModal_{{dataObj.appendId || 'Default'}}">
-    <div class="close icon-close" (click)="cancel()"></div>
-    <div class="confirm-model-body">
-        <div class="confirm-modal-content">
-            <div class="confirm-title-container">
-                <span class="confirm-title">{{dataObj.title}}</span>
-                <span class="confirm-subtitle">{{dataObj.subtitle}}</span>
+  <div class="close icon-close" (click)="cancel()"></div>
+  <div class="confirm-model-body">
+    <div class="confirm-modal-content">
+      <div class="confirm-title-container">
+        <span class="confirm-title">{{dataObj.title}}</span>
+        <span class="confirm-subtitle">{{dataObj.subtitle}}</span>
+      </div>
+      <div class="confirm-modal-main">
+        <div class="confirm-modal-icon" style="background-image: url({{dataObj.imageUrl}})"></div>
+        <div>
+          <div class="confirm-message-content">
+            <span [innerHTML]="dataObj.message"></span>
+          </div>
+          <div class="confirm-message-bullet-list">
+            <ul>
+              @for (item of dataObj.bulletList; track item) {
+                <li class="confirm-item-name">{{item}}</li>
+              }
+            </ul>
+          </div>
+          @if (dataObj.submessage && dataObj.submessage.length > 0) {
+            <div class="confirm-message-sub-content">
+              <span [innerHTML]="dataObj.submessage"></span>
             </div>
-            <div class="confirm-modal-main">
-                <div class="confirm-modal-icon" style="background-image: url({{dataObj.imageUrl}})"></div>
-                <div>
-                    <div class="confirm-message-content">
-                        <span [innerHTML]="dataObj.message"></span>
-                    </div>
-                    <div class="confirm-message-bullet-list">
-                        <ul>
-                            <li *ngFor="let item of dataObj.bulletList" class="confirm-item-name">{{item}}</li>
-                        </ul>
-                    </div>
-                    <div *ngIf="dataObj.submessage && dataObj.submessage.length > 0" class="confirm-message-sub-content">
-                        <span [innerHTML]="dataObj.submessage"></span>
-                    </div>
-                </div>
-            </div>
+          }
         </div>
+      </div>
     </div>
-    <div class="secondary-confirm-container" *ngIf="dataObj.showSecondaryConfirm">
-        <div class="cSelect" [ngClass]="{'selected': dataObj.secondaryConfirmed}" (click)="toggleSecondary($event)"></div>
-        <div class="secondary-confirm-label">{{dataObj.secondaryConfirmLabel}}</div>
+  </div>
+  @if (dataObj.showSecondaryConfirm) {
+    <div class="secondary-confirm-container">
+      <div class="cSelect" [ngClass]="{'selected': dataObj.secondaryConfirmed}" (click)="toggleSecondary($event)"></div>
+      <div class="secondary-confirm-label">{{dataObj.secondaryConfirmLabel}}</div>
+      @if (dataObj.secondaryInfoLabel) {
         <div
-            *ngIf="dataObj.secondaryInfoLabel"
-            class="form-field-info infoicon"
-            matTooltip="{{dataObj.secondaryInfoLabel}}"
-            matTooltipPosition="above"
+          class="form-field-info infoicon"
+          matTooltip="{{dataObj.secondaryInfoLabel}}"
+          matTooltipPosition="above"
         ></div>
+      }
     </div>
-    <div class="confirm-buttons-container">
-        <div class="linkButton cancel" (click)="cancel()" *ngIf="dataObj.showCancelLink">{{dataObj.cancelLabel}}</div>
-        <button class="button save secondary-button" (click)="secondaryAction()" *ngIf="dataObj.secondaryActionLabel && dataObj.secondaryConfirmed">{{dataObj.secondaryActionLabel}}</button>
-        <button class="button save cancel" (click)="cancel()" *ngIf="dataObj.showCancelButton">{{dataObj.cancelLabel}}</button>
-        <button class="button save confirm" (click)="confirm()">{{dataObj.confirmLabelAlt && dataObj.secondaryConfirmed ? dataObj.confirmLabelAlt : dataObj.confirmLabel}}</button>
-    </div>
+  }
+  <div class="confirm-buttons-container">
+    @if (dataObj.showCancelLink) {
+      <div class="linkButton cancel" (click)="cancel()">{{dataObj.cancelLabel}}</div>
+    }
+    @if (dataObj.secondaryActionLabel && dataObj.secondaryConfirmed) {
+      <button class="button save secondary-button" (click)="secondaryAction()">{{dataObj.secondaryActionLabel}}</button>
+    }
+    @if (dataObj.showCancelButton) {
+      <button class="button save cancel" (click)="cancel()">{{dataObj.cancelLabel}}</button>
+    }
+    <button class="button save confirm" (click)="confirm()">{{dataObj.confirmLabelAlt && dataObj.secondaryConfirmed ? dataObj.confirmLabelAlt : dataObj.confirmLabel}}</button>
+  </div>
 </div>

@@ -1,18 +1,24 @@
 <span class="cell-name-container">
-    <a href="./{{cellParams.pathRoot}}/{{item.id}}" (click)="linkClicked($event)">
-        <div class="col cell-name-renderer" data-id="{{item.id}}">
-            <div *ngIf="cellParams.showIdentityIcons && item.edgeRouterConnectionStatus" class="cell-status-container">
-                <span class="circle {{item.edgeRouterConnectionStatus}}" title="Edge Router Connection Status"></span>
-            </div>
-            <div *ngIf="cellParams.showIdentityIcons && !item.edgeRouterConnectionStatus" class="cell-status-container">
-                <span class="circle {{item.hasApiSession}}" title="Api Session"></span>
-                <span class="circle {{item.hasEdgeRouterConnection}}" title="Edge Router Connected"></span>
-            </div>
-            <div *ngIf="cellParams.showRouterIcons" class="cell-status-container">
-                <span class="circle {{item.isVerified}}" title="Api Session"></span>
-                <span class="circle {{item.isOnline}}" title="Edge Router Connected"></span>
-            </div>
-            <strong>{{cellText}}</strong>
+  <a href="./{{cellParams.pathRoot}}/{{item.id}}" (click)="linkClicked($event)">
+    <div class="col cell-name-renderer" data-id="{{item.id}}">
+      @if (cellParams.showIdentityIcons && item.edgeRouterConnectionStatus) {
+        <div class="cell-status-container">
+          <span class="circle {{item.edgeRouterConnectionStatus}}" title="Edge Router Connection Status"></span>
         </div>
-    </a>
+      }
+      @if (cellParams.showIdentityIcons && !item.edgeRouterConnectionStatus) {
+        <div class="cell-status-container">
+          <span class="circle {{item.hasApiSession}}" title="Api Session"></span>
+          <span class="circle {{item.hasEdgeRouterConnection}}" title="Edge Router Connected"></span>
+        </div>
+      }
+      @if (cellParams.showRouterIcons) {
+        <div class="cell-status-container">
+          <span class="circle {{item.isVerified}}" title="Api Session"></span>
+          <span class="circle {{item.isOnline}}" title="Edge Router Connected"></span>
+        </div>
+      }
+      <strong>{{cellText}}</strong>
+    </div>
+  </a>
 </span>

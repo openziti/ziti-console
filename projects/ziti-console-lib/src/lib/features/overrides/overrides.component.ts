@@ -14,14 +14,16 @@
     limitations under the License.
 */
 
-import {Component, ElementRef, EventEmitter, Inject, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {OverridesService} from "./overrides.service";
 import {isEmpty, debounce} from "lodash"
+import { FilterSelectComponent } from '../filter-select/filter-select.component';
 
 @Component({
-  selector: 'lib-overrides',
-  templateUrl: './overrides.component.html',
-  styleUrls: ['./overrides.component.scss']
+    selector: 'lib-overrides',
+    templateUrl: './overrides.component.html',
+    styleUrls: ['./overrides.component.scss'],
+    standalone: false
 })
 export class OverridesComponent implements OnInit {
   @Input() identity: any = {};
@@ -34,11 +36,12 @@ export class OverridesComponent implements OnInit {
   selectedConfigId;
   showMore = false;
 
-  filterServicesDebounced = debounce(this.filterServices, 200);
-  filterConfigsDebounced = debounce(this.filterConfigs, 200);
+  // NOTE: lodash debounce must preserve `this` binding; use arrow fns.
+  filterServicesDebounced = debounce((filterText: string) => this.getServices(filterText), 200);
+  filterConfigsDebounced = debounce((filterText: string) => this.getConfigs(filterText), 200);
 
-  @ViewChild('servicesList') servicesList: any;
-  @ViewChild('configList') configList: any;
+  @ViewChild('servicesList') servicesList: FilterSelectComponent;
+  @ViewChild('configList') configList: FilterSelectComponent;
 
   constructor(public svc: OverridesService) {}
 
@@ -46,32 +49,6 @@ export class OverridesComponent implements OnInit {
     this.loadOverrides();
     this.getServices('');
     this.getConfigs('');
-  }
-
-  filterServices(event) {
-    this.getServices(event.target.value);
-  }
-
-  filterConfigs(event) {
-    this.getConfigs(event.target.value);
-  }
-
-  serviceSelectionChanged(event) {
-    const selectedService = this.services.find((service) => {
-      return service.id === event.value;
-    });
-    if (selectedService) {
-      this.servicesList.editableInputViewChild.nativeElement.value = selectedService.name;
-    }
-  }
-
-  configSelectionChanged(event) {
-    const selectedConfig = this.configs.find((config) => {
-      return config.id === event.value;
-    });
-    if (selectedConfig) {
-      this.configList.editableInputViewChild.nativeElement.value = selectedConfig.name;
-    }
   }
 
   getServices(filter = '') {

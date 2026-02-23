@@ -21,9 +21,10 @@ import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {isEmpty, isNil} from "lodash";
 
 @Component({
-  selector: 'lib-confirm',
-  templateUrl: './confirm.component.html',
-  styleUrls: ['./confirm.component.scss']
+    selector: 'lib-confirm',
+    templateUrl: './confirm.component.html',
+    styleUrls: ['./confirm.component.scss'],
+    standalone: false
 })
 export class ConfirmComponent {
 

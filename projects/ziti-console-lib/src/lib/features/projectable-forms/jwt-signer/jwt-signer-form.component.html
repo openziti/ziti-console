@@ -1,295 +1,323 @@
 <div class="projectable-form-wrapper"
-     (keyup.enter)="save($event)"
-     (keyup.escape)="closeModal(false)"
-     tabindex="0"
->
-    <lib-form-header
-            [data]="formData"
-            [title]="(formData.id ? 'JWT Signer Details' : 'Create JWT Signer')"
-            [moreActions]="formData.moreActions"
-            (actionRequested)="headerActionRequested($event)"
-            [(formView)]="formView"
-            [saveDisabled]="svc.saveDisabled || formDataInvalid"
-    ></lib-form-header>
-    <div class="jwt-signer-form-container projectable-form-container" #scrollContainer>
-        <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
-            <div class="form-group-column three-fifths">
-                <lib-form-field-container
-                        [title]="'Name'"
-                        [label]="'Required'"
-                >
-                    <input class="form-field-input read-only" [(ngModel)]="formData.name" [ngClass]="{error: errors['name']}" placeholder="Name this JWT Signer" #nameFieldInput/>
-                </lib-form-field-container>
-                <lib-form-field-container
-                        [layout]="'column'"
-                        [showHeader]="false"
-                >
-                    <div class="form-field-label-container">
-                        <div class="form-field-header">
-                            <div class="form-field-title-container">
-                                <span class="form-field-title">Issuer</span>
-                                <div
-                                    class="form-field-info infoicon"
-                                    matTooltip="The &quot;issuer&quot; field on the JWT Signer must match the &quot;iss&quot; field on the JWT"
-                                    matTooltipPosition="below"
-                                ></div>
-                            </div>
-                            <span class="form-field-label" >Required</span>
-                        </div>
-                        <input class="form-field-input" placeholder="Enter issuer" [(ngModel)]="formData.issuer" [ngClass]="{error: errors['issuer']}"/>
-                    </div>
-                    <div class="form-field-label-container">
-                        <div class="form-field-title-container">
-                            <span class="form-field-title">Audience</span>
-                            <div
-                                    class="form-field-info infoicon"
-                                    matTooltip="The expected &quot;aud&quot; (audience) field on the JWT"
-                                    matTooltipPosition="below"
-                            ></div>
-                        </div>
-                        <input class="form-field-input" placeholder="Enter audience" [(ngModel)]="formData.audience"/>
-                    </div>
-                    <div class="form-field-row">
-                        <div class="form-field-label-container">
-                            <div class="form-field-title-container">
-                                <span class="form-field-title">Claims Property</span>
-                                <div
-                                        class="form-field-info infoicon"
-                                        matTooltip="The field on the JWT for mapping to an identity. Matches the identity's id or externalId if &quot;Use External Id&quot; is set to true. Defaults to &quot;sub&quot;"
-                                        matTooltipPosition="below"
-                                ></div>
-                            </div>
-                            <input class="form-field-input" placeholder="Enter claims property" [(ngModel)]="formData.claimsProperty" (keyup)="checkExternalIdToggle()" [ngClass]="{error: errors['claimsProperty']}"/>
-                        </div>
-                        <div class="form-field-label-container">
-                            <div class="form-field-header">
-                                <div class="form-field-title-container">
-                                    <div class="config-container-label" style="font-weight: 600; font-size: 14px;">External ID</div>
-                                    <div
-                                            class="form-field-info infoicon"
-                                            matTooltip="If enabled, will match the &quot;claimsProperty&quot; to an identity's &quot;externalId&quot; field. If false, it will match to the identity's id field."
-                                            matTooltipPosition="below"
-                                    ></div>
-                                </div>
-                            </div>
-                            <div class="config-item">
-                                <div class="config-container toggle-container">
-                                    <div class="form-field-title-container">
-                                        <div class="config-container-label">Use External ID</div>
-                                    </div>
-                                    <div
-                                            (click)="toggleUseExternalId()"
-                                            [ngClass]="{ on: formData.useExternalId }"
-                                            class="toggle"
-                                    >
-                                        <span [hidden]="!formData.useExternalId" class="on-label">YES</span>
-                                        <span [hidden]="formData.useExternalId" class="off-label">NO</span>
-                                        <div class="switch"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </lib-form-field-container>
-                <lib-form-field-container
-                        [showHeader]="false"
-                >
-                    <div class="form-field-label-container">
-                        <div class="form-field-title-container">
-                            <span class="form-field-title">Client ID</span>
-                            <div
-                                    class="form-field-info infoicon"
-                                    matTooltip="The client id to use when authenticating to the IDP"
-                                    matTooltipPosition="below"
-                            ></div>
-                        </div>
-                        <input class="form-field-input" placeholder="Enter client ID" [(ngModel)]="formData.clientId"/>
-                    </div>
-                    <div class="form-field-label-container">
-                        <div class="form-field-title-container">
-                            <span class="form-field-title">External Auth Url</span>
-                            <div
-                                    class="form-field-info infoicon"
-                                    matTooltip="The URL that users are directed to, to obtain a JWT"
-                                    matTooltipPosition="below"
-                            ></div>
-                        </div>
-                        <input class="form-field-input" placeholder="Enter external auth URL" [(ngModel)]="formData.externalAuthUrl"/>
-                    </div>
-                    <div class="form-field-label-container">
-                        <div class="form-field-title-container">
-                            <span class="form-field-title">Scopes</span>
-                            <div
-                                    class="form-field-info infoicon"
-                                    matTooltip="Enter as a comma or space seperated list of claims/permissions"
-                                    matTooltipPosition="below"
-                            ></div>
-                        </div>
-                        <p-chips (keyup)="scopesOnKeyup($event)"
-                                 [(ngModel)]="formData.scopes"
-                                 [allowDuplicate]="false"
-                                 placeholder="Enter scopes"
-                                 [addOnBlur]="true"
-                                 separator=",">
-                        </p-chips>
-                    </div>
-                </lib-form-field-container>
-                <lib-form-field-toggle [(toggleOn)]="showMore" (toggleOnChange)="showMoreChanged($event)" style="margin: 0px 10px"></lib-form-field-toggle>
-                <lib-form-field-container
-                    *ngIf="showMore && showTokenType"
-                    [title]="'Target Token Type'"
-                    [label]="'Required'"
-                    [helpText]="'The target token type. Can be either Access or ID'"
-                    class="form-field-advanced"
-                >
-                    <select
-                            [(ngModel)]="targetToken"
-                            id="authPolicyId"
-                            class="form-field-dropdown"
-                    >
-                        <option value="ACCESS">Access</option>
-                        <option value="ID">ID</option>
-                    </select>
-                </lib-form-field-container>
-                <div [hidden]="!showMore" class="form-group-column">
-                    <lib-form-field-container
-                        [title]="'Verify OIDC Authentication'"
-                        class="form-field-advanced"
-                        [ngClass]="{'formFieldError': !oidcVerified && oidcErrorMessageDetail, 'formFieldSuccess': oidcVerified}"
-                    >
-                        <div class="form-field-row" #oidcVerification>
-                            <div class="form-field-label-container">
-                                <div class="form-field-title-container">
-                                    <div class="form-field-title">Callback URL</div>
-                                    <div
-                                            class="form-field-info infoicon"
-                                            matTooltip="This URL must be added to the list of allowed callback URLs in your OAuth provider configuration"
-                                            matTooltipPosition="below"
-                                    ></div>
-                                </div>
-                                <div class="copy-link-container">
-                                    <pre class="read-only-2" (click)="copyCallbackURL()">{{ callbackURL }}</pre>
-                                    <div class="copy-button" (click)="copyCallbackURL()"></div>
-                                </div>
-                            </div>
-                            <div class="test-oauth-button"
-                                 [ngClass]="{'oidc-verified': oidcVerified}"
-                                 (click)="testOIDCAuthentication()"
-                            >
-                                {{oidcVerified ? 'Verified' : 'Authenticate' }}
-                                <div class="spinner" *ngIf="oauthLoading"></div>
-                                <input type="checkbox" [disabled]="true" [checked]="true" class="success-check" *ngIf="oidcVerified">
-                            </div>
-                        </div>
-                        <div class="oidc-error-message-container" *ngIf="oidcErrorMessageDetail">
-                            <code class="oidc-error-message-source">{{oidcErrorMessageSource}}: </code>
-                            <code class="oidc-error-message-detail">{{oidcErrorMessageDetail}}</code>
-                            <code class="oidc-error-message-detail2" *ngIf="oidcErrorMessageDetail2">{{oidcErrorMessageDetail2}}</code>
-                            <code class="oidc-error-message-detail2" *ngIf="oidcErrorMessageDetail3">{{oidcErrorMessageDetail3}}</code>
-                        </div>
-                        <div class="oidc-token-claims-container" *ngIf="oidcAuthTokenClaims">
-                            <code class="oidc-token-claims-title">OAuth Token Claims: </code>
-                            <lib-json-view [showLineNumbers]="false" [(data)]="oidcAuthTokenClaims"></lib-json-view>
-                        </div>
-                    </lib-form-field-container>
-                    <lib-form-field-container
-                            [title]="'Custom Tags'"
-                            [label]="'OPTIONAL'"
-                            class="form-field-advanced"
-                    >
-                        <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
-                    </lib-form-field-container>
+  (keyup.enter)="save($event)"
+  (keyup.escape)="closeModal(false)"
+  tabindex="0"
+  >
+  <lib-form-header
+    [data]="formData"
+    [title]="(formData.id ? 'JWT Signer Details' : 'Create JWT Signer')"
+    [moreActions]="formData.moreActions"
+    (actionRequested)="headerActionRequested($event)"
+    [(formView)]="formView"
+    [saveDisabled]="svc.saveDisabled || formDataInvalid"
+  ></lib-form-header>
+  <div class="jwt-signer-form-container projectable-form-container" #scrollContainer>
+    <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
+      <div class="form-group-column three-fifths">
+        <lib-form-field-container
+          [title]="'Name'"
+          [label]="'Required'"
+          >
+          <input class="form-field-input read-only" [(ngModel)]="formData.name" [ngClass]="{error: errors['name']}" placeholder="Name this JWT Signer" #nameFieldInput/>
+        </lib-form-field-container>
+        <lib-form-field-container
+          [layout]="'column'"
+          [showHeader]="false"
+          >
+          <div class="form-field-label-container">
+            <div class="form-field-header">
+              <div class="form-field-title-container">
+                <span class="form-field-title">Issuer</span>
+                <div
+                  class="form-field-info infoicon"
+                  matTooltip="The &quot;issuer&quot; field on the JWT Signer must match the &quot;iss&quot; field on the JWT"
+                  matTooltipPosition="below"
+                ></div>
+              </div>
+              <span class="form-field-label" >Required</span>
+            </div>
+            <input class="form-field-input" placeholder="Enter issuer" [(ngModel)]="formData.issuer" [ngClass]="{error: errors['issuer']}"/>
+          </div>
+          <div class="form-field-label-container">
+            <div class="form-field-title-container">
+              <span class="form-field-title">Audience</span>
+              <div
+                class="form-field-info infoicon"
+                matTooltip="The expected &quot;aud&quot; (audience) field on the JWT"
+                matTooltipPosition="below"
+              ></div>
+            </div>
+            <input class="form-field-input" placeholder="Enter audience" [(ngModel)]="formData.audience"/>
+          </div>
+          <div class="form-field-row">
+            <div class="form-field-label-container">
+              <div class="form-field-title-container">
+                <span class="form-field-title">Claims Property</span>
+                <div
+                  class="form-field-info infoicon"
+                  matTooltip="The field on the JWT for mapping to an identity. Matches the identity's id or externalId if &quot;Use External Id&quot; is set to true. Defaults to &quot;sub&quot;"
+                  matTooltipPosition="below"
+                ></div>
+              </div>
+              <input class="form-field-input" placeholder="Enter claims property" [(ngModel)]="formData.claimsProperty" (keyup)="checkExternalIdToggle()" [ngClass]="{error: errors['claimsProperty']}"/>
+            </div>
+            <div class="form-field-label-container">
+              <div class="form-field-header">
+                <div class="form-field-title-container">
+                  <div class="config-container-label" style="font-weight: 600; font-size: 14px;">External ID</div>
+                  <div
+                    class="form-field-info infoicon"
+                    matTooltip="If enabled, will match the &quot;claimsProperty&quot; to an identity's &quot;externalId&quot; field. If false, it will match to the identity's id field."
+                    matTooltipPosition="below"
+                  ></div>
                 </div>
+              </div>
+              <div class="config-item">
+                <div class="config-container toggle-container">
+                  <div class="form-field-title-container">
+                    <div class="config-container-label">Use External ID</div>
+                  </div>
+                  <div
+                    (click)="toggleUseExternalId()"
+                    [ngClass]="{ on: formData.useExternalId }"
+                    class="toggle"
+                    >
+                    <span [hidden]="!formData.useExternalId" class="on-label">YES</span>
+                    <span [hidden]="formData.useExternalId" class="off-label">NO</span>
+                    <div class="switch"></div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="form-group-column two-fifths">
-                <lib-form-field-container
-                        [title]="'Verification'"
-                        [label]="'REQUIRED'"
-                >
-                    <div class="radio-group-container" (keydown)="radioKeyDownHandler($event)" tabindex="0">
-                        <div class="radio-button-container" [ngClass]="{'selected': signatureMethod === 'JWKS_ENDPOINT'}" (click)="selectSignatureMethod('JWKS_ENDPOINT')">
-                            <div class="radio-button-circle">
-                                <div class="radio-button-inner-circle"></div>
-                            </div>
-                            <span class="radio-button-label">JWKS Endpoint</span>
-                        </div>
-                        <div class="radio-button-container" [ngClass]="{'selected': signatureMethod === 'CERT_PEM'}" (click)="selectSignatureMethod('CERT_PEM')">
-                            <div class="radio-button-circle">
-                                <div class="radio-button-inner-circle"></div>
-                            </div>
-                            <span class="radio-button-label">Cert PEM</span>
-                        </div>
-                    </div>
-                    <div *ngIf="signatureMethod === 'JWKS_ENDPOINT'" class="form-field-input-group">
-                        <div class="form-field-label-container select-file-label-container">
-                            <div class="form-field-header">
-                                <div class="form-field-title-container">
-                                    <span class="form-field-title">JWKS Endpoint</span>
-                                </div>
-                            </div>
-                            <input class="form-field-input read-only" placeholder="Enter endpoint URL" [(ngModel)]="formData.jwksEndpoint" [ngClass]="{error: errors['jwksEndpoint']}"/>
-                        </div>
-                    </div>
-                    <div *ngIf="signatureMethod === 'CERT_PEM'" class="form-field-input-group">
-                        <div class="form-field-label-container select-file-label-container">
-                            <div class="form-field-header">
-                                <div class="form-field-title-container">
-                                    <span class="form-field-title">PEM</span>
-                                </div>
-                                <span class="select-file-button" (click)="openFileSelect($event)">
-                                    Select File
-                                    <div class="spinner" *ngIf="fileSelectOpening"></div>
-                                </span>
-                                <input #fileSelect type="file" style="display:none" (change)="selectPemFile($event)">
-                            </div>
-                            <textarea placeholder="Paste pem contents or select file" [(ngModel)]="formData.certPem" [ngClass]="{error: errors['certPem']}"></textarea>
-                        </div>
-                        <div class="form-field-label-container">
-                            <div class="form-field-header">
-                                <div class="form-field-title-container">
-                                    <span class="form-field-title">KID</span>
-                                </div>
-                                <span class="form-field-label" >Optional</span>
-                            </div>
-                            <input class="form-field-input" placeholder="Enter KID" [(ngModel)]="formData.kid"/>
-                        </div>
-                    </div>
-                </lib-form-field-container>
-                <lib-form-field-container
-                        [showHeader]="false"
-                >
-                    <div class="config-item">
-                        <div class="config-container toggle-container">
-                            <div class="config-container-label">ENABLED</div>
-                            <div
-                                    (click)="toggleEnabled()"
-                                    [ngClass]="{ on: formData.enabled }"
-                                    class="toggle"
-                            >
-                                <span [hidden]="!formData.enabled" class="on-label">YES</span>
-                                <span [hidden]="formData.enabled" class="off-label">NO</span>
-                                <div class="switch"></div>
-                            </div>
-                        </div>
-                    </div>
-                </lib-form-field-container>
-                <lib-form-field-container
-                        [title]="'API Calls'"
-                        [headerActions]="apiOptions"
-                        (actionRequested)="apiActionRequested($event)"
-                        [class]="'api-data-no-wrap'"
-                >
-                    <div class="form-row">
-                        <input class="form-field-input" [value]="apiCallURL"/>
-                        <div class="icon-copy copy-text" (click)="copyToClipboard(apiCallURL)"></div>
-                    </div>
-                    <lib-json-view *ngIf="formData" [showLineNumbers]="false" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
-                </lib-form-field-container>
+          </div>
+        </lib-form-field-container>
+        <lib-form-field-container
+          [showHeader]="false"
+          >
+          <div class="form-field-label-container">
+            <div class="form-field-title-container">
+              <span class="form-field-title">Client ID</span>
+              <div
+                class="form-field-info infoicon"
+                matTooltip="The client id to use when authenticating to the IDP"
+                matTooltipPosition="below"
+              ></div>
             </div>
+            <input class="form-field-input" placeholder="Enter client ID" [(ngModel)]="formData.clientId"/>
+          </div>
+          <div class="form-field-label-container">
+            <div class="form-field-title-container">
+              <span class="form-field-title">External Auth Url</span>
+              <div
+                class="form-field-info infoicon"
+                matTooltip="The URL that users are directed to, to obtain a JWT"
+                matTooltipPosition="below"
+              ></div>
+            </div>
+            <input class="form-field-input" placeholder="Enter external auth URL" [(ngModel)]="formData.externalAuthUrl"/>
+          </div>
+          <div class="form-field-label-container">
+            <div class="form-field-title-container">
+              <span class="form-field-title">Scopes</span>
+              <div
+                class="form-field-info infoicon"
+                matTooltip="Enter as a comma or space seperated list of claims/permissions"
+                matTooltipPosition="below"
+              ></div>
+            </div>
+            <lib-chips-input
+              (keyup)="scopesOnKeyup($event)"
+              [(ngModel)]="formData.scopes"
+              [allowDuplicate]="false"
+              placeholder="Enter scopes"
+              [addOnBlur]="true"
+              separator=","
+            ></lib-chips-input>
+          </div>
+        </lib-form-field-container>
+        <lib-form-field-toggle [(toggleOn)]="showMore" (toggleOnChange)="showMoreChanged($event)" style="margin: 0px 10px"></lib-form-field-toggle>
+        @if (showMore && showTokenType) {
+          <lib-form-field-container
+            [title]="'Target Token Type'"
+            [label]="'Required'"
+            [helpText]="'The target token type. Can be either Access or ID'"
+            class="form-field-advanced"
+            >
+            <select
+              [(ngModel)]="targetToken"
+              id="authPolicyId"
+              class="form-field-dropdown"
+              >
+              <option value="ACCESS">Access</option>
+              <option value="ID">ID</option>
+            </select>
+          </lib-form-field-container>
+        }
+        <div [hidden]="!showMore" class="form-group-column">
+          <lib-form-field-container
+            [title]="'Verify OIDC Authentication'"
+            class="form-field-advanced"
+            [ngClass]="{'formFieldError': !oidcVerified && oidcErrorMessageDetail, 'formFieldSuccess': oidcVerified}"
+            >
+            <div class="form-field-row" #oidcVerification>
+              <div class="form-field-label-container">
+                <div class="form-field-title-container">
+                  <div class="form-field-title">Callback URL</div>
+                  <div
+                    class="form-field-info infoicon"
+                    matTooltip="This URL must be added to the list of allowed callback URLs in your OAuth provider configuration"
+                    matTooltipPosition="below"
+                  ></div>
+                </div>
+                <div class="copy-link-container">
+                  <pre class="read-only-2" (click)="copyCallbackURL()">{{ callbackURL }}</pre>
+                  <div class="copy-button" (click)="copyCallbackURL()"></div>
+                </div>
+              </div>
+              <div class="test-oauth-button"
+                [ngClass]="{'oidc-verified': oidcVerified}"
+                (click)="testOIDCAuthentication()"
+                >
+                {{oidcVerified ? 'Verified' : 'Authenticate' }}
+                @if (oauthLoading) {
+                  <div class="spinner"></div>
+                }
+                @if (oidcVerified) {
+                  <input type="checkbox" [disabled]="true" [checked]="true" class="success-check">
+                }
+              </div>
+            </div>
+            @if (oidcErrorMessageDetail) {
+              <div class="oidc-error-message-container">
+                <code class="oidc-error-message-source">{{oidcErrorMessageSource}}: </code>
+                <code class="oidc-error-message-detail">{{oidcErrorMessageDetail}}</code>
+                @if (oidcErrorMessageDetail2) {
+                  <code class="oidc-error-message-detail2">{{oidcErrorMessageDetail2}}</code>
+                }
+                @if (oidcErrorMessageDetail3) {
+                  <code class="oidc-error-message-detail2">{{oidcErrorMessageDetail3}}</code>
+                }
+              </div>
+            }
+            @if (oidcAuthTokenClaims) {
+              <div class="oidc-token-claims-container">
+                <code class="oidc-token-claims-title">OAuth Token Claims: </code>
+                <lib-json-view [showLineNumbers]="false" [(data)]="oidcAuthTokenClaims"></lib-json-view>
+              </div>
+            }
+          </lib-form-field-container>
+          <lib-form-field-container
+            [title]="'Custom Tags'"
+            [label]="'OPTIONAL'"
+            class="form-field-advanced"
+            >
+            <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
+          </lib-form-field-container>
         </div>
-        <div class="form-group-column" *ngIf="formView === 'raw'">
-            <lib-json-view *ngIf="formData" [(data)]="formData"></lib-json-view>
-        </div>
+      </div>
+      <div class="form-group-column two-fifths">
+        <lib-form-field-container
+          [title]="'Verification'"
+          [label]="'REQUIRED'"
+          >
+          <div class="radio-group-container" (keydown)="radioKeyDownHandler($event)" tabindex="0">
+            <div class="radio-button-container" [ngClass]="{'selected': signatureMethod === 'JWKS_ENDPOINT'}" (click)="selectSignatureMethod('JWKS_ENDPOINT')">
+              <div class="radio-button-circle">
+                <div class="radio-button-inner-circle"></div>
+              </div>
+              <span class="radio-button-label">JWKS Endpoint</span>
+            </div>
+            <div class="radio-button-container" [ngClass]="{'selected': signatureMethod === 'CERT_PEM'}" (click)="selectSignatureMethod('CERT_PEM')">
+              <div class="radio-button-circle">
+                <div class="radio-button-inner-circle"></div>
+              </div>
+              <span class="radio-button-label">Cert PEM</span>
+            </div>
+          </div>
+          @if (signatureMethod === 'JWKS_ENDPOINT') {
+            <div class="form-field-input-group">
+              <div class="form-field-label-container select-file-label-container">
+                <div class="form-field-header">
+                  <div class="form-field-title-container">
+                    <span class="form-field-title">JWKS Endpoint</span>
+                  </div>
+                </div>
+                <input class="form-field-input read-only" placeholder="Enter endpoint URL" [(ngModel)]="formData.jwksEndpoint" [ngClass]="{error: errors['jwksEndpoint']}"/>
+              </div>
+            </div>
+          }
+          @if (signatureMethod === 'CERT_PEM') {
+            <div class="form-field-input-group">
+              <div class="form-field-label-container select-file-label-container">
+                <div class="form-field-header">
+                  <div class="form-field-title-container">
+                    <span class="form-field-title">PEM</span>
+                  </div>
+                  <span class="select-file-button" (click)="openFileSelect($event)">
+                    Select File
+                    @if (fileSelectOpening) {
+                      <div class="spinner"></div>
+                    }
+                  </span>
+                  <input #fileSelect type="file" style="display:none" (change)="selectPemFile($event)">
+                </div>
+                <textarea placeholder="Paste pem contents or select file" [(ngModel)]="formData.certPem" [ngClass]="{error: errors['certPem']}"></textarea>
+              </div>
+              <div class="form-field-label-container">
+                <div class="form-field-header">
+                  <div class="form-field-title-container">
+                    <span class="form-field-title">KID</span>
+                  </div>
+                  <span class="form-field-label" >Optional</span>
+                </div>
+                <input class="form-field-input" placeholder="Enter KID" [(ngModel)]="formData.kid"/>
+              </div>
+            </div>
+          }
+        </lib-form-field-container>
+        <lib-form-field-container
+          [showHeader]="false"
+          >
+          <div class="config-item">
+            <div class="config-container toggle-container">
+              <div class="config-container-label">ENABLED</div>
+              <div
+                (click)="toggleEnabled()"
+                [ngClass]="{ on: formData.enabled }"
+                class="toggle"
+                >
+                <span [hidden]="!formData.enabled" class="on-label">YES</span>
+                <span [hidden]="formData.enabled" class="off-label">NO</span>
+                <div class="switch"></div>
+              </div>
+            </div>
+          </div>
+        </lib-form-field-container>
+        <lib-form-field-container
+          [title]="'API Calls'"
+          [headerActions]="apiOptions"
+          (actionRequested)="apiActionRequested($event)"
+          [class]="'api-data-no-wrap'"
+          >
+          <div class="form-row">
+            <input class="form-field-input" [value]="apiCallURL"/>
+            <div class="icon-copy copy-text" (click)="copyToClipboard(apiCallURL)"></div>
+          </div>
+          @if (formData) {
+            <lib-json-view [showLineNumbers]="false" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
+          }
+        </lib-form-field-container>
+      </div>
     </div>
+    @if (formView === 'raw') {
+      <div class="form-group-column">
+        @if (formData) {
+          <lib-json-view [(data)]="formData"></lib-json-view>
+        }
+      </div>
+    }
+  </div>
 </div>
-<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>
+@if (isLoading) {
+  <lib-loading-indicator [isLoading]="isLoading"></lib-loading-indicator>
+}

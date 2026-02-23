@@ -1,65 +1,68 @@
 <div class="forwarding-config-container">
-    <lib-protocol-address-port-input
-        [showProtocol]="true"
-        [showAddress]="true"
-        [showHostName]="false"
-        [showPort]="true"
-        [disableProtocol]="forwardProtocol"
-        [disableAddress]="forwardAddress"
-        [disablePort]="forwardPort"
-        [(protocol)]="protocol"
-        [(address)]="address"
-        [(port)]="port"
-        #papComponent
-    ></lib-protocol-address-port-input>
-    <div class="forwarding-config-toggles">
-        <lib-boolean-toggle-input
-                [fieldName]="'FORWARD PROTOCOL'"
-                [(fieldValue)]="forwardProtocol"
-                (fieldValueChange)="forwardProtocolToggled($event)"
+  <lib-protocol-address-port-input
+    [showProtocol]="true"
+    [showAddress]="true"
+    [showHostName]="false"
+    [showPort]="true"
+    [disableProtocol]="forwardProtocol"
+    [disableAddress]="forwardAddress"
+    [disablePort]="forwardPort"
+    [(protocol)]="protocol"
+    [(address)]="address"
+    [(port)]="port"
+    #papComponent
+  ></lib-protocol-address-port-input>
+  <div class="forwarding-config-toggles">
+    <lib-boolean-toggle-input
+      [fieldName]="'FORWARD PROTOCOL'"
+      [(fieldValue)]="forwardProtocol"
+      (fieldValueChange)="forwardProtocolToggled($event)"
+      >
+    </lib-boolean-toggle-input>
+    <lib-boolean-toggle-input
+      [fieldName]="'FORWARD ADDRESS'"
+      [(fieldValue)]="forwardAddress"
+      (fieldValueChange)="forwardAddressToggled($event)"
+      >
+    </lib-boolean-toggle-input>
+    <lib-boolean-toggle-input
+      [fieldName]="'FORWARD PORT'"
+      [(fieldValue)]="forwardPort"
+      (fieldValueChange)="forwardPortToggled($event)"
+      >
+    </lib-boolean-toggle-input>
+  </div>
+  <div class="forwarding-config-allowed-inputs">
+    @if (forwardProtocol) {
+      <lib-checkbox-list-input
+        [ngClass]="{invalid: errors['allowedProtocols']}"
+        [fieldName]="'ALLOWED PROTOCOLS'"
+        [valueList]="['tcp', 'udp']"
+        [(fieldValue)]="allowedProtocols"
         >
-        </lib-boolean-toggle-input>
-        <lib-boolean-toggle-input
-                [fieldName]="'FORWARD ADDRESS'"
-                [(fieldValue)]="forwardAddress"
-                (fieldValueChange)="forwardAddressToggled($event)"
+      </lib-checkbox-list-input>
+    }
+    @if (forwardAddress) {
+      <lib-text-list-input
+        [ngClass]="{invalid: errors['allowedAddresses']}"
+        [fieldName]="'ALLOWED ADDRESSES'"
+        [placeholder]="'10.10.0.0/24 domain.com'"
+        [(fieldValue)]="allowedAddresses"
+        [labelColor]="'#000000'"
         >
-        </lib-boolean-toggle-input>
-        <lib-boolean-toggle-input
-                [fieldName]="'FORWARD PORT'"
-                [(fieldValue)]="forwardPort"
-                (fieldValueChange)="forwardPortToggled($event)"
+      </lib-text-list-input>
+    }
+    @if (forwardPort) {
+      <lib-text-list-input
+        [ngClass]="{invalid: errors['allowedPortRanges']}"
+        [fieldName]="'ALLOWED PORT RANGES'"
+        [placeholder]="'80 120-125 443 8080'"
+        [(fieldValue)]="allowedPortRanges"
+        [labelColor]="'#000000'"
+        [fieldClass]="errors['allowedPortRanges'] ? 'error' : ''"
+        (fieldValueChange)="validatePortRanges()"
         >
-        </lib-boolean-toggle-input>
-    </div>
-    <div class="forwarding-config-allowed-inputs">
-        <lib-checkbox-list-input
-            *ngIf="forwardProtocol"
-            [ngClass]="{invalid: errors['allowedProtocols']}"
-            [fieldName]="'ALLOWED PROTOCOLS'"
-            [valueList]="['tcp', 'udp']"
-            [(fieldValue)]="allowedProtocols"
-        >
-        </lib-checkbox-list-input>
-        <lib-text-list-input
-            *ngIf="forwardAddress"
-            [ngClass]="{invalid: errors['allowedAddresses']}"
-            [fieldName]="'ALLOWED ADDRESSES'"
-            [placeholder]="'10.10.0.0/24 domain.com'"
-            [(fieldValue)]="allowedAddresses"
-            [labelColor]="'#000000'"
-        >
-        </lib-text-list-input>
-        <lib-text-list-input
-            *ngIf="forwardPort"
-            [ngClass]="{invalid: errors['allowedPortRanges']}"
-            [fieldName]="'ALLOWED PORT RANGES'"
-            [placeholder]="'80 120-125 443 8080'"
-            [(fieldValue)]="allowedPortRanges"
-            [labelColor]="'#000000'"
-            [fieldClass]="errors['allowedPortRanges'] ? 'error' : ''"
-            (fieldValueChange)="validatePortRanges()"
-        >
-        </lib-text-list-input>
-    </div>
+      </lib-text-list-input>
+    }
+  </div>
 </div>

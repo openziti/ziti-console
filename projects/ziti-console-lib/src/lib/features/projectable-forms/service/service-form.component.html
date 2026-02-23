@@ -1,291 +1,290 @@
 <div class="projectable-form-wrapper"
-     (keyup.enter)="save($event)"
-     (keyup.escape)="returnToListPage()"
-     tabindex="0"
-     [class.projectable-form-hidden]="!dataInit"
->
-    <lib-form-header
-        [data]="formData"
-        [title]="(formData.id ? 'Edit Service' : 'Create Service')"
-        [moreActions]="moreActions"
-        (actionRequested)="headerActionRequested($event)"
-        [(formView)]="formView"
-        [saveDisabled]="svc.saveDisabled || formDataInvalid"
-        [saveTooltip]="saveButtonTooltip"
-        [class.is-scrolled]="isScrolled"
-    ></lib-form-header>
-    <div class="edge-router-form-container projectable-form-container" #formContainer>
-        <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
-            <div class="form-group-column three-fifths">
-                <lib-form-field-container [title]="'Service Name'" [label]="'Required'">
-                    <input
-                        class="form-field-input"
-                        placeholder="Name this Service"
-                        [ngClass]="{error: svc.errors['name']}"
-                        [(ngModel)]="formData.name"
-                        autofocus
-                        #nameFieldInput
-                    />
-                </lib-form-field-container>
-                <lib-form-field-container
-                        [title]="'Select or create Service attributes'"
-                        [label]="'Optional'"
-                        [contentStyle]="'z-index: 99999999'"
-                        [helpText]="'Attributes are tags applied to a resource. Apply the same tag to other Services to form a group of Services.'"
-                >
-                    <lib-tag-selector
-                            [(selectedRoleAttributes)]="formData.roleAttributes"
-                            [availableRoleAttributes]="serviceRoleAttributes"
-                            [placeholder]="'Add attributes to group Services'"
-                    ></lib-tag-selector>
-                </lib-form-field-container>
-                <lib-form-field-container
-                        [title]="'Add Configurations'"
-                        (actionRequested)="attachConfig()"
-                        (keyup.enter)="captureConfigEnterEvent($event)"
-                        [helpText]="'Configurations are used to define how to intercept and host a service. Ziti Networks come with built-in configuration types (ie. intercept.v1 and host.v1)'"
-                >
-                    <div class="form-field-input-group">
-                        <div class="config-title-row">
-                            <span class="form-field-title">Select a Config</span>
-                        </div>
-                        <select
-                                [(ngModel)]="svc.selectedConfigTypeId"
-                                (change)="configTypeChanged($event)"
-                                id="SelectedConfigType"
-                                class="form-field-dropdown"
-                        >
-                            <option value="">Select configuration type...</option>
-                            <option
-                                    *ngFor="let type of svc.configTypes"
-                                    [value]="type.id"
-                            >
-                                {{ type.name }}
-                            </option>
-                        </select>
-                        <div class="dropdown-container" [ngClass]="{'dropdown-loading': svc.configsLoading}">
-                            <p-dropdown
-                                    placeholder="Select configuration..."
-                                    optionLabel="name"
-                                    optionValue="id"
-                                    filterBy="name"
-                                    [options]="svc.filteredConfigs"
-                                    [filter]="true"
-                                    [showClear]="true"
-                                    [disabled]="!svc.selectedConfigTypeId || svc.selectedConfigTypeId === ''"
-                                    (onChange)="configChanged($event)"
-                                    [(ngModel)]="svc.selectedConfigId"
-                            >
-                                <ng-template pTemplate="filter" let-options="options">
-                                    <div class="dropdown-filter-container">
-                                        <div class="p-inputgroup" (click)="$event.stopPropagation()">
-                                            <span class="p-inputgroup-addon"><i class="pi pi-search"></i></span>
-                                            <input
-                                                    type="text"
-                                                    pInputText
-                                                    placeholder="Filter"
-                                                    (keyup)="configFilterChangedDebounced($event)" />
-                                        </div>
-                                        <button pButton
-                                                icon="pi pi-times"
-                                                [ngClass]="{'configs-loading': svc.configsLoading}"
-                                                (click)="clearConfigFilter($event)"
-                                                severity="secondary">
-                                        </button>
-                                        <div class="spinner" *ngIf="svc.configsLoading"></div>
-                                    </div>
-                                </ng-template>
-                            </p-dropdown>
-                        </div>
-                        <div *ngIf="!showConfigData && svc.selectedConfigId && svc.selectedConfigId !== '' && svc.selectedConfigId !== 'preview'" class="button-row-right" >
-                            <div class="save-button" (click)="svc.attachConfig(svc.selectedConfigId)">
-                                {{svc.attachLabel}}
-                            </div>
-                        </div>
-                        <div [hidden]="!showConfigData" class="form-field-extended-fields" [ngClass]="{'cfg-preview': svc.selectedConfigId === 'preview'}">
-                            <div *ngIf="showConfigData" class="config-title-row" style="margin-bottom: 10px;">
-                                <span class="form-field-title">Config Name</span>
-                                <div
-                                        class="save-button"
-                                        (click)="attachConfig()"
-                                        *ngIf="svc.selectedConfigId !== 'preview'"
-                                >{{svc.attachLabel}}
-                                </div>
-                            </div>
-                            <input
-                                    *ngIf="showConfigData"
-                                    [(ngModel)]="svc.newConfigName"
-                                    class="form-field-input"
-                                    [placeholder]="'New Config Name'"
-                                    [ngClass]="{error: svc.configErrors['name']}"
-                                    style="margin-bottom: 20px;"
-                            />
-                            <div class="config-title-row" style="margin-bottom: 10px;">
-                                <span class="form-field-title">Configuration Data</span>
-                                <div class="form-header-toggle-container" *ngIf="svc.selectedConfigId !== 'preview'">
-                                    <span
-                                            class="toggle-option-text"
-                                            [ngClass]="{'toggle-option-selected': !svc.configJsonView}"
-                                            (click)="svc.toggleJSONView()"
-                                    >
-                                        FORM
-                                    </span>
-                                                <div class="form-header-toggle" (click)="svc.toggleJSONView()">
-                                                    <div
-                                                            class="form-toggle-switch"
-                                                            [ngClass]="{'toggle-left': !svc.configJsonView, 'toggle-right': svc.configJsonView}"
-                                                    >
-                                                        <div class="form-toggle-indicator"></div>
-                                                        <div class="form-toggle-indicator"></div>
-                                                    </div>
-                                                </div>
-                                                <span
-                                                        class="toggle-option-text"
-                                                        [ngClass]="{'toggle-option-selected': svc.configJsonView}"
-                                                        (click)="svc.toggleJSONView()"
-                                                >
-                                        JSON
-                                    </span>
-                                </div>
-                            </div>
-                            <lib-config-editor
-                                [(configData)]="svc.configData"
-                                [schema]="svc.selectedSchema"
-                                [showJsonView]="svc.configJsonView"
-                                [(configErrors)]="svc.configErrors"
-                                #configEditor
-                            ></lib-config-editor>
-                        </div>
-                    </div>
-                </lib-form-field-container>
-                <lib-form-field-toggle [(toggleOn)]="showMore" style="margin: 0px 10px"></lib-form-field-toggle>
-                <div *ngIf="showMore" class="form-group-column">
-                    <lib-form-field-container
-                        [title]="'Terminator Strategy'"
-                        [title2]="'Encryption'"
-                        [layout]="'row'"
-                        [helpText]="'Pick a strategy to determine how to rank available terminators for a service'"
-                        [helpText2]="'Encrypts packets when entering or leaving the network.'"
-                        class="form-field-advanced"
-                    >
-                        <select
-                                [(ngModel)]="formData.terminatorStrategy"
-                                id="authPolicyId"
-                                class="form-field-dropdown"
-                        >
-                            <option value="">Select a Strategy....</option>
-                            <option
-                                    *ngFor="let strat of strategies"
-                                    [value]="strat.id"
-                            >
-                                {{ strat.label }}
-                            </option>
-                        </select>
-                        <div class="config-item">
-                            <div class="config-container toggle-container">
-                                <div class="config-container-label">Require Encryption</div>
-                                <div
-                                        (click)="toggleEncryptionRequired()"
-                                        [ngClass]="{ on: formData.encryptionRequired }"
-                                        class="toggle"
-                                >
-                                    <span [hidden]="!formData.encryptionRequired" class="on-label">YES</span>
-                                    <span [hidden]="formData.encryptionRequired" class="off-label">NO</span>
-                                    <div class="switch"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </lib-form-field-container>
-                    <lib-form-field-container
-                            [title]="'Custom Tags'"
-                            [label]="'OPTIONAL'"
-                            class="form-field-advanced"
-                    >
-                        <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
-                    </lib-form-field-container>
+  (keyup.enter)="save($event)"
+  (keyup.escape)="returnToListPage()"
+  tabindex="0"
+  [class.projectable-form-hidden]="!dataInit"
+  >
+  <lib-form-header
+    [data]="formData"
+    [title]="(formData.id ? 'Edit Service' : 'Create Service')"
+    [moreActions]="moreActions"
+    (actionRequested)="headerActionRequested($event)"
+    [(formView)]="formView"
+    [saveDisabled]="svc.saveDisabled || formDataInvalid"
+    [saveTooltip]="saveButtonTooltip"
+    [class.is-scrolled]="isScrolled"
+  ></lib-form-header>
+  <div class="edge-router-form-container projectable-form-container" #formContainer>
+    <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
+      <div class="form-group-column three-fifths">
+        <lib-form-field-container [title]="'Service Name'" [label]="'Required'">
+          <input
+            class="form-field-input"
+            placeholder="Name this Service"
+            [ngClass]="{error: svc.errors['name']}"
+            [(ngModel)]="formData.name"
+            autofocus
+            #nameFieldInput
+            />
+        </lib-form-field-container>
+        <lib-form-field-container
+          [title]="'Select or create Service attributes'"
+          [label]="'Optional'"
+          [contentStyle]="'z-index: 99999999'"
+          [helpText]="'Attributes are tags applied to a resource. Apply the same tag to other Services to form a group of Services.'"
+          >
+          <lib-tag-selector
+            [(selectedRoleAttributes)]="formData.roleAttributes"
+            [availableRoleAttributes]="serviceRoleAttributes"
+            [placeholder]="'Add attributes to group Services'"
+          ></lib-tag-selector>
+        </lib-form-field-container>
+        <lib-form-field-container
+          [title]="'Add Configurations'"
+          (actionRequested)="attachConfig()"
+          (keyup.enter)="captureConfigEnterEvent($event)"
+          [helpText]="'Configurations are used to define how to intercept and host a service. Ziti Networks come with built-in configuration types (ie. intercept.v1 and host.v1)'"
+          >
+          <div class="form-field-input-group">
+            <div class="config-title-row">
+              <span class="form-field-title">Select a Config</span>
+            </div>
+            <select
+              [(ngModel)]="svc.selectedConfigTypeId"
+              (change)="configTypeChanged($event)"
+              id="SelectedConfigType"
+              class="form-field-dropdown"
+              >
+              <option value="">Select configuration type...</option>
+              @for (type of svc.configTypes; track type) {
+                <option
+                  [value]="type.id"
+                  >
+                  {{ type.name }}
+                </option>
+              }
+            </select>
+            <div class="dropdown-container" [ngClass]="{'dropdown-loading': svc.configsLoading}">
+              <lib-filter-select
+                placeholder="Select configuration..."
+                optionLabel="name"
+                optionValue="id"
+                [options]="svc.filteredConfigs"
+                [showClear]="true"
+                [disabled]="!svc.selectedConfigTypeId || svc.selectedConfigTypeId === ''"
+                (selectionChange)="configChanged($event)"
+                (filterChange)="configFilterChangedDebounced($event)"
+                [(ngModel)]="svc.selectedConfigId"
+              ></lib-filter-select>
+            </div>
+            @if (!showConfigData && svc.selectedConfigId && svc.selectedConfigId !== '' && svc.selectedConfigId !== 'preview') {
+              <div class="button-row-right" >
+                <div class="save-button" (click)="svc.attachConfig(svc.selectedConfigId)">
+                  {{svc.attachLabel}}
                 </div>
+              </div>
+            }
+            <div [hidden]="!showConfigData" class="form-field-extended-fields" [ngClass]="{'cfg-preview': svc.selectedConfigId === 'preview'}">
+              @if (showConfigData) {
+                <div class="config-title-row" style="margin-bottom: 10px;">
+                  <span class="form-field-title">Config Name</span>
+                  @if (svc.selectedConfigId !== 'preview') {
+                    <div
+                      class="save-button"
+                      (click)="attachConfig()"
+                      >{{svc.attachLabel}}
+                    </div>
+                  }
+                </div>
+              }
+              @if (showConfigData) {
+                <input
+                  [(ngModel)]="svc.newConfigName"
+                  class="form-field-input"
+                  [placeholder]="'New Config Name'"
+                  [ngClass]="{error: svc.configErrors['name']}"
+                  style="margin-bottom: 20px;"
+                  />
+              }
+              <div class="config-title-row" style="margin-bottom: 10px;">
+                <span class="form-field-title">Configuration Data</span>
+                @if (svc.selectedConfigId !== 'preview') {
+                  <div class="form-header-toggle-container">
+                    <span
+                      class="toggle-option-text"
+                      [ngClass]="{'toggle-option-selected': !svc.configJsonView}"
+                      (click)="svc.toggleJSONView()"
+                      >
+                      FORM
+                    </span>
+                    <div class="form-header-toggle" (click)="svc.toggleJSONView()">
+                      <div
+                        class="form-toggle-switch"
+                        [ngClass]="{'toggle-left': !svc.configJsonView, 'toggle-right': svc.configJsonView}"
+                        >
+                        <div class="form-toggle-indicator"></div>
+                        <div class="form-toggle-indicator"></div>
+                      </div>
+                    </div>
+                    <span
+                      class="toggle-option-text"
+                      [ngClass]="{'toggle-option-selected': svc.configJsonView}"
+                      (click)="svc.toggleJSONView()"
+                      >
+                      JSON
+                    </span>
+                  </div>
+                }
+              </div>
+              <lib-config-editor
+                [(configData)]="svc.configData"
+                [schema]="svc.selectedSchema"
+                [showJsonView]="svc.configJsonView"
+                [(configErrors)]="svc.configErrors"
+                #configEditor
+              ></lib-config-editor>
             </div>
-            <div class="form-group-column two-fifths">
-                <lib-form-field-container
-                    [title]="'Associated Entities'"
-                    [label]="'click item to view details'"
-                    [helpText]="'List the configs, policies, and terminators that are associated with this service. Click on the entity name to navigate to the entity\'s detailed view.'"
-                    [class]="'no-gap'"
+          </div>
+        </lib-form-field-container>
+        <lib-form-field-toggle [(toggleOn)]="showMore" style="margin: 0px 10px"></lib-form-field-toggle>
+        @if (showMore) {
+          <div class="form-group-column">
+            <lib-form-field-container
+              [title]="'Terminator Strategy'"
+              [title2]="'Encryption'"
+              [layout]="'row'"
+              [helpText]="'Pick a strategy to determine how to rank available terminators for a service'"
+              [helpText2]="'Encrypts packets when entering or leaving the network.'"
+              class="form-field-advanced"
+              >
+              <select
+                [(ngModel)]="formData.terminatorStrategy"
+                id="authPolicyId"
+                class="form-field-dropdown"
                 >
-                    <div class="form-row space-between" style="margin-top: 0;">
-                        <div class="config-title-row">
-                            <span class="form-field-title">Configurations</span>
-                        </div>
-                        <span class="form-field-count">{{svc.addedConfigs ? svc.addedConfigs.length : 0}}</span>
-                    </div>
-                    <lib-preview-list
-                        [isLoading]="svc.associatedConfigsLoading"
-                        [allNames]="svc.addedConfigs"
-                        [allowRemove]="true"
-                        [clickable]="true"
-                        [tooltip]="'View Config'"
-                        [showfilter]="false"
-                        (itemRemoved)="svc.removeConfig($event)"
-                        (itemSelected)="svc.previewConfig($event, router)"
-                    ></lib-preview-list>
-                    <div class="form-row space-between">
-                        <div class="config-title-row">
-                            <span class="form-field-title">Service Policies</span>
-                        </div>
-                        <span class="form-field-count">{{svc.associatedServicePoliciesTotal}}</span>
-                    </div>
-                    <lib-preview-list
-                        [isLoading]="svc.associatedServicePoliciesLoading"
-                        [clickable]="true"
-                        (itemSelected)="svc.previewPolicy($event, router)"
-                        [tooltip]="'View Service Policy'"
-                        [allNames]="svc.associatedServicePolicies"
-                        [showfilter]="svc.showServicePoliciesFilter"
-                        [localFilter]="false"
-                        (filterChanged)="svc.getAssociatedServicePoliciesDebounced($event)"
-                    ></lib-preview-list>
-                    <div class="form-row space-between">
-                        <div class="config-title-row">
-                            <span class="form-field-title">Terminators</span>
-                        </div>
-                        <span class="form-field-count">{{svc.associatedTerminatorsTotal}}</span>
-                    </div>
-                    <lib-preview-list
-                        [isLoading]="svc.associatedTerminatorsLoading"
-                        [clickable]="true"
-                        (itemSelected)="svc.previewTerminator($event, router)"
-                        [tooltip]="'View Terminator'"
-                        [allNames]="svc.associatedTerminators"
-                        [showfilter]="false"
-                        [showfilter]="svc.showTerminatorsFilter"
-                        [localFilter]="false"
-                        (filterChanged)="svc.getAssociatedTerminatorsDebounced($event)"
-                    ></lib-preview-list>
-                </lib-form-field-container>
-<!--                <lib-form-field-container
-                        *ngIf="formData.id"
-                        [title]="'Associated Service Policies'"
-                        [count]="svc.associatedServicePolicies.length"
-                        [helpText]="'Preview list of all service policies that this service is associated with.'"
-                >
-                </lib-form-field-container>-->
-                <lib-form-field-container
-                        [title]="'API Calls'"
-                        [label]="''"
-                        [class]="'api-call-container'"
-                        [helpText]="'Preview of the API URL and data model that is used to create/update this service'"
-                >
-                    <div class="form-row">
-                        <input class="form-field-input" [value]="apiCallURL" readonly/>
-                        <div class="url-copy icon-copy copy-text" (click)="copyToClipboard(apiCallURL)"></div>
-                    </div>
-                    <lib-json-view *ngIf="formData" [(data)]="svc.apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
-                </lib-form-field-container>
+                <option value="">Select a Strategy....</option>
+                @for (strat of strategies; track strat) {
+                  <option
+                    [value]="strat.id"
+                    >
+                    {{ strat.label }}
+                  </option>
+                }
+              </select>
+              <div class="config-item">
+                <div class="config-container toggle-container">
+                  <div class="config-container-label">Require Encryption</div>
+                  <div
+                    (click)="toggleEncryptionRequired()"
+                    [ngClass]="{ on: formData.encryptionRequired }"
+                    class="toggle"
+                    >
+                    <span [hidden]="!formData.encryptionRequired" class="on-label">YES</span>
+                    <span [hidden]="formData.encryptionRequired" class="off-label">NO</span>
+                    <div class="switch"></div>
+                  </div>
+                </div>
+              </div>
+            </lib-form-field-container>
+            <lib-form-field-container
+              [title]="'Custom Tags'"
+              [label]="'OPTIONAL'"
+              class="form-field-advanced"
+              >
+              <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
+            </lib-form-field-container>
+          </div>
+        }
+      </div>
+      <div class="form-group-column two-fifths">
+        <lib-form-field-container
+          [title]="'Associated Entities'"
+          [label]="'click item to view details'"
+          [helpText]="'List the configs, policies, and terminators that are associated with this service. Click on the entity name to navigate to the entity\'s detailed view.'"
+          [class]="'no-gap'"
+          >
+          <div class="form-row space-between" style="margin-top: 0;">
+            <div class="config-title-row">
+              <span class="form-field-title">Configurations</span>
             </div>
+            <span class="form-field-count">{{svc.addedConfigs ? svc.addedConfigs.length : 0}}</span>
+          </div>
+          <lib-preview-list
+            [isLoading]="svc.associatedConfigsLoading"
+            [allNames]="svc.addedConfigs"
+            [allowRemove]="true"
+            [clickable]="true"
+            [tooltip]="'View Config'"
+            [showfilter]="false"
+            (itemRemoved)="svc.removeConfig($event)"
+            (itemSelected)="svc.previewConfig($event, router)"
+          ></lib-preview-list>
+          <div class="form-row space-between">
+            <div class="config-title-row">
+              <span class="form-field-title">Service Policies</span>
+            </div>
+            <span class="form-field-count">{{svc.associatedServicePoliciesTotal}}</span>
+          </div>
+          <lib-preview-list
+            [isLoading]="svc.associatedServicePoliciesLoading"
+            [clickable]="true"
+            (itemSelected)="svc.previewPolicy($event, router)"
+            [tooltip]="'View Service Policy'"
+            [allNames]="svc.associatedServicePolicies"
+            [showfilter]="svc.showServicePoliciesFilter"
+            [localFilter]="false"
+            (filterChanged)="svc.getAssociatedServicePoliciesDebounced($event)"
+          ></lib-preview-list>
+          <div class="form-row space-between">
+            <div class="config-title-row">
+              <span class="form-field-title">Terminators</span>
+            </div>
+            <span class="form-field-count">{{svc.associatedTerminatorsTotal}}</span>
+          </div>
+          <lib-preview-list
+            [isLoading]="svc.associatedTerminatorsLoading"
+            [clickable]="true"
+            (itemSelected)="svc.previewTerminator($event, router)"
+            [tooltip]="'View Terminator'"
+            [allNames]="svc.associatedTerminators"
+            [showfilter]="false"
+            [showfilter]="svc.showTerminatorsFilter"
+            [localFilter]="false"
+            (filterChanged)="svc.getAssociatedTerminatorsDebounced($event)"
+          ></lib-preview-list>
+        </lib-form-field-container>
+        <!--                <lib-form-field-container
+        *ngIf="formData.id"
+        [title]="'Associated Service Policies'"
+        [count]="svc.associatedServicePolicies.length"
+        [helpText]="'Preview list of all service policies that this service is associated with.'"
+        >
+      </lib-form-field-container>-->
+      <lib-form-field-container
+        [title]="'API Calls'"
+        [label]="''"
+        [class]="'api-call-container'"
+        [helpText]="'Preview of the API URL and data model that is used to create/update this service'"
+        >
+        <div class="form-row">
+          <input class="form-field-input" [value]="apiCallURL" readonly/>
+          <div class="url-copy icon-copy copy-text" (click)="copyToClipboard(apiCallURL)"></div>
         </div>
-        <div class="form-group-column" *ngIf="formView === 'raw'">
-            <lib-json-view *ngIf="formData" [(data)]="formData" [(jsonInvalid)]="formDataInvalid"></lib-json-view>
-        </div>
+        @if (formData) {
+          <lib-json-view [(data)]="svc.apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
+        }
+      </lib-form-field-container>
     </div>
+  </div>
+  @if (formView === 'raw') {
+    <div class="form-group-column">
+      @if (formData) {
+        <lib-json-view [(data)]="formData" [(jsonInvalid)]="formDataInvalid"></lib-json-view>
+      }
+    </div>
+  }
 </div>
-<lib-loading-indicator *ngIf="isLoading || !dataInit" [isLoading]="isLoading || !dataInit"></lib-loading-indicator>
+</div>
+@if (isLoading || !dataInit) {
+  <lib-loading-indicator [isLoading]="isLoading || !dataInit"></lib-loading-indicator>
+}

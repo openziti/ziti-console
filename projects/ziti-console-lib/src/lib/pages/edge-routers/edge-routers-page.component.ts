@@ -7,7 +7,6 @@ import {TabNameService} from "../../services/tab-name.service";
 
 import {invoke, isEmpty, defer, unset, cloneDeep, result} from 'lodash';
 import moment from 'moment';
-import $ from 'jquery';
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {MatDialog} from "@angular/material/dialog";
 import {SettingsService} from "../../services/settings.service";
@@ -17,9 +16,10 @@ import {EDGE_ROUTER_EXTENSION_SERVICE} from "../../features/projectable-forms/ed
 import {ExtensionService} from "../../features/extendable/extensions-noop.service";
 
 @Component({
-  selector: 'lib-edge-routers',
-  templateUrl: './edge-routers-page.component.html',
-  styleUrls: ['./edge-routers-page.component.scss']
+    selector: 'lib-edge-routers',
+    templateUrl: './edge-routers-page.component.html',
+    styleUrls: ['./edge-routers-page.component.scss'],
+    standalone: false
 })
 export class EdgeRoutersPageComponent extends ListPageComponent implements OnInit, OnDestroy {
 

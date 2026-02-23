@@ -27,9 +27,11 @@ import {
 } from '@angular/core';
 
 // Import the resized event model
-import $ from 'jquery';
 import _ from 'lodash';
 import moment from 'moment'
+import { MatDateRangePicker } from '@angular/material/datepicker';
+import { DateRangeQuickHeaderComponent } from '../date-range-quick-header/date-range-quick-header.component';
+import { DateRangeQuickHeaderService } from '../date-range-quick-header/date-range-quick-header.service';
 
 import {TableColumnDefaultComponent} from "./column-headers/table-column-default/table-column-default.component";
 import {TableColumnSelectComponent} from "./column-headers/table-column-select/table-column-select.component";
@@ -42,9 +44,11 @@ import {DataTableFilterService, FilterObj} from "./data-table-filter.service";
 import {Subscription} from "rxjs";
 
 @Component({
-  selector: 'lib-data-table',
-  templateUrl: './data-table.component.html',
-  styleUrls: ['./data-table.component.scss'],
+    selector: 'lib-data-table',
+    templateUrl: './data-table.component.html',
+    styleUrls: ['./data-table.component.scss'],
+    standalone: false,
+    providers: [DateRangeQuickHeaderService],
 })
 export class DataTableComponent implements OnChanges, OnInit {
   @Input() rowData: any;
@@ -104,6 +108,8 @@ export class DataTableComponent implements OnChanges, OnInit {
   filterOptions: any = [];
   showFilterOptions;
   showDateTimePicker;
+  /** When true, picker was opened from header filter icon: show only calendar, position at icon */
+  datePickerFromHeader = false;
   showTagSelector;
   appendAttributeHash = true;
   attributesColumn = '';
@@ -111,6 +117,8 @@ export class DataTableComponent implements OnChanges, OnInit {
   dateTimeFilterLabel = '';
   selectedRange = '';
   dateValue;
+  dateRangeStart: Date | null = null;
+  dateRangeEnd: Date | null = null;
   menuLeft;
   menuTop;
   gridRendered;
@@ -129,6 +137,14 @@ export class DataTableComponent implements OnChanges, OnInit {
   autoGroupColumnDef;
   currentHeaderComponentParams: any = {};
   subscription: Subscription = new Subscription();
+  rangeHeader = DateRangeQuickHeaderComponent;
+  private readonly dateRangeLabelMap: Record<string, string> = {
+    hour: 'Last Hour',
+    day: 'Last Day',
+    week: 'Last Week',
+    month: 'Last Month',
+    custom: 'Custom',
+  };
 
   public menuColumnDefinition = {
     colId: 'ziti-ag-menu',
@@ -206,11 +222,15 @@ export class DataTableComponent implements OnChanges, OnInit {
     },
   };
 
-  @ViewChild('calendar', { static: false }) calendar: any;
+  @ViewChild('rangePicker') rangePicker?: MatDateRangePicker<Date>;
   @ViewChild('contextMenu') contextMenu;
   @ViewChild('tableContainer') tableContainer: ElementRef;
 
-  constructor(public svc: DataTableService, private tableFilterService: DataTableFilterService) {
+  constructor(
+    public svc: DataTableService,
+    private tableFilterService: DataTableFilterService,
+    private dateHeaderService: DateRangeQuickHeaderService
+  ) {
     this.resizeGridColumnsDebounced = _.debounce(this.svc.resizeGridColumns.bind(this.svc), 20, {leading: true});
     this._refreshCellsDebounced = _.debounce(this.svc.refreshCells.bind(this.svc), 50);
     this._onColumnsResizedDebounced = _.debounce(this.svc.onColumnsResized.bind(this.svc), 400);
@@ -257,6 +277,12 @@ export class DataTableComponent implements OnChanges, OnInit {
   }
 
   ngOnInit() {
+    this.subscription.add(
+      this.dateHeaderService.rangeClick$.subscribe((range) => {
+        this.setDateRangeFilter(range);
+      })
+    );
+
     this.frameworkComponents = {
       cellSelectComponent: TableCellSelectComponent,
       cellMenuComponent: TableCellMenuComponent,
@@ -349,12 +375,13 @@ export class DataTableComponent implements OnChanges, OnInit {
     if (type === 'DATETIME') {
       this.dateTimeColumn = columnId;
       this.dateTimeFilterLabel = filterLabel || 'Date: ';
+      this.datePickerFromHeader = true;
       _.delay(() => {
         this.showDateTimePicker = true;
       }, 10);
       _.delay(() => {
-        this.calendar.toggle();
-      }, 100);
+        this.rangePicker?.open();
+      }, 150);
     } else if (type === 'ATTRIBUTE') {
       this.appendAttributeHash = headerComponentParams.appendAttributeHash !== false;
       this.attributesColumn = columnId;
@@ -380,6 +407,7 @@ export class DataTableComponent implements OnChanges, OnInit {
     let endDate = moment();
     let closeCalendar = true;
     this.selectedRange = range;
+    this.dateHeaderService.setSelectedRange(range);
     switch (range) {
       case 'hour':
         startDate = moment().subtract(1, 'hours');
@@ -418,10 +446,16 @@ export class DataTableComponent implements OnChanges, OnInit {
     this.columnFilters[this.dateTimeColumn] = [startDateRange, endDateRange];
 
     if (closeCalendar) {
-      this.calendar.toggle();
+      this.rangePicker?.close();
+      if (this.datePickerFromHeader) {
+        this.showDateTimePicker = false;
+        this.datePickerFromHeader = false;
+      }
     }
     if (range !== 'custom') {
       this.dateValue = [startDate.toDate(), endDate.toDate()];
+      this.dateRangeStart = this.dateValue[0];
+      this.dateRangeEnd = this.dateValue[1];
     }
     const filterObj: FilterObj = {
       columnId: this.dateTimeColumn,
@@ -432,6 +466,21 @@ export class DataTableComponent implements OnChanges, OnInit {
     };
 
     this.tableFilterService.updateFilter(filterObj);
+  }
+
+  get dateRangeDisplayText(): string {
+    // Prefer showing the chosen dates (matches UI screenshot format).
+    if (this.dateRangeStart && this.dateRangeEnd) {
+      return `${moment(this.dateRangeStart).format('MM/DD/YYYY')} - ${moment(this.dateRangeEnd).format('MM/DD/YYYY')}`;
+    }
+    if (this.dateRangeStart) {
+      return `${moment(this.dateRangeStart).format('MM/DD/YYYY')} -`;
+    }
+    // Otherwise, quick presets show a friendly label.
+    if (this.selectedRange && this.selectedRange !== 'custom') {
+      return this.dateRangeLabelMap[this.selectedRange] ?? '';
+    }
+    return '';
   }
 
   tagSelectionChanged(event, isRole) {
@@ -488,6 +537,20 @@ export class DataTableComponent implements OnChanges, OnInit {
 
   closeDateTime(event): void {
     this.showDateTimePicker = false;
+    this.datePickerFromHeader = false;
+  }
+
+  onCustomDateRangeStartChanged(date: Date | null) {
+    this.dateRangeStart = date;
+    this.dateValue = [this.dateRangeStart, this.dateRangeEnd];
+  }
+
+  onCustomDateRangeEndChanged(date: Date | null) {
+    this.dateRangeEnd = date;
+    this.dateValue = [this.dateRangeStart, this.dateRangeEnd];
+    if (this.dateRangeStart && this.dateRangeEnd) {
+      this.setDateRangeFilter('custom');
+    }
   }
 
   closeTagSelector(event): void {
@@ -540,10 +603,10 @@ export class DataTableComponent implements OnChanges, OnInit {
         this.dragLeave.emit(params);
       },
       onRowDragEnd: () => {
-        $('.attribute-item').show();
-        $('.drag-hover').removeClass('drag-hover');
-        $('#ColumnVisibilityHeader').trigger('click');
-        $('.new-attribute-target').hide();
+        document.querySelectorAll<HTMLElement>('.attribute-item').forEach(el => el.style.display = '');
+        document.querySelectorAll('.drag-hover').forEach(el => el.classList.remove('drag-hover'));
+        document.getElementById('ColumnVisibilityHeader')?.click();
+        document.querySelectorAll<HTMLElement>('.new-attribute-target').forEach(el => el.style.display = 'none');
       },
       rowClassRules: {
         // row style function
@@ -915,18 +978,25 @@ export class DataTableComponent implements OnChanges, OnInit {
   }
 
   _handleTableScroll(scroller): void {
-    const scrollWidth = $('.ag-center-cols-container').width();
-    const viewWidth = $('.ag-center-cols-viewport').width();
+    const centerCols = document.querySelector('.ag-center-cols-container') as HTMLElement;
+    const centerViewport = document.querySelector('.ag-center-cols-viewport') as HTMLElement;
+    const pinnedLeft = document.querySelector('.ag-pinned-left-cols-container') as HTMLElement;
+    const pinnedRight = document.querySelector('.ag-pinned-right-cols-container') as HTMLElement;
+    if (!centerCols || !centerViewport) {
+      return;
+    }
+    const scrollWidth = centerCols.offsetWidth;
+    const viewWidth = centerViewport.offsetWidth;
     const scrollableWidth = scrollWidth - viewWidth;
     if (scroller.left > 0) {
-      $('.ag-pinned-left-cols-container').addClass('ag-pinned-left-shadow');
+      pinnedLeft?.classList.add('ag-pinned-left-shadow');
     } else {
-      $('.ag-pinned-left-cols-container').removeClass('ag-pinned-left-shadow');
+      pinnedLeft?.classList.remove('ag-pinned-left-shadow');
     }
     if (scroller.left < scrollableWidth - 2) {
-      $('.ag-pinned-right-cols-container').addClass('ag-pinned-right-shadow');
+      pinnedRight?.classList.add('ag-pinned-right-shadow');
     } else {
-      $('.ag-pinned-right-cols-container').removeClass('ag-pinned-right-shadow');
+      pinnedRight?.classList.remove('ag-pinned-right-shadow');
     }
   }
 
