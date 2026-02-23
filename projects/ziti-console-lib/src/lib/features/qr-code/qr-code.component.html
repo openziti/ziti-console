@@ -1,5 +1,5 @@
 <div class="qr-code-container" [ngClass]="{'modal-view': isModal}">
-  @if (!qrOnly) {
+  @if (!showQRCode) {
     <div class="qr-code-buttons">
       @if (hasJWT && !jwtExpired && type !== 'router') {
         <div (click)="identitiesSvc.downloadJWT(jwt, identity.name)" class="download-button">
@@ -45,7 +45,7 @@
       }
     </div>
   }
-  @if (qrOnly && !jwtExpired && type !== 'router') {
+  @if (showQRCode) {
     <qrcode
       [errorCorrectionLevel]="'M'" [qrdata]="jwt"
       [width]="qrCodeSize" (click)="expandQRCode()"
@@ -55,11 +55,11 @@
   @if (!qrOnly) {
     <div class="qr-code-buttons">
       @if (hasJWT && type === 'identity') {
-        <div (click)="deleteEnrollment()" class="delete-button">
-          <div class="tap-to-delete icon-Icon_Delete"></div>
-          <div>DELETE ENROLLMENT</div>
-          <div class="tap-to-delete icon-Icon_Delete"></div>
-        </div>
+          <div (click)="deleteEnrollment()" class="delete-button">
+            <div class="  tap-to-delete icon-Icon_Delete"></div>
+            <div>DELETE ENROLLMENT</div>
+            <div class="tap-to-delete icon-Icon_Delete"></div>
+          </div>
       }
       @if (!jwtExpired && type === 'router') {
         <span class="info-text">OR</span>

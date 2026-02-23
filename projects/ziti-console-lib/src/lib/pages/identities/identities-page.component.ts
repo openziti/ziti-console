@@ -169,8 +169,9 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
     const data = {
       jwt: this.svc.getJWT(item),
       expiration: this.svc.getEnrollmentExpiration(item),
-      qrCodeSize: 400,
+      qrCodeSize: 500,
       identity: item,
+      qrOnly: true,
     };
     this.dialogRef = this.dialogForm.open(QrCodeComponent, {
       data: data,

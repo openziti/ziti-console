@@ -46,6 +46,7 @@ export class QrCodeComponent implements OnChanges {
   isModal = false;
   resettingMFA = false;
   mfaReset = false;
+  showQRCodeComponent = false;
 
   constructor(
       @Optional() private dialogRef: MatDialogRef<QrCodeComponent>,
@@ -65,8 +66,13 @@ export class QrCodeComponent implements OnChanges {
       this.isModal = true;
       this.identity = data.identity;
       this.qrOnly = data.qrOnly;
+      this.showQRCodeComponent = data.showQRCodeComponent || data.qrOnly;
     }
     this.mfaReset = false;
+  }
+
+  get showQRCode() {
+    return this.showQRCodeComponent && !this.jwtExpired && this.type !== 'router';
   }
 
   get hasJWT() {
