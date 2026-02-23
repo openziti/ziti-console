@@ -73,6 +73,19 @@ export class FilterSelectComponent implements ControlValueAccessor, OnDestroy {
 
     filterText = '';
 
+    /** Ensure our overlay panel always carries a stable class for global styling. */
+    get resolvedPanelClass(): string[] {
+        const base = ['lib-filter-select-panel'];
+        const provided = this.panelClass;
+        if (!provided) {
+            return base;
+        }
+        if (Array.isArray(provided)) {
+            return [...base, ...provided];
+        }
+        return [...base, provided];
+    }
+
     private readonly destroyed$ = new Subject<void>();
     private readonly filterText$ = new Subject<string>();
 
