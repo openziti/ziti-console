@@ -600,25 +600,27 @@ export class IdentitiesPageService extends ListPageServiceClass {
             } else if (!isEmpty(identity?.enrollment.updb)) {
               enrollmentId = identity?.enrollment?.updb.id;
             }
-            this.dataService.deleteEnrollment(enrollmentId).then(() => {
-              const growlerData = new GrowlerModel(
-                'success',
-                'Success',
-                `Enrollment Deleted`,
-                `Successfully deleted Identity enrollment `,
-              );
-              this.growlerService.show(growlerData);
-              resolve(true);
-            }).catch((error) => {
-              const growlerData = new GrowlerModel(
-                'error',
-                'Error',
-                `Delete Failed`,
-                `Failed to delete Identity enrollment token`,
-              );
-              this.growlerService.show(growlerData);
-              reject(error);
-            });
+            if (result?.confirmed) {
+                this.dataService.deleteEnrollment(enrollmentId).then(() => {
+                const growlerData = new GrowlerModel(
+                    'success',
+                    'Success',
+                    `Enrollment Deleted`,
+                    `Successfully deleted Identity enrollment `,
+                );
+                this.growlerService.show(growlerData);
+                resolve(true);
+                }).catch((error) => {
+                const growlerData = new GrowlerModel(
+                    'error',
+                    'Error',
+                    `Delete Failed`,
+                    `Failed to delete Identity enrollment token`,
+                );
+                this.growlerService.show(growlerData);
+                    reject(error);
+                });
+            }
           }
         });
       })
