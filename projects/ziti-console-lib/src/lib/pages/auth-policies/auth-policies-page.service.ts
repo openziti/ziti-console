@@ -161,7 +161,7 @@ export class AuthPoliciesPageService extends ListPageServiceClass {
 
     checkDefaultAuthPolicy(authPolicy): Promise<any> {
         if (authPolicy.id !== 'default') {
-            return Promise.resolve(true);
+            return Promise.resolve({ confirmed: true });
         }
         const confirmationMessage =
             `<p>WARNING: Do not change the default policy unless you're sure you know what you are doing.</p>
