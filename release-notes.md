@@ -1,3 +1,12 @@
+# app-ziti-console-v4.1.0
+# ziti-console-lib-v1.1.0
+## Feature/Improvements
+* [Issue #811](https://github.com/openziti/ziti-console/issues/811) - Upgrade to angular 20
+## Bug Fixes
+* [Issue #809](https://github.com/openziti/ziti-console/issues/809) - Fix rendering issue when showing QR code from the identities list page
+* [Issue #814](https://github.com/openziti/ziti-console/issues/814) - Without confirmation, enrollment is deleted upon just clicking "DELETE ENROLLMENT"
+
+
 # app-ziti-console-v4.0.3
 # ziti-console-lib-v1.0.3
 ## Feature/Improvements
