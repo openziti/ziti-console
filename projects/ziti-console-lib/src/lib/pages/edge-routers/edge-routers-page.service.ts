@@ -24,6 +24,8 @@ import {ExtensionService} from "../../features/extendable/extensions-noop.servic
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {Router} from "@angular/router";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
+import { DEFAULT_APP_CONFIG } from "../../ziti-console.constants";
+import { DefaultAppConfig } from "../../default-app-config";
 
 @Injectable({
     providedIn: 'root'
@@ -49,6 +51,8 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
         {label: 'Version', path: 'versionInfo.version'},
         {label: 'Revision', path: 'versionInfo.revision'},
         {label: 'Fingerprint', path: 'fingerprint'},
+        {label: 'Advertise TLS Address',path: 'supportedProtocols.tls'},
+        {label: 'Advertise WSS Address',path: 'supportedProtocols.wss'},
         {label: 'ID', path: 'id'},
     ];
 
@@ -81,7 +85,8 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
         private growlerService: GrowlerService,
         private dialogForm: MatDialog,
         @Inject(EDGE_ROUTER_EXTENSION_SERVICE) private extService: ExtensionService,
-        protected override router: Router
+        protected override router: Router,
+        @Inject(DEFAULT_APP_CONFIG) public config: DefaultAppConfig,
     ) {
         super(settings, filterService, csvDownloadService, extService, router);
     }
@@ -256,6 +261,45 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
             },
+            ...(!this.config.isOpenZiti ? [{
+                colId: 'hostname',
+                field: 'hostname',
+                headerName: 'Host Name',
+                headerComponent: TableColumnDefaultComponent,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align tCol',
+                sortable: false,
+                filter: false,
+                tooltipValueGetter: (params) => {
+                    return params.value || '';
+                }
+            }] : []),
+            ...(!this.config.isOpenZiti ? [{
+                colId: 'version',
+                field: 'versionInfo.version',
+                headerName: 'Router Version',
+                headerComponent: TableColumnDefaultComponent,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align tCol',
+                sortable: false,
+                filter: false,
+            }] : []),
+            ...(!this.config.isOpenZiti ? [{
+                colId: 'supportedProtocols',
+                headerName: 'Advertise Address',
+                headerComponent: TableColumnDefaultComponent,
+                resizable: true,
+                sortable: false,
+                filter: false,
+                valueGetter: (params) => {
+                  const protocols = params.data?.supportedProtocols;
+                  if (!protocols) return '';
+                  return Object.values(protocols).filter(Boolean).join(' | ');
+                },
+                tooltipValueGetter: (params) => params.value,
+                tooltipShowMode: 'whenTruncated',
+                cellStyle: {whiteSpace: 'nowrap',overflow: 'hidden',textOverflow: 'ellipsis'}
+            }] : []),
             this.ID_COLUMN_DEF
         ];
 
