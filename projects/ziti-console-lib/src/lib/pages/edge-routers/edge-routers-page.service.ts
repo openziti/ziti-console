@@ -24,8 +24,6 @@ import {ExtensionService} from "../../features/extendable/extensions-noop.servic
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {Router} from "@angular/router";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
-import { DEFAULT_APP_CONFIG } from "../../ziti-console.constants";
-import { DefaultAppConfig } from "../../default-app-config";
 
 @Injectable({
     providedIn: 'root'
@@ -85,8 +83,7 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
         private growlerService: GrowlerService,
         private dialogForm: MatDialog,
         @Inject(EDGE_ROUTER_EXTENSION_SERVICE) private extService: ExtensionService,
-        protected override router: Router,
-        @Inject(DEFAULT_APP_CONFIG) public config: DefaultAppConfig,
+        protected override router: Router
     ) {
         super(settings, filterService, csvDownloadService, extService, router);
     }
@@ -261,7 +258,7 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
             },
-            ...(!this.config.isOpenZiti ? [{
+            {
                 colId: 'hostname',
                 field: 'hostname',
                 headerName: 'Host Name',
@@ -273,8 +270,8 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
                 tooltipValueGetter: (params) => {
                     return params.value || '';
                 }
-            }] : []),
-            ...(!this.config.isOpenZiti ? [{
+            },
+            {
                 colId: 'version',
                 field: 'versionInfo.version',
                 headerName: 'Router Version',
@@ -283,8 +280,8 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
                 cellClass: 'nf-cell-vert-align tCol',
                 sortable: false,
                 filter: false,
-            }] : []),
-            ...(!this.config.isOpenZiti ? [{
+            },
+            {
                 colId: 'supportedProtocols',
                 headerName: 'Advertise Address',
                 headerComponent: TableColumnDefaultComponent,
@@ -299,7 +296,7 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
                 tooltipValueGetter: (params) => params.value,
                 tooltipShowMode: 'whenTruncated',
                 cellStyle: {whiteSpace: 'nowrap',overflow: 'hidden',textOverflow: 'ellipsis'}
-            }] : []),
+            },
             this.ID_COLUMN_DEF
         ];
 
