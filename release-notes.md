@@ -1,3 +1,8 @@
+# app-ziti-console-v4.1.1
+# ziti-console-lib-v1.1.1
+## Feature/Improvements
+* [Issue #822](https://github.com/openziti/ziti-console/issues/822) - Migrate JSON schema $ref resolution to @stoplight/json-ref-resolver for angular V20 upgrade
+
 # app-ziti-console-v4.1.0
 # ziti-console-lib-v1.1.0
 ## Feature/Improvements
