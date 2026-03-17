@@ -49,6 +49,8 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
         {label: 'Version', path: 'versionInfo.version'},
         {label: 'Revision', path: 'versionInfo.revision'},
         {label: 'Fingerprint', path: 'fingerprint'},
+        {label: 'Advertise TLS Address',path: 'supportedProtocols.tls'},
+        {label: 'Advertise WSS Address',path: 'supportedProtocols.wss'},
         {label: 'ID', path: 'id'},
     ];
 
@@ -255,6 +257,45 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
                 cellRenderer: 'cellTokenComponent',
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
+            },
+            {
+                colId: 'hostname',
+                field: 'hostname',
+                headerName: 'Host Name',
+                headerComponent: TableColumnDefaultComponent,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align tCol',
+                sortable: false,
+                filter: false,
+                tooltipValueGetter: (params) => {
+                    return params.value || '';
+                }
+            },
+            {
+                colId: 'version',
+                field: 'versionInfo.version',
+                headerName: 'Router Version',
+                headerComponent: TableColumnDefaultComponent,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align tCol',
+                sortable: false,
+                filter: false,
+            },
+            {
+                colId: 'supportedProtocols',
+                headerName: 'Advertise Address',
+                headerComponent: TableColumnDefaultComponent,
+                resizable: true,
+                sortable: false,
+                filter: false,
+                valueGetter: (params) => {
+                  const protocols = params.data?.supportedProtocols;
+                  if (!protocols) return '';
+                  return Object.values(protocols).filter(Boolean).join(' | ');
+                },
+                tooltipValueGetter: (params) => params.value,
+                tooltipShowMode: 'whenTruncated',
+                cellStyle: {whiteSpace: 'nowrap',overflow: 'hidden',textOverflow: 'ellipsis'}
             },
             this.ID_COLUMN_DEF
         ];
