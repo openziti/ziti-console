@@ -75,6 +75,36 @@
                   </div>
                 </div>
               </lib-form-field-container>
+              @if (formData?.hostname || formData?.supportedProtocols?.tls || formData?.supportedProtocols?.wss) {
+                <lib-form-field-container [showHeader]="false">
+                      @if (formData?.hostname) {
+                        <div class="config-item">
+                          <div class="config-item-label-container">
+                            <span class="config-title">Domain Name</span>
+                          </div>
+                          <div class="config-container domain-container">
+                            <div class="config-container-label domain-label">
+                              {{ formData?.hostname }}
+                            </div>
+                          </div>
+                        </div>
+                      }
+                      @if (formData?.supportedProtocols?.tls || formData?.supportedProtocols?.wss) {
+                        <div class="config-item">
+                          <div class="config-item-label-container">
+                            <span class="config-title">ADVERTISE ADDRESS</span>
+                          </div>
+                          <div class="config-container advertise-address-container">
+                            <div class="config-container-label advertise-address-label">
+                              {{ formData?.supportedProtocols?.tls }}
+                              <br />
+                              {{ formData?.supportedProtocols?.wss }}
+                            </div>
+                          </div>
+                        </div>
+                      }
+                </lib-form-field-container>
+              }
               <lib-form-field-container
                 [title]="'Custom Tags'"
                 [label]="'OPTIONAL'"
