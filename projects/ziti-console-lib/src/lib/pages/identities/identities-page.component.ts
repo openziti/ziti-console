@@ -27,6 +27,8 @@ import {ResetEnrollmentComponent} from "../../features/reset-enrollment/reset-en
 import {IDENTITY_EXTENSION_SERVICE} from "../../features/projectable-forms/identity/identity-form.service";
 import {ExtensionService} from "../../features/extendable/extensions-noop.service";
 import { IdentityServicePathComponent } from "../../features/visualizer/identity-service-path/identity-service-path.component";
+import { DefaultAppConfig } from '../../default-app-config';
+import { DEFAULT_APP_CONFIG } from '../../ziti-console.constants';
 
 @Component({
     selector: 'lib-identities',
@@ -49,6 +51,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       private router: Router,
       consoleEvents: ConsoleEventsService,
       @Inject(IDENTITY_EXTENSION_SERVICE) private extService: ExtensionService,
+      @Inject(DEFAULT_APP_CONFIG) public config: DefaultAppConfig,
   ) {
     super(filterService, svc, consoleEvents, dialogForm, extService);
   }
@@ -100,6 +103,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
 
   tableAction(event: any) {
     const extensionActionFound = this.handleExtensionActions(event);
+    this.trackMenuAction(event?.action, event?.item);
     if (extensionActionFound) {
       return;
     }
@@ -177,6 +181,15 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       data: data,
       autoFocus: false,
     });
+  }
+
+  trackMenuAction(action: string, item: any) {
+    if(!this.config.isOpenZiti && action !== 'edit') {
+      (window as any).gtag('event', `${action}_identity`, {
+        identity_name: item.name,
+        identity_id: item.id,
+      });
+    }
   }
 
   deleteItem(item: any) {

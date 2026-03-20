@@ -21,6 +21,8 @@ import {MatDialog} from "@angular/material/dialog";
 import {TabNameService} from "../../services/tab-name.service";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {ServicePoliciesPageService} from "./service-policies-page.service";
+import { DefaultAppConfig } from '../../default-app-config';
+import { DEFAULT_APP_CONFIG } from '../../ziti-console.constants';
 
 @Component({
     selector: 'lib-service-policies-page',
@@ -44,6 +46,7 @@ export class ServicePoliciesPageComponent extends ListPageComponent implements O
       dialogForm: MatDialog,
       private tabNames: TabNameService,
       consoleEvents: ConsoleEventsService,
+      @Inject(DEFAULT_APP_CONFIG) public config: DefaultAppConfig,
   ) {
     super(filterService, svc, consoleEvents, dialogForm);
     let userLang = navigator.language || 'en-us';
@@ -77,6 +80,7 @@ export class ServicePoliciesPageComponent extends ListPageComponent implements O
   }
 
   tableAction(event: any) {
+    this.trackMenuAction(event?.action, event?.item);
     switch(event?.action) {
       case 'toggleAll':
       case 'toggleItem':
@@ -103,6 +107,14 @@ export class ServicePoliciesPageComponent extends ListPageComponent implements O
     }
   }
 
+  trackMenuAction(action: string, item: any) {
+    if(!this.config.isOpenZiti && action !== 'edit') {
+      (window as any).gtag('event', `${action}_service-policy`, {
+        service_policy_name: item.name,
+        service_policy_id: item.id,
+      });
+    }
+  }
   getRoleAttributes() {
     this.svc.getServiceRoleAttributes().then((result: any) => {
       this.serviceRoleAttributes = result.data;

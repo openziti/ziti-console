@@ -21,6 +21,8 @@ import {MatDialog} from "@angular/material/dialog";
 import {TabNameService} from "../../services/tab-name.service";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {ServiceEdgeRouterPoliciesPageService} from "./service-edge-router-policies-page.service";
+import { DefaultAppConfig } from '../../default-app-config';
+import { DEFAULT_APP_CONFIG } from '../../ziti-console.constants';
 
 @Component({
     selector: 'lib-service-edge-router-policies-page',
@@ -42,7 +44,8 @@ export class ServiceEdgeRouterPoliciesPageComponent extends ListPageComponent im
       filterService: DataTableFilterService,
       dialogForm: MatDialog,
       private tabNames: TabNameService,
-      consoleEvents: ConsoleEventsService
+      consoleEvents: ConsoleEventsService,
+      @Inject(DEFAULT_APP_CONFIG) public config: DefaultAppConfig,
   ) {
     super(filterService, svc, consoleEvents, dialogForm);
     let userLang = navigator.language || 'en-us';
@@ -76,6 +79,7 @@ export class ServiceEdgeRouterPoliciesPageComponent extends ListPageComponent im
   }
 
   tableAction(event: any) {
+    this.trackMenuAction(event?.action, event?.item);
     switch(event?.action) {
       case 'toggleAll':
       case 'toggleItem':
@@ -102,6 +106,14 @@ export class ServiceEdgeRouterPoliciesPageComponent extends ListPageComponent im
     }
   }
 
+  trackMenuAction(action: string, item: any) {
+    if(!this.config.isOpenZiti && action !== 'edit') {
+      (window as any).gtag('event', `${action}_service-edge-router-policy`, {
+        service_edge_router_policy_name: item.name,
+        service_edge_router_policy_id: item.id,
+      });
+    }
+  }
   getRoleAttributes() {
     this.svc.getEdgeRouterRoleAttributes().then((result: any) => {
       this.routerRoleAttributes = result.data;

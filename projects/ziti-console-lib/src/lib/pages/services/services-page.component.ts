@@ -33,6 +33,8 @@ import {isEmpty} from "lodash";
 import {IDENTITY_EXTENSION_SERVICE} from "../../features/projectable-forms/identity/identity-form.service";
 import {ExtensionService} from "../../features/extendable/extensions-noop.service";
 import {SERVICE_EXTENSION_SERVICE} from "../../features/projectable-forms/service/service-form.service";
+import { DefaultAppConfig } from '../../default-app-config';
+import { DEFAULT_APP_CONFIG } from '../../ziti-console.constants';
 
 @Component({
     selector: 'lib-services',
@@ -59,6 +61,7 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
       private growlerService: GrowlerService,
       @Inject(SETTINGS_SERVICE) private settingsService: SettingsService,
       @Inject(SERVICE_EXTENSION_SERVICE) protected override extensionService: ExtensionService,
+      @Inject(DEFAULT_APP_CONFIG) public config: DefaultAppConfig,
   ) {
     super(filterService, svc, consoleEvents, dialogForm, extensionService);
     let userLang = navigator.language || 'en-us';
@@ -91,6 +94,7 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
   }
 
   tableAction(event: any) {
+    this.trackMenuAction(event?.action, event?.item);
     const extensionActionFound = this.handleExtensionActions(event);
     if (extensionActionFound) {
       return;
@@ -120,6 +124,14 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
     }
   }
 
+  trackMenuAction(action: string, item: any) {
+    if(!this.config.isOpenZiti && action !== 'edit') {
+      (window as any).gtag('event', `${action}_service`, {
+        service_name: item.name,
+        service_id: item.id,
+      });
+    }
+  }
   deleteItem(item: any) {
     this.openBulkDelete([item], 'service');
   }

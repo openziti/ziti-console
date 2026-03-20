@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-import {Component, OnInit} from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
 import {DataTableFilterService} from "../../features/data-table/data-table-filter.service";
 import {ConfigurationsPageService} from "./configurations-page.service";
 import {TabNameService} from "../../services/tab-name.service";
@@ -22,7 +22,8 @@ import {ListPageComponent} from "../../shared/list-page-component.class";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {MatDialog} from "@angular/material/dialog";
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
-
+import { DefaultAppConfig } from '../../default-app-config';
+import { DEFAULT_APP_CONFIG } from '../../ziti-console.constants';
 
 @Component({
     selector: 'lib-configurations',
@@ -41,7 +42,8 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
         filterService: DataTableFilterService,
         private tabNames: TabNameService,
         consoleEvents: ConsoleEventsService,
-        dialogForm: MatDialog
+        dialogForm: MatDialog,
+        @Inject(DEFAULT_APP_CONFIG) public config: DefaultAppConfig,
     ) {
         super(filterService, svc, consoleEvents, dialogForm);
     }
@@ -78,6 +80,7 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
     }
 
     tableAction(event: any) {
+        this.trackMenuAction(event?.action, event?.item);
         switch(event?.action) {
             case 'toggleAll':
             case 'toggleItem':
@@ -103,6 +106,15 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
         }
     }
 
+    trackMenuAction(action: string, item: any) {
+        if(!this.config.isOpenZiti && action !== 'edit') {
+            (window as any).gtag('event', `${action}_config`, {
+                config_name: item.name,
+                config_id: item.id,
+            });
+        }
+    }
+    
     deleteItem(item: any) {
         this.openBulkDelete([item], 'config');
     }

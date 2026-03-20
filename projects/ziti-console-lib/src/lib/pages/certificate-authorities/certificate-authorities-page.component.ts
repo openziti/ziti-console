@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-import {Component, OnInit} from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
 import {DataTableFilterService} from "../../features/data-table/data-table-filter.service";
 import {CertificateAuthoritiesPageService} from "./certificate-authorities-page.service";
 import {TabNameService} from "../../services/tab-name.service";
@@ -23,6 +23,8 @@ import {ConsoleEventsService} from "../../services/console-events.service";
 import {MatDialog} from "@angular/material/dialog";
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {firstValueFrom} from "rxjs";
+import { DefaultAppConfig } from '../../default-app-config';
+import { DEFAULT_APP_CONFIG } from '../../ziti-console.constants';
 
 
 @Component({
@@ -42,7 +44,8 @@ export class CertificateAuthoritiesPageComponent extends ListPageComponent imple
         filterService: DataTableFilterService,
         private tabNames: TabNameService,
         consoleEvents: ConsoleEventsService,
-        dialogForm: MatDialog
+        dialogForm: MatDialog,
+        @Inject(DEFAULT_APP_CONFIG) public config: DefaultAppConfig,
     ) {
         super(filterService, svc, consoleEvents, dialogForm);
     }
@@ -73,6 +76,7 @@ export class CertificateAuthoritiesPageComponent extends ListPageComponent imple
     }
 
     tableAction(event: any) {
+        this.trackMenuAction(event?.action, event?.item);
         switch(event?.action) {
             case 'toggleAll':
             case 'toggleItem':
@@ -101,6 +105,14 @@ export class CertificateAuthoritiesPageComponent extends ListPageComponent imple
         }
     }
 
+    trackMenuAction(action: string, item: any) {
+        if(!this.config.isOpenZiti && action !== 'edit') {
+            (window as any).gtag('event', `${action}_certificate-authority`, {
+                certificate_authority_name: item.name,
+                certificate_authority_id: item.id,
+            });
+        }
+    }
     deleteItem(item: any) {
         this.openBulkDelete([item], 'certificate authority');
     }

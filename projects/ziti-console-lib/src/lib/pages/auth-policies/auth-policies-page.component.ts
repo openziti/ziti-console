@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-import {Component, OnInit} from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
 import {DataTableFilterService} from "../../features/data-table/data-table-filter.service";
 import {AuthPoliciesPageService} from "./auth-policies-page.service";
 import {TabNameService} from "../../services/tab-name.service";
@@ -23,6 +23,8 @@ import {ConsoleEventsService} from "../../services/console-events.service";
 import {MatDialog} from "@angular/material/dialog";
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {firstValueFrom} from "rxjs";
+import { DefaultAppConfig } from '../../default-app-config';
+import { DEFAULT_APP_CONFIG } from '../../ziti-console.constants';
 
 
 @Component({
@@ -42,7 +44,8 @@ export class AuthPoliciesPageComponent extends ListPageComponent implements OnIn
         filterService: DataTableFilterService,
         private tabNames: TabNameService,
         consoleEvents: ConsoleEventsService,
-        dialogForm: MatDialog
+        dialogForm: MatDialog,
+        @Inject(DEFAULT_APP_CONFIG) public config: DefaultAppConfig,
     ) {
         super(filterService, svc, consoleEvents, dialogForm);
     }
@@ -82,6 +85,7 @@ export class AuthPoliciesPageComponent extends ListPageComponent implements OnIn
     }
 
     tableAction(event: any) {
+        this.trackMenuAction(event?.action, event?.item);
         switch(event?.action) {
             case 'toggleAll':
             case 'toggleItem':
@@ -117,6 +121,14 @@ export class AuthPoliciesPageComponent extends ListPageComponent implements OnIn
         }
     }
 
+    trackMenuAction(action: string, item: any) {
+        if(!this.config.isOpenZiti && action !== 'edit') {
+            (window as any).gtag('event', `${action}_auth-policy`, {
+                auth_policy_name: item.name,
+                auth_policy_id: item.id,
+            });
+        }
+    }
     deleteItem(item: any) {
         this.openBulkDelete([item], 'auth-policy');
     }

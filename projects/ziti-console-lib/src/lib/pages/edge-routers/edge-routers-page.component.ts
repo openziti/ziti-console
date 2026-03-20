@@ -14,6 +14,8 @@ import {ConsoleEventsService} from "../../services/console-events.service";
 import {EdgeRouter} from "../../models/edge-router";
 import {EDGE_ROUTER_EXTENSION_SERVICE} from "../../features/projectable-forms/edge-router/edge-router-form.service";
 import {ExtensionService} from "../../features/extendable/extensions-noop.service";
+import { DefaultAppConfig } from '../../default-app-config';
+import { DEFAULT_APP_CONFIG } from '../../ziti-console.constants';
 
 @Component({
     selector: 'lib-edge-routers',
@@ -35,7 +37,8 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
       dialogForm: MatDialog,
       private tabNames: TabNameService,
       consoleEvents: ConsoleEventsService,
-      @Inject(EDGE_ROUTER_EXTENSION_SERVICE) private extService: ExtensionService
+      @Inject(EDGE_ROUTER_EXTENSION_SERVICE) private extService: ExtensionService,
+      @Inject(DEFAULT_APP_CONFIG) public config: DefaultAppConfig,
   ) {
     super(filterService, svc, consoleEvents, dialogForm);
   }
@@ -84,6 +87,7 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
   }
 
   tableAction(event: any) {
+    this.trackMenuAction(event?.action, event?.item);
     if (this.extService?.listActions?.length > 0) {
       let extensionFound = false;
       this.extService?.listActions?.forEach((extAction) => {
@@ -126,6 +130,15 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
         break;
       default:
         break;
+    }
+  }
+
+  trackMenuAction(action: string, item: any) {
+    if(!this.config.isOpenZiti && action !== 'edit') {
+      (window as any).gtag('event', `${action}_edge-router`, {
+        edge_router_name: item.name,
+        edge_router_id: item.id,
+      });
     }
   }
 
