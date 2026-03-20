@@ -99,6 +99,10 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
       if (!this.formData.isVerified) {
         this.formData.badges.push({label: 'Unverified', class: 'unreg'});
       }
+      if (this.formData.versionInfo?.version) {
+        const version = this.formData.versionInfo?.version.replace(/^v/, '').trim()
+        this.formData.badges.push({label: `Version: ${version}`, class: 'offline'});
+      }
     }
     this.getEdgeRouterRoleAttributes();
     this.svc.getAssociatedServices(this.formData.id);
