@@ -99,3 +99,17 @@
     }
   }
 }
+
+.config-container-label {
+  &.domain-label,
+  &.advertise-address-label {
+    text-transform: lowercase;
+  }
+}
+
+.config-container {
+  &.domain-container,
+  &.advertise-address-container {
+    background-color: var(--stroke);
+  }
+}
