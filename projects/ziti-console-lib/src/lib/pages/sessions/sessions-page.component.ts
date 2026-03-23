@@ -22,8 +22,7 @@ import {ListPageComponent} from "../../shared/list-page-component.class";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {MatDialog} from "@angular/material/dialog";
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
-import { DefaultAppConfig } from '../../default-app-config';
-import { DEFAULT_APP_CONFIG } from '../../ziti-console.constants';
+import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
 
 
 @Component({
@@ -44,9 +43,9 @@ export class SessionsPageComponent extends ListPageComponent implements OnInit {
         private tabNames: TabNameService,
         consoleEvents: ConsoleEventsService,
         dialogForm: MatDialog,
-        @Inject(DEFAULT_APP_CONFIG) public config: DefaultAppConfig,
+        @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService,
     ) {
-        super(filterService, svc, consoleEvents, dialogForm);
+        super(filterService, svc, consoleEvents, dialogForm, extService);
     }
 
     override ngOnInit() {
@@ -102,12 +101,11 @@ export class SessionsPageComponent extends ListPageComponent implements OnInit {
     }
 
     trackMenuAction(action: string, item: any) {
-        if(!this.config.isOpenZiti && action !== 'edit') {
-            (window as any).gtag('event', `${action}_session`, {
-                session_name: item.name,
-                session_id: item.id,
-            });
-        }
+        this.extService?.menuActionTriggered?.emit({
+            action,
+            page: 'session',
+            item,
+        });
     }
     override openBulkDelete(selectedItems, label) {
         const updatedItems = selectedItems.map((item) => {

@@ -22,8 +22,7 @@ import {ListPageComponent} from "../../shared/list-page-component.class";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {MatDialog} from "@angular/material/dialog";
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
-import { DefaultAppConfig } from '../../default-app-config';
-import { DEFAULT_APP_CONFIG } from '../../ziti-console.constants';
+import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
 
 @Component({
     selector: 'lib-api-sessions',
@@ -43,9 +42,9 @@ export class APISessionsPageComponent extends ListPageComponent implements OnIni
         private tabNames: TabNameService,
         consoleEvents: ConsoleEventsService,
         dialogForm: MatDialog,
-        @Inject(DEFAULT_APP_CONFIG) public config: DefaultAppConfig,
+        @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService,
     ) {
-        super(filterService, svc, consoleEvents, dialogForm);
+        super(filterService, svc, consoleEvents, dialogForm, extService);
     }
 
     override ngOnInit() {
@@ -101,12 +100,11 @@ export class APISessionsPageComponent extends ListPageComponent implements OnIni
     }
 
     trackMenuAction(action: string, item: any) {
-        if(!this.config.isOpenZiti && action !== 'edit') {
-            (window as any).gtag('event', `${action}_api-session`, {
-                api_session_name: item.name,
-                api_session_id: item.id,
-            });
-        }
+        this.extService?.menuActionTriggered?.emit({
+            action,
+            page: 'api-session',
+            item,
+        });
     }
     override openBulkDelete(selectedItems, label) {
         const updatedItems = selectedItems.map((item) => {

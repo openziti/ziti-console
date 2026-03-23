@@ -23,8 +23,7 @@ import {ConsoleEventsService} from "../../services/console-events.service";
 import {MatDialog} from "@angular/material/dialog";
 import {isEmpty} from "lodash";
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
-import { DefaultAppConfig } from '../../default-app-config';
-import { DEFAULT_APP_CONFIG } from '../../ziti-console.constants';
+import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
 
 
 @Component({
@@ -46,9 +45,9 @@ export class JwtSignersPageComponent extends ListPageComponent implements OnInit
         private tabNames: TabNameService,
         consoleEvents: ConsoleEventsService,
         dialogForm: MatDialog,
-        @Inject(DEFAULT_APP_CONFIG) public config: DefaultAppConfig,
+        @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService,
     ) {
-        super(filterService, svc, consoleEvents, dialogForm);
+        super(filterService, svc, consoleEvents, dialogForm, extService);
     }
 
     override ngOnInit() {
@@ -127,12 +126,11 @@ export class JwtSignersPageComponent extends ListPageComponent implements OnInit
     }
 
     trackMenuAction(action: string, item: any) {
-        if(!this.config.isOpenZiti && action !== 'edit') {
-            (window as any).gtag('event', `${action}_jwt-signer`, {
-                jwt_signer_name: item.name,
-                jwt_signer_id: item.id,
-            });
-        }
+        this.extService?.menuActionTriggered?.emit({
+            action,
+            page: 'jwt-signer',
+            item,
+        });
     }
     checkForAssociatedEntities(selectedItems) {
         this.svc.getTableData('auth-policies', this.svc.DEFAULT_PAGING).then((policies) => {

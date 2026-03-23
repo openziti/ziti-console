@@ -8,8 +8,6 @@ import {TabNameService} from "../../services/tab-name.service";
 import {MatDialog} from "@angular/material/dialog";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
-import { DefaultAppConfig } from '../../default-app-config';
-import { DEFAULT_APP_CONFIG } from '../../ziti-console.constants';
 
 @Component({
     selector: 'lib-edge-routers',
@@ -32,7 +30,6 @@ export class TransitRoutersPageComponent extends ListPageComponent implements On
       private tabNames: TabNameService,
       consoleEvents: ConsoleEventsService,
       @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService,
-      @Inject(DEFAULT_APP_CONFIG) public config: DefaultAppConfig,
   ) {
     super(filterService, svc, consoleEvents, dialogForm, extService);
   }
@@ -126,12 +123,11 @@ export class TransitRoutersPageComponent extends ListPageComponent implements On
   }
 
   trackMenuAction(action: string, item: any) {
-    if(!this.config.isOpenZiti && action !== 'edit') {
-      (window as any).gtag('event', `${action}_transit-router`, {
-        transit_router_name: item.name,
-        transit_router_id: item.id,
-      });
-    }
+    this.extService?.menuActionTriggered?.emit({
+      action,
+      page: 'transit-router',
+      item,
+    });
   }
   downloadJWT(item: any) {
     const jwt = this.svc.getJWT(item);

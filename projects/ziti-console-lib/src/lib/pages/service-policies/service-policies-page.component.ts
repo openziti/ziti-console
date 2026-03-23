@@ -21,8 +21,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {TabNameService} from "../../services/tab-name.service";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {ServicePoliciesPageService} from "./service-policies-page.service";
-import { DefaultAppConfig } from '../../default-app-config';
-import { DEFAULT_APP_CONFIG } from '../../ziti-console.constants';
+import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
 
 @Component({
     selector: 'lib-service-policies-page',
@@ -46,9 +45,9 @@ export class ServicePoliciesPageComponent extends ListPageComponent implements O
       dialogForm: MatDialog,
       private tabNames: TabNameService,
       consoleEvents: ConsoleEventsService,
-      @Inject(DEFAULT_APP_CONFIG) public config: DefaultAppConfig,
+      @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService,
   ) {
-    super(filterService, svc, consoleEvents, dialogForm);
+    super(filterService, svc, consoleEvents, dialogForm, extService);
     let userLang = navigator.language || 'en-us';
     userLang = userLang.toLowerCase();
   }
@@ -108,12 +107,11 @@ export class ServicePoliciesPageComponent extends ListPageComponent implements O
   }
 
   trackMenuAction(action: string, item: any) {
-    if(!this.config.isOpenZiti && action !== 'edit') {
-      (window as any).gtag('event', `${action}_service-policy`, {
-        service_policy_name: item.name,
-        service_policy_id: item.id,
-      });
-    }
+    this.extService?.menuActionTriggered?.emit({
+      action,
+      page: 'service-policy',
+      item,
+    });
   }
   getRoleAttributes() {
     this.svc.getServiceRoleAttributes().then((result: any) => {
