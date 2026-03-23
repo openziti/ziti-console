@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-import {Component, OnInit} from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
 import {DataTableFilterService} from "../../features/data-table/data-table-filter.service";
 import {JwtSignersPageService} from "./jwt-signers-page.service";
 import {TabNameService} from "../../services/tab-name.service";
@@ -23,6 +23,7 @@ import {ConsoleEventsService} from "../../services/console-events.service";
 import {MatDialog} from "@angular/material/dialog";
 import {isEmpty} from "lodash";
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
+import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
 
 
 @Component({
@@ -43,9 +44,10 @@ export class JwtSignersPageComponent extends ListPageComponent implements OnInit
         filterService: DataTableFilterService,
         private tabNames: TabNameService,
         consoleEvents: ConsoleEventsService,
-        dialogForm: MatDialog
+        dialogForm: MatDialog,
+        @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService,
     ) {
-        super(filterService, svc, consoleEvents, dialogForm);
+        super(filterService, svc, consoleEvents, dialogForm, extService);
     }
 
     override ngOnInit() {
@@ -102,6 +104,7 @@ export class JwtSignersPageComponent extends ListPageComponent implements OnInit
     }
 
     tableAction(event: any) {
+        this.trackMenuAction(event?.action, event?.item);
         switch(event?.action) {
             case 'toggleAll':
             case 'toggleItem':
@@ -122,6 +125,14 @@ export class JwtSignersPageComponent extends ListPageComponent implements OnInit
         }
     }
 
+    trackMenuAction(action: string, item: any) {
+        this.extService?.consoleActionTriggered?.emit({
+            action,
+            page: 'jwt-signer',
+            item,
+            type:'menu-action'
+        });
+    }
     checkForAssociatedEntities(selectedItems) {
         this.svc.getTableData('auth-policies', this.svc.DEFAULT_PAGING).then((policies) => {
             const signersWithAssociations = [];

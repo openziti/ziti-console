@@ -35,7 +35,7 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
       dialogForm: MatDialog,
       private tabNames: TabNameService,
       consoleEvents: ConsoleEventsService,
-      @Inject(EDGE_ROUTER_EXTENSION_SERVICE) private extService: ExtensionService
+      @Inject(EDGE_ROUTER_EXTENSION_SERVICE) private extService: ExtensionService,
   ) {
     super(filterService, svc, consoleEvents, dialogForm);
   }
@@ -84,6 +84,7 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
   }
 
   tableAction(event: any) {
+    this.trackMenuAction(event?.action, event?.item);
     if (this.extService?.listActions?.length > 0) {
       let extensionFound = false;
       this.extService?.listActions?.forEach((extAction) => {
@@ -127,6 +128,15 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
       default:
         break;
     }
+  }
+
+  trackMenuAction(action: string, item: any) {
+    this.extService?.consoleActionTriggered?.emit({
+      action,
+      page: 'edge-router',
+      item,
+      type:'menu-action'
+    });
   }
 
   downloadJWT(item: any) {

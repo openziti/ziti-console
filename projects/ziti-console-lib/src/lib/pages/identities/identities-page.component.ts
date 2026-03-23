@@ -100,6 +100,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
 
   tableAction(event: any) {
     const extensionActionFound = this.handleExtensionActions(event);
+    this.trackMenuAction(event?.action, event?.item);
     if (extensionActionFound) {
       return;
     }
@@ -176,6 +177,15 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
     this.dialogRef = this.dialogForm.open(QrCodeComponent, {
       data: data,
       autoFocus: false,
+    });
+  }
+
+  trackMenuAction(action: string, item: any) {
+    this.extService?.consoleActionTriggered?.emit({
+      action,
+      page: 'identity',
+      item,
+      type:'menu-action'
     });
   }
 
