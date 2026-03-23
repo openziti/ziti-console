@@ -1,4 +1,4 @@
-import {Component, ComponentRef, EventEmitter, Input, OnInit, Output, ViewChild, ViewContainerRef} from '@angular/core';
+import {Component, ComponentRef, EventEmitter, Input, OnInit, Output, ViewChild, ViewContainerRef, AfterViewInit} from '@angular/core';
 import {JsonEditorComponent, JsonEditorOptions} from "ang-jsoneditor";
 import {debounce, defer, isBoolean, isEmpty, isNil, keys} from "lodash";
 import {SchemaService} from "../../services/schema.service";
@@ -13,7 +13,7 @@ import {GrowlerService} from "../messaging/growler.service";  // Import ajv-form
     styleUrls: ['./config-editor.component.scss'],
     standalone: false
 })
-export class ConfigEditorComponent implements OnInit {
+export class ConfigEditorComponent implements OnInit, AfterViewInit {
 
   configDataInit = false;
 
@@ -35,8 +35,14 @@ export class ConfigEditorComponent implements OnInit {
 
   _configData: any = {};
   @Input() set configData(data) {
+    if (this._configData === data) {
+      return;
+    }
     this._configData = data;
     this.initFormData();
+    defer(() => {
+      this.updateConfigData();
+    });
   };
 
   @Output() configDataChange = new EventEmitter<any>();
@@ -76,6 +82,17 @@ export class ConfigEditorComponent implements OnInit {
     this.createForm();
   }
 
+  ngAfterViewInit() {
+    if (this.schema && this.dynamicForm) {
+      this.createForm();
+      if (this._configData && !isEmpty(this._configData)) {
+        defer(() => {
+          this.updateConfigData();
+        });
+      }
+    }
+  }
+
   createForm() {
     this.clearForm();
     if (this.dynamicForm && this.schema) {
@@ -101,7 +118,6 @@ export class ConfigEditorComponent implements OnInit {
           const pName: string[]  = cRef.instance.parentage;
           let parentKey;
           if(pName) parentKey = pName.join('.');
-          //if (parentKey && !this.formData[parentKey]) this.formData[parentKey] = {};
         }
       }
     }
@@ -109,12 +125,12 @@ export class ConfigEditorComponent implements OnInit {
 
   updateConfigData() {
     if (!this.showJsonView) {
-      this.updateFormView(this.items, this.configData);
-    } else {
-      this.hideConfigJSON = true;
-      defer(() => {
-        this.getConfigDataFromForm();
-      });
+      if (this.items && this.items.length > 0) {
+        this.updateFormView(this.items, this.configData);
+        if (!isEmpty(this.configData)) {
+          this.configDataChange.emit(this.configData);
+        }
+      }
     }
   }
 
@@ -167,6 +183,10 @@ export class ConfigEditorComponent implements OnInit {
   }
 
   getConfigDataFromForm() {
+    if (!this.items || this.items.length === 0) {
+      return;
+    }
+
     const data = {};
     this.addItemsToConfig(this.items, data);
     this._configData = data;
@@ -300,7 +320,6 @@ export class ConfigEditorComponent implements OnInit {
   initFormData() {
     if (!this.configDataInit && !isEmpty(this._configData) && !isEmpty(this.schema)) {
       this.configDataInit = true;
-      this.formDataChanged();
     }
   }
 
@@ -311,10 +330,7 @@ export class ConfigEditorComponent implements OnInit {
   }
 
   jsonDataChanged(event) {
-    defer(() => {
-      this.configDataChange.emit(this.configData);
-      this.updateFormView(this.items, this.configData);
-    });
+    this.configDataChange.emit(this.configData);
   }
 
   removeUndefinedProperties(data) {
