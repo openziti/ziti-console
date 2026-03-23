@@ -131,10 +131,11 @@ export class EdgeRoutersPageComponent extends ListPageComponent implements OnIni
   }
 
   trackMenuAction(action: string, item: any) {
-    this.extService?.menuActionTriggered?.emit({
+    this.extService?.consoleActionTriggered?.emit({
       action,
       page: 'edge-router',
       item,
+      type:'menu-action'
     });
   }
 

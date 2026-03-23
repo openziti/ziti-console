@@ -105,10 +105,11 @@ export class CertificateAuthoritiesPageComponent extends ListPageComponent imple
     }
 
     trackMenuAction(action: string, item: any) {
-        this.extService?.menuActionTriggered?.emit({
+        this.extService?.consoleActionTriggered?.emit({
             action,
             page: 'certificate-authority',
             item,
+            type:'menu-action'
         });
     }
     deleteItem(item: any) {

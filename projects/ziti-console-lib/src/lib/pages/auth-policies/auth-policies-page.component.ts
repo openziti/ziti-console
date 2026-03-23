@@ -121,10 +121,11 @@ export class AuthPoliciesPageComponent extends ListPageComponent implements OnIn
     }
 
     trackMenuAction(action: string, item: any) {
-        this.extService?.menuActionTriggered?.emit({
+        this.extService?.consoleActionTriggered?.emit({
             action,
             page: 'auth-policy',
             item,
+            type:'menu-action'
         });
     }
     deleteItem(item: any) {

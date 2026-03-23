@@ -101,10 +101,11 @@ export class PostureChecksPageComponent extends ListPageComponent implements OnI
     }
 
     trackMenuAction(action: string, item: any) {
-        this.extService?.menuActionTriggered?.emit({
+        this.extService?.consoleActionTriggered?.emit({
             action,
             page: 'posture-check',
             item,
+            type:'menu-action'
         });
     }
     deleteItem(item: any) {

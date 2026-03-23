@@ -101,10 +101,11 @@ export class SessionsPageComponent extends ListPageComponent implements OnInit {
     }
 
     trackMenuAction(action: string, item: any) {
-        this.extService?.menuActionTriggered?.emit({
+        this.extService?.consoleActionTriggered?.emit({
             action,
             page: 'session',
             item,
+            type:'menu-action'
         });
     }
     override openBulkDelete(selectedItems, label) {

@@ -123,10 +123,11 @@ export class TransitRoutersPageComponent extends ListPageComponent implements On
   }
 
   trackMenuAction(action: string, item: any) {
-    this.extService?.menuActionTriggered?.emit({
+    this.extService?.consoleActionTriggered?.emit({
       action,
       page: 'transit-router',
       item,
+      type:'menu-action'
     });
   }
   downloadJWT(item: any) {

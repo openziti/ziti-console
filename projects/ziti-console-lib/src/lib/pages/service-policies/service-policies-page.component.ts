@@ -107,10 +107,11 @@ export class ServicePoliciesPageComponent extends ListPageComponent implements O
   }
 
   trackMenuAction(action: string, item: any) {
-    this.extService?.menuActionTriggered?.emit({
+    this.extService?.consoleActionTriggered?.emit({
       action,
       page: 'service-policy',
       item,
+      type:'menu-action'
     });
   }
   getRoleAttributes() {

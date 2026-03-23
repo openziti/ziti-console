@@ -94,10 +94,11 @@ export class TerminatorsPageComponent extends ListPageComponent implements OnIni
     }
 
     trackMenuAction(action: string, item: any) {
-        this.extService?.menuActionTriggered?.emit({
+        this.extService?.consoleActionTriggered?.emit({
             action,
             page: 'terminator',
             item,
+            type:'menu-action'
         });
     }
     deleteItem(item: any) {

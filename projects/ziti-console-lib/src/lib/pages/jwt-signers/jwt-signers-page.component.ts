@@ -126,10 +126,11 @@ export class JwtSignersPageComponent extends ListPageComponent implements OnInit
     }
 
     trackMenuAction(action: string, item: any) {
-        this.extService?.menuActionTriggered?.emit({
+        this.extService?.consoleActionTriggered?.emit({
             action,
             page: 'jwt-signer',
             item,
+            type:'menu-action'
         });
     }
     checkForAssociatedEntities(selectedItems) {

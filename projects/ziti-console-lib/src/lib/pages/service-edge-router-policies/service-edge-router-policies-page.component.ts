@@ -106,10 +106,11 @@ export class ServiceEdgeRouterPoliciesPageComponent extends ListPageComponent im
   }
 
   trackMenuAction(action: string, item: any) {
-    this.extService?.menuActionTriggered?.emit({
+    this.extService?.consoleActionTriggered?.emit({
       action,
       page: 'service-edge-router-policy',
       item,
+      type:'menu-action'
     });
   }
   getRoleAttributes() {

@@ -181,10 +181,11 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   }
 
   trackMenuAction(action: string, item: any) {
-    this.extService?.menuActionTriggered?.emit({
+    this.extService?.consoleActionTriggered?.emit({
       action,
       page: 'identity',
       item,
+      type:'menu-action'
     });
   }
 

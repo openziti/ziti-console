@@ -100,10 +100,11 @@ export class APISessionsPageComponent extends ListPageComponent implements OnIni
     }
 
     trackMenuAction(action: string, item: any) {
-        this.extService?.menuActionTriggered?.emit({
+        this.extService?.consoleActionTriggered?.emit({
             action,
             page: 'api-session',
             item,
+            type:'menu-action'
         });
     }
     override openBulkDelete(selectedItems, label) {

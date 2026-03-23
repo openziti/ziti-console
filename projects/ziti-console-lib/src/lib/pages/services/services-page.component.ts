@@ -122,10 +122,11 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
   }
 
   trackMenuAction(action: string, item: any) {
-    this.extensionService?.menuActionTriggered?.emit({
+    this.extensionService?.consoleActionTriggered?.emit({
       action,
       page: 'service',
       item,
+      type:'menu-action'
     });
   }
   deleteItem(item: any) {

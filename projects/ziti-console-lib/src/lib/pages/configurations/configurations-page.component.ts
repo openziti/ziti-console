@@ -106,10 +106,11 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
     }
 
     trackMenuAction(action: string, item: any) {
-        this.extService?.menuActionTriggered?.emit({
+        this.extService?.consoleActionTriggered?.emit({
             action,
             page: 'config',
             item,
+            type:'menu-action'
         });
     }
     
