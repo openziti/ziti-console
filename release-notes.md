@@ -1,6 +1,16 @@
 # app-ziti-console-v4.1.1
 # ziti-console-lib-v1.1.1
 ## Feature/Improvements
+* [Issue #818](https://github.com/openziti/ziti-console/issues/818) - Add more er information to the edge router form
+* [Issue #835](https://github.com/openziti/ziti-console/issues/835) - Add console event handling to extension service of type menu-action
+
+## Bug Fixes
+* [Issue #830](https://github.com/openziti/ziti-console/issues/830) - Loading intercept.v1 config data does not render in edit/details page
+
+
+# app-ziti-console-v4.1.1
+# ziti-console-lib-v1.1.1
+## Feature/Improvements
 * [Issue #822](https://github.com/openziti/ziti-console/issues/822) - Migrate JSON schema $ref resolution to @stoplight/json-ref-resolver for angular V20 upgrade
 
 # app-ziti-console-v4.1.0
