@@ -1,5 +1,5 @@
-# app-ziti-console-v4.1.1
-# ziti-console-lib-v1.1.1
+# app-ziti-console-v4.1.2
+# ziti-console-lib-v1.1.2
 ## Feature/Improvements
 * [Issue #818](https://github.com/openziti/ziti-console/issues/818) - Add more er information to the edge router form
 * [Issue #835](https://github.com/openziti/ziti-console/issues/835) - Add console event handling to extension service of type menu-action
