@@ -76,6 +76,7 @@ export class TransitRoutersPageComponent extends ListPageComponent implements On
   }
 
   tableAction(event: any) {
+    this.trackMenuAction(event?.action, event?.item);
     if (this.extService?.listActions?.length > 0) {
       let extensionFound = false;
       this.extService?.listActions?.forEach((extAction) => {
@@ -121,6 +122,14 @@ export class TransitRoutersPageComponent extends ListPageComponent implements On
     }
   }
 
+  trackMenuAction(action: string, item: any) {
+    this.extService?.consoleActionTriggered?.emit({
+      action,
+      page: 'transit-router',
+      item,
+      type:'menu-action'
+    });
+  }
   downloadJWT(item: any) {
     const jwt = this.svc.getJWT(item);
     this.svc.downloadJWT(jwt, item.name);

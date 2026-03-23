@@ -25,6 +25,7 @@ export interface ExtensionService {
   closeAfterSave: boolean;
   moreActions?: any[];
   listActions?: any[];
+  consoleActionTriggered?: EventEmitter<any>;
   disabledComponents?: any[];
   extendOnInit(): void;
   extendAfterViewInits(extentionPoints: any): void;
@@ -41,6 +42,7 @@ export class ExtensionsNoopService implements ExtensionService {
 
   formDataChanged = new BehaviorSubject<any>({isEmpty: true});
   closed: EventEmitter<any> = new EventEmitter<any>();
+  consoleActionTriggered: EventEmitter<any> = new EventEmitter<any>();
   closeAfterSave = true;
   moreActions = [];
   disabledComponents = [];

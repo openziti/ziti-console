@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-import {Component, OnInit} from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
 import {DataTableFilterService} from "../../features/data-table/data-table-filter.service";
 import {PostureChecksPageService} from "./posture-checks-page.service";
 import {TabNameService} from "../../services/tab-name.service";
@@ -22,6 +22,7 @@ import {ListPageComponent} from "../../shared/list-page-component.class";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {MatDialog} from "@angular/material/dialog";
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
+import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
 
 
 @Component({
@@ -41,9 +42,10 @@ export class PostureChecksPageComponent extends ListPageComponent implements OnI
         filterService: DataTableFilterService,
         private tabNames: TabNameService,
         consoleEvents: ConsoleEventsService,
-        dialogForm: MatDialog
+        dialogForm: MatDialog,
+        @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService,
     ) {
-        super(filterService, svc, consoleEvents, dialogForm);
+        super(filterService, svc, consoleEvents, dialogForm, extService);
     }
 
     override ngOnInit() {
@@ -72,6 +74,7 @@ export class PostureChecksPageComponent extends ListPageComponent implements OnI
     }
 
     tableAction(event: any) {
+        this.trackMenuAction(event?.action, event?.item);
         switch(event?.action) {
             case 'toggleAll':
             case 'toggleItem':
@@ -97,6 +100,14 @@ export class PostureChecksPageComponent extends ListPageComponent implements OnI
         }
     }
 
+    trackMenuAction(action: string, item: any) {
+        this.extService?.consoleActionTriggered?.emit({
+            action,
+            page: 'posture-check',
+            item,
+            type:'menu-action'
+        });
+    }
     deleteItem(item: any) {
         this.openBulkDelete([item], 'posture check');
     }

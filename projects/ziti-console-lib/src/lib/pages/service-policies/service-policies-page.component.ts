@@ -21,6 +21,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {TabNameService} from "../../services/tab-name.service";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {ServicePoliciesPageService} from "./service-policies-page.service";
+import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
 
 @Component({
     selector: 'lib-service-policies-page',
@@ -44,8 +45,9 @@ export class ServicePoliciesPageComponent extends ListPageComponent implements O
       dialogForm: MatDialog,
       private tabNames: TabNameService,
       consoleEvents: ConsoleEventsService,
+      @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService,
   ) {
-    super(filterService, svc, consoleEvents, dialogForm);
+    super(filterService, svc, consoleEvents, dialogForm, extService);
     let userLang = navigator.language || 'en-us';
     userLang = userLang.toLowerCase();
   }
@@ -77,6 +79,7 @@ export class ServicePoliciesPageComponent extends ListPageComponent implements O
   }
 
   tableAction(event: any) {
+    this.trackMenuAction(event?.action, event?.item);
     switch(event?.action) {
       case 'toggleAll':
       case 'toggleItem':
@@ -103,6 +106,14 @@ export class ServicePoliciesPageComponent extends ListPageComponent implements O
     }
   }
 
+  trackMenuAction(action: string, item: any) {
+    this.extService?.consoleActionTriggered?.emit({
+      action,
+      page: 'service-policy',
+      item,
+      type:'menu-action'
+    });
+  }
   getRoleAttributes() {
     this.svc.getServiceRoleAttributes().then((result: any) => {
       this.serviceRoleAttributes = result.data;

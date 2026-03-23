@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-import {Component, OnInit} from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
 import {DataTableFilterService} from "../../features/data-table/data-table-filter.service";
 import {CertificateAuthoritiesPageService} from "./certificate-authorities-page.service";
 import {TabNameService} from "../../services/tab-name.service";
@@ -23,6 +23,7 @@ import {ConsoleEventsService} from "../../services/console-events.service";
 import {MatDialog} from "@angular/material/dialog";
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {firstValueFrom} from "rxjs";
+import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
 
 
 @Component({
@@ -42,9 +43,10 @@ export class CertificateAuthoritiesPageComponent extends ListPageComponent imple
         filterService: DataTableFilterService,
         private tabNames: TabNameService,
         consoleEvents: ConsoleEventsService,
-        dialogForm: MatDialog
+        dialogForm: MatDialog,
+        @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService,
     ) {
-        super(filterService, svc, consoleEvents, dialogForm);
+        super(filterService, svc, consoleEvents, dialogForm, extService);
     }
 
     override ngOnInit() {
@@ -73,6 +75,7 @@ export class CertificateAuthoritiesPageComponent extends ListPageComponent imple
     }
 
     tableAction(event: any) {
+        this.trackMenuAction(event?.action, event?.item);
         switch(event?.action) {
             case 'toggleAll':
             case 'toggleItem':
@@ -101,6 +104,14 @@ export class CertificateAuthoritiesPageComponent extends ListPageComponent imple
         }
     }
 
+    trackMenuAction(action: string, item: any) {
+        this.extService?.consoleActionTriggered?.emit({
+            action,
+            page: 'certificate-authority',
+            item,
+            type:'menu-action'
+        });
+    }
     deleteItem(item: any) {
         this.openBulkDelete([item], 'certificate authority');
     }

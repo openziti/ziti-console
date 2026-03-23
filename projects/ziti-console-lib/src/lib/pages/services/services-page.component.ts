@@ -91,6 +91,7 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
   }
 
   tableAction(event: any) {
+    this.trackMenuAction(event?.action, event?.item);
     const extensionActionFound = this.handleExtensionActions(event);
     if (extensionActionFound) {
       return;
@@ -120,6 +121,14 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
     }
   }
 
+  trackMenuAction(action: string, item: any) {
+    this.extensionService?.consoleActionTriggered?.emit({
+      action,
+      page: 'service',
+      item,
+      type:'menu-action'
+    });
+  }
   deleteItem(item: any) {
     this.openBulkDelete([item], 'service');
   }

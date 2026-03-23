@@ -21,6 +21,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {TabNameService} from "../../services/tab-name.service";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {EdgeRouterPoliciesPageService} from "./edge-router-policies-page.service";
+import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
 
 @Component({
     selector: 'lib-edge-router-policies-page',
@@ -42,9 +43,10 @@ export class EdgeRouterPoliciesPageComponent extends ListPageComponent implement
       filterService: DataTableFilterService,
       dialogForm: MatDialog,
       private tabNames: TabNameService,
-      consoleEvents: ConsoleEventsService
+      consoleEvents: ConsoleEventsService,
+      @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService,
   ) {
-    super(filterService, svc, consoleEvents, dialogForm);
+    super(filterService, svc, consoleEvents, dialogForm, extService);
     let userLang = navigator.language || 'en-us';
     userLang = userLang.toLowerCase();
   }
@@ -76,6 +78,7 @@ export class EdgeRouterPoliciesPageComponent extends ListPageComponent implement
   }
 
   tableAction(event: any) {
+    this.trackMenuAction(event?.action, event?.item);
     switch(event?.action) {
       case 'toggleAll':
       case 'toggleItem':
@@ -107,6 +110,14 @@ export class EdgeRouterPoliciesPageComponent extends ListPageComponent implement
     }
   }
 
+  trackMenuAction(action: string, item: any) {
+    this.extService?.consoleActionTriggered?.emit({
+      action,
+      page: 'edge-router-policy',
+      item,
+      type:'menu-action'
+    });
+  }
   getRoleAttributes() {
     this.svc.getEdgeRouterRoleAttributes().then((result: any) => {
       this.routerRoleAttributes = result.data;
