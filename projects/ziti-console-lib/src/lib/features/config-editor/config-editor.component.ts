@@ -1,6 +1,6 @@
 import {Component, ComponentRef, EventEmitter, Input, OnInit, Output, ViewChild, ViewContainerRef, AfterViewInit} from '@angular/core';
 import {JsonEditorComponent, JsonEditorOptions} from "ang-jsoneditor";
-import {debounce, defer, isBoolean, isEmpty, isNil, keys} from "lodash";
+import {debounce, defer, isBoolean, isEmpty, isNil, isNumber, keys} from "lodash";
 import {SchemaService} from "../../services/schema.service";
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
@@ -199,6 +199,8 @@ export class ConfigEditorComponent implements OnInit, AfterViewInit {
       if (item.type === 'array') {
         if (item.addedItems) {
           data[item.key] = item.addedItems;
+        } else if (item?.component?.instance?.fieldValue) {
+          data[item.key] = item.component.instance.fieldValue;
         } else {
           data[item.key] = [];
         }
@@ -206,7 +208,7 @@ export class ConfigEditorComponent implements OnInit, AfterViewInit {
         const val = this.addItemsToConfig(item.items, {}, item.type);
         let hasDefinition = false;
         keys(val).forEach((key) => {
-          if (isBoolean(val[key]) || (!isEmpty(val[key]) && !isNil(val[key]))) {
+          if (isBoolean(val[key]) || isNumber(val[key]) || (!isEmpty(val[key]) && !isNil(val[key]))) {
             hasDefinition = true;
           }
         });
