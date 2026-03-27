@@ -20,7 +20,7 @@ import {debounce} from "lodash";
       <input id="schema_{{parentage?parentage+'_':''}}{{_idName}}"
         type="number" class="jsonEntry"
         [ngClass]="{'error': error}"
-        [placeholder]="placeholder" [(ngModel)]="fieldValue" (paste)="onKeyup()" (keyup)="onKeyup()"/>
+        [placeholder]="placeholder" [(ngModel)]="fieldValue" (paste)="onKeyup()" (keyup)="onKeyup()" (change)="emitEvents()"/>
       @if (error) {
         <div class="error">{{error}}</div>
       }
@@ -47,14 +47,22 @@ export class NumberInputComponent {
   valueChange = new Subject<number| undefined> ();
 
   _isValid = true;
+  private _emitEventsDebounced: any;
+
+  constructor() {
+    this._emitEventsDebounced = debounce(this.emitEvents.bind(this), 500);
+  }
+
   public setIsValid(isValid) {
     this._isValid = isValid;
   }
 
   onKeyup() {
-    debounce(() => {
-      this.fieldValueChange.emit(this.fieldValue);
-      this.valueChange.next(this.fieldValue);
-    }, 500)();
+    this._emitEventsDebounced();
+  }
+
+  emitEvents() {
+    this.fieldValueChange.emit(this.fieldValue);
+    this.valueChange.next(this.fieldValue);
   }
 }

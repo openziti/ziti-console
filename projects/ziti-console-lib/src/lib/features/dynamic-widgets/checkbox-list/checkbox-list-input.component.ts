@@ -28,7 +28,7 @@ import {defer, isEmpty} from "lodash";
           <input type="checkbox"
             class="jsonEntry checkbox"
             [ngClass]="{'error': error}"
-            [checked]="item.checked" (click)="item.checked=!item.checked;updateFieldVal();"/>
+            [(ngModel)]="item.checked" (ngModelChange)="updateFieldVal()"/>
           <span class="boxlabel">{{item.name}}</span>
         </div>
       }
