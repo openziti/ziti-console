@@ -1,3 +1,10 @@
+# app-ziti-console-v4.1.3
+# ziti-console-lib-v1.1.3
+
+## Bug Fixes
+* [Issue #838](https://github.com/openziti/ziti-console/issues/838) - Unable to update the "protocol" property for proxy.v1 configs using config editor
+
+
 # app-ziti-console-v4.1.2
 # ziti-console-lib-v1.1.2
 ## Feature/Improvements
