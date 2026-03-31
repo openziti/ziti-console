@@ -1,0 +1,189 @@
+.ha-status-indicator {
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  z-index: 1000;
+  background: var(--surface-a);
+  border: 1px solid var(--surface-border);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  max-width: 400px;
+
+  .status-summary {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: var(--surface-hover);
+    }
+
+    .status-icon {
+      font-size: 1.25rem;
+      margin-right: 0.5rem;
+    }
+
+    .status-text {
+      flex: 1;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .expand-icon {
+      font-size: 1.25rem;
+      transition: transform 0.2s;
+
+      &.expanded {
+        transform: rotate(180deg);
+      }
+    }
+
+    &.status-success {
+      .status-icon {
+        color: var(--green-500);
+      }
+    }
+
+    &.status-warning {
+      .status-icon {
+        color: var(--yellow-500);
+      }
+    }
+
+    &.status-error {
+      .status-icon {
+        color: var(--red-500);
+      }
+    }
+
+    &.status-disabled {
+      .status-icon {
+        color: var(--text-color-secondary);
+      }
+    }
+  }
+
+  .controller-details {
+    border-top: 1px solid var(--surface-border);
+    max-height: 400px;
+    overflow-y: auto;
+
+    .controller-list {
+      .controller-item {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--surface-border);
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .controller-info {
+          display: flex;
+          align-items: flex-start;
+          margin-bottom: 0.5rem;
+
+          .controller-status-icon {
+            font-size: 1.25rem;
+            margin-right: 0.5rem;
+            margin-top: 0.125rem;
+          }
+
+          .controller-text {
+            flex: 1;
+            min-width: 0;
+
+            .controller-name {
+              font-size: 0.875rem;
+              font-weight: 500;
+              color: var(--text-color);
+              margin-bottom: 0.25rem;
+            }
+
+            .controller-url {
+              font-size: 0.75rem;
+              color: var(--text-color-secondary);
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+          }
+        }
+
+        .controller-metrics {
+          display: flex;
+          gap: 1rem;
+          padding-left: 1.75rem;
+
+          .metric {
+            display: flex;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+
+            .metric-label {
+              color: var(--text-color-secondary);
+            }
+
+            .metric-value {
+              color: var(--text-color);
+              font-weight: 500;
+            }
+          }
+        }
+
+        &.controller-online {
+          .controller-status-icon {
+            color: var(--green-500);
+          }
+        }
+
+        &.controller-offline {
+          .controller-status-icon {
+            color: var(--red-500);
+          }
+
+          .controller-name,
+          .controller-url {
+            opacity: 0.6;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .ha-status-indicator {
+    top: 60px;
+    right: 10px;
+    min-width: 180px;
+    max-width: calc(100vw - 20px);
+
+    .status-summary {
+      padding: 0.5rem 0.75rem;
+
+      .status-text {
+        font-size: 0.813rem;
+      }
+    }
+
+    .controller-details {
+      max-height: 300px;
+
+      .controller-list {
+        .controller-item {
+          padding: 0.5rem 0.75rem;
+
+          .controller-metrics {
+            flex-direction: column;
+            gap: 0.25rem;
+            padding-left: 1.5rem;
+          }
+        }
+      }
+    }
+  }
+}

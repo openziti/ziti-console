@@ -372,6 +372,13 @@ export class NodeDataService extends ZitiDataService {
         );
     }
 
+    /**
+     * NodeDataService doesn't support HA, so just fall back to regular call()
+     */
+    callHAControllers(url: string, prefix?: string): Promise<any> {
+        return this.call(url, prefix);
+    }
+
     schema(data: any): Promise<any> {
         const resolver = new Resolver();
         return resolver.resolve(data).then((schema) => {

@@ -28,7 +28,7 @@ export class MapDataService {
     };
 
     // Load both APIs in parallel
-    const fabricPromise = this.zitiDataService.call(fabricUrl, '/fabric/v1').catch(() => ({ data: [] }));
+    const fabricPromise = this.zitiDataService.callHAControllers(fabricUrl, '/fabric/v1').catch(() => ({ data: [] }));
     const edgePromise = this.zitiDataService.get('edge-routers', edgePaging, []).catch(() => ({ data: [] }));
 
     const [fabricResult, edgeResult] = await Promise.all([fabricPromise, edgePromise]);
@@ -114,7 +114,7 @@ export class MapDataService {
     const url = '/circuits?limit=1000';
 
     try {
-      const result = await this.zitiDataService.call(url, '/fabric/v1');
+      const result = await this.zitiDataService.callHAControllers(url, '/fabric/v1');
       return result?.data || [];
     } catch (error) {
       // Circuits feature unavailable - this might be expected if fabric API is not enabled
@@ -149,7 +149,7 @@ export class MapDataService {
         // Final fallback to Fabric API
         try {
           const url = '/terminators?limit=1000';
-          const result = await this.zitiDataService.call(url, '/fabric/v1');
+          const result = await this.zitiDataService.callHAControllers(url, '/fabric/v1');
           return result?.data || [];
         } catch (fabricError) {
           // Terminators feature unavailable
@@ -166,7 +166,7 @@ export class MapDataService {
     const url = '/links?limit=1000';
 
     try {
-      const result = await this.zitiDataService.call(url, '/fabric/v1');
+      const result = await this.zitiDataService.callHAControllers(url, '/fabric/v1');
       return result?.data || [];
     } catch (error) {
       // Links feature unavailable - this might be expected if fabric API is not enabled

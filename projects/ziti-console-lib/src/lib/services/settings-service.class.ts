@@ -83,6 +83,14 @@ export abstract class SettingsServiceClass {
     public abstract loadSettings();
     public abstract hasSession();
 
+    // HA Controller methods
+    public abstract isHAEnabled(): boolean;
+    public abstract getHAControllers(): any[];
+    public abstract getActiveSessions(): Map<string, string>;
+    public abstract getJwtToken(): string | null;
+    public abstract hasValidJwtToken(): boolean;
+    public abstract setJwtToken(token: string): void;
+
     public get() {
         const tmp = localStorage.getItem('ziti.settings');
         if (tmp) {
@@ -129,4 +137,12 @@ export abstract class SettingsServiceClass {
             return this.controllerSave(name, url);
         }
     }
+
+    // HA Controller management methods
+    public abstract addHAController(url: string, name: string): void;
+    public abstract removeHAController(url: string): void;
+    public abstract setControllerSession(url: string, sessionToken: string): void;
+    public abstract getControllerSession(url: string): string | null;
+    public abstract clearControllerSessions(): void;
+    public abstract clearJwtToken(): void;
 }

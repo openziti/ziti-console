@@ -105,17 +105,24 @@ export class ZitiApiInterceptor implements HttpInterceptor {
     }
 
     isUnauthenticatedResource(req: HttpRequest<any>) {
-        if (
+        // Check if request URL matches the primary controller
+        const matchesPrimaryController = req.url.indexOf(this.settingsService?.settings?.selectedEdgeController) >= 0;
+
+        // Check if request URL matches any HA controller
+        const haControllers = this.settingsService.getHAControllers?.() || [];
+        const matchesHAController = haControllers.some((controller: any) =>
+            req.url.indexOf(controller.url) >= 0
+        );
+
+        const isUnauthenticated = (
             !req.url.startsWith("http")
-            || req.url.indexOf(this.settingsService?.settings?.selectedEdgeController) < 0
+            || (!matchesPrimaryController && !matchesHAController)
             || req.url.indexOf("authenticate") > 0
             || req.url.indexOf("version") > 0
             || (req.url.indexOf("edge/client/v1/external-jwt-signers") > 0 && req.method)
-        ) {
-            return true;
-        } else {
-            return false;
-        }
+        );
+
+        return isUnauthenticated;
     }
 
     showLoginDialog(err) {
@@ -152,16 +159,35 @@ export class ZitiApiInterceptor implements HttpInterceptor {
     }
 
     private addAuthToken(request: any) {
-        const session = this.settingsService.settings.session;
         const contentType = request.headers.get('Content-Type') || 'application/json';
         let headers: any = {'content-type': contentType};
-        if (session?.id) {
-            headers = {"zt-session": session.id, 'content-type': contentType};
+
+        // Check if request already has zt-session (from callHAControllers for controller-specific sessions)
+        // In this case, keep the existing zt-session and don't override with JWT
+        if (request.headers.has('zt-session')) {
+            return request;
         }
+
+        // Try to use JWT token first (for OpenZiti v2.0+ and HA compatibility)
+        const jwtToken = this.settingsService.getJwtToken();
+        if (jwtToken && this.settingsService.hasValidJwtToken()) {
+            headers = {
+                "Authorization": `Bearer ${jwtToken}`,
+                'content-type': contentType
+            };
+        } else {
+            // Fall back to legacy zt-session for backward compatibility
+            const session = this.settingsService.settings.session;
+            if (session?.id) {
+                headers = {"zt-session": session.id, 'content-type': contentType};
+            }
+        }
+
         const acceptHeader = request.headers.get('Accept');
         if (!acceptHeader) {
             headers.accept = 'application/json';
         }
+
         return request.clone({setHeaders: headers});
     }
 }

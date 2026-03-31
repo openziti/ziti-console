@@ -3,7 +3,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 @Component({
   selector: 'lib-entity-count-legend',
   templateUrl: './entity-count-legend.component.html',
-  styleUrls: ['./entity-count-legend.component.scss']
+  styleUrls: ['./entity-count-legend.component.scss'],
+  standalone: false
 })
 export class EntityCountLegendComponent {
   @Input() geolocatedIdentities: number = 0;

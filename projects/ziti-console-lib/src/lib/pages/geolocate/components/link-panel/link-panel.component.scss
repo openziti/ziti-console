@@ -10,8 +10,7 @@
   flex-direction: column;
 
   .details-section {
-    padding: var(--paddingLarge);
-    border-bottom: 1px solid var(--inputBorder);
+    padding: 0;
   }
 
   .details-table {
@@ -19,6 +18,7 @@
     border-collapse: separate;
     border-spacing: 0;
     font-size: .875rem;
+    padding: 0 var(--paddingLarge);
 
     tr {
       border-bottom: 1px solid var(--inputBorder);
@@ -62,13 +62,18 @@
   .connections-section {
     margin-top: var(--gapMedium);
     border-top: 1px solid var(--inputBorder);
-    padding: var(--paddingLarge);
+    padding: 0;
 
     .connections-header {
+      padding: 0.75rem 1rem;
+      background: var(--formBackground);
+      border-bottom: 2px solid var(--inputBorder);
+      border-left: 3px solid var(--green);
+
       .connections-title {
         font-size: 0.875rem;
         font-weight: 600;
-        color: var(--tableHeader);
+        color: var(--tableText);
         text-transform: uppercase;
         letter-spacing: 0.05em;
       }
@@ -78,6 +83,7 @@
       overflow-x: auto;
       max-height: 300px;
       overflow-y: auto;
+      border: none;
 
       .connections-table {
         width: 100%;

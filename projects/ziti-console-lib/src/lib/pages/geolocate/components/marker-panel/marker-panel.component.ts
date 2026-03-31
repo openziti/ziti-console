@@ -13,7 +13,8 @@ interface ServiceGroup {
 @Component({
   selector: 'lib-marker-panel',
   templateUrl: './marker-panel.component.html',
-  styleUrls: ['./marker-panel.component.scss']
+  styleUrls: ['./marker-panel.component.scss'],
+  standalone: false
 })
 export class MarkerPanelComponent implements OnChanges {
   @Input() markerData: any = null;
@@ -31,6 +32,7 @@ export class MarkerPanelComponent implements OnChanges {
   @Output() navigateToDetails = new EventEmitter<{type: string, id: string}>();
   @Output() circuitPreviewOpened = new EventEmitter<any>();
   @Output() roleAttributeNavigated = new EventEmitter<string>();
+  @Output() panelClosed = new EventEmitter<void>();
 
   // Service grouping
   serviceGroups: ServiceGroup[] = [];
@@ -110,6 +112,13 @@ export class MarkerPanelComponent implements OnChanges {
       type: this.markerData?.type,
       id: this.markerData?.item?.id
     });
+  }
+
+  /**
+   * Close the marker panel
+   */
+  onCancel(): void {
+    this.panelClosed.emit();
   }
 
   /**

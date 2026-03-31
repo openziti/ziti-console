@@ -30,6 +30,7 @@
           (navigateToDetails)="navigateToDetails.emit($event)"
           (circuitPreviewOpened)="circuitPreviewOpened.emit($event)"
           (roleAttributeNavigated)="roleAttributeNavigated.emit($event)"
+          (panelClosed)="closePanel()"
         ></lib-marker-panel>
 
         <!-- Link Panel -->
@@ -65,6 +66,7 @@
           [pageSize]="entityListPageSize"
           [totalEntities]="entityListTotal"
           [searchTerm]="entityListSearch"
+          [locationFilter]="entityListLocationFilter"
           [previewEntity]="entityListPreview"
           [previewCircuits]="sidePanelCircuits"
           [selectedCircuit]="selectedCircuit"
@@ -76,6 +78,7 @@
           (searchChanged)="entityListSearchChanged.emit($event)"
           (pageChanged)="entityListPageChanged.emit($event)"
           (sortChanged)="entityListSortChanged.emit($event)"
+          (locationFilterChanged)="entityListLocationFilterChanged.emit($event)"
           (entityClicked)="entityListEntityClicked.emit($event)"
           (previewClosed)="entityListPreviewClosed.emit()"
           (circuitSelected)="circuitSelected.emit($event)"
@@ -84,6 +87,7 @@
           (navigateToDetails)="navigateToDetails.emit($event)"
           (circuitPreviewOpened)="circuitPreviewOpened.emit($event)"
           (roleAttributeNavigated)="roleAttributeNavigated.emit($event)"
+          (entityDragStarted)="unlocatedEntityDragStarted.emit($event)"
         ></lib-entity-list-panel>
 
         <!-- Unlocated Panel -->

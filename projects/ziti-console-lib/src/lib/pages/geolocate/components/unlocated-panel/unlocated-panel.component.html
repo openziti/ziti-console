@@ -18,8 +18,9 @@
       <table class="unlocated-table">
         <thead>
           <tr>
+            <th class="drag-handle-header"></th>
             <th>Name</th>
-            <th>Status</th>
+            <th>Roles</th>
           </tr>
         </thead>
         <tbody>
@@ -28,11 +29,19 @@
               class="clickable-row draggable-row"
               draggable="true"
               (dragstart)="onDragStart($event, identity, 'identity')">
-            <td class="entity-name">{{ identity.name }}</td>
-            <td class="entity-status">
-              <span [class]="identity.edgeRouterConnectionStatus === 'online' ? 'status-online' : 'status-offline'">
-                {{ identity.edgeRouterConnectionStatus === 'online' ? 'Connected' : 'Disconnected' }}
+            <td class="drag-handle-cell">
+              <span class="drag-handle">⋮⋮</span>
+            </td>
+            <td class="entity-name">
+              <span class="status-icon" [class.status-online]="identity.edgeRouterConnectionStatus === 'online'" [class.status-offline]="identity.edgeRouterConnectionStatus !== 'online'"></span>
+              <span class="entity-text">{{ identity.name }}</span>
+            </td>
+            <td class="entity-roles">
+              <span *ngIf="identity.roleAttributes && identity.roleAttributes.length > 0" class="roles-container">
+                <span *ngFor="let role of identity.roleAttributes.slice(0, 3)" class="role-tag" (click)="onRoleAttributeClick(role, $event)">#{{ role }}</span>
+                <span *ngIf="identity.roleAttributes.length > 3" class="role-more">+{{ identity.roleAttributes.length - 3 }}</span>
               </span>
+              <span *ngIf="!identity.roleAttributes || identity.roleAttributes.length === 0" class="no-roles">—</span>
             </td>
           </tr>
         </tbody>
@@ -63,9 +72,10 @@
       <table class="unlocated-table">
         <thead>
           <tr>
+            <th class="drag-handle-header"></th>
             <th>Name</th>
             <th>Type</th>
-            <th>Status</th>
+            <th>Roles</th>
           </tr>
         </thead>
         <tbody>
@@ -74,12 +84,20 @@
               class="clickable-row draggable-row"
               draggable="true"
               (dragstart)="onDragStart($event, router, 'routers')">
-            <td class="entity-name">{{ router.name }}</td>
-            <td class="entity-type">{{ router._routerType === 'transit-router' ? 'Transit Router' : 'Edge Router' }}</td>
-            <td class="entity-status">
-              <span [class]="router.connected ? 'status-online' : 'status-offline'">
-                {{ router.connected ? 'Online' : 'Offline' }}
+            <td class="drag-handle-cell">
+              <span class="drag-handle">⋮⋮</span>
+            </td>
+            <td class="entity-name">
+              <span class="status-icon" [class.status-online]="router.connected" [class.status-offline]="!router.connected"></span>
+              <span class="entity-text">{{ router.name }}</span>
+            </td>
+            <td class="entity-type">{{ router._routerType === 'transit-router' ? 'Transit' : 'Edge' }}</td>
+            <td class="entity-roles">
+              <span *ngIf="router.roleAttributes && router.roleAttributes.length > 0" class="roles-container">
+                <span *ngFor="let role of router.roleAttributes.slice(0, 3)" class="role-tag" (click)="onRoleAttributeClick(role, $event)">#{{ role }}</span>
+                <span *ngIf="router.roleAttributes.length > 3" class="role-more">+{{ router.roleAttributes.length - 3 }}</span>
               </span>
+              <span *ngIf="!router.roleAttributes || router.roleAttributes.length === 0" class="no-roles">—</span>
             </td>
           </tr>
         </tbody>

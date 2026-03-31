@@ -5,7 +5,8 @@ import { throttleTime } from 'rxjs/operators';
 @Component({
   selector: 'lib-side-panel-container',
   templateUrl: './side-panel-container.component.html',
-  styleUrls: ['./side-panel-container.component.scss']
+  styleUrls: ['./side-panel-container.component.scss'],
+  standalone: false
 })
 export class SidePanelContainerComponent implements OnInit, OnDestroy, OnChanges {
   @Input() isOpen: boolean = false;
@@ -29,6 +30,7 @@ export class SidePanelContainerComponent implements OnInit, OnDestroy, OnChanges
   @Input() entityListTotal: number = 0;
   @Input() filteredEntityList: any[] = [];
   @Input() entityListPreview: any = null;
+  @Input() entityListLocationFilter: 'all' | 'located' | 'unlocated' = 'located';
 
   // Unlocated panel inputs
   @Input() filteredUnlocatedIdentities: any[] = [];
@@ -75,6 +77,7 @@ export class SidePanelContainerComponent implements OnInit, OnDestroy, OnChanges
   @Output() entityListSearchChanged = new EventEmitter<string>();
   @Output() entityListPageChanged = new EventEmitter<number>();
   @Output() entityListSortChanged = new EventEmitter<{column: string, direction: 'asc' | 'desc'}>();
+  @Output() entityListLocationFilterChanged = new EventEmitter<'all' | 'located' | 'unlocated'>();
   @Output() entityListEntityClicked = new EventEmitter<any>();
   @Output() entityListPreviewClosed = new EventEmitter<void>();
 
@@ -173,8 +176,10 @@ export class SidePanelContainerComponent implements OnInit, OnDestroy, OnChanges
       case 'unlocated':
         return 'Unlocated Entities';
       case 'entityList':
-        if (this.entityListType === 'identities') return 'Located Identities';
-        if (this.entityListType === 'routers') return 'Located Routers';
+        const filterText = this.entityListLocationFilter === 'located' ? 'Located' :
+                          this.entityListLocationFilter === 'unlocated' ? 'Unlocated' : 'All';
+        if (this.entityListType === 'identities') return `${filterText} Identities`;
+        if (this.entityListType === 'routers') return `${filterText} Routers`;
         if (this.entityListType === 'services') return 'All Services';
         return '';
       case 'servicesWithCircuits':
@@ -193,6 +198,10 @@ export class SidePanelContainerComponent implements OnInit, OnDestroy, OnChanges
       if (this.panelData?.type === 'services') return 'icon-services';
       return 'icon-routers';
     } else if (this.panelType === 'entityList') {
+      // Show location filter icon instead of entity type icon
+      if (this.entityListLocationFilter === 'located') return 'icon-Location';
+      if (this.entityListLocationFilter === 'unlocated') return 'icon-unlocated';
+      // For 'all' filter, show entity type icon
       if (this.entityListType === 'identities') return 'icon-identity';
       if (this.entityListType === 'routers') return 'icon-routers';
       if (this.entityListType === 'services') return 'icon-services';

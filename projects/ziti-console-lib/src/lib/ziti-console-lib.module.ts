@@ -151,6 +151,7 @@ import { CircuitPanelComponent } from './pages/geolocate/components/circuit-pane
 import { EntityListPanelComponent } from './pages/geolocate/components/entity-list-panel/entity-list-panel.component';
 import { UnlocatedPanelComponent } from './pages/geolocate/components/unlocated-panel/unlocated-panel.component';
 import { ServicesWithCircuitsPanelComponent } from './pages/geolocate/components/services-with-circuits-panel/services-with-circuits-panel.component';
+import { HaStatusIndicatorComponent } from './pages/geolocate/components/ha-status-indicator/ha-status-indicator.component';
 import { AttributesComponent } from './pages/attributes/attributes.component';
 import {SideNavigatorComponent} from "./features/side-navigator/side-navigator.component";
 import {HeaderBarComponent} from "./features/header-bar/header-bar.component";
@@ -273,6 +274,7 @@ export function playerFactory() {
         EntityListPanelComponent,
         UnlocatedPanelComponent,
         ServicesWithCircuitsPanelComponent,
+        HaStatusIndicatorComponent,
         AttributesComponent,
         SideNavigatorComponent,
         HeaderBarComponent,

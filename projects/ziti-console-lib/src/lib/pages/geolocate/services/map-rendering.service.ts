@@ -421,6 +421,7 @@ export class MapRenderingService {
               entityIds: entityIds,
               entityTypes: entityTypes,
               circuitHops: circuitPathData.circuitHops,
+              circuitRouters: circuitPathData.circuitRouters,
               visibleSegmentToHopIndex: visibleSegmentToHopIndex
             });
           });
