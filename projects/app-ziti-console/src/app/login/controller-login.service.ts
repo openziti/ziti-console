@@ -181,18 +181,18 @@ export class ControllerLoginService extends LoginServiceClass {
         // After successful login, discover and authenticate to HA controllers
         this.discoverAndAuthenticateHAControllers(this.domain, username, password, body.data?.token)
             .then((haControllers) => {
-                if (haControllers.length > 0) {
-                    const growlerData = new GrowlerModel(
-                        'success',
-                        'HA Cluster Detected',
-                        `Successfully authenticated to ${haControllers.length + 1} controllers in HA cluster`,
-                    );
-                    this.growlerService.show(growlerData);
-                }
+                // Success - no growler needed
+                console.log('[HA] Successfully connected to', haControllers.length, 'peer controllers');
             })
             .catch((err) => {
-                // Don't fail login if HA discovery fails
+                // Show error only if HA controller discovery/authentication fails
                 console.error('HA controller discovery failed:', err);
+                const growlerData = new GrowlerModel(
+                    'error',
+                    'HA Controller Error',
+                    `Failed to connect to peer controllers in HA cluster`,
+                );
+                this.growlerService.show(growlerData);
             });
 
         return of([body.data?.token]);
@@ -464,6 +464,7 @@ export class ControllerLoginService extends LoginServiceClass {
         localStorage.removeItem('ziti.settings');
         this.settingsService.settings.session.id = undefined;
         this.settingsService.set(this.settingsService.settings);
+        this.haControllerService.reset(); // Clear HA cluster status
         this.router.navigate(['/login']);
     }
 
@@ -473,6 +474,7 @@ export class ControllerLoginService extends LoginServiceClass {
         const options = this.getHttpOptions();
         return this.httpClient.get(apiUrl, options).toPromise().then((resp: any) => {
             if(isEmpty(resp?.error)) {
+                this.haControllerService.reset(); // Clear HA cluster status
                 defer(() => {
                     window.location.href = window.location.origin + '/login';
                 });

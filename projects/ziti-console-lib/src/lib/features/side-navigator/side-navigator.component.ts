@@ -6,6 +6,7 @@ import {defer} from 'lodash-es';
 import {ZITI_NAVIGATOR} from "../../ziti-console.constants";
 import {Subscription} from 'rxjs';
 import {filter} from 'rxjs/operators';
+import {HAControllerService} from '../../services/ha-controller.service';
 
 @Component({
   selector: 'lib-side-navigator',
@@ -22,13 +23,16 @@ export class SideNavigatorComponent implements OnInit, OnDestroy {
   navHidden = false;
   hideMenuNavBar = false;
   betaFeaturesEnabled = false;
+  isHAEnabled = false;
 
   private routerSubscription?: Subscription;
+  private haSubscription?: Subscription;
   private selectedNavItem: any = null;
 
   constructor(
       private router: Router,
-      @Inject(ZITI_NAVIGATOR) public currentNav: any
+      @Inject(ZITI_NAVIGATOR) public currentNav: any,
+      private haControllerService: HAControllerService
   ) {}
 
   ngOnInit() {
@@ -41,11 +45,19 @@ export class SideNavigatorComponent implements OnInit, OnDestroy {
     ).subscribe((event) => {
       this.updateSelectedNavItem(event.urlAfterRedirects);
     });
+
+    // Subscribe to HA cluster status
+    this.haSubscription = this.haControllerService.clusterStatus$.subscribe((status) => {
+      this.isHAEnabled = status.enabled;
+    });
   }
 
   ngOnDestroy() {
     if (this.routerSubscription) {
       this.routerSubscription.unsubscribe();
+    }
+    if (this.haSubscription) {
+      this.haSubscription.unsubscribe();
     }
   }
 

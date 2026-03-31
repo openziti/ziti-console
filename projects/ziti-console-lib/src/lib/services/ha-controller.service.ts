@@ -36,20 +36,28 @@ export class HAControllerService {
   private healthCheckSubscription: Subscription | null = null;
   private readonly HEALTH_CHECK_INTERVAL = 30000; // 30 seconds
 
-  constructor(private httpClient: HttpClient) {}
+  constructor(private httpClient: HttpClient) {
+    // Restore HA cluster status from localStorage on service initialization
+    this.restoreClusterStatus();
+  }
 
   /**
    * Initialize HA cluster with discovered controllers
    */
   initializeCluster(controllers: HAController[]): void {
     const status = this._clusterStatus$.value;
-    this._clusterStatus$.next({
+    const newStatus = {
       ...status,
       enabled: controllers.length > 1,
       controllers: controllers,
       totalCount: controllers.length,
       onlineCount: controllers.filter(c => c.isOnline).length
-    });
+    };
+
+    this._clusterStatus$.next(newStatus);
+
+    // Persist to localStorage
+    this.saveClusterStatus(newStatus);
 
     // Start health checks if enabled
     if (controllers.length > 1) {
@@ -234,12 +242,16 @@ export class HAControllerService {
    */
   reset(): void {
     this.stopHealthChecks();
-    this._clusterStatus$.next({
+    const newStatus = {
       enabled: false,
       controllers: [],
       onlineCount: 0,
       totalCount: 0
-    });
+    };
+    this._clusterStatus$.next(newStatus);
+
+    // Clear from localStorage
+    this.clearClusterStatus();
   }
 
   /**
@@ -247,5 +259,49 @@ export class HAControllerService {
    */
   ngOnDestroy(): void {
     this.stopHealthChecks();
+  }
+
+  /**
+   * Save cluster status to localStorage
+   */
+  private saveClusterStatus(status: HAClusterStatus): void {
+    try {
+      localStorage.setItem('ha.clusterStatus', JSON.stringify(status));
+    } catch (err) {
+      console.warn('[HA] Failed to save cluster status to localStorage:', err);
+    }
+  }
+
+  /**
+   * Restore cluster status from localStorage
+   */
+  private restoreClusterStatus(): void {
+    try {
+      const saved = localStorage.getItem('ha.clusterStatus');
+      if (saved) {
+        const status: HAClusterStatus = JSON.parse(saved);
+        this._clusterStatus$.next(status);
+
+        // Restart health checks if enabled
+        if (status.enabled && status.controllers.length > 1) {
+          this.startHealthChecks();
+        }
+
+        console.log('[HA] Restored cluster status from localStorage:', status);
+      }
+    } catch (err) {
+      console.warn('[HA] Failed to restore cluster status from localStorage:', err);
+    }
+  }
+
+  /**
+   * Clear cluster status from localStorage
+   */
+  private clearClusterStatus(): void {
+    try {
+      localStorage.removeItem('ha.clusterStatus');
+    } catch (err) {
+      console.warn('[HA] Failed to clear cluster status from localStorage:', err);
+    }
   }
 }
