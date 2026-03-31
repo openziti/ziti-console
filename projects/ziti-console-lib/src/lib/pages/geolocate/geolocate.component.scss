@@ -46,6 +46,7 @@
   width: 100%;
   overflow: visible; // Changed from hidden to allow absolute panel to show
   position: relative;
+  border-top: 1px solid var(--inputBorder);
 }
 
 .overlay {
@@ -66,9 +67,10 @@
   position: relative;
 
   .map-container {
-    width: 100%;
+    flex: 1 1 auto; // Allow map to grow and shrink
     height: 100%;
     position: relative;
+    min-width: 0; // Prevent flex item from overflowing
   }
 }
 

@@ -3,7 +3,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 @Component({
   selector: 'lib-map-legend',
   templateUrl: './map-legend.component.html',
-  styleUrls: ['./map-legend.component.scss']
+  styleUrls: ['./map-legend.component.scss'],
+  standalone: false
 })
 export class MapLegendComponent {
   @Input() routersVisible: boolean = true;

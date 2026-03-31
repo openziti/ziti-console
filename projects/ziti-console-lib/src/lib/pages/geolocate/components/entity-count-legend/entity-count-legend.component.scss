@@ -1,154 +1,122 @@
 .entity-count-legend {
-  position: absolute;
-  top: 1rem;
-  left: calc(50% - (var(--side-panel-width, 0rem) / 2));
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: row;
-  gap: 0.625rem;
-  z-index: 1100; // Above side panel (1000) to remain visible
-  transition: left 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: 100%;
 
-  .entity-pod {
+  .entity-chip {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
     background-color: var(--white);
     border: 1px solid var(--inputBorder);
-    border-radius: 4px;
-    overflow: hidden;
-    box-shadow: 0rem 0.1875rem 0.3125rem 0.0625rem var(--boxShadow);
-    min-height: auto;
+    border-radius: var(--inputBorderRadius);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
 
-    .pod-top {
-      display: flex;
-      flex-direction: row;
-      flex: 1;
+    &:hover {
+      background-color: var(--formBackground);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
 
-      .pod-left {
-        opacity: .7;
+    &:active {
+      transform: translateY(0);
+    }
 
-        &:hover {
-          opacity: 1;
+    .entity-icon {
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+      width: 1.5rem;
+      height: 1.5rem;
+      flex-shrink: 0;
+
+      &.entity-identity {
+        background-image: url(/assets/svgs/identity-marker.svg);
+      }
+
+      &.entity-router {
+        background-image: url(/assets/svgs/router-marker.svg);
+      }
+
+      &.icon-services {
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:before {
+          color: var(--activeCircuitColor);
         }
       }
     }
 
-    .pod-left {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 0.625rem;
-      gap: 0.3125rem;
-      background-color: var(--white);
-      transition: background-color 0.2s ease;
+    .entity-count {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--tableText);
+      line-height: 1;
+      min-width: 1.5rem;
+      text-align: center;
+    }
 
-      &.clickable {
-        cursor: pointer;
+    .entity-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--tableText);
+      text-transform: capitalize;
+    }
 
-        &:hover {
-          background-color: var(--formBackground);
-        }
+    // Color accents for each chip type
+    &.identity-chip {
+      border-left: 3px solid var(--primaryColor);
+    }
 
-        &:active {
-          transform: scale(0.98);
-        }
+    &.router-chip {
+      border-left: 3px solid var(--secondaryColor);
+    }
+
+    &.service-chip {
+      border-left: 3px solid var(--activeCircuitColor);
+    }
+  }
+
+  .chip-separator {
+    width: 1px;
+    height: 1.5rem;
+    background-color: var(--inputBorder);
+  }
+}
+
+// Responsive: Hide labels on smaller screens
+@media (max-width: 1050px) {
+  .entity-count-legend {
+    gap: 0.5rem;
+
+    .entity-chip {
+      padding: 0.375rem 0.5rem;
+      gap: 0.375rem;
+
+      .entity-label {
+        display: none;
       }
 
-      .icon-and-count {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-        gap: 0.4375rem;
-        width: 100%;
+      .entity-count {
+        font-size: 1rem;
+        min-width: 1.25rem;
       }
 
       .entity-icon {
-        background-size: contain;
-        background-position: center;
-        width: 1.875rem;
-        height: 1.875rem;
-        flex-shrink: 0;
-
-        &.entity-identity {
-          background-image: url(/assets/svgs/identity-marker.svg);
-        }
-
-        &.entity-router {
-          background-image: url(/assets/svgs/router-marker.svg);
-        }
-
-        &.icon-services {
-          width: 1.875rem;
-          height: 1.875rem;
-          font-size: 1.875rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-
-          &:before {
-            color: var(--icon, #823c81);
-          }
-        }
-      }
-
-      .total-count {
-        font-size: 1.5625rem;
-        font-weight: 700;
-        color: var(--tableText);
-        line-height: 1;
-        font-family: Open Sans, Arial, sans-serif;
+        width: 1.25rem;
+        height: 1.25rem;
       }
     }
 
-    .pod-footer {
-      background-color: var(--primaryColor);
-      padding: 0.3125rem;
-      text-align: center;
-      width: 8rem;
-
-      &.routers-pod {
-        background-color: var(--secondaryColor);
-      }
-
-      &.services-pod {
-        background-color: var(--activeCircuitColor);
-      }
-
-      .entity-name {
-        font-size: 0.9375rem;
-        font-weight: 600;
-        color: var(--offWhite_ALWAYS);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-    }
-
-    .pod-total {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.375rem;
-      padding: var(--paddingSmall);
-      background-color: var(--tableHeaderBackground);
-      border-top: 1px solid var(--inputBorder);
-
-      .total-label {
-        font-size: 0.8125rem;
-        font-weight: 500;
-        color: var(--tableText);
-        text-transform: uppercase;
-        letter-spacing: 0.25px;
-      }
-
-      .total-value {
-        font-size: 1.5625rem;
-        font-weight: 700;
-        color: var(--tableText);
-        font-family: Open Sans, Arial, sans-serif;
-      }
+    .chip-separator {
+      height: 1.25rem;
     }
   }
 }

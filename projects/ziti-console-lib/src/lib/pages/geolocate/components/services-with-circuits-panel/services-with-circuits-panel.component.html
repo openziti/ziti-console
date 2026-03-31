@@ -100,8 +100,11 @@
 
   <!-- Circuit Preview Section -->
   <div class="circuit-preview-section" *ngIf="previewCircuit">
-    <div class="preview-header">
-      <span class="preview-title">Circuit Details</span>
+    <div class="preview-header preview-header-circuit">
+      <div class="preview-title">
+        <span class="icon-circuit preview-icon"></span>
+        <span class="preview-text">Circuit Details</span>
+      </div>
       <span class="icon-HamburgerAppClose preview-close" (click)="closePreview()"></span>
     </div>
     <div class="preview-content">

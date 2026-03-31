@@ -66,6 +66,7 @@ export abstract class ZitiDataService {
   abstract deleteSubdata(entityType: string, id: any, dataType: string, params: any): Promise<any>;
   abstract delete(type: string, id: string): Promise<any>;
   abstract call(url: string, prefix?: string): Promise<any>;
+  abstract callHAControllers(url: string, prefix?: string): Promise<any>;
   abstract resetEnrollment(id: string, date: string): Promise<any>;
   abstract deleteEnrollment(enrollmentId: string): Promise<any>
   abstract reissueEnrollment(id: string, date: string): Promise<any>;

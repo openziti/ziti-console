@@ -3,7 +3,8 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 @Component({
   selector: 'lib-circuit-panel',
   templateUrl: './circuit-panel.component.html',
-  styleUrls: ['./circuit-panel.component.scss']
+  styleUrls: ['./circuit-panel.component.scss'],
+  standalone: false
 })
 export class CircuitPanelComponent {
   @Input() circuitData: any = null;

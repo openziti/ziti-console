@@ -12,7 +12,8 @@ interface ServiceGroup {
 @Component({
   selector: 'lib-entity-list-panel',
   templateUrl: './entity-list-panel.component.html',
-  styleUrls: ['./entity-list-panel.component.scss']
+  styleUrls: ['./entity-list-panel.component.scss'],
+  standalone: false
 })
 export class EntityListPanelComponent implements OnChanges {
   @Input() entityType: string = '';
@@ -29,9 +30,11 @@ export class EntityListPanelComponent implements OnChanges {
   @Input() Math: any = Math;
   @Input() allIdentities: any[] = [];
   @Input() allRouters: any[] = [];
+  @Input() locationFilter: 'all' | 'located' | 'unlocated' = 'located';
 
   @Output() searchChanged = new EventEmitter<string>();
   @Output() pageChanged = new EventEmitter<number>();
+  @Output() locationFilterChanged = new EventEmitter<'all' | 'located' | 'unlocated'>();
   @Output() entityClicked = new EventEmitter<any>();
   @Output() previewClosed = new EventEmitter<void>();
   @Output() circuitSelected = new EventEmitter<any>();
@@ -41,6 +44,7 @@ export class EntityListPanelComponent implements OnChanges {
   @Output() circuitPreviewOpened = new EventEmitter<any>();
   @Output() roleAttributeNavigated = new EventEmitter<string>();
   @Output() sortChanged = new EventEmitter<{column: string, direction: 'asc' | 'desc'}>();
+  @Output() entityDragStarted = new EventEmitter<{event: DragEvent, entity: any, type: string}>();
 
   sortColumn: string = '';
   sortDirection: 'asc' | 'desc' = 'desc';
@@ -115,10 +119,30 @@ export class EntityListPanelComponent implements OnChanges {
   }
 
   /**
+   * Handle location filter change
+   */
+  onLocationFilterChange(filter: 'all' | 'located' | 'unlocated'): void {
+    this.locationFilterChanged.emit(filter);
+  }
+
+  /**
    * Handle page change
    */
   onPageChange(page: number): void {
     this.pageChanged.emit(page);
+  }
+
+  /**
+   * Handle drag start for unlocated entities
+   */
+  onDragStart(event: DragEvent, entity: any): void {
+    // Only emit drag event if showing unlocated entities
+    if (this.locationFilter === 'unlocated') {
+      // Convert entityType to the format expected by drag handlers
+      // 'identities' -> 'identity', 'routers' stays 'routers'
+      const dragType = this.entityType === 'identities' ? 'identity' : this.entityType;
+      this.entityDragStarted.emit({ event, entity, type: dragType });
+    }
   }
 
   /**
@@ -205,7 +229,10 @@ export class EntityListPanelComponent implements OnChanges {
   /**
    * Navigate to role attribute
    */
-  onRoleAttributeClick(role: string): void {
+  onRoleAttributeClick(role: string, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
     this.roleAttributeNavigated.emit(role);
   }
 

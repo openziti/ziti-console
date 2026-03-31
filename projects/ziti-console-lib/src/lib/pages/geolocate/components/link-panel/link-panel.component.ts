@@ -3,7 +3,8 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 @Component({
   selector: 'lib-link-panel',
   templateUrl: './link-panel.component.html',
-  styleUrls: ['./link-panel.component.scss']
+  styleUrls: ['./link-panel.component.scss'],
+  standalone: false
 })
 export class LinkPanelComponent {
   @Input() linkData: any = null;

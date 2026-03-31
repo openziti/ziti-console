@@ -12,7 +12,8 @@ interface ServiceGroup {
 @Component({
   selector: 'lib-unlocated-panel',
   templateUrl: './unlocated-panel.component.html',
-  styleUrls: ['./unlocated-panel.component.scss']
+  styleUrls: ['./unlocated-panel.component.scss'],
+  standalone: false
 })
 export class UnlocatedPanelComponent implements OnChanges {
   @Input() unlocatedData: any = null;
@@ -145,7 +146,10 @@ export class UnlocatedPanelComponent implements OnChanges {
   /**
    * Navigate to role attribute
    */
-  onRoleAttributeClick(role: string): void {
+  onRoleAttributeClick(role: string, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
     this.roleAttributeNavigated.emit(role);
   }
 

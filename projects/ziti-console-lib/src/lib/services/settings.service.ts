@@ -28,7 +28,13 @@ export const SETTINGS_SERVICE = new InjectionToken<SettingsServiceClass>('SETTIN
 
 const DEFAULTS = {
     "session": {},
+    "jwtToken": null,
     "edgeControllers": [],
+    "haCluster": {
+        "enabled": false,
+        "controllers": []
+    },
+    "controllerSessions": {},
     "editable": true,
     "update": false,
     "location": "../ziti",
@@ -221,5 +227,163 @@ export class SettingsService extends SettingsServiceClass {
                 map((body: any) => {
                     return body?.data?.apiVersions
                 })));
+    }
+
+    /**
+     * Add an HA controller to the cluster
+     */
+    addHAController(url: string, name: string): void {
+        const haCluster = this.settings.haCluster || { enabled: false, controllers: [] };
+        const exists = haCluster.controllers.find((c: any) => c.url === url);
+
+        if (!exists) {
+            haCluster.controllers.push({
+                url,
+                name,
+                isOnline: true,
+                lastHealthCheck: null
+            });
+            haCluster.enabled = haCluster.controllers.length > 1;
+
+            this.settings.haCluster = haCluster;
+            this.set(this.settings);
+        }
+    }
+
+    /**
+     * Remove an HA controller from the cluster
+     */
+    removeHAController(url: string): void {
+        const haCluster = this.settings.haCluster || { enabled: false, controllers: [] };
+        haCluster.controllers = haCluster.controllers.filter((c: any) => c.url !== url);
+        haCluster.enabled = haCluster.controllers.length > 1;
+
+        this.settings.haCluster = haCluster;
+
+        // Also remove the session if exists
+        if (this.settings.controllerSessions && this.settings.controllerSessions[url]) {
+            delete this.settings.controllerSessions[url];
+        }
+
+        this.set(this.settings);
+    }
+
+    /**
+     * Get all active sessions for HA controllers
+     */
+    getActiveSessions(): Map<string, string> {
+        const sessions = new Map<string, string>();
+        const controllerSessions = this.settings.controllerSessions || {};
+
+        Object.keys(controllerSessions).forEach(url => {
+            if (controllerSessions[url]) {
+                sessions.set(url, controllerSessions[url]);
+            }
+        });
+
+        return sessions;
+    }
+
+    /**
+     * Set session token for an HA controller
+     */
+    setControllerSession(url: string, sessionToken: string): void {
+        if (!this.settings.controllerSessions) {
+            this.settings.controllerSessions = {};
+        }
+
+        this.settings.controllerSessions[url] = sessionToken;
+        this.set(this.settings);
+    }
+
+    /**
+     * Get session token for a specific controller
+     */
+    getControllerSession(url: string): string | null {
+        const sessions = this.settings.controllerSessions || {};
+        return sessions[url] || null;
+    }
+
+    /**
+     * Clear all HA controller sessions
+     */
+    clearControllerSessions(): void {
+        this.settings.controllerSessions = {};
+        this.set(this.settings);
+    }
+
+    /**
+     * Check if HA is enabled
+     */
+    isHAEnabled(): boolean {
+        const haCluster = this.settings.haCluster || { enabled: false, controllers: [] };
+        return haCluster.enabled && haCluster.controllers.length > 1;
+    }
+
+    /**
+     * Get all HA controllers
+     */
+    getHAControllers(): any[] {
+        const haCluster = this.settings.haCluster || { enabled: false, controllers: [] };
+        return haCluster.controllers || [];
+    }
+
+    /**
+     * Set JWT token for authentication
+     */
+    setJwtToken(token: string): void {
+        this.settings.jwtToken = token;
+        this.set(this.settings);
+    }
+
+    /**
+     * Get JWT token
+     */
+    getJwtToken(): string | null {
+        return this.settings.jwtToken || null;
+    }
+
+    /**
+     * Clear JWT token
+     */
+    clearJwtToken(): void {
+        this.settings.jwtToken = null;
+        this.set(this.settings);
+    }
+
+    /**
+     * Check if JWT token exists and is not expired
+     */
+    hasValidJwtToken(): boolean {
+        const token = this.settings.jwtToken;
+        if (!token) {
+            console.log('[JWT] No JWT token found');
+            return false;
+        }
+
+        try {
+            // Decode JWT to check expiration (without verification)
+            const parts = token.split('.');
+            if (parts.length !== 3) {
+                console.log('[JWT] Token is not JWT format (not 3 parts):', token.substring(0, 20) + '...');
+                return false;
+            }
+
+            const payload = JSON.parse(atob(parts[1]));
+            const exp = payload.exp;
+
+            if (!exp) {
+                console.log('[JWT] JWT has no expiration, treating as valid');
+                return true; // No expiration claim, assume valid
+            }
+
+            const isValid = exp * 1000 > Date.now();
+            console.log('[JWT] JWT expiration check:', isValid, 'expires:', new Date(exp * 1000));
+            // Check if token is expired (exp is in seconds, Date.now() is in milliseconds)
+            return isValid;
+        } catch (e) {
+            console.error('[JWT] Failed to parse JWT token:', e);
+            return false;
+        }
     }
 }

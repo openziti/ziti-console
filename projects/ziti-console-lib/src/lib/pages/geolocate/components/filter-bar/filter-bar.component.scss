@@ -180,4 +180,12 @@
       }
     }
   }
+
+  .right-side-stats {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: var(--paddingSmall);
+  }
 }

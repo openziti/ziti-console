@@ -1,15 +1,13 @@
 :host {
-  position: absolute;
-  right: 0;
-  top: 0;
+  position: relative;
   height: 100%;
   z-index: 9999998; // Just below filter bar (9999999) but above all other map elements
   display: flex;
   flex-direction: row;
   align-items: stretch;
   pointer-events: auto;
-  padding: 1rem; // Add padding around panel to show map behind
-  padding-left: 0; // No padding on left (resizer side)
+  padding: 0; // Remove all padding for flush layout
+  flex: 0 0 auto; // Don't grow, shrink, or have a base size
 
   // Debug: ensure visibility
   &:not(:empty) {
@@ -18,11 +16,12 @@
 }
 
 .side-panel-resizer {
-  width: 12px;
+  width: 4px;
   height: 100%;
   cursor: col-resize;
   background: transparent;
-  position: relative;
+  position: absolute;
+  left: -4px; // Position it to overlap the map edge
   flex-shrink: 0;
   z-index: 100;
   transition: background-color 0.2s ease;
@@ -34,10 +33,10 @@
   // Visual indicator line (only shows on hover)
   &::after {
     content: '';
-    width: 3px;
+    width: 2px;
     height: 40px;
     background: var(--primaryColor);
-    border-radius: 2px;
+    border-radius: 1px;
     opacity: 0;
     transition: opacity 0.2s ease, height 0.2s ease;
   }
@@ -77,8 +76,8 @@
   height: 100%;
   background: var(--formBackground);
   border-left: 1px solid var(--inputBorder);
-  border-radius: var(--podBorderRadius);
-  box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.3);
+  border-radius: 0; // Remove border radius for flush edges
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15); // Subtle left shadow only
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -89,187 +88,179 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--paddingMedium);
+    padding: 0.75rem 1rem;
     border-bottom: 1px solid var(--inputBorder);
-    background: var(--tableHeaderBackground);
-    transition: background-color 0.3s ease;
-
-    &.header-service {
-      background-color: var(--activeCircuitColor);
-      .title-text {
-        color: var(--offWhite_ALWAYS);
-      }
-      .title-icon {
-        color: var(--offWhite_ALWAYS);
-      }
-    }
-
-    .title-icon {
-      &.icon-services {
-        color: var(--offWhite_ALWAYS);
-      }
-    }
+    border-left: 3px solid transparent;
+    background: var(--formBackground);
+    transition: border-color 0.2s ease;
 
     .side-panel-title {
-      font-size: 0.9rem;
+      font-size: 0.875rem;
       font-weight: 600;
       color: var(--tableText);
-      transition: color 0.3s ease;
 
       .title-with-icon {
         display: flex;
         align-items: center;
-        gap: 0.6rem;
+        gap: 0.5rem;
 
         .icon-unlocated {
           background-image: url(/assets/svgs/unknown-marker.svg);
           opacity: .7;
           background-size: 1.4rem;
-          width: 2rem;
-          height: 2rem;
+          width: 1.5rem;
+          height: 1.5rem;
           background-repeat: no-repeat;
         }
 
         .title-icon {
-          font-size: 2rem;
+          font-size: 1.5rem;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          padding-right: 0.6rem;
-          border-right-style: solid;
-          border-right-width: 1px;
+          color: var(--tableText);
+          transition: color 0.2s ease;
 
           &:before {
-            color: var(--offWhite_ALWAYS) !important;
+            color: inherit;
           }
-
         }
 
         .title-text {
           display: inline-flex;
           align-items: center;
-          font-size: 0.9rem;
+          font-size: 0.875rem;
         }
       }
     }
 
     .side-panel-close {
       cursor: pointer;
-      font-size: 1rem;
+      font-size: 1.25rem;
       color: var(--tableText);
-      transition: color 0.2s ease;
+      opacity: 0.6;
+      transition: all 0.2s ease;
 
       &:hover {
+        opacity: 1;
         color: var(--primaryColor);
       }
     }
 
-    // Header color variants based on panel type
+    // Header accent variants based on panel type - colored left border + icon
     &.header-identity {
-      background: var(--primaryColor);
+      border-left-color: var(--primaryColor);
 
-      .side-panel-title,
-      .side-panel-close {
-        color: var(--offWhite_ALWAYS);
-      }
+      .title-with-icon .title-icon {
+        color: var(--primaryColor) !important;
 
-      .side-panel-close:hover {
-        color: var(--lightGrey);
+        &::before {
+          color: var(--primaryColor) !important;
+        }
       }
     }
 
     &.header-router {
-      background: var(--secondaryColor);
+      border-left-color: var(--secondaryColor);
 
-      .side-panel-title,
-      .side-panel-close {
-        color: var(--offWhite_ALWAYS);
-      }
+      .title-with-icon .title-icon {
+        color: var(--secondaryColor) !important;
 
-      .side-panel-close:hover {
-        color: var(--lightGrey);
+        &::before {
+          color: var(--secondaryColor) !important;
+        }
       }
     }
 
     &.header-circuit {
-      background: var(--activeCircuitColor);
+      border-left-color: var(--activeCircuitColor);
 
-      .side-panel-title,
-      .side-panel-close {
-        color: var(--offWhite_ALWAYS);
-      }
+      .title-with-icon .title-icon {
+        color: var(--activeCircuitColor) !important;
 
-      .side-panel-close:hover {
-        color: var(--lightGrey);
+        &::before {
+          color: var(--activeCircuitColor) !important;
+        }
       }
     }
 
     &.header-link {
-      background: var(--green);
+      border-left-color: var(--green);
 
-      .side-panel-title,
-      .side-panel-close {
-        color: var(--offWhite_ALWAYS);
-      }
+      .title-with-icon .title-icon {
+        color: var(--green) !important;
 
-      .side-panel-close:hover {
-        color: var(--lightGrey);
+        &::before {
+          color: var(--green) !important;
+        }
       }
     }
 
     &.header-link-good {
-      background: #2ECC71;
+      border-left-color: #2ECC71;
 
-      .side-panel-title,
-      .side-panel-close {
-        color: var(--offWhite_ALWAYS);
-      }
+      .title-with-icon .title-icon {
+        color: #2ECC71 !important;
 
-      .side-panel-close:hover {
-        color: var(--lightGrey);
+        &::before {
+          color: #2ECC71 !important;
+        }
       }
     }
 
     &.header-link-elevated {
-      background: #F39C12;
+      border-left-color: #F39C12;
 
-      .side-panel-title,
-      .side-panel-close {
-        color: var(--offWhite_ALWAYS);
-      }
+      .title-with-icon .title-icon {
+        color: #F39C12 !important;
 
-      .side-panel-close:hover {
-        color: var(--lightGrey);
+        &::before {
+          color: #F39C12 !important;
+        }
       }
     }
 
     &.header-link-poor {
-      background: #E74C3C;
+      border-left-color: #E74C3C;
 
-      .side-panel-title,
-      .side-panel-close {
-        color: var(--offWhite_ALWAYS);
-      }
+      .title-with-icon .title-icon {
+        color: #E74C3C !important;
 
-      .side-panel-close:hover {
-        color: var(--lightGrey);
+        &::before {
+          color: #E74C3C !important;
+        }
       }
     }
 
     &.header-unlocated {
-      background: var(--filterBackgroundColor);
+      border-left-color: var(--inputBorder);
 
-      .side-panel-title,
-      .side-panel-close {
-        color: var(--tableText);
-      }
-
-      .side-panel-title .title-with-icon .title-icon:before {
+      .title-with-icon .title-icon {
         color: var(--tableText) !important;
-      }
 
-      .side-panel-close:hover {
-        color: var(--tableHeader);
+        &::before {
+          color: var(--tableText) !important;
+        }
+      }
+    }
+
+    &.header-service {
+      border-left-color: var(--activeCircuitColor);
+
+      .title-with-icon .title-icon {
+        color: var(--activeCircuitColor) !important;
+
+        &::before {
+          color: var(--activeCircuitColor) !important;
+        }
+
+        &.icon-services {
+          color: var(--activeCircuitColor) !important;
+
+          &::before {
+            color: var(--activeCircuitColor) !important;
+          }
+        }
       }
     }
   }

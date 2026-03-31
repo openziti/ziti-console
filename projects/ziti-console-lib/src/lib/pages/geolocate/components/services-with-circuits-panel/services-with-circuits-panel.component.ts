@@ -12,7 +12,8 @@ interface ServiceGroup {
 @Component({
   selector: 'lib-services-with-circuits-panel',
   templateUrl: './services-with-circuits-panel.component.html',
-  styleUrls: ['./services-with-circuits-panel.component.scss']
+  styleUrls: ['./services-with-circuits-panel.component.scss'],
+  standalone: false
 })
 export class ServicesWithCircuitsPanelComponent implements OnChanges {
   @Input() allCircuits: any[] = [];

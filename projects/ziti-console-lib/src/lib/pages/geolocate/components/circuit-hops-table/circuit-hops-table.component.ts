@@ -4,7 +4,8 @@ import { CircuitHop } from '../../services/circuit-path-builder.service';
 @Component({
   selector: 'lib-circuit-hops-table',
   templateUrl: './circuit-hops-table.component.html',
-  styleUrls: ['./circuit-hops-table.component.scss']
+  styleUrls: ['./circuit-hops-table.component.scss'],
+  standalone: false
 })
 export class CircuitHopsTableComponent implements OnChanges {
   @Input() circuitHops: CircuitHop[] = [];

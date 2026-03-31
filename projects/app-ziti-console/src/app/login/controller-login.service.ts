@@ -16,7 +16,7 @@
 
 import {Injectable, Inject} from '@angular/core';
 import { HttpClient } from "@angular/common/http";
-import {LoginServiceClass, SettingsServiceClass, GrowlerService, GrowlerModel, SETTINGS_SERVICE} from "ziti-console-lib";
+import {LoginServiceClass, SettingsServiceClass, GrowlerService, GrowlerModel, SETTINGS_SERVICE, HAControllerService} from "ziti-console-lib";
 import {finalize, firstValueFrom, lastValueFrom, Observable, ObservableInput, of, switchMap, tap} from "rxjs";
 import {catchError} from "rxjs/operators";
 import {Router} from "@angular/router";
@@ -34,6 +34,7 @@ export class ControllerLoginService extends LoginServiceClass {
         @Inject(SETTINGS_SERVICE) override settingsService: SettingsServiceClass,
         override router: Router,
         override growlerService: GrowlerService,
+        private haControllerService: HAControllerService
     ) {
         super(httpClient, settingsService, router, growlerService);
     }
@@ -149,9 +150,20 @@ export class ControllerLoginService extends LoginServiceClass {
             return of([body.data?.token]);
         }
         if (body.error) throw body.error;
+
+        // Log the full authentication response to understand structure
+        console.log('[AUTH] Full authentication response:', JSON.stringify(body, null, 2));
+        console.log('[AUTH] Response data fields:', Object.keys(body.data || {}));
+
+        // Extract token from response
+        const token = body.data?.token;
+        console.log('[AUTH] Token value:', token);
+        console.log('[AUTH] Token type:', token?.includes('.') && token?.split('.').length === 3 ? 'JWT' : 'Session UUID');
+
+        // Store both legacy session and JWT token
         const settings = {
             ...this.settingsService.settings, session: {
-                id: body.data?.token,
+                id: token,
                 controllerDomain: this.domain,
                 authorization: 100,
                 expiresAt: body.data.expiresAt,
@@ -159,7 +171,292 @@ export class ControllerLoginService extends LoginServiceClass {
             }
         }
         this.settingsService.set(settings);
+
+        // Store JWT token for HA authentication
+        // Note: In OpenZiti v2.0+, the token should be a JWT, not a session UUID
+        if (token) {
+            this.settingsService.setJwtToken(token);
+        }
+
+        // After successful login, discover and authenticate to HA controllers
+        this.discoverAndAuthenticateHAControllers(this.domain, username, password, body.data?.token)
+            .then((haControllers) => {
+                if (haControllers.length > 0) {
+                    const growlerData = new GrowlerModel(
+                        'success',
+                        'HA Cluster Detected',
+                        `Successfully authenticated to ${haControllers.length + 1} controllers in HA cluster`,
+                    );
+                    this.growlerService.show(growlerData);
+                }
+            })
+            .catch((err) => {
+                // Don't fail login if HA discovery fails
+                console.error('HA controller discovery failed:', err);
+            });
+
         return of([body.data?.token]);
+    }
+
+    /**
+     * Discover HA peer controllers
+     * With JWT authentication, we don't need to authenticate separately to each peer
+     * The JWT token from the primary controller works across the entire HA cluster
+     */
+    private async discoverAndAuthenticateHAControllers(
+        primaryUrl: string,
+        username: string,
+        password: string,
+        jwtToken: string
+    ): Promise<any[]> {
+        try {
+            // ========================================
+            // TEMPORARY: DO NOT COMMIT THIS CODE
+            // ========================================
+            // Transform primaryUrl to use public cert if it's a NetFoundry production URL
+            let transformedPrimaryUrl = primaryUrl;
+            if (primaryUrl.includes('.production.netfoundry.io') && !primaryUrl.includes('-p.production.netfoundry.io')) {
+                transformedPrimaryUrl = primaryUrl.replace('.production.netfoundry.io', '-p.production.netfoundry.io');
+                console.log(`[HA] [TEMP] Transformed primary URL for public cert: ${transformedPrimaryUrl}`);
+            }
+            // Use the transformed URL for all HA operations
+            primaryUrl = transformedPrimaryUrl;
+            // ========================================
+            // END TEMPORARY CODE
+            // ========================================
+
+            console.log('[HA] Starting discovery for primary URL:', primaryUrl);
+            console.log('[HA] JWT token present:', !!jwtToken);
+
+            // Get API versions from primary controller
+            const versionUrl = `${primaryUrl}/edge/management/v1/version`;
+            const versionResponse: any = await firstValueFrom(
+                this.httpClient.get(versionUrl, {
+                    headers: { 'Authorization': `Bearer ${jwtToken}` }
+                })
+            );
+
+            console.log('[HA] Version response:', versionResponse);
+            console.log('[HA] Full version data:', JSON.stringify(versionResponse?.data, null, 2));
+
+            // Check if fabric API exists (indicates HA capability)
+            const hasPeerData = versionResponse?.data?.peerControllers;
+            const fabricApi = versionResponse?.data?.apiVersions?.fabric;
+
+            // Also check for alternative peer data locations
+            const buildInfo = versionResponse?.data?.buildInfo;
+            const capabilities = versionResponse?.data?.capabilities;
+
+            console.log('[HA] Has peer data:', hasPeerData);
+            console.log('[HA] Has fabric API:', fabricApi);
+            console.log('[HA] Full version data keys:', Object.keys(versionResponse?.data || {}));
+            console.log('[HA] Capabilities:', capabilities);
+
+            // For now, if fabric API exists but no peer data, try to get cluster members
+            if (!hasPeerData && fabricApi) {
+                console.log('[HA] No peer controllers in version endpoint - trying cluster discovery endpoints');
+                console.warn('[HA] Note: Fabric cluster endpoints may not have CORS configured for browser access');
+                console.warn('[HA] If this fails with CORS error, configure CORS on controller or use version endpoint peerControllers');
+
+                // Try endpoint 1: /fabric/v1/cluster/list-members (used by ziti CLI)
+                // Note: This endpoint returns addresses in format "tls:hostname:port" which we convert to "https://hostname"
+                try {
+                    const clusterUrl = `${primaryUrl}/fabric/v1/cluster/list-members`;
+                    console.log('[HA] Fetching cluster members from:', clusterUrl);
+                    console.log('[HA] JWT token for request:', jwtToken?.substring(0, 20) + '...');
+
+                    const clusterResponse: any = await firstValueFrom(
+                        this.httpClient.get(clusterUrl).pipe(
+                            catchError((err) => {
+                                console.warn('[HA] Cluster list-members request failed:', {
+                                    status: err.status,
+                                    statusText: err.statusText,
+                                    message: err.message,
+                                    reason: err.status === 401 ? 'JWT token may lack fabric admin permissions' :
+                                           err.status === 0 ? 'CORS preflight failed - endpoint may not support browser access' : 'Unknown error'
+                                });
+                                throw err;
+                            })
+                        )
+                    );
+
+                    console.log('[HA] Cluster members response:', clusterResponse);
+
+                    if (clusterResponse?.data && Array.isArray(clusterResponse.data)) {
+                        const clusterMembers = clusterResponse.data;
+                        console.log('[HA] Found', clusterMembers.length, 'cluster members');
+
+                        clusterMembers.forEach((member: any) => {
+                            console.log(`[HA] Cluster member:`, member);
+                        });
+
+                        // Check if cluster members have API URLs
+                        const memberUrls = clusterMembers
+                            .filter((member: any) => member.address || member.apiAddresses || member.addr || member.url)
+                            .map((member: any) => {
+                                // Get the address in whatever format it's provided
+                                let rawAddress = member.address || member.apiAddresses?.[0] || member.url || member.addr;
+
+                                // Convert "tls:hostname:port" format to "https://hostname"
+                                let apiUrl = rawAddress;
+                                if (rawAddress?.startsWith('tls:')) {
+                                    // Format: "tls:hostname:port" -> "https://hostname"
+                                    const parts = rawAddress.substring(4).split(':'); // Remove "tls:" and split by ":"
+                                    let hostname = parts[0];
+
+                                    // ========================================
+                                    // TEMPORARY: DO NOT COMMIT THIS CODE
+                                    // ========================================
+                                    // For NetFoundry production environments, append "-p" before ".production.netfoundry.io"
+                                    // to use public-facing controllers with valid certs
+                                    if (hostname.includes('.production.netfoundry.io') && !hostname.includes('-p.production.netfoundry.io')) {
+                                        hostname = hostname.replace('.production.netfoundry.io', '-p.production.netfoundry.io');
+                                        console.log(`[HA] [TEMP] Appended -p to hostname for public cert: ${hostname}`);
+                                    }
+                                    // ========================================
+                                    // END TEMPORARY CODE
+                                    // ========================================
+
+                                    apiUrl = `https://${hostname}`;
+                                }
+
+                                console.log(`[HA] Converting address "${rawAddress}" to "${apiUrl}"`);
+
+                                return {
+                                    url: apiUrl,
+                                    id: member.id || member.name,
+                                    isLeader: member.leader,
+                                    isConnected: member.connected !== false
+                                };
+                            });
+
+                        console.log('[HA] Extracted member URLs:', memberUrls);
+
+                        if (memberUrls.length > 0 && memberUrls[0].url) {
+                            // Success! We found accessible URLs
+                            console.log('[HA] Successfully discovered', memberUrls.length, 'controllers from cluster endpoint');
+
+                            // Convert to controller format and initialize HA cluster
+                            memberUrls.forEach((member: any, index: number) => {
+                                const name = index === 0 ? 'Primary Controller' : `Peer Controller ${index}`;
+                                this.settingsService.addHAController(member.url, name);
+                            });
+
+                            const allControllers = memberUrls.map((member: any, index: number) => ({
+                                url: member.url,
+                                name: index === 0 ? 'Primary Controller' : `Peer Controller ${index}`,
+                                isOnline: member.isConnected !== false,
+                                lastHealthCheck: new Date(),
+                                lastResponseTime: null,
+                                sessionToken: null
+                            }));
+
+                            console.log('[HA] Initializing HA cluster with discovered controllers:', allControllers);
+                            this.haControllerService.initializeCluster(allControllers);
+                            console.log('[HA] HA cluster initialized successfully');
+
+                            return allControllers.slice(1); // Return peers only (excluding primary)
+                        }
+                    }
+                } catch (clusterError) {
+                    console.log('[HA] Failed to fetch cluster members:', clusterError);
+                }
+
+                // Try endpoint 2: /fabric/v1/raft/members (fallback)
+                try {
+                    const raftUrl = `${primaryUrl}/fabric/v1/raft/members`;
+                    console.log('[HA] Fallback: Fetching raft members from:', raftUrl);
+
+                    const raftResponse: any = await firstValueFrom(
+                        this.httpClient.get(raftUrl).pipe(
+                            catchError((err) => {
+                                console.warn('[HA] Raft members request failed:', {
+                                    status: err.status,
+                                    statusText: err.statusText,
+                                    message: err.message,
+                                    reason: err.status === 401 ? 'JWT token may lack fabric admin permissions' :
+                                           err.status === 0 ? 'CORS preflight failed - endpoint may not support browser access' : 'Unknown error'
+                                });
+                                throw err;
+                            })
+                        )
+                    );
+
+                    console.log('[HA] Raft members response:', raftResponse);
+
+                    if (raftResponse?.data && Array.isArray(raftResponse.data)) {
+                        const raftMembers = raftResponse.data;
+                        console.log('[HA] Found', raftMembers.length, 'raft members');
+
+                        raftMembers.forEach((member: any) => {
+                            console.log(`[HA] Raft member:`, member);
+                        });
+                    }
+                } catch (raftError: any) {
+                    console.warn('[HA] Failed to fetch raft members:', raftError?.status || raftError?.message || raftError);
+                }
+
+                console.log('[HA] Could not auto-discover controllers - manual configuration needed');
+                return [];
+            }
+
+            // Get peer controller URLs from version endpoint
+            let peerUrls: string[] = [];
+            if (hasPeerData && Array.isArray(versionResponse.data.peerControllers)) {
+                peerUrls = versionResponse.data.peerControllers
+                    .map((peer: any) => peer.url || peer.address)
+                    .filter((url: string) => url && url !== primaryUrl);
+            }
+
+            console.log('[HA] Discovered peer URLs:', peerUrls);
+
+            if (peerUrls.length === 0) {
+                console.log('[HA] No peer controllers found in version endpoint');
+                return [];
+            }
+
+            // Add primary controller to HA cluster
+            this.settingsService.addHAController(primaryUrl, 'Primary Controller');
+
+            // Add all peer controllers (no separate authentication needed with JWT)
+            const discoveredControllers = peerUrls.map((peerUrl, index) => {
+                this.settingsService.addHAController(peerUrl, `Peer Controller ${index + 1}`);
+
+                return {
+                    url: peerUrl,
+                    name: `Peer Controller ${index + 1}`,
+                    isOnline: true,
+                    lastHealthCheck: new Date(),
+                    lastResponseTime: null,
+                    sessionToken: null // Not needed with JWT
+                };
+            });
+
+            // Build complete list of all controllers
+            const allControllers = [
+                {
+                    url: primaryUrl,
+                    name: 'Primary Controller',
+                    isOnline: true,
+                    lastHealthCheck: new Date(),
+                    lastResponseTime: null,
+                    sessionToken: null // Not needed with JWT
+                },
+                ...discoveredControllers
+            ];
+
+            console.log('[HA] Initializing HA cluster with controllers:', allControllers);
+
+            // Initialize HA cluster in service
+            this.haControllerService.initializeCluster(allControllers);
+
+            console.log('[HA] HA cluster initialized successfully');
+
+            return discoveredControllers;
+        } catch (err) {
+            console.error('HA controller discovery error:', err);
+            return [];
+        }
     }
 
 

@@ -3,7 +3,8 @@ import { Component, EventEmitter, Input, Output, ViewChild, OnChanges, SimpleCha
 @Component({
   selector: 'lib-geolocate-filter-bar',
   templateUrl: './filter-bar.component.html',
-  styleUrls: ['./filter-bar.component.scss']
+  styleUrls: ['./filter-bar.component.scss'],
+  standalone: false
 })
 export class GeolocateFilterBarComponent implements OnChanges {
   @Input() selectedRouterAttributes: any[] = [];

@@ -24,7 +24,8 @@ import {defer} from 'lodash-es';
 @Component({
   selector: 'lib-geolocate',
   templateUrl: './geolocate.component.html',
-  styleUrls: ['./geolocate.component.scss']
+  styleUrls: ['./geolocate.component.scss'],
+  standalone: false
 })
 export class GeolocateComponent implements OnInit, OnDestroy {
   map: any;
@@ -70,6 +71,7 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   entityListType: string = '';
   entityListSortColumn: string = '';
   entityListSortDirection: 'asc' | 'desc' = 'desc';
+  entityListLocationFilter: 'all' | 'located' | 'unlocated' = 'located';
 
   // Note: Marker, rendering, and location properties moved to MapMarkerService, MapRenderingService, and MapStateService
 
@@ -232,7 +234,17 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     // Subscribe to marker service events
     this.subscription.add(
       this.mapMarkerService.markerClicked.subscribe(data => {
-        this.openSidePanel('marker', data);
+        // If entity list panel is open with a preview, update the preview instead of switching panels
+        if (this.mapStateService.sidePanelType === 'entityList' && this.entityListPreview?.item?.id === data.item.id) {
+          // Update the existing preview with new location (in case marker was dragged)
+          this.entityListPreview = {
+            ...this.entityListPreview,
+            location: data.location
+          };
+        } else {
+          // Otherwise, open marker panel as usual
+          this.openSidePanel('marker', data);
+        }
       })
     );
 
@@ -245,6 +257,18 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     this.subscription.add(
       this.mapMarkerService.geolocationUpdated.subscribe(({ item, lat, lng, type }) => {
         this.updateGeolocationLocal(item, lat, lng, type);
+
+        // If entity list panel is showing a preview of this entity, update the location
+        if (this.mapStateService.sidePanelType === 'entityList' && this.entityListPreview?.item?.id === item.id) {
+          const location = type === 'identity'
+            ? this.mapStateService.identityLocations.get(item.id)
+            : this.mapStateService.routerLocations.get(item.id);
+
+          this.entityListPreview = {
+            ...this.entityListPreview,
+            location: location
+          };
+        }
       })
     );
 
@@ -264,89 +288,105 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     const attributesPromise = this.getRoleAttributest();
     this.getIdentityNamedAttributes(); // Initialize identity names for filtering
     this.getServiceNamedAttributes(); // Initialize service names for filtering
-    this.map = L.map('MainMap', {
-      zoomControl: false,
-      attributionControl: false
-    });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; NetFoundry Inc.'
-    }).addTo(this.map);
-
-    L.control.attribution({
-      position: 'bottomleft'
-    }).addTo(this.map);
-
-    this.map.setView(new L.LatLng(41.850033, -87.6500523), 4);
-
-    // Map click handler to clear marker selection when clicking on the map (not on a marker)
-    this.map.on('click', (e: any) => {
-      // Clear selected marker if one is selected
-      this.mapMarkerService.clearSelectedMarker(this.identityClusterGroup, this.routerClusterGroup);
-    });
-
-    // Click handler to close dropdowns when clicking outside
-    document.addEventListener('click', this.documentClickHandler);
-
-    // Throttled mousemove handler for side panel resizing
-    this.subscription.add(
-      fromEvent<MouseEvent>(document, 'mousemove')
-        .pipe(throttleTime(16)) // ~60fps
-        .subscribe(event => this.onMouseMove(event))
-    );
-
-    // Add map click handler to disable dragging when clicking outside markers
-    this.map.on('click', (event: any) => {
-      // Check if we clicked on a marker or on the map itself
-      // If currentDraggableMarker exists and we're not clicking on it, disable dragging
-      this.mapMarkerService.disableCurrentDraggableMarker();
-    });
-
-    // Initialize separate marker cluster groups for identities and routers
-    if ((L as any).markerClusterGroup) {
-      // Identity cluster group
-      this.identityClusterGroup = (L as any).markerClusterGroup({
-        maxClusterRadius: 80,
-        spiderfyOnMaxZoom: true,
-        showCoverageOnHover: true,
-        zoomToBoundsOnClick: true,
-        iconCreateFunction: (cluster: any) => {
-          const count = cluster.getChildCount();
-          let size = 'small';
-          if (count >= 100) size = 'large';
-          else if (count >= 10) size = 'medium';
-
-          return L.divIcon({
-            html: `<div><span>${count}</span></div>`,
-            className: `marker-cluster marker-cluster-identity marker-cluster-${size}`,
-            iconSize: L.point(40, 40)
-          });
-        }
+    // Only initialize map if it doesn't already exist
+    if (!this.map) {
+      this.map = L.map('MainMap', {
+        zoomControl: false,
+        attributionControl: false
       });
 
-      this.map.addLayer(this.identityClusterGroup);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        subdomains: ['a', 'b', 'c'],
+        maxZoom: 19,
+        minZoom: 2,
+        crossOrigin: true,
+        // Add tile loading optimizations
+        updateWhenIdle: true,
+        updateWhenZooming: false,
+        keepBuffer: 2
+      }).addTo(this.map);
 
-      // Router cluster group
-      this.routerClusterGroup = (L as any).markerClusterGroup({
-        maxClusterRadius: 80,
-        spiderfyOnMaxZoom: true,
-        showCoverageOnHover: true,
-        zoomToBoundsOnClick: true,
-        iconCreateFunction: (cluster: any) => {
-          const count = cluster.getChildCount();
-          let size = 'small';
-          if (count >= 100) size = 'large';
-          else if (count >= 10) size = 'medium';
+      L.control.attribution({
+        position: 'bottomleft'
+      }).addTo(this.map);
 
-          return L.divIcon({
-            html: `<div><span>${count}</span></div>`,
-            className: `marker-cluster marker-cluster-router marker-cluster-${size}`,
-            iconSize: L.point(40, 40)
-          });
-        }
+      this.map.setView(new L.LatLng(41.850033, -87.6500523), 4);
+
+      // Map click handler to clear marker selection when clicking on the map (not on a marker)
+      this.map.on('click', (e: any) => {
+        // Clear selected marker if one is selected
+        this.mapMarkerService.clearSelectedMarker(this.identityClusterGroup, this.routerClusterGroup);
       });
 
-      this.map.addLayer(this.routerClusterGroup);
+      // Add map click handler to disable dragging when clicking outside markers
+      this.map.on('click', (event: any) => {
+        // Check if we clicked on a marker or on the map itself
+        // If currentDraggableMarker exists and we're not clicking on it, disable dragging
+        this.mapMarkerService.disableCurrentDraggableMarker();
+      });
+
+      // Initialize separate marker cluster groups for identities and routers
+      if ((L as any).markerClusterGroup) {
+        // Identity cluster group
+        this.identityClusterGroup = (L as any).markerClusterGroup({
+          maxClusterRadius: 80,
+          spiderfyOnMaxZoom: true,
+          showCoverageOnHover: true,
+          zoomToBoundsOnClick: true,
+          iconCreateFunction: (cluster: any) => {
+            const count = cluster.getChildCount();
+            let size = 'small';
+            if (count >= 100) size = 'large';
+            else if (count >= 10) size = 'medium';
+
+            return L.divIcon({
+              html: `<div><span>${count}</span></div>`,
+              className: `marker-cluster marker-cluster-identity marker-cluster-${size}`,
+              iconSize: L.point(40, 40)
+            });
+          }
+        });
+
+        this.map.addLayer(this.identityClusterGroup);
+
+        // Router cluster group
+        this.routerClusterGroup = (L as any).markerClusterGroup({
+          maxClusterRadius: 80,
+          spiderfyOnMaxZoom: true,
+          showCoverageOnHover: true,
+          zoomToBoundsOnClick: true,
+          iconCreateFunction: (cluster: any) => {
+            const count = cluster.getChildCount();
+            let size = 'small';
+            if (count >= 100) size = 'large';
+            else if (count >= 10) size = 'medium';
+
+            return L.divIcon({
+              html: `<div><span>${count}</span></div>`,
+              className: `marker-cluster marker-cluster-router marker-cluster-${size}`,
+              iconSize: L.point(40, 40)
+            });
+          }
+        });
+
+        this.map.addLayer(this.routerClusterGroup);
+      }
+    }
+
+    // Click handler to close dropdowns when clicking outside (only add once)
+    if (!this.documentClickHandler) {
+      document.addEventListener('click', this.documentClickHandler);
+    }
+
+    // Throttled mousemove handler for side panel resizing (only add once)
+    if (this.subscription.closed) {
+      this.subscription.add(
+        fromEvent<MouseEvent>(document, 'mousemove')
+          .pipe(throttleTime(16)) // ~60fps
+          .subscribe(event => this.onMouseMove(event))
+      );
     }
 
     this.isLoading = true;
@@ -803,7 +843,7 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   }
 
   // Wrapper method - delegates to MapMarkerService with additional bounds fitting logic
-  addMarkers(data: any[], type: string) {
+  addMarkers(data: any[], type: string, skipAutoFit: boolean = false) {
     const clusterGroup = type === 'identity' ? this.identityClusterGroup : this.routerClusterGroup;
 
     const markers = this.mapMarkerService.addMarkers(
@@ -816,7 +856,8 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     );
 
     // Fit bounds to show all markers after both routers and identities are loaded
-    if (this.edgeRoutersInit && this.identitiesInit && markers.length > 0) {
+    // Skip if explicitly requested (e.g., during drag-and-drop operations)
+    if (!skipAutoFit && this.edgeRoutersInit && this.identitiesInit && markers.length > 0) {
       if (this.identityClusterGroup && this.routerClusterGroup) {
         const allMarkers = [...this.mapMarkerService.identityMarkers, ...this.mapMarkerService.routerMarkers];
         if (allMarkers.length > 0) {
@@ -1895,14 +1936,16 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   }
 
   showLocatedIdentities() {
-    const locatedIdentities = this.identities.filter(identity => identity.tags?.geolocation);
-    this.initializeEntityList(locatedIdentities, 'identities');
+    // Filter out Router-type identities (they're shown as routers, not identities)
+    const filteredIdentities = this.identities.filter(identity => identity.typeId !== 'Router');
+    this.entityListLocationFilter = 'located'; // Default to located view
+    this.initializeEntityList(filteredIdentities, 'identities');
     this.openSidePanel('entityList', { entityType: 'identities' });
   }
 
   showLocatedRouters() {
-    const locatedRouters = this.edgeRouters.filter(router => router.tags?.geolocation);
-    this.initializeEntityList(locatedRouters, 'routers');
+    this.entityListLocationFilter = 'located'; // Default to located view
+    this.initializeEntityList(this.edgeRouters, 'routers');
     this.openSidePanel('entityList', { entityType: 'routers' });
   }
 
@@ -1942,8 +1985,18 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   }
 
   applyEntityListFilters() {
-    // Apply search filter
+    // Apply location filter (for identities and routers only)
     let filtered = this.fullEntityList;
+    if (this.entityListType === 'identities' || this.entityListType === 'routers') {
+      if (this.entityListLocationFilter === 'located') {
+        filtered = filtered.filter(entity => entity.tags?.geolocation);
+      } else if (this.entityListLocationFilter === 'unlocated') {
+        filtered = filtered.filter(entity => !entity.tags?.geolocation || entity.tags.geolocation.trim() === '');
+      }
+      // 'all' filter shows everything, no filtering needed
+    }
+
+    // Apply search filter
     if (this.entityListSearch.trim()) {
       const searchLower = this.entityListSearch.toLowerCase();
       filtered = filtered.filter(entity =>
@@ -1994,6 +2047,12 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     this.entityListSortColumn = sort.column;
     this.entityListSortDirection = sort.direction;
     this.entityListPage = 1; // Reset to first page on sort
+    this.applyEntityListFilters();
+  }
+
+  onEntityListLocationFilterChange(filter: 'all' | 'located' | 'unlocated') {
+    this.entityListLocationFilter = filter;
+    this.entityListPage = 1; // Reset to first page on filter change
     this.applyEntityListFilters();
   }
 
@@ -2124,20 +2183,37 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     // Update entity geolocation
     this.updateGeolocationLocal(droppedEntity, latLng.lat, latLng.lng, droppedEntityType);
 
-    // Create marker for the newly located entity
-    this.addMarkers([droppedEntity], droppedEntityType);
+    // Create marker for the newly located entity (skip auto-fit to prevent zoom out)
+    this.addMarkers([droppedEntity], droppedEntityType, true);
+
+    // Center map on the dropped location without changing zoom
+    this.map.panTo(latLng);
 
     // Show preview and handle marker setup
     setTimeout(() => {
       // Always show preview first (regardless of whether marker is found/clustered)
-      if (this.mapStateService.sidePanelType === 'unlocated') {
-        // Set preview entity to show details in the unlocated panel
-        this.unlocatedPreviewEntity = droppedEntity;
-        this.unlocatedPreviewType = droppedEntityType;
-        this.unlocatedPreviewHasUnsavedLocation = false; // Using _unsavedLocation flag now
-        this.unlocatedPreviewCircuits = this.getEntityCircuits(droppedEntity.id, droppedEntityType);
+      if (this.mapStateService.sidePanelType === 'unlocated' || this.mapStateService.sidePanelType === 'entityList') {
+        // Set preview entity to show details in the unlocated/entity list panel
+        if (this.mapStateService.sidePanelType === 'unlocated') {
+          this.unlocatedPreviewEntity = droppedEntity;
+          this.unlocatedPreviewType = droppedEntityType;
+          this.unlocatedPreviewHasUnsavedLocation = false; // Using _unsavedLocation flag now
+          this.unlocatedPreviewCircuits = this.getEntityCircuits(droppedEntity.id, droppedEntityType);
+        } else if (this.mapStateService.sidePanelType === 'entityList') {
+          // Update entity list preview with location
+          const location = droppedEntityType === 'identity'
+            ? this.mapStateService.identityLocations.get(droppedEntity.id)
+            : this.mapStateService.routerLocations.get(droppedEntity.id);
+
+          this.entityListPreview = {
+            type: droppedEntityType,
+            item: droppedEntity,
+            location: location,
+            _justDropped: true  // Flag to track freshly dropped entities
+          };
+        }
       } else {
-        // If unlocated panel isn't open, open marker panel
+        // If unlocated/entity list panel isn't open, open marker panel
         const location = droppedEntityType === 'identity'
           ? this.mapStateService.identityLocations.get(droppedEntity.id)
           : this.mapStateService.routerLocations.get(droppedEntity.id);
@@ -2368,6 +2444,74 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   }
 
   closeEntityListPreview() {
+    // Check if the entity has unsaved location changes OR was just dropped
+    if (this.entityListPreview?.item &&
+        (this.hasUnsavedLocationChanges(this.entityListPreview.item) || (this.entityListPreview as any)?._justDropped)) {
+      const item = this.entityListPreview.item;
+      const type = this.entityListPreview.type;
+
+      // Find and remove the marker from the map
+      const marker = this.findMarkerByItemId(item.id, type);
+      if (marker) {
+        // Remove from cluster groups or map
+        if (type === 'identity') {
+          if (this.identityClusterGroup && this.identityClusterGroup.hasLayer(marker)) {
+            this.identityClusterGroup.removeLayer(marker);
+          } else if (this.map.hasLayer(marker)) {
+            this.map.removeLayer(marker);
+          }
+          // Remove from marker service collections
+          const index = this.mapMarkerService.identityMarkers.indexOf(marker);
+          if (index > -1) {
+            this.mapMarkerService.identityMarkers.splice(index, 1);
+          }
+          this.mapMarkerService.markerToIdentityId.delete(marker);
+        } else {
+          if (this.routerClusterGroup && this.routerClusterGroup.hasLayer(marker)) {
+            this.routerClusterGroup.removeLayer(marker);
+          } else if (this.map.hasLayer(marker)) {
+            this.map.removeLayer(marker);
+          }
+          // Remove from marker service collections
+          const index = this.mapMarkerService.routerMarkers.indexOf(marker);
+          if (index > -1) {
+            this.mapMarkerService.routerMarkers.splice(index, 1);
+          }
+          this.mapMarkerService.markerToRouterId.delete(marker);
+        }
+
+        // Disable dragging if enabled
+        if (marker.dragging) {
+          marker.dragging.disable();
+        }
+
+        // Remove CSS classes
+        const markerElement = marker.getElement();
+        if (markerElement) {
+          markerElement.classList.remove('marker-draggable-active-identity');
+          markerElement.classList.remove('marker-draggable-active-router');
+        }
+
+        // Clear currentDraggableMarker if this is it
+        if (this.mapMarkerService.currentDraggableMarker === marker) {
+          this.mapMarkerService.currentDraggableMarker = null;
+        }
+      }
+
+      // Clear the location from state
+      if (type === 'identity') {
+        this.mapStateService.identityLocations.delete(item.id);
+      } else {
+        this.mapStateService.routerLocations.delete(item.id);
+      }
+
+      // Clear the geolocation tag and unsaved flag from the entity
+      if (item.tags) {
+        delete item.tags.geolocation;
+      }
+      item._unsavedLocation = false;
+    }
+
     this.entityListPreview = null;
     this.entityListPreviewType = null;
     this.mapStateService.sidePanelCircuits = [];
@@ -2594,6 +2738,35 @@ export class GeolocateComponent implements OnInit, OnDestroy {
 
     // Clear the unsaved location flag after successful save
     item._unsavedLocation = false;
+
+    // Clean up draggable marker state and visual styling
+    if (this.mapMarkerService.currentDraggableMarker) {
+      const marker = this.mapMarkerService.currentDraggableMarker;
+
+      // Disable dragging
+      if (marker.dragging) {
+        marker.dragging.disable();
+      }
+
+      // Remove visual CSS classes
+      const markerElement = marker.getElement();
+      if (markerElement) {
+        markerElement.classList.remove('marker-draggable-active-identity');
+        markerElement.classList.remove('marker-draggable-active-router');
+      }
+
+      // Clear currentDraggableMarker reference
+      this.mapMarkerService.currentDraggableMarker = null;
+    }
+
+    // Reset marker selection and opacity
+    if (this.mapMarkerService.selectedMarker) {
+      this.updateMarkerIcon(this.mapMarkerService.selectedMarker, false);
+      this.mapMarkerService.selectedMarker = null;
+    }
+
+    // Reset opacity on all markers
+    this.resetMarkerOpacity();
   }
 
   async saveUnlocatedPreviewEntity(): Promise<void> {

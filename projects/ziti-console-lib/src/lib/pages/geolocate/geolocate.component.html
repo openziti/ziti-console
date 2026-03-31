@@ -36,7 +36,23 @@
         (identityFilterChanged)="getIdentityNamedAttributes($event)"
         (serviceFilterChanged)="getServiceNamedAttributes($event)"
         (clearFiltersClicked)="clearFilters($event)"
-      ></lib-geolocate-filter-bar>
+      >
+        <lib-entity-count-legend
+          [geolocatedIdentities]="geolocatedIdentities"
+          [unlocatedIdentities]="unlocatedIdentities"
+          [geolocatedRouters]="geolocatedRouters"
+          [unlocatedRouters]="unlocatedRouters"
+          [totalServices]="totalServices"
+          [servicesWithActiveCircuits]="servicesWithActiveCircuits"
+          [totalActiveCircuits]="circuits.length"
+          (showLocatedIdentitiesClicked)="showLocatedIdentities()"
+          (showUnlocatedIdentitiesClicked)="showUnlocatedIdentities()"
+          (showLocatedRoutersClicked)="showLocatedRouters()"
+          (showUnlocatedRoutersClicked)="showUnlocatedRouters()"
+          (showAllServicesClicked)="showAllServices()"
+          (showServicesWithActiveCircuitsClicked)="showServicesWithActiveCircuits()"
+        ></lib-entity-count-legend>
+      </lib-geolocate-filter-bar>
     </lib-form-field-container>
     <div class="ziti-dashboard-row">
       <lib-form-field-container [showHeader]="false" class="no-padding full-height no-shadow">
@@ -46,22 +62,6 @@
                (drop)="onMapDrop($event)"
                (dragleave)="onMapDragLeave($event)">
             <div id="MainMap"></div>
-            <!-- Entity Count Legend (Top Right) -->
-            <lib-entity-count-legend
-              [geolocatedIdentities]="geolocatedIdentities"
-              [unlocatedIdentities]="unlocatedIdentities"
-              [geolocatedRouters]="geolocatedRouters"
-              [unlocatedRouters]="unlocatedRouters"
-              [totalServices]="totalServices"
-              [servicesWithActiveCircuits]="servicesWithActiveCircuits"
-              [totalActiveCircuits]="circuits.length"
-              (showLocatedIdentitiesClicked)="showLocatedIdentities()"
-              (showUnlocatedIdentitiesClicked)="showUnlocatedIdentities()"
-              (showLocatedRoutersClicked)="showLocatedRouters()"
-              (showUnlocatedRoutersClicked)="showUnlocatedRouters()"
-              (showAllServicesClicked)="showAllServices()"
-              (showServicesWithActiveCircuitsClicked)="showServicesWithActiveCircuits()"
-            ></lib-entity-count-legend>
             <lib-map-legend
               [routersVisible]="routersVisible"
               [identitiesVisible]="identitiesVisible"
@@ -75,6 +75,7 @@
               (activeCircuitsToggled)="toggleActiveCircuits()"
               (clusteringToggled)="toggleClustering()"
             ></lib-map-legend>
+            <lib-ha-status-indicator></lib-ha-status-indicator>
           </div>
         </div>
       </lib-form-field-container>
@@ -94,6 +95,7 @@
         [entityListPage]="entityListPage"
         [entityListPageSize]="entityListPageSize"
         [entityListTotal]="entityListTotal"
+        [entityListLocationFilter]="entityListLocationFilter"
         [filteredEntityList]="filteredEntityList"
         [entityListPreview]="entityListPreview"
         [filteredUnlocatedIdentities]="filteredUnlocatedIdentities"
@@ -128,6 +130,7 @@
         (entityListSearchChanged)="onEntityListSearchChange($event)"
         (entityListPageChanged)="onEntityListPageChange($event)"
         (entityListSortChanged)="onEntityListSortChange($event)"
+        (entityListLocationFilterChanged)="onEntityListLocationFilterChange($event)"
         (entityListEntityClicked)="handleEntityListClick($event)"
         (entityListPreviewClosed)="closeEntityListPreview()"
         (unlocatedIdentitiesSearchChanged)="onUnlocatedIdentitiesSearchChange($event)"

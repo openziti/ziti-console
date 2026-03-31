@@ -12,7 +12,7 @@
   height: 100%;
   min-height: 0;
   overflow: hidden; // Container should not scroll, only inner sections
-  padding: var(--paddingLarge);
+  padding: 0;
   background: var(--mainBackground);
 
   .unlocated-section {
@@ -57,16 +57,16 @@
     }
 
     .search-container {
-      padding: 0.75rem 1rem;
+      padding: var(--paddingMedium);
       background-color: var(--white);
       border-left: 1px solid var(--inputBorder);
       border-right: 1px solid var(--inputBorder);
 
       .search-input {
         width: 100%;
-        padding: 0.5rem 0.75rem;
+        padding: var(--paddingMedium);
         border: 1px solid var(--inputBorder);
-        border-radius: var(--inputBorderRadius);
+        border-radius: var(--defaultBorderRadius);
         font-size: 0.875rem;
         font-family: 'Open Sans', sans-serif;
         background-color: var(--formBackground);
@@ -89,10 +89,8 @@
       flex: 1;
       min-height: 0; // Important for flexbox scrolling
       overflow-y: auto;
-      border: 1px solid var(--inputBorder);
-      border-radius: var(--inputBorderRadius);
-      border-top-left-radius: 0;
-      border-top-right-radius: 0;
+      border: none;
+      border-radius: 0;
       display: flex;
       flex-direction: column;
       background-color: var(--navigation);
@@ -118,6 +116,13 @@
             white-space: nowrap;
             font-size: 0.75rem;
             background-color: var(--navigation);
+
+            &.drag-handle-header {
+              width: 32px;
+              min-width: 32px;
+              max-width: 32px;
+              padding: 0.5rem 0.25rem;
+            }
           }
         }
 
@@ -141,8 +146,18 @@
               &.draggable-row {
                 cursor: grab;
 
+                &:hover {
+                  .drag-handle-cell .drag-handle {
+                    opacity: 0.8;
+                  }
+                }
+
                 &:active {
                   cursor: grabbing;
+
+                  .drag-handle-cell .drag-handle {
+                    opacity: 1;
+                  }
                 }
               }
             }
@@ -156,13 +171,99 @@
               color: var(--tableText);
               font-size: 0.813rem;
 
+              &.drag-handle-cell {
+                width: 32px;
+                min-width: 32px;
+                max-width: 32px;
+                padding: 0.5rem 0.25rem;
+                text-align: center;
+                cursor: grab;
+                user-select: none;
+
+                .drag-handle {
+                  display: inline-block;
+                  color: var(--tableHeader);
+                  opacity: 0.4;
+                  font-size: 0.875rem;
+                  line-height: 1;
+                  transition: opacity 0.2s ease;
+                }
+              }
+
               &.entity-name {
                 font-weight: 500;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+
+                .status-icon {
+                  width: 8px;
+                  height: 8px;
+                  border-radius: 50%;
+                  flex-shrink: 0;
+
+                  &.status-online {
+                    background-color: var(--green);
+                  }
+
+                  &.status-offline {
+                    background-color: var(--inputBorder);
+                  }
+                }
+
+                .entity-text {
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                }
               }
 
               &.entity-type {
                 color: var(--tableText);
                 font-size: 0.75rem;
+              }
+
+              &.entity-roles {
+                .roles-container {
+                  display: flex;
+                  align-items: center;
+                  gap: 0.25rem;
+                  flex-wrap: wrap;
+
+                  .role-tag {
+                    display: inline-block;
+                    background-color: var(--primaryColor);
+                    color: white;
+                    padding: 0.125rem 0.375rem;
+                    border-radius: 3px;
+                    font-size: 0.688rem;
+                    font-weight: 500;
+                    white-space: nowrap;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+
+                    &:hover {
+                      background-color: var(--secondary);
+                      transform: translateY(-1px);
+                      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                    }
+
+                    &:active {
+                      transform: translateY(0);
+                    }
+                  }
+
+                  .role-more {
+                    color: var(--tableHeader);
+                    font-size: 0.688rem;
+                    font-weight: 500;
+                  }
+                }
+
+                .no-roles {
+                  color: var(--tableHeader);
+                  opacity: 0.5;
+                }
               }
 
               &.entity-status {
@@ -253,47 +354,96 @@
     overflow: hidden;
 
     .preview-header {
-      padding: 0.5rem 0.75rem;
+      padding: 0.5rem 1rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      background: var(--formBackground);
+      border-bottom: 1px solid var(--inputBorder);
+      border-left: 3px solid transparent;
 
       &.preview-header-identity {
-        background: var(--primaryColor);
+        border-left-color: var(--primaryColor);
+
+        .preview-icon {
+          color: var(--primaryColor) !important;
+
+          &::before {
+            color: var(--primaryColor) !important;
+          }
+        }
       }
 
       &.preview-header-router {
-        background: var(--secondaryColor);
+        border-left-color: var(--secondaryColor);
+
+        .preview-icon {
+          color: var(--secondaryColor) !important;
+
+          &::before {
+            color: var(--secondaryColor) !important;
+          }
+        }
       }
 
       .preview-title {
         display: flex;
         align-items: center;
-        gap: 0.6rem;
+        gap: 0.5rem;
 
         .preview-icon {
-          font-size: 1rem;
+          font-size: 1.25rem;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
 
           &:before {
-            color: var(--offWhite_ALWAYS);
+            color: inherit;
           }
         }
 
         .preview-text {
-          color: var(--offWhite_ALWAYS);
+          color: var(--tableText);
           font-weight: 600;
-          font-size: 0.8rem;
+          font-size: 0.813rem;
         }
       }
 
       .preview-close {
-        color: var(--offWhite_ALWAYS);
+        color: var(--tableText);
+        opacity: 0.6;
         cursor: pointer;
-        font-size: 1rem;
-        transition: color 0.2s ease;
+        font-size: 1.25rem;
+        transition: all 0.2s ease;
 
         &:hover {
-          color: var(--lightGrey);
+          opacity: 1;
+          color: var(--primaryColor);
+        }
+      }
+    }
+
+    // Match circuits icon color to preview header border color
+    .preview-header-identity ~ .preview-content .circuits-section .circuits-header {
+      border-left-color: var(--primaryColor);
+
+      .circuits-header-icon {
+        color: var(--primaryColor);
+
+        &:before {
+          color: var(--primaryColor);
+        }
+      }
+    }
+
+    .preview-header-router ~ .preview-content .circuits-section .circuits-header {
+      border-left-color: var(--secondaryColor);
+
+      .circuits-header-icon {
+        color: var(--secondaryColor);
+
+        &:before {
+          color: var(--secondaryColor);
         }
       }
     }
@@ -310,6 +460,7 @@
         border-spacing: 0;
         font-size: .875rem;
         background-color: var(--navigation);
+        padding: 0 var(--paddingLarge);
 
         tr {
           border-bottom: 1px solid var(--inputBorder);
@@ -423,47 +574,64 @@
 
       // Circuits section styles
       .circuits-section {
-        margin-top: var(--gapMedium);
-        border-top: 1px solid var(--inputBorder);
+        margin: var(--gapMedium) var(--paddingLarge);
+        border: 1px solid var(--inputBorder);
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
 
         .circuits-container {
-          padding: 0 var(--paddingLarge);
+          padding: 0;
 
           .circuits-header {
+            padding: 0.5rem 0.75rem;
+            background: var(--formBackground);
+            border-bottom: 1px solid var(--inputBorder);
+            border-left: 2px solid var(--activeCircuitColor);
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.5rem 0.75rem;
-            margin: 0 calc(-1 * var(--paddingLarge));
-            background: var(--activeCircuitColor);
-            border-bottom: 1px solid var(--inputBorder);
+            gap: 0.375rem;
 
             .circuits-header-icon {
-              width: 2.85rem;
-              height: 2rem;
-              margin-left: -.8rem;
-              background-size: contain;
-              background-repeat: no-repeat;
-              background-position: center;
-              padding-right: 0.75rem;
-              border-right: 1px solid rgba(255, 255, 255, 0.2);
+              font-size: 1rem;
+              color: var(--activeCircuitColor);
+              flex-shrink: 0;
 
-              &.icon-services {
-                font-size: 1.5rem;
-                background-image: none;
-
-                &:before {
-                  color: var(--offWhite_ALWAYS);
-                }
+              &:before {
+                color: inherit;
               }
             }
 
             .circuits-header-text {
+              color: var(--tableText);
+              font-size: 0.75rem;
+              font-weight: 600;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+
+            .circuits-title {
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              color: var(--tableText);
               font-size: 0.875rem;
               font-weight: 600;
-              color: var(--offWhite_ALWAYS);
-              text-transform: uppercase;
-              letter-spacing: 0.05em;
+
+              .circuits-icon {
+                font-size: 1.5rem;
+                color: var(--activeCircuitColor);
+
+                &:before {
+                  color: inherit;
+                }
+              }
+            }
+
+            .circuit-count {
+              color: var(--tableText);
+              font-size: 0.875rem;
+              font-weight: 600;
             }
           }
 
@@ -471,9 +639,9 @@
             max-height: 25rem;
             overflow-y: auto;
             overflow-x: auto;
-            margin-top: var(--marginMedium);
-            border: 1px solid var(--inputBorder);
-            border-radius: var(--inputBorderRadius);
+            margin-top: 0;
+            border: none;
+            border-radius: 0;
 
             .circuits-table {
               width: 100%;
@@ -767,7 +935,7 @@
       .popup-actions,
       .action-section {
         margin-top: var(--gapMedium);
-        padding: var(--paddingLarge);
+        padding: var(--paddingMedium);
         border-top: 1px solid var(--inputBorder);
         display: flex;
         justify-content: flex-end;

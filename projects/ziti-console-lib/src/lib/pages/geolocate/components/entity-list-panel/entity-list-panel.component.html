@@ -13,19 +13,48 @@
         />
       </div>
 
+      <!-- Location Filter Toggle (only for identities and routers) -->
+      <div class="location-filter-toggle" *ngIf="entityType === 'identities' || entityType === 'routers'">
+        <button
+          type="button"
+          class="filter-button"
+          [class.active]="locationFilter === 'located'"
+          (click)="onLocationFilterChange('located')">
+          <span class="icon-Location filter-icon"></span>
+          <span class="filter-text">Located</span>
+        </button>
+        <button
+          type="button"
+          class="filter-button"
+          [class.active]="locationFilter === 'unlocated'"
+          (click)="onLocationFilterChange('unlocated')">
+          <img src="/assets/svgs/unknown-marker.svg" alt="Unlocated" class="filter-icon unknown-marker">
+          <span class="filter-text">Unlocated</span>
+        </button>
+        <button
+          type="button"
+          class="filter-button"
+          [class.active]="locationFilter === 'all'"
+          (click)="onLocationFilterChange('all')">
+          <span [class]="entityType === 'identities' ? 'icon-identity' : 'icon-routers'" class="filter-icon"></span>
+          <span class="filter-text">All</span>
+        </button>
+      </div>
+
       <!-- Entity Table -->
       <div class="entity-list-container">
         <table class="entity-list-table">
           <thead>
             <tr>
+              <th *ngIf="locationFilter === 'unlocated'" class="drag-handle-header"></th>
               <th (click)="toggleSort('name')" class="sortable-header">
                 Name
                 <span *ngIf="sortColumn === 'name'" class="sort-indicator">
                   {{ sortDirection === 'asc' ? '▲' : '▼' }}
                 </span>
               </th>
-              <th *ngIf="entityType === 'identities'">Status</th>
-              <th *ngIf="entityType === 'routers'">Status</th>
+              <th *ngIf="entityType === 'routers'">Type</th>
+              <th *ngIf="entityType === 'identities' || entityType === 'routers'">Roles</th>
               <th *ngIf="entityType === 'services'" (click)="toggleSort('activeCircuitCount')" class="sortable-header">
                 Active Circuits
                 <span *ngIf="sortColumn === 'activeCircuitCount'" class="sort-indicator">
@@ -38,17 +67,32 @@
             <tr *ngFor="let entity of entities"
                 (click)="onEntityClick(entity)"
                 [class.selected-row]="previewEntity?.item?.id === entity.id"
+                [class.draggable-row]="locationFilter === 'unlocated'"
+                [attr.draggable]="locationFilter === 'unlocated' ? 'true' : null"
+                (dragstart)="onDragStart($event, entity)"
                 class="clickable-row">
-              <td class="entity-name">{{ entity.name }}</td>
-              <td *ngIf="entityType === 'identities'" class="entity-status">
-                <span [class]="entity.edgeRouterConnectionStatus === 'online' ? 'status-online' : 'status-offline'">
-                  {{ entity.edgeRouterConnectionStatus === 'online' ? 'Connected' : 'Disconnected' }}
-                </span>
+              <td *ngIf="locationFilter === 'unlocated'" class="drag-handle-cell">
+                <span class="drag-handle">⋮⋮</span>
               </td>
-              <td *ngIf="entityType === 'routers'" class="entity-status">
-                <span [class]="entity.connected ? 'status-online' : 'status-offline'">
-                  {{ entity.connected ? 'Online' : 'Offline' }}
+              <td class="entity-name">
+                <span *ngIf="entityType === 'identities'" class="status-icon" [class.status-online]="entity.edgeRouterConnectionStatus === 'online'" [class.status-offline]="entity.edgeRouterConnectionStatus !== 'online'"></span>
+                <span *ngIf="entityType === 'routers'" class="status-icon" [class.status-online]="entity.connected" [class.status-offline]="!entity.connected"></span>
+                <span class="entity-text">{{ entity.name }}</span>
+              </td>
+              <td *ngIf="entityType === 'routers'" class="entity-type">{{ entity._routerType === 'transit-router' ? 'Transit' : 'Edge' }}</td>
+              <td *ngIf="entityType === 'identities'" class="entity-roles">
+                <span *ngIf="entity.roleAttributes && entity.roleAttributes.length > 0" class="roles-container">
+                  <span *ngFor="let role of entity.roleAttributes.slice(0, 3)" class="role-tag" (click)="onRoleAttributeClick(role, $event)">#{{ role }}</span>
+                  <span *ngIf="entity.roleAttributes.length > 3" class="role-more">+{{ entity.roleAttributes.length - 3 }}</span>
                 </span>
+                <span *ngIf="!entity.roleAttributes || entity.roleAttributes.length === 0" class="no-roles">—</span>
+              </td>
+              <td *ngIf="entityType === 'routers'" class="entity-roles">
+                <span *ngIf="entity.roleAttributes && entity.roleAttributes.length > 0" class="roles-container">
+                  <span *ngFor="let role of entity.roleAttributes.slice(0, 3)" class="role-tag" (click)="onRoleAttributeClick(role, $event)">#{{ role }}</span>
+                  <span *ngIf="entity.roleAttributes.length > 3" class="role-more">+{{ entity.roleAttributes.length - 3 }}</span>
+                </span>
+                <span *ngIf="!entity.roleAttributes || entity.roleAttributes.length === 0" class="no-roles">—</span>
               </td>
               <td *ngIf="entityType === 'services'" class="entity-circuits">
                 {{ entity.activeCircuitCount || 0 }}
@@ -101,14 +145,17 @@
 
   <!-- Entity Preview Section (Bottom Half) -->
   <div class="entity-preview-section" *ngIf="previewEntity">
-    <div class="preview-header">
+    <div class="preview-header"
+         [class.preview-header-identity]="previewEntity?.type === 'identity'"
+         [class.preview-header-router]="previewEntity?.type === 'routers'"
+         [class.preview-header-service]="previewEntity?.type === 'services'">
       <div class="preview-title">
         <span [ngClass]="{
           'icon-identity': previewEntity?.type === 'identity',
           'icon-routers': previewEntity?.type === 'routers',
           'icon-Services': previewEntity?.type === 'services'
-        }" class="title-icon"></span>
-        <span class="title-text">{{ previewEntity?.item?.name }}</span>
+        }" class="preview-icon"></span>
+        <span class="preview-text">{{ previewEntity?.item?.name }}</span>
       </div>
       <div class="preview-close icon-HamburgerAppClose" (click)="onPreviewClose()"></div>
     </div>
@@ -248,6 +295,9 @@
                   class="save-location-btn"
                   (click)="onSaveLocationChanges()">
             Save Changes
+          </button>
+          <button class="cancel-btn" (click)="onPreviewClose()">
+            Cancel
           </button>
           <button class="popup-details-btn" (click)="onNavigateToDetails()">
             Go To Edit Page
