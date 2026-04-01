@@ -393,18 +393,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     const summaryPromise = this.loadEntityCounts();
     const mapPromise = this.loadMapData();
     Promise.all([attributesPromise, summaryPromise, mapPromise]).then(() => {
-      // Check if filters are active and call filterCircuitsAndRouters() for mock data
-      if (this.shouldUseMockData()) {
-        const hasFilters = this.mapStateService.selectedServiceAttributes.length > 0 ||
-            this.mapStateService.selectedServiceNamedAttributes.length > 0 ||
-            this.mapStateService.selectedIdentityAttributes.length > 0 ||
-            this.mapStateService.selectedIdentityNamedAttributes.length > 0 ||
-            this.mapStateService.selectedRouterAttributes.length > 0;
-
-        if (hasFilters) {
-          this.filterCircuitsAndRouters();
-        }
-      }
     }).finally(() => {
       this.isLoading = false;
     });
@@ -412,11 +400,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   }
 
   getRoleAttributest() {
-    // Check if we should use mock data
-    if (this.shouldUseMockData()) {
-      return this.loadMockRoleAttributes();
-    }
-
     const serviceRolesPromise = this.getServiceRoleAttributes().then((result) => {
       this.serviceRoleAttributes = result.data;
     });
@@ -466,219 +449,9 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     });
   }
 
-  private shouldUseMockData(): boolean {
-    return this.route.snapshot.queryParamMap.get('mock') === 'true';
-  }
-
-  private async loadMockRoleAttributes(): Promise<void> {
-    const identityRoleAttrs = await import('../../assets/mock-data/identity-role-attributes.json');
-    const edgeRouterRoleAttrs = await import('../../assets/mock-data/edge-router-role-attributes.json');
-    const serviceRoleAttrs = await import('../../assets/mock-data/service-role-attributes.json');
-
-    this.identityRoleAttributes = identityRoleAttrs.data;
-    this.routerRoleAttributes = edgeRouterRoleAttrs.data;
-    this.serviceRoleAttributes = serviceRoleAttrs.data;
-  }
-
-  private async loadMockData(): Promise<void> {
-    // Import all mock data files
-    const fabricRoutersData = await import('../../assets/mock-data/fabric-routers.json');
-    const edgeRoutersData = await import('../../assets/mock-data/edge-routers.json');
-    const identitiesData = await import('../../assets/mock-data/identities.json');
-    const servicesData = await import('../../assets/mock-data/services.json');
-    const circuitsData = await import('../../assets/mock-data/circuits.json');
-    const terminatorsData = await import('../../assets/mock-data/terminators.json');
-    const linksData = await import('../../assets/mock-data/links.json');
-
-    // Merge fabric and edge routers (same logic as MapDataService.fetchRouters)
-    const fabricRouters = fabricRoutersData.data || [];
-    const edgeRouters = edgeRoutersData.data || [];
-
-    // Create a map for merging by ID
-    const routerMap = new Map();
-    fabricRouters.forEach(router => {
-      routerMap.set(router.id, { ...router });
-    });
-
-    edgeRouters.forEach(edgeRouter => {
-      const existing = routerMap.get(edgeRouter.id);
-      if (existing) {
-        routerMap.set(edgeRouter.id, { ...existing, ...edgeRouter });
-      } else {
-        routerMap.set(edgeRouter.id, edgeRouter);
-      }
-    });
-
-    // Load ALL routers and populate location maps
-    const allRouters = Array.from(routerMap.values());
-    this.edgeRoutersInit = true;
-
-    // Manually populate router location maps for ALL routers (needed for circuit drawing)
-    allRouters.forEach(router => {
-      if (router.tags?.geolocation) {
-        const coords = router.tags.geolocation.split(',');
-        const lat = parseFloat(coords[0]);
-        const lng = parseFloat(coords[1]);
-        this.mapStateService.routerLocations.set(router.id, { lat, lng, name: router.name });
-      }
-    });
-
-    // Now filter routers based on active filters (same as backend would do)
-    let filteredRouters = allRouters;
-    if (this.mapStateService.selectedRouterAttributes.length > 0) {
-      filteredRouters = filteredRouters.filter((router: any) => {
-        const routerRoles = router.roleAttributes || [];
-        return this.mapStateService.selectedRouterAttributes.some(selectedAttr =>
-          routerRoles.includes(selectedAttr)
-        );
-      });
-    }
-    if (this.mapStateService.selectedConnectionStatus === 'online') {
-      filteredRouters = filteredRouters.filter((router: any) => router.isOnline === true);
-    } else if (this.mapStateService.selectedConnectionStatus === 'offline') {
-      filteredRouters = filteredRouters.filter((router: any) => router.isOnline === false);
-    }
-    this.edgeRouters = filteredRouters;
-
-    // Calculate unlocated routers count based on ALL routers
-    this.unlocatedRouters = allRouters.filter(router => !router.tags?.geolocation).length;
-    this.geolocatedRouters = allRouters.filter(router => router.tags?.geolocation).length;
-
-    // Load ALL identities and populate location maps
-    const allIdentities = identitiesData.data || [];
-    this.identitiesInit = true;
-
-    // Manually populate identity location maps for ALL identities (needed for circuit drawing)
-    allIdentities.forEach(identity => {
-      if (identity.tags?.geolocation) {
-        const coords = identity.tags.geolocation.split(',');
-        const lat = parseFloat(coords[0]);
-        const lng = parseFloat(coords[1]);
-        this.mapStateService.identityLocations.set(identity.id, { lat, lng, name: identity.name });
-      }
-    });
-
-    // Now filter identities based on active filters (same as backend would do)
-    let filteredIdentities = allIdentities;
-    if (this.mapStateService.selectedIdentityAttributes.length > 0) {
-      filteredIdentities = filteredIdentities.filter((identity: any) => {
-        const identityRoles = identity.roleAttributes || [];
-        return this.mapStateService.selectedIdentityAttributes.some(selectedAttr =>
-          identityRoles.includes(selectedAttr)
-        );
-      });
-    }
-    if (this.mapStateService.selectedIdentityNamedAttributes.length > 0) {
-      const selectedIds = this.mapStateService.selectedIdentityNamedAttributes
-        .map(name => this.identitiesNameIdMap[name])
-        .filter(id => id);
-      if (selectedIds.length > 0) {
-        filteredIdentities = filteredIdentities.filter((identity: any) =>
-          selectedIds.includes(identity.id)
-        );
-      }
-    }
-    if (this.mapStateService.selectedConnectionStatus === 'online') {
-      filteredIdentities = filteredIdentities.filter((identity: any) => identity.edgeRouterConnectionStatus === 'online');
-    } else if (this.mapStateService.selectedConnectionStatus === 'offline') {
-      filteredIdentities = filteredIdentities.filter((identity: any) => identity.edgeRouterConnectionStatus !== 'online');
-    }
-    this.identities = filteredIdentities;
-
-    // Calculate unlocated identities count based on ALL identities (exclude Router-type identities)
-    this.unlocatedIdentities = allIdentities.filter(identity => identity.typeId !== 'Router' && !identity.tags?.geolocation).length;
-    this.geolocatedIdentities = allIdentities.filter(identity => identity.typeId !== 'Router' && identity.tags?.geolocation).length;
-
-    // Load ALL services and filter based on active filters (same as backend would do)
-    let allServices = servicesData.data || [];
-    if (this.mapStateService.selectedServiceAttributes.length > 0) {
-      allServices = allServices.filter((service: any) => {
-        const serviceRoles = service.roleAttributes || [];
-        return this.mapStateService.selectedServiceAttributes.some(selectedAttr =>
-          serviceRoles.includes(selectedAttr)
-        );
-      });
-    }
-    if (this.mapStateService.selectedServiceNamedAttributes.length > 0) {
-      const selectedIds = this.mapStateService.selectedServiceNamedAttributes
-        .map(name => this.servicesNameIdMap[name])
-        .filter(id => id);
-      if (selectedIds.length > 0) {
-        allServices = allServices.filter((service: any) =>
-          selectedIds.includes(service.id)
-        );
-      }
-    }
-    this.services = allServices;
-
-    // Load circuits
-    this.circuits = circuitsData.data || [];
-
-    // Set total counts for display in legend
-    this.totalIdentities = this.identities.length;
-    this.totalEdgeRouters = this.edgeRouters.length;
-    this.totalServices = this.services.length;
-
-    // Calculate count of services with active circuits
-    this.servicesWithActiveCircuits = this.circuitCalculationService.calculateServicesWithActiveCircuits(this.circuits);
-
-    // Load terminators
-    this.terminators = terminatorsData.data || [];
-
-    // Load links
-    this.links = linksData.data || [];
-
-    // Initialize named attributes for filters (now that mock data is loaded)
-    this.getIdentityNamedAttributes();
-    this.getServiceNamedAttributes();
-
-    // Check if any filters are active
-    const hasFilters = this.mapStateService.selectedServiceAttributes.length > 0 ||
-        this.mapStateService.selectedServiceNamedAttributes.length > 0 ||
-        this.mapStateService.selectedIdentityAttributes.length > 0 ||
-        this.mapStateService.selectedIdentityNamedAttributes.length > 0 ||
-        this.mapStateService.selectedRouterAttributes.length > 0;
-
-    if (!hasFilters) {
-      // No filters active - create markers for ALL entities and add them to map
-      this.mapMarkerService.addMarkers(
-        this.edgeRouters,
-        'routers',
-        this.routerClusterGroup,
-        this.map,
-        this.mapStateService.routerLocations,
-        this.mapStateService.identityLocations
-      );
-
-      this.mapMarkerService.addMarkers(
-        this.identities,
-        'identity',
-        this.identityClusterGroup,
-        this.map,
-        this.mapStateService.routerLocations,
-        this.mapStateService.identityLocations
-      );
-
-      // Draw circuits and links
-      if (this.links.length > 0) {
-        this.drawLinks(this.links);
-      }
-      if (this.circuits.length > 0 && this.mapStateService.activeCircuitsVisible) {
-        this.drawActiveCircuits(this.circuits);
-      }
-    }
-    // If filters ARE active, don't create markers here
-    // filterCircuitsAndRouters() will determine which entities to show and create markers for them
-  }
-
   loadMapData() {
     this.mapMarkerService.identityMarkers = [];
     this.mapMarkerService.routerMarkers = [];
-
-    // Check if we should use mock data
-    if (this.shouldUseMockData()) {
-      return this.loadMockData();
-    }
 
     const edgeRoutersPromise = this.loadRouters();
     const identitiesPromise = this.loadIdentities();
@@ -1369,22 +1142,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   }
 
   getIdentityNamedAttributes(filter?: string) {
-    // Check if we should use mock data
-    if (this.shouldUseMockData()) {
-      // Use mock identities data
-      const filteredIdentities = this.identities
-        .filter(identity => !filter || identity.name.toLowerCase().includes(filter.toLowerCase()))
-        .slice(0, 30); // Limit to 30 results like the API call
-
-      const namedAttributes = filteredIdentities.map((identity: any) => {
-        this.identitiesNameIdMap[identity.name] = identity.id;
-        this.identitiesIdNameMap[identity.id] = identity.name;
-        return identity.name;
-      });
-      this.identityNamedAttributes = namedAttributes;
-      return;
-    }
-
     const paging = {
       searchOn: 'name',
       filter: filter || '',
@@ -1426,22 +1183,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   }
 
   getServiceNamedAttributes(filter?: string) {
-    // Check if we should use mock data
-    if (this.shouldUseMockData()) {
-      // Use mock services data
-      const filteredServices = this.services
-        .filter(service => !filter || service.name.toLowerCase().includes(filter.toLowerCase()))
-        .slice(0, 30); // Limit to 30 results like the API call
-
-      const namedAttributes = filteredServices.map((service: any) => {
-        this.servicesNameIdMap[service.name] = service.id;
-        this.servicesIdNameMap[service.id] = service.name;
-        return service.name;
-      });
-      this.serviceNamedAttributes = namedAttributes;
-      return;
-    }
-
     const paging = {
       searchOn: 'name',
       filter: filter || '',
