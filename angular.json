@@ -44,7 +44,13 @@
               "projects/ziti-console-lib/src/lib/shared-assets/styles/global.scss",
               "projects/ziti-console-lib/src/lib/shared-assets/styles/icons.scss",
               "projects/app-ziti-console/src/styles.scss",
-              "node_modules/primeicons/primeicons.css"
+              "node_modules/primeicons/primeicons.css",
+              "node_modules/leaflet/dist/leaflet.css",
+              "node_modules/leaflet.markercluster/dist/MarkerCluster.css",
+              "node_modules/leaflet.markercluster/dist/MarkerCluster.Default.css"
+            ],
+            "scripts": [
+              "node_modules/leaflet.markercluster/dist/leaflet.markercluster.js"
             ],
             "scripts": [],
             "preserveSymlinks": true,
@@ -58,7 +64,8 @@
                 "ajv-formats",
                 "semver",
                 "@stoplight/json-ref-resolver",
-                "angular-csv-ext/dist/Angular-csv"
+                "angular-csv-ext/dist/Angular-csv",
+                "leaflet"
              ]
           },
           "configurations": {
@@ -225,7 +232,8 @@
                 "moment/moment",
                 "lodash",
                 "@stoplight/json-ref-resolver",
-                "angular-csv-ext/dist/Angular-csv"
+                "angular-csv-ext/dist/Angular-csv",
+                "leaflet"
              ]
           },
           "configurations": {

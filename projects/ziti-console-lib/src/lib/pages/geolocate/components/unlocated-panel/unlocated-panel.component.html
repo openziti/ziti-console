@@ -1,0 +1,317 @@
+<div class="unlocated-popup">
+  <!-- Identities Section -->
+  <div class="unlocated-section" *ngIf="unlocatedData?.unlocatedIdentities?.length > 0">
+    <h3 class="section-title section-title-identity">
+      <span class="icon-identity section-icon"></span>
+      <span class="section-text">Identities ({{ unlocatedData?.unlocatedIdentities?.length }})</span>
+    </h3>
+    <div class="search-container">
+      <input
+        type="text"
+        class="search-input"
+        [(ngModel)]="identitiesSearch"
+        (input)="onIdentitiesSearchChange(identitiesSearch)"
+        placeholder="Search by identity name..."
+      />
+    </div>
+    <div class="unlocated-table-container">
+      <table class="unlocated-table">
+        <thead>
+          <tr>
+            <th class="drag-handle-header"></th>
+            <th>Name</th>
+            <th>Roles</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let identity of filteredIdentities"
+              (click)="onEntityClick(identity, 'identity')"
+              class="clickable-row draggable-row"
+              draggable="true"
+              (dragstart)="onDragStart($event, identity, 'identity')">
+            <td class="drag-handle-cell">
+              <span class="drag-handle">⋮⋮</span>
+            </td>
+            <td class="entity-name">
+              <span class="status-icon" [class.status-online]="identity.edgeRouterConnectionStatus === 'online'" [class.status-offline]="identity.edgeRouterConnectionStatus !== 'online'"></span>
+              <span class="entity-text">{{ identity.name }}</span>
+            </td>
+            <td class="entity-roles">
+              <span *ngIf="identity.roleAttributes && identity.roleAttributes.length > 0" class="roles-container">
+                <span *ngFor="let role of identity.roleAttributes.slice(0, 3)" class="role-tag" (click)="onRoleAttributeClick(role, $event)">#{{ role }}</span>
+                <span *ngIf="identity.roleAttributes.length > 3" class="role-more">+{{ identity.roleAttributes.length - 3 }}</span>
+              </span>
+              <span *ngIf="!identity.roleAttributes || identity.roleAttributes.length === 0" class="no-roles">—</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="empty-search-state" *ngIf="filteredIdentities.length === 0 && identitiesSearch">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-message">No identities found matching "{{ identitiesSearch }}"</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Routers Section -->
+  <div class="unlocated-section" *ngIf="unlocatedData?.unlocatedRouters?.length > 0">
+    <h3 class="section-title section-title-router">
+      <span class="icon-routers section-icon"></span>
+      <span class="section-text">Routers ({{ unlocatedData?.unlocatedRouters?.length }})</span>
+    </h3>
+    <div class="search-container">
+      <input
+        type="text"
+        class="search-input"
+        [(ngModel)]="routersSearch"
+        (input)="onRoutersSearchChange(routersSearch)"
+        placeholder="Search by router name..."
+      />
+    </div>
+    <div class="unlocated-table-container">
+      <table class="unlocated-table">
+        <thead>
+          <tr>
+            <th class="drag-handle-header"></th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Roles</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let router of filteredRouters"
+              (click)="onEntityClick(router, 'routers')"
+              class="clickable-row draggable-row"
+              draggable="true"
+              (dragstart)="onDragStart($event, router, 'routers')">
+            <td class="drag-handle-cell">
+              <span class="drag-handle">⋮⋮</span>
+            </td>
+            <td class="entity-name">
+              <span class="status-icon" [class.status-online]="router.connected" [class.status-offline]="!router.connected"></span>
+              <span class="entity-text">{{ router.name }}</span>
+            </td>
+            <td class="entity-type">{{ router._routerType === 'transit-router' ? 'Transit' : 'Edge' }}</td>
+            <td class="entity-roles">
+              <span *ngIf="router.roleAttributes && router.roleAttributes.length > 0" class="roles-container">
+                <span *ngFor="let role of router.roleAttributes.slice(0, 3)" class="role-tag" (click)="onRoleAttributeClick(role, $event)">#{{ role }}</span>
+                <span *ngIf="router.roleAttributes.length > 3" class="role-more">+{{ router.roleAttributes.length - 3 }}</span>
+              </span>
+              <span *ngIf="!router.roleAttributes || router.roleAttributes.length === 0" class="no-roles">—</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="empty-search-state" *ngIf="filteredRouters.length === 0 && routersSearch">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-message">No routers found matching "{{ routersSearch }}"</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!unlocatedData?.unlocatedIdentities?.length && !unlocatedData?.unlocatedRouters?.length">
+    <div class="empty-icon">✓</div>
+    <div class="empty-message">No entities to display</div>
+  </div>
+
+  <!-- Entity Preview -->
+  <div class="entity-preview" *ngIf="previewEntity">
+    <div class="preview-header"
+         [class.preview-header-identity]="previewType === 'identity'"
+         [class.preview-header-router]="previewType === 'routers'">
+      <div class="preview-title">
+        <span [class]="previewType === 'identity' ? 'icon-identity' : 'icon-routers'" class="preview-icon"></span>
+        <span class="preview-text">{{ previewEntity?.name }}</span>
+      </div>
+      <div class="preview-close icon-HamburgerAppClose" (click)="onPreviewClose()"></div>
+    </div>
+    <div class="preview-content">
+      <table class="popup-table">
+        <tr *ngIf="previewType === 'routers'">
+          <td class="popup-label">Type:</td>
+          <td class="popup-value">Router</td>
+        </tr>
+        <tr *ngIf="previewEntity?.isOnline !== undefined || previewEntity?.connected !== undefined">
+          <td class="popup-label">Status:</td>
+          <td class="popup-value">
+            <span [class]="getEntityOnlineStatus(previewEntity) ? 'status-online' : 'status-offline'">
+              {{ getEntityOnlineStatus(previewEntity) ? 'Online' : 'Offline' }}
+            </span>
+          </td>
+        </tr>
+        <tr *ngIf="previewType === 'identity' && previewEntity?.edgeRouterConnectionStatus">
+          <td class="popup-label">Status:</td>
+          <td class="popup-value">
+            <span [class]="previewEntity?.edgeRouterConnectionStatus === 'online' ? 'status-online' : 'status-offline'">
+              {{ previewEntity?.edgeRouterConnectionStatus === 'online' ? 'Connected' : 'Disconnected' }}
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <td class="popup-label">Name:</td>
+          <td class="popup-value">{{ previewEntity?.name || 'N/A' }}</td>
+        </tr>
+        <tr *ngIf="previewEntity?.id">
+          <td class="popup-label">ID:</td>
+          <td class="popup-value popup-id">{{ previewEntity?.id }}</td>
+        </tr>
+        <tr>
+          <td class="popup-label">Location:</td>
+          <td class="popup-value" [class.popup-location-none]="!previewEntity?.tags?.geolocation">
+            <span *ngIf="previewEntity?.tags?.geolocation">
+              {{ previewEntity.tags.geolocation }}
+              <span *ngIf="previewHasUnsavedLocation" class="unsaved-indicator">(unsaved)</span>
+            </span>
+            <span *ngIf="!previewEntity?.tags?.geolocation">
+              No geolocation assigned
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <td class="popup-label">Role Attributes:</td>
+          <td class="popup-value popup-roles">
+            <span *ngIf="previewEntity?.roleAttributes && previewEntity?.roleAttributes?.length > 0">
+              <span *ngFor="let role of previewEntity?.roleAttributes" class="popup-hashtag" (click)="onRoleAttributeClick(role)">
+                #{{ role }}
+              </span>
+            </span>
+            <span *ngIf="!previewEntity?.roleAttributes || previewEntity?.roleAttributes?.length === 0" class="no-attributes">
+              No attributes assigned
+            </span>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Active Services Section -->
+      <div class="circuits-section" *ngIf="previewCircuits.length > 0">
+        <div class="circuits-container">
+          <div class="circuits-header">
+            <span class="circuits-header-icon icon-services"></span>
+            <span class="circuits-header-text">Active Services ({{ serviceGroups.length }})</span>
+          </div>
+          <div class="circuits-list">
+            <table class="circuits-table tree-table">
+              <colgroup>
+                <col style="width: 30px;">  <!-- Indent -->
+                <col>                        <!-- Client - flexible -->
+                <col>                        <!-- Host - flexible -->
+                <col style="width: 120px;">  <!-- Created -->
+                <col style="width: 26px;">   <!-- Action -->
+              </colgroup>
+              <thead>
+                <tr>
+                  <th colspan="5" class="service-column">Service Name</th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngFor="let group of serviceGroups">
+                  <!-- Service Group Row -->
+                  <tr class="group-row clickable-row" (click)="toggleGroup(group, $event)">
+                    <td class="expand-cell">
+                      <span class="expand-icon icon-RightPage" [class.expanded]="group.expanded"></span>
+                    </td>
+                    <td colspan="4" class="service-name">
+                      <span class="icon-Services group-icon"></span>
+                      <span class="service-text">{{ group.serviceName }}</span>
+                      <span class="circuit-count">({{ group.circuits.length }})</span>
+                    </td>
+                  </tr>
+
+                  <!-- Circuit Rows (shown when expanded) -->
+                  <ng-container *ngIf="group.expanded">
+                    <!-- Subheader Row -->
+                    <tr class="subheader-row">
+                      <th class="subheader-indent"></th>
+                      <th class="subheader-cell">Client</th>
+                      <th class="subheader-cell">Host</th>
+                      <th class="subheader-cell sortable-header" (click)="toggleCircuitSort(group)">
+                        Created
+                        <span class="sort-indicator" *ngIf="group.sortBy === 'created'">
+                          {{ group.sortDirection === 'asc' ? '▲' : '▼' }}
+                        </span>
+                      </th>
+                      <th class="subheader-cell"></th>
+                    </tr>
+
+                    <!-- Circuit Data Rows -->
+                    <tr *ngFor="let circuit of getSortedCircuits(group)"
+                        (click)="onCircuitSelect(circuit, $event)"
+                        [class.selected-row]="selectedCircuit?.id === circuit.id"
+                        class="circuit-row clickable-row">
+                      <td class="circuit-indent"></td>
+                      <td class="circuit-entity">
+                        <span [class]="getClientInfo(circuit).type === 'identity' ? 'icon-identity entity-icon' : 'icon-routers entity-icon'"></span>
+                        <span class="entity-name">{{ getClientInfo(circuit).name }}</span>
+                      </td>
+                      <td class="circuit-entity">
+                        <span [class]="getHostInfo(circuit).type === 'identity' ? 'icon-identity entity-icon' : 'icon-routers entity-icon'"></span>
+                        <span class="entity-name">{{ getHostInfo(circuit).name }}</span>
+                      </td>
+                      <td class="circuit-created">
+                        {{ circuit.createdAt | date:'short' }}
+                      </td>
+                      <td class="action-column">
+                        <span class="circuit-nav-icon icon-Share-RBAC" (click)="onCircuitPreviewOpen(circuit, $event)" title="View Circuit Details"></span>
+                      </td>
+                    </tr>
+                  </ng-container>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Router Path Details Section -->
+      <div class="router-path-section" *ngIf="selectedCircuit && selectedCircuitRouters.length > 0">
+        <div class="router-path-container">
+          <div class="router-path-header">
+            <span class="router-path-icon icon-routers"></span>
+            <span class="router-path-text">Circuit Path ({{ selectedCircuitRouters.length }} routers)</span>
+          </div>
+          <div class="router-path-list">
+            <table class="router-path-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Router Name</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let router of selectedCircuitRouters; let i = index"
+                    (click)="onRouterInPathSelect(router.id, 'routers')"
+                    [class.selected-row]="selectedRouterInPath === router.id"
+                    class="clickable-circuit-row">
+                  <td class="path-index">{{ i + 1 }}</td>
+                  <td class="router-name">{{ router.name || router.id }}</td>
+                  <td class="router-status">
+                    <span *ngIf="!router._notFound && router.connected !== undefined"
+                          [class]="router.connected ? 'status-online' : 'status-offline'">
+                      {{ router.connected ? 'Online' : 'Offline' }}
+                    </span>
+                    <span *ngIf="router._notFound" class="status-unknown">Unknown</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="popup-actions">
+        <button *ngIf="previewHasUnsavedLocation || previewEntity?._unsavedLocation"
+                class="save-location-btn"
+                (click)="onSaveLocation()">
+          <span class="icon-save"></span>
+          Save Location
+        </button>
+        <button class="popup-details-btn" (click)="onNavigateToDetails()">
+          Go To Edit Page
+          <span class="icon-RightPage"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

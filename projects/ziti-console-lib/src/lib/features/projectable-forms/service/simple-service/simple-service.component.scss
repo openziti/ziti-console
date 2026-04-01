@@ -60,46 +60,6 @@
           font-weight: 600;
           text-transform: uppercase;
         }
-        .toggle {
-          margin: 0;
-          display: flex;
-          align-items: center;
-          width: 3.75rem;
-          height: 1.75rem;
-          font-size: 0.875rem;
-          line-height: 1.5625rem;
-          font-weight: 800;
-          font-family: Open Sans,Arial,sans-serif;
-          background-color: var(--icon);
-          color: var(--white);
-          text-align: center;
-          cursor: pointer;
-          position: relative;
-          float: left;
-          border-radius: 0.8125rem;
-          &.on {
-            background-color: var(--green);
-          }
-          .switch {
-            width: 1.25rem;
-            height: 1.25rem;
-            border-radius: 0.625rem;
-            background-color: var(--white);
-            transition: var(--transition);
-            position: absolute;
-            top: 0.25rem;
-            z-index: 10;
-            &.on {
-              left: 2.1875rem;
-            }
-          }
-          .on-label {
-            margin-left: 0.4375rem;
-          }
-          .off-label {
-            margin-left: 2rem;
-          }
-        }
       }
       .config-hostname-label {
         display: flex;

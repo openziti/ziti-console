@@ -1,4 +1,5 @@
-<div class="ziti-page-container ziti-configs-container">
+<div class="ziti-page-wrapper">
+  <div class="ziti-page-container ziti-configs-container">
     <lib-list-page-header [title]="title"
                           [tabs]="tabs"
                           [showAdd]="!itemsSelected"
@@ -17,4 +18,5 @@
                     (gridReady)="gridReady($event)"
     >
     </lib-data-table>
+  </div>
 </div>

@@ -1,73 +1,146 @@
 <div class="ziti-page-container">
-  <div class="overlay"></div>
-  <div class="header">
-    <div class="title">
-      <span>{{pageTitle}}</span>
-    </div>
-  </div>
-  <div class="header-row-container" [class.exp]="showVisualizer">
-    <div class="entity-count-container" [class.exp]="showVisualizer">
-      <div class="dial"></div>
-      <a routerLink="/identities">
-        <div class="totalPod">
-          <div class="total">{{totalIdentities}}</div>
-          <div class="label">Identities</div>
-        </div>
-      </a>
-      <a routerLink="/services">
-        <div class="totalPod">
-          <div class="total">{{totalServices}}</div>
-          <div class="label">Services</div>
-        </div>
-      </a>
-      <a routerLink="/configs" class="desktop">
-        <div class="totalPod">
-          <div class="total">{{totalConfigs}}</div>
-          <div class="label">Configurations</div>
-        </div>
-      </a>
-      <a routerLink="/routers" class="desktop">
-        <div class="totalPod">
-          <div class="total">{{totalEdgeRouters}}</div>
-          <div class="label">Routers</div>
-        </div>
-      </a>
-      <a routerLink="/sessions" class="desktop">
-        <div class="totalPod">
-          <div class="total">{{totalSessions}}</div>
-          <div class="label">Sessions</div>
-        </div>
-      </a>
-      <a routerLink="/service-policies" class="desktop">
-        <div class="totalPod">
-          <div class="total">{{totalServicePolicies}}</div>
-          <div class="label">Service Policies</div>
-        </div>
-      </a>
-    </div>
-    <div class="icon-links-container" [class.exp]="showVisualizer">
-      @if (showVisualizer) {
-        <a id="NetVisualizer" routerLink="/network-visualizer">
-          <div class="icon-link-pod">
-            <div class="network-visualizer"></div>
-            <div class="label">Network</div>
-            <div class="label">Visualizer</div>
+  <div *ngIf="false" class="overlay"></div>
+  <div class="ziti-page-wrapper">
+    <lib-form-field-container [showHeader]="false" class="no-padding no-shadow" style="z-index: 9999999;">
+      <lib-geolocate-filter-bar
+        [(selectedRouterAttributes)]="selectedRouterAttributes"
+        [(selectedIdentityAttributes)]="selectedIdentityAttributes"
+        [(selectedIdentityNamedAttributes)]="selectedIdentityNamedAttributes"
+        [(selectedServiceAttributes)]="selectedServiceAttributes"
+        [(selectedServiceNamedAttributes)]="selectedServiceNamedAttributes"
+        [(selectedConnectionStatus)]="selectedConnectionStatus"
+        [routerRoleAttributes]="routerRoleAttributes"
+        [identityRoleAttributes]="identityRoleAttributes"
+        [identityNamedAttributes]="identityNamedAttributes"
+        [serviceRoleAttributes]="serviceRoleAttributes"
+        [serviceNamedAttributes]="serviceNamedAttributes"
+        [filtersApplied]="filtersApplied"
+        [showRouterFilterSelector]="showRouterFilterSelector"
+        [showIdentityFilterSelector]="showIdentityFilterSelector"
+        [showServiceFilterSelector]="showServiceFilterSelector"
+        [showConnectionStatusFilterSelector]="showConnectionStatusFilterSelector"
+        (routerFilterClicked)="showRouterFilter($event)"
+        (identityFilterClicked)="showIdentityFilter($event)"
+        (serviceFilterClicked)="showServiceFilter($event)"
+        (connectionStatusFilterClicked)="showConnectionStatusFilter($event)"
+        (routerFilterClosed)="closeRouterFilter($event)"
+        (identityFilterClosed)="closeIdentityFilter($event)"
+        (serviceFilterClosed)="closeServiceFilter($event)"
+        (connectionStatusFilterClosed)="closeConnectionStatusFilter($event)"
+        (routerRoleAttributesChanged)="onRouterRoleAttributesChange($event)"
+        (identityNamedAttributesChanged)="onIdentityNamedAttributesChange($event)"
+        (identityRoleAttributesChanged)="onIdentityRoleAttributesChange($event)"
+        (serviceNamedAttributesChanged)="onServiceNamedAttributesChange($event)"
+        (serviceRoleAttributesChanged)="onServiceRoleAttributesChange($event)"
+        (connectionStatusChanged)="onConnectionStatusChange($event)"
+        (identityFilterChanged)="getIdentityNamedAttributes($event)"
+        (serviceFilterChanged)="getServiceNamedAttributes($event)"
+        (clearFiltersClicked)="clearFilters($event)"
+      >
+        <lib-entity-count-legend
+          [geolocatedIdentities]="geolocatedIdentities"
+          [unlocatedIdentities]="unlocatedIdentities"
+          [geolocatedRouters]="geolocatedRouters"
+          [unlocatedRouters]="unlocatedRouters"
+          [totalServices]="totalServices"
+          [servicesWithActiveCircuits]="servicesWithActiveCircuits"
+          [totalActiveCircuits]="circuits.length"
+          (showLocatedIdentitiesClicked)="showLocatedIdentities()"
+          (showUnlocatedIdentitiesClicked)="showUnlocatedIdentities()"
+          (showLocatedRoutersClicked)="showLocatedRouters()"
+          (showUnlocatedRoutersClicked)="showUnlocatedRouters()"
+          (showAllServicesClicked)="showAllServices()"
+          (showServicesWithActiveCircuitsClicked)="showServicesWithActiveCircuits()"
+        ></lib-entity-count-legend>
+      </lib-geolocate-filter-bar>
+    </lib-form-field-container>
+    <div class="ziti-dashboard-row">
+      <lib-form-field-container [showHeader]="false" class="no-padding full-height no-shadow">
+        <div class="map-layout" [class.side-panel-open]="sidePanelOpen">
+          <div class="map-container"
+               (dragover)="onMapDragOver($event)"
+               (drop)="onMapDrop($event)"
+               (dragleave)="onMapDragLeave($event)">
+            <div id="MainMap"></div>
+            <lib-map-legend
+              [routersVisible]="routersVisible"
+              [identitiesVisible]="identitiesVisible"
+              [linksVisible]="linksVisible"
+              [activeCircuitsVisible]="activeCircuitsVisible"
+              [clusteringEnabled]="clusteringEnabled"
+              [isCircuitSelectionActive]="isCircuitSelectionActive()"
+              (routersToggled)="toggleRouters()"
+              (identitiesToggled)="toggleIdentities()"
+              (linksToggled)="toggleLinks()"
+              (activeCircuitsToggled)="toggleActiveCircuits()"
+              (clusteringToggled)="toggleClustering()"
+            ></lib-map-legend>
           </div>
-        </a>
-      }
-      <a href="https://docs.openziti.io/docs/downloads" target="_blank">
-        <div class="icon-link-pod">
-          <div class="downloads"></div>
-          <div class="label">Downloads</div>
         </div>
-      </a>
-      <a href="https://docs.openziti.io/" target="_blank">
-        <div class="icon-link-pod">
-          <div class="docs"></div>
-          <div class="label">Docs</div>
-        </div>
-      </a>
+      </lib-form-field-container>
+      <lib-side-panel-container
+        [isOpen]="sidePanelOpen"
+        [panelType]="sidePanelType"
+        [panelData]="sidePanelData"
+        [sidePanelCircuits]="sidePanelCircuits"
+        [selectedCircuit]="selectedCircuit"
+        [selectedCircuitRouters]="selectedCircuitRouters"
+        [selectedCircuitSegment]="selectedCircuitSegment"
+        [selectedRouterInPath]="selectedRouterInPath"
+        [circuitPreviewEntity]="circuitPreviewEntity"
+        [circuitPreviewEntityType]="circuitPreviewEntityType"
+        [entityListType]="entityListType"
+        [entityListSearch]="entityListSearch"
+        [entityListPage]="entityListPage"
+        [entityListPageSize]="entityListPageSize"
+        [entityListTotal]="entityListTotal"
+        [entityListLocationFilter]="entityListLocationFilter"
+        [filteredEntityList]="filteredEntityList"
+        [entityListPreview]="entityListPreview"
+        [filteredUnlocatedIdentities]="filteredUnlocatedIdentities"
+        [filteredUnlocatedRouters]="filteredUnlocatedRouters"
+        [unlocatedIdentitiesSearch]="unlocatedIdentitiesSearch"
+        [unlocatedRoutersSearch]="unlocatedRoutersSearch"
+        [unlocatedPreviewEntity]="unlocatedPreviewEntity"
+        [unlocatedPreviewType]="unlocatedPreviewType"
+        [unlocatedPreviewCircuits]="unlocatedPreviewCircuits"
+        [unlocatedPreviewHasUnsavedLocation]="unlocatedPreviewHasUnsavedLocation"
+        [selectedUnlocatedCircuit]="selectedUnlocatedCircuit"
+        [selectedUnlocatedCircuitRouters]="selectedUnlocatedCircuitRouters"
+        [allCircuits]="circuits"
+        [allIdentities]="identities"
+        [allRouters]="edgeRouters"
+        [allTerminators]="terminators"
+        [servicesWithCircuitsSearch]="servicesWithCircuitsSearch"
+        (closed)="closeSidePanel()"
+        (circuitSelected)="selectCircuit($event, false)"
+        (routerInPathSelected)="selectCircuitRouter($event.routerId, $event.routerType)"
+        (saveLocationChanges)="saveLocationChanges($event.item, $event.type)"
+        (navigateToDetails)="navigateToDetails($event.type, $event.id)"
+        (circuitPreviewOpened)="openCircuitPreview($event)"
+        (roleAttributeNavigated)="navigateToRoleAttribute($event)"
+        (hopSelected)="selectCircuitHop($event.hop, $event.index)"
+        (routerSelected)="selectCircuitRouter($event.routerId, $event.routerType)"
+        (entityClicked)="openEntityPanel($event.entityId, $event.entityType)"
+        (serviceClicked)="openServicePanel($event)"
+        (circuitPreviewClosed)="closeCircuitPreview()"
+        (entityPanelOpened)="openEntityPanel($event.entityId, $event.entityType)"
+        (routerClicked)="openRouterPanel($event)"
+        (entityListSearchChanged)="onEntityListSearchChange($event)"
+        (entityListPageChanged)="onEntityListPageChange($event)"
+        (entityListSortChanged)="onEntityListSortChange($event)"
+        (entityListLocationFilterChanged)="onEntityListLocationFilterChange($event)"
+        (entityListEntityClicked)="handleEntityListClick($event)"
+        (entityListPreviewClosed)="closeEntityListPreview()"
+        (unlocatedIdentitiesSearchChanged)="onUnlocatedIdentitiesSearchChange($event)"
+        (unlocatedRoutersSearchChanged)="onUnlocatedRoutersSearchChange($event)"
+        (unlocatedEntityDragStarted)="onDragStart($event.event, $event.entity, $event.type)"
+        (unlocatedEntityClicked)="openEntityPreview($event.entity, $event.type)"
+        (unlocatedPreviewClosed)="unlocatedPreviewEntity = null"
+        (unlocatedSaveLocationClicked)="saveUnlocatedPreviewEntity()"
+        (servicesSearchChanged)="onServicesWithCircuitsSearchChange($event)"
+      ></lib-side-panel-container>
     </div>
   </div>
-  <div id="MainMap" class="map-container"></div>
 </div>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

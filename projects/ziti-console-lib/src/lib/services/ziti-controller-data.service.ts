@@ -287,9 +287,9 @@ export class ZitiControllerDataService extends ZitiDataService {
         );
     }
 
-    call(callUrl) {
+    call(callUrl, prefix?) {
         const apiVersions = this.settingsService.apiVersions || {};
-        const prefix = apiVersions["edge-management"]?.v1?.path;
+        prefix = prefix || apiVersions["edge-management"]?.v1?.path;
         const url = this.settingsService.settings.selectedEdgeController;
         const serviceUrl = url + prefix + "/" + callUrl;
 
@@ -304,6 +304,188 @@ export class ZitiControllerDataService extends ZitiDataService {
                 })
             )
         );
+    }
+
+    /**
+     * Call HA controllers in parallel and merge responses
+     * @param callUrl The API endpoint path
+     * @param prefix The API prefix (e.g., '/fabric/v1')
+     * @returns Promise with merged data and metadata about controller responses
+     */
+    async callHAControllers(callUrl: string, prefix?: string): Promise<any> {
+        // Check if HA is enabled
+        if (!this.settingsService.isHAEnabled()) {
+            console.log('[HA] HA not enabled, using single controller');
+            // Fallback to single controller call
+            return this.call(callUrl, prefix);
+        }
+
+        // Check if we have JWT authentication (required for HA fabric calls)
+        const hasValidJwt = this.settingsService.hasValidJwtToken();
+        if (!hasValidJwt) {
+            console.log('[HA] No valid JWT token for HA calls, falling back to primary controller only');
+            console.log('[HA] Session tokens do not work across HA controllers');
+            // Fallback to single controller call (primary only)
+            return this.call(callUrl, prefix);
+        }
+
+        console.log('[HA] callHAControllers called for:', callUrl);
+
+        const apiVersions = this.settingsService.apiVersions || {};
+        prefix = prefix || apiVersions["edge-management"]?.v1?.path;
+
+        // Get all HA controllers
+        const haControllers = this.settingsService.getHAControllers();
+        console.log('[HA] HA Controllers:', haControllers);
+
+        // Get JWT token (preferred) or fall back to individual sessions
+        const jwtToken = this.settingsService.getJwtToken();
+        const controllerSessions = this.settingsService.getActiveSessions();
+
+        console.log('[HA] Has valid JWT: true (checked earlier)');
+        console.log('[HA] Controller sessions count:', controllerSessions.size);
+
+        // Filter to only online controllers
+        // With JWT, we don't need individual sessions - the JWT works across all controllers
+        const controllersToQuery = haControllers.filter((controller: any) => {
+            return controller.isOnline !== false;
+        });
+
+        if (controllersToQuery.length === 0) {
+            console.log('[HA] No valid controllers, fallback to single controller');
+            // No valid controllers, fallback to single controller
+            return this.call(callUrl, prefix);
+        }
+
+        console.log('[HA] Querying', controllersToQuery.length, 'controllers in parallel');
+
+        // Create parallel requests to all controllers
+        const requests = controllersToQuery.map((controller: any) => {
+            const controllerUrl = controller.url;
+            const serviceUrl = controllerUrl + prefix + "/" + callUrl;
+
+            // Build headers - JWT auth is handled by the interceptor
+            // Since we validated JWT at the start of this method, we know it's valid
+            let headers: any = {};
+
+            // Let the HTTP interceptor add the JWT token
+            // This ensures proper error handling and token refresh
+            console.log('[HA] Using JWT auth (via interceptor) for:', controllerUrl);
+
+            console.log('[HA] Request URL:', serviceUrl);
+            console.log('[HA] Request headers:', Object.keys(headers).length > 0 ? headers : '(handled by interceptor)');
+
+            return firstValueFrom(
+                this.httpClient.get(serviceUrl, { headers }).pipe(
+                    map((results: any) => ({
+                        success: true,
+                        url: controller.url,
+                        data: results,
+                        error: null
+                    })),
+                    catchError((err: any) => {
+                        console.error('[HA] Request failed for', controller.url, err);
+                        return Promise.resolve({
+                            success: false,
+                            url: controller.url,
+                            data: null,
+                            error: err.message || 'Request failed'
+                        });
+                    })
+                )
+            );
+        });
+
+        // Wait for all requests to complete
+        const results = await Promise.all(requests);
+
+        // Separate successful and failed responses
+        const successful = results.filter(r => r.success);
+        const failed = results.filter(r => !r.success);
+
+        console.log('[HA] Results:', {
+            total: results.length,
+            successful: successful.length,
+            failed: failed.length
+        });
+
+        if (successful.length === 0) {
+            // All controllers failed
+            console.error('[HA] All controllers failed');
+            throw new Error('All HA controllers failed to respond');
+        }
+
+        // Merge data from successful responses
+        const mergedData = this.mergeHAResponses(successful.map(r => r.data));
+
+        console.log('[HA] Merged data contains', mergedData.data?.length || 0, 'items');
+
+        // Return merged data with metadata
+        return {
+            ...mergedData,
+            _haMetadata: {
+                totalControllers: controllersToQuery.length,
+                successfulControllers: successful.length,
+                failedControllers: failed.length,
+                controllers: results.map(r => ({
+                    url: r.url,
+                    success: r.success,
+                    error: r.error
+                }))
+            }
+        };
+    }
+
+    /**
+     * Merge responses from multiple HA controllers
+     * @param responses Array of response objects from different controllers
+     * @returns Merged response object
+     */
+    private mergeHAResponses(responses: any[]): any {
+        if (responses.length === 0) {
+            return { data: [] };
+        }
+
+        if (responses.length === 1) {
+            return responses[0];
+        }
+
+        // Merge data arrays from all responses
+        const allData: any[] = [];
+        const seenIds = new Set<string>();
+
+        responses.forEach(response => {
+            const data = response?.data || [];
+            if (Array.isArray(data)) {
+                data.forEach((item: any) => {
+                    // Deduplicate by ID if present
+                    if (item.id) {
+                        if (!seenIds.has(item.id)) {
+                            seenIds.add(item.id);
+                            allData.push(item);
+                        }
+                    } else {
+                        // No ID, include anyway (shouldn't deduplicate)
+                        allData.push(item);
+                    }
+                });
+            }
+        });
+
+        // Merge meta information from first successful response
+        const firstResponse = responses[0];
+        const meta = firstResponse?.meta || {};
+
+        return {
+            data: allData,
+            meta: {
+                ...meta,
+                pagination: {
+                    ...meta.pagination,
+                    totalCount: allData.length
+                }
+            }
+        };
     }
 
     private getUrlFilter(paging, filters: any[]) {

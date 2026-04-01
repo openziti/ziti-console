@@ -1,0 +1,19 @@
+<div class="entity-count-legend">
+  <div class="entity-chip identity-chip" (click)="showLocatedIdentitiesClicked.emit()">
+    <div class="entity-icon entity-identity"></div>
+    <div class="entity-count">{{geolocatedIdentities}}</div>
+    <div class="entity-label">Identities</div>
+  </div>
+  <div class="chip-separator"></div>
+  <div class="entity-chip router-chip" (click)="showLocatedRoutersClicked.emit()">
+    <div class="entity-icon entity-router"></div>
+    <div class="entity-count">{{geolocatedRouters}}</div>
+    <div class="entity-label">Routers</div>
+  </div>
+  <div class="chip-separator"></div>
+  <div class="entity-chip service-chip" (click)="showAllServicesClicked.emit()">
+    <div class="entity-icon icon-services"></div>
+    <div class="entity-count">{{totalServices}}</div>
+    <div class="entity-label">Services</div>
+  </div>
+</div>

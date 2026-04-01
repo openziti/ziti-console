@@ -1,0 +1,37 @@
+<div class="ha-status-indicator" *ngIf="clusterStatus && clusterStatus.enabled">
+  <div class="status-summary" [ngClass]="statusClass" (click)="toggleExpanded()">
+    <i class="material-icons status-icon">{{ statusIcon }}</i>
+    <span class="status-text">{{ statusSummary }}</span>
+    <i class="material-icons expand-icon" [class.expanded]="isExpanded">
+      {{ isExpanded ? 'expand_less' : 'expand_more' }}
+    </i>
+  </div>
+
+  <div class="controller-details" *ngIf="isExpanded">
+    <div class="controller-list">
+      <div
+        *ngFor="let controller of clusterStatus.controllers"
+        class="controller-item"
+        [ngClass]="getControllerStatusClass(controller)"
+      >
+        <div class="controller-info">
+          <i class="material-icons controller-status-icon">{{ getControllerIcon(controller) }}</i>
+          <div class="controller-text">
+            <div class="controller-name">{{ controller.name }}</div>
+            <div class="controller-url">{{ controller.url }}</div>
+          </div>
+        </div>
+        <div class="controller-metrics">
+          <div class="metric">
+            <span class="metric-label">Response:</span>
+            <span class="metric-value">{{ formatResponseTime(controller) }}</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Last Check:</span>
+            <span class="metric-value">{{ formatLastCheck(controller) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

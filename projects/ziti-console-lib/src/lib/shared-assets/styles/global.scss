@@ -30,6 +30,7 @@ body {
   --red: #ff104b;
   --lightRed: #ffedf1;
   --green: #00db48;
+  --activeCircuitColor: #823c81;
   --white: #FFF;
   --menu: #434c5e;
   --stroke: #d4d9e2;
@@ -37,7 +38,8 @@ body {
   --shaded: #f6f7fb;
   --formBackground: #f6f7fb;
   --backgroundMuted: #eaeef1;
-  --filterBarBackground: #eceef3;
+  --filterBarBackground: #d4d9e2;
+  --filterBackgroundColor: #d4d9e2;
   --visualizerBackground: #ffffff80;
   --background: #ffffff;
   --navigation: #ffffff;
@@ -95,17 +97,19 @@ body {
   --gapXL: 0.9375rem;
 
   --defaultInputHeight: 2.6875rem;
+  --defaultButtonHeight: var(--defaultInputHeight);
   --defaultLineHeight: 0.9375rem;
-  --inputBorderRadius: 0.25rem;
-  --formFieldBorderRadius: var(--inputBorderRadius);
-  --toggleBorderRadius: var(--inputBorderRadius);
-  --filterBorderRadius: var(--inputBorderRadius);
-  --podBorderRadius: var(--inputBorderRadius);
-  --modalBorderRadius: var(--inputBorderRadius);
+  --defaultBorderRadius: 0.275rem;
+  --inputBorderRadius: var(--defaultBorderRadius);
+  --formFieldBorderRadius: var(--defaultBorderRadius);
+  --toggleBorderRadius: .15rem;
+  --filterBorderRadius: var(--defaultBorderRadius);
+  --podBorderRadius: var(--defaultBorderRadius);
+  --modalBorderRadius: var(--defaultBorderRadius);
   --formHeaderToggleRadius: 0.325rem;
   --inputBorderWidth: 0.125rem;
   --formFieldBorder: none;
-  --jsonEditorBorder: 0.125rem solid var(--stroke);
+  --jsonEditorBorder: 0.125rem solid var(--inputBorder);
 
   --formFieldBoxShaddow: 0rem 0.1875rem 0.3125rem 0.0625rem var(--boxShadow);
   --sideNavigatorBoxShadow: none;
@@ -113,12 +117,12 @@ body {
 
   --spinnerSizeMedium: 1.25rem;
   --spinnerSizeLarge: 2rem;
-  --spinnerBorderTopMedium: 0.125rem solid var(--stroke);
-  --spinnerBorderRightMedium: 0.125rem solid var(--stroke);
+  --spinnerBorderTopMedium: 0.125rem solid var(--inputBorder);
+  --spinnerBorderRightMedium: 0.125rem solid var(--inputBorder);
   --spinnerBorderBottomMedium: 0.125rem solid transparent;
   --spinnerBorderLeftMedium: 0.125rem solid transparent;
-  --spinnerBorderTopLarge: 0.175rem solid var(--stroke);
-  --spinnerBorderRightLarge: 0.175rem solid var(--stroke);
+  --spinnerBorderTopLarge: 0.175rem solid var(--inputBorder);
+  --spinnerBorderRightLarge: 0.175rem solid var(--inputBorder);
   --spinnerBorderBottomLarge: 0.175rem solid transparent;
   --spinnerBorderLeftLarge: 0.175rem solid transparent;
   --appLoaderSize: 10.5rem;
@@ -178,6 +182,10 @@ input {
   background-color: var(--navigation) !important;
   color: var(--text);
   -webkit-appearance: none;
+
+  &:focus {
+    border-color: var(--primaryColor);
+  }
 
   &.error {
     border-color: var(--red);
@@ -301,7 +309,7 @@ a:hover {
   display: inline-block;
   width: 0.625rem;
   height: 0.625rem;
-  background-color: var(--stroke);
+  background-color: var(--inputBorder);
   border-radius: 0.625rem;
   margin-right: 0.125rem;
   &.true {
@@ -579,7 +587,7 @@ a:hover {
   flex: 1 1 auto;
   border-style: solid;
   border-width: 0.0625rem;
-  border-color: var(--stroke);
+  border-color: var(--inputBorder);
 }
 .form-field-row {
   display: flex;
@@ -697,7 +705,7 @@ a:hover {
 }
 
 .form-field-label {
-  color: var(--stroke);
+  color: var(--inputBorder);
   font-size: 0.875rem;
   font-weight: 600;
   display: flex;
@@ -919,7 +927,24 @@ a:hover {
 
 lib-form-field-container {
   box-shadow: 0rem 0.1875rem 0.3125rem 0.0625rem var(--boxShadow);
-  border-radius: 0.625rem;
+  border-radius: var(--defaultBorderRadius);
+
+  &.no-shadow {
+    box-shadow: none;
+  }
+
+  &.full-height {
+    height: 100%;
+
+    .form-field-container {
+      height: 100%;
+
+      .form-field-content {
+        height: 100%;
+        overflow: hidden;
+      }
+    }
+  }
 }
 
 .form-field-label {
@@ -978,7 +1003,7 @@ a {
   border-radius: var(--inputBorderRadius);
   cursor: pointer;
   transition: .5s;
-  height: 3.125rem;
+  height: var(--defaultButtonHeight);
 
   &:hover {
     outline: 0;
@@ -1321,33 +1346,50 @@ a {
 
 .toggle {
   width: 3.75rem;
-  height: 1.875rem;
+  height: 1.625rem;
   background-color: var(--black);
   color: var(--white);
   cursor: pointer;
-  border-radius: 6.25rem;
+  border-radius: var(--defaultBorderRadius);
   position: relative;
   display: inline-block;
   margin-top: 0.625rem;
   transition: var(--transition);
   float: left;
   margin-right: 1.25rem;
+
+  .off-label {
+    margin-left: unset;
+    left: unset;
+    position: absolute;
+    right: .35rem;
+  }
+
+  .switch {
+    width: 1.125rem;
+    height: 1.125rem;
+    background-color: var(--white);
+    transition: var(--transition);
+    position: absolute;
+    z-index: 10;
+    left: 0.25rem;
+    border-radius: var(--toggleBorderRadius);
+    top: 0.25rem;
+    z-index: 10;
+  }
+
+  &.on .switch {
+    left: 2.3rem;
+  }
 }
 
-.toggle .switch {
-  width: 1.25rem;
-  height: 1.25rem;
-  border-radius: 0.625rem;
-  background-color: var(--white);
-  transition: var(--transition);
-  position: absolute;
-  left: 0.3125rem;
-  top: 0.3125rem;
-  z-index: 10;
+.checkbox {
+  border-radius: var(--inputBorderRadius) !important;
+  border-width: 1px !important;
 }
 
-.toggle.on .switch {
-  left: 2.1875rem;
+.tSelect.selected {
+  border-width: 0 !important;
 }
 
 .page {
@@ -1393,7 +1435,7 @@ a {
     height: 2.5rem;
     line-height: 2.5rem;
     cursor: pointer;
-    color: var(--stroke);
+    color: var(--inputBorder);
     transition: var(--transition);
 
     &:hover {
@@ -1677,7 +1719,7 @@ p-dropdown {
       border-radius: var(--inputBorderRadius);
       height: var(--defaultInputHeight);
       font-family: 'Open Sans', Arial, sans-serif;
-      border-color: var(--stroke);
+      border-color: var(--inputBorder);
       border-style: solid;
       border-width: var(--inputBorderWidth);
       z-index: 99999;
@@ -1707,7 +1749,7 @@ p-dropdown {
           box-shadow: none;
           border-style: solid;
           border-width: var(--inputBorderWidth);
-          border-color: var(--stroke);
+          border-color: var(--inputBorder);
 
           &:focus {
             border-color: var(--primary);
@@ -1782,7 +1824,7 @@ p-dropdown {
     font-family: "Open Sans", Arial, sans-serif;
     min-height: var(--defaultInputHeight);
     max-height: calc(var(--defaultInputHeight)* 2 + var(--paddingMedium));
-    border-color: var(--stroke);
+    border-color: var(--inputBorder);
     border-style: solid;
     border-width: var(--inputBorderWidth);
     border-radius: var(--inputBorderRadius);
@@ -1895,7 +1937,7 @@ p-dropdown {
         .p-inputtext {
           border-radius: 0;
           border-width: 0.0625rem;
-          border-color: var(--stroke);
+          border-color: var(--inputBorder);
           border-style: solid;
 
           &:focus {
@@ -1960,7 +2002,7 @@ p-dropdown {
 .cSelect {
   width: 1.5625rem;
   height: 1.5625rem;
-  border: 0.125rem var(--stroke) solid;
+  border: 0.125rem var(--inputBorder) solid;
   border-radius: 0.9375rem;
   cursor: pointer;
   -webkit-transition: background-color 0.5s;
@@ -1986,7 +2028,7 @@ p-dropdown {
 
   &.selected {
     background-color: var(--green);
-    background-image: url(/assets/images/check.png); //REPLACE
+    background-image: url(/assets/images/check.png);
     background-size: 45%;
     background-position: center center;
     border: none;
@@ -2107,7 +2149,7 @@ p-dropdown {
   height: var(--defaultInputHeight);
   padding-left: var(--paddingMedium);
   width: 100%;
-  background-color: var(--stroke);
+  background-color: var(--inputBorder);
   border-radius: var(--inputBorderRadius);
 
   &.config-container-clickable {
@@ -2221,9 +2263,23 @@ a {
   text-align: center;
 }
 
-///////
+////////
+// Geolocation/Dashboard Map
+////////
+
+.ziti-dashboard-row {
+  >lib-form-field-container {
+    >.form-field-container {
+      >.form-field-content {
+        border-radius: 0 !important;
+      }
+    }
+  }
+}
+
+////////
 // Simple Service Form
-///////
+////////
 
 .simple-service-wrapper {
   lib-form-header {

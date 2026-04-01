@@ -1,0 +1,138 @@
+<div *ngIf="isOpen" class="side-panel-resizer" (mousedown)="onResizerMouseDown($event)"></div>
+<lib-form-field-container *ngIf="isOpen" [showHeader]="false" class="no-padding full-height side-panel-container">
+  <div class="side-panel">
+    <div class="side-panel-header" [ngClass]="getHeaderClass()">
+      <div class="side-panel-title">
+        <span class="title-with-icon">
+          <span [class]="getTitleIconClass()" class="title-icon"></span>
+          <span class="title-text">{{ getPanelTitle() }}</span>
+        </span>
+      </div>
+      <div class="side-panel-close icon-HamburgerAppClose" (click)="closePanel()"></div>
+    </div>
+    <div class="side-panel-content" [class.full-height-panel]="panelType === 'entityList' || panelType === 'unlocated'">
+      <!-- Panel content will be routed here based on panelType -->
+      <ng-container [ngSwitch]="panelType">
+        <!-- Marker Panel -->
+        <lib-marker-panel
+          *ngSwitchCase="'marker'"
+          [markerData]="panelData"
+          [circuits]="sidePanelCircuits"
+          [selectedCircuit]="selectedCircuit"
+          [selectedCircuitRouters]="selectedCircuitRouters"
+          [selectedRouterInPath]="selectedRouterInPath"
+          [allIdentities]="allIdentities"
+          [allRouters]="allRouters"
+          [allTerminators]="allTerminators"
+          (circuitSelected)="circuitSelected.emit($event)"
+          (routerInPathSelected)="routerInPathSelected.emit($event)"
+          (saveLocationChanges)="saveLocationChanges.emit($event)"
+          (navigateToDetails)="navigateToDetails.emit($event)"
+          (circuitPreviewOpened)="circuitPreviewOpened.emit($event)"
+          (roleAttributeNavigated)="roleAttributeNavigated.emit($event)"
+          (panelClosed)="closePanel()"
+        ></lib-marker-panel>
+
+        <!-- Link Panel -->
+        <lib-link-panel
+          *ngSwitchCase="'link'"
+          [linkData]="panelData"
+          (routerClicked)="routerClicked.emit($event)"
+        ></lib-link-panel>
+
+        <!-- Circuit Panel -->
+        <lib-circuit-panel
+          *ngSwitchCase="'circuit'"
+          [circuitData]="panelData"
+          [selectedSegmentIndex]="selectedCircuitSegment?.segmentIndex"
+          [selectedRouterId]="selectedRouterInPath"
+          [previewEntity]="circuitPreviewEntity"
+          [previewEntityType]="circuitPreviewEntityType"
+          (hopSelected)="hopSelected.emit($event)"
+          (routerSelected)="routerSelected.emit($event)"
+          (entityClicked)="entityClicked.emit($event)"
+          (serviceClicked)="serviceClicked.emit($event)"
+          (previewClosed)="circuitPreviewClosed.emit()"
+          (navigateToDetails)="navigateToDetails.emit($event)"
+          (entityPanelOpened)="entityPanelOpened.emit($event)"
+        ></lib-circuit-panel>
+
+        <!-- Entity List Panel -->
+        <lib-entity-list-panel
+          *ngSwitchCase="'entityList'"
+          [entityType]="entityListType"
+          [entities]="filteredEntityList"
+          [currentPage]="entityListPage"
+          [pageSize]="entityListPageSize"
+          [totalEntities]="entityListTotal"
+          [searchTerm]="entityListSearch"
+          [locationFilter]="entityListLocationFilter"
+          [previewEntity]="entityListPreview"
+          [previewCircuits]="sidePanelCircuits"
+          [selectedCircuit]="selectedCircuit"
+          [selectedCircuitRouters]="selectedCircuitRouters"
+          [selectedRouterInPath]="selectedRouterInPath"
+          [Math]="Math"
+          [allIdentities]="allIdentities"
+          [allRouters]="allRouters"
+          (searchChanged)="entityListSearchChanged.emit($event)"
+          (pageChanged)="entityListPageChanged.emit($event)"
+          (sortChanged)="entityListSortChanged.emit($event)"
+          (locationFilterChanged)="entityListLocationFilterChanged.emit($event)"
+          (entityClicked)="entityListEntityClicked.emit($event)"
+          (previewClosed)="entityListPreviewClosed.emit()"
+          (circuitSelected)="circuitSelected.emit($event)"
+          (routerInPathSelected)="routerInPathSelected.emit($event)"
+          (saveLocationChanges)="saveLocationChanges.emit($event)"
+          (navigateToDetails)="navigateToDetails.emit($event)"
+          (circuitPreviewOpened)="circuitPreviewOpened.emit($event)"
+          (roleAttributeNavigated)="roleAttributeNavigated.emit($event)"
+          (entityDragStarted)="unlocatedEntityDragStarted.emit($event)"
+        ></lib-entity-list-panel>
+
+        <!-- Unlocated Panel -->
+        <lib-unlocated-panel
+          *ngSwitchCase="'unlocated'"
+          [unlocatedData]="panelData"
+          [filteredIdentities]="filteredUnlocatedIdentities"
+          [filteredRouters]="filteredUnlocatedRouters"
+          [identitiesSearch]="unlocatedIdentitiesSearch"
+          [routersSearch]="unlocatedRoutersSearch"
+          [previewEntity]="unlocatedPreviewEntity"
+          [previewType]="unlocatedPreviewType"
+          [previewCircuits]="unlocatedPreviewCircuits"
+          [previewHasUnsavedLocation]="unlocatedPreviewHasUnsavedLocation"
+          [selectedCircuit]="selectedUnlocatedCircuit"
+          [selectedCircuitRouters]="selectedUnlocatedCircuitRouters"
+          [selectedRouterInPath]="selectedRouterInPath"
+          [allIdentities]="allIdentities"
+          [allRouters]="allRouters"
+          (identitiesSearchChanged)="unlocatedIdentitiesSearchChanged.emit($event)"
+          (routersSearchChanged)="unlocatedRoutersSearchChanged.emit($event)"
+          (entityDragStarted)="unlocatedEntityDragStarted.emit($event)"
+          (entityClicked)="unlocatedEntityClicked.emit($event)"
+          (previewClosed)="unlocatedPreviewClosed.emit()"
+          (saveLocationClicked)="unlocatedSaveLocationClicked.emit()"
+          (circuitSelected)="circuitSelected.emit($event)"
+          (routerInPathSelected)="routerInPathSelected.emit($event)"
+          (navigateToDetails)="navigateToDetails.emit($event)"
+          (circuitPreviewOpened)="circuitPreviewOpened.emit($event)"
+          (roleAttributeNavigated)="roleAttributeNavigated.emit($event)"
+        ></lib-unlocated-panel>
+
+        <!-- Services with Circuits Panel -->
+        <lib-services-with-circuits-panel
+          *ngSwitchCase="'servicesWithCircuits'"
+          [allCircuits]="allCircuits"
+          [allIdentities]="allIdentities"
+          [allRouters]="allRouters"
+          [searchTerm]="servicesWithCircuitsSearch"
+          [selectedCircuit]="selectedCircuit"
+          (searchChanged)="servicesSearchChanged.emit($event)"
+          (circuitSelected)="circuitSelected.emit($event)"
+          (circuitPreviewOpened)="circuitPreviewOpened.emit($event)"
+        ></lib-services-with-circuits-panel>
+      </ng-container>
+    </div>
+  </div>
+</lib-form-field-container>

@@ -1,0 +1,74 @@
+<div class="link-details-panel" *ngIf="linkData">
+  <div class="details-section">
+    <table class="details-table">
+    <tr>
+      <td class="popup-label">From:</td>
+      <td class="popup-value">
+        <a class="clickable-name" (click)="onRouterClick(linkData?.sourceRouter)">
+          {{ linkData?.sourceRouter?.name }}
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td class="popup-label">To:</td>
+      <td class="popup-value">
+        <a class="clickable-name" (click)="onRouterClick(linkData?.destRouter)">
+          {{ linkData?.destRouter?.name }}
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td class="popup-label">State:</td>
+      <td class="popup-value">{{ linkData?.link?.state || 'Unknown' }}</td>
+    </tr>
+    <tr>
+      <td class="popup-label">Protocol:</td>
+      <td class="popup-value">{{ linkData?.link?.protocol || 'Unknown' }}</td>
+    </tr>
+    <tr>
+      <td class="popup-label">Cost:</td>
+      <td class="popup-value">{{ linkData?.link?.cost || 'N/A' }}</td>
+    </tr>
+    <tr *ngIf="linkData?.link?.sourceLatency || linkData?.link?.destLatency">
+      <td class="popup-label">Latency:</td>
+      <td class="popup-value">
+        {{ linkData?.link?.sourceLatency ? (linkData?.link?.sourceLatency / 1000000).toFixed(2) + ' ms' : 'N/A' }} /
+        {{ linkData?.link?.destLatency ? (linkData?.link?.destLatency / 1000000).toFixed(2) + ' ms' : 'N/A' }}
+      </td>
+    </tr>
+    </table>
+  </div>
+
+  <!-- Connections Sub-Table -->
+  <div class="connections-section" *ngIf="linkData?.link?.connections && linkData?.link?.connections?.length > 0">
+    <div class="connections-header">
+      <span class="connections-title">Connections ({{ linkData?.link?.connections?.length }})</span>
+    </div>
+    <div class="connections-table-container">
+      <table class="connections-table">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Src Protocol</th>
+            <th>Src Address</th>
+            <th>Src Port</th>
+            <th>Dest Protocol</th>
+            <th>Dest Address</th>
+            <th>Dest Port</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let connection of linkData?.link?.connections">
+            <td class="connection-type">{{ parseConnectionType(connection.type) }}</td>
+            <td class="connection-protocol">{{ parseEndpoint(connection.source).protocol }}</td>
+            <td class="connection-address">{{ parseEndpoint(connection.source).address }}</td>
+            <td class="connection-port">{{ parseEndpoint(connection.source).port }}</td>
+            <td class="connection-protocol">{{ parseEndpoint(connection.dest).protocol }}</td>
+            <td class="connection-address">{{ parseEndpoint(connection.dest).address }}</td>
+            <td class="connection-port">{{ parseEndpoint(connection.dest).port }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
