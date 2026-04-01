@@ -361,8 +361,7 @@ export class ZitiControllerDataService extends ZitiDataService {
 
         // Create parallel requests to all controllers
         const requests = controllersToQuery.map((controller: any) => {
-            let controllerUrl = controller.url;
-
+            const controllerUrl = controller.url;
             const serviceUrl = controllerUrl + prefix + "/" + callUrl;
 
             // Build headers - JWT auth is handled by the interceptor

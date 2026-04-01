@@ -287,21 +287,7 @@ export class ControllerLoginService extends LoginServiceClass {
                                 if (rawAddress?.startsWith('tls:')) {
                                     // Format: "tls:hostname:port" -> "https://hostname"
                                     const parts = rawAddress.substring(4).split(':'); // Remove "tls:" and split by ":"
-                                    let hostname = parts[0];
-
-                                    // ========================================
-                                    // TEMPORARY: DO NOT COMMIT THIS CODE
-                                    // ========================================
-                                    // For NetFoundry production environments, append "-p" before ".production.netfoundry.io"
-                                    // to use public-facing controllers with valid certs
-                                    if (hostname.includes('.production.netfoundry.io') && !hostname.includes('-p.production.netfoundry.io')) {
-                                        hostname = hostname.replace('.production.netfoundry.io', '-p.production.netfoundry.io');
-                                        console.log(`[HA] [TEMP] Appended -p to hostname for public cert: ${hostname}`);
-                                    }
-                                    // ========================================
-                                    // END TEMPORARY CODE
-                                    // ========================================
-
+                                    const hostname = parts[0];
                                     apiUrl = `https://${hostname}`;
                                 }
 
