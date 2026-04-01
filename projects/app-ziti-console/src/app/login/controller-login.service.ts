@@ -210,21 +210,6 @@ export class ControllerLoginService extends LoginServiceClass {
         jwtToken: string
     ): Promise<any[]> {
         try {
-            // ========================================
-            // TEMPORARY: DO NOT COMMIT THIS CODE
-            // ========================================
-            // Transform primaryUrl to use public cert if it's a NetFoundry production URL
-            let transformedPrimaryUrl = primaryUrl;
-            if (primaryUrl.includes('.production.netfoundry.io') && !primaryUrl.includes('-p.production.netfoundry.io')) {
-                transformedPrimaryUrl = primaryUrl.replace('.production.netfoundry.io', '-p.production.netfoundry.io');
-                console.log(`[HA] [TEMP] Transformed primary URL for public cert: ${transformedPrimaryUrl}`);
-            }
-            // Use the transformed URL for all HA operations
-            primaryUrl = transformedPrimaryUrl;
-            // ========================================
-            // END TEMPORARY CODE
-            // ========================================
-
             console.log('[HA] Starting discovery for primary URL:', primaryUrl);
             console.log('[HA] JWT token present:', !!jwtToken);
 
