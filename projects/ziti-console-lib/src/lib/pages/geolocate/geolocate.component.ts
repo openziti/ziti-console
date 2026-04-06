@@ -676,7 +676,6 @@ export class GeolocateComponent implements OnInit, OnDestroy {
             destLatency: testLatencyNs
           };
         });
-        console.log('DEBUG: Link latency values randomized for testing');
       }
 
       this.links = links;

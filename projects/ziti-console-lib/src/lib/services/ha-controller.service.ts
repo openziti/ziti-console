@@ -268,7 +268,7 @@ export class HAControllerService {
     try {
       localStorage.setItem('ha.clusterStatus', JSON.stringify(status));
     } catch (err) {
-      console.warn('[HA] Failed to save cluster status to localStorage:', err);
+      // Failed to save to localStorage
     }
   }
 
@@ -286,11 +286,9 @@ export class HAControllerService {
         if (status.enabled && status.controllers.length > 1) {
           this.startHealthChecks();
         }
-
-        console.log('[HA] Restored cluster status from localStorage:', status);
       }
     } catch (err) {
-      console.warn('[HA] Failed to restore cluster status from localStorage:', err);
+      // Failed to restore from localStorage
     }
   }
 
@@ -301,7 +299,7 @@ export class HAControllerService {
     try {
       localStorage.removeItem('ha.clusterStatus');
     } catch (err) {
-      console.warn('[HA] Failed to clear cluster status from localStorage:', err);
+      // Failed to clear from localStorage
     }
   }
 }

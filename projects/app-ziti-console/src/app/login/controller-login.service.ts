@@ -151,14 +151,8 @@ export class ControllerLoginService extends LoginServiceClass {
         }
         if (body.error) throw body.error;
 
-        // Log the full authentication response to understand structure
-        console.log('[AUTH] Full authentication response:', JSON.stringify(body, null, 2));
-        console.log('[AUTH] Response data fields:', Object.keys(body.data || {}));
-
         // Extract token from response
         const token = body.data?.token;
-        console.log('[AUTH] Token value:', token);
-        console.log('[AUTH] Token type:', token?.includes('.') && token?.split('.').length === 3 ? 'JWT' : 'Session UUID');
 
         // Store both legacy session and JWT token
         const settings = {
@@ -182,11 +176,9 @@ export class ControllerLoginService extends LoginServiceClass {
         this.discoverAndAuthenticateHAControllers(this.domain, username, password, body.data?.token)
             .then((haControllers) => {
                 // Success - no growler needed
-                console.log('[HA] Successfully connected to', haControllers.length, 'peer controllers');
             })
             .catch((err) => {
                 // Show error only if HA controller discovery/authentication fails
-                console.error('HA controller discovery failed:', err);
                 const growlerData = new GrowlerModel(
                     'error',
                     'HA Controller Error',
@@ -210,9 +202,6 @@ export class ControllerLoginService extends LoginServiceClass {
         jwtToken: string
     ): Promise<any[]> {
         try {
-            console.log('[HA] Starting discovery for primary URL:', primaryUrl);
-            console.log('[HA] JWT token present:', !!jwtToken);
-
             // Get API versions from primary controller
             const versionUrl = `${primaryUrl}/edge/management/v1/version`;
             const versionResponse: any = await firstValueFrom(
@@ -220,9 +209,6 @@ export class ControllerLoginService extends LoginServiceClass {
                     headers: { 'Authorization': `Bearer ${jwtToken}` }
                 })
             );
-
-            console.log('[HA] Version response:', versionResponse);
-            console.log('[HA] Full version data:', JSON.stringify(versionResponse?.data, null, 2));
 
             // Check if fabric API exists (indicates HA capability)
             const hasPeerData = versionResponse?.data?.peerControllers;
@@ -232,48 +218,24 @@ export class ControllerLoginService extends LoginServiceClass {
             const buildInfo = versionResponse?.data?.buildInfo;
             const capabilities = versionResponse?.data?.capabilities;
 
-            console.log('[HA] Has peer data:', hasPeerData);
-            console.log('[HA] Has fabric API:', fabricApi);
-            console.log('[HA] Full version data keys:', Object.keys(versionResponse?.data || {}));
-            console.log('[HA] Capabilities:', capabilities);
-
             // For now, if fabric API exists but no peer data, try to get cluster members
             if (!hasPeerData && fabricApi) {
-                console.log('[HA] No peer controllers in version endpoint - trying cluster discovery endpoints');
-                console.warn('[HA] Note: Fabric cluster endpoints may not have CORS configured for browser access');
-                console.warn('[HA] If this fails with CORS error, configure CORS on controller or use version endpoint peerControllers');
 
                 // Try endpoint 1: /fabric/v1/cluster/list-members (used by ziti CLI)
                 // Note: This endpoint returns addresses in format "tls:hostname:port" which we convert to "https://hostname"
                 try {
                     const clusterUrl = `${primaryUrl}/fabric/v1/cluster/list-members`;
-                    console.log('[HA] Fetching cluster members from:', clusterUrl);
-                    console.log('[HA] JWT token for request:', jwtToken?.substring(0, 20) + '...');
 
                     const clusterResponse: any = await firstValueFrom(
                         this.httpClient.get(clusterUrl).pipe(
                             catchError((err) => {
-                                console.warn('[HA] Cluster list-members request failed:', {
-                                    status: err.status,
-                                    statusText: err.statusText,
-                                    message: err.message,
-                                    reason: err.status === 401 ? 'JWT token may lack fabric admin permissions' :
-                                           err.status === 0 ? 'CORS preflight failed - endpoint may not support browser access' : 'Unknown error'
-                                });
                                 throw err;
                             })
                         )
                     );
 
-                    console.log('[HA] Cluster members response:', clusterResponse);
-
                     if (clusterResponse?.data && Array.isArray(clusterResponse.data)) {
                         const clusterMembers = clusterResponse.data;
-                        console.log('[HA] Found', clusterMembers.length, 'cluster members');
-
-                        clusterMembers.forEach((member: any) => {
-                            console.log(`[HA] Cluster member:`, member);
-                        });
 
                         // Check if cluster members have API URLs
                         const memberUrls = clusterMembers
@@ -291,8 +253,6 @@ export class ControllerLoginService extends LoginServiceClass {
                                     apiUrl = `https://${hostname}`;
                                 }
 
-                                console.log(`[HA] Converting address "${rawAddress}" to "${apiUrl}"`);
-
                                 return {
                                     url: apiUrl,
                                     id: member.id || member.name,
@@ -301,12 +261,7 @@ export class ControllerLoginService extends LoginServiceClass {
                                 };
                             });
 
-                        console.log('[HA] Extracted member URLs:', memberUrls);
-
                         if (memberUrls.length > 0 && memberUrls[0].url) {
-                            // Success! We found accessible URLs
-                            console.log('[HA] Successfully discovered', memberUrls.length, 'controllers from cluster endpoint');
-
                             // Convert to controller format and initialize HA cluster
                             memberUrls.forEach((member: any, index: number) => {
                                 const name = index === 0 ? 'Primary Controller' : `Peer Controller ${index}`;
@@ -322,52 +277,33 @@ export class ControllerLoginService extends LoginServiceClass {
                                 sessionToken: null
                             }));
 
-                            console.log('[HA] Initializing HA cluster with discovered controllers:', allControllers);
                             this.haControllerService.initializeCluster(allControllers);
-                            console.log('[HA] HA cluster initialized successfully');
 
                             return allControllers.slice(1); // Return peers only (excluding primary)
                         }
                     }
                 } catch (clusterError) {
-                    console.log('[HA] Failed to fetch cluster members:', clusterError);
+                    // Failed to fetch cluster members
                 }
 
                 // Try endpoint 2: /fabric/v1/raft/members (fallback)
                 try {
                     const raftUrl = `${primaryUrl}/fabric/v1/raft/members`;
-                    console.log('[HA] Fallback: Fetching raft members from:', raftUrl);
 
                     const raftResponse: any = await firstValueFrom(
                         this.httpClient.get(raftUrl).pipe(
                             catchError((err) => {
-                                console.warn('[HA] Raft members request failed:', {
-                                    status: err.status,
-                                    statusText: err.statusText,
-                                    message: err.message,
-                                    reason: err.status === 401 ? 'JWT token may lack fabric admin permissions' :
-                                           err.status === 0 ? 'CORS preflight failed - endpoint may not support browser access' : 'Unknown error'
-                                });
                                 throw err;
                             })
                         )
                     );
 
-                    console.log('[HA] Raft members response:', raftResponse);
-
                     if (raftResponse?.data && Array.isArray(raftResponse.data)) {
                         const raftMembers = raftResponse.data;
-                        console.log('[HA] Found', raftMembers.length, 'raft members');
-
-                        raftMembers.forEach((member: any) => {
-                            console.log(`[HA] Raft member:`, member);
-                        });
                     }
                 } catch (raftError: any) {
-                    console.warn('[HA] Failed to fetch raft members:', raftError?.status || raftError?.message || raftError);
+                    // Failed to fetch raft members
                 }
-
-                console.log('[HA] Could not auto-discover controllers - manual configuration needed');
                 return [];
             }
 
@@ -379,10 +315,7 @@ export class ControllerLoginService extends LoginServiceClass {
                     .filter((url: string) => url && url !== primaryUrl);
             }
 
-            console.log('[HA] Discovered peer URLs:', peerUrls);
-
             if (peerUrls.length === 0) {
-                console.log('[HA] No peer controllers found in version endpoint');
                 return [];
             }
 
@@ -416,16 +349,11 @@ export class ControllerLoginService extends LoginServiceClass {
                 ...discoveredControllers
             ];
 
-            console.log('[HA] Initializing HA cluster with controllers:', allControllers);
-
             // Initialize HA cluster in service
             this.haControllerService.initializeCluster(allControllers);
 
-            console.log('[HA] HA cluster initialized successfully');
-
             return discoveredControllers;
         } catch (err) {
-            console.error('HA controller discovery error:', err);
             return [];
         }
     }

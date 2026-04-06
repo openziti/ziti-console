@@ -30,14 +30,6 @@ export class RouterPathTableComponent implements OnChanges {
       // Create a shallow copy to trigger change detection
       this.displayRouters = this.circuitRouters ? [...this.circuitRouters] : [];
 
-      // Debug logging
-      if (this.displayRouters.length > 0) {
-        console.log('Router Path Table - Received routers:', this.displayRouters.length);
-        console.log('Router Path Table - First router:', this.displayRouters[0]);
-      } else {
-        console.warn('Router Path Table - No routers received');
-      }
-
       this.cdr.markForCheck();
     }
   }
