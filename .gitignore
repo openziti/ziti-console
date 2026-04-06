@@ -10,3 +10,12 @@ node-console.iws
 
 assets/scripts/components/debug.log
 .vscode/launch.json
+
+# Claude-generated documentation (keep local only)
+CLAUDE.md
+HA_IMPLEMENTATION.md
+projects/ziti-console-lib/src/lib/pages/geolocate/CIRCUIT_DATA_STRUCTURES.md
+projects/ziti-console-lib/src/lib/pages/geolocate/CODE_SNIPPETS.md
+projects/ziti-console-lib/src/lib/pages/geolocate/LATENCY_DEBUG_FINDINGS.md
+projects/ziti-console-lib/src/lib/pages/geolocate/QUICK_REFERENCE.md
+projects/ziti-console-lib/src/lib/assets/svgs/nf-logo.svg
