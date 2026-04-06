@@ -262,24 +262,86 @@ export class ControllerLoginService extends LoginServiceClass {
                             });
 
                         if (memberUrls.length > 0 && memberUrls[0].url) {
-                            // Convert to controller format and initialize HA cluster
-                            memberUrls.forEach((member: any, index: number) => {
-                                const name = index === 0 ? 'Primary Controller' : `Peer Controller ${index}`;
-                                this.settingsService.addHAController(member.url, name);
+                            // Verify each controller is reachable before enabling HA
+                            const verificationPromises = memberUrls.map(async (member: any, index: number) => {
+                                try {
+                                    const testUrl = `${member.url}/edge/management/v1/version`;
+                                    const response = await firstValueFrom(
+                                        this.httpClient.get(testUrl, {
+                                            headers: { 'Authorization': `Bearer ${jwtToken}` }
+                                        }).pipe(
+                                            catchError(() => {
+                                                return of(null); // Mark as failed
+                                            })
+                                        )
+                                    );
+
+                                    // If catchError returned null, throw to mark as failed
+                                    if (response === null) {
+                                        throw new Error('Controller verification failed');
+                                    }
+
+                                    return {
+                                        url: member.url,
+                                        name: index === 0 ? 'Primary Controller' : `Peer Controller ${index}`,
+                                        isOnline: true,
+                                        lastHealthCheck: new Date(),
+                                        lastResponseTime: null,
+                                        sessionToken: null,
+                                        verified: true
+                                    };
+                                } catch (err) {
+                                    return {
+                                        url: member.url,
+                                        name: index === 0 ? 'Primary Controller' : `Peer Controller ${index}`,
+                                        isOnline: false,
+                                        lastHealthCheck: new Date(),
+                                        lastResponseTime: null,
+                                        sessionToken: null,
+                                        verified: false
+                                    };
+                                }
                             });
 
-                            const allControllers = memberUrls.map((member: any, index: number) => ({
-                                url: member.url,
-                                name: index === 0 ? 'Primary Controller' : `Peer Controller ${index}`,
-                                isOnline: member.isConnected !== false,
-                                lastHealthCheck: new Date(),
-                                lastResponseTime: null,
-                                sessionToken: null
-                            }));
+                            const verifiedControllers = await Promise.all(verificationPromises);
+                            const onlineControllers = verifiedControllers.filter((c: any) => c.verified);
+                            const allOnline = verifiedControllers.every((c: any) => c.verified);
 
-                            this.haControllerService.initializeCluster(allControllers);
+                            // Only enable HA if there are 2+ online controllers
+                            if (onlineControllers.length >= 2) {
+                                // Add only online controllers to settings
+                                onlineControllers.forEach((controller: any) => {
+                                    this.settingsService.addHAController(controller.url, controller.name);
+                                });
 
-                            return allControllers.slice(1); // Return peers only (excluding primary)
+                                // Initialize HA cluster
+                                this.haControllerService.initializeCluster(onlineControllers);
+
+                                // Show warning if some controllers failed
+                                if (!allOnline) {
+                                    const failedCount = verifiedControllers.length - onlineControllers.length;
+                                    const growlerData = new GrowlerModel(
+                                        'warning',
+                                        'Partial HA Cluster',
+                                        `Connected to ${onlineControllers.length} of ${verifiedControllers.length} controllers. ${failedCount} controller(s) unreachable (possibly cert issues).`,
+                                    );
+                                    this.growlerService.show(growlerData);
+                                }
+
+                                return onlineControllers.slice(1); // Return peers only (excluding primary)
+                            } else {
+                                // Only 1 or 0 controllers online - fall back to standard session auth
+                                // Show informational message if controllers were discovered but unreachable
+                                if (verifiedControllers.length > 1) {
+                                    const growlerData = new GrowlerModel(
+                                        'info',
+                                        'HA Not Available',
+                                        `Found ${verifiedControllers.length} controllers in HA cluster but was unable to authenticate with all of them. Reverting to standard zt-session authentication.`,
+                                    );
+                                    this.growlerService.show(growlerData);
+                                }
+                                return [];
+                            }
                         }
                     }
                 } catch (clusterError) {
@@ -319,40 +381,87 @@ export class ControllerLoginService extends LoginServiceClass {
                 return [];
             }
 
-            // Add primary controller to HA cluster
-            this.settingsService.addHAController(primaryUrl, 'Primary Controller');
+            // Verify all controllers (including primary) are reachable before enabling HA
+            const allUrls = [primaryUrl, ...peerUrls];
+            const verificationPromises = allUrls.map(async (url, index) => {
+                try {
+                    const testUrl = `${url}/edge/management/v1/version`;
+                    const response = await firstValueFrom(
+                        this.httpClient.get(testUrl, {
+                            headers: { 'Authorization': `Bearer ${jwtToken}` }
+                        }).pipe(
+                            catchError(() => {
+                                return of(null); // Mark as failed
+                            })
+                        )
+                    );
 
-            // Add all peer controllers (no separate authentication needed with JWT)
-            const discoveredControllers = peerUrls.map((peerUrl, index) => {
-                this.settingsService.addHAController(peerUrl, `Peer Controller ${index + 1}`);
+                    // If catchError returned null, throw to mark as failed
+                    if (response === null) {
+                        throw new Error('Controller verification failed');
+                    }
 
-                return {
-                    url: peerUrl,
-                    name: `Peer Controller ${index + 1}`,
-                    isOnline: true,
-                    lastHealthCheck: new Date(),
-                    lastResponseTime: null,
-                    sessionToken: null // Not needed with JWT
-                };
+                    return {
+                        url: url,
+                        name: index === 0 ? 'Primary Controller' : `Peer Controller ${index}`,
+                        isOnline: true,
+                        lastHealthCheck: new Date(),
+                        lastResponseTime: null,
+                        sessionToken: null,
+                        verified: true
+                    };
+                } catch (err) {
+                    return {
+                        url: url,
+                        name: index === 0 ? 'Primary Controller' : `Peer Controller ${index}`,
+                        isOnline: false,
+                        lastHealthCheck: new Date(),
+                        lastResponseTime: null,
+                        sessionToken: null,
+                        verified: false
+                    };
+                }
             });
 
-            // Build complete list of all controllers
-            const allControllers = [
-                {
-                    url: primaryUrl,
-                    name: 'Primary Controller',
-                    isOnline: true,
-                    lastHealthCheck: new Date(),
-                    lastResponseTime: null,
-                    sessionToken: null // Not needed with JWT
-                },
-                ...discoveredControllers
-            ];
+            const verifiedControllers = await Promise.all(verificationPromises);
+            const onlineControllers = verifiedControllers.filter((c: any) => c.verified);
+            const allOnline = verifiedControllers.every((c: any) => c.verified);
 
-            // Initialize HA cluster in service
-            this.haControllerService.initializeCluster(allControllers);
+            // Only enable HA if there are 2+ online controllers
+            if (onlineControllers.length >= 2) {
+                // Add only online controllers to settings
+                onlineControllers.forEach((controller: any) => {
+                    this.settingsService.addHAController(controller.url, controller.name);
+                });
 
-            return discoveredControllers;
+                // Initialize HA cluster in service
+                this.haControllerService.initializeCluster(onlineControllers);
+
+                // Show warning if some controllers failed
+                if (!allOnline) {
+                    const failedCount = verifiedControllers.length - onlineControllers.length;
+                    const growlerData = new GrowlerModel(
+                        'warning',
+                        'Partial HA Cluster',
+                        `Connected to ${onlineControllers.length} of ${verifiedControllers.length} controllers. ${failedCount} controller(s) unreachable (possibly cert issues).`,
+                    );
+                    this.growlerService.show(growlerData);
+                }
+
+                return onlineControllers.slice(1); // Return peers only (excluding primary)
+            } else {
+                // Only 1 or 0 controllers online - fall back to standard session auth
+                // Show informational message if controllers were discovered but unreachable
+                if (verifiedControllers.length > 1) {
+                    const growlerData = new GrowlerModel(
+                        'info',
+                        'HA Not Available',
+                        `Found ${verifiedControllers.length} controllers in HA cluster but was unable to authenticate with all of them. Reverting to standard zt-session authentication.`,
+                    );
+                    this.growlerService.show(growlerData);
+                }
+                return [];
+            }
         } catch (err) {
             return [];
         }

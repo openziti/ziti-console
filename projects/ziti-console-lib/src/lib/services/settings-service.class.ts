@@ -126,15 +126,18 @@ export abstract class SettingsServiceClass {
     }
 
     public addContoller(name: string, url: string) {
-        if (name.trim().length == 0 || url.trim().length == 0) {
+        const trimmedName = name.trim();
+        const trimmedUrl = url.trim();
+        if (trimmedName.length == 0 || trimmedUrl.length == 0) {
             let growlerData = new GrowlerModel(
               'error',
               'Error',
               'Name and URL required',
             );
             this.growlerService.show(growlerData);
+            return Promise.reject({ error: 'Name and URL required' });
         } else {
-            return this.controllerSave(name, url);
+            return this.controllerSave(trimmedName, trimmedUrl);
         }
     }
 

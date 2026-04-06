@@ -82,9 +82,9 @@ export class LoginDialogComponent implements OnInit {
 
   edgeChanged(event?) {
     if (this.selectedEdgeController) {
-      this.settingsService.initApiVersions(this.selectedEdgeController)
+      this.settingsService.initApiVersions(this.selectedEdgeController.trim())
     }
-    this.settingsService.settings.selectedEdgeController = this.selectedEdgeController;
+    this.settingsService.settings.selectedEdgeController = this.selectedEdgeController?.trim();
   }
 
   login() {
@@ -93,7 +93,7 @@ export class LoginDialogComponent implements OnInit {
       this.loginFailed = false;
       this.svc.login(
           prefix,
-          this.selectedEdgeController,
+          this.selectedEdgeController.trim(),
           this.username.trim(),
           this.password,
           false

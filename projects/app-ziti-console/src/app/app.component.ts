@@ -57,7 +57,18 @@ export class AppComponent implements OnInit {
             this.checkSession();
             this.handleUserSettings();
         });
-        this.checkOriginForController();
+
+        // Only check if window.location.origin is a controller if we don't have a saved controller URL
+        // This prevents unnecessary 404 errors in development mode
+        const savedSettings = localStorage.getItem('ziti.settings');
+        if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            if (!settings.selectedEdgeController) {
+                this.checkOriginForController();
+            }
+        } else {
+            this.checkOriginForController();
+        }
     }
 
     async checkSession() {

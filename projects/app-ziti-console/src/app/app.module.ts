@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-import {NgModule} from '@angular/core';
+import {NgModule, APP_INITIALIZER} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 
 import {AppComponent} from './app.component';
@@ -83,6 +83,11 @@ if (environment.nodeIntegration) {
     apiInterceptor = ZitiApiInterceptor;
 }
 
+// Factory function to initialize settings service before app starts
+export function initializeApp(settingsService: any) {
+    return () => settingsService.init();
+}
+
 @NgModule({ declarations: [
         AppComponent,
         PageNotFoundComponent,
@@ -98,6 +103,12 @@ if (environment.nodeIntegration) {
         GrowlerModule,
         LoggerModule.forRoot({ level: NgxLoggerLevel.DEBUG, serverLogLevel: NgxLoggerLevel.ERROR }),
         OAuthModule.forRoot()], providers: [
+        {
+            provide: APP_INITIALIZER,
+            useFactory: initializeApp,
+            deps: [SETTINGS_SERVICE],
+            multi: true
+        },
         { provide: ZITI_DOMAIN_CONTROLLER, useClass: SimpleZitiDomainControllerService },
         { provide: ZITI_URLS, useValue: URLS },
         { provide: ZITI_NAVIGATOR, useValue: ZITI_CONSOLE_NAVIGATOR },

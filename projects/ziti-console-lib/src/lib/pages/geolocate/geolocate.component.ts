@@ -1,7 +1,8 @@
     import {Component, OnInit, OnDestroy, Inject, ViewChild, SimpleChanges, ElementRef, AfterViewInit, HostListener} from '@angular/core';
 import {ZITI_DATA_SERVICE, ZitiDataService} from '../../services/ziti-data.service';
+import {SETTINGS_SERVICE, SettingsService} from '../../services/settings.service';
 import { Subscription, fromEvent } from 'rxjs';
-import { throttleTime } from 'rxjs/operators';
+import { throttleTime, filter, distinctUntilChanged } from 'rxjs/operators';
 import {GrowlerService} from "../../features/messaging/growler.service";
 import {GrowlerModel} from "../../features/messaging/growler.model";
 import {Router, ActivatedRoute} from '@angular/router';
@@ -144,6 +145,7 @@ export class GeolocateComponent implements OnInit, OnDestroy {
 
   constructor(
     @Inject(ZITI_DATA_SERVICE) private zitiDataService: ZitiDataService,
+    @Inject(SETTINGS_SERVICE) private settingsService: SettingsService,
     private router: Router,
     private route: ActivatedRoute,
     private growlerService: GrowlerService,
@@ -282,6 +284,27 @@ export class GeolocateComponent implements OnInit, OnDestroy {
     this.subscription.add(
       this.mapRenderingService.circuitSegmentClicked.subscribe(data => {
         this.openSidePanel('circuit', data);
+      })
+    );
+
+    // Subscribe to settings changes to detect re-authentication
+    // When user re-authenticates after timeout, reload map data
+    this.subscription.add(
+      this.settingsService.settingsChange.pipe(
+        filter((settings: any) => !!settings?.session?.id),
+        distinctUntilChanged((prev: any, curr: any) => prev?.session?.id === curr?.session?.id)
+      ).subscribe((settings: any) => {
+        // Session ID changed - user has re-authenticated
+        // Reload map data to get latest information
+        if (this.map) {
+          this.isLoading = true;
+          const attributesPromise = this.getRoleAttributest();
+          const summaryPromise = this.loadEntityCounts();
+          const mapPromise = this.loadMapData();
+          Promise.all([attributesPromise, summaryPromise, mapPromise]).finally(() => {
+            this.isLoading = false;
+          });
+        }
       })
     );
 
@@ -2404,6 +2427,39 @@ export class GeolocateComponent implements OnInit, OnDestroy {
         this.geolocatedRouters = this.edgeRouters.filter(router => router.tags?.geolocation).length;
       }
 
+      // Update unlocated entity lists if the unlocated panel is open
+      if (this.mapStateService.sidePanelType === 'unlocated') {
+        const unlocatedIdentities = this.identities.filter(identity =>
+          (identity.typeId !== 'Router') && (!identity.tags?.geolocation || identity.tags.geolocation.trim() === '')
+        );
+        const unlocatedRouters = this.edgeRouters.filter(router =>
+          !router.tags?.geolocation || router.tags.geolocation.trim() === ''
+        );
+
+        // Update the panel data
+        this.mapStateService.sidePanelData = {
+          unlocatedIdentities,
+          unlocatedRouters
+        };
+
+        // Update filtered lists based on current search
+        this.filteredUnlocatedIdentities = unlocatedIdentities.filter(identity =>
+          identity.name?.toLowerCase().includes(this.unlocatedIdentitiesSearch.toLowerCase())
+        );
+        this.filteredUnlocatedRouters = unlocatedRouters.filter(router =>
+          router.name?.toLowerCase().includes(this.unlocatedRoutersSearch.toLowerCase())
+        );
+      }
+
+      // Update entity list if it's open and showing the affected entity type
+      if (this.mapStateService.sidePanelType === 'entityList') {
+        const entityType = this.mapStateService.sidePanelData?.entityType;
+        if ((type === 'identity' && entityType === 'identities') || (type === 'routers' && entityType === 'routers')) {
+          // Refresh the entity list to reflect the location change
+          this.updateEntityListAfterLocationChange();
+        }
+      }
+
       // Redraw circuits and links
       if (this.mapStateService.linksVisible) {
         this.drawLinks(this.links);
@@ -2420,6 +2476,19 @@ export class GeolocateComponent implements OnInit, OnDestroy {
       );
       this.growlerService.show(errorGrowler);
     });
+  }
+
+  updateEntityListAfterLocationChange() {
+    // Refresh the full entity list with updated data
+    if (this.entityListType === 'identities') {
+      const filteredIdentities = this.identities.filter(identity => identity.typeId !== 'Router');
+      this.fullEntityList = [...filteredIdentities];
+    } else if (this.entityListType === 'routers') {
+      this.fullEntityList = [...this.edgeRouters];
+    }
+
+    // Reapply filters to update the displayed list
+    this.applyEntityListFilters();
   }
 
   navigateToRoleAttribute(role: string) {
@@ -2478,6 +2547,48 @@ export class GeolocateComponent implements OnInit, OnDestroy {
 
     // Clear the unsaved location flag after successful save
     item._unsavedLocation = false;
+
+    // Update counts (entity now has geolocation)
+    if (type === 'identity') {
+      this.unlocatedIdentities = this.identities.filter(identity => identity.typeId !== 'Router' && !identity.tags?.geolocation).length;
+      this.geolocatedIdentities = this.identities.filter(identity => identity.typeId !== 'Router' && identity.tags?.geolocation).length;
+    } else if (type === 'routers') {
+      this.unlocatedRouters = this.edgeRouters.filter(router => !router.tags?.geolocation).length;
+      this.geolocatedRouters = this.edgeRouters.filter(router => router.tags?.geolocation).length;
+    }
+
+    // Update unlocated entity lists if the unlocated panel is open
+    if (this.mapStateService.sidePanelType === 'unlocated') {
+      const unlocatedIdentities = this.identities.filter(identity =>
+        (identity.typeId !== 'Router') && (!identity.tags?.geolocation || identity.tags.geolocation.trim() === '')
+      );
+      const unlocatedRouters = this.edgeRouters.filter(router =>
+        !router.tags?.geolocation || router.tags.geolocation.trim() === ''
+      );
+
+      // Update the panel data
+      this.mapStateService.sidePanelData = {
+        unlocatedIdentities,
+        unlocatedRouters
+      };
+
+      // Update filtered lists based on current search
+      this.filteredUnlocatedIdentities = unlocatedIdentities.filter(identity =>
+        identity.name?.toLowerCase().includes(this.unlocatedIdentitiesSearch.toLowerCase())
+      );
+      this.filteredUnlocatedRouters = unlocatedRouters.filter(router =>
+        router.name?.toLowerCase().includes(this.unlocatedRoutersSearch.toLowerCase())
+      );
+    }
+
+    // Update entity list if it's open and showing the affected entity type
+    if (this.mapStateService.sidePanelType === 'entityList') {
+      const entityType = this.mapStateService.sidePanelData?.entityType;
+      if ((type === 'identity' && entityType === 'identities') || (type === 'routers' && entityType === 'routers')) {
+        // Refresh the entity list to reflect the location change
+        this.updateEntityListAfterLocationChange();
+      }
+    }
 
     // Clean up draggable marker state and visual styling
     if (this.mapMarkerService.currentDraggableMarker) {

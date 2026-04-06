@@ -167,7 +167,9 @@ export class HAControllerService {
         const responseTime = Date.now() - startTime;
         return { url: controller.url, isOnline: true, responseTime };
       }),
-      catchError(() => {
+      catchError((err) => {
+        // Silently handle health check failures (don't throw errors)
+        // This prevents ERROR -200 from appearing in console
         return of({ url: controller.url, isOnline: false, responseTime: -1 });
       })
     );
@@ -218,8 +220,11 @@ export class HAControllerService {
       return; // Already running
     }
 
-    // Perform initial health check immediately
-    this.performHealthChecks();
+    // Delay initial health check to avoid errors during app bootstrap
+    // This gives the app time to fully initialize before checking controller health
+    setTimeout(() => {
+      this.performHealthChecks();
+    }, 5000); // 5 second delay
 
     // Then start periodic checks
     this.healthCheckSubscription = interval(this.HEALTH_CHECK_INTERVAL).subscribe(() => {
@@ -280,15 +285,32 @@ export class HAControllerService {
       const saved = localStorage.getItem('ha.clusterStatus');
       if (saved) {
         const status: HAClusterStatus = JSON.parse(saved);
-        this._clusterStatus$.next(status);
 
-        // Restart health checks if enabled
-        if (status.enabled && status.controllers.length > 1) {
-          this.startHealthChecks();
+        // Validate that we have at least one controller before restoring
+        if (status.controllers && status.controllers.length > 0) {
+          // Count how many controllers were marked as online when saved
+          const onlineCount = status.controllers.filter(c => c.isOnline).length;
+
+          // Only enable HA if there are 2+ online controllers
+          // If only 1 controller is reachable, fall back to standard session auth
+          if (onlineCount >= 2) {
+            this._clusterStatus$.next(status);
+
+            // Restart health checks if enabled
+            // Note: Health checks will update online/offline status of controllers
+            if (status.enabled && status.controllers.length > 1) {
+              this.startHealthChecks();
+            }
+          } else {
+            // Not enough online controllers - disable HA mode
+            // Clear the cluster to fall back to standard session authentication
+            this.clearClusterStatus();
+          }
         }
       }
     } catch (err) {
-      // Failed to restore from localStorage
+      // Failed to restore from localStorage - clear corrupted data
+      this.clearClusterStatus();
     }
   }
 

@@ -101,8 +101,10 @@ export class SettingsService extends SettingsServiceClass {
         if (this.settings.port && !isNaN(this.settings.port)) this.port = this.settings.port;
         if (this.settings.portTLS && !isNaN(this.settings.portTLS)) this.portTLS = this.settings.portTLS;
         if (this.settings.rejectUnauthorized && !isNaN(this.settings.rejectUnauthorized)) this.rejectUnauthorized = this.settings.rejectUnauthorized;
-        if (this.settings.selectedEdgeController) return this.initApiVersions(this.settings.selectedEdgeController);
-        else return Promise.resolve();
+
+        // Don't call initApiVersions during app initialization - it will be called after login
+        // This prevents authentication errors during app bootstrap
+        return Promise.resolve();
     }
 
     override loadSettings() {
