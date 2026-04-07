@@ -171,4 +171,53 @@ export class NodeSettingsService extends SettingsServiceClass {
                 }),
                 map(body => body.data.apiVersions)));
     }
+
+    // HA Controller methods - Node server doesn't support HA, so these are no-op implementations
+    isHAEnabled(): boolean {
+        return false;
+    }
+
+    getHAControllers(): any[] {
+        return [];
+    }
+
+    getActiveSessions(): Map<string, string> {
+        return new Map();
+    }
+
+    getJwtToken(): string | null {
+        return null;
+    }
+
+    hasValidJwtToken(): boolean {
+        return false;
+    }
+
+    setJwtToken(token: string): void {
+        // No-op for node server
+    }
+
+    addHAController(url: string, name: string): void {
+        // No-op for node server
+    }
+
+    removeHAController(url: string): void {
+        // No-op for node server
+    }
+
+    setControllerSession(url: string, sessionToken: string): void {
+        // No-op for node server
+    }
+
+    getControllerSession(url: string): string | null {
+        return null;
+    }
+
+    clearControllerSessions(): void {
+        // No-op for node server
+    }
+
+    clearJwtToken(): void {
+        // No-op for node server
+    }
 }

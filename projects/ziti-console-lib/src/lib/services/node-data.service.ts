@@ -351,7 +351,7 @@ export class NodeDataService extends ZitiDataService {
         );
     }
 
-    call(url) {
+    call(url, prefix?: string) {
         const nodeServerURL = window.location.origin;
         const serviceUrl = nodeServerURL + '/api/call';
         const body = {url: url};
@@ -370,6 +370,13 @@ export class NodeDataService extends ZitiDataService {
                 })
             )
         );
+    }
+
+    /**
+     * NodeDataService doesn't support HA, so just fall back to regular call()
+     */
+    callHAControllers(url: string, prefix?: string): Promise<any> {
+        return this.call(url, prefix);
     }
 
     schema(data: any): Promise<any> {

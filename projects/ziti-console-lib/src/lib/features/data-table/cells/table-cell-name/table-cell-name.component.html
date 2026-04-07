@@ -1,24 +1,24 @@
 <span class="cell-name-container">
-  <a href="./{{cellParams.pathRoot}}/{{item.id}}" (click)="linkClicked($event)">
-    <div class="col cell-name-renderer" data-id="{{item.id}}">
-      @if (cellParams.showIdentityIcons && item.edgeRouterConnectionStatus) {
-        <div class="cell-status-container">
-          <span class="circle {{item.edgeRouterConnectionStatus}}" title="Edge Router Connection Status"></span>
+    <a href="./{{cellParams.pathRoot}}/{{item.id}}" (click)="linkClicked($event)">
+        <div class="col cell-name-renderer" data-id="{{item.id}}">
+            @if (cellParams.showIdentityIcons && item.edgeRouterConnectionStatus) {
+                <div class="cell-status-container">
+                    <span class="circle {{item.edgeRouterConnectionStatus}}" title="Edge Router Connection Status"></span>
+                </div>
+            }
+            @if (cellParams.showIdentityIcons && !item.edgeRouterConnectionStatus) {
+                <div class="cell-status-container">
+                    <span class="circle {{item.hasApiSession}}" title="Api Session"></span>
+                    <span class="circle {{item.hasEdgeRouterConnection}}" title="Edge Router Connected"></span>
+                </div>
+            }
+            @if (cellParams.showRouterIcons) {
+                <div class="cell-status-container">
+                    <span class="circle {{item.isVerified}}" title="{{item.isVerified ? 'Verified' : 'Unverified'}}"></span>
+                    <span class="circle {{item.isOnline}}" title="{{item.isOnline ? 'Online' : 'Offline'}}"></span>
+                </div>
+            }
+            <strong>{{cellText}}</strong>
         </div>
-      }
-      @if (cellParams.showIdentityIcons && !item.edgeRouterConnectionStatus) {
-        <div class="cell-status-container">
-          <span class="circle {{item.hasApiSession}}" title="Api Session"></span>
-          <span class="circle {{item.hasEdgeRouterConnection}}" title="Edge Router Connected"></span>
-        </div>
-      }
-      @if (cellParams.showRouterIcons) {
-        <div class="cell-status-container">
-          <span class="circle {{item.isVerified}}" title="Api Session"></span>
-          <span class="circle {{item.isOnline}}" title="Edge Router Connected"></span>
-        </div>
-      }
-      <strong>{{cellText}}</strong>
-    </div>
-  </a>
+    </a>
 </span>

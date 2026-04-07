@@ -22,7 +22,7 @@ export class TableCellNameComponent  implements ICellRendererAngularComp {
   }
 
   agInit(params: ICellRendererParams): void {
-    this.cellParams = params;
+    this.cellParams = params?.colDef?.cellRendererParams || {};
     this.item = params.data;
   }
 

@@ -155,12 +155,12 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     create() {
         if (this.isValid()) {
-            this.settingsService.addContoller(this.edgeName, this.edgeUrl).then((result) => {
+            this.settingsService.addContoller(this.edgeName.trim(), this.edgeUrl.trim()).then((result) => {
                 if (result.error) {
                     this.handleControllerInvalid(true);
                     return;
                 }
-                this.selectedEdgeController = this.edgeUrl;
+                this.selectedEdgeController = this.edgeUrl.trim();
                 this.settingsService.set(this.settingsService.settings);
             });
         }
@@ -188,11 +188,11 @@ export class LoginComponent implements OnInit, OnDestroy {
             this.edgeName = ''
             this.edgeUrl = ''
             this.userLogin = true;
-            this.settingsService.initApiVersions(this.selectedEdgeController);
+            this.settingsService.initApiVersions(this.selectedEdgeController.trim());
         } else if (this.settingsService.allowControllerAdd) {
             this.userLogin = false;
         }
-        this.settingsService.settings.selectedEdgeController = this.selectedEdgeController;
+        this.settingsService.settings.selectedEdgeController = this.selectedEdgeController?.trim();
         this.getExternalJwtSigners();
     }
 

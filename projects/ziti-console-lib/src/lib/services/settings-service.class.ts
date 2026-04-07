@@ -83,6 +83,14 @@ export abstract class SettingsServiceClass {
     public abstract loadSettings();
     public abstract hasSession();
 
+    // HA Controller methods
+    public abstract isHAEnabled(): boolean;
+    public abstract getHAControllers(): any[];
+    public abstract getActiveSessions(): Map<string, string>;
+    public abstract getJwtToken(): string | null;
+    public abstract hasValidJwtToken(): boolean;
+    public abstract setJwtToken(token: string): void;
+
     public get() {
         const tmp = localStorage.getItem('ziti.settings');
         if (tmp) {
@@ -118,15 +126,26 @@ export abstract class SettingsServiceClass {
     }
 
     public addContoller(name: string, url: string) {
-        if (name.trim().length == 0 || url.trim().length == 0) {
+        const trimmedName = name.trim();
+        const trimmedUrl = url.trim();
+        if (trimmedName.length == 0 || trimmedUrl.length == 0) {
             let growlerData = new GrowlerModel(
               'error',
               'Error',
               'Name and URL required',
             );
             this.growlerService.show(growlerData);
+            return Promise.reject({ error: 'Name and URL required' });
         } else {
-            return this.controllerSave(name, url);
+            return this.controllerSave(trimmedName, trimmedUrl);
         }
     }
+
+    // HA Controller management methods
+    public abstract addHAController(url: string, name: string): void;
+    public abstract removeHAController(url: string): void;
+    public abstract setControllerSession(url: string, sessionToken: string): void;
+    public abstract getControllerSession(url: string): string | null;
+    public abstract clearControllerSessions(): void;
+    public abstract clearJwtToken(): void;
 }

@@ -1,0 +1,318 @@
+:host {
+  position: relative;
+  height: 100%;
+  z-index: 9999998; // Just below filter bar (9999999) but above all other map elements
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  pointer-events: auto;
+  padding: 0; // Remove all padding for flush layout
+  flex: 0 0 auto; // Don't grow, shrink, or have a base size
+
+  // Debug: ensure visibility
+  &:not(:empty) {
+    visibility: visible;
+  }
+}
+
+.side-panel-resizer {
+  width: 4px;
+  height: 100%;
+  cursor: col-resize;
+  background: transparent;
+  position: absolute;
+  left: -4px; // Position it to overlap the map edge
+  flex-shrink: 0;
+  z-index: 100;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto; // Always allow resizer interaction
+
+  // Visual indicator line (only shows on hover)
+  &::after {
+    content: '';
+    width: 2px;
+    height: 40px;
+    background: var(--primaryColor);
+    border-radius: 1px;
+    opacity: 0;
+    transition: opacity 0.2s ease, height 0.2s ease;
+  }
+
+  &:hover {
+    &::after {
+      opacity: 0.6;
+      height: 60px;
+    }
+  }
+
+  &:active {
+    &::after {
+      opacity: 0.9;
+      height: 100%;
+    }
+  }
+}
+
+:host ::ng-deep lib-form-field-container {
+  &.full-height {
+    height: 100%;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  &.side-panel-container {
+    width: var(--side-panel-width, 35rem);
+    flex: 0 0 auto; // Don't flex grow/shrink
+    pointer-events: auto; // Enable interactions within the form container
+  }
+}
+
+.side-panel {
+  width: 100%;
+  height: 100%;
+  background: var(--formBackground);
+  border-left: 1px solid var(--inputBorder);
+  border-radius: 0; // Remove border radius for flush edges
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15); // Subtle left shadow only
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideIn 0.15s ease; // Faster animation (was 0.3s)
+  pointer-events: auto; // Enable all interactions within panel
+
+  .side-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--inputBorder);
+    border-left: 3px solid transparent;
+    background: var(--formBackground);
+    transition: border-color 0.2s ease;
+
+    .side-panel-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--tableText);
+
+      .title-with-icon {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .icon-unlocated {
+          background-image: url(/assets/svgs/unknown-marker.svg);
+          opacity: .7;
+          background-size: 1.4rem;
+          width: 1.5rem;
+          height: 1.5rem;
+          background-repeat: no-repeat;
+        }
+
+        .title-icon {
+          font-size: 1.5rem;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--tableText);
+          transition: color 0.2s ease;
+
+          &:before {
+            color: inherit;
+          }
+        }
+
+        .title-text {
+          display: inline-flex;
+          align-items: center;
+          font-size: 0.875rem;
+        }
+      }
+    }
+
+    .side-panel-close {
+      cursor: pointer;
+      font-size: 1.25rem;
+      color: var(--tableText);
+      opacity: 0.6;
+      transition: all 0.2s ease;
+
+      &:hover {
+        opacity: 1;
+        color: var(--primaryColor);
+      }
+    }
+
+    // Header accent variants based on panel type - colored left border + icon
+    &.header-identity {
+      border-left-color: var(--primaryColor);
+
+      .title-with-icon .title-icon {
+        color: var(--primaryColor) !important;
+
+        &::before {
+          color: var(--primaryColor) !important;
+        }
+      }
+    }
+
+    &.header-router {
+      border-left-color: var(--secondaryColor);
+
+      .title-with-icon .title-icon {
+        color: var(--secondaryColor) !important;
+
+        &::before {
+          color: var(--secondaryColor) !important;
+        }
+      }
+    }
+
+    &.header-circuit {
+      border-left-color: var(--activeCircuitColor);
+
+      .title-with-icon .title-icon {
+        color: var(--activeCircuitColor) !important;
+
+        &::before {
+          color: var(--activeCircuitColor) !important;
+        }
+      }
+    }
+
+    &.header-link {
+      border-left-color: var(--green);
+
+      .title-with-icon .title-icon {
+        color: var(--green) !important;
+
+        &::before {
+          color: var(--green) !important;
+        }
+      }
+    }
+
+    &.header-link-good {
+      border-left-color: #2ECC71;
+
+      .title-with-icon .title-icon {
+        color: #2ECC71 !important;
+
+        &::before {
+          color: #2ECC71 !important;
+        }
+      }
+    }
+
+    &.header-link-elevated {
+      border-left-color: #F39C12;
+
+      .title-with-icon .title-icon {
+        color: #F39C12 !important;
+
+        &::before {
+          color: #F39C12 !important;
+        }
+      }
+    }
+
+    &.header-link-poor {
+      border-left-color: #E74C3C;
+
+      .title-with-icon .title-icon {
+        color: #E74C3C !important;
+
+        &::before {
+          color: #E74C3C !important;
+        }
+      }
+    }
+
+    &.header-unlocated {
+      border-left-color: var(--inputBorder);
+
+      .title-with-icon .title-icon {
+        color: var(--tableText) !important;
+
+        &::before {
+          color: var(--tableText) !important;
+        }
+      }
+    }
+
+    &.header-service {
+      border-left-color: var(--activeCircuitColor);
+
+      .title-with-icon .title-icon {
+        color: var(--activeCircuitColor) !important;
+
+        &::before {
+          color: var(--activeCircuitColor) !important;
+        }
+
+        &.icon-services {
+          color: var(--activeCircuitColor) !important;
+
+          &::before {
+            color: var(--activeCircuitColor) !important;
+          }
+        }
+      }
+    }
+  }
+
+  .side-panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0; // Remove all padding to extend panels to full width
+    color: var(--tableText);
+    min-height: 0; // Important for nested flexbox scrolling
+    display: flex;
+    flex-direction: column;
+    background: var(--mainBackground); // Background for content area
+
+    // Make all child panel components take full width/height
+    ::ng-deep {
+      lib-marker-panel,
+      lib-link-panel,
+      lib-circuit-panel,
+      lib-entity-list-panel,
+      lib-unlocated-panel,
+      lib-services-with-circuits-panel {
+        display: block;
+        width: 100%;
+        height: auto; // Auto height for scrollable panels
+      }
+
+      // Full height panels need to fill the container
+      lib-entity-list-panel,
+      lib-unlocated-panel,
+      lib-services-with-circuits-panel {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+    }
+
+    // Special handling for entity list and unlocated panels (full-height)
+    &.full-height-panel {
+      overflow-y: hidden; // Don't scroll the content wrapper, scroll inside the popup
+    }
+  }
+}
+
+// Slide-in animation (fast)
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

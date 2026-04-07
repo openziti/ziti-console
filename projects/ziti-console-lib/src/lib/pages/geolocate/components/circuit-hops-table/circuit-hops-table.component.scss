@@ -1,0 +1,233 @@
+.circuit-hops-section {
+  margin-top: var(--marginMedium);
+  padding: 0 var(--paddingMedium) var(--paddingMedium) var(--paddingMedium);
+
+  .circuit-hops-container {
+    border: 1px solid var(--inputBorder);
+    border-radius: var(--defaultBorderRadius);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+
+    .router-path-header {
+      padding: 0.5rem 0.75rem;
+      background: var(--formBackground);
+      border-bottom: 1px solid var(--inputBorder);
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+
+      .router-path-icon {
+        font-size: 1rem;
+        color: var(--secondaryColor);
+
+        &:before {
+          color: inherit;
+        }
+      }
+
+      .router-path-text {
+        color: var(--tableText);
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+    }
+
+    .router-path-list {
+      max-height: 15rem;
+      overflow-y: auto;
+      overflow-x: auto;
+      padding: 0;
+
+      .router-path-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.813rem;
+
+        thead {
+          background-color: var(--navigation);
+          position: sticky;
+          top: 0;
+          z-index: 1;
+
+          tr th {
+            padding: var(--paddingSmall);
+            text-align: left;
+            font-weight: 600;
+            color: var(--tableHeader);
+            border-bottom: 0.25rem solid var(--secondary);
+            white-space: nowrap;
+            font-size: 0.75rem;
+            background-color: var(--navigation);
+
+            &:first-child {
+              text-align: center;
+            }
+
+            &:nth-child(3) {
+              text-align: center;
+              width: 3rem;
+            }
+          }
+        }
+
+        tbody {
+          tr {
+            border-bottom: 1px solid var(--inputBorder);
+            transition: background-color 0.2s ease;
+            background-color: var(--formBackground);
+
+            &:nth-child(odd) {
+              background-color: var(--white);
+            }
+
+            &.clickable-circuit-row {
+              cursor: pointer;
+
+              &:hover {
+                background-color: rgba(33, 150, 243, 0.1) !important;
+              }
+
+              &.selected-row {
+                background-color: rgba(33, 150, 243, 0.2) !important;
+                border-left: 3px solid var(--primary);
+              }
+
+              &.hop-not-visible {
+                // Multiple visual cues for accessibility (don't rely on color alone)
+
+                // 1. Diagonal stripe pattern
+                background-image: repeating-linear-gradient(
+                  45deg,
+                  transparent,
+                  transparent 10px,
+                  rgba(128, 128, 128, 0.08) 10px,
+                  rgba(128, 128, 128, 0.08) 20px
+                ) !important;
+                background-color: var(--formBackground) !important;
+
+                // 2. Dashed left border
+                border-left: 3px dashed rgba(128, 128, 128, 0.4);
+
+                // 3. Different opacity for text (subtle)
+                opacity: 0.85;
+
+                &:hover {
+                  background-image: repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(128, 128, 128, 0.12) 10px,
+                    rgba(128, 128, 128, 0.12) 20px
+                  ) !important;
+                }
+
+                &.selected-row {
+                  border-left: 3px dashed var(--primary);
+                }
+              }
+            }
+
+            &:last-child {
+              border-bottom: none;
+            }
+
+            td {
+              padding: var(--paddingSmall);
+              color: var(--tableText);
+              font-size: 0.813rem;
+              text-align: left;
+
+              &.hop-number {
+                font-weight: 600;
+                color: var(--primary);
+                width: 3rem;
+                text-align: center;
+                position: relative;
+
+                .visibility-badge {
+                  display: inline-block;
+                  margin-left: 0.25rem;
+                  font-size: 0.75rem;
+                  vertical-align: middle;
+
+                  .icon-eye-slash {
+                    &:before {
+                      color: var(--tableText);
+                      opacity: 0.6;
+                    }
+                  }
+                }
+              }
+
+              &.hop-from,
+              &.hop-to {
+                font-weight: 500;
+
+                .hop-entity-icon {
+                  display: inline-flex;
+                  align-items: center;
+                  justify-content: center;
+                  width: 2rem;
+                  margin-right: 0.5rem;
+                  vertical-align: middle;
+
+                  &:before {
+                    color: var(--tableText);
+                  }
+
+                  &.icon-identity {
+                    font-size: 1.5rem;
+
+                    &:before {
+                      color: var(--primaryColor);
+                    }
+                  }
+
+                  &.icon-routers {
+                    font-size: 1rem;
+
+                    &:before {
+                      color: var(--secondaryColor);
+                    }
+                  }
+
+                  &.unlocated-icon {
+                    .unlocated-marker-img {
+                      width: 1.25rem;
+                      height: 1.25rem;
+                      opacity: 0.5;
+                      display: block;
+                    }
+                  }
+                }
+
+                .hop-entity-name {
+                  vertical-align: middle;
+
+                  &.missing-location {
+                    // Multiple visual cues for accessibility
+                    font-style: italic;
+                    text-decoration: underline dotted;
+                    text-decoration-thickness: 1px;
+                    text-underline-offset: 2px;
+                  }
+                }
+              }
+
+              &.hop-arrow {
+                text-align: center;
+                color: var(--tableHeader);
+                font-size: 1.25rem;
+                font-weight: 400;
+                width: 3rem;
+                padding: var(--paddingSmall) 0;
+              }
+
+            }
+          }
+        }
+      }
+    }
+  }
+}
