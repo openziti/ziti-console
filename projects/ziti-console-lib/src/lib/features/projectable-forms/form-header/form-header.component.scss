@@ -213,13 +213,35 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    height: 1.5625rem;
+    min-height: 1.5625rem;
     width: 100%;
-    padding-left: 0.9375rem;
+    padding: 0.5rem 0.9375rem;
     color: var(--tableText);
     cursor: pointer;
+    font-size: 1.09rem;
     &:hover {
       background-color: var(--inputBorder);
+    }
+
+    .more-actions-item-icon {
+      font-family: icomoon !important;
+      font-size: 1.31rem;
+      margin-right: 0.5rem;
+      display: flex;
+      align-items: center;
+
+      &.icon-trash {
+        width: 1.31rem;
+        height: 1.31rem;
+        background-image: url('../../../assets/svgs/Confirm_Trash.svg');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        font-family: inherit;
+        &:before {
+          content: none;
+        }
+      }
     }
   }
 
