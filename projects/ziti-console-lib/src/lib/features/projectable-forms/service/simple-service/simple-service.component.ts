@@ -129,14 +129,14 @@ export class SimpleServiceComponent extends ProjectableForm {
       @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
       growlerService: GrowlerService,
       @Inject(SERVICE_EXTENSION_SERVICE) extService: ExtensionService,
-      private dialogForm: MatDialog,
+      protected override dialogForm: MatDialog,
       private validationService: ValidationService,
       private servicesPageService: ServicesPageService,
       protected override router: Router,
       protected override route: ActivatedRoute,
       location: Location
   ) {
-    super(growlerService, extService, zitiService, router, route, location, settingsService);
+    super(growlerService, extService, zitiService, router, route, location, settingsService, dialogForm);
     this.svc.formData = {};
   }
 

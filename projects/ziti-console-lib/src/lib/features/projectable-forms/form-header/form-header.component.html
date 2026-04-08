@@ -54,6 +54,9 @@
                   class="more-actions-item"
                   (click)="requestAction(action)"
                   >
+                  @if (action.icon) {
+                    <div class="more-actions-item-icon {{action.icon}}"></div>
+                  }
                   {{action.label}}
                 </div>
               }

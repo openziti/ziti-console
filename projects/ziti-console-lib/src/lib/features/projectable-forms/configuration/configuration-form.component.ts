@@ -89,6 +89,7 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
     }
 
     override entityUpdated() {
+    super.entityUpdated();
         if (isEmpty(this.formData?.data)) {
             this.formData.data = {};
         }

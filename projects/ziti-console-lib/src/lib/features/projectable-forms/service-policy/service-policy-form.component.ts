@@ -81,6 +81,7 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
   }
 
   override entityUpdated() {
+    super.entityUpdated();
     const promises = [];
     promises.push(this.svc.getServiceRoleAttributes());
     promises.push(this.svc.getIdentityRoleAttributes());
