@@ -78,6 +78,7 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
     override usePreviousLocation = false
     override entityType = 'external-jwt-signers';
     override entityClass = JwtSigner;
+    showAutoEnrollHelpModal = false;
 
     @ViewChild('fileSelect') filterInput: ElementRef;
     @ViewChild('oidcVerification') oidcVerification: ElementRef;
@@ -100,7 +101,7 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         dialogForm: MatDialog,
 
     ) {
-        super(growlerService, extService, zitiService, router, route, location, settingsService, dialogForm);
+        super(growlerService, extService, zitiService, router, route, location, settingsService);
     }
 
     override ngOnInit(): void {
@@ -142,9 +143,6 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
                 break;
             case 'toggle-view':
                 this.formView = event.data;
-                break;
-            case 'delete':
-                this.deleteEntity();
                 break;
         }
     }
@@ -281,6 +279,14 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         return !isEmpty(this.settingsService?.zitiSemver) && semver.gte(this.settingsService?.zitiSemver, '1.4.0');
     }
 
+    get showAutoEnrollment() {
+        if (isEmpty(this.settingsService?.zitiSemver)) {
+            return false;
+        }
+        const parsedVersion = semver.parse(this.settingsService.zitiSemver);
+        return parsedVersion?.major >= 2;
+    }
+
     get targetToken() {
         if (this.formData && !this.formData.targetToken) {
             this.formData.targetToken = 'ACCESS';
@@ -364,6 +370,10 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
 
     toggleEnrollToTokenEnabled() {
         this.formData.enrollToTokenEnabled = !this.formData.enrollToTokenEnabled;
+    }
+
+    showAutoEnrollHelp() {
+        this.showAutoEnrollHelpModal = true;
     }
 
     trimWhitespaceScopes() {
