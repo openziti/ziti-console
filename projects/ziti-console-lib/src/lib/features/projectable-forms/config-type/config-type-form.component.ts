@@ -90,7 +90,6 @@ export class ConfigTypeFormComponent extends ProjectableForm implements OnInit, 
     }
 
     override entityUpdated() {
-    super.entityUpdated();
         if (!isEmpty(this.formData) && isEmpty(this.formData?.schema)) {
             this.formData.schema = {};
         }

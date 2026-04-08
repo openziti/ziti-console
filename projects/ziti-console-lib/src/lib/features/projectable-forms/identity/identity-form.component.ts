@@ -96,9 +96,9 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       protected override router: Router,
       protected override route: ActivatedRoute,
       location: Location,
-      protected override dialogForm: MatDialog,
+      protected dialogForm: MatDialog,
   ) {
-    super(growlerService, extService, zitiService, router, route, location, settingsService, dialogForm);
+    super(growlerService, extService, zitiService, router, route, location, settingsService);
     this.identityRoleAttributes = [];
     this.getAuthPolicies();
   }
@@ -131,7 +131,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   }
 
   override entityUpdated() {
-    super.entityUpdated();
     this.updateBadges();
     this.initEnrollmentType();
     this.getIdentityRoleAttributes();
@@ -272,9 +271,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
         break;
       case 'toggle-view':
         this.formView = action.data;
-        break;
-      case 'delete':
-        this.deleteEntity();
         break;
     }
   }

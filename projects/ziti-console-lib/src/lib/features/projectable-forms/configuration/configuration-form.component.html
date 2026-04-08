@@ -7,7 +7,7 @@
   <lib-form-header
     [data]="formData"
     [title]="(formData.id ? 'Edit Config' : 'Create Config')"
-    [moreActions]="moreActions"
+    [moreActions]="formData.moreActions"
     (actionRequested)="headerActionRequested($event)"
     [(formView)]="formView"
     [saveDisabled]="svc.saveDisabled || formDataInvalid"

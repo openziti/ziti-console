@@ -115,7 +115,6 @@ export class PostureCheckFormComponent extends ProjectableForm implements OnInit
     }
 
     override entityUpdated() {
-    super.entityUpdated();
         if (this.formData.typeId === 'OS' && this.formData.operatingSystems) {
             this.parseOperatingSystems();
         }

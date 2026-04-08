@@ -88,7 +88,6 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
   }
 
   override entityUpdated() {
-    super.entityUpdated();
     if (this.formData.id) {
       this.formData.badges = [];
       this.formData.badges = [];
