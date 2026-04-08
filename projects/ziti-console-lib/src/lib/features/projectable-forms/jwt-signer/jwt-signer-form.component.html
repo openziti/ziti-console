@@ -135,6 +135,40 @@
             ></lib-chips-input>
           </div>
         </lib-form-field-container>
+        <lib-form-field-container
+          [showHeader]="false"
+          >
+          <div class="form-field-row">
+            <div class="config-item">
+              <div class="config-container toggle-container">
+                <div class="config-container-label">Auto-Enroll to Cert</div>
+                <div
+                  (click)="toggleEnrollToCertEnabled()"
+                  [ngClass]="{ on: formData.enrollToCertEnabled }"
+                  class="toggle"
+                  >
+                  <span [hidden]="!formData.enrollToCertEnabled" class="on-label">YES</span>
+                  <span [hidden]="formData.enrollToCertEnabled" class="off-label">NO</span>
+                  <div class="switch"></div>
+                </div>
+              </div>
+            </div>
+            <div class="config-item">
+              <div class="config-container toggle-container">
+                <div class="config-container-label">Auto-Enroll to Token</div>
+                <div
+                  (click)="toggleEnrollToTokenEnabled()"
+                  [ngClass]="{ on: formData.enrollToTokenEnabled }"
+                  class="toggle"
+                  >
+                  <span [hidden]="!formData.enrollToTokenEnabled" class="on-label">YES</span>
+                  <span [hidden]="formData.enrollToTokenEnabled" class="off-label">NO</span>
+                  <div class="switch"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </lib-form-field-container>
         <lib-form-field-toggle [(toggleOn)]="showMore" (toggleOnChange)="showMoreChanged($event)" style="margin: 0px 10px"></lib-form-field-toggle>
         @if (showMore && showTokenType) {
           <lib-form-field-container

@@ -41,6 +41,7 @@ import {OAuthErrorEvent, OAuthService} from "angular-oauth2-oidc";
 import {LoginServiceClass, ZAC_LOGIN_SERVICE} from "../../../services/login-service.class";
 import {AuthService} from "../../../services/auth.service";
 import { HttpClient } from "@angular/common/http";
+import {MatDialog} from "@angular/material/dialog";
 
 @Component({
     selector: 'lib-configuration',
@@ -96,9 +97,10 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         private oauthService: OAuthService,
         private http: HttpClient,
         @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass,
+        dialogForm: MatDialog,
 
     ) {
-        super(growlerService, extService, zitiService, router, route, location, settingsService);
+        super(growlerService, extService, zitiService, router, route, location, settingsService, dialogForm);
     }
 
     override ngOnInit(): void {
@@ -140,6 +142,9 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
                 break;
             case 'toggle-view':
                 this.formView = event.data;
+                break;
+            case 'delete':
+                this.deleteEntity();
                 break;
         }
     }
@@ -308,7 +313,9 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
             kid: this.formData.kid || '',
             externalAuthUrl: this.formData.externalAuthUrl || '',
             scopes: this.formData.scopes || [],
-            tags: this.formData.tags || {}
+            tags: this.formData.tags || {},
+            enrollToCertEnabled: this.formData.enrollToCertEnabled,
+            enrollToTokenEnabled: this.formData.enrollToTokenEnabled
         };
         if (!isEmpty(this.formData.jwksEndpoint)) {
             data.jwksEndpoint = this.formData.jwksEndpoint;
@@ -349,6 +356,14 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         if (!this.formData.useExternalId) {
             this.errors.claimsProperty = false;
         }
+    }
+
+    toggleEnrollToCertEnabled() {
+        this.formData.enrollToCertEnabled = !this.formData.enrollToCertEnabled;
+    }
+
+    toggleEnrollToTokenEnabled() {
+        this.formData.enrollToTokenEnabled = !this.formData.enrollToTokenEnabled;
     }
 
     trimWhitespaceScopes() {
