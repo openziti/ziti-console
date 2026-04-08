@@ -137,6 +137,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   }
 
   override entityUpdated() {
+    super.entityUpdated();
     this.getServiceRoleAttributes();
     this.svc.resetFormData();
     this.svc.getAssociatedConfigs();

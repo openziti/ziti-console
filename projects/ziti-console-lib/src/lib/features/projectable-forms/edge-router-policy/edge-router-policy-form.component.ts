@@ -97,6 +97,7 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
   }
 
   override entityUpdated() {
+    super.entityUpdated();
     this.loadAttributes();
     if (isEmpty(this.formData.id)) {
       this.formData = new EdgeRouterPolicy();

@@ -96,6 +96,7 @@ export class ServiceEdgeRouterPolicyFormComponent extends ProjectableForm implem
   }
 
   override entityUpdated() {
+    super.entityUpdated();
     this.loadAttributes();
     if (isEmpty(this.formData.id)) {
       this.formData = new ServiceEdgeRouterPolicy();
