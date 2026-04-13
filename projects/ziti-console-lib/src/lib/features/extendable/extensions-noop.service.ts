@@ -30,6 +30,9 @@ export interface ExtensionService {
   extendOnInit(): void;
   extendAfterViewInits(extentionPoints: any): void;
   updateFormData(data: any): void;
+  identityRoleAttributeChanged?(change: any): void;
+  servicePolicyConflictInputChanged?(change: any): void;
+  processTableData?(results: any): Promise<any>;
   validateData(): Promise<any>;
   formDataSaved(data: any): Promise<any>;
   processTableColumns(tableColumns: any): any[];
@@ -56,6 +59,16 @@ export class ExtensionsNoopService implements ExtensionService {
   }
 
   updateFormData(data: any): void {
+  }
+
+  identityRoleAttributeChanged(change: any): void {
+  }
+
+  servicePolicyConflictInputChanged(change: any): void {
+  }
+
+  processTableData(results: any): Promise<any> {
+    return Promise.resolve(results);
   }
 
   formDataSaved(data: any): Promise<any> {

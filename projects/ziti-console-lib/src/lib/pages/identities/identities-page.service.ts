@@ -369,10 +369,13 @@ export class IdentitiesPageService extends ListPageServiceClass {
             });
     }
 
-    private processData(results: any) {
+    private async processData(results: any) {
         if (!isEmpty(results?.data)) {
             //pre-process data before rendering
             results.data = this.addActionsPerRow(results);
+        }
+        if (this.extService?.processTableData) {
+            results = await this.extService.processTableData(results);
         }
         return results;
     }

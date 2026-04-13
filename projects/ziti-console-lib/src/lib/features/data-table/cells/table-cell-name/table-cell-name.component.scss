@@ -18,6 +18,17 @@
   gap: 0.25rem;
 }
 
+.cell-conflict-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cell-conflict-icon {
+  color: var(--highlighted);
+  font-size: 1rem;
+}
+
 .circle {
   &.online {
     background-color: var(--green);

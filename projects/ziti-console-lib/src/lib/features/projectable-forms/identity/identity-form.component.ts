@@ -202,6 +202,14 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       });
   }
 
+  roleAttributesChanged(roleAttributes: any[]) {
+    this.formData.roleAttributes = roleAttributes;
+    this.extService.identityRoleAttributeChanged?.({
+      identityId: this.formData?.id,
+      roleAttributes: this.formData?.roleAttributes || [],
+    });
+  }
+
   getAssociatedServices() {
     this.zitiService.getSubdata('identities', this.formData.id, 'services').then((result: any) => {
       this.associatedServices = result.data;

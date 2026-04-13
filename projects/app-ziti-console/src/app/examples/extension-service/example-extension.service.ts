@@ -15,6 +15,9 @@ export class ExampleExtensionService implements ExtensionService {
     closed: EventEmitter<any>;
     formDataChanged: BehaviorSubject<any>;
 
+    extendOnInit(): void {
+    }
+
     extendAfterViewInits(extentionPoints: any): void {
         // This function will execute after the edit form is initialized
         // Uncomment the alert below to see when this function is called
@@ -32,6 +35,19 @@ export class ExampleExtensionService implements ExtensionService {
         // This function will pass in a reference to the root data model of the entity being edited
         // Uncomment the alert below to see when this function is called
         // alert('ExampleExtensionService "updateFormData()" function executed');
+    }
+
+    identityRoleAttributeChanged(change: any): void {
+        // This function will execute only when identity role attributes change
+        // Uncomment the alert below to see when this function is called
+        // alert('ExampleExtensionService "identityRoleAttributeChanged()" function executed');
+    }
+
+    processTableData(results: any): Promise<any> {
+        // This function will execute after list page data is fetched and before the table renders
+        // Uncomment the alert below to see when this function is called
+        // alert('ExampleExtensionService "processTableData()" function executed');
+        return Promise.resolve(results);
     }
 
     validateData(): Promise<any> {

@@ -21,7 +21,8 @@ import {MatDialog} from "@angular/material/dialog";
 import {TabNameService} from "../../services/tab-name.service";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {ServicePoliciesPageService} from "./service-policies-page.service";
-import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
+import {ExtensionService} from "../../features/extendable/extensions-noop.service";
+import {SERVICE_POLICY_EXTENSION_SERVICE} from "../../features/projectable-forms/service-policy/service-policy-form.service";
 
 @Component({
     selector: 'lib-service-policies-page',
@@ -45,7 +46,7 @@ export class ServicePoliciesPageComponent extends ListPageComponent implements O
       dialogForm: MatDialog,
       private tabNames: TabNameService,
       consoleEvents: ConsoleEventsService,
-      @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService,
+      @Inject(SERVICE_POLICY_EXTENSION_SERVICE) private extService: ExtensionService,
   ) {
     super(filterService, svc, consoleEvents, dialogForm, extService);
     let userLang = navigator.language || 'en-us';
@@ -79,7 +80,11 @@ export class ServicePoliciesPageComponent extends ListPageComponent implements O
   }
 
   tableAction(event: any) {
+    const extensionActionFound = this.handleExtensionActions(event);
     this.trackMenuAction(event?.action, event?.item);
+    if (extensionActionFound) {
+      return;
+    }
     switch(event?.action) {
       case 'toggleAll':
       case 'toggleItem':

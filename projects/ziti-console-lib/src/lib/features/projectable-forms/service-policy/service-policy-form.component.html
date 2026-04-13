@@ -36,8 +36,8 @@
               [(selectedNamedAttributes)]="selectedServiceNamedAttributes"
               [availableRoleAttributes]="svc.serviceRoleAttributes"
               [availableNamedAttributes]="svc.serviceNamedAttributes"
-              (selectedNamedAttributesChange)="svc.getAssociatedServicesByAttribute(selectedServiceRoleAttributes, selectedServiceNamedAttributes, formData.semantic)"
-              (selectedRoleAttributesChange)="svc.getAssociatedServicesByAttribute(selectedServiceRoleAttributes, selectedServiceNamedAttributes, formData.semantic)"
+              (selectedNamedAttributesChange)="onServiceAttributesChanged()"
+              (selectedRoleAttributesChange)="onServiceAttributesChanged()"
               [placeholder]="'Select service attributes'"
             ></lib-tag-selector>
           </lib-form-field-container>
@@ -52,8 +52,8 @@
               [(selectedNamedAttributes)]="selectedIdentityNamedAttributes"
               [availableRoleAttributes]="svc.identityRoleAttributes"
               [availableNamedAttributes]="svc.identityNamedAttributes"
-              (selectedNamedAttributesChange)="svc.getAssociatedIdentitiesByAttribute(selectedIdentityRoleAttributes, selectedIdentityNamedAttributes, formData.semantic)"
-              (selectedRoleAttributesChange)="svc.getAssociatedIdentitiesByAttribute(selectedIdentityRoleAttributes, selectedIdentityNamedAttributes, formData.semantic)"
+              (selectedNamedAttributesChange)="onIdentityAttributesChanged()"
+              (selectedRoleAttributesChange)="onIdentityAttributesChanged()"
               [placeholder]="'Select identity attributes'"
             ></lib-tag-selector>
           </lib-form-field-container>
@@ -80,6 +80,7 @@
             >
             <select
               [(ngModel)]="formData.type"
+              (change)="onPolicyTypeChanged()"
               id="PolicyType"
               class="form-field-dropdown"
               >
@@ -88,7 +89,7 @@
             </select>
             <select
               [(ngModel)]="formData.semantic"
-              (change)="updateAssociations()"
+              (change)="onPolicySemanticChanged()"
               id="PolicySemantic"
               class="form-field-dropdown"
               >
@@ -96,6 +97,7 @@
               <option value="AllOf">AllOf</option>
             </select>
           </lib-form-field-container>
+          <ng-content select="[slot=column-1-slot-1]"></ng-content>
           <lib-form-field-toggle [(toggleOn)]="showMore" (toggleOnChange)="showMoreChanged($event)" style="margin: 0px 10px"></lib-form-field-toggle>
           <div [hidden]="!showMore" class="form-group-column">
             @if (!hideTags) {
@@ -110,6 +112,7 @@
           </div>
         </div>
         <div class="form-group-column two-fifths">
+          <ng-content select="[slot=column-2-slot-1]"></ng-content>
           <lib-form-field-container
             [title]="'Associated Services'"
             [count]="svc.associatedServiceNames.length"

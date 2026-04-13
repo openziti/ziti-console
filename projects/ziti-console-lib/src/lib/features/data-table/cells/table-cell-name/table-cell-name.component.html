@@ -20,5 +20,28 @@
             }
             <strong>{{cellText}}</strong>
         </div>
+        @if (cellParams.showIdentityIcons && !item.edgeRouterConnectionStatus) {
+          <div class="cell-status-container">
+            <span class="circle {{item.hasApiSession}}" title="Api Session"></span>
+            <span class="circle {{item.hasEdgeRouterConnection}}" title="Edge Router Connected"></span>
+          </div>
+        }
+        @if (cellParams.showRouterIcons) {
+          <div class="cell-status-container">
+            <span class="circle {{item.isVerified}}" title="Api Session"></span>
+            <span class="circle {{item.isOnline}}" title="Edge Router Connected"></span>
+          </div>
+        }
+        @if (cellParams.showIdentityIcons && item.conflicted) {
+          <div
+            class="cell-conflict-container"
+            matTooltip="Potential Conflict Detected"
+            [matTooltipShowDelay]="0"
+          >
+            <span class="icon-Network-Failure cell-conflict-icon"></span>
+          </div>
+        }
+        <strong>{{cellText}}</strong>
+      </div>
     </a>
 </span>
