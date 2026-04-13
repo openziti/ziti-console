@@ -1,6 +1,7 @@
 .cell-name-renderer {
   display: flex;
   flex-direction: row;
+  align-items: center;
   gap: 0.3125rem;
 }
 
@@ -8,6 +9,11 @@
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
+}
+
+.cell-name-link {
+  display: inline-flex;
+  align-items: center;
 }
 
 .cell-status-container {
