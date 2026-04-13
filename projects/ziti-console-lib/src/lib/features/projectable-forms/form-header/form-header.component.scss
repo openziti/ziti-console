@@ -155,7 +155,7 @@
   border-radius: 0.3125rem;
   position: relative;
   cursor: pointer;
-  z-index: 999999;
+  z-index: 10000001;
   margin-right: 1.25rem;
 
   .more-actions-button {
@@ -208,6 +208,7 @@
     width: 100%;
     box-shadow: 0rem 0.1875rem 0.3125rem 0.0625rem var(--boxShadow);
     border-radius: 0.3125rem;
+    z-index: 10000002;
   }
   .more-actions-item {
     display: flex;
@@ -221,6 +222,17 @@
     font-size: 1.09rem;
     &:hover {
       background-color: var(--inputBorder);
+    }
+
+    // Destructive action styling for delete
+    &:has(.icon-trash) {
+      background-color: var(--redShadow);
+      color: var(--red);
+
+      &:hover {
+        background-color: var(--red);
+        color: var(--white);
+      }
     }
 
     .more-actions-item-icon {
@@ -237,6 +249,7 @@
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
+        background-color: transparent;
         font-family: inherit;
         &:before {
           content: none;

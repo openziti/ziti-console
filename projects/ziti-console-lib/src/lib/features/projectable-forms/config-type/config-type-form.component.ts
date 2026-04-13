@@ -38,6 +38,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {ConfigType} from "../../../models/config-type";
 import {Location} from "@angular/common";
 import {ValidationService} from "../../../services/validation.service";
+import {MatDialog} from "@angular/material/dialog";
 
 @Component({
     selector: 'lib-config-type-form',
@@ -77,9 +78,10 @@ export class ConfigTypeFormComponent extends ProjectableForm implements OnInit, 
         protected override router: Router,
         protected override route: ActivatedRoute,
         location: Location,
-        private validationService: ValidationService
+        private validationService: ValidationService,
+        dialogForm: MatDialog
     ) {
-        super(growlerService, extService, zitiService, router, route, location, settingsService);
+        super(growlerService, extService, zitiService, router, route, location, settingsService, dialogForm);
     }
 
     override ngOnInit(): void {
@@ -117,6 +119,9 @@ export class ConfigTypeFormComponent extends ProjectableForm implements OnInit, 
                 break;
             case 'toggle-view':
                 this.formView = event.data;
+                break;
+            case 'delete':
+                this.deleteEntity();
                 break;
         }
     }

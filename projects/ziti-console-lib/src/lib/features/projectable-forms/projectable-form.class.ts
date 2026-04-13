@@ -349,6 +349,8 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         });
     }
 
+    private deleteConfirmDialogRef: any;
+
     protected deleteEntity() {
         if (!this.dialogForm) {
             console.error('MatDialog not injected. Cannot show delete confirmation.');
@@ -356,7 +358,10 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         }
 
         const entityLabel = this.getEntityLabel();
-        const data = {
+        const isService = this.entityType === 'services';
+        const showOrphanedEntitiesOption = isService && !isEmpty(this.settingsService?.zitiSemver);
+
+        const data: any = {
             appendId: `Delete${this.entityType}`,
             title: 'Delete',
             message: `Are you sure you would like to delete the following ${entityLabel}?`,
@@ -366,14 +371,34 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
             imageUrl: '../../assets/svgs/Confirm_Trash.svg',
             showCancelLink: true
         };
-        const dialogRef = this.dialogForm.open(ConfirmComponent, {
+
+        if (showOrphanedEntitiesOption) {
+            data.showSecondaryConfirm = true;
+            data.secondaryConfirmLabel = 'Delete all orphaned associated configs and service policies?';
+            data.secondaryConfirmed = false;
+            data.secondaryInfoLabel = 'Choosing this option will also delete any associated configs and/or service policies that ONLY make reference to this service';
+            data.secondaryActionLabel = 'Preview Deletions';
+            data.confirmLabelAlt = 'Delete All';
+            data.secondaryAction = () => this.openPreviewDeletions();
+        }
+
+        this.deleteConfirmDialogRef = this.dialogForm.open(ConfirmComponent, {
             data: data,
             autoFocus: false,
         });
-        dialogRef.afterClosed().subscribe((result) => {
-            if (result) {
+        this.deleteConfirmDialogRef.afterClosed().subscribe((result) => {
+            if (result?.confirmed) {
                 this.isLoading = true;
-                this.zitiService.delete(this.entityType, this.formData.id).then(() => {
+                const deleteOrphans = result.secondaryConfirmed || false;
+
+                let deletePromise;
+                if (isService && deleteOrphans) {
+                    deletePromise = this.deleteServiceWithOrphans();
+                } else {
+                    deletePromise = this.zitiService.delete(this.entityType, this.formData.id);
+                }
+
+                deletePromise.then(() => {
                     const growlerData = new GrowlerModel(
                         'success',
                         'Success',
@@ -395,6 +420,15 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
                 });
             }
         });
+    }
+
+    protected deleteServiceWithOrphans(): Promise<any> {
+        return Promise.reject('deleteServiceWithOrphans must be overridden in child class');
+    }
+
+    protected openPreviewDeletions() {
+        // This should be overridden by child classes that support preview
+        console.log('Preview deletions not implemented for this entity type');
     }
 
     protected getEntityLabel(): string {

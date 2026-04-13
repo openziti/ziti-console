@@ -38,13 +38,14 @@ import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.se
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
 import {SERVICE_EXTENSION_SERVICE, ServiceFormService} from './service-form.service';
-import {MatDialogRef} from "@angular/material/dialog";
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {ExtensionService} from "../../extendable/extensions-noop.service";
 import {ConfigEditorComponent} from "../../config-editor/config-editor.component";
 import {Service} from "../../../models/service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {Location} from "@angular/common";
 import {URLS} from "../../../urls";
+import {PreviewSelectionsComponent} from "../../preview-selections/preview-selections.component";
 
 @Component({
     selector: 'lib-service-form',
@@ -119,9 +120,10 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
       @Inject(SERVICE_EXTENSION_SERVICE) extService: ExtensionService,
       protected override router: Router,
       protected override route: ActivatedRoute,
-      location: Location
+      location: Location,
+      dialogForm: MatDialog
   ) {
-    super(growlerService, extService, zitiService, router, route, location, settingsService);
+    super(growlerService, extService, zitiService, router, route, location, settingsService, dialogForm);
     this.formData = {};
   }
 
@@ -252,6 +254,125 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     this.svc.attachConfig(this.svc.selectedConfigId);
   }
 
+  protected override deleteServiceWithOrphans(): Promise<any> {
+    return this.getOrphanedEntities().then((orphans) => {
+      return this.deleteServiceAndOrphans(orphans);
+    });
+  }
+
+  protected override openPreviewDeletions() {
+    // Close the confirm dialog first
+    if (this['deleteConfirmDialogRef']) {
+      this['deleteConfirmDialogRef'].close();
+    }
+
+    this.getOrphanedEntities().then((serviceItem) => {
+      const data = {
+        appendId: 'PreviewServiceDeletions',
+        title: 'Preview Deletions',
+        subtitle: 'Preview of all associated entities that will be orphaned and deleted',
+        selectedItems: [serviceItem],
+        deleteConfirmed: true
+      };
+
+      const dialogRef = this.dialogForm.open(PreviewSelectionsComponent, {
+        data: data,
+        autoFocus: false,
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result?.confirmed) {
+          this.isLoading = true;
+          this.deleteServiceAndOrphans(serviceItem).then(() => {
+            const growlerData = new GrowlerModel(
+              'success',
+              'Success',
+              `Service Deleted`,
+              `Successfully deleted service "${this.formData.name}" and all orphaned entities`,
+            );
+            this.growlerService.show(growlerData);
+            this.router?.navigateByUrl(this.basePath || 'services');
+          }).catch((error) => {
+            const growlerData = new GrowlerModel(
+              'error',
+              'Error',
+              `Delete Failed`,
+              `Failed to delete service: ${error?.error?.error?.message || error?.message || 'Unknown error'}`,
+            );
+            this.growlerService.show(growlerData);
+          }).finally(() => {
+            this.isLoading = false;
+          });
+        }
+      });
+    });
+  }
+
+  private getOrphanedEntities(): Promise<any> {
+    const serviceItem = {
+      id: this.formData.id,
+      name: this.formData.name,
+      associatedConfigs: [],
+      associatedServicePolicies: []
+    };
+
+    const configsPromise = this.zitiService.getSubdata('services', this.formData.id, 'configs').then((result) => {
+      const configs = result.data;
+      const configPromises = configs.map((config) => {
+        return this.zitiService.getSubdata('configs', config.id, 'services').then((result) => {
+          const associatedServices = result.data;
+          const isOrphan = !associatedServices.some((svc) => svc.id !== this.formData.id);
+          if (isOrphan) {
+            serviceItem.associatedConfigs.push({id: config.id, name: config.name});
+          }
+        });
+      });
+      return Promise.all(configPromises);
+    }).catch(() => Promise.resolve());
+
+    const policiesPromise = this.zitiService.getSubdata('services', this.formData.id, 'service-policies').then((result) => {
+      const policies = result.data;
+      const policyPromises = policies.map((pol) => {
+        const roleAttributes = pol.serviceRoles.filter((attr) => attr.charAt(0) === '#').map((attr) => attr.substring(1));
+        if (roleAttributes.length === 0) {
+          // Policy uses direct service references (@serviceId), not role attributes
+          // If it only references this service, it's an orphan
+          const directRefs = pol.serviceRoles.filter((attr) => attr.charAt(0) === '@').map((attr) => attr.substring(1));
+          const onlyReferencesThisService = directRefs.length === 1 && directRefs[0] === this.formData.id;
+          if (onlyReferencesThisService) {
+            serviceItem.associatedServicePolicies.push({id: pol.id, name: pol.name});
+          }
+          return Promise.resolve();
+        }
+        return this.zitiService.get('services', {}, roleAttributes).then((result: any) => {
+          const services = result.data || [];
+          const isOrphan = !services.some((svc) => svc.id !== this.formData.id);
+          if (isOrphan) {
+            serviceItem.associatedServicePolicies.push({id: pol.id, name: pol.name});
+          }
+        });
+      });
+      return Promise.all(policyPromises);
+    }).catch(() => Promise.resolve());
+
+    return Promise.all([configsPromise, policiesPromise]).then(() => serviceItem);
+  }
+
+  private deleteServiceAndOrphans(serviceItem): Promise<any> {
+    const promises = [];
+    promises.push(this.zitiService.delete('services', serviceItem.id));
+
+    serviceItem.associatedConfigs.forEach((config) => {
+      promises.push(this.zitiService.delete('configs', config.id));
+    });
+
+    serviceItem.associatedServicePolicies.forEach((policy) => {
+      promises.push(this.zitiService.delete('service-policies', policy.id));
+    });
+
+    return Promise.all(promises);
+  }
+
   headerActionRequested(action) {
     switch(action.name) {
       case 'save':
@@ -263,6 +384,9 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
         break;
       case 'toggle-view':
         this.formView = action.data;
+        break;
+      case 'delete':
+        this.deleteEntity();
         break;
     }
   }

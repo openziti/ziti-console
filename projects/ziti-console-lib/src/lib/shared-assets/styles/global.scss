@@ -567,6 +567,7 @@ a:hover {
     padding-left: 3.125rem;
     padding-right: 3.125rem;
     overflow: auto;
+    isolation: isolate;
 
     .projectable-form-main-column {
       max-width: 68.75rem;

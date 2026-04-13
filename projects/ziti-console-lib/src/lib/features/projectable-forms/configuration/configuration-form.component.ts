@@ -37,6 +37,8 @@ import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.se
 import {ActivatedRoute, Router} from "@angular/router";
 import {Config} from "../../../models/config";
 import {Location} from "@angular/common";
+import {MatDialog} from "@angular/material/dialog";
+import {ConfirmComponent} from "../../confirm/confirm.component";
 
 @Component({
     selector: 'lib-configuration',
@@ -75,9 +77,10 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
         @Inject(ZITI_DATA_SERVICE) override zitiService: ZitiDataService,
         protected override router: Router,
         protected override route: ActivatedRoute,
-        location: Location
+        location: Location,
+        dialogForm: MatDialog
     ) {
-        super(growlerService, extService, zitiService, router, route, location, settingsService);
+        super(growlerService, extService, zitiService, router, route, location, settingsService, dialogForm);
     }
 
     override ngOnInit(): void {
@@ -136,6 +139,9 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
                 break;
             case 'toggle-view':
                 this.formView = event.data;
+                break;
+            case 'delete':
+                this.deleteEntity();
                 break;
         }
     }
@@ -299,5 +305,71 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
 
     dataChanged(event) {
         this._apiData = cloneDeep(this.apiData);
+    }
+
+    override deleteEntity() {
+        if (!this.dialogForm) {
+            return;
+        }
+
+        // First fetch associated services to check if config is in use
+        this.svc.getAssociatedServices(this.formData.id).then((result) => {
+            const associatedServices = result.associatedServices || [];
+            const associatedServiceNames = result.associatedServiceNames || [];
+
+            if (associatedServices.length > 0) {
+                // Show warning dialog if config is in use
+                const data = {
+                    appendId: 'DeleteConfigsWithAssociations',
+                    title: 'Configs In Use',
+                    message: `The following configs are still in use by a service:`,
+                    submessage: 'Deleting these configs may cause disruption to those services. Would you still like to continue?',
+                    bulletList: [this.formData.name],
+                    confirmLabel: 'Yes',
+                    cancelLabel: 'Oops, no get me out of here',
+                    imageUrl: '../../assets/svgs/Growl_Warning.svg',
+                    showCancelLink: true
+                };
+
+                const dialogRef = this.dialogForm.open(ConfirmComponent, {
+                    data: data,
+                    autoFocus: false,
+                });
+
+                dialogRef.afterClosed().subscribe((result) => {
+                    if (result?.confirmed) {
+                        this.performDelete();
+                    }
+                });
+            } else {
+                // No associations, proceed with standard delete confirmation
+                super.deleteEntity();
+            }
+        });
+    }
+
+    private performDelete() {
+        this.isLoading = true;
+        this.zitiService.delete(this.entityType, this.formData.id).then(() => {
+            const growlerData = new GrowlerModel(
+                'success',
+                'Success',
+                `${this.entityType} Deleted`,
+                `Successfully deleted ${this.entityType.slice(0, -1)}: ${this.formData.name}`,
+            );
+            this.growlerService.show(growlerData);
+            this.returnToListPage();
+        }).catch((resp) => {
+            const errorMessage = this.zitiService.getErrorMessage(resp);
+            const growlerData = new GrowlerModel(
+                'error',
+                'Error',
+                `Delete Failed`,
+                `Failed to delete ${this.entityType.slice(0, -1)}: ${errorMessage}`,
+            );
+            this.growlerService.show(growlerData);
+        }).finally(() => {
+            this.isLoading = false;
+        });
     }
 }
