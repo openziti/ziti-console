@@ -18,7 +18,7 @@ import {isEmpty, cloneDeep, invert} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {EdgeRouterPolicyFormService, EDGE_ROUTER_POLICY_EXTENSION_SERVICE} from './edge-router-policy-form.service';
-import {MatDialogRef} from "@angular/material/dialog";
+import {MatDialogRef, MatDialog} from "@angular/material/dialog";
 import {ExtensionService} from "../../extendable/extensions-noop.service";
 import {GrowlerModel} from "../../messaging/growler.model";
 import {EdgeRouterPolicy} from "../../../models/edge-router-policy";
@@ -65,9 +65,10 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
       @Inject(EDGE_ROUTER_POLICY_EXTENSION_SERVICE) extService: ExtensionService,
       protected override router: Router,
       protected override route: ActivatedRoute,
-      location: Location
+      location: Location,
+      dialogForm: MatDialog
   ) {
-    super(growlerService, extService, zitiService, router, route, location, settingsService);
+    super(growlerService, extService, zitiService, router, route, location, settingsService, dialogForm);
   }
 
   override ngOnInit(): void {
@@ -97,6 +98,7 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
   }
 
   override entityUpdated() {
+    super.entityUpdated();
     this.loadAttributes();
     if (isEmpty(this.formData.id)) {
       this.formData = new EdgeRouterPolicy();
@@ -184,6 +186,9 @@ export class EdgeRouterPolicyFormComponent extends ProjectableForm implements On
         break;
       case 'toggle-view':
         this.formView = action.data;
+        break;
+      case 'delete':
+        this.deleteEntity();
         break;
     }
   }
