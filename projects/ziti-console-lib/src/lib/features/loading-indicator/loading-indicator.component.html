@@ -3,7 +3,9 @@
     <div class="col">
       <div class="loader">
         <div class="nfloader">
-          <ng-lottie [options]="lottieOptions"></ng-lottie>
+          @if (lottieOptions) {
+            <ng-lottie [options]="lottieOptions"></ng-lottie>
+          }
         </div>
       </div>
     </div>

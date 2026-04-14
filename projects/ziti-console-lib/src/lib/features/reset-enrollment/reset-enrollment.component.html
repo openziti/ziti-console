@@ -16,7 +16,9 @@
         </div>
     </div>
     <div class="reset-buttons-container">
-        <div class="linkButton cancel" (click)="cancel()">Oops, no get me out of here</div>
-        <div id="ResetEnrollButton" class="button" (click)="handleAction()">Submit</div>
+        <div class="linkButton cancel" [class.disabled]="isSubmitting" (click)="!isSubmitting && cancel()">Oops, no get me out of here</div>
+        <div id="ResetEnrollButton" class="button" [class.disabled]="isSubmitting" (click)="handleAction()">
+            {{ isSubmitting ? 'Submitting...' : 'Submit' }}
+        </div>
     </div>
 </div>
