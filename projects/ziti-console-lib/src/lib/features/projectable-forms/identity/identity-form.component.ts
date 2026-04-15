@@ -173,16 +173,38 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     }
   }
 
-  refreshIdentity() {
-    this.svc.refreshIdentity(this.formData.id).then(result => {
-      this.formData = result.data;
-      this.enrollmentExpiration = this.identitiesService.getEnrollmentExpiration(this.formData);
-      this.updateExpirationDate();
-      this.jwt = this.identitiesService.getJWT(this.formData);
-      this.updateBadges();
-      this.initData = cloneDeep(this.formData);
-      this.extService.updateFormData(this.formData);
-    })
+  refreshIdentity(waitForEnrollmentChange = false) {
+    const previousExpiration = this.enrollmentExpiration;
+    this.isLoading = true;
+    this.pollRefreshIdentity(previousExpiration, waitForEnrollmentChange, 10, 500)
+      .finally(() => {
+        this.isLoading = false;
+      });
+  }
+
+  private pollRefreshIdentity(
+    previousExpiration: any,
+    waitForChange: boolean,
+    attemptsLeft: number,
+    delayMs: number,
+  ): Promise<void> {
+    return this.svc.refreshIdentity(this.formData.id).then((result) => {
+      const data = result?.data;
+      const newExpiration = this.identitiesService.getEnrollmentExpiration(data);
+      const changed = !waitForChange || !previousExpiration || newExpiration !== previousExpiration;
+      if (changed || attemptsLeft <= 1) {
+        this.formData = data;
+        this.enrollmentExpiration = newExpiration;
+        this.updateExpirationDate();
+        this.jwt = this.identitiesService.getJWT(this.formData);
+        this.updateBadges();
+        this.initData = cloneDeep(this.formData);
+        this.extService.updateFormData(this.formData);
+        return Promise.resolve();
+      }
+      return new Promise<void>((resolve) => setTimeout(resolve, delayMs))
+        .then(() => this.pollRefreshIdentity(previousExpiration, waitForChange, attemptsLeft - 1, delayMs));
+    });
   }
 
   initEnrollmentType() {

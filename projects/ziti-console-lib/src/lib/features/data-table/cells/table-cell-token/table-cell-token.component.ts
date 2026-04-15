@@ -54,19 +54,10 @@ export class TableCellTokenComponent implements ICellRendererAngularComp {
   }
 
   get hasEnrolmentToken() {
-    let token;
-    let expiration;
-    if (this.item?.enrollment?.ott?.jwt) {
-      token = this.item?.enrollment?.ott?.jwt
-      expiration = this.item?.enrollment?.ott?.expiresAt;
-    } else if (this.item?.enrollment?.ottca?.jwt) {
-      token = this.item?.enrollment?.ottca?.jwt;
-      expiration = this.item?.enrollment?.ottca?.expiresAt;
-    } else if (this.item?.enrollment?.updb?.jwt) {
-      token = this.item?.enrollment?.updb?.jwt;
-      expiration = this.item?.enrollment?.updb?.expiresAt;
-    }
-    return this.item.enrollmentToken || (token && !moment(expiration).isBefore());
+    const token = this.item?.enrollment?.ott?.jwt
+      || this.item?.enrollment?.ottca?.jwt
+      || this.item?.enrollment?.updb?.jwt;
+    return this.item.enrollmentToken || !!token;
   }
 
   getJWT(item: any) {

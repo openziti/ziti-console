@@ -80,7 +80,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     public errors: any = {};
     protected entityType = 'identities';
     protected entityClass: any = Entity;
-    protected isLoading = false;
+    public isLoading = false;
     protected usePreviousLocation = true;
     moreActions: any[] = [];
     tagElements: any = [];

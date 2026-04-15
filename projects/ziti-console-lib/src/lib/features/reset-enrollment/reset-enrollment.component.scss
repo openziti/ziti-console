@@ -59,6 +59,13 @@
     align-items: center;
     justify-content: center;
   }
+
+  .button.disabled,
+  .linkButton.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+    cursor: default;
+  }
 }
 
 ::ng-deep .reset-enroll-dialog-container {
