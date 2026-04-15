@@ -135,6 +135,44 @@
             ></lib-chips-input>
           </div>
         </lib-form-field-container>
+        @if (showAutoEnrollment) {
+          <lib-form-field-container
+            [title]="'Auto Enrollment'"
+            [helpText]="'Click for more information'"
+            (helpClicked)="showAutoEnrollHelp()"
+            >
+            <div class="form-field-row">
+              <div class="config-item">
+                <div class="config-container toggle-container">
+                  <div class="config-container-label">Auto-Enroll to Cert</div>
+                  <div
+                    (click)="toggleEnrollToCertEnabled()"
+                    [ngClass]="{ on: formData.enrollToCertEnabled }"
+                    class="toggle"
+                    >
+                    <span [hidden]="!formData.enrollToCertEnabled" class="on-label">YES</span>
+                    <span [hidden]="formData.enrollToCertEnabled" class="off-label">NO</span>
+                    <div class="switch"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="config-item">
+                <div class="config-container toggle-container">
+                  <div class="config-container-label">Auto-Enroll to Token</div>
+                  <div
+                    (click)="toggleEnrollToTokenEnabled()"
+                    [ngClass]="{ on: formData.enrollToTokenEnabled }"
+                    class="toggle"
+                    >
+                    <span [hidden]="!formData.enrollToTokenEnabled" class="on-label">YES</span>
+                    <span [hidden]="formData.enrollToTokenEnabled" class="off-label">NO</span>
+                    <div class="switch"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </lib-form-field-container>
+        }
         <lib-form-field-toggle [(toggleOn)]="showMore" (toggleOnChange)="showMoreChanged($event)" style="margin: 0px 10px"></lib-form-field-toggle>
         @if (showMore && showTokenType) {
           <lib-form-field-container
@@ -321,3 +359,35 @@
 @if (isLoading) {
   <lib-loading-indicator [isLoading]="isLoading"></lib-loading-indicator>
 }
+<lib-side-modal [(open)]="showAutoEnrollHelpModal" [showClose]="true">
+  <div class="help-panel-content">
+    <h2 class="help-panel-title">What is Auto Enrollment?</h2>
+    <p class="help-panel-intro">
+      Auto Enrollment enables automatic identity creation when users authenticate via JWT tokens.
+    </p>
+
+    <div class="help-panel-section">
+      <h3 class="help-panel-subtitle">
+        <span class="icon-certificate"></span>
+        Auto-Enroll to Cert
+      </h3>
+      <p class="help-panel-text">
+        When enabled, the controller will automatically create an identity and enroll it with a certificate when a user authenticates using a JWT token. This is useful for certificate-based authentication workflows.
+      </p>
+    </div>
+
+    <div class="help-panel-section">
+      <h3 class="help-panel-subtitle">
+        <span class="icon-key"></span>
+        Auto-Enroll to Token
+      </h3>
+      <p class="help-panel-text">
+        When enabled, the controller will automatically create an identity and enroll it with an authentication token when a user authenticates using a JWT token. This is useful for token-based authentication workflows.
+      </p>
+    </div>
+
+    <div class="help-panel-note">
+      <strong>Note:</strong> These options are only available in Ziti 2.0 and later versions.
+    </div>
+  </div>
+</lib-side-modal>

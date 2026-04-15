@@ -207,6 +207,10 @@ export class SettingsService extends SettingsServiceClass {
                         } else {
                             this.apiVersions = body.data.apiVersions;
                             this.zitiSemver = body.data?.version?.replace("v", "");
+                            const versionDisplay = `Controller: ${body.data?.version}`;
+                            localStorage.setItem('ziti.controller.version', this.zitiSemver);
+                            localStorage.setItem('ziti.version', versionDisplay);
+                            this.version();
                         }
                     } catch (e) {
                         let growlerData = new GrowlerModel(

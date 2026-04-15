@@ -44,7 +44,13 @@ export class FormFieldContainerComponent {
 
   @Output() actionRequested: EventEmitter<any> = new EventEmitter<any>();
   @Output() headerToggleChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() helpClicked: EventEmitter<void> = new EventEmitter<void>();
+
   constructor() {}
+
+  onHelpClick() {
+    this.helpClicked.emit();
+  }
 
   actionClicked(action) {
     this.actionRequested.emit(action);

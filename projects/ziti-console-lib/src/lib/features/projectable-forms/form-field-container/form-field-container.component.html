@@ -8,10 +8,9 @@
         <span class="form-field-title">{{title}}</span>
         @if (helpText) {
           <div
-            class="form-field-info infoicon"
-            matTooltip="{{helpText}}"
-            matTooltipPosition="above"
-          ></div>
+            class="form-field-help-icon"
+            (click)="onHelpClick()"
+          >?</div>
         }
       </div>
       @if (label) {

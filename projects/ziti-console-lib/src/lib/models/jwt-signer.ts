@@ -13,4 +13,6 @@ export class JwtSigner {
     certPem: string = undefined;
     tags: any = {};
     targetToken: string = 'ACCESS';
+    enrollToCertEnabled: boolean = false;
+    enrollToTokenEnabled: boolean = false;
 };
