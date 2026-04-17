@@ -394,8 +394,24 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
             //pre-process data before rendering
             results.data = this.addActionsPerRow(results);
         }
-        if (this.extService?.processTableData) {
-            results = await this.extService.processTableData(results);
+        if (this.extService?.extensionEvent) {
+            const event: any = {
+                type: 'tableDataUpdated',
+                data: {
+                    resourceType: this.resourceType,
+                    results,
+                },
+            };
+            this.extService.extensionEvent.emit(event);
+            try {
+                if (event?.waitFor) {
+                    results = await event.waitFor;
+                } else if (event?.result !== undefined) {
+                    results = event.result;
+                }
+            } catch (_e) {
+                // keep original results on extension failure
+            }
         }
         if (!isEmpty(results?.meta?.pagination)) {
             this.totalCount = results.meta?.pagination.totalCount;

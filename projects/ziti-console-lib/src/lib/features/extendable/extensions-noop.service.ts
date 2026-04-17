@@ -14,14 +14,33 @@
     limitations under the License.
 */
 
-import {Injectable, InjectionToken, ViewContainerRef, EventEmitter} from '@angular/core';
+import { Injectable, InjectionToken, ViewContainerRef, EventEmitter } from '@angular/core';
 import {BehaviorSubject, Subject} from "rxjs";
 
 export const SHAREDZ_EXTENSION = new InjectionToken<any>('SHAREDZ_EXTENSION');
 
+export type ExtensionEventType =
+  | 'formDataUpdated'
+  | 'attributesChanged'
+  | 'conflictInputChanged'
+  | 'tableDataUpdated'
+  | string;
+
+export interface ExtensionEvent<TData = any, TResult = any> {
+  type: ExtensionEventType;
+  data?: TData;
+  result?: TResult;
+  /**
+   * If set by a subscriber, callers can `await` this
+   * to get an async result (e.g. table preprocessing).
+   */
+  waitFor?: Promise<TResult>;
+}
+
 export interface ExtensionService {
   formDataChanged: BehaviorSubject<any>;
   closed: EventEmitter<any>;
+  extensionEvent?: EventEmitter<ExtensionEvent>;
   closeAfterSave: boolean;
   moreActions?: any[];
   listActions?: any[];
@@ -30,9 +49,6 @@ export interface ExtensionService {
   extendOnInit(): void;
   extendAfterViewInits(extentionPoints: any): void;
   updateFormData(data: any): void;
-  identityRoleAttributeChanged?(change: any): void;
-  servicePolicyConflictInputChanged?(change: any): void;
-  processTableData?(results: any): Promise<any>;
   validateData(): Promise<any>;
   formDataSaved(data: any): Promise<any>;
   processTableColumns(tableColumns: any): any[];
@@ -46,6 +62,7 @@ export class ExtensionsNoopService implements ExtensionService {
   formDataChanged = new BehaviorSubject<any>({isEmpty: true});
   closed: EventEmitter<any> = new EventEmitter<any>();
   consoleActionTriggered: EventEmitter<any> = new EventEmitter<any>();
+  extensionEvent: EventEmitter<ExtensionEvent> = new EventEmitter<ExtensionEvent>();
   closeAfterSave = true;
   moreActions = [];
   disabledComponents = [];
@@ -59,16 +76,6 @@ export class ExtensionsNoopService implements ExtensionService {
   }
 
   updateFormData(data: any): void {
-  }
-
-  identityRoleAttributeChanged(change: any): void {
-  }
-
-  servicePolicyConflictInputChanged(change: any): void {
-  }
-
-  processTableData(results: any): Promise<any> {
-    return Promise.resolve(results);
   }
 
   formDataSaved(data: any): Promise<any> {

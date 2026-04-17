@@ -109,9 +109,12 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       this.settings = results;
     });
     this.subscription.add(this.extService.formDataChanged.subscribe((results:any) => {
+      if (!this.entityId || this.entityId === 'create') {
+        return;
+      }
       this.isLoading = true;
       this.zitiService.getSubdata(this.entityType, this.entityId, '').then((entity: any) => {
-        this.formData = entity?.data;
+        this.formData = entity?.data || this.formData || new this.entityClass();
         this.initData = cloneDeep(this.formData);
         this._dataChange = false;
         this.entityUpdated();
@@ -204,9 +207,13 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
 
   roleAttributesChanged(roleAttributes: any[]) {
     this.formData.roleAttributes = roleAttributes;
-    this.extService.identityRoleAttributeChanged?.({
-      identityId: this.formData?.id,
-      roleAttributes: this.formData?.roleAttributes || [],
+    this.extService.extensionEvent?.emit({
+      type: 'attributesChanged',
+      data: {
+        entityType: 'identity',
+        identityId: this.formData?.id,
+        roleAttributes: this.formData?.roleAttributes || [],
+      },
     });
   }
 

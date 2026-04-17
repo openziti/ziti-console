@@ -184,20 +184,24 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
   }
 
   emitConflictInputChange(): void {
-    this.extService.servicePolicyConflictInputChanged?.({
-      servicePolicyId: this.formData?.id,
-      identityRoles: this.svc.getSelectedRoles(
-        this.selectedIdentityRoleAttributes,
-        this.selectedIdentityNamedAttributes,
-        this.svc.identityNamedAttributesMap
-      ),
-      serviceRoles: this.svc.getSelectedRoles(
-        this.selectedServiceRoleAttributes,
-        this.selectedServiceNamedAttributes,
-        this.svc.serviceNamedAttributesMap
-      ),
-      semantic: this.formData?.semantic || 'AnyOf',
-      policyType: this.formData?.type || 'Bind',
+    this.extService.extensionEvent?.emit({
+      type: 'conflictInputChanged',
+      data: {
+        entityType: 'service-policy',
+        servicePolicyId: this.formData?.id,
+        identityRoles: this.svc.getSelectedRoles(
+          this.selectedIdentityRoleAttributes,
+          this.selectedIdentityNamedAttributes,
+          this.svc.identityNamedAttributesMap
+        ),
+        serviceRoles: this.svc.getSelectedRoles(
+          this.selectedServiceRoleAttributes,
+          this.selectedServiceNamedAttributes,
+          this.svc.serviceNamedAttributesMap
+        ),
+        semantic: this.formData?.semantic || 'AnyOf',
+        policyType: this.formData?.type || 'Bind',
+      },
     });
   }
 

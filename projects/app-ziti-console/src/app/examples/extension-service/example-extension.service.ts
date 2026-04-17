@@ -1,5 +1,5 @@
-import {EventEmitter, Injectable} from '@angular/core';
-import {ExtensionService} from "ziti-console-lib";
+import { EventEmitter, Injectable } from '@angular/core';
+import { ExtensionEvent, ExtensionService } from 'ziti-console-lib';
 import {BehaviorSubject} from "rxjs";
 
 @Injectable({ providedIn: 'root' })
@@ -13,6 +13,7 @@ export class ExampleExtensionService implements ExtensionService {
     ]
     closeAfterSave: boolean;
     closed: EventEmitter<any>;
+    extensionEvent: EventEmitter<ExtensionEvent> = new EventEmitter<ExtensionEvent>();
     formDataChanged: BehaviorSubject<any>;
 
     extendOnInit(): void {
@@ -35,19 +36,6 @@ export class ExampleExtensionService implements ExtensionService {
         // This function will pass in a reference to the root data model of the entity being edited
         // Uncomment the alert below to see when this function is called
         // alert('ExampleExtensionService "updateFormData()" function executed');
-    }
-
-    identityRoleAttributeChanged(change: any): void {
-        // This function will execute only when identity role attributes change
-        // Uncomment the alert below to see when this function is called
-        // alert('ExampleExtensionService "identityRoleAttributeChanged()" function executed');
-    }
-
-    processTableData(results: any): Promise<any> {
-        // This function will execute after list page data is fetched and before the table renders
-        // Uncomment the alert below to see when this function is called
-        // alert('ExampleExtensionService "processTableData()" function executed');
-        return Promise.resolve(results);
     }
 
     validateData(): Promise<any> {
