@@ -13,8 +13,18 @@ export class ExampleExtensionService implements ExtensionService {
     ]
     closeAfterSave: boolean;
     closed: EventEmitter<any>;
-    extensionEvent: EventEmitter<ExtensionEvent> = new EventEmitter<ExtensionEvent>();
     formDataChanged: BehaviorSubject<any>;
+
+    async emitEvent<TData, TResult>(event: ExtensionEvent<TData, TResult>): Promise<TResult | undefined> {
+        // Handle extension events here. Example:
+        // switch (event.type) {
+        //   case 'tableDataUpdated':
+        //     return await this.processTableData(event.data) as TResult;
+        //   default:
+        //     return undefined;
+        // }
+        return undefined;
+    }
 
     extendOnInit(): void {
     }

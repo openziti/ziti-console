@@ -29,23 +29,17 @@ export type ExtensionEventType =
 export interface ExtensionEvent<TData = any, TResult = any> {
   type: ExtensionEventType;
   data?: TData;
-  result?: TResult;
-  /**
-   * If set by a subscriber, callers can `await` this
-   * to get an async result (e.g. table preprocessing).
-   */
-  waitFor?: Promise<TResult>;
 }
 
 export interface ExtensionService {
   formDataChanged: BehaviorSubject<any>;
   closed: EventEmitter<any>;
-  extensionEvent?: EventEmitter<ExtensionEvent>;
   closeAfterSave: boolean;
   moreActions?: any[];
   listActions?: any[];
   consoleActionTriggered?: EventEmitter<any>;
   disabledComponents?: any[];
+  emitEvent?<TData, TResult>(event: ExtensionEvent<TData, TResult>): Promise<TResult | undefined>;
   extendOnInit(): void;
   extendAfterViewInits(extentionPoints: any): void;
   updateFormData(data: any): void;
@@ -62,12 +56,15 @@ export class ExtensionsNoopService implements ExtensionService {
   formDataChanged = new BehaviorSubject<any>({isEmpty: true});
   closed: EventEmitter<any> = new EventEmitter<any>();
   consoleActionTriggered: EventEmitter<any> = new EventEmitter<any>();
-  extensionEvent: EventEmitter<ExtensionEvent> = new EventEmitter<ExtensionEvent>();
   closeAfterSave = true;
   moreActions = [];
   disabledComponents = [];
 
   constructor() { }
+
+  async emitEvent<TData, TResult>(event: ExtensionEvent<TData, TResult>): Promise<TResult | undefined> {
+    return undefined;
+  }
 
   extendOnInit(): void {
   }
