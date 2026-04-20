@@ -207,7 +207,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
 
   roleAttributesChanged(roleAttributes: any[]) {
     this.formData.roleAttributes = roleAttributes;
-    this.extService.extensionEvent?.emit({
+    this.extService.emitEvent?.({
       type: 'attributesChanged',
       data: {
         entityType: 'identity',

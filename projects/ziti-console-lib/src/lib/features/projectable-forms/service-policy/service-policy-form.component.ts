@@ -184,7 +184,7 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
   }
 
   emitConflictInputChange(): void {
-    this.extService.extensionEvent?.emit({
+    this.extService.emitEvent?.({
       type: 'conflictInputChanged',
       data: {
         entityType: 'service-policy',

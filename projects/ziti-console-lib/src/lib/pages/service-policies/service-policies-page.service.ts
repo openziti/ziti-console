@@ -394,20 +394,14 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
             //pre-process data before rendering
             results.data = this.addActionsPerRow(results);
         }
-        if (this.extService?.extensionEvent) {
-            const event: any = {
-                type: 'tableDataUpdated',
-                data: {
-                    resourceType: this.resourceType,
-                    results,
-                },
-            };
-            this.extService.extensionEvent.emit(event);
+        if (this.extService?.emitEvent) {
             try {
-                if (event?.waitFor) {
-                    results = await event.waitFor;
-                } else if (event?.result !== undefined) {
-                    results = event.result;
+                const transformed = await this.extService.emitEvent({
+                    type: 'tableDataUpdated',
+                    data: { resourceType: this.resourceType, results },
+                });
+                if (transformed !== undefined) {
+                    results = transformed;
                 }
             } catch (_e) {
                 // keep original results on extension failure
