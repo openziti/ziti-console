@@ -7,7 +7,7 @@
   <lib-form-header
     [data]="formData"
     [title]="(formData.id ? 'Edit Posture Check' : 'Create Posture Check')"
-    [moreActions]="formData.moreActions"
+    [moreActions]="moreActions"
     (actionRequested)="headerActionRequested($event)"
     [(formView)]="formView"
     [class.is-scrolled]="isScrolled"

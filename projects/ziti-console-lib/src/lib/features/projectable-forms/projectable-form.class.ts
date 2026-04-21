@@ -28,6 +28,8 @@ import {Subscription} from "rxjs";
 import {Location} from "@angular/common";
 import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service";
 import {URLS} from "../../urls";
+import {MatDialog} from "@angular/material/dialog";
+import {ConfirmComponent} from "../confirm/confirm.component";
 
 export class Entity {
     name: ''
@@ -78,7 +80,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     public errors: any = {};
     protected entityType = 'identities';
     protected entityClass: any = Entity;
-    protected isLoading = false;
+    public isLoading = false;
     protected usePreviousLocation = true;
     moreActions: any[] = [];
     tagElements: any = [];
@@ -111,6 +113,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         protected route?: ActivatedRoute,
         protected location?: Location,
         @Inject(SETTINGS_SERVICE) protected settingsService?: SettingsService,
+        protected dialogForm?: MatDialog,
     ) {
         super();
         this.previousRoute = this.router.getCurrentNavigation().previousNavigation?.finalUrl?.toString();
@@ -330,11 +333,122 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
 
     protected entityUpdated() {
         //no-op
+        if (this.isEdit && !this.moreActions.find(action => action.name === 'delete')) {
+            this.moreActions.push({
+                name: 'delete',
+                label: 'Delete',
+                icon: 'icon-trash',
+                hidden: () => false
+            });
+        }
     }
 
     getRoleAttributes(type: string) {
         return this.zitiService.get(type, {}, []).then((results) => {
             return results.data;
         });
+    }
+
+    private deleteConfirmDialogRef: any;
+
+    protected deleteEntity() {
+        if (!this.dialogForm) {
+            console.error('MatDialog not injected. Cannot show delete confirmation.');
+            return;
+        }
+
+        const entityLabel = this.getEntityLabel();
+        const isService = this.entityType === 'services';
+        const showOrphanedEntitiesOption = isService && !isEmpty(this.settingsService?.zitiSemver);
+
+        const data: any = {
+            appendId: `Delete${this.entityType}`,
+            title: 'Delete',
+            message: `Are you sure you would like to delete the following ${entityLabel}?`,
+            bulletList: [this.formData.name],
+            confirmLabel: 'Yes',
+            cancelLabel: 'Oops, no get me out of here',
+            imageUrl: '../../assets/svgs/Confirm_Trash.svg',
+            showCancelLink: true
+        };
+
+        if (showOrphanedEntitiesOption) {
+            data.showSecondaryConfirm = true;
+            data.secondaryConfirmLabel = 'Delete all orphaned associated configs and service policies?';
+            data.secondaryConfirmed = false;
+            data.secondaryInfoLabel = 'Choosing this option will also delete any associated configs and/or service policies that ONLY make reference to this service';
+            data.secondaryActionLabel = 'Preview Deletions';
+            data.confirmLabelAlt = 'Delete All';
+            data.secondaryAction = () => this.openPreviewDeletions();
+        }
+
+        this.deleteConfirmDialogRef = this.dialogForm.open(ConfirmComponent, {
+            data: data,
+            autoFocus: false,
+        });
+        this.deleteConfirmDialogRef.afterClosed().subscribe((result) => {
+            if (result?.confirmed) {
+                this.isLoading = true;
+                const deleteOrphans = result.secondaryConfirmed || false;
+
+                let deletePromise;
+                if (isService && deleteOrphans) {
+                    deletePromise = this.deleteServiceWithOrphans();
+                } else {
+                    deletePromise = this.zitiService.delete(this.entityType, this.formData.id);
+                }
+
+                deletePromise.then(() => {
+                    const growlerData = new GrowlerModel(
+                        'success',
+                        'Success',
+                        `${entityLabel} Deleted`,
+                        `Successfully deleted ${entityLabel.toLowerCase()} "${this.formData.name}"`,
+                    );
+                    this.growlerService.show(growlerData);
+                    this.returnToListPage();
+                }).catch((error) => {
+                    const growlerData = new GrowlerModel(
+                        'error',
+                        'Error',
+                        `Delete Failed`,
+                        `Failed to delete ${entityLabel.toLowerCase()}: ${error?.error?.error?.message || error?.message || 'Unknown error'}`,
+                    );
+                    this.growlerService.show(growlerData);
+                }).finally(() => {
+                    this.isLoading = false;
+                });
+            }
+        });
+    }
+
+    protected deleteServiceWithOrphans(): Promise<any> {
+        return Promise.reject('deleteServiceWithOrphans must be overridden in child class');
+    }
+
+    protected openPreviewDeletions() {
+        // This should be overridden by child classes that support preview
+        console.log('Preview deletions not implemented for this entity type');
+    }
+
+    protected getEntityLabel(): string {
+        // Convert entity type to a readable label
+        // e.g., "external-jwt-signers" -> "JWT Signer"
+        const typeMap: { [key: string]: string } = {
+            'external-jwt-signers': 'JWT Signer',
+            'identities': 'Identity',
+            'services': 'Service',
+            'edge-routers': 'Edge Router',
+            'transit-routers': 'Transit Router',
+            'edge-router-policies': 'Edge Router Policy',
+            'service-edge-router-policies': 'Service Edge Router Policy',
+            'service-policies': 'Service Policy',
+            'configs': 'Configuration',
+            'config-types': 'Config Type',
+            'posture-checks': 'Posture Check',
+            'auth-policies': 'Auth Policy',
+            'cas': 'Certificate Authority'
+        };
+        return typeMap[this.entityType] || this.entityType;
     }
 }

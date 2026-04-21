@@ -86,6 +86,7 @@ export class TransitRouterFormComponent extends ProjectableForm implements OnIni
   }
 
   override entityUpdated() {
+    super.entityUpdated();
     if (this.formData.id) {
       this.formData.badges = [];
       this.formData.badges = [];

@@ -36,6 +36,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {Location} from "@angular/common";
 import {ValidationService} from "../../../services/validation.service";
 import {PostureCheck} from "../../../models/posture-check";
+import {MatDialog} from "@angular/material/dialog";
 
 @Component({
     selector: 'lib-posture-check',
@@ -100,9 +101,10 @@ export class PostureCheckFormComponent extends ProjectableForm implements OnInit
         protected override router: Router,
         protected override route: ActivatedRoute,
         location: Location,
-        private validationService: ValidationService
+        private validationService: ValidationService,
+        dialogForm: MatDialog
     ) {
-        super(growlerService, extService, zitiService, router, route, location, settingsService);
+        super(growlerService, extService, zitiService, router, route, location, settingsService, dialogForm);
         this.getPostureCheckTypes();
         this.getIdentityRoleAttributes();
     }
@@ -115,6 +117,7 @@ export class PostureCheckFormComponent extends ProjectableForm implements OnInit
     }
 
     override entityUpdated() {
+    super.entityUpdated();
         if (this.formData.typeId === 'OS' && this.formData.operatingSystems) {
             this.parseOperatingSystems();
         }
@@ -253,6 +256,9 @@ export class PostureCheckFormComponent extends ProjectableForm implements OnInit
                     }
                 }
                 this.formView = event.data;
+                break;
+            case 'delete':
+                this.deleteEntity();
                 break;
         }
     }

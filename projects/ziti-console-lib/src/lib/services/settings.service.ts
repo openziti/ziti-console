@@ -102,8 +102,10 @@ export class SettingsService extends SettingsServiceClass {
         if (this.settings.portTLS && !isNaN(this.settings.portTLS)) this.portTLS = this.settings.portTLS;
         if (this.settings.rejectUnauthorized && !isNaN(this.settings.rejectUnauthorized)) this.rejectUnauthorized = this.settings.rejectUnauthorized;
 
-        // Don't call initApiVersions during app initialization - it will be called after login
-        // This prevents authentication errors during app bootstrap
+        if (this.hasSession() && this.settings.selectedEdgeController) {
+            this.initApiVersions(this.settings.selectedEdgeController);
+        }
+
         return Promise.resolve();
     }
 
@@ -205,6 +207,10 @@ export class SettingsService extends SettingsServiceClass {
                         } else {
                             this.apiVersions = body.data.apiVersions;
                             this.zitiSemver = body.data?.version?.replace("v", "");
+                            const versionDisplay = `Controller: ${body.data?.version}`;
+                            localStorage.setItem('ziti.controller.version', this.zitiSemver);
+                            localStorage.setItem('ziti.version', versionDisplay);
+                            this.version();
                         }
                     } catch (e) {
                         let growlerData = new GrowlerModel(

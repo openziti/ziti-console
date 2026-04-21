@@ -18,7 +18,7 @@ import {isEmpty, cloneDeep, invert} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {ServicePolicyFormService, SERVICE_POLICY_EXTENSION_SERVICE} from './service-policy-form.service';
-import {MatDialogRef} from "@angular/material/dialog";
+import {MatDialogRef, MatDialog} from "@angular/material/dialog";
 import {ExtensionService} from "../../extendable/extensions-noop.service";
 import {ServicePolicy} from "../../../models/service-policy";
 import {GrowlerModel} from "../../messaging/growler.model";
@@ -66,9 +66,10 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
       @Inject(SERVICE_POLICY_EXTENSION_SERVICE) extService: ExtensionService,
       protected override router: Router,
       protected override route: ActivatedRoute,
-      location: Location
+      location: Location,
+      dialogForm: MatDialog
   ) {
-    super(growlerService, extService, zitiService, router, route, location, settingsService);
+    super(growlerService, extService, zitiService, router, route, location, settingsService, dialogForm);
   }
 
   override ngOnInit(): void {
@@ -81,6 +82,7 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
   }
 
   override entityUpdated() {
+    super.entityUpdated();
     const promises = [];
     promises.push(this.svc.getServiceRoleAttributes());
     promises.push(this.svc.getIdentityRoleAttributes());
@@ -215,6 +217,9 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
         break;
       case 'toggle-view':
         this.formView = action.data;
+        break;
+      case 'delete':
+        this.deleteEntity();
         break;
     }
   }

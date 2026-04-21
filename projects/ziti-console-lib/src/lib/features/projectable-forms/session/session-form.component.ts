@@ -96,6 +96,7 @@ export class SessionFormComponent extends ProjectableForm implements OnInit, OnC
   }
 
   override entityUpdated() {
+    super.entityUpdated();
     this.initAssociatedEntities();
   }
 

@@ -18,7 +18,7 @@ import {isEmpty, cloneDeep, invert} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {ServiceEdgeRouterPolicyFormService, SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE} from './service-edge-router-policy-form.service';
-import {MatDialogRef} from "@angular/material/dialog";
+import {MatDialogRef, MatDialog} from "@angular/material/dialog";
 import {ExtensionService} from "../../extendable/extensions-noop.service";
 import {GrowlerModel} from "../../messaging/growler.model";
 import {ServiceEdgeRouterPolicy} from "../../../models/service-edge-router-policy";
@@ -64,9 +64,10 @@ export class ServiceEdgeRouterPolicyFormComponent extends ProjectableForm implem
       @Inject(SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE) extService: ExtensionService,
       protected override router: Router,
       protected override route: ActivatedRoute,
-      location: Location
+      location: Location,
+      dialogForm: MatDialog
   ) {
-    super(growlerService, extService, zitiService, router, route, location, settingsService);
+    super(growlerService, extService, zitiService, router, route, location, settingsService, dialogForm);
   }
 
   override ngOnInit(): void {
@@ -96,6 +97,7 @@ export class ServiceEdgeRouterPolicyFormComponent extends ProjectableForm implem
   }
 
   override entityUpdated() {
+    super.entityUpdated();
     this.loadAttributes();
     if (isEmpty(this.formData.id)) {
       this.formData = new ServiceEdgeRouterPolicy();
@@ -177,6 +179,9 @@ export class ServiceEdgeRouterPolicyFormComponent extends ProjectableForm implem
         break;
       case 'toggle-view':
         this.formView = action.data;
+        break;
+      case 'delete':
+        this.deleteEntity();
         break;
     }
   }

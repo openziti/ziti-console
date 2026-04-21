@@ -35,6 +35,7 @@ export class ResetEnrollmentComponent implements OnInit {
   type = 'reset';
   identity: any;
   dateValue = moment().add(2, 'days').toDate();
+  isSubmitting = false;
   constructor(
       private svc: ResetEnrollmentService,
       private dialogRef: MatDialogRef<ResetEnrollmentComponent>,
@@ -66,18 +67,26 @@ export class ResetEnrollmentComponent implements OnInit {
   }
 
   reset() {
+      if (this.isSubmitting) return;
+      this.isSubmitting = true;
       this.svc.resetEnrollment(this.identity, this.dateValue).then((result) => {
           if (result) {
               this.confirm();
           }
+      }).finally(() => {
+          this.isSubmitting = false;
       });
   }
 
   reissue() {
+      if (this.isSubmitting) return;
+      this.isSubmitting = true;
       this.svc.reissueEnrollment(this.identity, this.dateValue).then((result) => {
           if (result) {
               this.confirm();
           }
+      }).finally(() => {
+          this.isSubmitting = false;
       });
   }
   // Date/time selection is handled by reusable <lib-date-time-picker>.

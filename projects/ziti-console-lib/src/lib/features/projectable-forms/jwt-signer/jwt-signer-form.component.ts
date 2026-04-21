@@ -41,6 +41,7 @@ import {OAuthErrorEvent, OAuthService} from "angular-oauth2-oidc";
 import {LoginServiceClass, ZAC_LOGIN_SERVICE} from "../../../services/login-service.class";
 import {AuthService} from "../../../services/auth.service";
 import { HttpClient } from "@angular/common/http";
+import {MatDialog} from "@angular/material/dialog";
 
 @Component({
     selector: 'lib-configuration',
@@ -77,6 +78,7 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
     override usePreviousLocation = false
     override entityType = 'external-jwt-signers';
     override entityClass = JwtSigner;
+    showAutoEnrollHelpModal = false;
 
     @ViewChild('fileSelect') filterInput: ElementRef;
     @ViewChild('oidcVerification') oidcVerification: ElementRef;
@@ -96,6 +98,7 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         private oauthService: OAuthService,
         private http: HttpClient,
         @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass,
+        dialogForm: MatDialog,
 
     ) {
         super(growlerService, extService, zitiService, router, route, location, settingsService);
@@ -276,6 +279,14 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         return !isEmpty(this.settingsService?.zitiSemver) && semver.gte(this.settingsService?.zitiSemver, '1.4.0');
     }
 
+    get showAutoEnrollment() {
+        if (isEmpty(this.settingsService?.zitiSemver)) {
+            return false;
+        }
+        const parsedVersion = semver.parse(this.settingsService.zitiSemver);
+        return parsedVersion?.major >= 2;
+    }
+
     get targetToken() {
         if (this.formData && !this.formData.targetToken) {
             this.formData.targetToken = 'ACCESS';
@@ -308,7 +319,9 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
             kid: this.formData.kid || '',
             externalAuthUrl: this.formData.externalAuthUrl || '',
             scopes: this.formData.scopes || [],
-            tags: this.formData.tags || {}
+            tags: this.formData.tags || {},
+            enrollToCertEnabled: this.formData.enrollToCertEnabled,
+            enrollToTokenEnabled: this.formData.enrollToTokenEnabled
         };
         if (!isEmpty(this.formData.jwksEndpoint)) {
             data.jwksEndpoint = this.formData.jwksEndpoint;
@@ -349,6 +362,18 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         if (!this.formData.useExternalId) {
             this.errors.claimsProperty = false;
         }
+    }
+
+    toggleEnrollToCertEnabled() {
+        this.formData.enrollToCertEnabled = !this.formData.enrollToCertEnabled;
+    }
+
+    toggleEnrollToTokenEnabled() {
+        this.formData.enrollToTokenEnabled = !this.formData.enrollToTokenEnabled;
+    }
+
+    showAutoEnrollHelp() {
+        this.showAutoEnrollHelpModal = true;
     }
 
     trimWhitespaceScopes() {

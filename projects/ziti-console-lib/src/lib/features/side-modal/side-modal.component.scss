@@ -1,29 +1,44 @@
 .side-modal-container {
   position: fixed;
-  left: 100%;
+  right: -30%;
   top: 0;
-  padding: 1.25rem;
+  padding: 1.875rem;
   height: 100%;
-  width: 100%;
+  width: 30%;
+  min-width: 28.125rem;
+  max-width: 37.5rem;
   overflow-y: auto;
-  right: 0rem;
-  transition: var(--transition);
-  z-index: 10001;
+  transition: right 0.3s ease-in-out;
+  z-index: 999999;
   background-color: var(--formBackground);
-  box-shadow: 0rem 0.25rem 1rem 0rem rgba(0, 0, 0, 0.08);
+  box-shadow: -0.25rem 0 1.25rem 0 rgba(0, 0, 0, 0.2);
+  border-left: 0.0625rem solid var(--tableBorder);
 
   &.side-modal-open {
-    width: calc(100% - 23.75rem);
-    left: 23.75rem;
-    padding-bottom: 0;
+    right: 0;
+  }
+
+  .close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--tableText);
+    transition: all 0.2s ease;
+    z-index: 10;
+
+    &:hover {
+      color: var(--primary);
+      transform: scale(1.1);
+    }
   }
 }
 
 ::ng-deep .sideNavClosed {
   .side-modal-container {
     &.side-modal-open {
-      width: calc(100% - 4.0625rem);
-      left: 4.0625rem;
+      right: 0;
     }
   }
 }

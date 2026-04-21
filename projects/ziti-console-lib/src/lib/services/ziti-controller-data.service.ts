@@ -44,7 +44,7 @@ export class ZitiControllerDataService extends ZitiDataService {
 
     post(type, model, chained = false, contentType?): Promise<any> {
         const apiVersions = this.settingsService.apiVersions || {};
-        const prefix = apiVersions["edge-management"]?.v1?.path;
+        const prefix = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
         const url = this.settingsService.settings.selectedEdgeController;
         const serviceUrl = url + prefix + "/" + type;
         let options = {};
@@ -270,7 +270,7 @@ export class ZitiControllerDataService extends ZitiDataService {
 
     delete(type: string, id: string): Promise<any> {
         const apiVersions = this.settingsService.apiVersions || {};
-        const prefix = apiVersions["edge-management"]?.v1?.path;
+        const prefix = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
         const url = this.settingsService.settings.selectedEdgeController;
         const serviceUrl = url + prefix + "/" + type + '/' + id;
 
@@ -289,7 +289,7 @@ export class ZitiControllerDataService extends ZitiDataService {
 
     call(callUrl, prefix?) {
         const apiVersions = this.settingsService.apiVersions || {};
-        prefix = prefix || apiVersions["edge-management"]?.v1?.path;
+        prefix = prefix || apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
         const url = this.settingsService.settings.selectedEdgeController;
         const serviceUrl = url + prefix + "/" + callUrl;
 
@@ -327,7 +327,7 @@ export class ZitiControllerDataService extends ZitiDataService {
         }
 
         const apiVersions = this.settingsService.apiVersions || {};
-        prefix = prefix || apiVersions["edge-management"]?.v1?.path;
+        prefix = prefix || apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
 
         // Get all HA controllers
         const haControllers = this.settingsService.getHAControllers();
