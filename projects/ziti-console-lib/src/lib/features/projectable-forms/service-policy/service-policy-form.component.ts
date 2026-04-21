@@ -168,26 +168,26 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
 
   onServiceAttributesChanged(): void {
     this.svc.getAssociatedServicesByAttribute(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.formData.semantic);
-    this.emitConflictInputChange();
+    this.emitInputChange('service-attributes-changed');
   }
 
   onIdentityAttributesChanged(): void {
     this.svc.getAssociatedIdentitiesByAttribute(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.formData.semantic);
-    this.emitConflictInputChange();
+    this.emitInputChange('identity-attributes-changed');
   }
 
   onPolicyTypeChanged(): void {
-    this.emitConflictInputChange();
+    this.emitInputChange('policy-type-changed');
   }
 
   onPolicySemanticChanged(): void {
     this.updateAssociations();
-    this.emitConflictInputChange();
+    this.emitInputChange('policy-semantic-changed');
   }
 
-  emitConflictInputChange(): void {
+  emitInputChange(type: string): void {
     this.extService.emitEvent?.({
-      type: 'conflictInputChanged',
+      type,
       data: {
         entityType: 'service-policy',
         servicePolicyId: this.formData?.id,
