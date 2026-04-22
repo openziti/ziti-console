@@ -37,50 +37,45 @@
 
     <div class="topotip" id="epTooltip"></div>
 
-    <svg style='pointer-events:all' height="1000" id="IdentityTopology" width="1200">
+    <svg style='pointer-events:all' height="1000" id="IdentityTopology" width="1400">
     </svg>
     @if (isLoading) {
       <lib-loading-indicator [isLoading]="isLoading"></lib-loading-indicator>
     }
 
-    <div class="topology-legendA">
-      <div class="legend-item-head">
-        <div class="legend-text-heading">Component Status</div>
+    <div class="topology-legend">
+      <div class="legend-section">
+        <div class="legend-section-title">Status</div>
+        <div class="legend-item">
+          <div class="legend-circle registered_in_use"></div>
+          <div class="legend-text">Online</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-circle unregistered"></div>
+          <div class="legend-text">Offline</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-circle errored"></div>
+          <div class="legend-text">Error</div>
+        </div>
       </div>
-      <div class="legend-item">
-        <div class="legend-circle unregistered"></div>
-        <div class="legend-text">Unregistered / Offline</div>
-      </div>
-      <div class="legend-item">
-        <div class="legend-circle registered_in_use"></div>
-        <div class="legend-text">Registered, Online</div>
-      </div>
-      <div class="legend-item">
-        <div class="legend-circle errored"></div>
-        <div class="legend-text">Errored</div>
-      </div>
-    </div>
-
-    <div class="topology-legendB">
-      <div class="legend-item-head">
-        <div class="legend-text-heading">Link Status</div>
-      </div>
-      <div class="legend-item">
-        <div class="legend-circle unregistered"></div>
-        <div class="legend-text">Offline</div>
-      </div>
-      <div class="legend-item">
-        <div class="legend-circle registered_in_use"></div>
-        <div class="legend-text">In Usage</div>
-      </div>
-      <div class="legend-item">
-        <div class="legend-circle registered_not_in_use"></div>
-        <div class="legend-text">Usage Date N/A</div>
-      </div>
-      <div class="legend-item">
-        <div class="legend-circle linkerrored"></div>
-        <div class="legend-text">Errored</div>
-      </div>
+      @if (fabricApiAvailable) {
+        <div class="legend-section">
+          <div class="legend-section-title">Path</div>
+          <div class="legend-item">
+            <div class="legend-line active-circuit"></div>
+            <div class="legend-text">Active Circuit</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-line available"></div>
+            <div class="legend-text">Available</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-icon misconfigured"></div>
+            <div class="legend-text">Broken</div>
+          </div>
+        </div>
+      }
     </div>
 
   </div>
