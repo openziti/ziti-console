@@ -283,6 +283,17 @@ export class IdentityServicePathComponent implements OnInit {
           }
         });
         Promise.all(identityPromises).then(() => {
+          // Log bind identity data for debugging
+          bindIdnetities.forEach((bi) => {
+            console.log('[Visualizer] Bind identity:', {
+              id: bi.id,
+              name: bi.name,
+              hasApiSession: bi.hasApiSession,
+              hasEdgeRouterConnection: bi.hasEdgeRouterConnection,
+              edgeRouterConnectionStatus: bi.edgeRouterConnectionStatus,
+              envInfo: bi.envInfo,
+            });
+          });
           // Fetch host-side edge routers for each bind identity
           const hostRouterPromises = bindIdnetities.map((bindId) =>
             this.zitiService
@@ -452,19 +463,19 @@ export class IdentityServicePathComponent implements OnInit {
     link
       .append('line')
       .style('stroke-width', function (d) {
-        if (d.linkType === 'active-circuit' || d.status === 1) {
+        if (d.linkType === 'active-circuit') {
           return 1.5;
         }
         return 1.25;
       })
       .style('stroke', function (d) {
-        if (d.linkType === 'active-circuit' || d.status === 1) {
+        if (d.linkType === 'active-circuit') {
           return '#00cd13';
         }
         return '#8a8f9a';
       })
       .style('stroke-dasharray', function (d) {
-        if (d.linkType === 'active-circuit' || d.status === 1) {
+        if (d.linkType === 'active-circuit') {
           return null;
         }
         return '5,5';
@@ -472,29 +483,7 @@ export class IdentityServicePathComponent implements OnInit {
 
     link.each(function (this: any, d: any, i) {
       const _this = d3.select(this);
-      if (d.linkType === 'active-circuit') {
-        // Animated dot for active circuit links
-        _this
-          .append('text')
-          .style('fill', 'rgb(255,198,22)')
-          .style('font-size', '11');
-        _this
-          .append('rect')
-          .attr('fill', 'white')
-          .attr('width', 3)
-          .attr('height', 3)
-          .append('animate');
-        _this.select('rect').append('animate');
-      } else if (d.status === 1 && d.linkType === 'endpoint-connection') {
-        // Animated dot for active endpoint connections
-        _this
-          .append('rect')
-          .attr('fill', 'white')
-          .attr('width', 3)
-          .attr('height', 3)
-          .append('animate');
-        _this.select('rect').append('animate');
-      } else if (d.status === 2) {
+      if (d.status === 2) {
         // Warning/misconfigured — show link-cut icon
         _this
           .append('image')
@@ -569,7 +558,7 @@ export class IdentityServicePathComponent implements OnInit {
     // Symmetric labels — truncated, centered below each node
     node.each(function (this: any, d: any) {
       const g = d3.select(this);
-      const maxLen = 42;
+      const maxLen = 50;
       const displayName = d.name && d.name.length > maxLen
         ? d.name.substring(0, maxLen) + '\u2026'
         : d.name;

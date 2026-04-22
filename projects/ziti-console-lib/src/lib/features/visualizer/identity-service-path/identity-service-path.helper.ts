@@ -458,7 +458,7 @@ export class IdentityServicePathHelper {
                 }
             });
 
-            // If no terminator-based links, add inferred connections
+            // If no terminator-based links, add inferred connections using actual status
             if (!hasTerminatorLink) {
                 hostRouterNodes.forEach((routerNode) => {
                     group3Nodes.forEach((hostNode) => {
@@ -467,9 +467,9 @@ export class IdentityServicePathHelper {
                         lnk.sourceName = routerNode.name;
                         lnk.target = hostNode.id;
                         lnk.targetName = hostNode.name;
-                        lnk.linkType = 'inferred';
-                        lnk.status = -1;
-                        lnk.weight = 5;
+                        lnk.status = getEndpointToRouterLinkState(hostNode, routerNode);
+                        lnk.weight = getWeight(lnk.status);
+                        lnk.linkType = lnk.status === 1 ? 'endpoint-connection' : 'inferred';
                         rootOb.addLink(lnk);
                     });
                 });
@@ -490,9 +490,9 @@ export class IdentityServicePathHelper {
                         lnk.sourceName = dialRouter.name;
                         lnk.target = hostNode.id;
                         lnk.targetName = hostNode.name;
-                        lnk.linkType = 'inferred';
                         lnk.status = getEndpointToRouterLinkState(hostNode, dialRouter);
                         lnk.weight = getWeight(lnk.status);
+                        lnk.linkType = lnk.status === 1 ? 'endpoint-connection' : 'inferred';
                         rootOb.addLink(lnk);
                     }
                 });
