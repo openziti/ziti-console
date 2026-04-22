@@ -17,6 +17,7 @@ import {
   ZitiDataService,
 } from '../../../services/ziti-data.service';
 import { IdentityServicePathHelper } from './identity-service-path.helper';
+import { MapDataService } from '../../../pages/geolocate/services/map-data.service';
 import * as d3 from 'd3';
 import _ from 'lodash';
 import { Subscription } from 'rxjs';
@@ -55,8 +56,17 @@ export class IdentityServicePathComponent implements OnInit {
   countGrp2Nds = 0;
   countGrp3Nds = 0;
 
+  // Fabric topology data
+  allRouters: any[] = [];
+  routerTypesMap: Map<string, string> = new Map();
+  allLinks: any[] = [];
+  allCircuits: any[] = [];
+  allTerminators: any[] = [];
+  fabricApiAvailable = true;
+
   constructor(
     private identityServicePathHelper: IdentityServicePathHelper,
+    private mapDataService: MapDataService,
     @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
     @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
     private router: Router,
@@ -75,6 +85,14 @@ export class IdentityServicePathComponent implements OnInit {
   }
 
   getEndpointNetworkAsCode() {
+    console.log('[Visualizer] Endpoint identity data:', {
+      id: this.endpointData.id,
+      name: this.endpointData.name,
+      hasApiSession: this.endpointData.hasApiSession,
+      hasEdgeRouterConnection: this.endpointData.hasEdgeRouterConnection,
+      edgeRouterConnectionStatus: this.endpointData.edgeRouterConnectionStatus,
+      envInfo: this.endpointData.envInfo,
+    });
     const pagesize = 500;
     const services_paging = {
       searchOn: 'name',
@@ -95,7 +113,7 @@ export class IdentityServicePathComponent implements OnInit {
           this.services = [];
           this.serviceOptions = [];
           this.serviceOptions.push(noServices());
-          this.selectedService = 'Services not found for a selected identity';
+          this.selectedService = 'No services found for the selected identity';
           this.isLoading = false;
         } else {
           const pages = Math.ceil(result.meta.pagination.totalCount / pagesize);
@@ -116,7 +134,7 @@ export class IdentityServicePathComponent implements OnInit {
             promises.push(tmp_promise);
           }
           Promise.all(promises).then(() => {
-            this.zitiService
+            const edgeRouterPromise = this.zitiService
               .get(`identities/${this.endpointData.id}/edge-routers`, {}, [])
               .then((result) => {
                 this.edgerouters = [];
@@ -124,17 +142,45 @@ export class IdentityServicePathComponent implements OnInit {
                   this.edgerouters.push(rec);
                 });
               });
-            this.serviceOptions = createServiceOptions(this.services);
-            this.filterText =
-              this.serviceOptions.length === 0
-                ? ''
-                : this.serviceOptions[0].name;
-            this.selectedService =
-              this.serviceOptions.length === 0
-                ? 'Services not found for a selected identity'
-                : this.serviceOptions[0].name;
-            this.autocompleteOptions = this.serviceOptions;
-            this.serviceChanged();
+
+            const fabricPromise = Promise.allSettled([
+              this.mapDataService.fetchRouters(),
+              this.mapDataService.fetchLinks(),
+              this.mapDataService.fetchCircuits(),
+              this.mapDataService.fetchTerminators(),
+            ]).then((results) => {
+              const [routersResult, linksResult, circuitsResult, terminatorsResult] = results;
+              const allFailed = results.every(r => r.status === 'rejected');
+              this.fabricApiAvailable = !allFailed;
+
+              if (routersResult.status === 'fulfilled') {
+                this.allRouters = routersResult.value.routers || [];
+                this.routerTypesMap = routersResult.value.routerTypes || new Map();
+              }
+              if (linksResult.status === 'fulfilled') {
+                this.allLinks = linksResult.value || [];
+              }
+              if (circuitsResult.status === 'fulfilled') {
+                this.allCircuits = circuitsResult.value || [];
+              }
+              if (terminatorsResult.status === 'fulfilled') {
+                this.allTerminators = terminatorsResult.value || [];
+              }
+            });
+
+            Promise.all([edgeRouterPromise, fabricPromise]).then(() => {
+              this.serviceOptions = createServiceOptions(this.services);
+              this.filterText =
+                this.serviceOptions.length === 0
+                  ? ''
+                  : this.serviceOptions[0].name;
+              this.selectedService =
+                this.serviceOptions.length === 0
+                  ? 'No services found for the selected identity'
+                  : this.serviceOptions[0].name;
+              this.autocompleteOptions = this.serviceOptions;
+              this.serviceChanged();
+            });
           });
         }
       });
@@ -237,8 +283,37 @@ export class IdentityServicePathComponent implements OnInit {
           }
         });
         Promise.all(identityPromises).then(() => {
-          this.startVisProcess(bindIdnetities, serviceOb, service_configs);
-          this.isLoading = false;
+          // Fetch host-side edge routers for each bind identity
+          const hostRouterPromises = bindIdnetities.map((bindId) =>
+            this.zitiService
+              .get(`identities/${bindId.id}/edge-routers`, {}, [])
+              .then((res) => res?.data || [])
+              .catch(() => [])
+          );
+          Promise.all(hostRouterPromises).then((hostRouterResults) => {
+            const hostEdgeRouters = [];
+            hostRouterResults.forEach((routers) => {
+              routers.forEach((r) => {
+                if (!hostEdgeRouters.find((existing) => existing.id === r.id)) {
+                  hostEdgeRouters.push(r);
+                }
+              });
+            });
+
+            // Filter fabric data to selected service
+            const serviceTerminators = this.allTerminators.filter(
+              (t) => (t.serviceId || t.service?.id || t.service) === serviceOb.id
+            );
+            const serviceCircuits = this.allCircuits.filter(
+              (c) => c.service?.id === serviceOb.id
+            );
+
+            this.startVisProcess(
+              bindIdnetities, serviceOb, service_configs,
+              hostEdgeRouters, serviceTerminators, serviceCircuits
+            );
+            this.isLoading = false;
+          });
         });
       });
   }
@@ -254,7 +329,10 @@ export class IdentityServicePathComponent implements OnInit {
     return ob['_links'][resource]['href'];
   }
 
-  startVisProcess(bindIdnetities, selectedServiceOb, serviceConfigs) {
+  startVisProcess(
+    bindIdnetities, selectedServiceOb, serviceConfigs,
+    hostEdgeRouters = [], serviceTerminators = [], serviceCircuits = []
+  ) {
     this.countGrp2Nds = 0;
     this.countGrp3Nds = 0;
     if (_.isEmpty(this.selectedService)) {
@@ -262,12 +340,24 @@ export class IdentityServicePathComponent implements OnInit {
       return;
     }
     try {
+      // Use viewBox width for column positioning (matches SVG coordinate space)
+      const containerWidth = 1050;
+
       this.graphJsonObj = this.identityServicePathHelper.getEndpointGraphObj(
         this.endpointData,
         bindIdnetities,
         this.edgerouters,
         selectedServiceOb,
-        serviceConfigs
+        serviceConfigs,
+        '',
+        hostEdgeRouters,
+        this.allRouters,
+        this.routerTypesMap,
+        this.allLinks,
+        serviceCircuits,
+        serviceTerminators,
+        this.fabricApiAvailable,
+        containerWidth
       );
     } catch (err) {
       return;
@@ -311,9 +401,8 @@ export class IdentityServicePathComponent implements OnInit {
   }
 
   initTopoView() {
-    const margin = { top: 10, right: 90, bottom: 30, left: 0 };
-    const width = 1100 - margin.left - margin.right;
-    const height = 1100 - margin.top - margin.bottom;
+    const vbWidth = 1050;
+    const vbHeight = 500;
     const colors = d3.scaleOrdinal(d3.schemeCategory10);
     const tooltip = d3.select('#epTooltip');
 
@@ -328,9 +417,9 @@ export class IdentityServicePathComponent implements OnInit {
       .attr('width', '100%')
       .attr('height', '100%')
       // .call(zoom)
-      .attr('viewBox', '0 ' + -10 + ' ' + width + ' ' + height)
-      .append('g')
-      .attr('transform', 'translate(' + -300 + ',' + 225 + ')');
+      .attr('viewBox', '-20 -20 ' + (vbWidth + 40) + ' ' + vbHeight)
+      .attr('preserveAspectRatio', 'xMidYMin meet')
+      .append('g');
 
     svg.selectAll('g').remove();
 
@@ -347,7 +436,7 @@ export class IdentityServicePathComponent implements OnInit {
           .strength(1)
       )
       .force('charge', d3.forceManyBody())
-      .force('center', d3.forceCenter(width / 2, height / 2));
+      .force('center', d3.forceCenter(vbWidth / 2, vbHeight / 2));
 
     const links = this.graphJsonObj.links;
     const nodes = this.graphJsonObj.nodes;
@@ -363,54 +452,50 @@ export class IdentityServicePathComponent implements OnInit {
     link
       .append('line')
       .style('stroke-width', function (d) {
-        if (d.status === 1 || d.status === -1) {
-          return 1.5; //Math.sqrt(d.weight);
-        } else {
-          return 1;
+        if (d.linkType === 'active-circuit' || d.status === 1) {
+          return 1.5;
         }
+        return 1.25;
       })
       .style('stroke', function (d) {
-        if (d.status === 1) {
-          let doInUsage = false;
+        if (d.linkType === 'active-circuit' || d.status === 1) {
           return '#00cd13';
-        } else if (d.status === -1) {
-          return '#d8dce7';
-        } else {
-          return '#ff004e';
         }
+        return '#8a8f9a';
+      })
+      .style('stroke-dasharray', function (d) {
+        if (d.linkType === 'active-circuit' || d.status === 1) {
+          return null;
+        }
+        return '5,5';
       });
 
     link.each(function (this: any, d: any, i) {
       const _this = d3.select(this);
-      if (d.status === 1) {
-        let doInUsage = true;
+      if (d.linkType === 'active-circuit') {
+        // Animated dot for active circuit links
         _this
           .append('text')
           .style('fill', 'rgb(255,198,22)')
           .style('font-size', '11');
         _this
           .append('rect')
-          .attr('fill', function (d) {
-            return 'white';
-          })
-          .attr('width', function (d) {
-            if (doInUsage) {
-              return 3;
-            } else {
-              return 0.1;
-            }
-          })
-          .attr('height', function (d) {
-            if (doInUsage) {
-              return 3;
-            } else {
-              return 0.1;
-            }
-          })
+          .attr('fill', 'white')
+          .attr('width', 3)
+          .attr('height', 3)
           .append('animate');
-
         _this.select('rect').append('animate');
-      } else if (d.status === 0) {
+      } else if (d.status === 1 && d.linkType === 'endpoint-connection') {
+        // Animated dot for active endpoint connections
+        _this
+          .append('rect')
+          .attr('fill', 'white')
+          .attr('width', 3)
+          .attr('height', 3)
+          .append('animate');
+        _this.select('rect').append('animate');
+      } else if (d.status === 2) {
+        // Warning/misconfigured — show link-cut icon
         _this
           .append('image')
           .attr('xlink:href', function () {
@@ -442,17 +527,8 @@ export class IdentityServicePathComponent implements OnInit {
 
         if (d.type.includes('Identity') && d.status === 'Un-Registered') {
           return unregisteredEndpointImagePath;
-        } else if (
-          d.type.includes('Identity') &&
-          d.apiSession === 'Yes' &&
-          d.status === 'Registered'
-        ) {
-          return endPointPath;
-        } else if (
-          d.type.includes('Identity') &&
-          (d.routerConnection === 'No' || d.apiSession === 'No')
-        ) {
-          return errEndpointImagePath;
+        } else if (d.type.includes('Identity') && d.routerConnection === 'No') {
+          return unregisteredEndpointImagePath;
         } else if (d.type.includes('Identity')) {
           return endPointPath;
         } else if (
@@ -477,14 +553,99 @@ export class IdentityServicePathComponent implements OnInit {
       .attr('width', '40')
       .attr('height', '40');
 
-    node
-      .append('text')
-      .attr('x', 10)
-      .attr('y', 12)
-      .attr('fill', 'var(--tableText)')
-      .text(function (d) {
-        return d.name;
+    // Add status circle overlay for identity nodes
+    node.filter((d: any) => d.type.includes('Identity'))
+      .append('circle')
+      .attr('cx', 10)
+      .attr('cy', -20)
+      .attr('r', 4.5)
+      .attr('fill', function (d: any) {
+        if (d.routerConnection === 'Yes' || d.apiSession === 'Yes') return '#08dc5a';
+        return '#8a8f9a';
+      })
+      .attr('stroke', 'white')
+      .attr('stroke-width', 1.5);
+
+    // Symmetric labels — truncated, centered below each node
+    node.each(function (this: any, d: any) {
+      const g = d3.select(this);
+      const maxLen = 42;
+      const displayName = d.name && d.name.length > maxLen
+        ? d.name.substring(0, maxLen) + '\u2026'
+        : d.name;
+
+      const text = g.append('text')
+        .attr('x', 0)
+        .attr('y', 28)
+        .attr('fill', 'var(--tableText)')
+        .style('font-size', '9px')
+        .style('text-anchor', 'middle')
+        .text(displayName);
+
+      const bbox = (text.node() as SVGTextElement).getBBox();
+      g.insert('rect', 'text')
+        .attr('x', bbox.x - 2)
+        .attr('y', bbox.y - 1)
+        .attr('width', bbox.width + 4)
+        .attr('height', bbox.height + 2)
+        .attr('fill', 'var(--background)')
+        .attr('opacity', 0.8)
+        .attr('rx', 2);
+    });
+
+    // Add column header labels when fabric data is available
+    if (this.fabricApiAvailable) {
+      // Count nodes per group
+      const groupCounts = { '1': 0, '2d': 0, '2dh': 0, '2t': 0, '2h': 0, '3': 0, '4': 0 };
+      nodes.forEach((nd: any) => {
+        if (groupCounts[nd.group] !== undefined) groupCounts[nd.group]++;
       });
+
+      // Compute column positions in viewBox coordinates (same formula as helper)
+      const cw = 1050;
+      const pad = 100;
+      const colSpace = (cw - pad * 2) / 4;
+      const colX = [pad, pad + colSpace, pad + colSpace * 2, pad + colSpace * 3, pad + colSpace * 4];
+
+      const columnLabels = [
+        { x: colX[0], text: 'Identity', count: groupCounts['1'] },
+        { x: colX[1], text: 'Public Edge Routers', count: groupCounts['2d'] + groupCounts['2dh'] },
+        { x: colX[2], text: 'Private Edge Routers', count: groupCounts['2h'] },
+        { x: colX[3], text: 'Hosts', count: groupCounts['3'] },
+        { x: colX[4], text: 'Service', count: groupCounts['4'] },
+      ];
+
+      // Label text
+      svg.selectAll('.column-label')
+        .data(columnLabels)
+        .enter()
+        .append('text')
+        .attr('class', 'column-label')
+        .attr('x', (d: any) => d.x)
+        .attr('y', 25)
+        .attr('fill', 'var(--primary)')
+        .style('font-family', "'Russo One', sans-serif")
+        .style('font-size', '12px')
+        .style('opacity', 0.75)
+        .style('text-anchor', 'middle')
+        .text((d: any) => d.text);
+
+      // Count text
+      svg.selectAll('.column-count')
+        .data(columnLabels)
+        .enter()
+        .append('text')
+        .attr('class', 'column-count')
+        .attr('x', (d: any) => d.x)
+        .attr('y', 40)
+        .attr('fill', 'var(--primary)')
+        .style('font-family', "'Open Sans', sans-serif")
+        .style('font-size', '11px')
+        .style('font-weight', '600')
+        .style('opacity', 0.65)
+        .style('text-anchor', 'middle')
+        .text((d: any) => '(' + d.count + ')');
+    }
 
     simulation.nodes(nodes).on('tick', ticked);
 
@@ -601,62 +762,37 @@ export class IdentityServicePathComponent implements OnInit {
     }
 
     function readKeyValues(d, endpointUtlizationJson) {
-      let info =
-        "<div class='tool-tip-container' style='font-size:14px;font-family:Open Sans; font-weight: 600; font-color: var(--tableText);'>";
-      const keys = Object.keys(d);
+      const excludeKeys = new Set([
+        'status', 'posy', 'posx', 'group', 'hostedEdgeId', 'value',
+        'index', 'parent', 'depth', 'x', 'y', 'id', 'x0', 'y0',
+        'vy', 'vx', 'routerType', 'linkType', 'provider', 'usage',
+      ]);
 
+      let info = "<div class='tool-tip-container'>";
+      // Show name as header
+      if (d.name) {
+        info += '<div class="tooltip-header">' + d.name + '</div>';
+      }
+
+      const keys = Object.keys(d);
       keys.forEach(function (k) {
-        if (
-          k === 'status' ||
-          k === 'posy' ||
-          k === 'posx' ||
-          k === 'group' ||
-          k === 'hostedEdgeId' ||
-          k === 'value' ||
-          k === 'index' ||
-          k === 'parent' ||
-          k === 'depth' ||
-          k === 'x' ||
-          k === 'y' ||
-          k === 'id' ||
-          k === 'x0' ||
-          k === 'y0' ||
-          k === 'vy' ||
-          k === 'vx'
-        ) {
-          // continue;
-        } else if (k === 'children') {
-          const kVal: any = d[k];
-          if (kVal && kVal !== '') {
-             info = info + '<div class="prop-row">' + k + ': ' + kVal.length + '</div>';
-          }
-        } else {
-          if (isAnObject(d[k])) {
-            const kVal: any = d[k];
-            if (kVal && kVal !== '') {
-              info = info + '<div class="prop-row">' + k + ': ' + kVal.name + '</div>';
-            }
-          } else if (d[k] instanceof Array) {
-            info =
-              info +
-              '<div class="prop-row">' +
-              k +
-              ': ' +
-              d[k].join('<br> &nbsp;&nbsp; &nbsp;&nbsp;') +
-              '</div>';
-          } else {
-            const vo = d[k];
-            if (vo && vo !== '') {
-              info =
-                info +
-                '<div class="prop-row">' +
-                k +
-                ': ' +
-                (vo !== null || vo !== '' ? d[k] : 'N/A') +
-                '</div>';
-            }
-          }
+        if (excludeKeys.has(k) || k === 'name') return;
+
+        let val = d[k];
+        if (val === null || val === undefined || val === '') return;
+
+        const label = k.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
+
+        if (isAnObject(val)) {
+          val = val.name || JSON.stringify(val);
+        } else if (val instanceof Array) {
+          val = val.join(', ');
         }
+
+        info += '<div class="prop-row">'
+          + '<span class="prop-label">' + label + '</span>'
+          + '<span class="prop-value">' + val + '</span>'
+          + '</div>';
       });
 
       return info + '</div>';
