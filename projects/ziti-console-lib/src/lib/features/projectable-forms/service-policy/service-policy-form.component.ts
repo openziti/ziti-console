@@ -166,6 +166,47 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
     this.svc.getAssociatedPostureChecksByAttribute(this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes, this.formData.semantic);
   }
 
+  onServiceAttributesChanged(): void {
+    this.svc.getAssociatedServicesByAttribute(this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, this.formData.semantic);
+    this.emitInputChange('service-attributes-changed');
+  }
+
+  onIdentityAttributesChanged(): void {
+    this.svc.getAssociatedIdentitiesByAttribute(this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, this.formData.semantic);
+    this.emitInputChange('identity-attributes-changed');
+  }
+
+  onPolicyTypeChanged(): void {
+    this.emitInputChange('policy-type-changed');
+  }
+
+  onPolicySemanticChanged(): void {
+    this.updateAssociations();
+    this.emitInputChange('policy-semantic-changed');
+  }
+
+  emitInputChange(type: string): void {
+    this.extService.emitEvent?.({
+      type,
+      data: {
+        entityType: 'service-policy',
+        servicePolicyId: this.formData?.id,
+        identityRoles: this.svc.getSelectedRoles(
+          this.selectedIdentityRoleAttributes,
+          this.selectedIdentityNamedAttributes,
+          this.svc.identityNamedAttributesMap
+        ),
+        serviceRoles: this.svc.getSelectedRoles(
+          this.selectedServiceRoleAttributes,
+          this.selectedServiceNamedAttributes,
+          this.svc.serviceNamedAttributesMap
+        ),
+        semantic: this.formData?.semantic || 'AnyOf',
+        policyType: this.formData?.type || 'Bind',
+      },
+    });
+  }
+
   headerActionRequested(action) {
     switch(action.name) {
       case 'save':

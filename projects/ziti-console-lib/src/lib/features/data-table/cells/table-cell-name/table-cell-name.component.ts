@@ -27,9 +27,21 @@ export class TableCellNameComponent  implements ICellRendererAngularComp {
   }
 
   refresh(params: ICellRendererParams<any>): boolean {
-    this.cellParams = params;
+    this.cellParams = params?.colDef?.cellRendererParams || {};
     this.item = params.data;
     return true;
+  }
+
+  get namePrefix(): { iconClass?: string; tooltip?: string } | null {
+    const fn = this.cellParams?.getNamePrefix;
+    if (typeof fn !== 'function') {
+      return null;
+    }
+    const result = fn(this.item);
+    if (!result?.show) {
+      return null;
+    }
+    return result;
   }
 
   linkClicked(event) {

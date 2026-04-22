@@ -14,10 +14,25 @@
     limitations under the License.
 */
 
-import {Injectable, InjectionToken, ViewContainerRef, EventEmitter} from '@angular/core';
+import { Injectable, InjectionToken, ViewContainerRef, EventEmitter } from '@angular/core';
 import {BehaviorSubject, Subject} from "rxjs";
 
 export const SHAREDZ_EXTENSION = new InjectionToken<any>('SHAREDZ_EXTENSION');
+
+export type ExtensionEventType =
+  | 'formDataUpdated'
+  | 'attributesChanged'
+  | 'service-attributes-changed'
+  | 'identity-attributes-changed'
+  | 'policy-type-changed'
+  | 'policy-semantic-changed'
+  | 'tableDataUpdated'
+  | string;
+
+export interface ExtensionEvent<TData = any, TResult = any> {
+  type: ExtensionEventType;
+  data?: TData;
+}
 
 export interface ExtensionService {
   formDataChanged: BehaviorSubject<any>;
@@ -27,6 +42,7 @@ export interface ExtensionService {
   listActions?: any[];
   consoleActionTriggered?: EventEmitter<any>;
   disabledComponents?: any[];
+  emitEvent?<TData, TResult>(event: ExtensionEvent<TData, TResult>): Promise<TResult | undefined>;
   extendOnInit(): void;
   extendAfterViewInits(extentionPoints: any): void;
   updateFormData(data: any): void;
@@ -48,6 +64,10 @@ export class ExtensionsNoopService implements ExtensionService {
   disabledComponents = [];
 
   constructor() { }
+
+  async emitEvent<TData, TResult>(event: ExtensionEvent<TData, TResult>): Promise<TResult | undefined> {
+    return undefined;
+  }
 
   extendOnInit(): void {
   }

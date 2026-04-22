@@ -1,5 +1,5 @@
-import {EventEmitter, Injectable} from '@angular/core';
-import {ExtensionService} from "ziti-console-lib";
+import { EventEmitter, Injectable } from '@angular/core';
+import { ExtensionEvent, ExtensionService } from 'ziti-console-lib';
 import {BehaviorSubject} from "rxjs";
 
 @Injectable({ providedIn: 'root' })
@@ -14,6 +14,20 @@ export class ExampleExtensionService implements ExtensionService {
     closeAfterSave: boolean;
     closed: EventEmitter<any>;
     formDataChanged: BehaviorSubject<any>;
+
+    async emitEvent<TData, TResult>(event: ExtensionEvent<TData, TResult>): Promise<TResult | undefined> {
+        // Handle extension events here. Example:
+        // switch (event.type) {
+        //   case 'tableDataUpdated':
+        //     return await this.processTableData(event.data) as TResult;
+        //   default:
+        //     return undefined;
+        // }
+        return undefined;
+    }
+
+    extendOnInit(): void {
+    }
 
     extendAfterViewInits(extentionPoints: any): void {
         // This function will execute after the edit form is initialized

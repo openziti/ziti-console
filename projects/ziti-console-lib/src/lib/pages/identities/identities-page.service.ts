@@ -369,10 +369,23 @@ export class IdentitiesPageService extends ListPageServiceClass {
             });
     }
 
-    private processData(results: any) {
+    private async processData(results: any) {
         if (!isEmpty(results?.data)) {
             //pre-process data before rendering
             results.data = this.addActionsPerRow(results);
+        }
+        if (this.extService?.emitEvent) {
+            try {
+                const transformed = await this.extService.emitEvent({
+                    type: 'tableDataUpdated',
+                    data: { resourceType: this.resourceType, results },
+                });
+                if (transformed !== undefined) {
+                    results = transformed;
+                }
+            } catch (_e) {
+                // keep original results on extension failure
+            }
         }
         return results;
     }

@@ -1,6 +1,7 @@
 .cell-name-renderer {
   display: flex;
   flex-direction: row;
+  align-items: center;
   gap: 0.3125rem;
 }
 
@@ -10,12 +11,28 @@
   flex-wrap: nowrap;
 }
 
+.cell-name-link {
+  display: inline-flex;
+  align-items: center;
+}
+
 .cell-status-container {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.25rem;
+}
+
+.cell-name-prefix-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cell-name-prefix-icon {
+  color: var(--highlighted);
+  font-size: 1rem;
 }
 
 .circle {

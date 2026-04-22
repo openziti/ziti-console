@@ -33,6 +33,7 @@
             >
             <lib-tag-selector
               [(selectedRoleAttributes)]="formData.roleAttributes"
+              (selectedRoleAttributesChange)="roleAttributesChanged($event)"
               [availableRoleAttributes]="identityRoleAttributes"
               [placeholder]="'Add attributes to group Identities'"
             ></lib-tag-selector>

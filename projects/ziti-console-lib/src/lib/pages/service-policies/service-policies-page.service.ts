@@ -32,9 +32,10 @@ import {GrowlerModel} from "../../features/messaging/growler.model";
 import {GrowlerService} from "../../features/messaging/growler.service";
 import {MatDialog} from "@angular/material/dialog";
 import {SettingsServiceClass} from "../../services/settings-service.class";
-import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
+import {ExtensionService} from "../../features/extendable/extensions-noop.service";
 import {Router} from "@angular/router";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
+import {SERVICE_POLICY_EXTENSION_SERVICE} from "../../features/projectable-forms/service-policy/service-policy-form.service";
 
 @Injectable({
     providedIn: 'root'
@@ -89,7 +90,7 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
         override csvDownloadService: CsvDownloadService,
         private growlerService: GrowlerService,
         private dialogForm: MatDialog,
-        @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService,
+        @Inject(SERVICE_POLICY_EXTENSION_SERVICE) private extService: ExtensionService,
         protected override router: Router
     ) {
         super(settings, filterService, csvDownloadService, extService, router);
@@ -124,6 +125,7 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
     }
 
     initTableColumns(): any {
+        this.initMenuActions();
         const createdAtHeaderComponentParams = {
             filterType: 'DATETIME',
         };
@@ -229,7 +231,7 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
             }
         };
 
-        return [
+        let tableColumns = [
             {
                 colId: 'name',
                 field: 'name',
@@ -372,6 +374,10 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
             },
             this.ID_COLUMN_DEF
         ];
+        if (this.extService?.processTableColumns) {
+            tableColumns = this.extService.processTableColumns(tableColumns);
+        }
+        return tableColumns;
     }
 
     getData(filters?: FilterObj[], sort?: any, page?: any): Promise<any> {
@@ -383,10 +389,23 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
             });
     }
 
-    private processData(results: any) {
+    private async processData(results: any) {
         if (!isEmpty(results?.data)) {
             //pre-process data before rendering
             results.data = this.addActionsPerRow(results);
+        }
+        if (this.extService?.emitEvent) {
+            try {
+                const transformed = await this.extService.emitEvent({
+                    type: 'tableDataUpdated',
+                    data: { resourceType: this.resourceType, results },
+                });
+                if (transformed !== undefined) {
+                    results = transformed;
+                }
+            } catch (_e) {
+                // keep original results on extension failure
+            }
         }
         if (!isEmpty(results?.meta?.pagination)) {
             this.totalCount = results.meta?.pagination.totalCount;
@@ -397,6 +416,7 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
     private addActionsPerRow(results: any): any[] {
         return results.data.map((row) => {
             row.actionList = ['update', 'delete'];
+            this.addListItemExtensionActions(row);
             return row;
         });
     }
