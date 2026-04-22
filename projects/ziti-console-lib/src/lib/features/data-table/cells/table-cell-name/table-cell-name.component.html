@@ -18,13 +18,9 @@
                     <span class="circle {{item.isOnline}}" title="{{item.isOnline ? 'Online' : 'Offline'}}"></span>
                 </div>
             }
-            @if (item.conflicted) {
-                <div
-                    class="cell-conflict-container"
-                    matTooltip="Potential Conflict Detected"
-                    [matTooltipShowDelay]="0"
-                >
-                    <span class="icon-Network-Failure cell-conflict-icon"></span>
+            @if (namePrefix) {
+                <div class="cell-name-prefix-wrap" [matTooltip]="namePrefix.tooltip" [matTooltipShowDelay]="0">
+                    <span class="cell-name-prefix-icon" [ngClass]="namePrefix.iconClass"></span>
                 </div>
             }
             <strong>{{cellText}}</strong>

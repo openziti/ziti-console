@@ -22,7 +22,10 @@ export const SHAREDZ_EXTENSION = new InjectionToken<any>('SHAREDZ_EXTENSION');
 export type ExtensionEventType =
   | 'formDataUpdated'
   | 'attributesChanged'
-  | 'conflictInputChanged'
+  | 'service-attributes-changed'
+  | 'identity-attributes-changed'
+  | 'policy-type-changed'
+  | 'policy-semantic-changed'
   | 'tableDataUpdated'
   | string;
 

@@ -24,13 +24,13 @@
   gap: 0.25rem;
 }
 
-.cell-conflict-container {
+.cell-name-prefix-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.cell-conflict-icon {
+.cell-name-prefix-icon {
   color: var(--highlighted);
   font-size: 1rem;
 }
