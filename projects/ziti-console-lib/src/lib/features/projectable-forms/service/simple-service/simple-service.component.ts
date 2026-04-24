@@ -279,6 +279,7 @@ export class SimpleServiceComponent extends ProjectableForm {
     return this.zitiService.getSubdata('services', this.formData.id, 'service-policies').then((result: any) => {
       const associatedServicePolicies = result.data;
       associatedServicePolicies.forEach((policy) => {
+        this.mergeIdentityRolesDisplayIntoMaps(policy);
         if (policy.type?.toLowerCase() == 'dial') {
           this.dialPolicyApiData = policy;
           const roleAttributes = [];
@@ -287,7 +288,10 @@ export class SimpleServiceComponent extends ProjectableForm {
             if (attr.charAt(0) === '#') {
               roleAttributes.push(attr.slice(1));
             } else if (attr.charAt(0) === '@') {
-              namedAttributes.push(this.identitiesIdNameMap[attr.slice(1)]);
+              const name = this.resolveIdentityNameForRole(attr);
+              if (name) {
+                namedAttributes.push(name);
+              }
             }
           });
           this.dialPolicyRoleAttributes = roleAttributes;
@@ -299,7 +303,10 @@ export class SimpleServiceComponent extends ProjectableForm {
             if (attr.charAt(0) === '#') {
               roleAttributes.push(attr.slice(1));
             } else if (attr.charAt(0) === '@') {
-              namedAttributes.push(this.identitiesIdNameMap[attr.slice(1)]);
+              const name = this.resolveIdentityNameForRole(attr);
+              if (name) {
+                namedAttributes.push(name);
+              }
             }
           });
           this.bindPolicyRoleAttributes = roleAttributes;
@@ -307,7 +314,61 @@ export class SimpleServiceComponent extends ProjectableForm {
           this.bindPolicyApiData = policy;
         }
       });
+      this.mergeSelectedIdentityNamesIntoAvailableList();
     })
+  }
+
+  /**
+   * Sublist identities query is capped; service-policy detail includes identityRolesDisplay
+   * so @-roles resolve to human-readable names even when the identity was not in the page.
+   */
+  private mergeIdentityRolesDisplayIntoMaps(policy: any): void {
+    const displays = policy?.identityRolesDisplay;
+    if (!Array.isArray(displays)) {
+      return;
+    }
+    displays.forEach((entry: any) => {
+      const role = entry?.role;
+      const id = typeof role === 'string' && role.charAt(0) === '@' ? role.slice(1) : undefined;
+      if (!id) {
+        return;
+      }
+      let displayName = entry?.name;
+      if (!displayName || typeof displayName !== 'string') {
+        return;
+      }
+      if (displayName.charAt(0) === '@') {
+        displayName = displayName.slice(1);
+      }
+      if (!this.identitiesIdNameMap[id]) {
+        this.identitiesIdNameMap[id] = displayName;
+      }
+      if (!this.identitiesNameIdMap[displayName]) {
+        this.identitiesNameIdMap[displayName] = id;
+      }
+    });
+  }
+
+  private resolveIdentityNameForRole(attr: string): string {
+    const id = attr.slice(1);
+    const name = this.identitiesIdNameMap[id];
+    if (name) {
+      return name;
+    }
+    this.identitiesIdNameMap[id] = id;
+    this.identitiesNameIdMap[id] = id;
+    return id;
+  }
+
+  private mergeSelectedIdentityNamesIntoAvailableList(): void {
+    const selected = [...this.dialPolicyNamedAttributes, ...this.bindPolicyNamedAttributes].filter(
+      (n) => n != null && n !== ''
+    );
+    if (selected.length === 0) {
+      return;
+    }
+    const merged = new Set([...(this.identityNamedAttributes || []), ...selected.map((n) => String(n))]);
+    this.identityNamedAttributes = Array.from(merged).sort((a, b) => String(a).localeCompare(String(b)));
   }
 
   getIdentityNamedAttributes(filter?) {
@@ -336,6 +397,7 @@ export class SimpleServiceComponent extends ProjectableForm {
         return identity.name;
       });
       this.identityNamedAttributes = namedAttributes;
+      this.mergeSelectedIdentityNamesIntoAvailableList();
     }).finally(() => {
       this.identitiesInit.next(true);
     });
