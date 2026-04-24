@@ -319,6 +319,49 @@ export class IdentityServicePathComponent implements OnInit {
               (c) => c.service?.id === serviceOb.id
             );
 
+            console.log('[Visualizer] Service:', { id: serviceOb.id, name: serviceOb.name });
+            console.log('[Visualizer] Endpoint ID:', this.endpointData.id);
+            console.log('[Visualizer] All circuits:', this.allCircuits.length);
+            console.log('[Visualizer] Service circuits:', serviceCircuits.length);
+
+            // Log circuits for this specific identity with full path details
+            const myCircuits = serviceCircuits.filter(c =>
+              (c.tags?.clientId || c.clientId || c.client?.id) === this.endpointData.id
+            );
+            console.log('[Visualizer] My circuits:', myCircuits.length);
+            myCircuits.forEach((c, i) => {
+              const pathNodes = c.path?.nodes || c.path || [];
+              console.log(`[Visualizer] My circuit ${i}:`, {
+                id: c.id,
+                clientId: c.tags?.clientId || c.clientId,
+                hostId: c.tags?.hostId,
+                pathNodeIds: pathNodes.map(n => n.id || n),
+                rawPathNodes: pathNodes,
+              });
+            });
+            console.log('[Visualizer] Edge routers:', this.edgerouters?.map(r => ({ id: r.id, name: r.name })));
+            if (serviceCircuits.length > 0) {
+              serviceCircuits.forEach((c, i) => {
+                console.log(`[Visualizer] Circuit ${i}:`, {
+                  id: c.id,
+                  serviceId: c.service?.id,
+                  clientId: c.tags?.clientId || c.clientId,
+                  hostId: c.tags?.hostId,
+                  pathNodes: c.path?.nodes || c.path,
+                });
+              });
+            } else {
+              // Log a sample circuit to see the data shape
+              if (this.allCircuits.length > 0) {
+                console.log('[Visualizer] Sample circuit (different service):', {
+                  id: this.allCircuits[0].id,
+                  serviceId: this.allCircuits[0].service?.id,
+                  serviceName: this.allCircuits[0].service?.name,
+                  tags: this.allCircuits[0].tags,
+                });
+              }
+            }
+
             this.startVisProcess(
               bindIdnetities, serviceOb, service_configs,
               hostEdgeRouters, serviceTerminators, serviceCircuits
@@ -582,59 +625,7 @@ export class IdentityServicePathComponent implements OnInit {
         .attr('rx', 2);
     });
 
-    // Add column header labels when fabric data is available
-    if (this.fabricApiAvailable) {
-      // Count nodes per group
-      const groupCounts = { '1': 0, '2d': 0, '2dh': 0, '2t': 0, '2h': 0, '3': 0, '4': 0 };
-      nodes.forEach((nd: any) => {
-        if (groupCounts[nd.group] !== undefined) groupCounts[nd.group]++;
-      });
-
-      // Compute column positions in viewBox coordinates (same formula as helper)
-      const cw = 1050;
-      const pad = 100;
-      const colSpace = (cw - pad * 2) / 4;
-      const colX = [pad, pad + colSpace, pad + colSpace * 2, pad + colSpace * 3, pad + colSpace * 4];
-
-      const columnLabels = [
-        { x: colX[0], text: 'Identity', count: groupCounts['1'] },
-        { x: colX[1], text: 'Public Edge Routers', count: groupCounts['2d'] + groupCounts['2dh'] },
-        { x: colX[2], text: 'Private Edge Routers', count: groupCounts['2h'] },
-        { x: colX[3], text: 'Hosts', count: groupCounts['3'] },
-        { x: colX[4], text: 'Service', count: groupCounts['4'] },
-      ];
-
-      // Label text
-      svg.selectAll('.column-label')
-        .data(columnLabels)
-        .enter()
-        .append('text')
-        .attr('class', 'column-label')
-        .attr('x', (d: any) => d.x)
-        .attr('y', 25)
-        .attr('fill', 'var(--primary)')
-        .style('font-family', "'Russo One', sans-serif")
-        .style('font-size', '12px')
-        .style('opacity', 0.75)
-        .style('text-anchor', 'middle')
-        .text((d: any) => d.text);
-
-      // Count text
-      svg.selectAll('.column-count')
-        .data(columnLabels)
-        .enter()
-        .append('text')
-        .attr('class', 'column-count')
-        .attr('x', (d: any) => d.x)
-        .attr('y', 40)
-        .attr('fill', 'var(--primary)')
-        .style('font-family', "'Open Sans', sans-serif")
-        .style('font-size', '11px')
-        .style('font-weight', '600')
-        .style('opacity', 0.65)
-        .style('text-anchor', 'middle')
-        .text((d: any) => '(' + d.count + ')');
-    }
+    // Column headers removed — node types are shown in the legend instead
 
     simulation.nodes(nodes).on('tick', ticked);
 

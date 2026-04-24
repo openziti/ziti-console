@@ -178,6 +178,10 @@ export class IdentityServicePathHelper {
 
         const group3Nodes = [];
         group3Ids.forEach((nid) => {
+            // Skip if this identity is already in the graph as a router
+            if (dialEdgeRouterIds.has(nid) || hostEdgeRouterIds.has(nid)) {
+                return;
+            }
             const grp3Node = findEndpoint(nid, bindIdnetities);
             if (grp3Node) {
                 grp3Node.group = '3';
@@ -188,35 +192,34 @@ export class IdentityServicePathHelper {
 
         // === POSITIONING ===
         // Dynamically distribute 5 columns across available width
+        // Build column list dynamically — only include groups that have nodes
+        const columnDefs = [
+            { groups: ['1'], nodes: endpointNodeOb ? [endpointNodeOb] : [] },
+            { groups: ['2d', '2dh'], nodes: group2dNodes },
+            { groups: ['2h'], nodes: group2hNodes },
+            { groups: ['3'], nodes: group3Nodes },
+            { groups: ['4'], nodes: group4Nodes },
+        ];
+        const activeColumns = columnDefs.filter(col => col.nodes.length > 0);
+
         const padding = 100;
         const usableWidth = availableWidth - (padding * 2);
-        const colSpacing = usableWidth / 4; // 4 gaps between 5 columns
-        const colPositions = [
-            padding,                        // Identity
-            padding + colSpacing,           // Public Edge Routers
-            padding + colSpacing * 2,       // Private Edge Routers
-            padding + colSpacing * 3,       // Hosts
-            padding + colSpacing * 4,       // Service
-        ];
-        const POS_X = {
-            '1': colPositions[0],
-            '2d': colPositions[1],
-            '2dh': colPositions[2],
-            '2t': colPositions[2],
-            '2h': colPositions[2],
-            '3': colPositions[3],
-            '4': colPositions[4],
-        };
+        const gaps = Math.max(activeColumns.length - 1, 1);
+        const colSpacing = usableWidth / gaps;
+
+        // Assign X positions to active columns
+        const POS_X: Record<string, number> = {};
+        activeColumns.forEach((col, i) => {
+            const x = padding + colSpacing * i;
+            col.groups.forEach(g => { POS_X[g] = x; });
+        });
+        // Fallback for groups that might not be in active columns
+        if (!POS_X['2t']) POS_X['2t'] = POS_X['2h'] || POS_X['2d'] || padding;
+        if (!POS_X['2dh']) POS_X['2dh'] = POS_X['2d'] || padding;
+        if (!POS_X['2h']) POS_X['2h'] = POS_X['2d'] || padding;
 
         // Compute available height based on the tallest group
-        const allGroups = [
-            { nodes: endpointNodeOb ? [endpointNodeOb] : [], x: POS_X['1'] },
-            { nodes: group2dNodes, x: POS_X['2d'] },
-            { nodes: group2tNodes, x: POS_X['2t'] },
-            { nodes: group2hNodes, x: POS_X['2h'] },
-            { nodes: group3Nodes, x: POS_X['3'] },
-            { nodes: group4Nodes, x: POS_X['4'] },
-        ];
+        const allGroups = activeColumns.map(col => ({ nodes: col.nodes, x: POS_X[col.groups[0]] }));
         const maxCount = Math.max(...allGroups.map(g => g.nodes.length));
         const MIN_Y = 55;
         const availableHeight = Math.max(350, maxCount * 70);
@@ -236,18 +239,20 @@ export class IdentityServicePathHelper {
         // === LINKS ===
 
         // Build set of active circuit hops for highlighting
+        // Only include circuits for THIS specific identity
         const activeCircuitHops = new Set<string>();
+        const endpointId = endpoint.id;
         serviceCircuits.forEach((circuit) => {
-            const pathNodes = circuit.path?.nodes || circuit.path || [];
             const clientId = circuit.tags?.clientId || circuit.clientId || circuit.client?.id;
+            if (clientId !== endpointId) return; // skip circuits for other identities
+
+            const pathNodes = circuit.path?.nodes || circuit.path || [];
             const hostId = circuit.tags?.hostId || circuit.host?.id;
 
             // Client -> first router
             if (pathNodes.length > 0) {
                 const firstRouterId = pathNodes[0]?.id || pathNodes[0];
-                if (clientId) {
-                    activeCircuitHops.add(hopKey(clientId, firstRouterId));
-                }
+                activeCircuitHops.add(hopKey(endpointId, firstRouterId));
             }
 
             // Router -> Router hops
@@ -257,10 +262,16 @@ export class IdentityServicePathHelper {
                 activeCircuitHops.add(hopKey(fromId, toId));
             }
 
-            // Last router -> host
+            // Last router -> host identity
             if (pathNodes.length > 0 && hostId) {
                 const lastRouterId = pathNodes[pathNodes.length - 1]?.id || pathNodes[pathNodes.length - 1];
-                activeCircuitHops.add(hopKey(lastRouterId, hostId));
+                // If the last router IS the host (tunnel routers), mark router -> service as active
+                if (lastRouterId === hostId) {
+                    activeCircuitHops.add(hopKey(hostId, selectedServiceOb.id));
+                } else {
+                    activeCircuitHops.add(hopKey(lastRouterId, hostId));
+                    activeCircuitHops.add(hopKey(hostId, selectedServiceOb.id));
+                }
             }
         });
 
@@ -469,7 +480,9 @@ export class IdentityServicePathHelper {
                         lnk.targetName = hostNode.name;
                         lnk.status = getEndpointToRouterLinkState(hostNode, routerNode);
                         lnk.weight = getWeight(lnk.status);
-                        lnk.linkType = lnk.status === 1 ? 'endpoint-connection' : 'inferred';
+                        lnk.linkType = activeCircuitHops.has(hopKey(routerNode.id, hostNode.id))
+                            ? 'active-circuit'
+                            : (lnk.status === 1 ? 'endpoint-connection' : 'inferred');
                         rootOb.addLink(lnk);
                     });
                 });
@@ -499,9 +512,21 @@ export class IdentityServicePathHelper {
             });
         }
 
-        // 4. Hosting Identities -> Service (Group 3 -> 4)
+        // 4. Hosting Identities/Routers -> Service (Group 3 or host routers -> 4)
+        // Collect all nodes that host this service (either group 3 identities or routers that are also hosts)
+        const hostingNodes = [...group3Nodes];
+        // Add routers that are also hosting identities (tunnel routers)
+        bindIdnetities.forEach((bi) => {
+            if (dialEdgeRouterIds.has(bi.id) || hostEdgeRouterIds.has(bi.id)) {
+                const routerNode = rootOb.nodes.find(n => n.id === bi.id);
+                if (routerNode && !hostingNodes.find(h => h.id === bi.id)) {
+                    hostingNodes.push(routerNode);
+                }
+            }
+        });
+
         group4Nodes.forEach((serviceNode) => {
-            group3Nodes.forEach((hostNode) => {
+            hostingNodes.forEach((hostNode) => {
                 const lnk = new Link();
                 lnk.source = hostNode.id;
                 lnk.sourceName = hostNode.name;
@@ -510,7 +535,8 @@ export class IdentityServicePathHelper {
                 lnk.weight = 1;
                 lnk.status = getServiceToEndpointLinkState(hostNode, serviceNode);
                 lnk.weight = getWeight(lnk.status);
-                lnk.linkType = 'endpoint-connection';
+                lnk.linkType = activeCircuitHops.has(hopKey(hostNode.id, serviceNode.id))
+                    ? 'active-circuit' : 'endpoint-connection';
                 rootOb.addLink(lnk);
             });
         });
@@ -743,7 +769,7 @@ function positionGroupNodes(nodes: any[], posx: number, availableHeight = 450) {
     const count = nodes.length;
     if (count === 0) return;
 
-    const MIN_Y = 75; // clear the column headers and counts
+    const MIN_Y = 40;
     const MAX_Y = MIN_Y + availableHeight;
 
     if (count === 1) {
