@@ -1,3 +1,17 @@
+# app-ziti-console-v4.2.0
+# ziti-console-lib-v1.2.0
+## Feature/Improvements
+* [Issue #841](https://github.com/openziti/ziti-console/issues/841) - Support for showing fabric circuits and links via dashboard map, including HA controller support
+* [Issue #846](https://github.com/openziti/ziti-console/issues/846) - Add "enrollToCert" and "enrollToToken" options to external JWT signers form
+* [Issue #848](https://github.com/openziti/ziti-console/issues/848) - Add delete button support to entity edit forms with in-use protection for services & configs
+* [Issue #850](https://github.com/openziti/ziti-console/issues/850) - Attribute event emission for Identity and Service Policy, and two-way async event support for extensions
+* [Issue #858](https://github.com/openziti/ziti-console/issues/858) - Rework identity service path visualizer to use fabric API data for private routers and active circuits
+
+## Bug Fixes
+* [Issue #852](https://github.com/openziti/ziti-console/issues/852) - Refresh Identity form after reissuing enrollment
+* [Issue #856](https://github.com/openziti/ziti-console/issues/856) - Simple service form - identity references are not correctly shown for networks with lots of identities
+
+
 # app-ziti-console-v4.1.3
 # ziti-console-lib-v1.1.3
 
