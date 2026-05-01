@@ -531,7 +531,7 @@ export class IdentityServicePathComponent implements OnInit {
         _this
           .append('image')
           .attr('xlink:href', function () {
-            return '/assets/images/visualizer/link-cut.png';
+            return 'assets/images/visualizer/link-cut.png';
           })
           .attr('width', '20')
           .attr('height', '24');
@@ -548,14 +548,14 @@ export class IdentityServicePathComponent implements OnInit {
     node
       .append('image')
       .attr('xlink:href', function (d) {
-        const routerImagePath = '/assets/images/visualizer/Routers.png';
+        const routerImagePath = 'assets/images/visualizer/Routers.png';
         const nonProvisionedRouterImagePath =
-          '/assets/images/visualizer/ER.png';
-        const errRouterImagePath = '/assets/images/visualizer/error_er.png';
-        const errEndpointImagePath = '/assets/images/visualizer/host-error.png';
+          'assets/images/visualizer/ER.png';
+        const errRouterImagePath = 'assets/images/visualizer/error_er.png';
+        const errEndpointImagePath = 'assets/images/visualizer/host-error.png';
         const unregisteredEndpointImagePath =
-          '/assets/images/visualizer/host_unregistered.png';
-        const endPointPath = '/assets/images/visualizer/host.png';
+          'assets/images/visualizer/host_unregistered.png';
+        const endPointPath = 'assets/images/visualizer/host.png';
 
         if (d.type.includes('Identity') && d.status === 'Un-Registered') {
           return unregisteredEndpointImagePath;
@@ -575,7 +575,7 @@ export class IdentityServicePathComponent implements OnInit {
         }
 
         if (d.group === '4') {
-          return '/assets/images/visualizer/service.png';
+          return 'assets/images/visualizer/service.png';
         } else {
           return '';
         }

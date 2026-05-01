@@ -189,7 +189,7 @@ export abstract class ListPageComponent {
             bulletList: selectedNames,
             confirmLabel: 'Yes',
             cancelLabel: 'Oops, no get me out of here',
-            imageUrl: '../../assets/svgs/Confirm_Trash.svg',
+            imageUrl: 'assets/svgs/Confirm_Trash.svg',
             showCancelLink: true
         };
         this.dialogRef = this.dialogForm.open(ConfirmComponent, {

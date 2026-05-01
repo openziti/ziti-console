@@ -368,7 +368,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
             bulletList: [this.formData.name],
             confirmLabel: 'Yes',
             cancelLabel: 'Oops, no get me out of here',
-            imageUrl: '../../assets/svgs/Confirm_Trash.svg',
+            imageUrl: 'assets/svgs/Confirm_Trash.svg',
             showCancelLink: true
         };
 

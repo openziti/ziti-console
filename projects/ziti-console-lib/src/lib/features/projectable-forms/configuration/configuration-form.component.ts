@@ -327,7 +327,7 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
                     bulletList: [this.formData.name],
                     confirmLabel: 'Yes',
                     cancelLabel: 'Oops, no get me out of here',
-                    imageUrl: '../../assets/svgs/Growl_Warning.svg',
+                    imageUrl: 'assets/svgs/Growl_Warning.svg',
                     showCancelLink: true
                 };
 

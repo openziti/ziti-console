@@ -46,7 +46,7 @@ export class ConfirmComponent {
     secondaryActionLabel: undefined,
     secondaryInfoLabel: undefined,
     secondaryAction: undefined,
-    imageUrl: '../../assets/svgs/Confirm_Trash.svg'
+    imageUrl: 'assets/svgs/Confirm_Trash.svg'
   }
 
   constructor(private dialogRef: MatDialogRef<ConfirmComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {

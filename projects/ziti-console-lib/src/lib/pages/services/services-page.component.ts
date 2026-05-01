@@ -180,7 +180,7 @@ export class ServicesPageComponent extends ListPageComponent implements OnInit, 
       cancelLabel: 'Oops, no get me out of here',
       secondaryActionLabel: 'Preview Deletions',
       confirmLabelAlt: 'Delete All',
-      imageUrl: '../../assets/svgs/Confirm_Trash.svg',
+      imageUrl: 'assets/svgs/Confirm_Trash.svg',
       secondaryAction: this.openPreviewSelections.bind(this),
       showCancelLink: true,
     };
