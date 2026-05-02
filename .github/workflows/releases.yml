@@ -27,7 +27,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.TOKEN }}
         run: |
-          ./build.sh /zac/
+          ./build.sh ./
           cd dist/app-ziti-console && zip -r ziti-console.zip *
           gh release upload ${{github.event.release.tag_name}} ziti-console.zip
 

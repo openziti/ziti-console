@@ -94,7 +94,7 @@ export class JwtSignersPageComponent extends ListPageComponent implements OnInit
             submessage: label2,
             bulletList: names,
             confirmLabel: 'Ok',
-            imageUrl: '../../assets/svgs/Growl_Error.svg',
+            imageUrl: 'assets/svgs/Growl_Error.svg',
             showCancelLink: false
         };
         this.dialogRef = this.dialogForm.open(ConfirmComponent, {

@@ -3,7 +3,7 @@ import {AnimationOptions} from 'ngx-lottie';
 
 import {isEmpty} from 'lodash';
 
-const DEFAULT_LOADER_PATH = '/assets/animations/Loader.json';
+const DEFAULT_LOADER_PATH = 'assets/animations/Loader.json';
 const cachedAnimationData: {[path: string]: any} = {};
 const inflightFetches: {[path: string]: Promise<any>} = {};
 

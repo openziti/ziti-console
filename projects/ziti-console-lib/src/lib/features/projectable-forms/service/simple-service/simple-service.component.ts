@@ -704,7 +704,7 @@ export class SimpleServiceComponent extends ProjectableForm {
       submessage: `Please update the entered name and try again.`,
       confirmLabel: 'Return',
       showCancelLink: false,
-      imageUrl: '../../assets/svgs/Growl_Error.svg'
+      imageUrl: 'assets/svgs/Growl_Error.svg'
     };
     this.dialogRef = this.dialogForm.open(ConfirmComponent, {
       data: data,
@@ -1093,7 +1093,7 @@ export class SimpleServiceComponent extends ProjectableForm {
       bulletList: [],
       confirmLabel: 'Yes',
       cancelLabel: 'Oops, no get me out of here',
-      imageUrl: '../../assets/svgs/Growl_Warning.svg',
+      imageUrl: 'assets/svgs/Growl_Warning.svg',
       showCancelLink: true
     };
     this.dialogRef = this.dialogForm.open(ConfirmComponent, {

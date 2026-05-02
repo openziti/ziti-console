@@ -4,7 +4,7 @@ ARG NODE_VERSION=20
 
 FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
-ARG BASE_HREF=/zac/
+ARG BASE_HREF=./
 
 WORKDIR /usr/src/app
 

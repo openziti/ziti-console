@@ -42,7 +42,7 @@ jobs:
 
       - name: build app-ziti-console
         shell: bash
-        run: ./build.sh /zac/
+        run: ./build.sh ./
 
       - name: upload app-ziti-console
         uses: actions/upload-artifact@v4

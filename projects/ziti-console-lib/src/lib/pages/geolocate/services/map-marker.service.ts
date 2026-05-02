@@ -54,8 +54,9 @@ export class MapMarkerService {
    * @returns Leaflet icon object
    */
   createMarkerIcon(type: string, isSelected: boolean, scale: number = 0.85): any {
-    // Use window.location.origin to ensure URLs use the correct protocol (http/https)
-    const baseUrl = window.location.origin;
+    // Use document.baseURI so URLs include the SPA's <base href> context root
+    // (e.g. /zac/), not just the origin -- the bundle is path-agnostic.
+    const baseUrl = document.baseURI.replace(/\/$/, "");
     let iconUrl: string;
 
     if (isSelected) {
@@ -556,7 +557,7 @@ export class MapMarkerService {
         confirmLabel: 'Yes, Remove',
         cancelLabel: 'Cancel',
         showCancelLink: true,
-        imageUrl: '../../assets/svgs/Growl_Warning.svg',
+        imageUrl: 'assets/svgs/Growl_Warning.svg',
       };
 
       this.dialogRef = this.dialogForm.open(ConfirmComponent, {

@@ -174,7 +174,7 @@ export class AuthPoliciesPageService extends ListPageServiceClass {
             confirmLabel: 'Yes',
             cancelLabel: 'Oops, no get me out of here',
             showCancelLink: true,
-            imageUrl: '/assets/svgs/Growl_Warning.svg'
+            imageUrl: 'assets/svgs/Growl_Warning.svg'
         };
         this.dialogRef = this.dialogForm.open(ConfirmComponent, {
             data: data,

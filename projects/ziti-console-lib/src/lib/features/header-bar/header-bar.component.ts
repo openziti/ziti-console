@@ -92,7 +92,7 @@ export class HeaderBarComponent {
       message: `Are you sure you want to logout?`,
       confirmLabel: 'Yes',
       cancelLabel: 'Oops, no get me out of here',
-      imageUrl: '/assets/svgs/Icon_Log_Logout.svg',
+      imageUrl: 'assets/svgs/Icon_Log_Logout.svg',
       showCancelLink: true
     };
     this.dialogRef = this.dialogForm.open(ConfirmComponent, {

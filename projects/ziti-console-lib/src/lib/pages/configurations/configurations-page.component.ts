@@ -141,7 +141,7 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
             bulletList: configNames,
             confirmLabel: 'Yes',
             cancelLabel: 'Oops, no get me out of here',
-            imageUrl: '../../assets/svgs/Growl_Warning.svg',
+            imageUrl: 'assets/svgs/Growl_Warning.svg',
             showCancelLink: true
         };
         this.dialogRef = this.dialogForm.open(ConfirmComponent, {

@@ -97,13 +97,26 @@ From the project root:
 
 ### Build the Single Page Application
 
-1. Build the console project with Angular.
+1. Build the console project. Use the npm script -- it runs `ng build ziti-console-lib`, then
+   `ng build ziti-console --base-href ./`, then the post-build CSS rewriter that strips leading
+   `/` from `url(/assets/...)` references in the emitted bundle. Together these produce a
+   path-agnostic bundle that can be served under any context root (`/zac/`, `/admin/`, etc.).
 
     ```bash
-    ng build ziti-console
+    npm run build
     ```
 
+    Running `ng build ziti-console` directly skips `--base-href ./` and the post-build rewriter,
+    which produces a bundle that only works under `/zac/`. Always prefer the npm script.
+
 1. The single-page application assets are rendered in the `./dist/app-ziti-console` directory.
+1. Verify the bundle is path-agnostic. Both numbers should be `0`:
+
+    ```bash
+    grep -c 'url(/assets' dist/app-ziti-console/styles.css dist/app-ziti-console/main.js
+    ```
+
+    Anything other than `0` means the post-build rewriter did not run; re-run `npm run build`.
 1. use the Node server to preview changes.
 
 ### Build the Standalone Node Server
