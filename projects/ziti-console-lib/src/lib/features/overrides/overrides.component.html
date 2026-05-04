@@ -9,19 +9,50 @@
     </div>
     <div class="subtitle">Manage the Service Config Identity Overrides</div>
     @if (overrides.length > 0) {
-      <div class="darkened overrides">Current Overrides</div>
+      <div class="darkened overrides-label">Current Overrides</div>
+      <table id="OverrideList" class="overrides-table">
+        <colgroup>
+          <col />
+          <col />
+          <col class="overrides-table__col-remove" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col">Service</th>
+            <th scope="col">Configuration</th>
+            <th scope="col" class="overrides-table__th-remove" aria-label="Remove"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (override of overrides; track override) {
+            <tr>
+              <td
+                [matTooltip]="override.service.name"
+                matTooltipShowDelay="300"
+                >
+                {{override.service.name}}
+              </td>
+              <td
+                [matTooltip]="override.config.name"
+                matTooltipShowDelay="300"
+                >
+                {{override.config.name}}
+              </td>
+              <td class="overrides-table__cell-remove">
+                <button
+                  type="button"
+                  class="overrides-table__remove-btn"
+                  (click)="removeOverride(override)"
+                  [attr.aria-label]="'Remove override'"
+                  >
+                  <span class="remove icon-minus" aria-hidden="true"></span>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     }
-    <div id="OverrideList" class="grid splitRemove overrides">
-      @for (override of overrides; track override) {
-        <div id="OverrideTemplate" class="row grid threedelete">
-          <div>{{override.service.name}}</div>
-          <div>{{override.config.name}}</div>
-          <div class="relative">
-            <div class="remove icon-minus removeAssoc" (click)="removeOverride(override)"></div>
-          </div>
-        </div>
-      }
-    </div>
     <div class="darkened">ADD OVERRIDE CONFIG</div>
     <div class="grid split override-list-container">
       <div>
