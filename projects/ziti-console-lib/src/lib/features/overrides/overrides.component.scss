@@ -2,6 +2,7 @@
   display: flex;
   justify-content: center;
   padding: 0.625rem;
+  padding-top: calc(var(--headerHeight) + var(--paddingMedium));
 
   .overrides-container {
     max-width: 64rem;
@@ -14,6 +15,92 @@
     .title {
       display: flex;
       margin-left: 0.3125rem;
+    }
+
+    .subtitle {
+      margin-bottom: var(--gapMedium);
+    }
+
+    .buttons {
+      margin-top: var(--marginSmall);
+    }
+
+    .overrides-label {
+      margin-bottom: var(--gapMedium);
+    }
+
+    .overrides-table {
+      margin-bottom: var(--gapMedium);
+      border-collapse: collapse;
+      font-family: 'Open Sans', Arial, sans-serif;
+      font-size: 0.875rem;
+      table-layout: fixed;
+      width: 100%;
+
+      th {
+        border-bottom: 0.0625rem solid var(--stroke);
+        color: var(--formSubGroup);
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: var(--paddingSmall) var(--marginSmall);
+        text-align: left;
+        text-transform: uppercase;
+      }
+
+      td {
+        border-bottom: 0.0625rem solid var(--stroke);
+        color: var(--tableText);
+        max-width: 0;
+        overflow: hidden;
+        padding: var(--paddingSmall) var(--marginSmall);
+        text-overflow: ellipsis;
+        vertical-align: middle;
+        white-space: nowrap;
+      }
+
+      &__col-remove {
+        width: 3.25rem;
+      }
+
+      &__th-remove {
+        padding-left: 0;
+        padding-right: 0;
+      }
+
+      &__cell-remove {
+        overflow: visible;
+        padding-left: 0;
+        padding-right: 0;
+        text-align: center;
+      }
+
+      &__remove-btn {
+        align-items: center;
+        background-color: var(--red);
+        border: none;
+        border-radius: 50%;
+        color: var(--white);
+        cursor: pointer;
+        display: inline-flex;
+        height: 1.75rem;
+        justify-content: center;
+        padding: 0;
+        transition: var(--transition);
+        width: 1.75rem;
+
+        &:hover {
+          filter: brightness(92%);
+        }
+
+        .remove.icon-minus {
+          font-size: 0.625rem;
+          line-height: 1;
+
+          &:before {
+            color: var(--offWhite_ALWAYS);
+          }
+        }
+      }
     }
 
     .button {
@@ -56,6 +143,7 @@
     background-color: var(--navigation) !important;
     color: var(--text);
     -webkit-appearance: none;
+    appearance: none;
   }
   .p-inputtext {
     border-radius: var(--inputBorderRadius);
