@@ -1,4 +1,4 @@
-<div [hidden]="!isEmpty" class="noarea" id="NoArea">
+<div [hidden]="!isEmpty || isLoading" class="noarea" id="NoArea">
     <div (click)="iconClick()">
         <div [ngStyle]="background" class="icon"></div>
         <div class="title">
