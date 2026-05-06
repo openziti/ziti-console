@@ -591,6 +591,7 @@ export class DataTableComponent implements OnChanges, OnInit {
       suppressHorizontalScroll: false,
       stopEditingWhenGridLosesFocus: true,
       suppressPropertyNamesCheck: true,
+      suppressNoRowsOverlay: true,
       animateRows: true,
       defaultColDef: {
         sortable: false,

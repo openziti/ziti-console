@@ -160,6 +160,7 @@
     (clickEmit)="openCreate()"
     [image]="noItemsImage"
     [isEmpty]="!rowData || rowData.length === 0"
+    [isLoading]="isLoading"
     [typeName]="this.entityTypeLabel"
     [hasAdd]="showNoItemsAdd"
   ></lib-no-items>

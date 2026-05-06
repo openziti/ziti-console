@@ -5,6 +5,7 @@
   (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
   <lib-data-table [tableId]="'terminators'"
     [rowData]="rowData"
+    [isLoading]="isLoading"
     [columnDefinitions]="columnDefs"
     (actionRequested)="tableAction($event)"
     [startCount]="startCount"

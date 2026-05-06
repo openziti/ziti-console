@@ -6,6 +6,7 @@
 
   <lib-data-table [tableId]="'transit-routers'"
     [rowData]="rowData"
+    [isLoading]="isLoading"
     [columnDefinitions]="columnDefs"
     (actionRequested)="tableAction($event)"
     [startCount]="startCount"

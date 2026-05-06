@@ -6,6 +6,7 @@
 
   <lib-data-table [tableId]="'services'"
     [rowData]="rowData"
+    [isLoading]="isLoading"
     [columnDefinitions]="columnDefs"
     (actionRequested)="tableAction($event)"
     [startCount]="startCount"
