@@ -480,6 +480,9 @@ export class SimpleServiceComponent extends ProjectableForm {
   }
 
   async save(refresh?) {
+    if (!this.canSaveByPermissions()) {
+      return;
+    }
     this.serviceApiData.name = this.serviceApiData.name.trim();
     if (!this.validate()) {
       return;

@@ -9,16 +9,18 @@
     [moreActions]="moreActions"
     (actionRequested)="headerActionRequested($event)"
     [(formView)]="formView"
-    [saveDisabled]="svc.saveDisabled || formDataInvalid"
+    [saveDisabled]="svc.saveDisabled || formDataInvalid || formPermissionSaveDisabled"
+    [saveTooltip]="formPermissionSaveTooltip"
+    [strictReadonlyUi]="useStrictReadonlyForm"
   ></lib-form-header>
   <div class="jwt-signer-form-container projectable-form-container" #scrollContainer>
     <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
       <div class="form-group-column three-fifths">
         <lib-form-field-container
           [title]="'Name'"
-          [label]="'Required'"
+          [label]="useStrictReadonlyForm ? '' : 'REQUIRED'"
           >
-          <input class="form-field-input read-only" [(ngModel)]="formData.name" [ngClass]="{error: errors['name']}" placeholder="Name this JWT Signer" #nameFieldInput/>
+         <input class="form-field-input read-only" [(ngModel)]="formData.name" [ngClass]="{error: errors['name']}" placeholder="Name this JWT Signer" #nameFieldInput/>
         </lib-form-field-container>
         <lib-form-field-container
           [layout]="'column'"
@@ -34,9 +36,9 @@
                   matTooltipPosition="below"
                 ></div>
               </div>
-              <span class="form-field-label" >Required</span>
+              <span class="form-field-label" >{{ useStrictReadonlyForm ? '' : 'REQUIRED' }}</span>
             </div>
-            <input class="form-field-input" placeholder="Enter issuer" [(ngModel)]="formData.issuer" [ngClass]="{error: errors['issuer']}"/>
+            <input class="form-field-input" placeholder="Enter issuer" [(ngModel)]="formData.issuer" [ngClass]="{error: errors['issuer']}" [disabled]="useStrictReadonlyForm" />
           </div>
           <div class="form-field-label-container">
             <div class="form-field-title-container">
@@ -47,7 +49,7 @@
                 matTooltipPosition="below"
               ></div>
             </div>
-            <input class="form-field-input" placeholder="Enter audience" [(ngModel)]="formData.audience"/>
+            <input class="form-field-input" placeholder="Enter audience" [(ngModel)]="formData.audience" [disabled]="useStrictReadonlyForm" />
           </div>
           <div class="form-field-row">
             <div class="form-field-label-container">
@@ -59,7 +61,7 @@
                   matTooltipPosition="below"
                 ></div>
               </div>
-              <input class="form-field-input" placeholder="Enter claims property" [(ngModel)]="formData.claimsProperty" (keyup)="checkExternalIdToggle()" [ngClass]="{error: errors['claimsProperty']}"/>
+              <input class="form-field-input" placeholder="Enter claims property" [(ngModel)]="formData.claimsProperty" (keyup)="checkExternalIdToggle()" [ngClass]="{error: errors['claimsProperty']}" [disabled]="useStrictReadonlyForm" />
             </div>
             <div class="form-field-label-container">
               <div class="form-field-header">
@@ -78,8 +80,8 @@
                     <div class="config-container-label">Use External ID</div>
                   </div>
                   <div
-                    (click)="toggleUseExternalId()"
-                    [ngClass]="{ on: formData.useExternalId }"
+                    (click)="!useStrictReadonlyForm && toggleUseExternalId()"
+                    [ngClass]="{ on: formData.useExternalId, 'toggle-readonly': useStrictReadonlyForm }"
                     class="toggle"
                     >
                     <span [hidden]="!formData.useExternalId" class="on-label">YES</span>
@@ -103,7 +105,7 @@
                 matTooltipPosition="below"
               ></div>
             </div>
-            <input class="form-field-input" placeholder="Enter client ID" [(ngModel)]="formData.clientId"/>
+              <input class="form-field-input" placeholder="Enter client ID" [(ngModel)]="formData.clientId" [disabled]="useStrictReadonlyForm" />
           </div>
           <div class="form-field-label-container">
             <div class="form-field-title-container">
@@ -114,7 +116,7 @@
                 matTooltipPosition="below"
               ></div>
             </div>
-            <input class="form-field-input" placeholder="Enter external auth URL" [(ngModel)]="formData.externalAuthUrl"/>
+            <input class="form-field-input" placeholder="Enter external auth URL" [(ngModel)]="formData.externalAuthUrl" [disabled]="useStrictReadonlyForm" />
           </div>
           <div class="form-field-label-container">
             <div class="form-field-title-container">
@@ -132,6 +134,7 @@
               placeholder="Enter scopes"
               [addOnBlur]="true"
               separator=","
+              [disabled]="useStrictReadonlyForm"
             ></lib-chips-input>
           </div>
         </lib-form-field-container>
@@ -147,7 +150,7 @@
                   <div class="config-container-label">Auto-Enroll to Cert</div>
                   <div
                     (click)="toggleEnrollToCertEnabled()"
-                    [ngClass]="{ on: formData.enrollToCertEnabled }"
+                    [ngClass]="{ on: formData.enrollToCertEnabled, 'toggle-readonly': useStrictReadonlyForm }"
                     class="toggle"
                     >
                     <span [hidden]="!formData.enrollToCertEnabled" class="on-label">YES</span>
@@ -161,7 +164,7 @@
                   <div class="config-container-label">Auto-Enroll to Token</div>
                   <div
                     (click)="toggleEnrollToTokenEnabled()"
-                    [ngClass]="{ on: formData.enrollToTokenEnabled }"
+                    [ngClass]="{ on: formData.enrollToTokenEnabled, 'toggle-readonly': useStrictReadonlyForm }"
                     class="toggle"
                     >
                     <span [hidden]="!formData.enrollToTokenEnabled" class="on-label">YES</span>
@@ -185,6 +188,7 @@
               [(ngModel)]="targetToken"
               id="authPolicyId"
               class="form-field-dropdown"
+              [disabled]="useStrictReadonlyForm"
               >
               <option value="ACCESS">Access</option>
               <option value="ID">ID</option>
@@ -212,6 +216,7 @@
                   <div class="copy-button" (click)="copyCallbackURL()"></div>
                 </div>
               </div>
+              @if (!useStrictReadonlyForm) {
               <div class="test-oauth-button"
                 [ngClass]="{'oidc-verified': oidcVerified}"
                 (click)="testOIDCAuthentication()"
@@ -224,6 +229,7 @@
                   <input type="checkbox" [disabled]="true" [checked]="true" class="success-check">
                 }
               </div>
+              }
             </div>
             @if (oidcErrorMessageDetail) {
               <div class="oidc-error-message-container">
@@ -240,7 +246,7 @@
             @if (oidcAuthTokenClaims) {
               <div class="oidc-token-claims-container">
                 <code class="oidc-token-claims-title">OAuth Token Claims: </code>
-                <lib-json-view [showLineNumbers]="false" [(data)]="oidcAuthTokenClaims"></lib-json-view>
+                <lib-json-view [showLineNumbers]="false" [(data)]="oidcAuthTokenClaims" [readOnly]="useStrictReadonlyForm"></lib-json-view>
               </div>
             }
           </lib-form-field-container>
@@ -249,23 +255,36 @@
             [label]="'OPTIONAL'"
             class="form-field-advanced"
             >
-            <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
+            <lib-custom-tags [(tags)]="formData.tags" [readOnly]="useStrictReadonlyForm"></lib-custom-tags>
           </lib-form-field-container>
         </div>
       </div>
       <div class="form-group-column two-fifths">
         <lib-form-field-container
           [title]="'Verification'"
-          [label]="'REQUIRED'"
+          [label]="useStrictReadonlyForm ? '' : 'REQUIRED'"
           >
-          <div class="radio-group-container" (keydown)="radioKeyDownHandler($event)" tabindex="0">
-            <div class="radio-button-container" [ngClass]="{'selected': signatureMethod === 'JWKS_ENDPOINT'}" (click)="selectSignatureMethod('JWKS_ENDPOINT')">
+          <div
+            class="radio-group-container"
+            [class.radio-group-readonly]="useStrictReadonlyForm"
+            (keydown)="radioKeyDownHandler($event)"
+            [attr.tabindex]="useStrictReadonlyForm ? -1 : 0"
+            >
+            <div
+              class="radio-button-container"
+              [ngClass]="{'selected': signatureMethod === 'JWKS_ENDPOINT', 'toggle-readonly': useStrictReadonlyForm}"
+              (click)="!useStrictReadonlyForm && selectSignatureMethod('JWKS_ENDPOINT')"
+              >
               <div class="radio-button-circle">
                 <div class="radio-button-inner-circle"></div>
               </div>
               <span class="radio-button-label">JWKS Endpoint</span>
             </div>
-            <div class="radio-button-container" [ngClass]="{'selected': signatureMethod === 'CERT_PEM'}" (click)="selectSignatureMethod('CERT_PEM')">
+            <div
+              class="radio-button-container"
+              [ngClass]="{'selected': signatureMethod === 'CERT_PEM', 'toggle-readonly': useStrictReadonlyForm}"
+              (click)="!useStrictReadonlyForm && selectSignatureMethod('CERT_PEM')"
+              >
               <div class="radio-button-circle">
                 <div class="radio-button-inner-circle"></div>
               </div>
@@ -280,7 +299,13 @@
                     <span class="form-field-title">JWKS Endpoint</span>
                   </div>
                 </div>
-                <input class="form-field-input read-only" placeholder="Enter endpoint URL" [(ngModel)]="formData.jwksEndpoint" [ngClass]="{error: errors['jwksEndpoint']}"/>
+                <input
+                  class="form-field-input"
+                  placeholder="Enter endpoint URL"
+                  [(ngModel)]="formData.jwksEndpoint"
+                  [ngClass]="{error: errors['jwksEndpoint']}"
+                  [disabled]="useStrictReadonlyForm"
+                  />
               </div>
             </div>
           }
@@ -291,15 +316,30 @@
                   <div class="form-field-title-container">
                     <span class="form-field-title">PEM</span>
                   </div>
-                  <span class="select-file-button" (click)="openFileSelect($event)">
+                  <span
+                    class="select-file-button"
+                    [class.toggle-readonly]="useStrictReadonlyForm"
+                    (click)="!useStrictReadonlyForm && openFileSelect($event)"
+                    >
                     Select File
                     @if (fileSelectOpening) {
                       <div class="spinner"></div>
                     }
                   </span>
-                  <input #fileSelect type="file" style="display:none" (change)="selectPemFile($event)">
+                  <input
+                    #fileSelect
+                    type="file"
+                    style="display:none"
+                    [disabled]="useStrictReadonlyForm"
+                    (change)="selectPemFile($event)"
+                    >
                 </div>
-                <textarea placeholder="Paste pem contents or select file" [(ngModel)]="formData.certPem" [ngClass]="{error: errors['certPem']}"></textarea>
+                <textarea
+                  placeholder="Paste pem contents or select file"
+                  [(ngModel)]="formData.certPem"
+                  [ngClass]="{error: errors['certPem']}"
+                  [disabled]="useStrictReadonlyForm"
+                  ></textarea>
               </div>
               <div class="form-field-label-container">
                 <div class="form-field-header">
@@ -308,7 +348,7 @@
                   </div>
                   <span class="form-field-label" >Optional</span>
                 </div>
-                <input class="form-field-input" placeholder="Enter KID" [(ngModel)]="formData.kid"/>
+                <input class="form-field-input" placeholder="Enter KID" [(ngModel)]="formData.kid" [disabled]="useStrictReadonlyForm"/>
               </div>
             </div>
           }
@@ -320,8 +360,8 @@
             <div class="config-container toggle-container">
               <div class="config-container-label">ENABLED</div>
               <div
-                (click)="toggleEnabled()"
-                [ngClass]="{ on: formData.enabled }"
+                (click)="!useStrictReadonlyForm && toggleEnabled()"
+                [ngClass]="{ on: formData.enabled, 'toggle-readonly': useStrictReadonlyForm }"
                 class="toggle"
                 >
                 <span [hidden]="!formData.enabled" class="on-label">YES</span>
@@ -350,7 +390,7 @@
     @if (formView === 'raw') {
       <div class="form-group-column">
         @if (formData) {
-          <lib-json-view [(data)]="formData"></lib-json-view>
+          <lib-json-view [(data)]="formData" [readOnly]="useStrictReadonlyForm"></lib-json-view>
         }
       </div>
     }

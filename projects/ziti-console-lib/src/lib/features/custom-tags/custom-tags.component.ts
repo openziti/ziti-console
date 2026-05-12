@@ -26,6 +26,8 @@ import {forEach, isEmpty, map, unset, debounce, cloneDeep, set} from "lodash";
 export class CustomTagsComponent implements OnInit, OnChanges {
 
   @Input() tags: any = {};
+  /** View-only: no add/remove/edit; show name/value as text (e.g. global admin_readonly). */
+  @Input() readOnly = false;
   @Output() tagsChange: EventEmitter<any> = new EventEmitter<any>();
 
   tagsArray: any = [];
@@ -74,6 +76,9 @@ export class CustomTagsComponent implements OnInit, OnChanges {
   }
 
   addTag(event?) {
+    if (this.readOnly) {
+      return;
+    }
     this.validate();
     set(this.tagsArray, `[${this.tagsArray.length - 1}].showNewTag`, false);
     const newTag = cloneDeep(this.newTag);
@@ -84,6 +89,9 @@ export class CustomTagsComponent implements OnInit, OnChanges {
   }
 
   removeTag(tagName: string) {
+    if (this.readOnly) {
+      return;
+    }
     unset(this.tags, tagName);
     this.updateTagsArray({});
     set(this.tagsArray, `[${this.tagsArray.length - 1}].showNewTag`, true);

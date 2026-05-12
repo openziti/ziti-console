@@ -2,9 +2,12 @@
     <lib-list-page-header [title]="title"
                           [tabs]="tabs"
                           [showAdd]="!itemsSelected"
+                          [blockCreate]="headerBlockCreate"
+                          [blockDelete]="headerBlockDelete"
                           (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
 
     <lib-data-table [tableId]="'auth-policies'"
+                    [noItemsReadonly]="headerBlockCreate"
                     [rowData]="rowData"
                     [isLoading]="isLoading"
                     [columnDefinitions]="columnDefs"

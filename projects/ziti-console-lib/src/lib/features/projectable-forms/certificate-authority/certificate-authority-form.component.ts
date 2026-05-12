@@ -151,6 +151,9 @@ export class CertificateAuthorityFormComponent extends ProjectableForm implement
     }
 
     async save(event?: any) {
+        if (!this.canSaveByPermissions()) {
+            return;
+        }
         if(!this.validate()) {
             return;
         }

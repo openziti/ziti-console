@@ -147,6 +147,9 @@ export class AuthPolicyFormComponent extends ProjectableForm implements OnInit, 
     }
 
     async save(event?: any) {
+        if (!this.canSaveByPermissions()) {
+            return;
+        }
         if(!this.validate()) {
             return;
         }

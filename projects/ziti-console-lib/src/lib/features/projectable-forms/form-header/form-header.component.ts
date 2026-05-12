@@ -35,6 +35,8 @@ export class FormHeaderComponent implements OnChanges {
   @Input() moreActionsText = 'More Actions';
   @Input() showHeaderToggle = true;
   @Input() showHeaderButton = true;
+  /** Hide save / more-actions / multi-save and retitle Edit→View for global admin_readonly without write grants. */
+  @Input() strictReadonlyUi = false;
   @Input() multiActions: any[] = [];
   @Output() formViewChange: EventEmitter<string> = new EventEmitter<string>();
   @Output() actionRequested: EventEmitter<any> = new EventEmitter<any>();
@@ -50,6 +52,13 @@ export class FormHeaderComponent implements OnChanges {
     this.saveActions = [...this._saveActions, ...this.multiActions];
   }
 
+  get displayTitle(): string {
+    if (!this.strictReadonlyUi || !this.title) {
+      return this.title;
+    }
+    return this.title.replace(/\bEdit\b/gi, 'View').replace(/\bCreate\b/gi, 'View');
+  }
+
   get hasMoreActions() {
     let hasMoreActions = false;
     this.moreActions?.forEach(action => {
@@ -61,6 +70,9 @@ export class FormHeaderComponent implements OnChanges {
   }
 
   actionClicked(event) {
+    if (this.strictReadonlyUi) {
+      return;
+    }
     if (event?.id === 'save' && this.saveDisabled) {
       return;
     }
@@ -68,6 +80,9 @@ export class FormHeaderComponent implements OnChanges {
   }
 
   requestAction(action) {
+    if (this.strictReadonlyUi && action?.name === 'save') {
+      return;
+    }
     if (action?.name === 'save' && this.saveDisabled) {
       return;
     }

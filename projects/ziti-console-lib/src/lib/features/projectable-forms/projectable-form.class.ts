@@ -15,7 +15,7 @@
 */
 
 import {ExtendableComponent} from "../extendable/extendable.component";
-import {Component, DoCheck, ElementRef, EventEmitter, HostListener, Inject, Input, OnDestroy, OnInit, Output, ViewChild} from "@angular/core";
+import {Component, DoCheck, ElementRef, EventEmitter, HostBinding, HostListener, Inject, Input, OnDestroy, OnInit, Output, ViewChild, inject} from "@angular/core";
 
 import {defer, isEqual, unset, debounce, cloneDeep, forEach, isArray, isEmpty, isObject, isNil, map, omitBy, slice, get} from "lodash";
 import {GrowlerModel} from "../messaging/growler.model";
@@ -30,6 +30,7 @@ import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service
 import {URLS} from "../../urls";
 import {MatDialog} from "@angular/material/dialog";
 import {ConfirmComponent} from "../confirm/confirm.component";
+import {ManagementPermissionsService} from "../../services/management-permissions.service";
 
 export class Entity {
     name: ''
@@ -101,6 +102,8 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
 
     subscription: Subscription = new Subscription();
 
+    protected readonly managementPermissions = inject(ManagementPermissionsService);
+
     formInit = false;
 
     @ViewChild('formContainer') formContainer!: ElementRef;
@@ -165,10 +168,32 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         return !isEmpty(this.formData.id);
     }
 
+    get formPermissionSaveDisabled(): boolean {
+        return this.managementPermissions.isSaveDisabled(this.entityType, this.isEdit);
+    }
+
+    get formPermissionSaveTooltip(): string {
+        return this.formPermissionSaveDisabled ? this.managementPermissions.saveDeniedTooltip : '';
+    }
+
+    get useStrictReadonlyForm(): boolean {
+        return this.managementPermissions.useStrictReadonlyFormUi(this.entityType, this.isEdit);
+    }
+
+    /** Blocks save from shortcuts/callbacks when the controller denies create/update for this resource. */
+    protected canSaveByPermissions(): boolean {
+        return !this.managementPermissions.isSaveDisabled(this.entityType, this.isEdit);
+    }
+
+    @HostBinding('class.zac-management-readonly-form')
+    get zacManagementReadonlyHostClass(): boolean {
+        return this.useStrictReadonlyForm;
+    }
+
     override ngAfterViewInit(skipFocus = false) {
         super.ngAfterViewInit();
         this.errors = {};
-        if (!skipFocus) {
+        if (!skipFocus && !this.useStrictReadonlyForm) {
             this.nameFieldInput?.nativeElement?.focus();
         }
         if (this.extService?.moreActions) {
@@ -338,7 +363,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
                 name: 'delete',
                 label: 'Delete',
                 icon: 'icon-trash',
-                hidden: () => false
+                hidden: () => !this.managementPermissions.canDelete(this.entityType),
             });
         }
     }
@@ -354,6 +379,10 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     protected deleteEntity() {
         if (!this.dialogForm) {
             console.error('MatDialog not injected. Cannot show delete confirmation.');
+            return;
+        }
+
+        if (!this.managementPermissions.canDelete(this.entityType)) {
             return;
         }
 

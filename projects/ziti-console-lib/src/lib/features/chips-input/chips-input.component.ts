@@ -22,8 +22,9 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   ],
   host: {
     class: 'p-chips p-component p-input-wrapper',
-    '[class.p-focus]': 'focused',
-    '[class.error]': 'invalid'
+    '[class.p-focus]': 'focused && !disabled',
+    '[class.error]': 'invalid',
+    '[class.chips-input-disabled]': 'disabled',
   },
   standalone: false
 })
@@ -41,7 +42,7 @@ export class ChipsInputComponent implements ControlValueAccessor {
   @Output() onBlur = new EventEmitter<FocusEvent>();
   @Output() keyup = new EventEmitter<KeyboardEvent>();
 
-  @ViewChild('chipInput', { static: true }) chipInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('chipInput', { static: false }) chipInput?: ElementRef<HTMLInputElement>;
 
   value: string[] = [];
   disabled = false;

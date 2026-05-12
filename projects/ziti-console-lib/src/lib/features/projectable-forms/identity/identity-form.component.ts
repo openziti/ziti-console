@@ -126,7 +126,9 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
 
   override ngAfterViewInit() {
     super.ngAfterViewInit();
-    this.nameFieldInput.nativeElement.focus();
+    if (!this.useStrictReadonlyForm) {
+      this.nameFieldInput?.nativeElement?.focus();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -337,6 +339,9 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   }
 
   save(event?) {
+    if (!this.canSaveByPermissions()) {
+      return;
+    }
     this.formData.name = this.formData.name.trim();
     if(!this.validate()) {
       return;
@@ -430,6 +435,9 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   }
 
   toggleIsAdmin() {
+    if (this.useStrictReadonlyForm) {
+      return;
+    }
     this.formData.isAdmin = !this.formData.isAdmin;
   }
 
@@ -465,6 +473,9 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   }
 
   disableIdentity() {
+    if (this.useStrictReadonlyForm) {
+      return;
+    }
     const localDate = moment(this.disableDuration).local();
     const minutesDifference = localDate.diff(moment(), 'minutes');
     const confirmData = {
@@ -510,6 +521,9 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   }
 
   enableIdentity() {
+    if (this.useStrictReadonlyForm) {
+      return;
+    }
     const confirmData = {
       appendId: 'EnableIdentity',
       title: 'Enable Identity',

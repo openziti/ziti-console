@@ -159,6 +159,18 @@
   }
 }
 
+.radio-button-container.toggle-readonly {
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.92;
+}
+
+.select-file-button.toggle-readonly {
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
 .test-oauth-button {
   color: var(--offWhite_ALWAYS);
   height: var(--defaultInputHeight);

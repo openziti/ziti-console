@@ -142,6 +142,9 @@ export class VerifyCertificateComponent extends ProjectableForm implements OnIni
     }
 
     async save(event?: any) {
+        if (!this.canSaveByPermissions()) {
+            return;
+        }
         if(!this.validate()) {
             return;
         }

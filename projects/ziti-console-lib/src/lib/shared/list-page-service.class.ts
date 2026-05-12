@@ -33,6 +33,7 @@ import {
     TableColumnDefaultComponent
 } from "../features/data-table/column-headers/table-column-default/table-column-default.component";
 import {GrowlerModel} from "../features/messaging/growler.model";
+import {ManagementPermissionsService} from "../services/management-permissions.service";
 
 export abstract class ListPageServiceClass {
 
@@ -85,11 +86,17 @@ export abstract class ListPageServiceClass {
     }
     totalCount = 0;
     dataService: ZitiDataService;
+    protected readonly managementPermissions = inject(ManagementPermissionsService);
     refreshData: (sort?: {sortBy: string, ordering: string}) => void | undefined;
 
     selectedEntityId: String;
     menuItems: any = [];
     tableHeaderActions: any = [];
+    /** Original menus/header actions before permission filtering (for singleton page services). */
+    private menuItemsBaseline: any[] | null = null;
+    private tableHeaderActionsBaseline: any[] | null = null;
+    private menuTemplateSnapshot: any[] | null = null;
+    private tableHeaderActionsSnapshot: any[] | null = null;
     currentSettings: any = {};
     dialogRef: any;
     sideModalOpen = false;
@@ -158,6 +165,19 @@ export abstract class ListPageServiceClass {
                 this.basePath = pathSegments[0];
               }
         });
+    }
+
+    /**
+     * Root-provided page services survive route changes; restore baseline menus before each table init
+     * so permission filtering does not stack on already-filtered items.
+     */
+    resetMenusForInit(): void {
+        if (!this.menuItemsBaseline) {
+            this.menuItemsBaseline = cloneDeep(this.menuItems);
+            this.tableHeaderActionsBaseline = cloneDeep(this.tableHeaderActions);
+        }
+        this.menuItems = cloneDeep(this.menuItemsBaseline);
+        this.tableHeaderActions = cloneDeep(this.tableHeaderActionsBaseline);
     }
 
     initMenuActions() {
@@ -276,7 +296,14 @@ export abstract class ListPageServiceClass {
     }
 
     public openEditForm(itemId = '', basePath?: undefined) {
-        if (isEmpty(itemId)) {
+        const isCreate = isEmpty(itemId);
+        if (isCreate && !this.managementPermissions.canCreate(this.resourceType)) {
+            return;
+        }
+        if (!isCreate && !this.managementPermissions.canRead(this.resourceType)) {
+            return;
+        }
+        if (isCreate) {
             itemId = 'create';
         }
         const finalBasePath: string = basePath ?? this.basePath ?? '';
@@ -287,4 +314,21 @@ export abstract class ListPageServiceClass {
         const rootFontSize: any = parseFloat(window.getComputedStyle(document.documentElement).fontSize);
         return remValue * rootFontSize;
     };
+
+    capturePermissionSnapshots(): void {
+        this.menuTemplateSnapshot = cloneDeep(this.menuItems);
+        this.tableHeaderActionsSnapshot = cloneDeep(this.tableHeaderActions);
+    }
+
+    rebuildMenusAndHeaders(perm: ManagementPermissionsService): void {
+        if (!this.menuTemplateSnapshot || !this.tableHeaderActionsSnapshot) {
+            return;
+        }
+        this.menuItems = cloneDeep(this.menuTemplateSnapshot).filter((item: { action?: string }) =>
+            perm.isMenuActionAllowed(this.resourceType, item.action),
+        );
+        this.tableHeaderActions = cloneDeep(this.tableHeaderActionsSnapshot).filter((item: { action?: string }) =>
+            perm.isTableHeaderActionAllowed(this.resourceType, item.action),
+        );
+    }
 }

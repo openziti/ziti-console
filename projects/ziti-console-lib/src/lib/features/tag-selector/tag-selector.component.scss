@@ -373,6 +373,10 @@
   opacity: 0.75;
   cursor: default;
 
+  .select2-selection__choice__remove {
+    display: none !important;
+  }
+
   .select2-container {
     .select2-selection__rendered:not(.empty) {
       min-height: var(--defaultInputHeight);

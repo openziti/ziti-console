@@ -10,51 +10,57 @@
     [moreActions]="moreActions"
     (actionRequested)="headerActionRequested($event)"
     [(formView)]="formView"
-    [saveDisabled]="svc.saveDisabled || formDataInvalid"
-    [saveTooltip]="saveButtonTooltip"
+    [saveDisabled]="svc.saveDisabled || formDataInvalid || formPermissionSaveDisabled"
+    [saveTooltip]="formPermissionSaveDisabled ? formPermissionSaveTooltip : saveButtonTooltip"
     [class.is-scrolled]="isScrolled"
+    [strictReadonlyUi]="useStrictReadonlyForm"
   ></lib-form-header>
   <div class="edge-router-form-container projectable-form-container" #formContainer>
     <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
       <div class="form-group-column three-fifths">
-        <lib-form-field-container [title]="'Service Name'" [label]="'Required'">
-          <input
-            class="form-field-input"
-            placeholder="Name this Service"
-            [ngClass]="{error: svc.errors['name']}"
-            [(ngModel)]="formData.name"
-            autofocus
-            #nameFieldInput
-            />
+        <lib-form-field-container [title]="'Service Name'" [label]="useStrictReadonlyForm ? '' : 'REQUIRED'">
+            <input
+              class="form-field-input"
+              placeholder="Name this Service"
+              [ngClass]="{error: svc.errors['name']}"
+              [(ngModel)]="formData.name"
+              autofocus
+              #nameFieldInput
+              [disabled]="useStrictReadonlyForm"
+              />
         </lib-form-field-container>
         <lib-form-field-container
           [title]="'Select or create Service attributes'"
-          [label]="'Optional'"
+          [label]="useStrictReadonlyForm ? '' : 'OPTIONAL'"
           [contentStyle]="'z-index: 99999999'"
           [helpText]="'Attributes are tags applied to a resource. Apply the same tag to other Services to form a group of Services.'"
           >
           <lib-tag-selector
+            [disableField]="useStrictReadonlyForm"
+            [disableCreate]="useStrictReadonlyForm"
             [(selectedRoleAttributes)]="formData.roleAttributes"
             [availableRoleAttributes]="serviceRoleAttributes"
             [placeholder]="'Add attributes to group Services'"
           ></lib-tag-selector>
         </lib-form-field-container>
-        <lib-form-field-container
-          [title]="'Add Configurations'"
-          (actionRequested)="attachConfig()"
-          (keyup.enter)="captureConfigEnterEvent($event)"
-          [helpText]="'Configurations are used to define how to intercept and host a service. Ziti Networks come with built-in configuration types (ie. intercept.v1 and host.v1)'"
-          >
-          <div class="form-field-input-group">
-            <div class="config-title-row">
-              <span class="form-field-title">Select a Config</span>
-            </div>
-            <select
-              [(ngModel)]="svc.selectedConfigTypeId"
-              (change)="configTypeChanged($event)"
-              id="SelectedConfigType"
-              class="form-field-dropdown"
-              >
+        @if (!useStrictReadonlyForm) {
+          <lib-form-field-container
+            [title]="'Add Configurations'"
+            (actionRequested)="attachConfig()"
+            (keyup.enter)="captureConfigEnterEvent($event)"
+            [helpText]="'Configurations are used to define how to intercept and host a service. Ziti Networks come with built-in configuration types (ie. intercept.v1 and host.v1)'"
+            >
+            <div class="form-field-input-group">
+              <div class="config-title-row">
+                <span class="form-field-title">Select a Config</span>
+              </div>
+              <select
+                [(ngModel)]="svc.selectedConfigTypeId"
+                (change)="configTypeChanged($event)"
+                id="SelectedConfigType"
+                class="form-field-dropdown"
+                [disabled]="useStrictReadonlyForm"
+                >
               <option value="">Select configuration type...</option>
               @for (type of svc.configTypes; track type) {
                 <option
@@ -98,13 +104,13 @@
                 </div>
               }
               @if (showConfigData) {
-                <input
-                  [(ngModel)]="svc.newConfigName"
-                  class="form-field-input"
-                  [placeholder]="'New Config Name'"
-                  [ngClass]="{error: svc.configErrors['name']}"
-                  style="margin-bottom: 20px;"
-                  />
+                  <input
+                    [(ngModel)]="svc.newConfigName"
+                    class="form-field-input"
+                    [placeholder]="'New Config Name'"
+                    [ngClass]="{error: svc.configErrors['name']}"
+                    style="margin-bottom: 20px;"
+                    />
               }
               <div class="config-title-row" style="margin-bottom: 10px;">
                 <span class="form-field-title">Configuration Data</span>
@@ -145,7 +151,8 @@
               ></lib-config-editor>
             </div>
           </div>
-        </lib-form-field-container>
+          </lib-form-field-container>
+        }
         <lib-form-field-toggle [(toggleOn)]="showMore" style="margin: 0px 10px"></lib-form-field-toggle>
         @if (showMore) {
           <div class="form-group-column">
@@ -161,6 +168,7 @@
                 [(ngModel)]="formData.terminatorStrategy"
                 id="authPolicyId"
                 class="form-field-dropdown"
+                [disabled]="useStrictReadonlyForm"
                 >
                 <option value="">Select a Strategy....</option>
                 @for (strat of strategies; track strat) {
@@ -176,7 +184,7 @@
                   <div class="config-container-label">Require Encryption</div>
                   <div
                     (click)="toggleEncryptionRequired()"
-                    [ngClass]="{ on: formData.encryptionRequired }"
+                    [ngClass]="{ on: formData.encryptionRequired, 'toggle-readonly': useStrictReadonlyForm }"
                     class="toggle"
                     >
                     <span [hidden]="!formData.encryptionRequired" class="on-label">YES</span>
@@ -191,7 +199,7 @@
               [label]="'OPTIONAL'"
               class="form-field-advanced"
               >
-              <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
+              <lib-custom-tags [(tags)]="formData.tags" [readOnly]="useStrictReadonlyForm"></lib-custom-tags>
             </lib-form-field-container>
           </div>
         }
@@ -212,7 +220,7 @@
           <lib-preview-list
             [isLoading]="svc.associatedConfigsLoading"
             [allNames]="svc.addedConfigs"
-            [allowRemove]="true"
+            [allowRemove]="!useStrictReadonlyForm"
             [clickable]="true"
             [tooltip]="'View Config'"
             [showfilter]="false"
@@ -279,7 +287,7 @@
   @if (formView === 'raw') {
     <div class="form-group-column">
       @if (formData) {
-        <lib-json-view [(data)]="formData" [(jsonInvalid)]="formDataInvalid"></lib-json-view>
+        <lib-json-view [(data)]="formData" [(jsonInvalid)]="formDataInvalid" [readOnly]="useStrictReadonlyForm"></lib-json-view>
       }
     </div>
   }

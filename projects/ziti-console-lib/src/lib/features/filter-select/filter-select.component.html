@@ -1,7 +1,7 @@
 <mat-form-field class="lib-filter-select" subscriptSizing="dynamic">
   <mat-select
     [id]="id"
-    [disabled]="disabled"
+    [disabled]="selectDisabled"
     [placeholder]="placeholder"
     [value]="value"
     [panelClass]="resolvedPanelClass"
@@ -68,7 +68,7 @@
     }
   </mat-select>
 
-  @if (showClear && !disabled && !isValueEmpty) {
+  @if (showClear && !selectDisabled && !isValueEmpty) {
     <button
       mat-icon-button
       matSuffix

@@ -155,6 +155,9 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
   }
 
   async save(event?) {
+    if (!this.canSaveByPermissions()) {
+      return;
+    }
     const isValid = this.validate();
     const isExtValid = await this.extService.validateData();
     this.formData.name = this.formData.name.trim()

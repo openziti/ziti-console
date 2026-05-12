@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-import {NgModule, APP_INITIALIZER} from '@angular/core';
+import {Injector, NgModule, APP_INITIALIZER} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 
 import {AppComponent} from './app.component';
@@ -50,7 +50,8 @@ import {
     SERVICE_POLICY_EXTENSION_SERVICE,
     EDGE_ROUTER_POLICY_EXTENSION_SERVICE,
     SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE,
-    DEFAULT_APP_CONFIG
+    DEFAULT_APP_CONFIG,
+    ManagementPermissionsService,
 } from "ziti-console-lib";
 
 import {AppRoutingModule} from "./app-routing.module";
@@ -83,9 +84,15 @@ if (environment.nodeIntegration) {
     apiInterceptor = ZitiApiInterceptor;
 }
 
-// Factory function to initialize settings service before app starts
-export function initializeApp(settingsService: any) {
-    return () => settingsService.init();
+/**
+ * Load persisted settings, then construct ManagementPermissionsService so it subscribes to
+ * settings and fetches current-identity on cold start (not only when a list/form page loads).
+ */
+export function initializeApp(settingsService: any, injector: Injector) {
+    return () =>
+        settingsService.init().then(() => {
+            injector.get(ManagementPermissionsService);
+        });
 }
 
 @NgModule({ declarations: [
@@ -106,7 +113,7 @@ export function initializeApp(settingsService: any) {
         {
             provide: APP_INITIALIZER,
             useFactory: initializeApp,
-            deps: [SETTINGS_SERVICE],
+            deps: [SETTINGS_SERVICE, Injector],
             multi: true
         },
         { provide: ZITI_DOMAIN_CONTROLLER, useClass: SimpleZitiDomainControllerService },

@@ -537,6 +537,13 @@ a:hover {
   }
 }
 
+@mixin projectable-readonly-field-appearance {
+  cursor: default;
+  opacity: 0.95;
+  background-color: var(--stroke) !important;
+  color: var(--tableText);
+}
+
 .projectable-form-wrapper {
   display: flex;
   flex-direction: column;
@@ -572,6 +579,20 @@ a:hover {
     .projectable-form-main-column {
       max-width: 68.75rem;
     }
+  }
+  .toggle.toggle-readonly {
+    cursor: default;
+    opacity: 0.9;
+    pointer-events: none;
+  }
+
+  /** Disabled fields styled like terminator form (`read-only` + [disabled]). */
+  .form-field-input.read-only,
+  .form-field-dropdown.read-only,
+  .form-field-input:disabled,
+  .form-field-dropdown:disabled,
+  .grid.tags input:disabled {
+    @include projectable-readonly-field-appearance;
   }
 }
 

@@ -14,6 +14,7 @@
     [(formView)]="formView"
     [moreActions]="moreActions"
     [class.is-scrolled]="isScrolled"
+    [strictReadonlyUi]="useStrictReadonlyForm"
   ></lib-form-header>
 
   <div class="simple-service-form-container projectable-form-container" #formContainer>
@@ -27,7 +28,8 @@
                   <div class="config-title-row">
                     <span class="form-field-title">Service Name</span>
                   </div>
-                  <input
+                  @if (!useStrictReadonlyForm) {
+                    <input
                     class="form-field-input"
                     placeholder="Name this service"
                     autofocus
@@ -37,12 +39,17 @@
                     (keyup)="serviceNameChanged($event)"
                     (change)="validateServiceName()"
                     />
+                  } @else {
+                    <div class="form-field-readonly-value">{{ serviceApiData.name }}</div>
+                  }
                 </div>
                 <div class="form-field-sub-group">
                   <div class="config-title-row">
                     <span class="form-field-title">SELECT OR CREATE SERVICE ATTRIBUTES</span>
                   </div>
                   <lib-tag-selector
+                    [disableField]="useStrictReadonlyForm"
+                    [disableCreate]="useStrictReadonlyForm"
                     [(selectedRoleAttributes)]="serviceApiData.roleAttributes"
                     [availableRoleAttributes]="serviceRoleAttributes"
                     [placeholder]="'Add attributes to group services'"
@@ -68,6 +75,8 @@
                   <span class="form-field-title">What identities can access this service?</span>
                 </div>
                 <lib-tag-selector
+                  [disableField]="useStrictReadonlyForm"
+                  [disableCreate]="useStrictReadonlyForm"
                   [(selectedNamedAttributes)]="dialPolicyNamedAttributes"
                   [(selectedRoleAttributes)]="dialPolicyRoleAttributes"
                   [availableNamedAttributes]="identityNamedAttributes"
@@ -137,6 +146,8 @@
                   <span class="form-field-title">What identities can host this service?</span>
                 </div>
                 <lib-tag-selector
+                  [disableField]="useStrictReadonlyForm"
+                  [disableCreate]="useStrictReadonlyForm"
                   [(selectedNamedAttributes)]="bindPolicyNamedAttributes"
                   [(selectedRoleAttributes)]="bindPolicyRoleAttributes"
                   [availableNamedAttributes]="identityNamedAttributes"

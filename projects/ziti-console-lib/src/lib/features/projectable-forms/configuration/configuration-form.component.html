@@ -10,15 +10,17 @@
     [moreActions]="moreActions"
     (actionRequested)="headerActionRequested($event)"
     [(formView)]="formView"
-    [saveDisabled]="svc.saveDisabled || formDataInvalid"
-    [saveTooltip]="saveButtonTooltip"
+    [saveDisabled]="svc.saveDisabled || formDataInvalid || formPermissionSaveDisabled"
+    [saveTooltip]="formPermissionSaveDisabled ? formPermissionSaveTooltip : saveButtonTooltip"
     [class.is-scrolled]="isScrolled"
+    [strictReadonlyUi]="useStrictReadonlyForm"
   ></lib-form-header>
   <div class="config-form-container projectable-form-container" #formContainer>
     <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
       <div class="form-group-column three-fifths">
-        <lib-form-field-container [title]="'Config Name'" [label]="'Required'">
+        <lib-form-field-container [title]="'Config Name'" [label]="useStrictReadonlyForm ? '' : 'REQUIRED'">
           <input
+            class="form-field-input"
             id="ConfigName"
             type="text"
             maxlength="500"
@@ -26,10 +28,11 @@
             [ngClass]="{error: errors['name']}"
             [(ngModel)]="formData.name"
             (keyup)="apiData()"
+            [disabled]="useStrictReadonlyForm"
             >
         </lib-form-field-container>
         <lib-form-field-container [showHeader]="false">
-          <div class="config-title-row">
+            <div class="config-title-row">
             <span class="form-field-title">Configuration Data</span>
             <div class="form-header-toggle-container">
               <span
@@ -67,6 +70,7 @@
               [(ngModel)]="formData.configTypeId"
               (change)="getSchema()"
               [ngClass]="{disabled: isEditing, error: errors['configTypeId']}"
+              [disabled]="useStrictReadonlyForm || isEditing"
               >
               <option value="">Select A Type...</option>
               @for (config of options; track config) {
@@ -81,6 +85,7 @@
               [(configData)]="formData.data"
               [showJsonView]="svc.configJsonView"
               [(configErrors)]="errors"
+              [readOnly]="useStrictReadonlyForm"
               (configDataChange)="dataChanged($event)"
               #configEditor
             ></lib-config-editor>
@@ -94,7 +99,7 @@
               [label]="'OPTIONAL'"
               class="form-field-advanced"
               >
-              <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
+              <lib-custom-tags [(tags)]="formData.tags" [readOnly]="useStrictReadonlyForm"></lib-custom-tags>
             </lib-form-field-container>
           }
         </div>
@@ -119,7 +124,7 @@
     @if (formView === 'raw') {
       <div class="form-group-column">
         @if (formData) {
-          <lib-json-view [(data)]="formData"></lib-json-view>
+          <lib-json-view [(data)]="formData" [readOnly]="useStrictReadonlyForm"></lib-json-view>
         }
       </div>
     }

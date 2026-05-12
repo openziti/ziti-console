@@ -184,6 +184,9 @@ export class ConfigTypeFormComponent extends ProjectableForm implements OnInit, 
     }
 
     async save(event?: any) {
+        if (!this.canSaveByPermissions()) {
+            return;
+        }
         this.errors = {};
         if (!this.validate()) {
             this.isLoading = false;

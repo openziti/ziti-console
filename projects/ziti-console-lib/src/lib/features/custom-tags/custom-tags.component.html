@@ -1,8 +1,10 @@
-<div id="TagExtended" (clickOutside)="validate($event)">
-  <div class="add-button-container add-vlan-button add-config-open" (click)="addTag($event)">
-    <div class="icon-add addIcon"></div>
-    <span class="add-icon-label">New Tag</span>
-  </div>
+<div id="TagExtended" (clickOutside)="validate($event)" [class.custom-tags-readonly]="readOnly">
+  @if (!readOnly) {
+    <div class="add-button-container add-vlan-button add-config-open" (click)="addTag($event)">
+      <div class="icon-add addIcon"></div>
+      <span class="add-icon-label">New Tag</span>
+    </div>
+  }
   @if (tagsArray.length >= 1) {
     <div class="grid tags">
       <label>Name</label><label>Value</label>
@@ -16,27 +18,31 @@
     }
     @for (tag of tagsArray; track tag) {
       <div class="grid tags">
-        <input
-          maxlength="100"
-          placeholder="enter tag name..."
-          [(ngModel)]="tag['name']"
+          <input
+            maxlength="100"
+            placeholder="enter tag name..."
+            [(ngModel)]="tag['name']"
           [ngClass]="{invalid: tag.errors.name}"
-          (keyup.enter)="enterKeyPressed($event)"
-          (keyup)="tagNameChanged(tag, $event)"
-          (change)="validate($event)"
-          >
-        <input
-          placeholder="enter tag value..."
-          type="text"
-          maxlength="100"
-          [(ngModel)]="tag['value']"
-          (keyup.enter)="enterKeyPressed($event)"
-          (keyup)="tagValueChanged(tag, $event)"
-          (change)="validate($event)"
-          >
-        <div class="tag-actions">
-          <div class="removeIcon icon-clear" (click)="removeTag(tag.name)"></div>
-        </div>
+            (keyup.enter)="enterKeyPressed($event)"
+            (keyup)="tagNameChanged(tag, $event)"
+            (change)="validate($event)"
+            [disabled]="readOnly"
+            >
+          <input
+            placeholder="enter tag value..."
+            type="text"
+            maxlength="100"
+            [(ngModel)]="tag['value']"
+            (keyup.enter)="enterKeyPressed($event)"
+            (keyup)="tagValueChanged(tag, $event)"
+            (change)="validate($event)"
+            [disabled]="readOnly"
+            >
+          @if (!readOnly) { 
+          <div class="tag-actions">
+            <div class="removeIcon icon-clear" (click)="removeTag(tag.name)"></div>
+          </div>
+          }
       </div>
     }
   </div>

@@ -6,6 +6,7 @@ import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
     styleUrls: ['./no-items.component.scss'],
     standalone: false
 })
+
 export class NoItemsComponent implements OnChanges {
   @Input() image = 'No_Gateways';
   @Input() typeName = '';
@@ -13,12 +14,12 @@ export class NoItemsComponent implements OnChanges {
   @Input() hasAdd = true;
   @Input() hiddenResults = false;
   @Input() isLoading = false;
+  @Input() readonly = false;
   background;
   @Output() clickEmit = new EventEmitter<any>();
   @Output() refresh = new EventEmitter<any>();
 
-  constructor() {
-  }
+  constructor() {}
 
   ngOnChanges() {
     this.background = {

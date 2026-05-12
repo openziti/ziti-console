@@ -27,6 +27,10 @@ export class ListPageHeaderComponent {
     @Input() tabs!: any[];
     @Input() showAdd = true;
     @Input() hideAction = false;
+    /** When true, hide the create (+) control even if showAdd is true. */
+    @Input() blockCreate = false;
+    /** When true, hide the bulk delete (-) control when rows are selected. */
+    @Input() blockDelete = false;
     @Output() actionClicked = new EventEmitter<string>();
 
     clickAction(value: string) {

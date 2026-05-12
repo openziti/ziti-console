@@ -9,7 +9,9 @@
     [moreActions]="moreActions"
     (actionRequested)="headerActionRequested($event)"
     [(formView)]="formView"
-    [saveDisabled]="svc.saveDisabled || formDataInvalid"
+    [saveDisabled]="svc.saveDisabled || formDataInvalid || formPermissionSaveDisabled"
+    [saveTooltip]="formPermissionSaveTooltip"
+    [strictReadonlyUi]="useStrictReadonlyForm"
   ></lib-form-header>
   <div class="terminator-form-container projectable-form-container">
     <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
@@ -102,7 +104,7 @@
 @if (formView === 'raw') {
   <div class="form-group-column">
     @if (formData) {
-      <lib-json-view [(data)]="formData"></lib-json-view>
+      <lib-json-view [(data)]="formData" [readOnly]="useStrictReadonlyForm"></lib-json-view>
     }
   </div>
 }
