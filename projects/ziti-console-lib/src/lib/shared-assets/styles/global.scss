@@ -2254,7 +2254,7 @@ a {
   height: 1.875rem;
   position: relative;
   display: inline-block;
-  top: 0.125rem;
+  top: 0.3125rem;
   transition: var(--transition);
   font-size: 1.75rem;
   margin-left: 0.3125rem;
@@ -2262,6 +2262,10 @@ a {
   text-align: center;
   color: var(--black);
   text-align: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-image: url(/assets/svgs/qr.svg);
 }
 
 ////////
