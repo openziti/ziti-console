@@ -52,6 +52,7 @@ export class PortRangesComponent {
     const key = event.key?.toLowerCase();
     if (key === " " || key === 'enter') {
       event.preventDefault();
+      event.stopPropagation();
       const element = event.target as HTMLElement;
       element.blur();
       element.focus();
