@@ -37,6 +37,23 @@
   background-color: var(--lightRed, #fee2e2) !important;
 }
 
+:host(.chips-input-disabled) {
+  cursor: default;
+  background-color: var(--stroke, #cbd5e1);
+  color: var(--tableText, #334155);
+}
+
+:host(.chips-input-disabled.p-focus) {
+  border-color: var(--stroke, #cbd5e1);
+}
+
+.p-chips-token.p-chips-token-readonly {
+  background: var(--navigation, #fff);
+  color: var(--text, #111827);
+  border: var(--inputBorderWidth, 1px) solid var(--stroke, #cbd5e1);
+  font-weight: 500;
+}
+
 .p-inputtext.p-chips-multiple-container {
   width: 100%;
   padding: 0;

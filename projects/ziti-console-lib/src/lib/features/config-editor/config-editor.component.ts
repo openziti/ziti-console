@@ -30,6 +30,9 @@ export class ConfigEditorComponent implements OnInit, AfterViewInit {
   ]
   hideConfigJSON = false;
 
+  /** When true, block edits to embedded config form and JSON editor (e.g. global admin_readonly). */
+  @Input() readOnly = false;
+
   @Input() configErrors: any = {};
   @Output() configErrorsChange = new EventEmitter<any>();
 

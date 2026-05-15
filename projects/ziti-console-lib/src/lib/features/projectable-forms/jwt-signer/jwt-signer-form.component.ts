@@ -171,6 +171,9 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
     }
 
     async save(event?: any) {
+        if (!this.canSaveByPermissions()) {
+            return;
+        }
         if(!this.validate()) {
             return;
         }
@@ -354,10 +357,16 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
     }
 
     toggleEnabled() {
+        if (this.useStrictReadonlyForm) {
+            return;
+        }
         this.formData.enabled = !this.formData.enabled;
     }
 
     toggleUseExternalId() {
+        if (this.useStrictReadonlyForm) {
+            return;
+        }
         this.formData.useExternalId = !this.formData.useExternalId;
         if (!this.formData.useExternalId) {
             this.errors.claimsProperty = false;
@@ -381,6 +390,9 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
     }
 
     radioKeyDownHandler(event: any) {
+        if (this.useStrictReadonlyForm) {
+            return;
+        }
         switch (event.key) {
             case 'ArrowLeft':
                 this.signatureMethod = 'JWKS_ENDPOINT';
@@ -394,10 +406,16 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
     }
 
     selectSignatureMethod(method) {
+        if (this.useStrictReadonlyForm) {
+            return;
+        }
         this.signatureMethod = method;
     }
 
     openFileSelect(event: any) {
+        if (this.useStrictReadonlyForm) {
+            return;
+        }
         this.filterInput.nativeElement.click();
         this.fileSelectOpening = true;
         delay(() => {
@@ -406,6 +424,9 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
     }
 
     selectPemFile(event: any) {
+        if (this.useStrictReadonlyForm) {
+            return;
+        }
         const file: File = event?.target?.files[0];
 
         if (file) {

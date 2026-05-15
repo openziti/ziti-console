@@ -82,6 +82,8 @@ export class DataTableComponent implements OnChanges, OnInit {
   @Input() noItemsClass: any = 'background-image: url("assets/svgs/No_Clients.svg")';
   @Input() entityTypeName = 'Identities';
   @Input() showNoItemsAdd = true;
+  /** When true, empty-state copy does not prompt to add (e.g. admin_readonly / no create permission). */
+  @Input() noItemsReadonly = false;
   @Input() currentPage = 1;
   @Input() noItemsImage = 'nodata';
   @Input() rowHeight = this.remToPx(3.125);

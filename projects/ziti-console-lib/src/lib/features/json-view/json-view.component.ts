@@ -195,6 +195,9 @@ export class JsonViewComponent implements AfterViewInit, OnChanges {
         this.initEditor();
       }
     }
+    if (changes['readOnly'] && this.editorInit && this.editor?.updateProps) {
+      void this.editor.updateProps({ readOnly: this.readOnly });
+    }
   }
 
   public validate(newData: any = undefined) {

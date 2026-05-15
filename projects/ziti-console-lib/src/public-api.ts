@@ -38,6 +38,7 @@ export * from './lib/services/login-service.class';
 export * from './lib/services/noop-login.service';
 export * from './lib/services/settings-service.class';
 export * from './lib/services/settings.service';
+export * from './lib/services/management-permissions.service';
 export * from './lib/services/ha-controller.service';
 export * from './lib/services/tab-name.service';
 export * from './lib/services/ziti-data.service';

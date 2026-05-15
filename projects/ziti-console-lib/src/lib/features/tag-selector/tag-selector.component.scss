@@ -373,6 +373,10 @@
   opacity: 0.75;
   cursor: default;
 
+  .select2-selection__choice__remove {
+    display: none !important;
+  }
+
   .select2-container {
     .select2-selection__rendered:not(.empty) {
       min-height: var(--defaultInputHeight);
@@ -382,7 +386,6 @@
       &:disabled {
         font-weight: 600;
         font-family: Open Sans, Arial, sans-serif;
-        height: 0rem !important;
         width: 100%;
         padding-left: 0.625rem;
         padding-right: 0.625rem;
@@ -397,13 +400,17 @@
         color: var(--tableText);
         text-transform: none;
 
-        &:hover {
-          box-shadow: none;
-          filter: none;
+        &:not(.empty) {
+          height: 0rem !important;
         }
 
         &.empty {
-          height: 3.125rem;
+          height: var(--defaultInputHeight) !important;
+        }
+
+        &:hover {
+          box-shadow: none;
+          filter: none;
         }
       }
     }

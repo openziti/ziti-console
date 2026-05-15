@@ -10,25 +10,28 @@
     [moreActions]="moreActions"
     (actionRequested)="headerActionRequested($event)"
     [(formView)]="formView"
-    [saveDisabled]="saveDisabled"
-    [saveTooltip]="saveButtonTooltip"
+    [saveDisabled]="saveDisabled || formPermissionSaveDisabled"
+    [saveTooltip]="formPermissionSaveDisabled ? formPermissionSaveTooltip : saveButtonTooltip"
     [class.is-scrolled]="isScrolled"
+    [strictReadonlyUi]="useStrictReadonlyForm"
   ></lib-form-header>
   <div class="config-form-container projectable-form-container" #formContainer>
     <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
       <div class="form-group-column three-fifths">
-        <lib-form-field-container [title]="'Config Name'" [label]="'Required'">
-          <input
-            id="ConfigName"
-            type="text"
-            maxlength="500"
-            placeholder="Name this config"
-            [ngClass]="{error: errors['name']}"
-            [(ngModel)]="formData.name"
-            >
+        <lib-form-field-container [title]="'Config Name'" [label]="useStrictReadonlyForm ? '' : 'REQUIRED'">
+            <input
+              class="form-field-input"
+              id="ConfigName"
+              type="text"
+              maxlength="500"
+              placeholder="Name this config"
+              [ngClass]="{error: errors['name']}"
+              [(ngModel)]="formData.name"
+              [disabled]="useStrictReadonlyForm"
+              >
         </lib-form-field-container>
-        <lib-form-field-container [title]="'Schema'" [label]="'Required'" class="schema-json-editor">
-          <lib-json-view [(data)]="formData.schema" [jsonInvalid]="errors['schema']"></lib-json-view>
+        <lib-form-field-container [title]="'Schema'" [label]="useStrictReadonlyForm ? '' : 'REQUIRED'" class="schema-json-editor">
+          <lib-json-view [(data)]="formData.schema" [jsonInvalid]="errors['schema']" [readOnly]="useStrictReadonlyForm"></lib-json-view>
         </lib-form-field-container>
         <lib-form-field-toggle [(toggleOn)]="showMore" (toggleOnChange)="showMoreChanged($event)" style="margin: 0px 10px"></lib-form-field-toggle>
         <div [hidden]="!showMore" class="form-group-column">
@@ -38,7 +41,7 @@
               [label]="'OPTIONAL'"
               class="form-field-advanced"
               >
-              <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
+              <lib-custom-tags [(tags)]="formData.tags" [readOnly]="useStrictReadonlyForm"></lib-custom-tags>
             </lib-form-field-container>
           }
         </div>
@@ -63,7 +66,7 @@
     @if (formView === 'raw') {
       <div class="form-group-column">
         @if (formData) {
-          <lib-json-view [(data)]="formData"></lib-json-view>
+          <lib-json-view [(data)]="formData" [readOnly]="useStrictReadonlyForm"></lib-json-view>
         }
       </div>
     }

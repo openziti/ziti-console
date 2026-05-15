@@ -9,33 +9,45 @@
     [moreActions]="moreActions"
     (actionRequested)="headerActionRequested($event)"
     [(formView)]="formView"
-    [saveDisabled]="svc.saveDisabled || formDataInvalid"
+    [saveDisabled]="svc.saveDisabled || formDataInvalid || formPermissionSaveDisabled"
+    [saveTooltip]="formPermissionSaveTooltip"
     [badges]="badges"
+    [strictReadonlyUi]="useStrictReadonlyForm"
   ></lib-form-header>
   <div class="jwt-signer-form-container projectable-form-container">
     <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
       <div class="form-group-column three-fifths">
         <lib-form-field-container
           [title]="'Name'"
-          [label]="'Required'"
+          [label]="useStrictReadonlyForm ? '' : 'REQUIRED'"
           >
-          <input class="form-field-input read-only" [(ngModel)]="formData.name" [ngClass]="{error: errors['name']}" placeholder="Name this Certificate Authority"/>
+          @if (!useStrictReadonlyForm) {
+            <input class="form-field-input read-only" [(ngModel)]="formData.name" [ngClass]="{error: errors['name']}" placeholder="Name this Certificate Authority"/>
+          } @else {
+            <div class="form-field-readonly-value">{{ formData.name }}</div>
+          }
         </lib-form-field-container>
         <lib-form-field-container
           [title]="'Identity Name Format'"
           [contentStyle]="'z-index: 99999999'"
-          [label]="'OPTIONAL'"
+          [label]="useStrictReadonlyForm ? '' : 'OPTIONAL'"
           [helpText]="'The identity name format used to name automatically enrolling identities. Defaults to [caName]-[commonName]'"
           >
-          <input class="form-field-input read-only" [(ngModel)]="formData.identityNameFormat" [ngClass]="{error: errors['identityNameFormat']}" placeholder="Defaults to [caName]-[commonName]"/>
+          @if (!useStrictReadonlyForm) {
+            <input class="form-field-input read-only" [(ngModel)]="formData.identityNameFormat" [ngClass]="{error: errors['identityNameFormat']}" placeholder="Defaults to [caName]-[commonName]"/>
+          } @else {
+            <div class="form-field-readonly-value">{{ formData.identityNameFormat }}</div>
+          }
         </lib-form-field-container>
         <lib-form-field-container
           [title]="'Identity Roles'"
           [contentStyle]="'z-index: 99999999'"
-          [label]="'OPTIONAL'"
+          [label]="useStrictReadonlyForm ? '' : 'OPTIONAL'"
           [helpText]="'The identity roles to give to automatically enrolling identities'"
           >
           <lib-tag-selector
+            [disableField]="useStrictReadonlyForm"
+            [disableCreate]="useStrictReadonlyForm"
             [(selectedRoleAttributes)]="formData.identityRoles"
             [availableRoleAttributes]="identityRoleAttributes"
             [placeholder]="'Type to filter and enter to assign'"
@@ -241,7 +253,7 @@
             [label]="'OPTIONAL'"
             class="form-field-advanced"
             >
-            <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
+            <lib-custom-tags [(tags)]="formData.tags" [readOnly]="useStrictReadonlyForm"></lib-custom-tags>
           </lib-form-field-container>
         </div>
       </div>
@@ -276,7 +288,7 @@
     @if (formView === 'raw') {
       <div class="form-group-column">
         @if (formData) {
-          <lib-json-view [(data)]="formData"></lib-json-view>
+          <lib-json-view [(data)]="formData" [readOnly]="useStrictReadonlyForm"></lib-json-view>
         }
       </div>
     }

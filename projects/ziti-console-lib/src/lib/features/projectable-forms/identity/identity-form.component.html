@@ -10,24 +10,28 @@
     (actionRequested)="headerActionRequested($event)"
     [(formView)]="formView"
     [class.is-scrolled]="isScrolled"
+    [saveDisabled]="formPermissionSaveDisabled"
+    [saveTooltip]="formPermissionSaveTooltip"
+    [strictReadonlyUi]="useStrictReadonlyForm"
   ></lib-form-header>
   <div class="identity-form-container projectable-form-container" #formContainer>
     @if (formView === 'simple') {
       <div class="projectable-form-main-column form-group-row">
         <div class="form-group-column three-fifths">
-          <lib-form-field-container [title]="'Identity Name'" [label]="'REQUIRED'">
-            <input
-              class="form-field-input"
-              placeholder="Name this identity"
-              [ngClass]="{error: errors['name']}"
-              [(ngModel)]="formData.name"
-              autofocus
-              #nameFieldInput
-              />
+          <lib-form-field-container [title]="'Identity Name'" [label]="useStrictReadonlyForm ? '' : 'REQUIRED'">
+              <input
+                class="form-field-input"
+                placeholder="Name this identity"
+                [ngClass]="{error: errors['name']}"
+                [(ngModel)]="formData.name"
+                autofocus
+                #nameFieldInput
+                [disabled]="useStrictReadonlyForm"
+                />
           </lib-form-field-container>
           <lib-form-field-container
             [title]="'Select or create Identity attributes'"
-            [label]="'OPTIONAL'"
+            [label]="useStrictReadonlyForm ? '' : 'OPTIONAL'"
             [contentStyle]="'z-index: 99999999'"
             [helpText]="'Attributes are tags applied to an resource. Apply the same tag to other Identities to form a group of Identities.'"
             >
@@ -36,18 +40,21 @@
               (selectedRoleAttributesChange)="roleAttributesChanged($event)"
               [availableRoleAttributes]="identityRoleAttributes"
               [placeholder]="'Add attributes to group Identities'"
+              [disableField]="useStrictReadonlyForm"
+              [disableCreate]="useStrictReadonlyForm"
             ></lib-tag-selector>
           </lib-form-field-container>
           <ng-content select="[slot=column-1-slot-1]"></ng-content>
           <lib-form-field-container
             [title]="'Auth Policy'"
-            [label]="'OPTIONAL'"
+            [label]="useStrictReadonlyForm ? '' : 'OPTIONAL'"
             [helpText]="'Authentication Policies restrict the authentication methods available to identities.'"
             >
             <select
               [(ngModel)]="formData.authPolicyId"
               id="authPolicyId"
               class="form-field-dropdown"
+              [disabled]="useStrictReadonlyForm"
               >
               <option value="">Select an Authentication Policy</option>
               @for (policy of authPolicies; track policy) {
@@ -63,9 +70,14 @@
                 <div class="form-field-title-container">
                   <span class="form-field-title">External ID</span>
                 </div>
-                <span class="form-field-label">OPTIONAL</span>
+                <span class="form-field-label">{{ useStrictReadonlyForm ? '' : 'OPTIONAL' }}</span>
               </div>
-              <input class="form-field-input" placeholder="Optional External ID" [(ngModel)]="formData.externalId"/>
+              <input
+                class="form-field-input"
+                placeholder="Optional External ID"
+                [(ngModel)]="formData.externalId"
+                [disabled]="useStrictReadonlyForm"
+                />
             </div>
           </lib-form-field-container>
           <ng-content select="[slot=column-1-slot-2]"></ng-content>
@@ -81,6 +93,7 @@
                 id="EnrollmentType"
                 class="form-field-dropdown"
                 [ngClass]="{disabled: isEditing}"
+                [disabled]="useStrictReadonlyForm || isEditing"
                 [(ngModel)]="enrollmentType"
                 (change)="updateEnrollment()"
                 >
@@ -93,9 +106,9 @@
                 <select
                   id="CertAuthorities"
                   class="form-field-dropdown"
-                  [ngClass]="{disabled: isEditing}"
+                  [ngClass]="{disabled: isEditing, error: errors.enrollmentCA}"
+                  [disabled]="useStrictReadonlyForm || isEditing"
                   [(ngModel)]="enrollmentCA"
-                  [ngClass]="{error: errors.enrollmentCA}"
                   (change)="updateEnrollment()"
                   >
                   @for (ca of cas; track ca) {
@@ -105,14 +118,15 @@
               }
               @if (enrollmentType === 'updb' && !isEditing) {
                 <input
+                  id="UPDBName"
+                  class="form-field-input"
                   [ngClass]="{disabled: isEditing, error: errors.enrollmentUPDB}"
                   [(ngModel)]="enrollmentUPDB"
                   (keyup)="updateEnrollment()"
-                  class="form-field-input"
-                  id="UPDBName"
                   type="text"
                   maxlength="500"
                   placeholder="Enter a name"
+                  [disabled]="useStrictReadonlyForm"
                   >
               }
             </lib-form-field-container>
@@ -126,7 +140,7 @@
                   <div class="config-container-label">IS ADMIN</div>
                   <div
                     (click)="toggleIsAdmin()"
-                    [ngClass]="{ on: formData.isAdmin }"
+                    [ngClass]="{ on: formData.isAdmin, 'toggle-readonly': useStrictReadonlyForm }"
                     class="toggle"
                     >
                     <span [hidden]="!formData.isAdmin" class="on-label">YES</span>
@@ -142,11 +156,17 @@
               [layout]="'row'"
               class="form-field-advanced"
               >
-              <input class="form-field-input" [(ngModel)]="formData.defaultHostingCost" type="number"/>
+              <input
+                class="form-field-input"
+                [(ngModel)]="formData.defaultHostingCost"
+                type="number"
+                [disabled]="useStrictReadonlyForm"
+                />
               <select
                 [(ngModel)]="formData.defaultHostingPrecedence"
                 id="hostingPrecedence"
                 class="form-field-dropdown"
+                [disabled]="useStrictReadonlyForm"
                 >
                 <option value="default">Default</option>
                 <option value="required">Required</option>
@@ -156,7 +176,7 @@
             @for (tagElement of tagElements; track tagElement) {
               <lib-form-field-container
                 [title]="tagElement.label"
-                [label]="'OPTIONAL'"
+                [label]="useStrictReadonlyForm ? '' : 'OPTIONAL'"
                 class="form-field-advanced"
                 >
                 <div [innerHTML]="tagElement.content | safe"></div>
@@ -165,18 +185,18 @@
             @if (!hideTags) {
               <lib-form-field-container
                 [title]="'Custom Tags'"
-                [label]="'OPTIONAL'"
+                [label]="useStrictReadonlyForm ? '' : 'OPTIONAL'"
                 class="form-field-advanced"
                 >
-                <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
+                <lib-custom-tags [(tags)]="formData.tags" [readOnly]="useStrictReadonlyForm"></lib-custom-tags>
               </lib-form-field-container>
             }
             <lib-form-field-container
               [title]="'App Data'"
-              [label]="'OPTIONAL'"
+              [label]="useStrictReadonlyForm ? '' : 'OPTIONAL'"
               class="form-field-advanced"
               >
-              <lib-json-view [(data)]="formData.appData"></lib-json-view>
+              <lib-json-view [(data)]="formData.appData" [readOnly]="useStrictReadonlyForm"></lib-json-view>
             </lib-form-field-container>
           </div>
         </div>
@@ -201,6 +221,7 @@
                     </span>
                   }
                 </div>
+                @if (!useStrictReadonlyForm) {
                 <lib-qr-code
                   [identity]="formData"
                   [jwt]="jwt"
@@ -210,10 +231,11 @@
                   [canExpand]="true"
                   (doRefresh)="refreshIdentity(true)"
                 ></lib-qr-code>
+                }
               </div>
             </lib-form-field-container>
           }
-          @if (isEdit) {
+          @if (isEdit && !useStrictReadonlyForm) {
             <lib-form-field-container
               [showHeader]="false"
               [layout]="'column'"
@@ -316,7 +338,7 @@
     @if (formView === 'raw') {
       <div class="form-group-column">
         @if (formData) {
-          <lib-json-view [(data)]="formData"></lib-json-view>
+          <lib-json-view [(data)]="formData" [readOnly]="useStrictReadonlyForm"></lib-json-view>
         }
       </div>
     }

@@ -145,6 +145,9 @@ export class TransitRouterFormComponent extends ProjectableForm implements OnIni
   }
 
   async save(event?) {
+    if (!this.canSaveByPermissions()) {
+      return;
+    }
     const isValid = this.validate();
     const isExtValid = await this.extService.validateData();
     this.formData.name = this.formData.name.trim()

@@ -2,9 +2,12 @@
   <lib-list-page-header [title]="title"
     [tabs]="tabs"
     [showAdd]="!itemsSelected"
+    [blockCreate]="headerBlockCreate"
+    [blockDelete]="headerBlockDelete"
   (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
   <ng-content select="[slot=list-page-subheader]"></ng-content>
   <lib-data-table [tableId]="'identities'"
+    [noItemsReadonly]="headerBlockCreate"
     [rowData]="rowData"
     [isLoading]="isLoading"
     [columnDefinitions]="columnDefs"

@@ -9,9 +9,11 @@
     [moreActions]="formData.moreActions"
     (actionRequested)="headerActionRequested($event)"
     [(formView)]="formView"
-    [saveDisabled]="svc.saveDisabled || formDataInvalid"
+    [saveDisabled]="svc.saveDisabled || formDataInvalid || formPermissionSaveDisabled"
+    [saveTooltip]="formPermissionSaveTooltip"
     [showHeaderToggle]="false"
     [actionButtonText]="'Verify'"
+    [strictReadonlyUi]="useStrictReadonlyForm"
   ></lib-form-header>
   <div class="verify-certificate-container projectable-form-container">
     <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
@@ -35,7 +37,7 @@
         </lib-form-field-container>
         <lib-form-field-container
           [title]="'Certificate'"
-          [label]="'REQUIRED'"
+          [label]="useStrictReadonlyForm ? '' : 'REQUIRED'"
           >
           @if (errors['certPem']) {
             <span class="cert-error-text error-text">{{certErrorMessage}}</span>
@@ -60,7 +62,9 @@
         </lib-form-field-container>
         <div class="buttons-container buttons">
           <div class="linkButton cancel" (click)="returnToListPage()">Oops, no get me out of here</div>
-          <div class=" save-button button save confirm" (click)="save($event)">Verify</div>
+          @if (!useStrictReadonlyForm) {
+            <div class=" save-button button save confirm" (click)="save($event)">Verify</div>
+          }
         </div>
       </div>
     </div>

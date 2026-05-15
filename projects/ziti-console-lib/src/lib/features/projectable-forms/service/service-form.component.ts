@@ -173,9 +173,13 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
 
   override ngAfterViewInit() {
     super.ngAfterViewInit();
-    this.nameFieldInput.nativeElement.focus();
+    if (!this.useStrictReadonlyForm) {
+      this.nameFieldInput?.nativeElement?.focus();
+    }
     this.svc.configEditor = this.configEditor;
-    this.svc.getConfigTypes();
+    if (!this.useStrictReadonlyForm) {
+      this.svc.getConfigTypes();
+    }
     this.svc.getRouters();
   }
 
@@ -216,6 +220,9 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   }
 
   configTypeChanged($event) {
+    if (this.useStrictReadonlyForm) {
+      return;
+    }
     this.svc.selectedConfigId = '';
     this.svc.newConfigName = '';
     const filters = [];
@@ -244,13 +251,20 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   }
 
   attachConfig() {
-    this.configEditor.getConfigDataFromForm();
+    if (this.useStrictReadonlyForm) {
+      return;
+    }
+    this.configEditor?.getConfigDataFromForm();
     this.svc.attachConfig(this.svc.selectedConfigId);
   }
 
   captureConfigEnterEvent(event) {
+    if (this.useStrictReadonlyForm) {
+      event.stopPropagation();
+      return;
+    }
     event.stopPropagation();
-    this.configEditor.getConfigDataFromForm();
+    this.configEditor?.getConfigDataFromForm();
     this.svc.attachConfig(this.svc.selectedConfigId);
   }
 
@@ -392,6 +406,9 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   }
 
   async save(event?) {
+    if (!this.canSaveByPermissions()) {
+      return;
+    }
     this.formData.name = this.formData.name.trim();
     const isValid = this.svc.validate();
     const isExtValid = await this.extService.validateData();
@@ -428,6 +445,9 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
   }
 
   toggleEncryptionRequired() {
+    if (this.useStrictReadonlyForm) {
+      return;
+    }
     this.formData.encryptionRequired = !this.formData.encryptionRequired;
   }
 

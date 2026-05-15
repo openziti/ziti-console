@@ -17,6 +17,7 @@
 import {DataTableFilterService} from "../features/data-table/data-table-filter.service";
 import {ListPageServiceClass} from "./list-page-service.class";
 import {inject, Injectable} from "@angular/core";
+import {ManagementPermissionsService} from "../services/management-permissions.service";
 import {Subscription} from "rxjs";
 import {ConsoleEventsService} from "../services/console-events.service";
 import {ConfirmComponent} from "../features/confirm/confirm.component";
@@ -53,6 +54,15 @@ export abstract class ListPageComponent {
     subscription: Subscription = new Subscription();
 
     private growlerSvc = inject(GrowlerService);
+    protected readonly managementPermissions = inject(ManagementPermissionsService);
+
+    get headerBlockCreate(): boolean {
+        return !this.managementPermissions.canCreate(this.svc.resourceType);
+    }
+
+    get headerBlockDelete(): boolean {
+        return !this.managementPermissions.canDelete(this.svc.resourceType);
+    }
 
     constructor(
         protected filterService: DataTableFilterService,
@@ -66,8 +76,16 @@ export abstract class ListPageComponent {
         this.filterService.currentPage = 1;
         this.svc.sideModalOpen = false;
         this.svc.refreshData = this.refreshData.bind(this);
+        this.svc.resetMenusForInit();
         this.svc.initMenuActions();
         this.columnDefs = this.svc.initTableColumns();
+        this.svc.capturePermissionSnapshots();
+        this.subscription.add(
+            this.managementPermissions.stateVersion$.subscribe(() => {
+                this.svc.rebuildMenusAndHeaders(this.managementPermissions);
+                this.syncBulkDownloadHeaderAction();
+            }),
+        );
         this.filterService.clearFilters();
         this.extensionService?.extendOnInit();
         this.subscription.add(
@@ -98,10 +116,19 @@ export abstract class ListPageComponent {
 
     itemToggled(item: any): void {
         this.updateSelectedItems(item);
+        this.syncBulkDownloadHeaderAction();
+    }
+
+    protected syncBulkDownloadHeaderAction(): void {
         const hasSelection = this.selectedItems.length > 0;
-        const index = this.svc.tableHeaderActions.findIndex(a => a.action === 'download-selected');
-        hasSelection && index === -1 && this.svc.tableHeaderActions.push({ name: 'Download Selected', action: 'download-selected' });
-        !hasSelection && index !== -1 && this.svc.tableHeaderActions.splice(index, 1);
+        const index = this.svc.tableHeaderActions.findIndex((a) => a.action === 'download-selected');
+        const allow = this.managementPermissions.canRead(this.svc.resourceType);
+        if (hasSelection && allow && index === -1) {
+            this.svc.tableHeaderActions.push({ name: 'Download Selected', action: 'download-selected' });
+        }
+        if ((!hasSelection || !allow) && index !== -1) {
+            this.svc.tableHeaderActions.splice(index, 1);
+        }
     }
 
     updateSelectedItems(toggledItem?: any) {
@@ -145,6 +172,7 @@ export abstract class ListPageComponent {
                     this.endCount = data.meta.pagination.offset + data.meta.pagination.limit;
                 }
                 this.updateSelectedItems();
+                this.syncBulkDownloadHeaderAction();
                 this.refreshCells();
             }).finally(() => {
                 this.isLoading = false;
@@ -175,6 +203,9 @@ export abstract class ListPageComponent {
     }
 
     protected openBulkDelete(selectedItems: any[], entityTypeLabel = 'item(s)', ) {
+        if (!this.managementPermissions.canDelete(this.svc.resourceType)) {
+            return;
+        }
         const selectedIds = selectedItems.map((row) => {
             return row.id;
         });

@@ -10,20 +10,24 @@
     (actionRequested)="headerActionRequested($event)"
     [(formView)]="formView"
     [class.is-scrolled]="isScrolled"
+    [saveDisabled]="formPermissionSaveDisabled"
+    [saveTooltip]="formPermissionSaveTooltip"
+    [strictReadonlyUi]="useStrictReadonlyForm"
   ></lib-form-header>
   <div class="service-edge-router-policy-form-container projectable-form-container" #formContainer>
     @if (formView === 'simple') {
       <div class="projectable-form-main-column form-group-row">
         <div class="form-group-column three-fifths">
-          <lib-form-field-container [title]="'Service Edge Router Policy Name'" [label]="'REQUIRED'">
-            <input
-              class="form-field-input"
-              placeholder="Name this service edge router policy"
-              [ngClass]="{error: errors['name']}"
-              [(ngModel)]="formData.name"
-              autofocus
-              #nameFieldInput
-              />
+          <lib-form-field-container [title]="'Service Edge Router Policy Name'" [label]="useStrictReadonlyForm ? '' : 'REQUIRED'">
+              <input
+                class="form-field-input"
+                placeholder="Name this service edge router policy"
+                [ngClass]="{error: errors['name']}"
+                [(ngModel)]="formData.name"
+                autofocus
+                #nameFieldInput
+                [disabled]="useStrictReadonlyForm"
+                />
           </lib-form-field-container>
           <lib-form-field-container
             [title]="'Select Edge Router Attributes'"
@@ -32,6 +36,8 @@
             [helpText]="'Choose which edge router to associate to this policy by picking from the list of available attributes'"
             >
             <lib-tag-selector
+              [disableField]="useStrictReadonlyForm"
+              [disableCreate]="useStrictReadonlyForm"
               [(selectedRoleAttributes)]="selectedEdgeRouterRoleAttributes"
               [(selectedNamedAttributes)]="selectedEdgeRouterNamedAttributes"
               [availableRoleAttributes]="svc.edgeRouterRoleAttributes"
@@ -48,6 +54,8 @@
             [helpText]="'Choose which services to associate to this policy by picking from the list of available attributes'"
             >
             <lib-tag-selector
+              [disableField]="useStrictReadonlyForm"
+              [disableCreate]="useStrictReadonlyForm"
               [(selectedRoleAttributes)]="selectedServiceRoleAttributes"
               [(selectedNamedAttributes)]="selectedServiceNamedAttributes"
               [availableRoleAttributes]="svc.serviceRoleAttributes"
@@ -66,6 +74,7 @@
               (change)="updateAssociations()"
               id="PolicySemantic"
               class="form-field-dropdown"
+              [disabled]="useStrictReadonlyForm"
               >
               <option value="AnyOf">AnyOf</option>
               <option value="AllOf">AllOf</option>
@@ -79,7 +88,7 @@
                 [label]="'OPTIONAL'"
                 class="form-field-advanced"
                 >
-                <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
+                <lib-custom-tags [(tags)]="formData.tags" [readOnly]="useStrictReadonlyForm"></lib-custom-tags>
               </lib-form-field-container>
             }
           </div>
@@ -127,7 +136,7 @@
     @if (formView === 'raw') {
       <div class="form-group-column">
         @if (formData) {
-          <lib-json-view [(data)]="formData"></lib-json-view>
+          <lib-json-view [(data)]="formData" [readOnly]="useStrictReadonlyForm"></lib-json-view>
         }
       </div>
     }

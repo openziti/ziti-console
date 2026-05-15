@@ -5,7 +5,7 @@
         <div class="form-title-back-arrow-icon icon-back-arrow"></div>
       </div>
       <div class="form-header-title-text">
-        <span class="form-title">{{title}}</span>
+        <span class="form-title">{{displayTitle}}</span>
         @if (data.name) {
           <span class="form-title title-name">{{data.name}}</span>
         }
@@ -39,7 +39,7 @@
           </span>
         </div>
       }
-      @if (hasMoreActions) {
+      @if (hasMoreActions && !strictReadonlyUi) {
         <div class="more-actions-container" [ngClass]="{'more-actions-open': showActionsDropDown}"  (click)="showMoreActions()">
           <div class="more-actions-button">
             <div class="more-actions-label">
@@ -64,7 +64,7 @@
           }
         </div>
       }
-      @if (!hasMultiActions && showHeaderButton) {
+      @if (!hasMultiActions && showHeaderButton && !strictReadonlyUi) {
         <div class="save-button"
           (click)="requestAction({name: 'save'})"
           [ngClass]="{'save-disabled': saveDisabled}"
@@ -72,7 +72,7 @@
           matTooltipPosition="below"
         >{{actionButtonText}}</div>
       }
-      @if (hasMultiActions) {
+      @if (hasMultiActions && !strictReadonlyUi) {
         <lib-multi-action-button
           [actions]="saveActions"
           (actionRequested)="actionClicked($event)"

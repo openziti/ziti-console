@@ -9,6 +9,7 @@
     (actionRequested)="headerActionRequested($event)"
     [(formView)]="formView"
     [showHeaderButton]="false"
+    [strictReadonlyUi]="useStrictReadonlyForm"
   ></lib-form-header>
   <div class="edge-router-form-container projectable-form-container">
     @if (formView === 'simple') {
@@ -128,7 +129,7 @@
     @if (formView === 'raw') {
       <div class="form-group-column">
         @if (formData) {
-          <lib-json-view [(data)]="formData"></lib-json-view>
+          <lib-json-view [(data)]="formData" [readOnly]="useStrictReadonlyForm"></lib-json-view>
         }
       </div>
     }

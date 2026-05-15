@@ -204,6 +204,9 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
     }
 
     async save(event?: any) {
+        if (!this.canSaveByPermissions()) {
+            return;
+        }
         this.errors = {};
         this.isLoading = true;
         try {

@@ -1,0 +1,18 @@
+/* Global admin_readonly without write grant: block interaction in the form body; header stays active. */
+:host.zac-management-readonly-form .projectable-form-container {
+    pointer-events: none;
+}
+
+:host.zac-management-readonly-form .projectable-form-container lib-config-editor,
+:host.zac-management-readonly-form .projectable-form-container lib-form-field-toggle,
+:host.zac-management-readonly-form .projectable-form-container lib-tag-selector,
+:host.zac-management-readonly-form .projectable-form-container lib-custom-tags,
+:host.zac-management-readonly-form .projectable-form-container lib-json-view,
+:host.zac-management-readonly-form .projectable-form-container lib-preview-list,
+:host.zac-management-readonly-form .projectable-form-container .copy-text,
+:host.zac-management-readonly-form .projectable-form-container [class*='icon-copy'],
+:host.zac-management-readonly-form .projectable-form-container .url-copy,
+:host.zac-management-readonly-form .projectable-form-container .copy-token-container,
+:host.zac-management-readonly-form .projectable-form-container .linkButton.cancel {
+    pointer-events: auto;
+}

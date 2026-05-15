@@ -68,6 +68,9 @@ export class FilterSelectComponent implements ControlValueAccessor, OnDestroy {
     @ContentChild(FilterSelectOptionTemplateDirective) optionTemplate?: FilterSelectOptionTemplateDirective;
     @ContentChild(FilterSelectTriggerTemplateDirective) triggerTemplate?: FilterSelectTriggerTemplateDirective;
 
+    /** Combined with ControlValueAccessor disabled state (e.g. disable mat-select when parent form is read-only). */
+    @Input() disableControl = false;
+
     value: any = undefined;
     disabled = false;
 
@@ -221,6 +224,9 @@ export class FilterSelectComponent implements ControlValueAccessor, OnDestroy {
         return option?.[this.optionValue];
     }
 
+    get selectDisabled(): boolean {
+        return this.disabled || this.disableControl;
+    }
+
     trackByOption = (_: number, option: any) => this.getOptionValue(option);
 }
-

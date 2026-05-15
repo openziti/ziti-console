@@ -10,20 +10,24 @@
     (actionRequested)="headerActionRequested($event)"
     [(formView)]="formView"
     [class.is-scrolled]="isScrolled"
+    [saveDisabled]="formPermissionSaveDisabled"
+    [saveTooltip]="formPermissionSaveTooltip"
+    [strictReadonlyUi]="useStrictReadonlyForm"
   ></lib-form-header>
   <div class="edge-router-form-container projectable-form-container" #formContainer>
     @if (formView === 'simple') {
       <div class="projectable-form-main-column form-group-row">
         <div class="form-group-column three-fifths">
-          <lib-form-field-container [title]="'Edge Router Name'" [label]="'REQUIRED'">
-            <input
-              class="form-field-input"
-              placeholder="Name this edge router"
-              [ngClass]="{error: errors['name']}"
-              [(ngModel)]="formData.name"
-              autofocus
-              #nameFieldInput
-              />
+          <lib-form-field-container [title]="'Edge Router Name'" [label]="useStrictReadonlyForm ? '' : 'REQUIRED'">
+              <input
+                class="form-field-input"
+                placeholder="Name this edge router"
+                [ngClass]="{error: errors['name']}"
+                [(ngModel)]="formData.name"
+                autofocus
+                #nameFieldInput
+                [disabled]="useStrictReadonlyForm"
+                />
           </lib-form-field-container>
           <lib-form-field-container
             [title]="'Select or create Edge Router attributes'"
@@ -32,6 +36,8 @@
             [helpText]="'Attributes are tags applied to an resource. Apply the same tag to other Edge Routers to form a group of Edge Routers.'"
             >
             <lib-tag-selector
+              [disableField]="useStrictReadonlyForm"
+              [disableCreate]="useStrictReadonlyForm"
               [(selectedRoleAttributes)]="formData.roleAttributes"
               [availableRoleAttributes]="edgeRouterRoleAttributes"
               [placeholder]="'Add attributes to group Edge Routers'"
@@ -50,9 +56,9 @@
                 <div class="config-item" [class.disabled]="!tunnelerEnabledReadOnly">
                   <div class="config-container toggle-container">
                     <div class="config-container-label">TUNNELER ENABLED</div>
-                    <div (click)="tunnelerEnabledReadOnly && toggleTunnelerEnabled()"
-                      [ngClass]="{ on: formData.isTunnelerEnabled,disabled: !tunnelerEnabledReadOnly }" class="toggle"
-                      [matTooltip]="!tunnelerEnabledReadOnly ? 'Disabled because already hosted by netfoundry ' : ''"
+                    <div (click)="tunnelerEnabledReadOnly && !useStrictReadonlyForm && toggleTunnelerEnabled()"
+                      [ngClass]="{ on: formData.isTunnelerEnabled, disabled: !tunnelerEnabledReadOnly, 'toggle-readonly': useStrictReadonlyForm }" class="toggle"
+                      [matTooltip]="useStrictReadonlyForm ? '' : (!tunnelerEnabledReadOnly ? 'Disabled because already hosted by netfoundry ' : '')"
                       matTooltipPosition="above" style="pointer-events: auto;">
                       <span [hidden]="!formData.isTunnelerEnabled" class="on-label">YES</span>
                       <span [hidden]="formData.isTunnelerEnabled" class="off-label">NO</span>
@@ -64,8 +70,8 @@
                   <div class="config-container toggle-container">
                     <div class="config-container-label">ALLOW TRAVERSAL</div>
                     <div
-                      (click)="toggleNoTraversal()"
-                      [ngClass]="{ on: !formData.noTraversal }"
+                      (click)="!useStrictReadonlyForm && toggleNoTraversal()"
+                      [ngClass]="{ on: !formData.noTraversal, 'toggle-readonly': useStrictReadonlyForm }"
                       class="toggle"
                       >
                       <span [hidden]="formData.noTraversal" class="on-label">YES</span>
@@ -110,14 +116,14 @@
                 [label]="'OPTIONAL'"
                 class="form-field-advanced"
                 >
-                <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
+                <lib-custom-tags [(tags)]="formData.tags" [readOnly]="useStrictReadonlyForm"></lib-custom-tags>
               </lib-form-field-container>
               <lib-form-field-container
                 [title]="'App Data'"
                 [label]="'OPTIONAL'"
                 class="form-field-advanced"
                 >
-                <lib-json-view [(data)]="formData.appData"></lib-json-view>
+                <lib-json-view [(data)]="formData.appData" [readOnly]="useStrictReadonlyForm"></lib-json-view>
               </lib-form-field-container>
             </div>
           }
@@ -183,7 +189,7 @@
     @if (formView === 'raw') {
       <div class="form-group-column">
         @if (formData) {
-          <lib-json-view [(data)]="formData"></lib-json-view>
+          <lib-json-view [(data)]="formData" [readOnly]="useStrictReadonlyForm"></lib-json-view>
         }
       </div>
     }

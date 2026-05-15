@@ -10,8 +10,10 @@
     [moreActions]="moreActions"
     (actionRequested)="headerActionRequested($event)"
     [(formView)]="formView"
-    [saveDisabled]="svc.saveDisabled || formDataInvalid"
+    [saveDisabled]="svc.saveDisabled || formDataInvalid || formPermissionSaveDisabled"
+    [saveTooltip]="formPermissionSaveTooltip"
     [class.is-scrolled]="isScrolled"
+    [strictReadonlyUi]="useStrictReadonlyForm"
   ></lib-form-header>
   <div class="jwt-signer-form-container projectable-form-container" #formContainer>
     <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
@@ -20,7 +22,14 @@
           [title]="'Name'"
           [label]="'Required'"
           >
-          <input class="form-field-input read-only" [(ngModel)]="formData.name" [ngClass]="{error: errors['name']}" placeholder="Name this Auth Policy"/>
+            <input
+              class="form-field-input"
+              [(ngModel)]="formData.name"
+              [ngClass]="{error: errors['name']}"
+              placeholder="Name this Auth Policy"
+              #nameFieldInput
+              [disabled]="useStrictReadonlyForm"
+              />
         </lib-form-field-container>
         <lib-form-field-container
           [title]="'Primary Authentication'"
@@ -37,8 +46,8 @@
                 ></div>
               </div>
               <div
-                (click)="toggleCertAllowed()"
-                [ngClass]="{ on: formData.primary.cert.allowed }"
+                (click)="!useStrictReadonlyForm && toggleCertAllowed()"
+                [ngClass]="{ on: formData.primary.cert.allowed, 'toggle-readonly': useStrictReadonlyForm }"
                 class="toggle"
                 >
                 <span [hidden]="!formData.primary.cert.allowed" class="on-label">YES</span>
@@ -133,6 +142,8 @@
                 ></div>
               </div>
               <lib-tag-selector
+                [disableField]="useStrictReadonlyForm"
+                [disableCreate]="useStrictReadonlyForm"
                 [(selectedNamedAttributes)]="allowedJwtSignerAttributes"
                 [availableNamedAttributes]="svc.jwtSignerNamedAttributes"
                 [placeholder]="'Select which External JWT Signers to allow'"
@@ -240,7 +251,7 @@
             [label]="'OPTIONAL'"
             class="form-field-advanced"
             >
-            <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
+            <lib-custom-tags [(tags)]="formData.tags" [readOnly]="useStrictReadonlyForm"></lib-custom-tags>
           </lib-form-field-container>
         </div>
       </div>
@@ -297,6 +308,7 @@
               (selectionChange)="secondaryJwtSignerChanged($event)"
               (filterChange)="jwtSignersFilterChangedDebounced($event)"
               [(ngModel)]="formData.secondary.requireExtJwtSigner"
+              [disabled]="useStrictReadonlyForm"
             ></lib-filter-select>
           </div>
         </lib-form-field-container>
@@ -319,7 +331,7 @@
     @if (formView === 'raw') {
       <div class="form-group-column">
         @if (formData) {
-          <lib-json-view [(data)]="formData"></lib-json-view>
+          <lib-json-view [(data)]="formData" [readOnly]="useStrictReadonlyForm"></lib-json-view>
         }
       </div>
     }

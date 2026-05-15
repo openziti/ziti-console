@@ -9,11 +9,11 @@
       <div class="tab" [ngClass]="{selected: tabSelected(tab)}" [routerLink]="tab.url" [hidden]="tab.hidden">{{tab.label}}</div>
     }
   </div>
-  @if (showAdd) {
+  @if (showAdd && !blockCreate) {
     <div [ngClass]="{hideAction: hideAction}" (click)="clickAction('add')"
     class="action icon-plus icon-add" data-action="add"></div>
   }
-  @if (!showAdd) {
+  @if (!showAdd && !blockDelete) {
     <div [ngClass]="{hideAction: hideAction}" (click)="clickAction('delete')"
     class="action icon-minus icon-delete" data-action="delete"></div>
   }

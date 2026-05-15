@@ -11,38 +11,44 @@
     (actionRequested)="headerActionRequested($event)"
     [(formView)]="formView"
     [class.is-scrolled]="isScrolled"
+    [saveDisabled]="formPermissionSaveDisabled"
+    [saveTooltip]="formPermissionSaveTooltip"
+    [strictReadonlyUi]="useStrictReadonlyForm"
   ></lib-form-header>
   <div class="posture-checkform-container projectable-form-container" #formContainer>
     <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
       <div class="form-group-column three-fifths">
-        <lib-form-field-container [title]="'Name'" [label]="'Required'">
-          <input
+        <lib-form-field-container [title]="'Name'" [label]="useStrictReadonlyForm ? '' : 'REQUIRED'">
+            <input
             id="PostureCheckName"
             type="text"
             maxlength="500"
             placeholder="Name this posture check"
             [ngClass]="{error: errors['name']}"
             [(ngModel)]="formData.name"
+            [disabled]="useStrictReadonlyForm"
             >
         </lib-form-field-container>
         <lib-form-field-container
           [title]="'Select or create Posture Check attributes'"
-          [label]="'OPTIONAL'"
+          [label]="useStrictReadonlyForm ? '' : 'OPTIONAL'"
           [contentStyle]="'z-index: 99999999'"
           [helpText]="'Attributes are tags applied to an resource. Apply the same tag to other Posture Checks to form a group of Posture Checks.'"
           >
           <lib-tag-selector
+            [disableField]="useStrictReadonlyForm"
+            [disableCreate]="useStrictReadonlyForm"
             [(selectedRoleAttributes)]="formData.roleAttributes"
             [availableRoleAttributes]="pcRoleAttributes"
             [placeholder]="'Add attributes to group Posture Checks'"
           ></lib-tag-selector>
         </lib-form-field-container>
-        <lib-form-field-container [title]="'Type'" [label]="'Required'" class="schema-json-editor">
+        <lib-form-field-container [title]="'Type'" [label]="useStrictReadonlyForm ? '' : 'REQUIRED'" class="schema-json-editor">
           @if (postureCheckTypes.length > 0) {
             <select
               [(ngModel)]="formData.typeId"
               (change)="pcTypeChanged($event)"
-              [disabled]="formData.id"
+              [disabled]="formData.id || useStrictReadonlyForm"
               [matTooltip]="formData.id ? 'Type cannot be changed' : ''"
               matTooltipPosition="below"
               id="SelectedConfigType"
@@ -61,7 +67,7 @@
           }
         </lib-form-field-container>
         @if (formData.typeId === 'MAC') {
-          <lib-form-field-container [title]="'MAC Addresses'" [label]="'Required'">
+          <lib-form-field-container [title]="'MAC Addresses'" [label]="useStrictReadonlyForm ? '' : 'REQUIRED'">
             <lib-chips-input
               (keyup)="macAddressesChange($event)"
               [(ngModel)]="formData.macAddresses"
@@ -72,11 +78,12 @@
               [invalid]="errors['macAddresses']"
               separator=","
               (keyup.enter)="preventEnterProp($event)"
+              [disabled]="useStrictReadonlyForm"
             ></lib-chips-input>
           </lib-form-field-container>
         }
         @if (formData.typeId === 'DOMAIN') {
-          <lib-form-field-container [title]="'Windows Domain Details'" [label]="'Required'">
+          <lib-form-field-container [title]="'Windows Domain Details'" [label]="useStrictReadonlyForm ? '' : 'REQUIRED'">
             <lib-chips-input
               (keyup)="macAddressesChange($event)"
               [(ngModel)]="formData.domains"
@@ -91,7 +98,7 @@
           </lib-form-field-container>
         }
         @if (formData.typeId === 'PROCESS') {
-          <lib-form-field-container [title]="'Process Details'" [contentClass]="'form-field-input-group'">
+          <lib-form-field-container [title]="'Process Details'" [label]="useStrictReadonlyForm ? '' : 'REQUIRED'" [contentClass]="'form-field-input-group'">
             <div class="form-field-label-container process-os-details-header">
               <div class="form-field-header">
                 <div class="form-field-title-container">
@@ -145,6 +152,7 @@
                 [invalid]="errors['processHashes']"
                 separator=","
                 (keyup.enter)="preventEnterProp($event)"
+                [disabled]="useStrictReadonlyForm"
               ></lib-chips-input>
             </div>
             <div class="form-field-label-container">
@@ -173,7 +181,7 @@
           </lib-form-field-container>
         }
         @if (formData.typeId === 'PROCESS_MULTI') {
-          <lib-form-field-container [title]="'Process Multi Details'">
+          <lib-form-field-container [title]="'Process Multi Details'" [label]="useStrictReadonlyForm ? '' : 'REQUIRED'" >
             <div class="form-field-label-container">
               <div class="form-field-header">
                 <div class="form-field-title-container">
@@ -248,6 +256,7 @@
                     [invalid]="errors['processHashes']"
                     separator=","
                     (keyup.enter)="preventEnterProp($event)"
+                    [disabled]="useStrictReadonlyForm"
                   ></lib-chips-input>
                 </div>
                 <div class="form-field-label-container">
@@ -280,6 +289,7 @@
                     [invalid]="errors['process[' + i +'].signerFingerprints']"
                     separator=","
                     (keyup.enter)="preventEnterProp($event)"
+                    [disabled]="useStrictReadonlyForm"
                   ></lib-chips-input>
                 </div>
               </div>
@@ -293,6 +303,7 @@
           <lib-form-field-container
             [title]="'Multi Factor Details'"
             [layout]="'column'"
+            [label]="useStrictReadonlyForm ? '' : 'REQUIRED'"
             >
             <div class="form-field-row">
               <div class="form-field-label-container">
@@ -344,6 +355,7 @@
           <lib-form-field-container
             [showHeader]="false"
             [layout]="'column'"
+            [label]="useStrictReadonlyForm ? '' : 'REQUIRED'"
             >
             <div class="form-field-row os-version-row">
               <div class="config-item os-toggle-container">
@@ -514,7 +526,7 @@
               [label]="'OPTIONAL'"
               class="form-field-advanced"
               >
-              <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
+              <lib-custom-tags [(tags)]="formData.tags" [readOnly]="useStrictReadonlyForm"></lib-custom-tags>
             </lib-form-field-container>
           }
         </div>
@@ -539,7 +551,7 @@
     @if (formView === 'raw') {
       <div class="form-group-column">
         @if (formData) {
-          <lib-json-view [(data)]="formData"></lib-json-view>
+          <lib-json-view [(data)]="formData" [readOnly]="useStrictReadonlyForm"></lib-json-view>
         }
       </div>
     }

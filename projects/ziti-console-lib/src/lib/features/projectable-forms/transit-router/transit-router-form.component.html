@@ -8,20 +8,24 @@
     [moreActions]="moreActions"
     (actionRequested)="headerActionRequested($event)"
     [(formView)]="formView"
+    [saveDisabled]="formPermissionSaveDisabled"
+    [saveTooltip]="formPermissionSaveTooltip"
+    [strictReadonlyUi]="useStrictReadonlyForm"
   ></lib-form-header>
   <div class="edge-router-form-container projectable-form-container">
     @if (formView === 'simple') {
       <div class="projectable-form-main-column form-group-row">
         <div class="form-group-column three-fifths">
-          <lib-form-field-container [title]="'Edge Router Name'" [label]="'REQUIRED'">
-            <input
-              class="form-field-input"
-              placeholder="Name this edge router"
-              [ngClass]="{error: errors['name']}"
-              [(ngModel)]="formData.name"
-              autofocus
-              #nameFieldInput
-              />
+          <lib-form-field-container [title]="'Transit Router Name'" [label]="useStrictReadonlyForm ? '' : 'REQUIRED'">
+              <input
+                class="form-field-input"
+                placeholder="Name this transit router"
+                [ngClass]="{error: errors['name']}"
+                [(ngModel)]="formData.name"
+                autofocus
+                #nameFieldInput
+                [disabled]="useStrictReadonlyForm"
+                />
           </lib-form-field-container>
           <lib-form-field-container
             [showHeader]="false"
@@ -31,20 +35,21 @@
               <div class="form-field-title-container">
                 <span class="form-field-title">Cost</span>
               </div>
-              <input
-                type="number"
-                class="form-field-input"
+                <input
+                  type="number"
+                  class="form-field-input"
                 placeholder="Name this edge router"
-                [ngClass]="{error: errors['cost']}"
-                [(ngModel)]="formData.cost"
-                />
+                  [ngClass]="{error: errors['cost']}"
+                  [(ngModel)]="formData.cost"
+                  [disabled]="useStrictReadonlyForm"
+                  />
             </div>
             <div class="config-item">
               <div class="config-container toggle-container">
                 <div class="config-container-label">ENABLED</div>
                 <div
-                  (click)="toggleDisabled()"
-                  [ngClass]="{ on: !formData.disabled }"
+                  (click)="!useStrictReadonlyForm && toggleDisabled()"
+                  [ngClass]="{ on: !formData.disabled, 'toggle-readonly': useStrictReadonlyForm }"
                   class="toggle"
                   >
                   <span [hidden]="formData.disabled" class="on-label">YES</span>
@@ -57,8 +62,8 @@
               <div class="config-container toggle-container">
                 <div class="config-container-label">ALLOW TRAVERSAL</div>
                 <div
-                  (click)="toggleNoTraversal()"
-                  [ngClass]="{ on: !formData.noTraversal }"
+                  (click)="!useStrictReadonlyForm && toggleNoTraversal()"
+                  [ngClass]="{ on: !formData.noTraversal, 'toggle-readonly': useStrictReadonlyForm }"
                   class="toggle"
                   >
                   <span [hidden]="formData.noTraversal" class="on-label">YES</span>
@@ -77,7 +82,7 @@
                 [label]="'OPTIONAL'"
                 class="form-field-advanced"
                 >
-                <lib-custom-tags [(tags)]="formData.tags"></lib-custom-tags>
+                <lib-custom-tags [(tags)]="formData.tags" [readOnly]="useStrictReadonlyForm"></lib-custom-tags>
               </lib-form-field-container>
             </div>
           }
@@ -116,7 +121,7 @@
     @if (formView === 'raw') {
       <div class="form-group-column">
         @if (formData) {
-          <lib-json-view [(data)]="formData"></lib-json-view>
+          <lib-json-view [(data)]="formData" [readOnly]="useStrictReadonlyForm"></lib-json-view>
         }
       </div>
     }
