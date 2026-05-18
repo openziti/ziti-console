@@ -1,3 +1,16 @@
+# app-ziti-console-v4.2.1
+# ziti-console-lib-v1.2.1
+## Feature/Improvements
+* [Issue #868](https://github.com/openziti/ziti-console/issues/868) - Enhance readonly functionality across components (readOnly inputs, permission-driven save/edit controls)
+* [Issue #870](https://github.com/openziti/ziti-console/issues/870) - Add QR code SVG support and improve keyboard event handling for Port Ranges
+* [PR #862](https://github.com/openziti/ziti-console/pull/862) - Refactor asset referencing to allow ZAC to be served from any base path
+
+## Bug Fixes
+* [Issue #863](https://github.com/openziti/ziti-console/issues/863) - Consolidated Identity Override Modal structure issues
+* [Issue #865](https://github.com/openziti/ziti-console/issues/865) - Wait for the page to load before displaying components (avoid blank state during load)
+* [Issue #872](https://github.com/openziti/ziti-console/issues/872) - Toggle in dark theme not visible
+
+
 # app-ziti-console-v4.2.0
 # ziti-console-lib-v1.2.0
 ## Feature/Improvements
