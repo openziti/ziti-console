@@ -24,6 +24,28 @@ import {ZITI_DATA_SERVICE, ZitiDataService} from './ziti-data.service';
 
 export const SAVE_DENIED_BY_PERMISSION_TOOLTIP = 'You do not have permission to save changes.';
 
+
+/** Maps ZAC entityType strings to controller permission entity keys. */
+export const API_RESOURCE_TO_ENTITY_PERMISSION: Record<string, string> = {
+    identities: 'identity',
+    services: 'service',
+    'edge-routers': 'router',
+    'transit-routers': 'router',
+    'edge-router-policies': 'edge-router-policy',
+    'service-policies': 'service-policy',
+    'service-edge-router-policies': 'service-edge-router-policy',
+    terminators: 'terminator',
+    'posture-checks': 'posture-check',
+    'external-jwt-signers': 'external-jwt-signer',
+    'auth-policies': 'auth-policy',
+    configs: 'config',
+    'config-types': 'config-type',
+    cas: 'ca',
+    'api-sessions': 'ops',
+    sessions: 'ops',
+    enrollments: 'enrollment',
+};
+
 /** Session + controller URL — permissions only depend on these, not on version() metadata updates. */
 interface SessionFingerprint {
     sessionId: string;
@@ -148,41 +170,54 @@ export class ManagementPermissionsService {
         return this.permissionSet.has('admin_readonly');
     }
 
-    /** Read is not entity-scoped yet; parameter reserved for future use. */
-    canRead(_apiResource: string): boolean {
-        return true;
+    private resolveEntityKey(apiResource: string): string | null {
+        return API_RESOURCE_TO_ENTITY_PERMISSION[apiResource] ?? null;
     }
 
-    /** Create is global-role only until entity grants exist; apiResource unused for now. */
-    canCreate(_apiResource: string): boolean {
-        if (this.unrestricted) {
-            return true;
-        }
-        return this.isAdmin();
+    private hasEntityGrant(entityKey: string): boolean {
+        return this.permissionSet.has(entityKey);
     }
 
-    /** Update is global-role only until entity grants exist; apiResource unused for now. */
-    canUpdate(_apiResource: string): boolean {
-        if (this.unrestricted) {
-            return true;
-        }
-        return this.isAdmin();
+    private hasActionGrant(entityKey: string, action: 'create' | 'read' | 'update' | 'delete'): boolean {
+        return this.permissionSet.has(`${entityKey}.${action}`);
     }
 
-    /** Delete is global-role only until entity grants exist; apiResource unused for now. */
-    canDelete(_apiResource: string): boolean {
-        if (this.unrestricted) {
-            return true;
-        }
-        return this.isAdmin();
+    canRead(apiResource: string): boolean {
+        if (this.unrestricted) return true;
+        const entityKey = this.resolveEntityKey(apiResource);
+        if (!entityKey) return true;
+        if (this.isAdmin() || this.isAdminReadonly()) return true;
+        return this.hasEntityGrant(entityKey) || this.hasActionGrant(entityKey, 'read');
     }
 
-    /** Strict read-only shell when the session has global admin_readonly (no writes). */
+    canCreate(apiResource: string): boolean {
+        if (this.unrestricted) return true;
+        const entityKey = this.resolveEntityKey(apiResource);
+        if (!entityKey) return true;
+        if (this.isAdmin()) return true;
+        return this.hasEntityGrant(entityKey) || this.hasActionGrant(entityKey, 'create');
+    }
+
+    canUpdate(apiResource: string): boolean {
+        if (this.unrestricted) return true;
+        const entityKey = this.resolveEntityKey(apiResource);
+        if (!entityKey) return true;
+        if (this.isAdmin()) return true;
+        return this.hasEntityGrant(entityKey) || this.hasActionGrant(entityKey, 'update');
+    }
+
+    canDelete(apiResource: string): boolean {
+        if (this.unrestricted) return true;
+        const entityKey = this.resolveEntityKey(apiResource);
+        if (!entityKey) return true;
+        if (this.isAdmin()) return true;
+        return this.hasEntityGrant(entityKey) || this.hasActionGrant(entityKey, 'delete');
+    }
+
+    /** Strict read-only form UI: no write permission for this resource (covers admin_readonly and missing entity grant). */
     useStrictReadonlyFormUi(apiResource: string, isEdit: boolean): boolean {
-        if (this.unrestricted || this.isAdmin()) {
-            return false;
-        }
-        return this.isAdminReadonly() && this.isSaveDisabled(apiResource, isEdit);
+        if (this.unrestricted || this.isAdmin()) return false;
+        return this.isSaveDisabled(apiResource, isEdit);
     }
 
     isSaveDisabled(apiResource: string, isEdit: boolean): boolean {
@@ -216,21 +251,7 @@ export class ManagementPermissionsService {
     }
 
     isTableHeaderActionAllowed(apiResource: string, action: string): boolean {
-        if (this.unrestricted) {
-            return true;
-        }
-        if (this.isAdmin()) {
-            return true;
-        }
-        if (this.isAdminReadonly()) {
-            switch (action) {
-                case 'download-all':
-                case 'download-selected':
-                    return this.canRead(apiResource);
-                default:
-                    return false;
-            }
-        }
+        if (this.unrestricted || this.isAdmin()) return true;
         switch (action) {
             case 'download-all':
             case 'download-selected':

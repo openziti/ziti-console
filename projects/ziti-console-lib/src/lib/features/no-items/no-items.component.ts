@@ -15,6 +15,7 @@ export class NoItemsComponent implements OnChanges {
   @Input() hiddenResults = false;
   @Input() isLoading = false;
   @Input() readonly = false;
+  @Input() accessDenied = false;
   background;
   @Output() clickEmit = new EventEmitter<any>();
   @Output() refresh = new EventEmitter<any>();

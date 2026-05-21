@@ -8,6 +8,7 @@
 
     <lib-data-table [tableId]="'auth-policies'"
                     [noItemsReadonly]="headerBlockCreate"
+                    [accessDenied]="headerBlockRead"
                     [rowData]="rowData"
                     [isLoading]="isLoading"
                     [columnDefinitions]="columnDefs"

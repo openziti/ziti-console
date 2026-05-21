@@ -173,7 +173,13 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     }
 
     get formPermissionSaveTooltip(): string {
-        return this.formPermissionSaveDisabled ? this.managementPermissions.saveDeniedTooltip : '';
+        return this.managementPermissions.isSaveDisabled(this.entityType, this.isEdit)
+            ? this.managementPermissions.saveDeniedTooltip
+            : '';
+    }
+
+    canReadRelated(apiResource: string): boolean {
+        return this.managementPermissions.canRead(apiResource);
     }
 
     get useStrictReadonlyForm(): boolean {

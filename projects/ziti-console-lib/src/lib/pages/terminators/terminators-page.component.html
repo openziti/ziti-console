@@ -7,6 +7,7 @@
   (actionClicked)="headerActionClicked($event)"></lib-list-page-header>
   <lib-data-table [tableId]="'terminators'"
     [noItemsReadonly]="headerBlockCreate"
+    [accessDenied]="headerBlockRead"
     [rowData]="rowData"
     [isLoading]="isLoading"
     [columnDefinitions]="columnDefs"

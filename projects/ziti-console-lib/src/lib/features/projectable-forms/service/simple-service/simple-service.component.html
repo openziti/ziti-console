@@ -15,6 +15,8 @@
     [moreActions]="moreActions"
     [class.is-scrolled]="isScrolled"
     [strictReadonlyUi]="useStrictReadonlyForm"
+    [saveDisabled]="formPermissionSaveDisabled"
+    [saveTooltip]="formPermissionSaveTooltip"
   ></lib-form-header>
 
   <div class="simple-service-form-container projectable-form-container" #formContainer>
@@ -70,6 +72,7 @@
             [helpText]="'How will client applications use this service? Specify an address and port, or use the &quot;SDK Only&quot; toggle for an application embedded configuration.'"
             >
             <div class="form-field-input-group accessing-group">
+              @if (canReadRelated('identities')) {
               <div class="form-field-sub-group">
                 <div class="config-title-row">
                   <span class="form-field-title">What identities can access this service?</span>
@@ -88,6 +91,9 @@
                   (filterChange)="getIdentityNamedAttributes($event)"
                 ></lib-tag-selector>
               </div>
+              } @else {
+              <span class="form-field-label">Identities are not visible — insufficient permissions.</span>
+              }
               <div class="form-field-sub-group">
                 <div class="config-title-row">
                   <span class="form-field-title">How will the service be accessed?</span>
@@ -141,6 +147,7 @@
             [helpText]="'Where should traffic for this service be sent? Specify a protocol, address, and port, or use the &quot;SDK Only&quot; toggle for an application embedded configuration.'"
             >
             <div class="form-field-input-group hosting-group">
+              @if (canReadRelated('identities')) {
               <div class="form-field-sub-group">
                 <div class="config-title-row">
                   <span class="form-field-title">What identities can host this service?</span>
@@ -159,6 +166,9 @@
                   (filterChange)="getIdentityNamedAttributes($event)"
                 ></lib-tag-selector>
               </div>
+              } @else {
+              <span class="form-field-label">Identities are not visible — insufficient permissions.</span>
+              }
               <div class="form-field-sub-group">
                 <div class="config-title-row">
                   <span class="form-field-title">Where should traffic be sent?</span>

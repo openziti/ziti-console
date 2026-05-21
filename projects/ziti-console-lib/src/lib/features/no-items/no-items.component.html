@@ -1,11 +1,15 @@
 <div [hidden]="!isEmpty || isLoading" class="noarea" id="NoArea">
-    <div (click)="iconClick()">
-        <div [ngStyle]="background" class="icon"></div>
-        <div class="title">
-            This network currently has no {{ typeName }} to display.<br/>
-            <span [hidden]="!hasAdd || readonly"
-        >Tap on the <span class="addExample"></span> to add one.</span
+  <div (click)="iconClick()">
+    <div [ngStyle]="background" class="icon"></div>
+    <div class="title">
+      @if (accessDenied) {
+        You do not have permission to view {{ typeName }}.
+      } @else {
+        This network currently has no {{ typeName }} to display.<br/>
+        <span [hidden]="!hasAdd || readonly"
+          >Tap on the <span class="addExample"></span> to add one.</span
         >
-        </div>
+      }
     </div>
+  </div>
 </div>

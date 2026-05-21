@@ -45,6 +45,7 @@
             ></lib-tag-selector>
           </lib-form-field-container>
           <ng-content select="[slot=column-1-slot-1]"></ng-content>
+          @if (canReadRelated('auth-policies')) {
           <lib-form-field-container
             [title]="'Auth Policy'"
             [label]="useStrictReadonlyForm ? '' : 'OPTIONAL'"
@@ -80,6 +81,11 @@
                 />
             </div>
           </lib-form-field-container>
+          } @else {
+            <lib-form-field-container [title]="'Auth Policy'">
+              <span class="form-field-label">Auth policies are not visible — insufficient permissions.</span>
+            </lib-form-field-container>
+          }
           <ng-content select="[slot=column-1-slot-2]"></ng-content>
           <lib-form-field-toggle [(toggleOn)]="showMore" (toggleOnChange)="showMoreChanged($event)" style="margin: 0px 10px"></lib-form-field-toggle>
           <div [hidden]="!showMore" class="form-group-column">
@@ -98,11 +104,11 @@
                 (change)="updateEnrollment()"
                 >
                 <option value="ott">One Time Token</option>
-                <option value="CA">Certificate Authority</option>
+                <option value="CA" [hidden]="!canReadRelated('cas')">Certificate Authority</option>
                 <option value="updb">UPDB</option>
                 <option value="none">None</option>
               </select>
-              @if (enrollmentType === 'CA') {
+              @if (enrollmentType === 'CA' && canReadRelated('cas')) {
                 <select
                   id="CertAuthorities"
                   class="form-field-dropdown"
@@ -287,7 +293,7 @@
               }
             </lib-form-field-container>
           }
-          @if (formData.id) {
+          @if (formData.id && canReadRelated('services')) {
             <lib-form-field-container
               [title]="'Associated Services'"
               [count]="associatedServices.length"
@@ -305,8 +311,12 @@
                 <div class="result-container" [innerHTML]="testResult" ></div>
               </div>
             </lib-form-field-container>
+          } @else if (formData.id) {
+            <lib-form-field-container [title]="'Associated Services'">
+              <span class="form-field-label">Associated services are not visible — insufficient permissions.</span>
+            </lib-form-field-container>
           }
-          @if (formData.id) {
+          @if (formData.id && canReadRelated('service-policies')) {
             <lib-form-field-container
               [title]="'Associated Service Policies'"
               [count]="associatedServicePolicies.length"
@@ -318,6 +328,10 @@
                 [isLoading]="servicePoliciesLoading"
                 [allNames]="associatedServicePolicyNames"
               ></lib-preview-list>
+            </lib-form-field-container>
+          } @else if (formData.id) {
+            <lib-form-field-container [title]="'Associated Service Policies'">
+              <span class="form-field-label">Associated service policies are not visible — insufficient permissions.</span>
             </lib-form-field-container>
           }
           <lib-form-field-container
