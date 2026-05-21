@@ -107,7 +107,7 @@ export class ZitiControllerDataService extends ZitiDataService {
         );
     }
 
-    get(type: string, paging: any, filters: FilterObj[] = [], url?, useClient?): Promise<any> {
+    doGet(type: string, paging: any, filters: FilterObj[] = [], url?, useClient?): Promise<any> {
         const apiVersions = this.settingsService.apiVersions || {};
         const managementUrl = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
         const clientUrl = '/edge/client/v1';
@@ -129,7 +129,7 @@ export class ZitiControllerDataService extends ZitiDataService {
         );
     }
 
-    getSubdata(entityType: string, id: any, dataType: string, paging?: any, contentType?: any, filters: any[] = []): Promise<any> {
+    doGetSubdata(entityType: string, id: any, dataType: string, paging?: any, contentType?: any, filters: any[] = []): Promise<any> {
         const apiVersions = this.settingsService.apiVersions || {};
         const prefix = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
 

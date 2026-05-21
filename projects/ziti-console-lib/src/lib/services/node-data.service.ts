@@ -110,7 +110,7 @@ export class NodeDataService extends ZitiDataService {
         );
     }
 
-    get(type: string, paging: any, filters: FilterObj[] = [], url?) {
+    doGet(type: string, paging: any, filters: FilterObj[] = [], url?) {
         const nodeServerURL = window.location.origin;
         const serviceUrl = nodeServerURL + '/api/data';
         const urlFilter = this.getUrlFilter(paging, filters);
@@ -133,7 +133,7 @@ export class NodeDataService extends ZitiDataService {
         );
     }
 
-    getSubdata(entityType: string, id: any, dataType: string) {
+    doGetSubdata(entityType: string, id: any, dataType: string) {
         const nodeServerURL = window.location.origin;
         const serviceUrl = nodeServerURL + '/api/subdata';
         const body = {url:`./${entityType}/${id}/${dataType}`, name: entityType, type: dataType };

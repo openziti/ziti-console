@@ -170,6 +170,11 @@ export class ManagementPermissionsService {
         return this.permissionSet.has('admin_readonly');
     }
 
+    /** True once fetchCurrentIdentity() (or clear()) has run at least once — version > 0. */
+    get permissionsLoaded(): boolean {
+        return this.versionSubject.value > 0;
+    }
+
     private resolveEntityKey(apiResource: string): string | null {
         return API_RESOURCE_TO_ENTITY_PERMISSION[apiResource] ?? null;
     }
