@@ -228,8 +228,6 @@
               (itemRemoved)="svc.removeConfig($event)"
               (itemSelected)="svc.previewConfig($event, router)"
             ></lib-preview-list>
-          } @else {
-            <span class="form-field-label">Configurations are not visible — insufficient permissions.</span>
           }
           @if (canReadRelated('service-policies')) {
             <div class="form-row space-between">
@@ -248,8 +246,6 @@
               [localFilter]="false"
               (filterChanged)="svc.getAssociatedServicePoliciesDebounced($event)"
             ></lib-preview-list>
-          } @else {
-            <span class="form-field-label">Service policies are not visible — insufficient permissions.</span>
           }
           <div class="form-row space-between">
             <div class="config-title-row">
