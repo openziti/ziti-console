@@ -498,11 +498,20 @@ export class SimpleServiceComponent extends ProjectableForm {
     const summaryData = this.showSummary();
     this.serviceApiData.configs = [];
 
-    const interceptCfgPromise = await this.saveInterceptConfig(summaryData);
-    const hostCfgPromise = await this.saveHostConfig(summaryData);
-    const servicePromise = await this.saveService(summaryData);
-    const dialPolicyPromise = await this.savePolicy(summaryData, 'Dial');
-    const bindPolicyPromise = await this.savePolicy(summaryData, 'Bind');
+    try { await this.saveInterceptConfig(summaryData); }
+    catch (e) { this.markEntityError(summaryData, 'configs', 'intercept'); }
+
+    try { await this.saveHostConfig(summaryData); }
+    catch (e) { this.markEntityError(summaryData, 'configs', 'host'); }
+
+    try { await this.saveService(summaryData); }
+    catch (e) { this.markEntityError(summaryData, 'services'); }
+
+    try { await this.savePolicy(summaryData, 'Dial'); }
+    catch (e) { this.markEntityError(summaryData, 'service-policies', 'dial'); }
+
+    try { await this.savePolicy(summaryData, 'Bind'); }
+    catch (e) { this.markEntityError(summaryData, 'service-policies', 'bind'); }
 
     summaryData?.forEach((entityType) => {
       entityType.entities?.forEach((entity) => {
@@ -521,6 +530,16 @@ export class SimpleServiceComponent extends ProjectableForm {
         } else if (entity.type === 'service-policies' && entity.subtype === 'bind') {
           entity.cliCommand = this.bindPolicyCliCommand;
           entity.apiRequest = this.getBindApiRequest();
+        }
+      });
+    });
+  }
+
+  markEntityError(summaryData: any, type: string, subtype?: string) {
+    summaryData?.forEach((group: any) => {
+      group.entities?.forEach((entity: any) => {
+        if (entity.status === 'loading' && entity.type === type && (!subtype || entity.subtype === subtype)) {
+          entity.status = 'error';
         }
       });
     });
@@ -743,10 +762,9 @@ export class SimpleServiceComponent extends ProjectableForm {
   async saveHostConfig(summaryData) {
     const isNewConfig = isEmpty(this.hostConfigApiData?.id);
 
-    // Conditional Deletion (Identical Logic)
-    if (this.sdkOnlyDial && !isNewConfig) {
+    if (this.sdkOnlyBind && !isNewConfig) {
       return this.zitiService.delete('configs', this.hostConfigApiData.id);
-    } else if (this.sdkOnlyDial && isNewConfig) {
+    } else if (this.sdkOnlyBind && isNewConfig) {
       return;
     }
 
@@ -758,13 +776,14 @@ export class SimpleServiceComponent extends ProjectableForm {
         'hostConfigCliCommand'
     );
 
-    // Apply final status logic (slightly different than intercept)
+    // When sdkOnlyDial=true, Configurations group has only [hostSummary] → entities[0]
+    // When sdkOnlyDial=false, Configurations group has [interceptSummary, hostSummary] → entities[1]
     if (this.sdkOnlyDial) {
       summaryData[0].entities[0].status = status;
       summaryData[0].entities[0].apiData = configApiData;
     } else {
       summaryData[0].entities[1].status = status;
-      summaryData[0].entities[0].apiData = configApiData;
+      summaryData[0].entities[1].apiData = configApiData;
     }
   }
 
@@ -844,10 +863,10 @@ export class SimpleServiceComponent extends ProjectableForm {
       let cliConfigIds = '';
       if (!this.sdkOnlyDial && !this.sdkOnlyBind) {
         cliConfigIds = `--configs '${this.interceptConfigId},${this.hostConfigId}'`;
-      } else if (!this.sdkOnlyBind && this.sdkOnlyBind) {
+      } else if (!this.sdkOnlyDial && this.sdkOnlyBind) {
         cliConfigIds = `--configs '${this.interceptConfigId}'`;
-      } else if (this.sdkOnlyBind && !this.sdkOnlyBind) {
-        cliConfigIds = `--configs '${this.interceptConfigId}'`;
+      } else if (this.sdkOnlyDial && !this.sdkOnlyBind) {
+        cliConfigIds = `--configs '${this.hostConfigId}'`;
       }
       this.serviceCliCommand = `ziti edge create service '${this.serviceApiData.name}' ${cliConfigIds}`
       this.serviceIncrement = -1;
