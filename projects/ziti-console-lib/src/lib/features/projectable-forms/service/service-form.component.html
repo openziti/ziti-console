@@ -268,20 +268,22 @@
         [helpText]="'Preview list of all service policies that this service is associated with.'"
         >
       </lib-form-field-container>-->
-      <lib-form-field-container
-        [title]="'API Calls'"
-        [label]="''"
-        [class]="'api-call-container'"
-        [helpText]="'Preview of the API URL and data model that is used to create/update this service'"
-        >
-        <div class="form-row">
-          <input class="form-field-input" [value]="apiCallURL" readonly/>
-          <div class="url-copy icon-copy copy-text" (click)="copyToClipboard(apiCallURL)"></div>
-        </div>
-        @if (formData) {
-          <lib-json-view [(data)]="svc.apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
-        }
-      </lib-form-field-container>
+      @if (showApiCalls) {
+        <lib-form-field-container
+          [title]="'API Calls'"
+          [label]="''"
+          [class]="'api-call-container'"
+          [helpText]="'Preview of the API URL and data model that is used to create/update this service'"
+          >
+          <div class="form-row">
+            <input class="form-field-input" [value]="apiCallURL" readonly/>
+            <div class="url-copy icon-copy copy-text" (click)="copyToClipboard(apiCallURL)"></div>
+          </div>
+          @if (formData) {
+            <lib-json-view [(data)]="svc.apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
+          }
+        </lib-form-field-container>
+      }
     </div>
   </div>
   @if (formView === 'raw') {

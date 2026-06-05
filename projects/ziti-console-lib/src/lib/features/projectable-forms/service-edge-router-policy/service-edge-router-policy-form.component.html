@@ -117,19 +117,21 @@
               [allNames]="svc.associatedServiceNames"
             ></lib-preview-list>
           </lib-form-field-container>
-          <lib-form-field-container
-            [title]="'API Calls'"
-            [headerActions]="apiOptions"
-            (actionRequested)="apiActionRequested($event)"
-            >
-            <div class="form-row">
-              <input class="form-field-input" [value]="apiCallURL"/>
-              <div class="icon-copy copy-text" (click)="copyToClipboard(apiCallURL)"></div>
-            </div>
-            @if (formData) {
-              <lib-json-view [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
-            }
-          </lib-form-field-container>
+          @if (showApiCalls) {
+            <lib-form-field-container
+              [title]="'API Calls'"
+              [headerActions]="apiOptions"
+              (actionRequested)="apiActionRequested($event)"
+              >
+              <div class="form-row">
+                <input class="form-field-input" [value]="apiCallURL"/>
+                <div class="icon-copy copy-text" (click)="copyToClipboard(apiCallURL)"></div>
+              </div>
+              @if (formData) {
+                <lib-json-view [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
+              }
+            </lib-form-field-container>
+          }
         </div>
       </div>
     }

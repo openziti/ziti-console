@@ -42,6 +42,7 @@ export interface ExtensionService {
   listActions?: any[];
   consoleActionTriggered?: EventEmitter<any>;
   disabledComponents?: any[];
+  showApiCalls?: boolean;
   emitEvent?<TData, TResult>(event: ExtensionEvent<TData, TResult>): Promise<TResult | undefined>;
   extendOnInit(): void;
   extendAfterViewInits(extentionPoints: any): void;
