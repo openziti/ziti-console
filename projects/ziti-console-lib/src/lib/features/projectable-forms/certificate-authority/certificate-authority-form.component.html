@@ -22,7 +22,7 @@
           [label]="useStrictReadonlyForm ? '' : 'REQUIRED'"
           >
           @if (!useStrictReadonlyForm) {
-            <input class="form-field-input read-only" [(ngModel)]="formData.name" [ngClass]="{error: errors['name']}" placeholder="Name this Certificate Authority"/>
+            <input class="form-field-input" [(ngModel)]="formData.name" [ngClass]="{error: errors['name']}" placeholder="Name this Certificate Authority"/>
           } @else {
             <div class="form-field-readonly-value">{{ formData.name }}</div>
           }
@@ -34,7 +34,7 @@
           [helpText]="'The identity name format used to name automatically enrolling identities. Defaults to [caName]-[commonName]'"
           >
           @if (!useStrictReadonlyForm) {
-            <input class="form-field-input read-only" [(ngModel)]="formData.identityNameFormat" [ngClass]="{error: errors['identityNameFormat']}" placeholder="Defaults to [caName]-[commonName]"/>
+            <input class="form-field-input" [(ngModel)]="formData.identityNameFormat" [ngClass]="{error: errors['identityNameFormat']}" placeholder="Defaults to [caName]-[commonName]"/>
           } @else {
             <div class="form-field-readonly-value">{{ formData.identityNameFormat }}</div>
           }
