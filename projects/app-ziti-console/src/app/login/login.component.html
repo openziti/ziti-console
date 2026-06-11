@@ -33,9 +33,31 @@
           <div class="title-text-row title-bottom-text">By <a href="https://netfoundry.io" class="nf-name-text">NetFoundry</a></div>
         </div>
       </div>
-      <div class="welcome-text">Welcome. Enter your login credentials below.</div>
+      <div class="welcome-text" *ngIf="!totpRequired">Welcome. Enter your login credentials below.</div>
+      <div class="welcome-text" *ngIf="totpRequired">Enter the code from your authenticator app.</div>
       <span *ngIf="errors['loginFailed']" class="error-message">{{errors['loginFailed']}}</span>
       <span *ngIf="!errors['loginFailed']" class="error-message error-message-placeholder">&nbsp;</span>
+      <div class="username-pass-container" *ngIf="totpRequired">
+        <div class="input-fields-container">
+          <label for="TotpCode" class="userlogin open">Authentication Code</label>
+          <input
+            id="TotpCode"
+            name="totpCode"
+            type="text"
+            autocomplete="one-time-code"
+            required
+            [placeholder]="'Enter your authentication code'"
+            (change)="totpCodeChange($event)"
+            (keyup)="totpCodeChange($event)"
+          >
+          <span *ngIf="totpError" class="error-message">{{totpError}}</span>
+        </div>
+        <div class="buttons-container">
+          <div class="linkButton" (click)="cancelTotp()">Back To Login</div>
+          <button class="primary-button login-button" (click)="verifyTotp()" [disabled]="!totpCode">Verify</button>
+        </div>
+      </div>
+      <ng-container *ngIf="!totpRequired">
       <lib-selector-input
         *ngIf="!svc.originIsController && !showNoControllers"
         [fieldName]="'Edge Controller'"
@@ -101,6 +123,7 @@
           </div>
         </div>
       </div>
+      </ng-container>
     </div>
   </div>
 </div>

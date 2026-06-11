@@ -21,6 +21,19 @@ export abstract class LoginServiceClass {
     public loginInProgress = false;
     public callbackRoute = '/callback';
 
+    // MFA (TOTP) secondary auth state - populated mid-login by services that support it
+    public pendingMfa = false;
+    public mfaAuthQueries: any[] = [];
+
+    completeMfaAuth(code: string): Promise<any> {
+        return Promise.reject('MFA authentication is not supported by this login service');
+    }
+
+    cancelMfaAuth(): void {
+        this.pendingMfa = false;
+        this.mfaAuthQueries = [];
+    }
+
     abstract init();
     abstract login(prefix: string, url: string, username: string, password: string, doNav?, type?, token?, isTest?);
     abstract observeLogin(serviceUrl: string, username: string, password: string, doNav?, type?, token?, isTest?);

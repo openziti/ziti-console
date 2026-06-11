@@ -86,6 +86,10 @@ const routes: Routes = [
     component: CallbackComponent
   },
   {
+    path: 'auth/callback',
+    redirectTo: 'login'
+  },
+  {
     path: 'dashboard',
     component: GeolocateComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),

@@ -52,6 +52,7 @@ import {
     SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE,
     DEFAULT_APP_CONFIG,
     ManagementPermissionsService,
+    SessionRefreshService,
 } from "ziti-console-lib";
 
 import {AppRoutingModule} from "./app-routing.module";
@@ -92,6 +93,7 @@ export function initializeApp(settingsService: any, injector: Injector) {
     return () =>
         settingsService.init().then(() => {
             injector.get(ManagementPermissionsService);
+            injector.get(SessionRefreshService).start();
         });
 }
 

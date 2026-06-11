@@ -18,7 +18,7 @@ import {Injectable, Inject} from '@angular/core';
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import {map} from 'rxjs/operators';
 
-import {BehaviorSubject, filter, finalize, Observable, of, switchMap, take, EMPTY, catchError, throwError} from 'rxjs';
+import {BehaviorSubject, filter, finalize, from, Observable, of, switchMap, take, EMPTY, catchError, throwError} from 'rxjs';
 import {
     SettingsServiceClass,
     LoginServiceClass,
@@ -26,13 +26,10 @@ import {
     ZAC_LOGIN_SERVICE,
     GrowlerModel,
     GrowlerService,
-    LoginDialogComponent
+    SessionRefreshService
 } from "ziti-console-lib";
 import moment from "moment/moment";
 import {Router} from "@angular/router";
-import {MatDialog} from "@angular/material/dialog";
-
-import {defer} from 'lodash';
 
 /** Pass untouched request through to the next request handler. */
 @Injectable({
@@ -40,25 +37,46 @@ import {defer} from 'lodash';
 })
 export class ZitiApiInterceptor implements HttpInterceptor {
 
-    dialogRef: any;
     doingCertRefresh = false;
+    doingTokenRefresh = false;
     retryRequestQue: any[] = [];
 
     constructor(@Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
                 @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass,
                 private router: Router,
                 private growlerService: GrowlerService,
-                private dialogForm: MatDialog,
+                private sessionRefreshService: SessionRefreshService,
                 ) {
 
     }
 
     private handleErrorResponse(err: HttpErrorResponse, req?, next?: HttpHandler): Observable<any> {
         if (err.status === 401) {
-            if (this.doingCertRefresh || this.loginService.loginDialogOpen) {
+            if (this.doingCertRefresh || this.doingTokenRefresh) {
                 return new Observable((observer) => {
                     this.retryRequestQue.push({ req, next, observer });
                 });
+            }
+            const session = this.settingsService.settings?.session;
+            if (session?.authMode === 'oidc' && session?.refreshToken) {
+                this.doingTokenRefresh = true;
+                return from(this.sessionRefreshService.refreshNow()).pipe(
+                    switchMap((refreshed) => {
+                        this.doingTokenRefresh = false;
+                        if (!refreshed) {
+                            // refreshNow handles unrecoverable sessions (logout + redirect);
+                            // flush queued requests with the original error
+                            this.retryRequestQue.forEach(({observer}) => observer.error(err));
+                            this.retryRequestQue = [];
+                            return throwError(() => err);
+                        }
+                        this.retryRequestQue.forEach((failedRequest) => {
+                            this.retryFailedRequest(failedRequest);
+                        });
+                        this.retryRequestQue = [];
+                        return next.handle(this.addAuthToken(req));
+                    })
+                );
             }
             if (this.loginService.isCertBasedAuth || !this.loginService.certBasedAttempted) {
                 this.doingCertRefresh = true;
@@ -73,15 +91,12 @@ export class ZitiApiInterceptor implements HttpInterceptor {
                     })
                 ).pipe(catchError(err => {
                     this.doingCertRefresh = false;
-                    this.retryRequestQue = [];
-                    this.showLoginDialog(err);
+                    this.redirectToLogin(err);
                     return throwError(() => err);
                 }));
             }
-            this.showLoginDialog(err);
-            return new Observable((observer) => {
-                this.retryRequestQue.push({ req, next, observer });
-            });
+            this.redirectToLogin(err);
+            return throwError(() => err);
         }
         return throwError(() => err);
     }
@@ -119,43 +134,30 @@ export class ZitiApiInterceptor implements HttpInterceptor {
             || (!matchesPrimaryController && !matchesHAController)
             || req.url.indexOf("authenticate") > 0
             || req.url.indexOf("version") > 0
+            || req.url.indexOf("/oidc/") > 0
             || (req.url.indexOf("edge/client/v1/external-jwt-signers") > 0 && req.method)
         );
 
         return isUnauthenticated;
     }
 
-    showLoginDialog(err) {
-        this.loginService.loginDialogOpen = true;
-        this.dialogRef = this.dialogForm.open(LoginDialogComponent, {
-            data: {},
-            autoFocus: false,
-        });
-        this.dialogRef.afterClosed().toPromise().then((result: any) => {
-            if (result?.isLoggedIn) {
-                this.retryRequestQue.forEach((failedRequest) => {
-                    this.retryFailedRequest(failedRequest);
-                });
-                this.retryRequestQue = [];
-                return true;
-            } else if (result?.returnToLogin) {
-                // User is unauthorized. redirect user back to login page
-                defer(() => {
-                    this.dialogRef.closeAll();
-                });
-                if (this.settingsService?.settings?.session) {
-                    this.settingsService.settings.session.id = undefined;
-                    this.settingsService.settings.session.expiresAt = undefined;
-                    this.settingsService.set(this.settingsService.settings);
-                }
-                this.router.navigate(['/login']);
-                this.retryRequestQue = [];
-                return err.message;
-            } else {
-                this.retryRequestQue = [];
-                return false;
-            }
-        });
+    // The session can't be recovered silently - clear it and return to the login page
+    // (no re-login modal; see openziti/ziti-console#886)
+    private redirectToLogin(err) {
+        if (this.settingsService?.settings?.session) {
+            this.settingsService.settings.session.id = undefined;
+            this.settingsService.settings.session.expiresAt = undefined;
+            this.settingsService.set(this.settingsService.settings);
+        }
+        this.growlerService.show(new GrowlerModel(
+            'warning',
+            'Session Expired',
+            'Session Expired',
+            'Please log in again.'
+        ));
+        this.retryRequestQue.forEach(({observer}) => observer.error(err));
+        this.retryRequestQue = [];
+        this.router.navigate(['/login']);
     }
 
     private addAuthToken(request: any) {
@@ -169,8 +171,11 @@ export class ZitiApiInterceptor implements HttpInterceptor {
         }
 
         // Try to use JWT token first (for OpenZiti v2.0+ and HA compatibility)
+        // For OIDC sessions send the Bearer token even when expired - a clean 401
+        // drives the refresh flow instead of falling through to a bogus zt-session header
         const jwtToken = this.settingsService.getJwtToken();
-        if (jwtToken && this.settingsService.hasValidJwtToken()) {
+        const isOidcSession = this.settingsService.settings?.session?.authMode === 'oidc';
+        if (jwtToken && (isOidcSession || this.settingsService.hasValidJwtToken())) {
             headers = {
                 "Authorization": `Bearer ${jwtToken}`,
                 'content-type': contentType

@@ -10,5 +10,8 @@
   "include": [
     "**/*.spec.ts",
     "**/*.d.ts"
+  ],
+  "exclude": [
+    "src/lib/assets/**"
   ]
 }
