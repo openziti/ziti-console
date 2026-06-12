@@ -18,6 +18,16 @@
       height: 100%;
       width: 100%;
     }
+
+    .no-rows-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--text);
+      font-size: 0.875rem;
+      pointer-events: none;
+    }
   }
 
   .tMenu {

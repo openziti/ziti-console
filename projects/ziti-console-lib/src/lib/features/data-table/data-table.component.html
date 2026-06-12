@@ -85,6 +85,9 @@
         id="ItemGrid"
         >
       </ag-grid-angular>
+      @if (!isLoading && filterApplied && (!rowData || rowData.length === 0)) {
+        <div class="no-rows-message">No Rows To Show</div>
+      }
     </div>
     <div
       [ngClass]="{ open: openHeaderMenu }"
