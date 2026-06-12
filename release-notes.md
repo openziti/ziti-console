@@ -1,3 +1,15 @@
+# app-ziti-console-v4.3.0
+# ziti-console-lib-v1.3.0
+## Feature/Improvements
+* [Issue #886](https://github.com/openziti/ziti-console/issues/886) - Use controller OIDC authentication for login when available, with automatic session renewal via refresh tokens, TOTP code entry at login, and fallback to legacy authentication. Sessions that can no longer be renewed redirect to the login page (replaces the re-login modal)
+* [Issue #877](https://github.com/openziti/ziti-console/issues/877) - Entity and action level based permissions (hide/block actions and API calls without permission)
+* [Issue #878](https://github.com/openziti/ziti-console/issues/878) - Add "no rows" message to the data table component
+* [Issue #884](https://github.com/openziti/ziti-console/issues/884) - Handle API call section in entities
+
+## Bug Fixes
+* [PR #881](https://github.com/openziti/ziti-console/pull/881) - Simple service form - fix error handling when saving configurations and policies, and correct sdk-only bind/dial configuration logic
+
+
 # app-ziti-console-v4.2.1
 # ziti-console-lib-v1.2.1
 ## Feature/Improvements
