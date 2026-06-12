@@ -16,8 +16,19 @@
 
 import {Injectable, Inject} from '@angular/core';
 import { HttpClient } from "@angular/common/http";
-import {LoginServiceClass, SettingsServiceClass, GrowlerService, GrowlerModel, SETTINGS_SERVICE, HAControllerService} from "ziti-console-lib";
-import {finalize, firstValueFrom, lastValueFrom, Observable, ObservableInput, of, switchMap, tap} from "rxjs";
+import {
+    LoginServiceClass,
+    SettingsServiceClass,
+    GrowlerService,
+    GrowlerModel,
+    SETTINGS_SERVICE,
+    HAControllerService,
+    ZitiOidcService,
+    SessionRefreshService,
+    OidcAuthContext,
+    OidcTokenSet
+} from "ziti-console-lib";
+import {finalize, firstValueFrom, from, lastValueFrom, Observable, ObservableInput, of, switchMap, tap} from "rxjs";
 import {catchError} from "rxjs/operators";
 import {Router} from "@angular/router";
 import moment from "moment";
@@ -28,13 +39,23 @@ import {debounce, defer, isEmpty, isNil} from "lodash";
 })
 export class ControllerLoginService extends LoginServiceClass {
     private domain = '';
+    private pendingOidcLogin: {
+        ctx: OidcAuthContext,
+        serviceUrl: string,
+        doNav: boolean,
+        isCertBased: boolean,
+        username?: string,
+        password?: string
+    } | null = null;
 
     constructor(
         override httpClient: HttpClient,
         @Inject(SETTINGS_SERVICE) override settingsService: SettingsServiceClass,
         override router: Router,
         override growlerService: GrowlerService,
-        private haControllerService: HAControllerService
+        private haControllerService: HAControllerService,
+        private oidcService: ZitiOidcService,
+        private sessionRefreshService: SessionRefreshService
     ) {
         super(httpClient, settingsService, router, growlerService);
     }
@@ -75,6 +96,148 @@ export class ControllerLoginService extends LoginServiceClass {
     }
 
     observeLogin(serviceUrl: string, username?: string, password?: string, doNav = true, type?, token?, isTest?) {
+        // the jwt-signer "test authentication" feature exercises the legacy endpoint directly
+        if (!isTest && this.settingsService.oidcAvailable()) {
+            if (this.loginInProgress) {
+                return of(false);
+            }
+            return from(this.oidcLoginFlow(serviceUrl, username, password, doNav, type, token));
+        }
+        return this.standardObserveLogin(serviceUrl, username, password, doNav, type, token, isTest);
+    }
+
+    private async oidcLoginFlow(serviceUrl: string, username?: string, password?: string, doNav = true, type?, token?): Promise<any> {
+        const controllerUrl = this.controllerUrlFromServiceUrl(serviceUrl);
+        const isCertBased = !(username && password) && type !== 'ext-jwt';
+        this.loginInProgress = true;
+        try {
+            let ctx: OidcAuthContext;
+            try {
+                ctx = await this.oidcService.startAuthRequest(controllerUrl, {
+                    redirectUri: this.settingsService.settings?.oidcRedirectUri,
+                    oidcPath: this.settingsService.edgeOidcPath || '/oidc'
+                });
+            } catch (err: any) {
+                this.loginInProgress = false;
+                return lastValueFrom(this.standardObserveLogin(serviceUrl, username, password, doNav, type, token));
+            }
+
+            this.certBasedAttempted = this.certBasedAttempted || isCertBased;
+            let step;
+            if (type === 'ext-jwt') {
+                step = await this.oidcService.loginWithExtJwt(ctx, token);
+            } else if (isCertBased) {
+                step = await this.oidcService.loginWithCert(ctx);
+            } else {
+                step = await this.oidcService.loginWithPassword(ctx, username, password);
+            }
+
+            if (step.status === 'totpRequired') {
+                const totpQuery = step.authQueries?.find((q) => q.typeId === 'MFA' || q.typeId === 'TOTP') || step.authQueries?.[0];
+                if (totpQuery && totpQuery.isTotpEnrolled === false) {
+                    this.growlerService.show(new GrowlerModel(
+                        'error',
+                        'Error',
+                        'MFA Enrollment Required',
+                        'This identity requires MFA but is not yet enrolled. Complete TOTP enrollment with another client before logging in to the console.'
+                    ));
+                    throw {error: 'MFA enrollment required'};
+                }
+                this.pendingOidcLogin = {ctx, serviceUrl, doNav, isCertBased, username, password};
+                this.pendingMfa = true;
+                this.mfaAuthQueries = step.authQueries || [];
+                throw {totpRequired: true};
+            }
+
+            if (step.status === 'error') {
+                const errorMessage = step.error?.message || 'Unable to login to selected edge controller';
+                this.growlerService.show(new GrowlerModel(
+                    'error',
+                    'Error',
+                    'Login Failed',
+                    errorMessage
+                ));
+                throw {error: errorMessage, statusText: step.error?.message};
+            }
+
+            let tokens: OidcTokenSet;
+            try {
+                tokens = await this.oidcService.exchangeCode(ctx, step.code);
+            } catch (err: any) {
+                this.loginInProgress = false;
+                return lastValueFrom(this.standardObserveLogin(serviceUrl, username, password, doNav, type, token));
+            }
+
+            this.completeOidcLogin(tokens, serviceUrl, isCertBased, username, password);
+            return [tokens.accessToken];
+        } finally {
+            this.loginInProgress = false;
+        }
+    }
+
+    private completeOidcLogin(tokens: OidcTokenSet, serviceUrl: string, isCertBased: boolean, username?: string, password?: string) {
+        const controllerUrl = this.controllerUrlFromServiceUrl(serviceUrl);
+        const settings = {
+            ...this.settingsService.settings,
+            session: {
+                id: tokens.accessToken,
+                controllerDomain: controllerUrl,
+                authorization: 100,
+                authMode: 'oidc',
+                expiresAt: new Date(tokens.expiresAt).toISOString(),
+                refreshToken: tokens.refreshToken,
+                refreshExpiresAt: tokens.refreshExpiresAt,
+                oidcClientId: tokens.clientId
+            }
+        };
+        this.settingsService.set(settings);
+        this.settingsService.setJwtToken(tokens.accessToken);
+        this.sessionRefreshService.start();
+        this.serviceUrl = serviceUrl;
+        this.isCertBasedAuth = isCertBased;
+
+        this.discoverAndAuthenticateHAControllers(controllerUrl, username, password, tokens.accessToken)
+            .catch((err) => {
+                const growlerData = new GrowlerModel(
+                    'error',
+                    'HA Controller Error',
+                    `Failed to connect to peer controllers in HA cluster`,
+                );
+                this.growlerService.show(growlerData);
+            });
+    }
+
+    override async completeMfaAuth(code: string): Promise<any> {
+        const pending = this.pendingOidcLogin;
+        if (!pending) {
+            return Promise.reject({error: 'no MFA authentication is pending'});
+        }
+        const step = await this.oidcService.submitTotp(pending.ctx, code);
+        if (step.status === 'error') {
+            throw step.error;
+        }
+        if (step.status !== 'code') {
+            throw {error: 'additional authentication is required but not supported'};
+        }
+        const tokens = await this.oidcService.exchangeCode(pending.ctx, step.code);
+        this.completeOidcLogin(tokens, pending.serviceUrl, pending.isCertBased, pending.username, pending.password);
+        this.cancelMfaAuth();
+        if (pending.doNav) {
+            this.router.navigate(['/']);
+        }
+        return true;
+    }
+
+    override cancelMfaAuth(): void {
+        this.pendingOidcLogin = null;
+        super.cancelMfaAuth();
+    }
+
+    private controllerUrlFromServiceUrl(serviceUrl: string): string {
+        return serviceUrl?.replace(/\/edge\/management\/v\d+\/?$/, '') || serviceUrl;
+    }
+
+    private standardObserveLogin(serviceUrl: string, username?: string, password?: string, doNav = true, type?, token?, isTest?) {
         if (this.loginInProgress) {
             return of(false);
         }
@@ -160,6 +323,7 @@ export class ControllerLoginService extends LoginServiceClass {
                 id: token,
                 controllerDomain: this.domain,
                 authorization: 100,
+                authMode: 'legacy',
                 expiresAt: body.data.expiresAt,
                 expirationSeconds: body.data.expirationSeconds
             }
@@ -469,6 +633,19 @@ export class ControllerLoginService extends LoginServiceClass {
 
 
     logout() {
+        const session = this.settingsService.settings?.session;
+        if (session?.authMode === 'oidc' && session?.refreshToken) {
+            // best-effort revocation; logout proceeds regardless
+            this.oidcService.revokeToken(
+                session.controllerDomain,
+                session.refreshToken,
+                'refresh_token',
+                session.oidcClientId,
+                this.settingsService.edgeOidcPath || '/oidc'
+            );
+        }
+        this.sessionRefreshService.stop();
+        this.cancelMfaAuth();
         localStorage.removeItem('ziti.settings');
         this.settingsService.settings.session.id = undefined;
         this.settingsService.set(this.settingsService.settings);

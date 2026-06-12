@@ -18,50 +18,26 @@ import {CanActivateFn, Router} from '@angular/router';
 import {Inject, Injectable, InjectionToken} from "@angular/core";
 import {
   SettingsService,
-  LoginServiceClass,
   SETTINGS_SERVICE,
-  ZAC_LOGIN_SERVICE,
-  GrowlerService,
-  GrowlerModel,
-  LoginDialogComponent
 } from "ziti-console-lib";
-import {defer} from "lodash";
-import {MatDialog} from "@angular/material/dialog";
-import {map, Observable, of} from "rxjs";
+import {Observable, of} from "rxjs";
 
 export const AUTHENTICATION_GUARD = new InjectionToken<any>('AUTHENTICATION_GUARD');
 
 @Injectable({providedIn: 'root'})
 export class AuthenticationGuard {
-  dialogRef: any = {};
 
   constructor(
-      @Inject(ZAC_LOGIN_SERVICE) private loginService: LoginServiceClass,
       @Inject(SETTINGS_SERVICE) private settingsSvc: SettingsService,
       private router: Router,
-      private growlerService: GrowlerService,
-      private dialogForm: MatDialog,
   ) {
   }
 
   canActivate(next, state): Observable<boolean> {
-    let isAuthorized = this.settingsSvc.hasSession();
-    if (isAuthorized) {
+    if (this.settingsSvc.hasSession()) {
       return of(true);
     }
-    if (this.loginService.loginDialogOpen) {
-      return of(false);
-    }
-    this.dialogRef = this.dialogForm.open(LoginDialogComponent, {
-      data: {},
-      autoFocus: false,
-    });
-    return this.dialogRef.afterClosed().pipe(map((result: any) => {
-      if (result?.isLoggedIn) {
-        return this.settingsSvc.hasSession();
-      } else {
-        return false;
-      }
-    }));
+    this.router.navigate(['/login']);
+    return of(false);
   }
 }

@@ -45,6 +45,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     extJwtSigners = [];
     oauthLoading = '';
     errors: any = {};
+    totpRequired = false;
+    totpCode = '';
+    totpError = '';
     private subscription = new Subscription();
 
     constructor(
@@ -69,6 +72,10 @@ export class LoginComponent implements OnInit, OnDestroy {
             if (results) this.settingsReturned(results);
         }));
         this.getExternalJwtSigners();
+        // an OIDC login may already be paused on MFA (e.g. ext-jwt SSO callback redirected here)
+        if (this.svc.pendingMfa) {
+            this.totpRequired = true;
+        }
     }
 
     checkOriginForController() {
@@ -133,9 +140,40 @@ export class LoginComponent implements OnInit, OnDestroy {
                 this.settingsService.settings.selectedEdgeController = this.selectedEdgeController;
                 this.settingsService.set(this.settingsService.settings);
             }).catch((error) => {
+                if (error?.totpRequired) {
+                    this.totpRequired = true;
+                    this.totpError = '';
+                    return;
+                }
                 this.handleControllerInvalid(error?.controllerInvalid);
             });
         }
+    }
+
+    verifyTotp() {
+        if (!this.totpCode) {
+            return;
+        }
+        this.totpError = '';
+        this.svc.completeMfaAuth(this.totpCode.trim()).then(() => {
+            this.totpRequired = false;
+            this.totpCode = '';
+            this.settingsService.settings.selectedEdgeController = this.selectedEdgeController;
+            this.settingsService.set(this.settingsService.settings);
+        }).catch((error) => {
+            this.totpError = error?.invalidCode ? 'Invalid code. Please try again.' : (error?.message || error?.error || 'Verification failed');
+        });
+    }
+
+    cancelTotp() {
+        this.svc.cancelMfaAuth();
+        this.totpRequired = false;
+        this.totpCode = '';
+        this.totpError = '';
+    }
+
+    totpCodeChange(event) {
+        this.totpCode = event.currentTarget.value;
     }
 
     handleControllerInvalid(controllerInvalid = false) {
@@ -150,7 +188,11 @@ export class LoginComponent implements OnInit, OnDestroy {
         }
     }
     next() {
-        this.login();
+        if (this.totpRequired) {
+            this.verifyTotp();
+        } else {
+            this.login();
+        }
     }
 
     create() {

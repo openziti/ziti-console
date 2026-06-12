@@ -137,6 +137,7 @@ export class SettingsService extends SettingsServiceClass {
                 } else {
                     if (body?.data?.apiVersions?.edge?.v1 != null) {
                         this.apiVersions = body.data.apiVersions;
+                        this.setOidcCapabilities(body.data);
                         let found = false;
                         if (this.settings.edgeControllers?.length > 0) {
                             for (let i = 0; i < this.settings.edgeControllers.length; i++) {
@@ -206,6 +207,7 @@ export class SettingsService extends SettingsServiceClass {
                             this.growlerService.show(growlerData);
                         } else {
                             this.apiVersions = body.data.apiVersions;
+                            this.setOidcCapabilities(body.data);
                             this.zitiSemver = body.data?.version?.replace("v", "");
                             const versionDisplay = `Controller: ${body.data?.version}`;
                             localStorage.setItem('ziti.controller.version', this.zitiSemver);
@@ -223,6 +225,7 @@ export class SettingsService extends SettingsServiceClass {
                 }),
                 catchError((err: any) => {
                     this.apiVersions = DEFAULT_API_VERSIONS;
+                    this.clearOidcCapabilities();
                     const growlerData = new GrowlerModel(
                         'error',
                         'Error',

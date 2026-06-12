@@ -59,6 +59,8 @@ export abstract class SettingsServiceClass {
     port = DEFAULTS.port;
     portTLS = DEFAULTS.portTLS;
     apiVersions: any[] = [];
+    capabilities: string[] = [];
+    edgeOidcPath: string | null = null;
     protocol = DEFAULTS.protocol;
     host = DEFAULTS.host;
     httpClient: HttpClient;
@@ -82,6 +84,21 @@ export abstract class SettingsServiceClass {
     public abstract initApiVersions(url);
     public abstract loadSettings();
     public abstract hasSession();
+
+    // True when the selected controller advertises native OIDC authentication
+    public oidcAvailable(): boolean {
+        return (this.capabilities || []).includes('OIDC_AUTH') && !isEmpty(this.edgeOidcPath);
+    }
+
+    public setOidcCapabilities(versionData: any) {
+        this.capabilities = versionData?.capabilities || [];
+        this.edgeOidcPath = versionData?.apiVersions?.['edge-oidc']?.v1?.path || null;
+    }
+
+    public clearOidcCapabilities() {
+        this.capabilities = [];
+        this.edgeOidcPath = null;
+    }
 
     // HA Controller methods
     public abstract isHAEnabled(): boolean;

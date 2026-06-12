@@ -57,7 +57,11 @@ export class CallbackComponent implements OnInit {
                             }
                             const claimsObj = this.loginService.decodeJwt(token);
                             const claimsStr = JSON.stringify(claimsObj, null, 2);
-                            this.loginService.login(prefix, url, undefined, undefined, doNav, 'ext-jwt', token, isTest).then((result) => {
+                            // a fresh SSO arrival has no session, so OIDC capability detection
+                            // hasn't run yet - populate it before the login service branches
+                            this.settingsService.initApiVersions(url).catch(() => null).then(() => {
+                                return this.loginService.login(prefix, url, undefined, undefined, doNav, 'ext-jwt', token, isTest);
+                            }).then((result) => {
                                 if (!isEmpty(redirectRoute)) {
                                     this.router.navigate([redirectRoute], {
                                         queryParams: {
@@ -67,6 +71,12 @@ export class CallbackComponent implements OnInit {
                                     });
                                 }
                             }).catch((error) => {
+                                if (error?.totpRequired) {
+                                    // login service holds the pending MFA state; the login page
+                                    // resumes with the TOTP prompt
+                                    this.router.navigate(['/login']);
+                                    return;
+                                }
                                 let errorMessage = this.zitiService.getErrorMessage(error);
                                 if (error.statusText) {
                                     errorMessage = error.statusText + ': ' + errorMessage;
