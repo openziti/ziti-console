@@ -100,6 +100,13 @@ const processControllerUrls = (urlString) => {
 	return validUrls;
 };
 
+// Normalize a controller URL for comparison and request building: strip any
+// trailing slash(es). ZAC_CONTROLLER_URLS values are stored without a trailing
+// slash (see processControllerUrls), but the console can submit the URL with
+// one — an exact-match check then fails ("Invalid Edge Controller"), and a
+// trailing slash also produces a double slash when request paths are appended.
+const trimTrailingSlash = (url) => (typeof url === 'string' ? url.replace(/\/+$/, '') : url);
+
 var ziti;
 const zitiServiceName = process.env.ZITI_SERVICE_NAME || 'zac';
 const zitiIdentityFile = process.env.ZITI_IDENTITY_FILE;
@@ -340,7 +347,7 @@ function hasAccess(user) {
  * Authentication method, authenticates the user to the provided edge controller defined by url
  */
 app.post("/api/login", function(request, response) {
-	var urlToSet = request.body.url;
+	var urlToSet = trimTrailingSlash(request.body.url);
 	if (!IsServerDefined(urlToSet)) response.json({error: errors.invalidServer });
 	else {
 		baseUrl = urlToSet;
@@ -520,7 +527,7 @@ app.post("/api/reset", function(request, response) {
  */
 function IsServerDefined(url) {
 	for (var i=0; i<settings.edgeControllers.length; i++) {
-		if (settings.edgeControllers[i].url==url) return true;
+		if (trimTrailingSlash(settings.edgeControllers[i].url)==trimTrailingSlash(url)) return true;
 	}
 	return false;
 }
@@ -615,7 +622,7 @@ app.delete("/api/server", function(request, response) {
  * Set the current controller to use
  */
 app.post("/api/controller", function(request, response) {
-	var urlToSet = request.body.url;
+	var urlToSet = trimTrailingSlash(request.body.url);
 	if (!IsServerDefined(urlToSet)) response.json({error: errors.invalidServer });
 	else serviceUrl = urlToSet;
 });
