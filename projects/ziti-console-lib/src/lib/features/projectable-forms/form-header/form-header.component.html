@@ -68,7 +68,7 @@
         <div class="save-button"
           (click)="requestAction({name: 'save'})"
           [ngClass]="{'save-disabled': saveDisabled}"
-          matTooltip="{{saveDisabled ? saveTooltip : ''}}"
+          matTooltip="{{saveTooltip}}"
           matTooltipPosition="below"
         >{{actionButtonText}}</div>
       }

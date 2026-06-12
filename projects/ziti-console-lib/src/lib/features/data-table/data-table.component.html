@@ -1,4 +1,4 @@
-@if (showTable) {
+@if (showTable && !accessDenied) {
   <div #tableContainer class="data-table-container">
     <lib-table-filter-bar
       [startCount]="startCount"
@@ -167,6 +167,7 @@
     [typeName]="this.entityTypeLabel"
     [hasAdd]="showNoItemsAdd"
     [readonly]="noItemsReadonly"
+    [accessDenied]="accessDenied"
   ></lib-no-items>
 }
 @if (showTagSelector) {

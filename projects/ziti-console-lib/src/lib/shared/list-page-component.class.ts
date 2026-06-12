@@ -64,6 +64,10 @@ export abstract class ListPageComponent {
         return !this.managementPermissions.canDelete(this.svc.resourceType);
     }
 
+    get headerBlockRead(): boolean {
+        return !this.managementPermissions.canRead(this.svc.resourceType);
+    }
+
     constructor(
         protected filterService: DataTableFilterService,
         public svc: ListPageServiceClass,
@@ -84,6 +88,10 @@ export abstract class ListPageComponent {
             this.managementPermissions.stateVersion$.subscribe(() => {
                 this.svc.rebuildMenusAndHeaders(this.managementPermissions);
                 this.syncBulkDownloadHeaderAction();
+                if (this.headerBlockRead) {
+                    this.rowData = [];
+                    this.isLoading = false;
+                }
             }),
         );
         this.filterService.clearFilters();
@@ -151,6 +159,10 @@ export abstract class ListPageComponent {
     }
 
     refreshData(sort?: { sortBy: string, ordering: string }, hardRefresh = false): void {
+        if (this.headerBlockRead) {
+            this.isLoading = false;
+            return;
+        }
         this.isLoading = true;
         sort = sort ? sort : this.svc.currentSort;
         this.svc.getData(this.filterService.filters, sort, this.filterService.currentPage)

@@ -43,7 +43,7 @@
             [placeholder]="'Add attributes to group Services'"
           ></lib-tag-selector>
         </lib-form-field-container>
-        @if (!useStrictReadonlyForm) {
+        @if (!useStrictReadonlyForm && canCreateConfig) {
           <lib-form-field-container
             [title]="'Add Configurations'"
             (actionRequested)="attachConfig()"
@@ -211,38 +211,42 @@
           [helpText]="'List the configs, policies, and terminators that are associated with this service. Click on the entity name to navigate to the entity\'s detailed view.'"
           [class]="'no-gap'"
           >
-          <div class="form-row space-between" style="margin-top: 0;">
-            <div class="config-title-row">
-              <span class="form-field-title">Configurations</span>
+          @if (canReadRelated('configs')) {
+            <div class="form-row space-between" style="margin-top: 0;">
+              <div class="config-title-row">
+                <span class="form-field-title">Configurations</span>
+              </div>
+              <span class="form-field-count">{{svc.addedConfigs ? svc.addedConfigs.length : 0}}</span>
             </div>
-            <span class="form-field-count">{{svc.addedConfigs ? svc.addedConfigs.length : 0}}</span>
-          </div>
-          <lib-preview-list
-            [isLoading]="svc.associatedConfigsLoading"
-            [allNames]="svc.addedConfigs"
-            [allowRemove]="!useStrictReadonlyForm"
-            [clickable]="true"
-            [tooltip]="'View Config'"
-            [showfilter]="false"
-            (itemRemoved)="svc.removeConfig($event)"
-            (itemSelected)="svc.previewConfig($event, router)"
-          ></lib-preview-list>
-          <div class="form-row space-between">
-            <div class="config-title-row">
-              <span class="form-field-title">Service Policies</span>
+            <lib-preview-list
+              [isLoading]="svc.associatedConfigsLoading"
+              [allNames]="svc.addedConfigs"
+              [allowRemove]="!useStrictReadonlyForm"
+              [clickable]="true"
+              [tooltip]="'View Config'"
+              [showfilter]="false"
+              (itemRemoved)="svc.removeConfig($event)"
+              (itemSelected)="svc.previewConfig($event, router)"
+            ></lib-preview-list>
+          }
+          @if (canReadRelated('service-policies')) {
+            <div class="form-row space-between">
+              <div class="config-title-row">
+                <span class="form-field-title">Service Policies</span>
+              </div>
+              <span class="form-field-count">{{svc.associatedServicePoliciesTotal}}</span>
             </div>
-            <span class="form-field-count">{{svc.associatedServicePoliciesTotal}}</span>
-          </div>
-          <lib-preview-list
-            [isLoading]="svc.associatedServicePoliciesLoading"
-            [clickable]="true"
-            (itemSelected)="svc.previewPolicy($event, router)"
-            [tooltip]="'View Service Policy'"
-            [allNames]="svc.associatedServicePolicies"
-            [showfilter]="svc.showServicePoliciesFilter"
-            [localFilter]="false"
-            (filterChanged)="svc.getAssociatedServicePoliciesDebounced($event)"
-          ></lib-preview-list>
+            <lib-preview-list
+              [isLoading]="svc.associatedServicePoliciesLoading"
+              [clickable]="true"
+              (itemSelected)="svc.previewPolicy($event, router)"
+              [tooltip]="'View Service Policy'"
+              [allNames]="svc.associatedServicePolicies"
+              [showfilter]="svc.showServicePoliciesFilter"
+              [localFilter]="false"
+              (filterChanged)="svc.getAssociatedServicePoliciesDebounced($event)"
+            ></lib-preview-list>
+          }
           <div class="form-row space-between">
             <div class="config-title-row">
               <span class="form-field-title">Terminators</span>

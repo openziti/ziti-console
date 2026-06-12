@@ -182,6 +182,21 @@ export class SimpleServiceComponent extends ProjectableForm {
     return this._entityId;
   }
 
+  override get formPermissionSaveDisabled(): boolean {
+    return super.formPermissionSaveDisabled
+        || !this.managementPermissions.canCreate('service-policies');
+  }
+
+  override get formPermissionSaveTooltip(): string {
+    if (this.managementPermissions.isSaveDisabled(this.entityType, this.isEdit)) {
+      return this.managementPermissions.saveDeniedTooltip;
+    }
+    if (!this.managementPermissions.canCreate('service-policies')) {
+      return `Saving requires 'service-policy' permission (for dial and bind service policies)`;
+    }
+    return '';
+  }
+
   override ngOnInit() {
     super.ngOnInit();
     this.controllerDomain = this.settingsService?.settings?.selectedEdgeController;

@@ -250,6 +250,10 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     return this.svc.selectedConfigId === 'add-new' || this.svc.selectedConfigId === 'preview';
   }
 
+  get canCreateConfig(): boolean {
+    return this.managementPermissions.canCreate('configs');
+  }
+
   attachConfig() {
     if (this.useStrictReadonlyForm) {
       return;

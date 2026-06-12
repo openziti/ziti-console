@@ -14,7 +14,8 @@
     limitations under the License.
 */
 
-import { Injectable, Inject, InjectionToken } from '@angular/core';
+import { Injectable, Inject, InjectionToken, Injector, inject } from '@angular/core';
+import { ManagementPermissionsService } from './management-permissions.service';
 import { Router } from "@angular/router";
 import {LoggerService} from "../features/messaging/logger.service";
 import {GrowlerService} from "../features/messaging/growler.service";
@@ -57,11 +58,35 @@ export abstract class ZitiDataService {
               protected router: Router
   ) {}
 
+  private readonly injector = inject(Injector);
+  /** Resolved lazily to break the circular dependency: ManagementPermissionsService → ZITI_DATA_SERVICE → ManagementPermissionsService. */
+  private get managementPermissions(): ManagementPermissionsService {
+      return this.injector.get(ManagementPermissionsService);
+  }
+
+  /** Empty list response returned when the user lacks read permission for the requested resource. */
+  private static readonly EMPTY_READ_RESULT = { data: [], meta: { pagination: { totalCount: 0, offset: 0, limit: 0 } } };
+
   abstract post(type, model, chained?, contentType?): Promise<any>;
   abstract put(type, model, id, chained?): Promise<any>;
   abstract patch(type, model, id, chained?): Promise<any>;
-  abstract get(type: string, paging: any, filters: FilterObj[], url?, useClient?): Promise<any>;
-  abstract getSubdata(entityType: string, id: any, dataType: string, paging?: any, contentType?, filters?): Promise<any>;
+  abstract doGet(type: string, paging: any, filters: FilterObj[], url?, useClient?): Promise<any>;
+  abstract doGetSubdata(entityType: string, id: any, dataType: string, paging?: any, contentType?, filters?): Promise<any>;
+
+  get(type: string, paging: any, filters: FilterObj[], url?, useClient?): Promise<any> {
+      if (!this.managementPermissions.canRead(type)) {
+          return Promise.resolve(ZitiDataService.EMPTY_READ_RESULT);
+      }
+      return this.doGet(type, paging, filters, url, useClient);
+  }
+
+  getSubdata(entityType: string, id: any, dataType: string, paging?: any, contentType?, filters?): Promise<any> {
+      const resourceToCheck = dataType || entityType;
+      if (!this.managementPermissions.canRead(resourceToCheck)) {
+          return Promise.resolve({ data: [] });
+      }
+      return this.doGetSubdata(entityType, id, dataType, paging, contentType, filters);
+  }
   abstract saveSubdata(entityType: string, id: any, dataType: string, params: any): Promise<any>;
   abstract deleteSubdata(entityType: string, id: any, dataType: string, params: any): Promise<any>;
   abstract delete(type: string, id: string): Promise<any>;

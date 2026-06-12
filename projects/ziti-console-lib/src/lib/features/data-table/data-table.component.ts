@@ -84,6 +84,8 @@ export class DataTableComponent implements OnChanges, OnInit {
   @Input() showNoItemsAdd = true;
   /** When true, empty-state copy does not prompt to add (e.g. admin_readonly / no create permission). */
   @Input() noItemsReadonly = false;
+  /** When true, shows "no permission to view" message instead of the table. */
+  @Input() accessDenied = false;
   @Input() currentPage = 1;
   @Input() noItemsImage = 'nodata';
   @Input() rowHeight = this.remToPx(3.125);
