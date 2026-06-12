@@ -371,20 +371,22 @@
             </div>
           </div>
         </lib-form-field-container>
-        <lib-form-field-container
-          [title]="'API Calls'"
-          [headerActions]="apiOptions"
-          (actionRequested)="apiActionRequested($event)"
-          [class]="'api-data-no-wrap'"
-          >
-          <div class="form-row">
-            <input class="form-field-input" [value]="apiCallURL"/>
-            <div class="icon-copy copy-text" (click)="copyToClipboard(apiCallURL)"></div>
-          </div>
-          @if (formData) {
-            <lib-json-view [showLineNumbers]="false" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
-          }
-        </lib-form-field-container>
+        @if (showApiCalls) {
+          <lib-form-field-container
+            [title]="'API Calls'"
+            [headerActions]="apiOptions"
+            (actionRequested)="apiActionRequested($event)"
+            [class]="'api-data-no-wrap'"
+            >
+            <div class="form-row">
+              <input class="form-field-input" [value]="apiCallURL"/>
+              <div class="icon-copy copy-text" (click)="copyToClipboard(apiCallURL)"></div>
+            </div>
+            @if (formData) {
+              <lib-json-view [showLineNumbers]="false" [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
+            }
+          </lib-form-field-container>
+        }
       </div>
     </div>
     @if (formView === 'raw') {

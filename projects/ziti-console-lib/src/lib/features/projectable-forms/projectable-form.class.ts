@@ -108,6 +108,10 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
 
     @ViewChild('formContainer') formContainer!: ElementRef;
 
+    get showApiCalls(): boolean {
+        return this.extService?.showApiCalls !== false;
+    }
+
     protected constructor(
         protected growlerService: GrowlerService,
         @Inject(SHAREDZ_EXTENSION) protected extService: ExtensionService,
