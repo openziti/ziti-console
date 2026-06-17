@@ -15,7 +15,12 @@
       <div class="multi-action-button-dropdown">
         <ul>
           @for (action of actions; track action) {
-            <li [hidden]="action.hidden" class="confirm-item-name" (click)="actionClicked(action)">{{action.label}}</li>
+            <li [hidden]="isActionHidden(action)" class="confirm-item-name {{action.style}}" (click)="actionClicked(action)">
+              @if (action.icon) {
+                <div class="confirm-item-icon {{action.icon}}"></div>
+              }
+              {{action.label}}
+            </li>
           }
         </ul>
       </div>

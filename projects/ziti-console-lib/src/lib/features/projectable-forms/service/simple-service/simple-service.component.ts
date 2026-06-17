@@ -117,7 +117,7 @@ export class SimpleServiceComponent extends ProjectableForm {
   identitiesInit: BehaviorSubject<any> = new BehaviorSubject<any>(false);
   entitiesInit = false;
 
-  multiActions = [];
+  override multiActions = [];
 
   override entityType = 'services';
 
@@ -432,6 +432,9 @@ export class SimpleServiceComponent extends ProjectableForm {
         break;
       case 'convert-to-advanced':
         this.convertToAdvanced();
+        break;
+      case 'delete':
+        this.deleteEntity();
         break;
     }
   }

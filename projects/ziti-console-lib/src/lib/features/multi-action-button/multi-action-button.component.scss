@@ -93,6 +93,62 @@
                 &:hover {
                   background-color: var(--inputBorder);
                 }
+
+                &.danger {
+                    background-color: var(--redShadow);
+                    color: var(--red);
+                    display: flex;
+                    align-items: center;
+
+                    &:hover {
+                        background-color: var(--red);
+                        color: var(--white);
+                    }
+                }
+            }
+
+            .confirm-item-icon {
+                font-family: icomoon !important;
+                font-size: 1.31rem;
+                margin-right: 0.5rem;
+                display: flex;
+                align-items: center;
+
+                &.icon-trash {
+                    width: 1.31rem;
+                    height: 1.31rem;
+                    background-image: url('/assets/svgs/Confirm_Trash.svg');
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    background-color: transparent;
+                    font-family: inherit;
+                    &:before {
+                        content: none;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// When used as the Save split-button in the form header, lay out inline
+// (instead of floating) and match the original .save-button dimensions
+// (form-header.component.scss: min-width 4.0625rem / height 2.0625rem).
+:host-context(.header-actions-container) {
+    .multi-action-button-container {
+        position: relative;
+        top: unset;
+        right: unset;
+        height: 2.0625rem;
+
+        .form-field-action {
+            height: 100%;
+
+            .primary-action-button {
+                min-width: 2.1875rem;
+                padding-left: 0.9375rem;
+                padding-right: 0.9375rem;
             }
         }
     }

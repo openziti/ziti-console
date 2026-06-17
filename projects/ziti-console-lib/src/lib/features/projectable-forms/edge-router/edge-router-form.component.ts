@@ -137,6 +137,17 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
     return !isEmpty(this.formData.enrollmentJwt) || !isEmpty(this.formData.enrollmentToken);
   }
 
+  multiActionRequested(action) {
+    switch(action.id) {
+      case 'save':
+        this.save();
+        break;
+      case 'delete':
+        this.deleteEntity();
+        break;
+    }
+  }
+
   headerActionRequested(action) {
     switch(action.name) {
       case 'save':

@@ -147,6 +147,17 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         }
     }
 
+    multiActionRequested(action) {
+        switch (action.id) {
+            case 'save':
+                this.save();
+                break;
+            case 'delete':
+                this.deleteEntity();
+                break;
+        }
+    }
+
     checkExternalIdToggle() {
         if (isEmpty(this.formData.claimsProperty)) {
             this.formData.useExternalId = false;

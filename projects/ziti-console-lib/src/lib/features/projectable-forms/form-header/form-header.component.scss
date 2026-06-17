@@ -131,6 +131,49 @@
       height: 2.0625rem;
       text-transform: none;
 
+      &.header-action-button {
+        margin-right: 1.25rem;
+
+        .header-action-button-icon {
+          font-family: icomoon !important;
+          font-size: 1.31rem;
+          margin-right: 0.5rem;
+          display: flex;
+          align-items: center;
+
+          &.icon-trash {
+            width: 1.31rem;
+            height: 1.31rem;
+            background-image: url('/assets/svgs/Confirm_Trash.svg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: transparent;
+            font-family: inherit;
+            &:before {
+              content: none;
+            }
+          }
+        }
+      }
+
+      // Destructive inline action styling (e.g. Delete rendered as a button instead of a dropdown item)
+      &.danger {
+        background: var(--red);
+        box-shadow: 0 0.1875rem 0.5625rem 0 var(--redShadow);
+
+        &:hover {
+          background: var(--red);
+          filter: brightness(110%);
+          box-shadow: 0 0.125rem 0.1875rem 0 var(--redShadow);
+        }
+
+        &:active {
+          background: var(--red);
+          filter: brightness(85%);
+        }
+      }
+
       &.save-disabled {
         filter: grayscale(1);
         opacity: .3;

@@ -7,13 +7,16 @@
     [data]="formData"
     [title]="formData.id ? 'Edit Identity: ' : 'Create New Identity'"
     [moreActions]="moreActions"
+    [multiActions]="multiActions"
     (actionRequested)="headerActionRequested($event)"
+    (multiActionRequested)="multiActionRequested($event)"
     [(formView)]="formView"
     [class.is-scrolled]="isScrolled"
     [saveDisabled]="formPermissionSaveDisabled"
     [saveTooltip]="formPermissionSaveTooltip"
     [strictReadonlyUi]="useStrictReadonlyForm"
   ></lib-form-header>
+  <ng-content select="[slot=tabs-slot]"></ng-content>
   <div class="identity-form-container projectable-form-container" #formContainer>
     @if (formView === 'simple') {
       <div class="projectable-form-main-column form-group-row">

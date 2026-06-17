@@ -1,4 +1,5 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {isFunction} from 'lodash';
 
 @Component({
     selector: 'lib-multi-action-button',
@@ -23,5 +24,9 @@ export class MultiActionButtonComponent {
 
   actionClicked(action) {
     this.actionRequested.emit(action);
+  }
+
+  isActionHidden(action: any): boolean {
+    return isFunction(action.hidden) ? action.hidden() : !!action.hidden;
   }
 }

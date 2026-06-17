@@ -8,13 +8,16 @@
     [data]="formData"
     [title]="(formData.id ? 'Edit Service' : 'Create Service')"
     [moreActions]="moreActions"
+    [multiActions]="multiActions"
     (actionRequested)="headerActionRequested($event)"
+    (multiActionRequested)="multiActionRequested($event)"
     [(formView)]="formView"
     [saveDisabled]="svc.saveDisabled || formDataInvalid || formPermissionSaveDisabled"
     [saveTooltip]="formPermissionSaveDisabled ? formPermissionSaveTooltip : saveButtonTooltip"
     [class.is-scrolled]="isScrolled"
     [strictReadonlyUi]="useStrictReadonlyForm"
   ></lib-form-header>
+  <ng-content select="[slot=tabs-slot]"></ng-content>
   <div class="edge-router-form-container projectable-form-container" #formContainer>
     <div class="projectable-form-main-column form-group-row" [hidden]="formView !== 'simple'">
       <div class="form-group-column three-fifths">
