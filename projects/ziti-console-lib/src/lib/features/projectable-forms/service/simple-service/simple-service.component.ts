@@ -414,7 +414,9 @@ export class SimpleServiceComponent extends ProjectableForm {
       this.identityNamedAttributes = namedAttributes;
       this.mergeSelectedIdentityNamesIntoAvailableList();
     }).finally(() => {
-      this.identitiesInit.next(true);
+      if (!this.identitiesInit.value) {
+        this.identitiesInit.next(true);
+      }
     });
   }
 
