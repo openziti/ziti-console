@@ -77,7 +77,7 @@ export class EdgeRouterPolicyFormService {
     }
 
     getAssociatedServicesByRole(id) {
-        this.zitiService.getSubdata('edge-router-policies', id, 'edge-routers').then((result: any) => {
+        this.zitiService.getSubdata('edge-router-policies', id, 'edge-routers',this.zitiService.DEFAULT_PAGING).then((result: any) => {
             this.associatedEdgeRouters = result.data;
             this.associatedEdgeRouterNames = this.associatedEdgeRouters.map((svc) => {
                 return svc.name;
@@ -86,7 +86,7 @@ export class EdgeRouterPolicyFormService {
     }
 
     getAssociatedIdentitiesById(id) {
-        this.zitiService.getSubdata('edge-router-policies', id, 'identities').then((result: any) => {
+        this.zitiService.getSubdata('edge-router-policies', id, 'identities',this.zitiService.DEFAULT_PAGING).then((result: any) => {
             this.associatedIdentities = result.data;
             this.associatedIdentityNames = this.associatedIdentities.map((ident) => {
                 return ident.name;

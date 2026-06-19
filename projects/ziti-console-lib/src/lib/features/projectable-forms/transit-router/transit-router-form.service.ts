@@ -102,7 +102,7 @@ export class TransitRouterFormService {
     }
 
     getAssociatedServices(id) {
-        this.zitiService.getSubdata('transit-routers', id, 'services').then((result: any) => {
+        this.zitiService.getSubdata('transit-routers', id, 'services',this.zitiService.DEFAULT_PAGING).then((result: any) => {
             this.associatedServices = result.data;
             this.associatedServiceNames = this.associatedServices.map((svc) => {
                 return svc.name;
@@ -111,7 +111,7 @@ export class TransitRouterFormService {
     }
 
     getAssociatedIdentities(id) {
-        this.zitiService.getSubdata('transit-routers', id, 'identities').then((result: any) => {
+        this.zitiService.getSubdata('transit-routers', id, 'identities',this.zitiService.DEFAULT_PAGING).then((result: any) => {
             this.associatedIdentities = result.data;
             this.associatedIdentityNames = this.associatedIdentities.map((policy) => {
                 return policy.name;

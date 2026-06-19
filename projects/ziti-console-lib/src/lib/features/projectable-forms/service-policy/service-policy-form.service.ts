@@ -82,7 +82,7 @@ export class ServicePolicyFormService {
     }
 
     getAssociatedServicesByRole(id) {
-        this.zitiService.getSubdata('service-policies', id, 'services').then((result: any) => {
+        this.zitiService.getSubdata('service-policies', id, 'services',this.zitiService.DEFAULT_PAGING).then((result: any) => {
             this.associatedServices = result.data;
             this.associatedServiceNames = this.associatedServices.map((svc) => {
                 return svc.name;
@@ -91,7 +91,7 @@ export class ServicePolicyFormService {
     }
 
     getAssociatedIdentitiesById(id) {
-        return this.zitiService.getSubdata('service-policies', id, 'identities').then((result: any) => {
+        return this.zitiService.getSubdata('service-policies', id, 'identities',this.zitiService.DEFAULT_PAGING).then((result: any) => {
             this.associatedIdentities = result.data;
             this.associatedIdentityNames = this.associatedIdentities.map((ident) => {
                 return ident.name;
