@@ -1,6 +1,7 @@
 /* eslint prefer-const: 1 */
 import {
   Component,
+  Input,
   ViewChild,
   Inject,
   OnInit,
@@ -40,6 +41,7 @@ export class IdentityServicePathComponent implements OnInit {
   noSearchResults = false;
   autocompleteOptions = [];
   fullScreen = false;
+  @Input() tabView = false;
   serviceOptions: any;
   endpointData;
   networkGraph;
@@ -456,7 +458,10 @@ export class IdentityServicePathComponent implements OnInit {
 
   initTopoView() {
     const vbWidth = 1050;
-    const vbHeight = 500;
+    // Grow the canvas to fit whichever column has the most nodes — a fixed
+    // 500 clips identities/routers once a column has more than ~6 entries.
+    const maxNodeY = Math.max(0, ...this.graphJsonObj.nodes.map((nd) => nd.posy || 0));
+    const vbHeight = Math.max(500, maxNodeY + 80);
     const colors = d3.scaleOrdinal(d3.schemeCategory10);
     const tooltip = d3.select('#epTooltip');
 
@@ -469,7 +474,7 @@ export class IdentityServicePathComponent implements OnInit {
 
     svg
       .attr('width', '100%')
-      .attr('height', '100%')
+      .attr('height', vbHeight)
       // .call(zoom)
       .attr('viewBox', '-20 -20 ' + (vbWidth + 40) + ' ' + vbHeight)
       .attr('preserveAspectRatio', 'xMidYMin meet')
