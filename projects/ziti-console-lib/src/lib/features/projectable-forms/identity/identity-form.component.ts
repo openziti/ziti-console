@@ -243,7 +243,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   }
 
   getAssociatedServices() {
-    this.zitiService.getSubdata('identities', this.formData.id, 'services').then((result: any) => {
+    this.zitiService.getSubdata('identities', this.formData.id, 'services', this.zitiService.DEFAULT_PAGING).then((result: any) => {
       this.associatedServices = result.data;
       this.associatedServiceNames = this.associatedServices.map((svc) => {
         return svc.name;
@@ -252,7 +252,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   }
 
   getAssociatedServicePolicies() {
-    this.zitiService.getSubdata('identities', this.formData.id, 'service-policies').then((result: any) => {
+    this.zitiService.getSubdata('identities', this.formData.id, 'service-policies', this.zitiService.DEFAULT_PAGING).then((result: any) => {
       this.associatedServicePolicies = result.data;
       this.associatedServicePolicyNames = this.associatedServicePolicies.map((policy) => {
         return policy.name;

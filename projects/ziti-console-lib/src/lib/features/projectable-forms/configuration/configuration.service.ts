@@ -67,7 +67,7 @@ export class ConfigurationService {
     }
 
     getAssociatedServices(configId) {
-        return this.dataService.getSubdata('configs', configId, 'services').then((result: any) => {
+        return this.dataService.getSubdata('configs', configId, 'services',this.dataService.DEFAULT_PAGING).then((result: any) => {
             const associatedServices = result.data;
             const associatedServiceNames = associatedServices.map((svc) => {
                 return svc.name;
