@@ -36,10 +36,21 @@ export class IdentityServicePathComponent implements OnInit {
   isDarkMode = false;
   refreshRotate = false;
   closeRotate = true;
+  private lastRenderContext: {
+    bindIdnetities: any[];
+    serviceOb: any;
+    serviceConfigs: any[];
+    hostEdgeRouters: any[];
+  } | null = null;
+  private zoomBehavior: any = null;
+  private hasInitialFit = false;
+  private readonly viewBoxWidth = 1050;
+  private readonly viewBoxHeight = 500;
   filterText = 'fetching services..';
   noSearchResults = false;
   autocompleteOptions = [];
   fullScreen = false;
+  legendCollapsed = false;
   serviceOptions: any;
   endpointData;
   networkGraph;
@@ -226,6 +237,8 @@ export class IdentityServicePathComponent implements OnInit {
   }
 
   serviceChanged() {
+     // Service change implies new topology — re-fit on next render.
+     this.hasInitialFit = false;
      this.isLoading = true;
      const allPromises = [];
      let serviceOb = null;
@@ -362,6 +375,12 @@ export class IdentityServicePathComponent implements OnInit {
               }
             }
 
+            this.lastRenderContext = {
+              bindIdnetities,
+              serviceOb,
+              serviceConfigs: service_configs,
+              hostEdgeRouters,
+            };
             this.startVisProcess(
               bindIdnetities, serviceOb, service_configs,
               hostEdgeRouters, serviceTerminators, serviceCircuits
@@ -370,6 +389,54 @@ export class IdentityServicePathComponent implements OnInit {
           });
         });
       });
+  }
+
+  async refreshFabricData(): Promise<void> {
+    if (this.refreshRotate) {
+      return;
+    }
+    this.refreshRotate = true;
+    try {
+      const results = await Promise.allSettled([
+        this.mapDataService.fetchRouters(),
+        this.mapDataService.fetchLinks(),
+        this.mapDataService.fetchCircuits(),
+        this.mapDataService.fetchTerminators(),
+      ]);
+      const [routersResult, linksResult, circuitsResult, terminatorsResult] = results;
+      const allFailed = results.every((r) => r.status === 'rejected');
+      this.fabricApiAvailable = !allFailed;
+
+      if (routersResult.status === 'fulfilled') {
+        this.allRouters = routersResult.value.routers || [];
+        this.routerTypesMap = routersResult.value.routerTypes || new Map();
+      }
+      if (linksResult.status === 'fulfilled') {
+        this.allLinks = linksResult.value || [];
+      }
+      if (circuitsResult.status === 'fulfilled') {
+        this.allCircuits = circuitsResult.value || [];
+      }
+      if (terminatorsResult.status === 'fulfilled') {
+        this.allTerminators = terminatorsResult.value || [];
+      }
+
+      if (this.lastRenderContext) {
+        const { bindIdnetities, serviceOb, serviceConfigs, hostEdgeRouters } = this.lastRenderContext;
+        const serviceTerminators = this.allTerminators.filter(
+          (t) => (t.serviceId || t.service?.id || t.service) === serviceOb.id
+        );
+        const serviceCircuits = this.allCircuits.filter(
+          (c) => c.service?.id === serviceOb.id
+        );
+        this.startVisProcess(
+          bindIdnetities, serviceOb, serviceConfigs,
+          hostEdgeRouters, serviceTerminators, serviceCircuits
+        );
+      }
+    } finally {
+      this.refreshRotate = false;
+    }
   }
 
   addItemToArray(bindIdnetities, ob) {
@@ -455,27 +522,48 @@ export class IdentityServicePathComponent implements OnInit {
   }
 
   initTopoView() {
-    const vbWidth = 1050;
-    const vbHeight = 500;
+    const vbWidth = this.viewBoxWidth;
+    const vbHeight = this.viewBoxHeight;
     const colors = d3.scaleOrdinal(d3.schemeCategory10);
     const tooltip = d3.select('#epTooltip');
+    // Hide is deferred so the cursor can travel from the node into the popover (to read/select
+    // its content); entering the popover cancels the hide, leaving it dismisses it.
+    let tooltipHideTimer: any = null;
+    tooltip.on('mouseenter', () => clearTimeout(tooltipHideTimer));
+    tooltip.on('mouseleave', () => tooltip.style('display', 'none'));
 
-    let svg = d3.select('#IdentityTopology'),
-      node,
-      link;
-
-    const handleZoom = (e) => svg.attr('transform', e.transform);
-    const zoom = d3.zoom().on('zoom', handleZoom);
+    const svg = d3.select('#IdentityTopology');
+    const svgEl: any = svg.node();
+    let node, link;
 
     svg
       .attr('width', '100%')
       .attr('height', '100%')
-      // .call(zoom)
       .attr('viewBox', '-20 -20 ' + (vbWidth + 40) + ' ' + vbHeight)
-      .attr('preserveAspectRatio', 'xMidYMin meet')
-      .append('g');
+      .attr('preserveAspectRatio', 'xMidYMin meet');
+
+    // Capture any pre-existing zoom transform (from previous render / user gestures)
+    // so we can re-apply it after recreating the content group.
+    const existingTransform = svgEl
+      ? d3.zoomTransform(svgEl)
+      : d3.zoomIdentity;
 
     svg.selectAll('g').remove();
+
+    // Wrap all topology content in a <g> so zoom transforms have something to translate.
+    const contentG = svg.append('g').attr('class', 'topology-content');
+    contentG.attr('transform', existingTransform.toString());
+
+    const handleZoom = (e: any) => {
+      contentG.attr('transform', e.transform);
+    };
+
+    if (!this.zoomBehavior) {
+      this.zoomBehavior = d3.zoom().scaleExtent([0.1, 5]).on('zoom', handleZoom);
+    } else {
+      this.zoomBehavior.on('zoom', handleZoom);
+    }
+    svg.call(this.zoomBehavior);
 
     const simulation: any = d3
       .forceSimulation()
@@ -495,7 +583,7 @@ export class IdentityServicePathComponent implements OnInit {
     const links = this.graphJsonObj.links;
     const nodes = this.graphJsonObj.nodes;
 
-    link = svg
+    link = contentG
       .selectAll('g.line.line')
       .data(links)
       .enter()
@@ -503,42 +591,37 @@ export class IdentityServicePathComponent implements OnInit {
       .attr('class', 'link')
       .attr('marker-end', 'url(#arrowhead)');
 
+    // Three link styles, distinguishable by pattern (color-blind-safe) and color. A single
+    // "broken" style covers every failure — which END is the problem is read from the node
+    // colors (an offline router vs an unreachable/un-enrolled endpoint), so the link needn't
+    // re-encode the cause:
+    //   active circuit -> green solid
+    //   available      -> gray dashed
+    //   broken         -> red dotted
+    const isBroken = (d) => d.status === 2;
     link
       .append('line')
       .style('stroke-width', function (d) {
-        if (d.linkType === 'active-circuit') {
-          return 1.5;
-        }
+        if (d.linkType === 'active-circuit') return 1.5;
+        if (isBroken(d)) return 2.25;
         return 1.25;
       })
+      .style('stroke-linecap', function (d) {
+        // Rounded caps turn the tight broken dash array into actual dots.
+        return isBroken(d) ? 'round' : 'butt';
+      })
       .style('stroke', function (d) {
-        if (d.linkType === 'active-circuit') {
-          return '#00cd13';
-        }
+        if (d.linkType === 'active-circuit') return '#00cd13';
+        if (isBroken(d)) return '#e6432e';
         return '#8a8f9a';
       })
       .style('stroke-dasharray', function (d) {
-        if (d.linkType === 'active-circuit') {
-          return null;
-        }
-        return '5,5';
+        if (d.linkType === 'active-circuit') return null; // solid
+        if (isBroken(d)) return '0.5,6'; // dotted
+        return '5,5'; // available: dashed
       });
 
-    link.each(function (this: any, d: any, i) {
-      const _this = d3.select(this);
-      if (d.status === 2) {
-        // Warning/misconfigured — show link-cut icon
-        _this
-          .append('image')
-          .attr('xlink:href', function () {
-            return 'assets/images/visualizer/link-cut.png';
-          })
-          .attr('width', '20')
-          .attr('height', '24');
-      }
-    });
-
-    node = svg
+    node = contentG
       .selectAll('.node')
       .data(nodes)
       .enter()
@@ -557,11 +640,14 @@ export class IdentityServicePathComponent implements OnInit {
           'assets/images/visualizer/host_unregistered.png';
         const endPointPath = 'assets/images/visualizer/host.png';
 
-        if (d.type.includes('Identity') && d.status === 'Un-Registered') {
-          return unregisteredEndpointImagePath;
-        } else if (d.type.includes('Identity') && d.routerConnection === 'No') {
-          return unregisteredEndpointImagePath;
-        } else if (d.type.includes('Identity')) {
+        if (d.type.includes('Identity')) {
+          if (d.status === 'Un-Registered') {
+            return unregisteredEndpointImagePath;
+          }
+          // Enrolled but unreachable / configured-but-not-hosting => broken tunneler.
+          if (d.brokenCause === 'tunneler-unreachable' || d.brokenCause === 'misconfigured') {
+            return errEndpointImagePath;
+          }
           return endPointPath;
         } else if (
           d.type.includes('Router') &&
@@ -592,19 +678,29 @@ export class IdentityServicePathComponent implements OnInit {
       .attr('cy', -20)
       .attr('r', 4.5)
       .attr('fill', function (d: any) {
+        if (d.brokenCause) return '#e6432e'; // broken — enrolled but unreachable / not hosting
         if (d.routerConnection === 'Yes' || d.apiSession === 'Yes') return '#08dc5a';
         return '#8a8f9a';
       })
       .attr('stroke', 'white')
       .attr('stroke-width', 1.5);
 
-    // Symmetric labels — truncated, centered below each node
+    // Node labels: for compound pipe-delimited names ("<networkId>|<identityId>|Human Name")
+    // show only the last segment so the canvas stays readable; the full name remains in the
+    // hover tooltip.
+    const getDisplayLabel = (fullName: string | undefined): string => {
+      if (!fullName) return '';
+      const segments = fullName.split('|').map((s) => s.trim()).filter((s) => s.length > 0);
+      const candidate = segments.length > 0 ? segments[segments.length - 1] : fullName;
+      const maxLen = 28;
+      return candidate.length > maxLen
+        ? candidate.substring(0, maxLen) + '…'
+        : candidate;
+    };
+
     node.each(function (this: any, d: any) {
       const g = d3.select(this);
-      const maxLen = 50;
-      const displayName = d.name && d.name.length > maxLen
-        ? d.name.substring(0, maxLen) + '\u2026'
-        : d.name;
+      const displayName = getDisplayLabel(d.name);
 
       const text = g.append('text')
         .attr('x', 0)
@@ -724,11 +820,14 @@ export class IdentityServicePathComponent implements OnInit {
 
     function removeTooltip() {
       if (tooltip) {
-        tooltip.style('display', 'none');
+        // Defer the hide so the user can move onto the popover; mouseenter (above) cancels it.
+        clearTimeout(tooltipHideTimer);
+        tooltipHideTimer = setTimeout(() => tooltip.style('display', 'none'), 220);
       }
     }
 
     function drawTooltip(event, d, endpointUtlizationJson) {
+      clearTimeout(tooltipHideTimer);
       document.getElementById('epTooltip').innerHTML = readKeyValues(
         d,
         endpointUtlizationJson
@@ -741,40 +840,112 @@ export class IdentityServicePathComponent implements OnInit {
       tooltip.style('top', y);
     }
 
+    // Builds a compact status "card" for a node's hover tooltip: a bold name, a prominent
+    // plain-language status line (with cause), and a few key facts. Makes the connectivity of
+    // customer-hosted tunnelers and routers immediately legible.
     function readKeyValues(d, endpointUtlizationJson) {
-      const excludeKeys = new Set([
-        'status', 'posy', 'posx', 'group', 'hostedEdgeId', 'value',
-        'index', 'parent', 'depth', 'x', 'y', 'id', 'x0', 'y0',
-        'vy', 'vx', 'routerType', 'linkType', 'provider', 'usage',
-      ]);
+      const esc = (s) => String(s).replace(/[&<>"]/g, (c) =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-      let info = "<div class='tool-tip-container'>";
-      // Show name as header
-      if (d.name) {
-        info += '<div class="tooltip-header">' + d.name + '</div>';
+      const isRouter = !!(d.type && String(d.type).includes('Router'));
+      const isService = d.group === '4' || !!(d.type && String(d.type).includes('Service'));
+
+      // The status band is the single source of truth for connectivity/enrollment — it replaces
+      // any separate "Enrolled" row. `caption` is a short fragment, used only where it tells the
+      // operator something the label alone doesn't (i.e. what to go check).
+      let cls = 'neutral';
+      let label = '';
+      if (isService) {
+        label = 'Service';
+      } else if (isRouter) {
+        // Routers report a plain online/offline that mirrors the controller's isOnline. The
+        // path-level "router-down" link styling conveys the impact; the node stays simple.
+        if (d.online === 'No' || d.status === 'ERROR') { cls = 'offline'; label = 'Offline'; }
+        else { cls = 'ok'; label = 'Online'; }
+      } else if (d.brokenCause === 'misconfigured' || d.status === 'Un-Registered') {
+        cls = 'broken'; label = 'Not enrolled';
+      } else if (d.brokenCause === 'tunneler-unreachable') {
+        cls = 'broken'; label = 'Unreachable';
+      } else if (d.routerConnection === 'Yes' || d.apiSession === 'Yes') {
+        cls = 'ok'; label = 'Online';
+      } else {
+        cls = 'offline'; label = 'Offline';
       }
 
-      const keys = Object.keys(d);
-      keys.forEach(function (k) {
-        if (excludeKeys.has(k) || k === 'name') return;
+      // No role for the service node — the icon/name already make it obvious, and a "Role: Service"
+      // row would just repeat itself.
+      // Role is the policy action (Dial/Bind) the identity has for the service — NOT the host
+      // mechanism, which we can't know (tunneler vs SDK vs router all look the same here).
+      let role = '';
+      if (d.group === '1') role = 'Client (Dial)';
+      else if (d.group === '3') role = 'Host (Bind)';
+      else if (isRouter) role = d.routerType === 'transit-router' ? 'Transit router' : 'Edge router';
 
-        let val = d[k];
-        if (val === null || val === undefined || val === '') return;
-
-        const label = k.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
-
-        if (isAnObject(val)) {
-          val = val.name || JSON.stringify(val);
-        } else if (val instanceof Array) {
-          val = val.join(', ');
+      // Facts that add detail beyond the status pill. The pill summarizes overall state; these
+      // are the granular signals an operator uses to diagnose it (a host can have an API session
+      // yet no router connection). Only the pill's own inputs (Online/Type/Enrolled) are omitted.
+      // Rows are [label, value, optional hover-context]. Service rows are purpose-labeled and
+      // adapt to how the service is configured (intercept+host, host-only, intercept-only, or
+      // SDK-defined with no address config).
+      const rows: [string, string, string?][] = [];
+      if (isService) {
+        if (d.interceptSummary) {
+          rows.push(['Intercept', d.interceptSummary]);
         }
+        if (d.hostSummary) {
+          rows.push(['Host', d.hostSummary]);
+        }
+        if (!d.interceptSummary && !d.hostSummary) {
+          // No intercept/host config. State the facts (the config types present, or none) rather
+          // than inferring "SDK-defined" — there's no property that actually tells us the host type.
+          rows.push(['Config types',
+            (d.configTypeNames && d.configTypeNames.length) ? d.configTypeNames.join(', ') : 'None']);
+        }
+        if (typeof d.encryptionRequired === 'boolean') {
+          rows.push(['Encryption', d.encryptionRequired ? 'Required' : 'Not required']);
+        }
+        if (d.terminatorStrategy) {
+          rows.push(['Terminators', d.terminatorStrategy]);
+        }
+        if (d.serviceRoleAttributes && d.serviceRoleAttributes.length) {
+          rows.push(['Attributes', d.serviceRoleAttributes.join(', ')]);
+        }
+        if (d.permissions && d.permissions.length) {
+          rows.push(['Your access', d.permissions.join(', ')]);
+        }
+      } else {
+        if (role) rows.push(['Role', role]);
+        if (isRouter) {
+          if (d.tunnelerEnabled === 'Yes' || d.tunnelerEnabled === 'No') {
+            rows.push(['Tunneler Enabled', d.tunnelerEnabled]);
+          }
+        } else {
+          if (d.routerConnection === 'Yes' || d.routerConnection === 'No') {
+            rows.push(['Router Connection', d.routerConnection]);
+          }
+          if (d.apiSession === 'Yes' || d.apiSession === 'No') {
+            rows.push(['API Session', d.apiSession]);
+          }
+          if (d.os) rows.push(['OS', d.os]);
+          if (d.mfaEnabled === true) rows.push(['MFA', 'Enabled']);
+        }
+      }
 
-        info += '<div class="prop-row">'
-          + '<span class="prop-label">' + label + '</span>'
-          + '<span class="prop-value">' + val + '</span>'
+      let info = "<div class='tool-tip-container tooltip-card'>";
+      info += '<div class="tooltip-header">' + esc(d.name || '') + '</div>';
+      // The service node carries no connectivity state, so it gets no status pill.
+      if (!isService) {
+        info += '<div class="tt-status-pill tt-' + cls + '">'
+          + '<span class="tt-status-dot"></span>'
+          + '<span class="tt-status-label">' + esc(label) + '</span>'
+          + '</div>';
+      }
+      rows.forEach(([k, v, t]) => {
+        info += '<div class="prop-row"' + (t ? ' title="' + esc(t) + '"' : '') + '>'
+          + '<span class="prop-label">' + esc(k) + '</span>'
+          + '<span class="prop-value">' + esc(v) + '</span>'
           + '</div>';
       });
-
       return info + '</div>';
     }
 
@@ -783,7 +954,84 @@ export class IdentityServicePathComponent implements OnInit {
     }
 
     this.refreshRotate = false;
+
+    // After the first render only, fit the graph to the viewBox so big topologies don't
+    // overflow off-screen. Subsequent renders (refresh ticks) preserve the user's transform.
+    if (!this.hasInitialFit) {
+      setTimeout(() => {
+        this.fitToContent();
+        this.hasInitialFit = true;
+      }, 0);
+    }
   } // end of initTopoView
+
+  fitToContent(): void {
+    if (!this.zoomBehavior) return;
+    const nodes = this.graphJsonObj?.nodes || [];
+    if (nodes.length === 0) return;
+
+    const xs = nodes
+      .map((n: any) => n.posx)
+      .filter((v: any) => typeof v === 'number' && !isNaN(v));
+    const ys = nodes
+      .map((n: any) => n.posy)
+      .filter((v: any) => typeof v === 'number' && !isNaN(v));
+    if (xs.length === 0 || ys.length === 0) return;
+
+    const padding = 60;
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const contentWidth = (maxX - minX) + padding * 2;
+    const contentHeight = (maxY - minY) + padding * 2;
+    if (contentWidth <= 0 || contentHeight <= 0) return;
+
+    // Reserve room in the bottom-right for the legend so the auto-fit doesn't place nodes
+    // underneath it. When the legend is collapsed there's nothing to avoid.
+    const reserveRight = this.legendCollapsed ? 0 : 160;
+    const reserveBottom = this.legendCollapsed ? 0 : 90;
+    const availWidth = this.viewBoxWidth - reserveRight;
+    const availHeight = this.viewBoxHeight - reserveBottom;
+
+    const scale = Math.min(
+      availWidth / contentWidth,
+      availHeight / contentHeight,
+      1
+    );
+    // Center the content within the available (legend-free) area, which sits at the top-left,
+    // leaving the reserved margin on the right/bottom for the legend panel.
+    const tx = (availWidth - contentWidth * scale) / 2 - (minX - padding) * scale;
+    const ty = (availHeight - contentHeight * scale) / 2 - (minY - padding) * scale;
+
+    d3.select('#IdentityTopology')
+      .transition()
+      .duration(300)
+      .call(
+        this.zoomBehavior.transform,
+        d3.zoomIdentity.translate(tx, ty).scale(scale)
+      );
+  }
+
+  zoomIn(): void {
+    if (!this.zoomBehavior) return;
+    d3.select('#IdentityTopology')
+      .transition()
+      .duration(200)
+      .call(this.zoomBehavior.scaleBy, 1.4);
+  }
+
+  zoomOut(): void {
+    if (!this.zoomBehavior) return;
+    d3.select('#IdentityTopology')
+      .transition()
+      .duration(200)
+      .call(this.zoomBehavior.scaleBy, 1 / 1.4);
+  }
+
+  resetView(): void {
+    this.fitToContent();
+  }
 }
 
 class ServiceData {

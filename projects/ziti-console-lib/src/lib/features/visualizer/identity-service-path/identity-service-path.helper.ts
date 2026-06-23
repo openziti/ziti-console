@@ -1,6 +1,15 @@
 import { Inject, Injectable } from '@angular/core';
 import _ from 'lodash';
 
+// statusReason explains WHY a link is in a broken (status === 2) state so the renderer
+// can show router-reported issues differently from tunneler-side connectivity problems.
+type LinkStatusReason = 'router-down' | 'tunneler-unreachable' | 'misconfigured' | null;
+
+interface LinkState {
+    state: number; // 1 = active, -1/0 = available/offline, 2 = broken
+    reason: LinkStatusReason;
+}
+
 class Link {
     source;
     sourceName;
@@ -8,6 +17,7 @@ class Link {
     targetName;
     weight;
     status;
+    statusReason: LinkStatusReason = null;
     linkType: 'active-circuit' | 'fabric-link' | 'inferred' | 'endpoint-connection' = 'inferred';
 }
 
@@ -28,6 +38,10 @@ class Node {
     type;
     usage;
     routerType?: 'edge-router' | 'transit-router';
+    // brokenCause drives the broken node iconography; connectivity is the human-readable
+    // line shown in the hover tooltip. Both are null/empty when the node is healthy.
+    brokenCause?: LinkStatusReason;
+    connectivity?: string;
 }
 
 class ServiceHostNode {
@@ -162,6 +176,7 @@ export class IdentityServicePathHelper {
         srNode.id = selectedServiceOb.id;
         srNode.name = selectedServiceOb.name;
         srNode.intercept = serviceConfigAlias(serviceConfigs);
+        buildServiceDetails(srNode, selectedServiceOb, serviceConfigs);
         srNode.type = 'Config Service';
         srNode.group = '4';
         srNode.status = '1';
@@ -275,6 +290,35 @@ export class IdentityServicePathHelper {
             }
         });
 
+        // Per-host connectivity is derived from the identity's own controller-reported state
+        // (hasEdgeRouterConnection / edgeRouterConnectionStatus -> routerConnection/apiSession),
+        // NOT from terminators: real ziti terminators carry no hosting-identity id (identity:"",
+        // no hostId), so a terminator can't be mapped back to the host that created it. Terminator
+        // COUNT remains a service-level health hint only.
+
+        // Annotate node connectivity so the renderer can pick a broken icon and the tooltip can
+        // explain the cause. A hosting tunneler that is enrolled but unreachable, or expected to
+        // host (Bind policy) yet has no terminator, is "broken".
+        group3Nodes.forEach((node) => {
+            if (node.status === 'Un-Registered') {
+                node.brokenCause = 'misconfigured';
+                node.connectivity = 'Not enrolled';
+            } else if (node.apiSession === 'No' || node.routerConnection === 'No') {
+                node.brokenCause = 'tunneler-unreachable';
+                node.connectivity = 'Configured but not connected (offline or blocked)';
+            } else {
+                node.connectivity = 'Connected';
+            }
+        });
+        if (endpointNodeOb && endpointNodeOb.status !== 'Un-Registered') {
+            if (endpointNodeOb.apiSession === 'No' || endpointNodeOb.routerConnection === 'No') {
+                endpointNodeOb.brokenCause = 'tunneler-unreachable';
+                endpointNodeOb.connectivity = 'Configured but not connected (offline or blocked)';
+            } else {
+                endpointNodeOb.connectivity = 'Connected';
+            }
+        }
+
         // Build fabric link lookup
         const fabricLinkSet = new Set<string>();
         fabricLinks.forEach((link) => {
@@ -294,8 +338,7 @@ export class IdentityServicePathHelper {
                     lnk.sourceName = endpointNodeOb.name;
                     lnk.target = nd.id;
                     lnk.targetName = nd.name;
-                    lnk.status = getEndpointToRouterLinkState(endpointNodeOb, nd);
-                    lnk.weight = getWeight(lnk.status);
+                    applyLinkState(lnk, getEndpointToRouterLinkState(endpointNodeOb, nd));
                     lnk.linkType = activeCircuitHops.has(hopKey(endpointNodeOb.id, nd.id))
                         ? 'active-circuit' : 'endpoint-connection';
                     rootOb.addLink(lnk);
@@ -402,10 +445,15 @@ export class IdentityServicePathHelper {
             lnk.target = r2.id;
             lnk.targetName = r2.name;
             lnk.linkType = isActiveCircuit ? 'active-circuit' : 'fabric-link';
-            lnk.status = (r1.online === 'Yes' || r1.status === 'PROVISIONED') &&
-                         (r2.online === 'Yes' || r2.status === 'PROVISIONED') ? 1 : 0;
-            if (isActiveCircuit) lnk.status = 1;
-            lnk.weight = getWeight(lnk.status);
+            const r1Up = r1.online === 'Yes' || r1.status === 'PROVISIONED';
+            const r2Up = r2.online === 'Yes' || r2.status === 'PROVISIONED';
+            if (isActiveCircuit) {
+                applyLinkState(lnk, { state: 1, reason: null });
+            } else if (!r1Up || !r2Up) {
+                applyLinkState(lnk, { state: 2, reason: 'router-down' });
+            } else {
+                applyLinkState(lnk, { state: 1, reason: null });
+            }
             rootOb.addLink(lnk);
         });
 
@@ -459,8 +507,7 @@ export class IdentityServicePathHelper {
                             lnk.sourceName = routerNode.name;
                             lnk.target = hostNode.id;
                             lnk.targetName = hostNode.name;
-                            lnk.status = getEndpointToRouterLinkState(hostNode, routerNode);
-                            lnk.weight = getWeight(lnk.status);
+                            applyLinkState(lnk, getEndpointToRouterLinkState(hostNode, routerNode));
                             lnk.linkType = activeCircuitHops.has(hopKey(routerNode.id, hostNode.id))
                                 ? 'active-circuit' : 'endpoint-connection';
                             rootOb.addLink(lnk);
@@ -478,8 +525,7 @@ export class IdentityServicePathHelper {
                         lnk.sourceName = routerNode.name;
                         lnk.target = hostNode.id;
                         lnk.targetName = hostNode.name;
-                        lnk.status = getEndpointToRouterLinkState(hostNode, routerNode);
-                        lnk.weight = getWeight(lnk.status);
+                        applyLinkState(lnk, getEndpointToRouterLinkState(hostNode, routerNode));
                         lnk.linkType = activeCircuitHops.has(hopKey(routerNode.id, hostNode.id))
                             ? 'active-circuit'
                             : (lnk.status === 1 ? 'endpoint-connection' : 'inferred');
@@ -503,8 +549,7 @@ export class IdentityServicePathHelper {
                         lnk.sourceName = dialRouter.name;
                         lnk.target = hostNode.id;
                         lnk.targetName = hostNode.name;
-                        lnk.status = getEndpointToRouterLinkState(hostNode, dialRouter);
-                        lnk.weight = getWeight(lnk.status);
+                        applyLinkState(lnk, getEndpointToRouterLinkState(hostNode, dialRouter));
                         lnk.linkType = lnk.status === 1 ? 'endpoint-connection' : 'inferred';
                         rootOb.addLink(lnk);
                     }
@@ -533,8 +578,7 @@ export class IdentityServicePathHelper {
                 lnk.target = serviceNode.id;
                 lnk.targetName = serviceNode.name;
                 lnk.weight = 1;
-                lnk.status = getServiceToEndpointLinkState(hostNode, serviceNode);
-                lnk.weight = getWeight(lnk.status);
+                applyLinkState(lnk, getServiceToEndpointLinkState(hostNode, serviceNode));
                 lnk.linkType = activeCircuitHops.has(hopKey(hostNode.id, serviceNode.id))
                     ? 'active-circuit' : 'endpoint-connection';
                 rootOb.addLink(lnk);
@@ -553,6 +597,26 @@ export class IdentityServicePathHelper {
             if (dialSide.has(srcGroup) && dialSide.has(tgtGroup)) return false;
             return true;
         });
+
+        // Collapse parallel links between the same node pair. A router that is on BOTH the dial
+        // and host side can otherwise produce two links to the same node — e.g. an 'available'
+        // inferred link and a 'router-down' link — which overlap and render as mixed dashed/dotted.
+        // Keep the single most-significant link per pair.
+        const linkSeverity = (l) => {
+            if (l.linkType === 'active-circuit') return 4; // live traffic wins
+            if (l.status === 2) return 3;                  // broken (router-down / tunneler-unreachable)
+            if (l.status === 1) return 2;                  // connected
+            return 1;                                      // available / inferred
+        };
+        const bestLinkByPair = new Map<string, any>();
+        rootOb.links.forEach((lnk) => {
+            const key = [lnk.source, lnk.target].sort().join('::');
+            const existing = bestLinkByPair.get(key);
+            if (!existing || linkSeverity(lnk) > linkSeverity(existing)) {
+                bestLinkByPair.set(key, lnk);
+            }
+        });
+        rootOb.links = Array.from(bestLinkByPair.values());
 
         return rootOb;
     }
@@ -593,6 +657,7 @@ export class IdentityServicePathHelper {
         srNode.id = selectedServiceOb.id;
         srNode.name = selectedServiceOb.name;
         srNode.intercept = serviceConfigAlias(serviceConfigs);
+        buildServiceDetails(srNode, selectedServiceOb, serviceConfigs);
         srNode.type = 'Config Service';
         srNode.group = '4';
         srNode.status = '1';
@@ -696,8 +761,7 @@ export class IdentityServicePathHelper {
                 lnk.sourceName = endpointNodeOb.name;
                 lnk.target = nd.id;
                 lnk.targetName = nd.name;
-                lnk.status = getEndpointToRouterLinkState(endpointNodeOb, nd);
-                lnk.weight = getWeight(lnk.status);
+                applyLinkState(lnk, getEndpointToRouterLinkState(endpointNodeOb, nd));
                 lnk.linkType = 'endpoint-connection';
                 rootOb.addLink(lnk);
             }
@@ -723,8 +787,9 @@ export class IdentityServicePathHelper {
                             nd2.status === 'PROVISIONED' &&
                             nd2.online === 'Yes'
                                 ? 1 : 0;
+                        lnk.statusReason = lnk.status === 1 ? null : 'router-down';
                     } else {
-                        lnk.status = getEndpointToRouterLinkState(nd2, nd1);
+                        applyLinkState(lnk, getEndpointToRouterLinkState(nd2, nd1));
                     }
                     lnk.weight = getWeight(lnk.status);
                     lnk.linkType = 'inferred';
@@ -747,8 +812,7 @@ export class IdentityServicePathHelper {
                 if (foundNd.type.includes('Router')) {
                     lnk.status = foundNd.online === 'Yes' ? 1 : -1;
                 } else {
-                    lnk.status = getServiceToEndpointLinkState(group3Nodes[k1], group4Nodes[k0]);
-                    lnk.weight = getWeight(lnk.status);
+                    applyLinkState(lnk, getServiceToEndpointLinkState(group3Nodes[k1], group4Nodes[k0]));
                 }
                 lnk.linkType = 'endpoint-connection';
                 rootOb.addLink(lnk);
@@ -815,6 +879,44 @@ function serviceConfigAlias(configs) {
     return intercept;
 }
 
+// Annotates the service node with labeled, purpose-specific details so the hover card can explain
+// what each address is for and surface the service's configuration. Handles services that are
+// intercept+host, host-only, intercept-only, or SDK-defined (no address configs at all).
+function buildServiceDetails(srNode, service, configs) {
+    srNode.encryptionRequired = service ? service.encryptionRequired : undefined;
+    srNode.terminatorStrategy = service ? service.terminatorStrategy : undefined;
+    srNode.serviceRoleAttributes = _.isArray(service && service.roleAttributes) ? service.roleAttributes : [];
+    srNode.permissions = _.isArray(service && service.permissions) ? service.permissions : [];
+
+    const fmtPorts = (portRanges, port) => {
+        if (_.isArray(portRanges)) {
+            return portRanges.map((r) => (r.low === r.high ? `${r.low}` : `${r.low}-${r.high}`));
+        }
+        if (port !== undefined && port !== null) return [String(port)];
+        return [];
+    };
+    const fmtEndpoint = (addrs, ports, protos) => {
+        const a = (addrs || []).filter(Boolean).join(', ');
+        const detail = [(protos || []).join('/'), (ports || []).join(',')].filter(Boolean).join('/');
+        return detail ? `${a}  ${detail}` : a;
+    };
+
+    const types = [];
+    _.isArray(configs) && configs.forEach((conf) => {
+        const t = ((conf && conf.configType && conf.configType.name) || (conf && conf.type) || '').toString();
+        const d = (conf && conf.data) || {};
+        if (t) types.push(t);
+        if (t.indexOf('intercept') === 0) {
+            const addrs = d.addresses || (d.address ? [d.address] : []);
+            srNode.interceptSummary = fmtEndpoint(addrs, fmtPorts(d.portRanges, d.port), d.protocols || (d.protocol ? [d.protocol] : []));
+        } else if (t.indexOf('host') === 0) {
+            const addrs = d.address ? [d.address] : (d.forwardAddress ? ['(forwarded)'] : []);
+            srNode.hostSummary = fmtEndpoint(addrs, fmtPorts(d.allowedPortRanges, d.port), d.protocol ? [d.protocol] : (d.protocols || (d.forwardProtocol ? ['(forwarded)'] : [])));
+        }
+    });
+    srNode.configTypeNames = types;
+}
+
 function findEndpoint(endpointId, endpoints) {
     if (endpointId === null) {
         return null;
@@ -835,7 +937,10 @@ function createEndpoint(ePoint) {
     node.id = ePoint.id;
     node.name = ePoint.name;
     node.type = 'Identity';
-    if (_.has(ePoint, 'edgeRouterConnectionStatus')) {
+    // Prefer the explicit booleans, which controllers populate reliably. Only fall back to the
+    // edgeRouterConnectionStatus string when it actually carries a value — note its key can be
+    // PRESENT-BUT-NULL, so `_.has` is not a safe guard (that bug made every identity look "Yes").
+    if (ePoint.edgeRouterConnectionStatus != null) {
         node.routerConnection = ePoint.edgeRouterConnectionStatus === 'offline' ? 'No' : 'Yes';
         node.apiSession = node.routerConnection;
     } else {
@@ -844,7 +949,10 @@ function createEndpoint(ePoint) {
     }
     node.os = ePoint.envInfo ? ePoint.envInfo.os : '';
     node.mfaEnabled = ePoint.isMfaEnabled;
-    node.status = ePoint.envInfo && ePoint.envInfo.os !== null ? 'Registered' : 'Un-Registered';
+    // "Registered" means the identity has enrolled and run (it has reported env info). Guard on a
+    // truthy os: the controller returns envInfo as an empty object {} for a created-but-never-
+    // enrolled identity, and `{}.os !== null` is true — which previously mis-classed it Registered.
+    node.status = (ePoint.envInfo && ePoint.envInfo.os) ? 'Registered' : 'Un-Registered';
     return node;
 }
 
@@ -872,33 +980,60 @@ function createFabricRouterNode(fabricRouter, routerType: 'edge-router' | 'trans
     return nodeOb;
 }
 
-function getEndpointToRouterLinkState(endpointNode, routerNode) {
-    let linkstate = -1;
-    if (routerNode.status === 'ERROR') {
-        linkstate = 2; // router is broken — warning
-    } else if (endpointNode.status === 'Un-Registered') {
-        linkstate = -1;
-    } else if (endpointNode.apiSession === 'No' || endpointNode.routerConnection === 'No') {
-        // No session or no connection = offline, not error
-        linkstate = -1;
-    } else if (routerNode.online === 'Yes' && endpointNode.routerConnection === 'Yes') {
-        linkstate = 1;
-    } else {
-        linkstate = -1;
+// Determines the state of an identity/tunneler <-> edge-router link.
+// A router-reported problem (offline/errored router) is distinguished from a tunneler-side
+// problem (enrolled identity that cannot establish a connection to the router, e.g. blocked
+// by a firewall) so the visualizer can render the two causes differently.
+function getEndpointToRouterLinkState(endpointNode, routerNode): LinkState {
+    if (routerNode.status === 'ERROR' || routerNode.online === 'No') {
+        return { state: 2, reason: 'router-down' }; // router-reported issue
     }
-    return linkstate;
+    if (endpointNode.status === 'Un-Registered') {
+        // Never enrolled — the path through this identity can't carry traffic, so it's not
+        // "available". Marked unavailable (the node still shows the specific "Not enrolled" cause).
+        return { state: 2, reason: 'misconfigured' };
+    }
+    if (endpointNode.apiSession === 'No' || endpointNode.routerConnection === 'No') {
+        // Enrolled but cannot reach the edge router — tunneler-side broken (was previously
+        // shown as a benign "available" link, which is exactly what we're fixing).
+        return { state: 2, reason: 'tunneler-unreachable' };
+    }
+    if (routerNode.online === 'Yes' && endpointNode.routerConnection === 'Yes') {
+        return { state: 1, reason: null }; // active/available
+    }
+    return { state: -1, reason: null };
 }
 
-function getServiceToEndpointLinkState(endpointNode, serviceNode) {
-    // status 1 = active, -1 = offline/available, 2 = warning/misconfigured
-    if (endpointNode.status === 'Un-Registered') {
-        return 2; // hosting identity never enrolled — misconfigured
-    } else if (endpointNode.apiSession === 'No' || endpointNode.routerConnection === 'No') {
-        return -1; // just offline
-    } else if (endpointNode.status === 'Registered' && endpointNode.routerConnection === 'Yes') {
-        return 1; // active
+// Determines the state of a hosting identity/router <-> service link.
+// hasTerminator is the authoritative signal that the host actually established its hosting
+// connection: a Bind policy makes a host "expected", but only a terminator proves it connected.
+function getServiceToEndpointLinkState(hostNode, serviceNode): LinkState {
+    const isRouter = !!(hostNode.type && String(hostNode.type).includes('Router'));
+    if (isRouter) {
+        if (hostNode.status === 'ERROR' || hostNode.online === 'No') {
+            return { state: 2, reason: 'router-down' };
+        }
+        return { state: 1, reason: null };
     }
-    return -1;
+    // Identity host (tunneler). Broken-detection uses the host's own connection state, since
+    // terminators can't be attributed to a specific host (see note in getEndpointGraphObj).
+    if (hostNode.status === 'Un-Registered') {
+        return { state: 2, reason: 'misconfigured' }; // never enrolled
+    }
+    if (hostNode.apiSession === 'No' || hostNode.routerConnection === 'No') {
+        return { state: 2, reason: 'tunneler-unreachable' }; // enrolled but unreachable (e.g. firewall)
+    }
+    if (hostNode.status === 'Registered' && hostNode.routerConnection === 'Yes') {
+        return { state: 1, reason: null }; // active/available
+    }
+    return { state: -1, reason: null };
+}
+
+// Applies a computed LinkState to a link, including its derived weight.
+function applyLinkState(lnk, ls: LinkState) {
+    lnk.status = ls.state;
+    lnk.statusReason = ls.reason;
+    lnk.weight = getWeight(ls.state);
 }
 
 function getWeight(linkState) {
