@@ -5,7 +5,7 @@
     <div (click)="toggleModalSize()" class="buttonBall resize" id="ResizeModalButton"></div>
   </div>
   <div [ngClass]="isDarkMode==true?'darkMode':'lightMode'" class="identity-topology-container">
-    <div style="width: 100%; height: 80px; float: left">
+    <div class="topology-toolbar">
       <div class="ep-topology-filter-container listBox row">
         <input
           (keyup)="filterSearchArray()"
@@ -33,63 +33,97 @@
           }
         </mat-autocomplete>
       </div>
+      <div class="topology-refresh-controls">
+        <div
+          (click)="refreshFabricData()"
+          [ngClass]="{ rotating: refreshRotate }"
+          class="refresh-button"
+          id="RefreshFabricButton"
+          title="Refresh fabric data"
+        >
+          <div class="refresh-icon"></div>
+        </div>
+      </div>
     </div>
 
     <div class="topotip" id="epTooltip"></div>
 
     <svg style='pointer-events:all' height="1000" id="IdentityTopology" width="1400">
     </svg>
+    <div class="topology-zoom-controls">
+      <div (click)="zoomIn()" class="zoom-btn" title="Zoom in" id="ZoomInButton">+</div>
+      <div (click)="zoomOut()" class="zoom-btn" title="Zoom out" id="ZoomOutButton">&#8722;</div>
+      <div (click)="resetView()" class="zoom-btn zoom-btn-text" title="Fit to content" id="FitToContentButton">Fit</div>
+    </div>
     @if (isLoading) {
       <lib-loading-indicator [isLoading]="isLoading"></lib-loading-indicator>
     }
 
-    <div class="topology-legend">
+    <div class="topology-legend" [class.collapsed]="legendCollapsed">
+      <div class="legend-header" (click)="legendCollapsed = !legendCollapsed"
+           [title]="legendCollapsed ? 'Show legend' : 'Hide legend'">
+        <span class="legend-header-title">Legend</span>
+        <span class="legend-header-toggle" aria-hidden="true">
+          <svg viewBox="0 0 16 16" width="13" height="13">
+            <path d="M3.5 6 L8 10.5 L12.5 6" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </span>
+      </div>
+      @if (!legendCollapsed) {
+      <div class="legend-body">
       <div class="legend-section">
         <div class="legend-section-title">Nodes</div>
-        <div class="legend-item">
+        <div class="legend-item" title="An endpoint identity — a client that dials the service or a tunneler that hosts it.">
           <div class="legend-icon-col"><img class="legend-node-icon" src="assets/images/visualizer/host.png" /></div>
           <div class="legend-text">Identity</div>
         </div>
-        <div class="legend-item">
+        <div class="legend-item" title="A Ziti edge router that relays traffic between identities.">
           <div class="legend-icon-col"><img class="legend-node-icon" src="assets/images/visualizer/Routers.png" /></div>
           <div class="legend-text">Edge Router</div>
         </div>
-        <div class="legend-item">
+        <div class="legend-item" title="The service being dialed and hosted.">
           <div class="legend-icon-col"><img class="legend-node-icon" src="assets/images/visualizer/service.png" /></div>
           <div class="legend-text">Service</div>
         </div>
       </div>
       <div class="legend-section">
         <div class="legend-section-title">Status</div>
-        <div class="legend-item">
-          <div class="legend-icon-col"><div class="legend-circle registered_in_use"></div></div>
+        <div class="legend-item" title="Connected to an edge router.">
+          <div class="legend-icon-col"><div class="legend-circle online"></div></div>
           <div class="legend-text">Online</div>
         </div>
-        <div class="legend-item">
-          <div class="legend-icon-col"><div class="legend-circle unregistered"></div></div>
+        <div class="legend-item" title="Enrolled but not currently connected (e.g. powered off or idle).">
+          <div class="legend-icon-col"><div class="legend-circle offline"></div></div>
           <div class="legend-text">Offline</div>
         </div>
-        <div class="legend-item">
-          <div class="legend-icon-col"><div class="legend-circle errored"></div></div>
-          <div class="legend-text">Error</div>
+        <div class="legend-item" title="Identity-only: the controller can't currently determine the connection state.">
+          <div class="legend-icon-col"><div class="legend-circle unknown"></div></div>
+          <div class="legend-text">Unknown</div>
+        </div>
+        <div class="legend-item" title="Identity has not completed enrollment.">
+          <div class="legend-icon-col"><div class="legend-circle notenrolled"></div></div>
+          <div class="legend-text">Not enrolled</div>
         </div>
       </div>
       @if (fabricApiAvailable) {
         <div class="legend-section">
           <div class="legend-section-title">Path</div>
-          <div class="legend-item">
+          <div class="legend-item" title="Live traffic is flowing over this hop right now.">
             <div class="legend-icon-col"><div class="legend-line active-circuit"></div></div>
             <div class="legend-text">Active Circuit</div>
           </div>
-          <div class="legend-item">
+          <div class="legend-item" title="Reachable and authorized, but no active circuit at the moment.">
             <div class="legend-icon-col"><div class="legend-line available"></div></div>
             <div class="legend-text">Available</div>
           </div>
-          <div class="legend-item">
-            <div class="legend-icon-col"><div class="legend-icon misconfigured"></div></div>
-            <div class="legend-text">Broken</div>
+          <div class="legend-item" title="This hop can't carry traffic right now. The node colors show which end is the problem — an offline router, or an unreachable / un-enrolled endpoint.">
+            <div class="legend-icon-col"><div class="legend-line broken"></div></div>
+            <div class="legend-text">Unavailable</div>
           </div>
         </div>
+      }
+      </div>
       }
     </div>
 

@@ -30,15 +30,23 @@
     }
 
     .clear-svc-icon {
-      font-size: 1.4375rem;
-      font-weight: 600;
-      position: relative;
-      top: 0.9375rem;
-      right: 2.5rem;
+      position: absolute;
+      top: 50%;
+      right: 0.55rem;
+      transform: translateY(-50%);
+      width: 1.65rem;
+      height: 1.65rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 0.95rem;
       color: var(--icon);
       cursor: pointer;
+      transition: background 0.12s ease, color 0.12s ease;
       &:hover {
-        filter: brightness(50%);
+        background: color-mix(in srgb, var(--tableText) 12%, transparent);
+        color: var(--tableText);
       }
     }
 
@@ -57,6 +65,28 @@
         padding: 0;
     }
 
+    // When the search container sits inside the toolbar flex row, drop the
+    // absolute positioning so it flows naturally next to the refresh controls.
+    .topology-toolbar .ep-topology-filter-container {
+        position: relative;
+        margin: 0;
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: 28rem;
+    }
+
+    .topology-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem 1.25rem 0.625rem;
+        box-sizing: border-box;
+        width: 100%;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 4;
+    }
+
     .buttonBall.resize {
         top: 1.25rem;
         width: 1.4375rem;
@@ -68,14 +98,112 @@
         cursor: pointer;
     }
 
+    .topology-refresh-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 0 0 auto;
+    }
+
+    .topology-refresh-controls .refresh-button {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        background-color: var(--navigation);
+        box-shadow: 0rem 0.375rem 1rem 0rem var(--shadow),
+                    0 0 0 0.0625rem var(--shadow);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: filter 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+
+        .refresh-icon {
+            width: 1.125rem;
+            height: 1.125rem;
+            background-color: var(--tableText);
+            opacity: 0.85;
+            -webkit-mask: url(/assets/svgs/refresh.svg) center / contain no-repeat;
+            mask: url(/assets/svgs/refresh.svg) center / contain no-repeat;
+            transition: opacity 0.15s ease;
+        }
+
+        &:hover {
+            box-shadow: 0rem 0.5rem 1.25rem 0rem var(--shadow),
+                        0 0 0 0.0625rem var(--primaryColor);
+            .refresh-icon { opacity: 1; }
+        }
+
+        &:active {
+            transform: scale(0.95);
+        }
+
+        &.rotating .refresh-icon {
+            animation: rotating 1s linear infinite;
+        }
+    }
+
+    .topology-zoom-controls {
+        position: absolute;
+        bottom: 1rem;
+        left: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+        z-index: 5;
+    }
+
+    .topology-zoom-controls .zoom-btn {
+        width: 2.25rem;
+        height: 2.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+        background-color: var(--navigation);
+        color: var(--tableText);
+        font-family: 'Open Sans', Arial, sans-serif;
+        font-size: 1.25rem;
+        font-weight: 600;
+        line-height: 1;
+        cursor: pointer;
+        user-select: none;
+        box-shadow: 0rem 0.5rem 1.25rem 0rem var(--shadow);
+        transition: filter 0.15s ease, transform 0.15s ease;
+
+        &.zoom-btn-text {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        &:hover {
+            filter: brightness(85%);
+        }
+
+        &:active {
+            transform: scale(0.95);
+        }
+    }
+
     .identity-topology-container {
         display: flex;
         margin-left: -0.3125rem;
         margin-top: 0.625rem;
         flex-direction: column;
-        cursor: grab;
         flex: 1;
         overflow: hidden;
+        position: relative;
+    }
+
+    #IdentityTopology {
+        cursor: grab;
+        flex: 1;
+        min-height: 0;
+
+        &:active {
+            cursor: grabbing;
+        }
     }
      .lightMode {
        background: #f5e9f2;
@@ -183,13 +311,29 @@
     }
 
     .topology-filter-input {
-        height: 3.125rem;
-        width: 95%;
-        border-radius: 1.5625rem;
-        border-color: var(--navigation);
-        background-color: var(--navigation);
-        box-shadow: 0rem 1.25rem 1.4375rem 0rem var(--shadow);
-        padding-left: 1.25rem;
+        height: 2.75rem;
+        width: 100%;
+        box-sizing: border-box;
+        border-radius: 0.75rem;
+        border: 1px solid var(--shadow);
+        background-color: var(--background);
+        color: var(--tableText);
+        box-shadow: 0 0.0625rem 0.125rem 0 rgba(0, 0, 0, 0.06);
+        padding: 0 2.6rem 0 1rem;
+        font-size: 0.95rem;
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+        &::placeholder {
+            color: color-mix(in srgb, var(--tableText) 50%, transparent);
+        }
+        &:hover {
+            border-color: color-mix(in srgb, var(--tableText) 28%, transparent);
+        }
+        &:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.1875rem color-mix(in srgb, var(--primary) 18%, transparent);
+        }
     }
 
     ::ng-deep .topotip {
@@ -197,7 +341,7 @@
         position: fixed;
         background: var(--navigation);
         border-radius: 0.5rem;
-        pointer-events: none;
+        pointer-events: auto; // allow hovering onto the popover (kept open) to read/select content
         box-shadow: 0 0.25rem 1rem 0 var(--shadow);
         color: var(--tableText);
         z-index: 2000;
@@ -207,7 +351,7 @@
     }
 
     .topology-legend {
-        width: 13rem;
+        width: 15rem;
         border-radius: 0.5rem;
         position: absolute;
         bottom: 1rem;
@@ -215,6 +359,49 @@
         background: var(--navigation);
         box-shadow: 0 0.25rem 0.75rem 0 var(--shadow);
         padding: 0.9rem;
+
+        // Collapsed: shrink to just the clickable header.
+        &.collapsed {
+            width: auto;
+        }
+    }
+
+    .legend-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .legend-header-title {
+        font-family: 'Russo One', sans-serif;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--primary);
+    }
+
+    .legend-header-toggle {
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+
+        svg {
+            display: block;
+            // Down chevron when expanded ("collapse down"); flips to point up when collapsed
+            // ("expand up") — the arrow follows the direction this bottom-anchored panel moves.
+            transition: transform 0.15s ease;
+        }
+    }
+
+    .topology-legend.collapsed .legend-header-toggle svg {
+        transform: rotate(180deg);
+    }
+
+    .legend-body {
+        padding-top: 0.6rem;
     }
 
     .legend-section {
@@ -248,6 +435,7 @@
         align-items: center;
         gap: 0;
         padding: 0.225rem 0;
+        cursor: help; // each row carries a hover definition (title attribute)
     }
 
     .legend-icon-col {
@@ -266,16 +454,22 @@
         border-radius: 50%;
     }
 
-    .legend-circle.unregistered {
-        background-color: #8a8f9a;
-    }
-
-    .legend-circle.registered_in_use {
+    .legend-circle.online {
         background-color: #08dc5a;
     }
 
-    .legend-circle.errored {
-        background-color: #fb0d3d;
+    .legend-circle.offline {
+        background-color: #8a8f9a;
+    }
+
+    .legend-circle.unknown {
+        background-color: #e6a700;
+    }
+
+    // Not enrolled — hollow ring, matching the canvas dot.
+    .legend-circle.notenrolled {
+        background-color: var(--background);
+        border: 0.125rem solid #8a8f9a;
     }
 
     .legend-line {
@@ -295,6 +489,14 @@
                 transparent 0.5rem
             );
         }
+
+        // Broken — DOTTED + red, matching the canvas. The dotted pattern (vs the gray dashed
+        // "available" line) is the color-blind-safe differentiator, not the red color alone.
+        &.broken {
+            height: 0;
+            background: none;
+            border-top: 0.28rem dotted #e6432e;
+        }
     }
 
     .legend-text {
@@ -311,7 +513,8 @@
         object-fit: contain;
     }
 
-    .legend-icon.misconfigured {
+    .legend-icon.misconfigured,
+    .legend-icon.broken-link {
         width: 1.2rem;
         height: 1.2rem;
         min-width: 1.2rem;
@@ -374,8 +577,7 @@
     font-family: 'Russo One', sans-serif;
     font-size: 0.975rem;
     color: var(--primary);
-    padding: 0.75rem 0.9rem 0.45rem;
-    border-bottom: 1px solid var(--shadow);
+    padding: 0.7rem 0.9rem 0.15rem;
   }
 
   .prop-row {
@@ -406,25 +608,97 @@
     font-weight: 600;
     text-align: right;
   }
+
+  // --- status pill (compact, content-width chip under the name) ---
+  .tt-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0 0.9rem 0.55rem;
+    padding: 0.14rem 0.55rem 0.14rem 0.45rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .tt-status-dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    min-width: 0.45rem;
+    border-radius: 50%;
+  }
+
+  // Add a hairline above the first fact row so the pill and the table read as distinct zones.
+  .prop-row:first-of-type {
+    border-top: 1px solid var(--shadow);
+    padding-top: 0.5rem;
+  }
+
+  .tt-ok {
+    background: rgba(8, 220, 90, 0.12);
+    .tt-status-dot { background: #08dc5a; }
+    .tt-status-label { color: #0a9d4a; }
+  }
+  .tt-broken {
+    background: rgba(230, 67, 46, 0.12);
+    .tt-status-dot { background: #e6432e; }
+    .tt-status-label { color: #d23b27; }
+  }
+  .tt-offline {
+    background: rgba(138, 143, 154, 0.16);
+    .tt-status-dot { background: #8a8f9a; }
+    .tt-status-label { color: #6f7480; }
+  }
+  .tt-unknown {
+    background: rgba(230, 167, 0, 0.14);
+    .tt-status-dot { background: #e6a700; }
+    .tt-status-label { color: #b07f00; }
+  }
+  .tt-neutral {
+    background: rgba(110, 120, 200, 0.12);
+    .tt-status-dot { background: var(--primary); }
+    .tt-status-label { color: var(--primary); }
+  }
 }
 
 ::ng-deep
 {
-   .cdk-overlay-pane:not(.mat-mdc-autocomplete-panel-above) div.mat-mdc-autocomplete-panel {
-    border-radius: 14px;
+   .cdk-overlay-pane .mat-mdc-autocomplete-panel {
+    border-radius: 0.75rem !important;
     background: var(--background);
     color: var(--tableText);
+    padding: 0.35rem;
+    border: 1px solid var(--shadow);
+    box-shadow: 0 0.5rem 1.5rem 0 rgba(0, 0, 0, 0.16) !important;
   }
-  .mat-mdc-option.mdc-list-item
-  {
+  .mat-mdc-autocomplete-panel .mat-mdc-option.mdc-list-item {
      align-items: center;
+     min-height: 2.5rem;
+     margin: 0.1rem 0;
+     border-radius: 0.5rem;
      color: var(--tableText);
+     transition: background-color 0.12s ease, color 0.12s ease;
   }
-  .mat-mdc-option.mdc-list-item:hover:not(.mat-option-disabled),
-                         .mat-mdc-option.mdc-list-item:focus:not(.mat-option-disabled) {
-    border-color: var(--primaryColor);
-    border-radius:14px;
-    border: 0.01rem solid var(--primaryColor);
+  // Hover + keyboard-active: a subtle brand-tinted fill (no stray outline box).
+  .mat-mdc-autocomplete-panel .mat-mdc-option.mdc-list-item:hover:not(.mdc-list-item--disabled),
+  .mat-mdc-autocomplete-panel .mat-mdc-option.mat-mdc-option-active:not(.mdc-list-item--disabled) {
+    background-color: color-mix(in srgb, var(--primary) 9%, transparent) !important;
+  }
+  // Selected: a clean brand tint + brand text (replaces Material's gray highlight).
+  .mat-mdc-autocomplete-panel .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
+    background-color: color-mix(in srgb, var(--primary) 14%, transparent) !important;
+  }
+  .mat-mdc-autocomplete-panel .mat-mdc-option.mdc-list-item--selected .mdc-list-item__primary-text {
+    color: var(--primary);
+    font-weight: 600;
+  }
+  // Tame Material's translucent hover/ripple state-layer so it doesn't muddy the tint.
+  .mat-mdc-autocomplete-panel .mat-mdc-option .mat-mdc-option-ripple,
+  .mat-mdc-autocomplete-panel .mat-mdc-option .mat-ripple { display: none; }
+  // Brand-colored selected checkmark.
+  .mat-mdc-autocomplete-panel .mat-pseudo-checkbox-minimal {
+    color: var(--primary);
   }
   .mat-mdc-raised-button .mdc-button__ripple {
      border: 0.1rem solid var(--primaryColor);
