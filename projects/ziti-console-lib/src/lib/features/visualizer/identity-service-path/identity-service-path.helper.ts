@@ -42,6 +42,7 @@ class Node {
     // line shown in the hover tooltip. Both are null/empty when the node is healthy.
     brokenCause?: LinkStatusReason;
     connectivity?: string;
+    connState?: 'online' | 'offline' | 'unknown' | 'unenrolled';
 }
 
 class ServiceHostNode {
@@ -953,6 +954,22 @@ function createEndpoint(ePoint) {
     // truthy os: the controller returns envInfo as an empty object {} for a created-but-never-
     // enrolled identity, and `{}.os !== null` is true — which previously mis-classed it Registered.
     node.status = (ePoint.envInfo && ePoint.envInfo.os) ? 'Registered' : 'Un-Registered';
+
+    // Node status indicator. Mirrors the controller's edgeRouterConnectionStatus enum
+    // (online | offline | unknown) when present, falling back to the hasEdgeRouterConnection
+    // boolean otherwise. An identity that hasn't enrolled is "unenrolled" (its own state, not an
+    // error). There is no "error" value in the API, so we don't synthesize one.
+    if (node.status === 'Un-Registered') {
+        node.connState = 'unenrolled';
+    } else {
+        const ers = ePoint.edgeRouterConnectionStatus;
+        if (ers === 'online' || ers === 'offline' || ers === 'unknown') {
+            node.connState = ers;
+        } else {
+            node.connState = (ePoint.hasEdgeRouterConnection === true || ePoint.hasApiSession === true)
+                ? 'online' : 'offline';
+        }
+    }
     return node;
 }
 

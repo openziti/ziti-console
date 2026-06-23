@@ -454,16 +454,22 @@
         border-radius: 50%;
     }
 
-    .legend-circle.unregistered {
-        background-color: #8a8f9a;
-    }
-
-    .legend-circle.registered_in_use {
+    .legend-circle.online {
         background-color: #08dc5a;
     }
 
-    .legend-circle.errored {
-        background-color: #fb0d3d;
+    .legend-circle.offline {
+        background-color: #8a8f9a;
+    }
+
+    .legend-circle.unknown {
+        background-color: #e6a700;
+    }
+
+    // Not enrolled — hollow ring, matching the canvas dot.
+    .legend-circle.notenrolled {
+        background-color: var(--background);
+        border: 0.125rem solid #8a8f9a;
     }
 
     .legend-line {
@@ -643,6 +649,11 @@
     background: rgba(138, 143, 154, 0.16);
     .tt-status-dot { background: #8a8f9a; }
     .tt-status-label { color: #6f7480; }
+  }
+  .tt-unknown {
+    background: rgba(230, 167, 0, 0.14);
+    .tt-status-dot { background: #e6a700; }
+    .tt-status-label { color: #b07f00; }
   }
   .tt-neutral {
     background: rgba(110, 120, 200, 0.12);

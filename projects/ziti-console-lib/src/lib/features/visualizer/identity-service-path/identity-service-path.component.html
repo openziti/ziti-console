@@ -89,17 +89,21 @@
       </div>
       <div class="legend-section">
         <div class="legend-section-title">Status</div>
-        <div class="legend-item" title="Connected to an edge router and healthy.">
-          <div class="legend-icon-col"><div class="legend-circle registered_in_use"></div></div>
+        <div class="legend-item" title="Connected to an edge router.">
+          <div class="legend-icon-col"><div class="legend-circle online"></div></div>
           <div class="legend-text">Online</div>
         </div>
         <div class="legend-item" title="Enrolled but not currently connected (e.g. powered off or idle).">
-          <div class="legend-icon-col"><div class="legend-circle unregistered"></div></div>
+          <div class="legend-icon-col"><div class="legend-circle offline"></div></div>
           <div class="legend-text">Offline</div>
         </div>
-        <div class="legend-item" title="A problem with this node — check its path link for the cause (router down vs tunneler unreachable).">
-          <div class="legend-icon-col"><div class="legend-circle errored"></div></div>
-          <div class="legend-text">Error</div>
+        <div class="legend-item" title="Identity-only: the controller can't currently determine the connection state.">
+          <div class="legend-icon-col"><div class="legend-circle unknown"></div></div>
+          <div class="legend-text">Unknown</div>
+        </div>
+        <div class="legend-item" title="Identity has not completed enrollment.">
+          <div class="legend-icon-col"><div class="legend-circle notenrolled"></div></div>
+          <div class="legend-text">Not enrolled</div>
         </div>
       </div>
       @if (fabricApiAvailable) {

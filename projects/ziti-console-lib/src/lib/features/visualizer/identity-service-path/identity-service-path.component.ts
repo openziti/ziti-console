@@ -632,58 +632,60 @@ export class IdentityServicePathComponent implements OnInit {
       .append('image')
       .attr('xlink:href', function (d) {
         const routerImagePath = 'assets/images/visualizer/Routers.png';
-        const nonProvisionedRouterImagePath =
-          'assets/images/visualizer/ER.png';
-        const errRouterImagePath = 'assets/images/visualizer/error_er.png';
-        const errEndpointImagePath = 'assets/images/visualizer/host-error.png';
         const unregisteredEndpointImagePath =
           'assets/images/visualizer/host_unregistered.png';
         const endPointPath = 'assets/images/visualizer/host.png';
 
         if (d.type.includes('Identity')) {
-          if (d.status === 'Un-Registered') {
+          // Un-enrolled identities get the distinct "unregistered" icon; otherwise the normal
+          // host icon — the status dot below conveys online/offline/unknown.
+          if (d.connState === 'unenrolled' || d.status === 'Un-Registered') {
             return unregisteredEndpointImagePath;
           }
-          // Enrolled but unreachable / configured-but-not-hosting => broken tunneler.
-          if (d.brokenCause === 'tunneler-unreachable' || d.brokenCause === 'misconfigured') {
-            return errEndpointImagePath;
-          }
           return endPointPath;
-        } else if (
-          d.type.includes('Router') &&
-          (d.status === 'ERROR' || d.online === 'No')
-        ) {
-          return errRouterImagePath;
-        } else if (d.type.includes('Router') && d.status === 'PROVISIONED') {
-          return routerImagePath;
-        } else if (d.type.includes('Router')) {
-          return nonProvisionedRouterImagePath;
         }
-
+        if (d.type.includes('Router')) {
+          // One base router icon; the status dot below carries online/offline (the baked dot in
+          // the PNG is covered by that overlay).
+          return routerImagePath;
+        }
         if (d.group === '4') {
           return 'assets/images/visualizer/service.png';
-        } else {
-          return '';
         }
+        return '';
       })
       .attr('x', -25)
       .attr('y', -25)
       .attr('width', '40')
       .attr('height', '40');
 
-    // Add status circle overlay for identity nodes
-    node.filter((d: any) => d.type.includes('Identity'))
+    // Status dot for identities AND routers. Colors a single dot by the node's real state
+    // (no "error" — that isn't a value the API exposes). Routers use a larger dot positioned to
+    // cover the status dot baked into the router PNG.
+    const statusColor = (d: any): string => {
+      if (d.type.includes('Router')) {
+        return (d.online === 'No' || d.status === 'ERROR') ? '#8a8f9a' : '#08dc5a';
+      }
+      switch (d.connState) {
+        case 'online': return '#08dc5a';   // green
+        case 'unknown': return '#e6a700';   // amber — controller can't determine
+        case 'unenrolled': return '#ffffff'; // hollow (gray ring below)
+        case 'offline':
+        default: return '#8a8f9a';          // gray
+      }
+    };
+    // Positioned to sit directly over the dot baked into each icon PNG (≈ the icon's top-right),
+    // sized just large enough to cover it (the white halo masks the baked dot's soft glow).
+    node.filter((d: any) => d.type.includes('Identity') || d.type.includes('Router'))
       .append('circle')
-      .attr('cx', 10)
-      .attr('cy', -20)
-      .attr('r', 4.5)
-      .attr('fill', function (d: any) {
-        if (d.brokenCause) return '#e6432e'; // broken — enrolled but unreachable / not hosting
-        if (d.routerConnection === 'Yes' || d.apiSession === 'Yes') return '#08dc5a';
-        return '#8a8f9a';
-      })
-      .attr('stroke', 'white')
-      .attr('stroke-width', 1.5);
+      .attr('cx', (d: any) => d.type.includes('Router') ? 6 : 8)
+      .attr('cy', (d: any) => d.type.includes('Router') ? -20 : -19)
+      .attr('r', 5)
+      .attr('fill', (d: any) => statusColor(d))
+      // Un-enrolled identities render as a hollow ring (gray border); everything else gets a
+      // white separator ring against the icon.
+      .attr('stroke', (d: any) => (!d.type.includes('Router') && d.connState === 'unenrolled') ? '#8a8f9a' : 'white')
+      .attr('stroke-width', 2);
 
     // Node labels: for compound pipe-delimited names ("<networkId>|<identityId>|Human Name")
     // show only the last segment so the canvas stays readable; the full name remains in the
@@ -853,23 +855,24 @@ export class IdentityServicePathComponent implements OnInit {
       // The status band is the single source of truth for connectivity/enrollment — it replaces
       // any separate "Enrolled" row. `caption` is a short fragment, used only where it tells the
       // operator something the label alone doesn't (i.e. what to go check).
+      // Status pill mirrors the node dot — the component's real state (online / offline /
+      // unknown / not-enrolled), never a synthesized "error". Path problems live on the links.
       let cls = 'neutral';
       let label = '';
       if (isService) {
         label = 'Service';
       } else if (isRouter) {
-        // Routers report a plain online/offline that mirrors the controller's isOnline. The
-        // path-level "router-down" link styling conveys the impact; the node stays simple.
+        // Routers only expose isOnline (no edgeRouterConnectionStatus).
         if (d.online === 'No' || d.status === 'ERROR') { cls = 'offline'; label = 'Offline'; }
         else { cls = 'ok'; label = 'Online'; }
-      } else if (d.brokenCause === 'misconfigured' || d.status === 'Un-Registered') {
-        cls = 'broken'; label = 'Not enrolled';
-      } else if (d.brokenCause === 'tunneler-unreachable') {
-        cls = 'broken'; label = 'Unreachable';
-      } else if (d.routerConnection === 'Yes' || d.apiSession === 'Yes') {
-        cls = 'ok'; label = 'Online';
       } else {
-        cls = 'offline'; label = 'Offline';
+        switch (d.connState) {
+          case 'online': cls = 'ok'; label = 'Online'; break;
+          case 'unknown': cls = 'unknown'; label = 'Unknown'; break;
+          case 'unenrolled': cls = 'offline'; label = 'Not enrolled'; break;
+          case 'offline':
+          default: cls = 'offline'; label = 'Offline'; break;
+        }
       }
 
       // No role for the service node — the icon/name already make it obvious, and a "Role: Service"
