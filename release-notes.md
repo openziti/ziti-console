@@ -1,3 +1,14 @@
+# app-ziti-console-v4.3.1
+# ziti-console-lib-v1.3.1
+## Feature/Improvements
+* [Issue #893](https://github.com/openziti/ziti-console/issues/893) - Identity service path visualizer improvements: per-hop path status (active circuit / available / unavailable), accurate node status (online / offline / unknown / not enrolled) derived from edge router connection status, richer node and service hover cards, a clearer collapsible legend, and pan/zoom, fit-to-content, and manual refresh controls
+
+## Bug Fixes
+* [PR #889](https://github.com/openziti/ziti-console/pull/889) - Tolerate a trailing slash on the submitted controller URL so a server-defined controller is still recognized at login
+* [PR #891](https://github.com/openziti/ziti-console/pull/891) - Simple service form - adding a new attribute no longer clears unsaved attribute changes
+* [PR #900](https://github.com/openziti/ziti-console/pull/900) - Associated items lists are no longer limited to 10 entries
+
+
 # app-ziti-console-v4.3.0
 # ziti-console-lib-v1.3.0
 ## Feature/Improvements
