@@ -1,7 +1,7 @@
 :host {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: auto;
     position: relative;
 }
 
@@ -16,7 +16,7 @@
     background-color: var(--stroke);
     padding: 0.625rem;
     border-radius: var(--inputBorderRadius);
-    height: 100%;
+    height: auto;
     min-height: 3.75rem;
 }
 
@@ -34,8 +34,9 @@
 }
 
 .text {
-    overflow-y: scroll;
-    height: 100%;
+    overflow-y: auto;
+    height: auto;
+    max-height: 12.5rem;
 }
 
 .listText {
