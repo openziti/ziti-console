@@ -97,10 +97,12 @@ From the project root:
 
 ### Build the Single Page Application
 
-1. Build the console project. Use the npm script -- it runs `ng build ziti-console-lib`, then
-   `ng build ziti-console --base-href ./`, then the post-build CSS rewriter that strips leading
-   `/` from `url(/assets/...)` references in the emitted bundle. Together these produce a
-   path-agnostic bundle that can be served under any context root (`/zac/`, `/admin/`, etc.).
+1. Build the console project. Use the npm script -- it runs the route-segment sync check, then
+   `ng build ziti-console-lib`, then `ng build ziti-console --base-href ./`, then the post-build
+   CSS rewriter that strips leading `/` from `url(/assets/...)` references in the emitted bundle.
+   Together these produce a path-agnostic bundle that can be served under any context root of any
+   depth (`/zac/`, `/admin/`, etc.). At startup the console detects its mount from the URL (the
+   path up to the first known route segment) and sets `<base href>` accordingly.
 
     ```bash
     npm run build
@@ -108,6 +110,10 @@ From the project root:
 
     Running `ng build ziti-console` directly skips `--base-href ./` and the post-build rewriter,
     which produces a bundle that only works under `/zac/`. Always prefer the npm script.
+
+    The known-route list lives in `projects/app-ziti-console/src/index.html` (`ROUTE_SEGMENTS`) and
+    must mirror the top-level routes in `app-routing.module.ts`. `npm run check-routes` (also run
+    automatically by `npm run build`) fails the build with a clear message if the two drift.
 
 1. The single-page application assets are rendered in the `./dist/app-ziti-console` directory.
 1. Verify the bundle is path-agnostic. Both numbers should be `0`:

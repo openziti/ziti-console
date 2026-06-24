@@ -11,16 +11,18 @@ This image is only for embedding the console in the controller container image. 
 
 ## Build
 
-In the project root, build the image with the `BASE_HREF` build argument set to the path where the console will be served (default: `/zac/` is hard-coded in `ziti controller`).
-
-In this Dockerfile, the default value of `DEPLOY_URL` is set to the value of `BASE_HREF`. These correspond to [Angular `ng build` options](https://angular.io/cli/build).
+In the project root, build the image. The build is path-agnostic: `BASE_HREF` defaults to `./`, so the same artifact
+works at any mount path of any depth with no per-deploy rebuild. At startup the console detects its mount from the URL
+(the path up to the first known route segment) and sets `<base href>` accordingly.
 
 ```bash
 docker build \
     --tag ziti-console-assets \
     --file ./docker-images/ziti-console-assets/Dockerfile \
-    --build-arg BASE_HREF=/zac/ \
     "${PWD}"
 ```
+
+You can still pin an absolute base href at build time with `--build-arg BASE_HREF=/zac/` if you want a fixed mount, but
+it is no longer required.
 
 Refer to [the `openziti/ziti-controller` image](https://github.com/openziti/ziti/blob/release-next/dist/docker-images/ziti-controller/Dockerfile) to see how this image is used to build a controller image.
