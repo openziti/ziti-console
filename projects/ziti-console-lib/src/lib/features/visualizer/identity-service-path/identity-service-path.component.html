@@ -47,13 +47,6 @@
     </div>
 
     <div class="topotip" id="epTooltip"></div>
-
-    @if (fullScreen || !tabView) {
-      <div class="topology-legend">
-        <ng-container *ngTemplateOutlet="legendContent"></ng-container>
-      </div>
-    }
-
     <svg style='pointer-events:all' height="1000" id="IdentityTopology" width="1400">
     </svg>
     <div class="topology-zoom-controls">
