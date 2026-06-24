@@ -15,7 +15,9 @@ COPY . .
 RUN --mount=type=cache,target=/root/.npm \
     --mount=type=cache,target=/usr/src/app/.angular/cache \
     npm install --omit=optional && \
-    ng build ziti-console --base-href ${BASE_HREF} --configuration "production"
+    node ./scripts/check-route-segments.mjs && \
+    ng build ziti-console --base-href ${BASE_HREF} --configuration "production" && \
+    node ./scripts/rewrite-bundle-css.mjs
 
 ARG NODE_VERSION=${NODE_VERSION}
 

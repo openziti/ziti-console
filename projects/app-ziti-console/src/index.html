@@ -2,13 +2,27 @@
 <html lang="en">
 <head>
   <script>
-    // Set <base href> from the URL's first path segment so this bundle can be served
-    // under any context root without a per-deploy rebuild. Must run before any element
+    // Set <base href> so this one bundle can be served under ANY context root (any depth)
+    // without a per-deploy rebuild. The mount is everything in the URL before the first
+    // segment the app recognizes as a route, so /potato/man/services/advanced/42 yields a
+    // mount of /potato/man/ and a route of services/advanced/42. Must run before any element
     // with a relative URL so the browser resolves them against this base.
+    //
+    // ROUTE_SEGMENTS must list every top-level path from app-routing.module.ts. Keep in sync.
+    // Caveat: a mount path segment must not collide with one of these route names.
     (function () {
-      var seg = location.pathname.split('/').filter(Boolean)[0] || '';
+      var ROUTE_SEGMENTS = [
+        'login', 'callback', 'auth', 'dashboard', 'attributes', 'identities', 'jwt-signers',
+        'auth-policies', 'services', 'routers', 'transit-routers', 'configs', 'config-types',
+        'terminators', 'service-policies', 'router-policies', 'certificate-authorities',
+        'service-router-policies', 'posture-checks', 'profile', 'network-visualizer',
+        'sessions', 'api-sessions', 'settings'
+      ];
+      var segs = location.pathname.split('/').filter(Boolean);
+      var i = 0;
+      while (i < segs.length && ROUTE_SEGMENTS.indexOf(segs[i]) < 0) i++;
       var base = document.createElement('base');
-      base.href = seg ? '/' + seg + '/' : '/';
+      base.href = i > 0 ? '/' + segs.slice(0, i).join('/') + '/' : '/';
       document.head.insertBefore(base, document.head.firstChild);
     })();
   </script>
