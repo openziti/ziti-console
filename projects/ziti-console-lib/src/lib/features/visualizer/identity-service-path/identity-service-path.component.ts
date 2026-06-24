@@ -1,7 +1,6 @@
 /* eslint prefer-const: 1 */
 import {
   Component,
-  Input,
   ViewChild,
   Inject,
   OnInit,
