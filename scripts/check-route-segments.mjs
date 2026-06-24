@@ -1,10 +1,9 @@
-// Guard: the inline base-href script in app-ziti-console/src/index.html computes the deploy
-// mount by treating the URL path up to the first recognized route segment as the mount. That
-// list (ROUTE_SEGMENTS) must mirror the top-level routes in app-routing.module.ts. If a route
-// is added or removed and the list isn't updated, mount detection silently breaks at that path.
+// Verifies that ROUTE_SEGMENTS in app-ziti-console/src/index.html matches the top-level routes
+// in app-routing.module.ts. The inline base-href script in index.html uses ROUTE_SEGMENTS to
+// locate the mount/route boundary; if the list and the router drift, mount detection breaks for
+// the affected paths. This check exits non-zero on any mismatch so a stale list fails the build.
 //
-// This check extracts both sets and fails the build on any drift, so a stale list can never
-// ship. Run locally or in CI:
+// Run locally or in CI:
 //   node ./scripts/check-route-segments.mjs
 
 import { readFile } from 'node:fs/promises';

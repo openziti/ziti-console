@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
   <script>
-    // Set <base href> so this one bundle can be served under ANY context root (any depth)
-    // without a per-deploy rebuild. The mount is everything in the URL before the first
-    // segment the app recognizes as a route, so /potato/man/services/advanced/42 yields a
-    // mount of /potato/man/ and a route of services/advanced/42. Must run before any element
-    // with a relative URL so the browser resolves them against this base.
+    // Sets <base href> so the bundle can be served under any context root of any depth without
+    // a per-deploy rebuild. The mount is the URL path up to the first segment that matches a
+    // known route in ROUTE_SEGMENTS; the remainder is the Angular route. Must run before any
+    // element with a relative URL so the browser resolves them against this base.
     //
-    // ROUTE_SEGMENTS must list every top-level path from app-routing.module.ts. Keep in sync.
-    // Caveat: a mount path segment must not collide with one of these route names.
+    // ROUTE_SEGMENTS lists every top-level path from app-routing.module.ts and must stay in
+    // sync with it (enforced by scripts/check-route-segments.mjs). A mount path segment that
+    // matches one of these route names is not supported.
     (function () {
       var ROUTE_SEGMENTS = [
         'login', 'callback', 'auth', 'dashboard', 'attributes', 'identities', 'jwt-signers',
