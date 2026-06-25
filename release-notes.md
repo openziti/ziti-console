@@ -1,3 +1,13 @@
+# app-ziti-console-v4.4.0
+# ziti-console-lib-v1.4.0
+## Feature/Improvements
+* [PR #904](https://github.com/openziti/ziti-console/pull/904) - Host the console at any arbitrarily deep URL path: at startup the base href is derived from the URL path up to the first known route segment, with a build check that keeps the known-route list in sync with the router
+* [Issue #895](https://github.com/openziti/ziti-console/issues/895) - Conditional table menu actions: action menus on entity edit pages can show/hide and enable/disable actions based on entity state and permissions
+
+## Bug Fixes
+* [PR #896](https://github.com/openziti/ziti-console/pull/896) - Sessions and Terminators list pages now display the correct column values (the name cell renderer uses the column's value instead of always falling back to the entity name)
+
+
 # app-ziti-console-v4.3.1
 # ziti-console-lib-v1.3.1
 ## Feature/Improvements
