@@ -318,6 +318,17 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     }
   }
 
+  multiActionRequested(action) {
+    switch(action.id) {
+      case 'save':
+        this.save();
+        break;
+      case 'delete':
+        this.deleteEntity();
+        break;
+    }
+  }
+
   updateEnrollment() {
     switch (this.enrollmentType) {
       case 'ott':

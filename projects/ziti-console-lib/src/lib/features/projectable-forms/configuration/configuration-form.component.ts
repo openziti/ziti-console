@@ -146,6 +146,17 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
         }
     }
 
+    multiActionRequested(action) {
+        switch (action.id) {
+            case 'save':
+                this.save();
+                break;
+            case 'delete':
+                this.deleteEntity();
+                break;
+        }
+    }
+
     apiActionRequested(action) {
         switch (action.id) {
             case 'cli':

@@ -263,6 +263,17 @@ export class PostureCheckFormComponent extends ProjectableForm implements OnInit
         }
     }
 
+    multiActionRequested(action) {
+        switch (action.id) {
+            case 'save':
+                this.save();
+                break;
+            case 'delete':
+                this.deleteEntity();
+                break;
+        }
+    }
+
     removeProcessItem(index) {
         this.processMultiItems.splice(index, 1);
     }

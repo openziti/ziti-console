@@ -113,6 +113,17 @@ export class AuthPolicyFormComponent extends ProjectableForm implements OnInit, 
         }
     }
 
+    multiActionRequested(action) {
+        switch (action.id) {
+            case 'save':
+                this.save();
+                break;
+            case 'delete':
+                this.deleteEntity();
+                break;
+        }
+    }
+
     override clear() {
         this.formData.configTypeId = '';
         this.clearForm();

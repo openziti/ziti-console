@@ -43,6 +43,7 @@ export interface ExtensionService {
   consoleActionTriggered?: EventEmitter<any>;
   disabledComponents?: any[];
   showApiCalls?: boolean;
+  useDeleteSplitButton?: boolean;
   emitEvent?<TData, TResult>(event: ExtensionEvent<TData, TResult>): Promise<TResult | undefined>;
   extendOnInit(): void;
   extendAfterViewInits(extentionPoints: any): void;

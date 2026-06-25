@@ -409,6 +409,17 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     }
   }
 
+  multiActionRequested(action) {
+    switch (action.id) {
+      case 'save':
+        this.save();
+        break;
+      case 'delete':
+        this.deleteEntity();
+        break;
+    }
+  }
+
   async save(event?) {
     if (!this.canSaveByPermissions()) {
       return;

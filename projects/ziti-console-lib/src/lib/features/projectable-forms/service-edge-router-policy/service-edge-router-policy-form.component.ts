@@ -186,6 +186,17 @@ export class ServiceEdgeRouterPolicyFormComponent extends ProjectableForm implem
     }
   }
 
+  multiActionRequested(action) {
+    switch (action.id) {
+      case 'save':
+        this.save();
+        break;
+      case 'delete':
+        this.deleteEntity();
+        break;
+    }
+  }
+
   async save(event?) {
     if (!this.canSaveByPermissions()) {
       return;

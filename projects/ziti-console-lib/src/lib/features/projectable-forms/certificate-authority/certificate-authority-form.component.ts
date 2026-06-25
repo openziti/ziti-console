@@ -122,6 +122,17 @@ export class CertificateAuthorityFormComponent extends ProjectableForm implement
         }
     }
 
+    multiActionRequested(action) {
+        switch (action.id) {
+            case 'save':
+                this.save();
+                break;
+            case 'delete':
+                this.deleteEntity();
+                break;
+        }
+    }
+
     externalIdClaimChanged() {
         if (this.externalIdClaim && !this.formData.externalIdClaim) {
             this.formData.externalIdClaim = {

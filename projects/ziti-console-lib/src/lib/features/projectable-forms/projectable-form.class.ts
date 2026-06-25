@@ -84,6 +84,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     public isLoading = false;
     protected usePreviousLocation = true;
     moreActions: any[] = [];
+    multiActions: any[] = [];
     tagElements: any = [];
     tagData: any = [];
     hideTags = false;
@@ -368,13 +369,20 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
 
     protected entityUpdated() {
         //no-op
-        if (this.isEdit && !this.moreActions.find(action => action.name === 'delete')) {
-            this.moreActions.push({
+        if (this.isEdit && !this.moreActions.find(action => action.name === 'delete') && !this.multiActions.find(action => action.id === 'delete')) {
+            const deleteAction: any = {
                 name: 'delete',
+                id: 'delete',
                 label: 'Delete',
                 icon: 'icon-trash',
                 hidden: () => !this.managementPermissions.canDelete(this.entityType),
-            });
+            };
+            if (this.extService?.useDeleteSplitButton) {
+                deleteAction.style = 'danger';
+                this.multiActions = [...this.multiActions, deleteAction];
+            } else {
+                this.moreActions.push(deleteAction);
+            }
         }
     }
 

@@ -851,6 +851,9 @@ a:hover {
   &.three-fifths {
     width: calc(60% - 0.9375rem);
     min-width: 26.25rem;
+    &:only-child {
+      margin: 0 auto;
+    }
   }
   &.two-fifths {
     width: calc(40% - 0.9375rem);
@@ -1701,6 +1704,10 @@ lib-tag-selector {
   &.form-group-row {
     &[hidden] {
       display: none;
+    }
+    .form-group-column.three-fifths,
+    .form-group-column.two-fifths {
+      min-width: 0;
     }
   }
 }
