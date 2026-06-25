@@ -16,6 +16,7 @@ export class TableCellNameComponent  implements ICellRendererAngularComp {
 
   cellParams: any;
   item: any;
+  value: any;
   dialogRef: any;
 
   constructor(public dialogForm: MatDialog, private router: Router) {
@@ -24,11 +25,13 @@ export class TableCellNameComponent  implements ICellRendererAngularComp {
   agInit(params: ICellRendererParams): void {
     this.cellParams = params?.colDef?.cellRendererParams || {};
     this.item = params.data;
+    this.value = params.value;
   }
 
   refresh(params: ICellRendererParams<any>): boolean {
     this.cellParams = params?.colDef?.cellRendererParams || {};
     this.item = params.data;
+    this.value = params.value;
     return true;
   }
 
@@ -60,7 +63,7 @@ export class TableCellNameComponent  implements ICellRendererAngularComp {
   }
 
   get cellText() {
-    let val = get(this.item, this.cellParams?.colDef?.field);
+    let val = this.value;
     if (isEmpty(val)) {
       val = this.item.name;
     }
