@@ -116,9 +116,6 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
 
     override ngAfterViewInit() {
         super.ngAfterViewInit(true);
-        defer(() => {
-            this.scrollContainer?.nativeElement.scrollTo(0,  this.scrollContainer?.nativeElement.scrollHeight);
-        });
     }
 
     protected override entityUpdated() {
