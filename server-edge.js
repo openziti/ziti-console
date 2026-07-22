@@ -33,13 +33,13 @@ var corsOptions = {
 var helmetOptions = {
     contentSecurityPolicy: {
       directives: {
-        styleSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', "'unsafe-inline'"],
-        scriptSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', "'unsafe-inline'", "'unsafe-eval'"],
-        scriptSrcAttr: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', "'unsafe-inline'", "'unsafe-eval'"],
-        imgSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', 'b.tile.opernstreetmap.org', 'data:', 'blob:', 'https:'],
-        frameSrc: ["'self'", 'www.googletagmanager.com', 'openstreetmap.org'],
-        frameAncestors: ["'self'", 'www.googletagmanager.com', 'openstreetmap.org'],
-        mediaSrc: ["'self'", 'www.googletagmanager.com', 'openstreetmap.org', 'data:', 'blob:', 'https:'],
+        styleSrc: ["'self'", 'openstreetmap.org', "'unsafe-inline'"],
+        scriptSrc: ["'self'", 'openstreetmap.org', "'unsafe-inline'", "'unsafe-eval'"],
+        scriptSrcAttr: ["'self'", 'openstreetmap.org', "'unsafe-inline'", "'unsafe-eval'"],
+        imgSrc: ["'self'", 'openstreetmap.org', 'b.tile.opernstreetmap.org', 'data:', 'blob:', 'https:'],
+        frameSrc: ["'self'", 'openstreetmap.org'],
+        frameAncestors: ["'self'", 'openstreetmap.org'],
+        mediaSrc: ["'self'", 'openstreetmap.org', 'data:', 'blob:', 'https:'],
         connectSrc: ["'self'", '*'],
       },
     },
