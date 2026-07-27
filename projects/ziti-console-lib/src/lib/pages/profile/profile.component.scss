@@ -8,6 +8,15 @@
     }
 }
 
+.password-change-message {
+  padding: 1rem;
+  border: 0.0625rem solid var(--stroke);
+  border-radius: var(--inputBorderRadius);
+  background: var(--light);
+  color: var(--dark);
+  line-height: 1.5;
+}
+
 .button {
   font-size: 0.6875rem;
   font-weight: 400;
