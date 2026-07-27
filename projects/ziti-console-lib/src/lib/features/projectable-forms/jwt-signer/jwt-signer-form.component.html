@@ -22,7 +22,11 @@
           [title]="'Name'"
           [label]="useStrictReadonlyForm ? '' : 'REQUIRED'"
           >
-         <input class="form-field-input read-only" [(ngModel)]="formData.name" [ngClass]="{error: errors['name']}" placeholder="Name this JWT Signer" #nameFieldInput/>
+         @if (!useStrictReadonlyForm) {
+            <input class="form-field-input" [(ngModel)]="formData.name" [ngClass]="{error: errors['name']}" placeholder="Name this JWT Signer" #nameFieldInput/>
+          } @else {
+            <div class="form-field-readonly-value">{{ formData.name }}</div>
+          }
         </lib-form-field-container>
         <lib-form-field-container
           [layout]="'column'"
