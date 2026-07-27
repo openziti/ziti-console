@@ -126,7 +126,7 @@ export class ServiceEdgeRouterPolicyFormService {
     }
 
     public getServiceNamedAttributes() {
-        return this.zitiService.get('services', {}, []).then((result) => {
+        return this.zitiService.get('services', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
             const namedAttributes = result.data.map((service) => {
                 this.serviceNamedAttributesMap[service.name] = service.id;
                 return service.name;
@@ -137,7 +137,7 @@ export class ServiceEdgeRouterPolicyFormService {
     }
 
     public getEdgeRouterNamedAttributes() {
-        return this.zitiService.get('edge-routers', {}, []).then((result) => {
+        return this.zitiService.get('edge-routers', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
             const namedAttributes = result.data.map((router) => {
                 this.edgeRouterNamedAttributesMap[router.name] = router.id;
                 return router.name;
