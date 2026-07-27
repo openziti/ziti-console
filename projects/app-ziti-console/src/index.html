@@ -57,15 +57,8 @@
   </script>
   <!-- 3rd Party Includes -->
   <script crossorigin="anonymous" src="./assets/scripts/components/leaflet/leaflet.js"></script>
-  <script async crossorigin="anonymous" src="//www.googletagmanager.com/gtag/js?id=UA-91801335-7"></script>
 
   <script type="text/javascript">
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'UA-91801335-7');
-
     var mode = localStorage.getItem("Transitions");
     if (mode=="off") {
       document.documentElement.style.setProperty("--transition", "0s");
