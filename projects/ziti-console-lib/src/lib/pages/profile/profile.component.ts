@@ -1,7 +1,10 @@
-import {Component, Inject} from '@angular/core';
+import {Component, Inject, OnDestroy} from '@angular/core';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../services/ziti-data.service";
+import {SETTINGS_SERVICE} from '../../services/settings.service';
+import {SettingsServiceClass} from '../../services/settings-service.class';
 import {GrowlerModel} from "../../features/messaging/growler.model";
 import {GrowlerService} from "../../features/messaging/growler.service";
+import {Subscription} from 'rxjs';
 import {isEmpty} from 'lodash';
 
 @Component({
@@ -10,18 +13,49 @@ import {isEmpty} from 'lodash';
     styleUrls: ['./profile.component.scss'],
     standalone: false
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnDestroy {
   pageTitle = 'Profile';
   currentPassword = '';
   newPassword = '';
   confirmPassword = '';
+  passwordChangeDisabled = false;
+  passwordChangeMessage = '';
+  private settingsSubscription?: Subscription;
 
   constructor(
       @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
+      @Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
       private growlerService: GrowlerService,
-  ) {}
+  ) {
+      this.updatePasswordChangeState();
+      this.settingsSubscription = this.settingsService.settingsChange.subscribe(() => {
+          this.updatePasswordChangeState();
+      });
+  }
+
+  ngOnDestroy(): void {
+      this.settingsSubscription?.unsubscribe();
+  }
+
+  private updatePasswordChangeState(): void {
+      const authMode = this.settingsService?.settings?.session?.authMode;
+      this.passwordChangeDisabled = authMode === 'oidc';
+      this.passwordChangeMessage = this.passwordChangeDisabled
+          ? 'Your password is managed by your identity provider and cannot be changed here.'
+          : '';
+  }
 
   resetPassword() {
+    if (this.passwordChangeDisabled) {
+      const growlerData = new GrowlerModel(
+          'error',
+          'Error',
+          'Password Change Not Allowed',
+          'Your password is managed by your identity provider and cannot be changed here.',
+      );
+      this.growlerService.show(growlerData);
+      return;
+    }
     if (!this.validate()) {
       return;
     }
@@ -49,7 +83,7 @@ export class ProfileComponent {
   }
 
   validate() {
-    if (isEmpty(this.newPassword) || isEmpty(this.newPassword) || isEmpty(this.confirmPassword)) {
+    if (isEmpty(this.currentPassword) || isEmpty(this.newPassword) || isEmpty(this.confirmPassword)) {
       const growlerData = new GrowlerModel(
           'error',
           'Error',
