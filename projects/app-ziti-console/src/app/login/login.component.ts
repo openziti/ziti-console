@@ -98,7 +98,10 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     getExternalJwtSigners() {
         this.extJwtSigners = [];
-        if (isEmpty(this.settingsService.settings.selectedEdgeController) || !this.settingsService.allowControllerAdd) {
+        // Gate only on having a controller to query. Previously this also required
+        // allowControllerAdd, which is false for the node server deployment
+        // (NodeSettingsService), silently hiding IdP login there. See openziti/ziti-console#915.
+        if (isEmpty(this.settingsService.settings.selectedEdgeController)) {
             return;
         }
         this.extJwtSignersLoading = true;

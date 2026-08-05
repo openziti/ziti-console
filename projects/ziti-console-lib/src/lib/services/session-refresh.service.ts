@@ -70,6 +70,12 @@ export class SessionRefreshService {
     ) {}
 
     start(): void {
+        // Never run the refresh/expiry monitor while an OAuth/OIDC login is completing on the
+        // /callback route - a stale expired session must not fire handleUnrecoverable() and
+        // redirect to /login before CallbackComponent can exchange the authorization code.
+        if (window.location.pathname.endsWith('/callback')) {
+            return;
+        }
         if (!this.hasOidcSession()) {
             return;
         }

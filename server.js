@@ -182,12 +182,71 @@ if (integration !== 'classic') {
 	helmetOptions.contentSecurityPolicy.directives.scriptSrcAttr.push("'unsafe-eval'");
 }
 
+// --- Dynamic CSP for external OIDC login ------------------------------------
+// OIDC login (discovery, JWKS, token exchange) is a browser fetch from the console
+// to the identity provider. Rather than weaken connect-src to a wildcard, allow only
+// the origins of External JWT Signers the controller admin has already configured as
+// trusted token issuers. The list is refreshed from the controller's public client API
+// (see refreshIdpOrigins) and applied per-request, so newly added signers take effect
+// without a restart. Operators can add extra origins via ZAC_CSP_CONNECT_SRC.
+let idpConnectOrigins = [];
+const extraCspConnect = (process.env.ZAC_CSP_CONNECT_SRC || '')
+	.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+
+function originOf(url) {
+	try { return new URL(url).origin; } catch (e) { return null; }
+}
+
+function buildHelmetOptions() {
+	var idp = idpConnectOrigins.concat(extraCspConnect);
+	var base = helmetOptions.contentSecurityPolicy.directives;
+	return {
+		contentSecurityPolicy: {
+			directives: Object.assign({}, base, {
+				// concat() returns new arrays, so the base directives are never mutated
+				connectSrc: base.connectSrc.concat(idp),
+				frameSrc: base.frameSrc.concat(idp),
+			}),
+		},
+		frameguard: helmetOptions.frameguard,
+		crossOriginEmbedderPolicy: helmetOptions.crossOriginEmbedderPolicy,
+	};
+}
+
+// Fetch the distinct externalAuthUrl origins of every enabled signer across all
+// configured controllers. Uses the public client API - no session required.
+function refreshIdpOrigins() {
+	var controllers = (settings.edgeControllers || [])
+		.map(function(c) { return trimTrailingSlash(c.url); }).filter(Boolean);
+	if (controllers.length === 0) return;
+	var origins = new Set();
+	var pending = controllers.length;
+	controllers.forEach(function(base) {
+		external.get(base + "/edge/client/v1/external-jwt-signers?limit=500", { rejectUnauthorized: rejectUnauthorized }, function(err, res, body) {
+			try {
+				if (!err && body) {
+					var parsed = (typeof body === 'string') ? JSON.parse(body) : body;
+					(parsed.data || []).forEach(function(signer) {
+						var o = originOf(signer.externalAuthUrl);
+						if (o) origins.add(o);
+					});
+				}
+			} catch (e) { /* ignore an unreachable/malformed controller */ }
+			if (--pending === 0) {
+				idpConnectOrigins = Array.from(origins);
+				log("CSP: IdP connect-src origins: " + (idpConnectOrigins.join(' ') || '(none)'));
+			}
+		});
+	});
+}
+
 app.use("/assets", express.static(__dirname + __assets , {
 	maxAge: '31536000000' 
 }));
 if (`${process.env.ALLOW_HTTP}`.toLowerCase() !== "true") {
 	app.use(cors(corsOptions));
-	app.use(helmet(helmetOptions));
+	// Rebuild options per-request so the CSP reflects the current IdP origin cache.
+	app.use(function(req, res, next) { helmet(buildHelmetOptions())(req, res, next); });
 } else {
 	console.log("ALLOW_HTTP - skipping cors/helmet");
 }
@@ -305,6 +364,11 @@ for (var i=0; i<settings.edgeControllers.length; i++) {
 		break;
 	}
 }
+
+// Prime the IdP CSP allowlist now that controllers/rejectUnauthorized are resolved,
+// then refresh periodically so signers added later are picked up without a restart.
+refreshIdpOrigins();
+setInterval(refreshIdpOrigins, 5 * 60 * 1000);
 
 var transporter;
 
@@ -729,7 +793,11 @@ app.post("/api/call", function(request, response) {
 app.post("/api/data", function(request, response) {
 	var type = request.body.type;
 	var paging = request.body.paging;
-	GetItems(type, paging, request, response);
+	if (request.body.useClient) {
+		GetClientItems(type, paging, request, response);
+	} else {
+		GetItems(type, paging, request, response);
+	}
 });
 
 /**
@@ -791,36 +859,7 @@ function GetItems(type, paging, request, response, cli, serviceCall) {
 	if (request.body.url) {
 		GetSubs(request.body.url.split("./").join(""), request.body.type, "", "", request, response);
 	} else {
-		var urlFilter = "";
-		var toSearchOn = "name";
-		var noSearch = false;
-		if (paging && paging.sort!=null) {
-			if (paging.searchOn) toSearchOn = paging.searchOn;
-			if (paging.noSearch) noSearch = true;
-			if (!paging.filter) paging.filter = "";
-			if (!paging.rawFilter) paging.filter = paging.filter.split('#').join('');
-			if (noSearch) {
-				if (paging.page!=-1) urlFilter = "?limit="+paging.total+"&offset="+((paging.page-1)*paging.total);
-			} else {
-				if (paging.rawFilter) {
-					urlFilter = "?filter=" + paging.filter.trim();
-					if (paging.total) {
-						urlFilter += "&limit="+paging.total;
-					}
-					if (paging.page) {
-						urlFilter += "&offset="+((paging.page-1)*paging.total);
-					}
-					if (paging.sort) {
-						urlFilter += "&sort="+paging.sort+" "+paging.order;
-					}
-				} else if (paging.page!=-1) urlFilter = "?filter=("+toSearchOn+" contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
-				if (paging.params) {
-					for (var key in paging.params) {
-						urlFilter += ((urlFilter.length==0)?"?":"&")+key+"="+paging.params[key];
-					}
-				}
-			}
-		}
+		var urlFilter = BuildUrlFilter(paging);
 		if (serviceUrl==null||serviceUrl.trim().length==0) response.json({error:"loggedout"});
 		else {
 			DoCall(serviceUrl+"/"+type+urlFilter, {}, request, true).then((results) => {
@@ -829,6 +868,92 @@ function GetItems(type, paging, request, response, cli, serviceCall) {
 			});
 		}
 	}
+}
+
+/**
+ * Build the edge API query string (?filter=...&limit=...&offset=...&sort=...) from the
+ * paging parameters supplied by the browser. Shared by the authenticated management path
+ * (GetItems) and the public client path (GetClientItems) so both behave identically.
+ */
+function BuildUrlFilter(paging) {
+	var urlFilter = "";
+	var toSearchOn = "name";
+	var noSearch = false;
+	if (paging && paging.sort!=null) {
+		if (paging.searchOn) toSearchOn = paging.searchOn;
+		if (paging.noSearch) noSearch = true;
+		if (!paging.filter) paging.filter = "";
+		if (!paging.rawFilter) paging.filter = paging.filter.split('#').join('');
+		if (noSearch) {
+			if (paging.page!=-1) urlFilter = "?limit="+paging.total+"&offset="+((paging.page-1)*paging.total);
+		} else {
+			if (paging.rawFilter) {
+				urlFilter = "?filter=" + paging.filter.trim();
+				if (paging.total) {
+					urlFilter += "&limit="+paging.total;
+				}
+				if (paging.page) {
+					urlFilter += "&offset="+((paging.page-1)*paging.total);
+				}
+				if (paging.sort) {
+					urlFilter += "&sort="+paging.sort+" "+paging.order;
+				}
+			} else if (paging.page!=-1) urlFilter = "?filter=("+toSearchOn+" contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
+			if (paging.params) {
+				for (var key in paging.params) {
+					urlFilter += ((urlFilter.length==0)?"?":"&")+key+"="+paging.params[key];
+				}
+			}
+		}
+	}
+	return urlFilter;
+}
+
+/**
+ * Fetch a resource from the controller's public client API (edge/client/v1) without a
+ * session. Used for data the login page needs pre-authentication - e.g. external-jwt-signers,
+ * so the IdP login buttons render in node-server deployments. See openziti/ziti-console#915.
+ */
+function GetClientItems(type, paging, request, response) {
+	var controllerBase = GetClientControllerBase(request);
+	if (controllerBase==null||controllerBase.trim().length==0) {
+		response.json({data: []});
+		return;
+	}
+	var urlFilter = BuildUrlFilter(paging);
+	var clientUrl = controllerBase+"/edge/client/v1/"+type+urlFilter;
+	log("Calling (client): "+clientUrl);
+	external.get(clientUrl, {json: {}, rejectUnauthorized: rejectUnauthorized}, function(err, res, body) {
+		if (err) {
+			log("Server Error (client): "+JSON.stringify(err));
+			response.json({data: [], error: err});
+		} else if (body && body.data) {
+			response.json(body);
+		} else {
+			response.json({data: []});
+		}
+	});
+}
+
+/**
+ * Resolve the controller base URL for a public client-API call. A controllerUrl supplied
+ * by the browser is honored only when it matches a configured controller (guards against
+ * the server being used to reach arbitrary hosts); otherwise fall back to the session /
+ * global controller.
+ */
+function GetClientControllerBase(request) {
+	if (request.body.controllerUrl) {
+		var requested = trimTrailingSlash(request.body.controllerUrl);
+		var known = false;
+		if (settings.edgeControllers) {
+			settings.edgeControllers.forEach(function(controller) {
+				if (trimTrailingSlash(controller.url) === requested) known = true;
+			});
+		}
+		return known ? requested : "";
+	}
+	var fallback = request.session.baseUrl || baseUrl;
+	return fallback ? trimTrailingSlash(fallback) : "";
 }
 
 /**

@@ -110,12 +110,19 @@ export class NodeDataService extends ZitiDataService {
         );
     }
 
-    doGet(type: string, paging: any, filters: FilterObj[] = [], url?) {
+    doGet(type: string, paging: any, filters: FilterObj[] = [], url?, useClient?) {
         const nodeServerURL = window.location.origin;
         const serviceUrl = nodeServerURL + '/api/data';
         const urlFilter = this.getUrlFilter(paging, filters);
         paging.filter = urlFilter;
-        const body = {paging: paging, type: type, url: url};
+        const body: any = {paging: paging, type: type, url: url};
+        if (useClient) {
+            // The client API (edge/client/v1) is public; the node backend must fetch it
+            // unauthenticated rather than via the session-scoped management API. Pass the
+            // selected controller so it can be reached pre-login. See openziti/ziti-console#915.
+            body.useClient = true;
+            body.controllerUrl = this.settingsService?.settings?.selectedEdgeController;
+        }
 
         return firstValueFrom(this.httpClient.post(serviceUrl,body,{}).pipe(
                 catchError((err: any) => {
