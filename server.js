@@ -359,9 +359,9 @@ for (var i=0; i<settings.edgeControllers.length; i++) {
 	}
 }
 
-// Prime the IdP CSP allowlist, then refresh periodically to pick up new signers.
+// Prime the IdP CSP allowlist at startup; thereafter it is refreshed opportunistically when
+// the login page fetches signers (see GetClientItems / mergeIdpOrigins).
 refreshIdpOrigins();
-setInterval(refreshIdpOrigins, 5 * 60 * 1000);
 
 var transporter;
 
@@ -877,6 +877,7 @@ function BuildUrlFilter(paging) {
 			if (paging.page!=-1) urlFilter = "?limit="+paging.total+"&offset="+((paging.page-1)*paging.total);
 		} else {
 			if (paging.rawFilter) {
+				// rawFilter is a complete filter expression (syntax, not a value) - do not encode it
 				urlFilter = "?filter=" + paging.filter.trim();
 				if (paging.total) {
 					urlFilter += "&limit="+paging.total;
@@ -885,12 +886,12 @@ function BuildUrlFilter(paging) {
 					urlFilter += "&offset="+((paging.page-1)*paging.total);
 				}
 				if (paging.sort) {
-					urlFilter += "&sort="+paging.sort+" "+paging.order;
+					urlFilter += "&sort="+encodeURIComponent(paging.sort)+" "+encodeURIComponent(paging.order);
 				}
-			} else if (paging.page!=-1) urlFilter = "?filter=("+toSearchOn+" contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
+			} else if (paging.page!=-1) urlFilter = "?filter=("+encodeURIComponent(toSearchOn)+" contains \""+encodeURIComponent(paging.filter)+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+encodeURIComponent(paging.sort)+" "+encodeURIComponent(paging.order);
 			if (paging.params) {
 				for (var key in paging.params) {
-					urlFilter += ((urlFilter.length==0)?"?":"&")+key+"="+paging.params[key];
+					urlFilter += ((urlFilter.length==0)?"?":"&")+encodeURIComponent(key)+"="+encodeURIComponent(paging.params[key]);
 				}
 			}
 		}
@@ -898,9 +899,28 @@ function BuildUrlFilter(paging) {
 	return urlFilter;
 }
 
+// Entity types the unauthenticated client endpoint may fetch pre-login. Keep this tight -
+// it constrains the request path so it can't be steered to arbitrary controller endpoints.
+var CLIENT_ALLOWED_TYPES = ["external-jwt-signers"];
+
+// Add the IdP origins of the given signers to the CSP allowlist (add-only; full set is
+// (re)primed at startup by refreshIdpOrigins).
+function mergeIdpOrigins(signers) {
+	var set = new Set(idpConnectOrigins);
+	(signers || []).forEach(function(signer) {
+		var o = originOf(signer.externalAuthUrl);
+		if (o) set.add(o);
+	});
+	idpConnectOrigins = Array.from(set);
+}
+
 // Fetch from the public client API (edge/client/v1) without a session, for pre-login data
 // like external-jwt-signers. See openziti/ziti-console#915.
 function GetClientItems(type, paging, request, response) {
+	if (CLIENT_ALLOWED_TYPES.indexOf(type) === -1) {
+		response.json({data: [], error: "unsupported type"});
+		return;
+	}
 	var controllerBase = GetClientControllerBase(request);
 	if (controllerBase==null||controllerBase.trim().length==0) {
 		response.json({data: []});
@@ -914,6 +934,8 @@ function GetClientItems(type, paging, request, response) {
 			log("Server Error (client): "+JSON.stringify(err));
 			response.json({data: [], error: err});
 		} else if (body && body.data) {
+			// keep the CSP IdP allowlist current from the signers we just fetched
+			if (type === "external-jwt-signers") mergeIdpOrigins(body.data);
 			response.json(body);
 		} else {
 			response.json({data: []});
@@ -926,13 +948,15 @@ function GetClientItems(type, paging, request, response) {
 function GetClientControllerBase(request) {
 	if (request.body.controllerUrl) {
 		var requested = trimTrailingSlash(request.body.controllerUrl);
-		var known = false;
+		var match = "";
 		if (settings.edgeControllers) {
 			settings.edgeControllers.forEach(function(controller) {
-				if (trimTrailingSlash(controller.url) === requested) known = true;
+				// Return the configured (trusted) URL on match, never the request value, so the
+				// request target can't be influenced by user input.
+				if (trimTrailingSlash(controller.url) === requested) match = trimTrailingSlash(controller.url);
 			});
 		}
-		return known ? requested : "";
+		return match;
 	}
 	var fallback = request.session.baseUrl || baseUrl;
 	return fallback ? trimTrailingSlash(fallback) : "";
