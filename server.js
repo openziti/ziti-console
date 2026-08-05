@@ -436,6 +436,9 @@ if (integration === 'edge-api') {
 
 app.post("/api/logout", function(request, response) {
     request.session.user = null;
+    // Also drop the stored IdP token, otherwise ReAuthenticate would silently renew the session
+    // on the next request and undo the logout. See #915.
+    request.session.extJwtToken = null;
     response.send({
         success: true,
         message: 'Logout Successful'
@@ -446,30 +449,52 @@ function Authenticate(request) {
 	return new Promise(function(resolve, reject) {
 		if (!baseUrl||baseUrl.trim().length==0&&request.session.baseUrl) baseUrl = request.session.baseUrl;
 		if (!serviceUrl||serviceUrl.trim().length==0&&request.session.serviceUrl) serviceUrl = request.session.serviceUrl;
-		let params = {
-			username: request.body.username,
-			password: request.body.password
-		};
-		log("Connecting to: "+serviceUrl+"/authenticate?method=password");
-		//if (request.session.creds != null) {
-			external.post(serviceUrl+"/authenticate?method=password", {json: params , rejectUnauthorized: rejectUnauthorized }, function(err, res, body) {
-				if (err) {
-					log(err);
-					var error = "Server Not Accessible";
-					if (err.code!="ECONNREFUSED") resolve( {error: err.code} );
-					resolve( {error: error} );
-				} else {
-					if (body.error) resolve( {error: body.error.message} );
-					else {
-						if (body.data&&body.data.token) {
-							request.session.user = body.data.token;
-							request.session.authorization = 100;
-							resolve( {success: "Logged In"} );
-						} else resolve( {error: "Invalid Account"} );
-					}
-				}				
+		// ext-jwt (IdP/OIDC) login: exchange the browser-supplied IdP token for a ziti session via
+		// the controller's ext-jwt authenticator. Otherwise fall back to username/password. See #915.
+		var extJwtToken = request.body.token;
+		var authUrl = serviceUrl + (extJwtToken ? "/authenticate?method=ext-jwt" : "/authenticate?method=password");
+		var options = extJwtToken
+			? {json: {}, rejectUnauthorized: rejectUnauthorized, headers: {authorization: "Bearer "+extJwtToken}}
+			: {json: {username: request.body.username, password: request.body.password}, rejectUnauthorized: rejectUnauthorized};
+		log("Connecting to: "+authUrl);
+		external.post(authUrl, options, function(err, res, body) {
+			if (err) {
+				log(err);
+				var error = "Server Not Accessible";
+				if (err.code!="ECONNREFUSED") resolve( {error: err.code} );
+				resolve( {error: error} );
+			} else {
+				if (body.error) resolve( {error: body.error.message} );
+				else {
+					if (body.data&&body.data.token) {
+						request.session.user = body.data.token;
+						request.session.authorization = 100;
+						// Keep the IdP token (valid well beyond the ziti session) so an expired ziti
+						// session can be renewed without a fresh IdP round-trip. See ReAuthenticate / #915.
+						request.session.extJwtToken = extJwtToken || null;
+						resolve( {success: "Logged In"} );
+					} else resolve( {error: "Invalid Account"} );
+				}
+			}
+		});
+	});
+}
+
+// Renew an expired ziti session from the stored ext-jwt (IdP) token. Returns true if a fresh
+// session token was obtained. Only ext-jwt sessions are renewable this way. See #915.
+function ReAuthenticate(request) {
+	return new Promise(function(resolve) {
+		var token = request.session.extJwtToken;
+		var url = request.session.serviceUrl || serviceUrl;
+		if (!token || !url) { resolve(false); return; }
+		external.post(url+"/authenticate?method=ext-jwt",
+			{json: {}, rejectUnauthorized: rejectUnauthorized, headers: {authorization: "Bearer "+token}},
+			function(err, res, body) {
+				if (!err && body && body.data && body.data.token) {
+					request.session.user = body.data.token;
+					resolve(true);
+				} else resolve(false);
 			});
-		//}
 	});
 }
 
@@ -809,13 +834,18 @@ function DoCall(url, json, request, isFirst=true) {
 				resolve({ error: err });
 			} else {
 				if (body.error) {
-					if (isFirst) {
-						log("Re-authenticate User");
-						//Authenticate(request).then((results) => {
-							DoCall(url, json, request, false).then((results) => {
-								resolve(results);
-							});
-						//});
+					if (isFirst && res && res.statusCode == 401) {
+						log("Session expired - attempting renewal");
+						// Renew the session from the stored ext-jwt token, then retry once. If renewal
+						// isn't possible (password session, or IdP token also expired), return the
+						// original error so the UI prompts for login. See #915.
+						ReAuthenticate(request).then((renewed) => {
+							if (renewed) {
+								DoCall(url, json, request, false).then((results) => {
+									resolve(results);
+								});
+							} else resolve(body);
+						});
 					} else resolve(body);
 				} else if (body.data) {
 					log("Items Returned: "+body.data.length);

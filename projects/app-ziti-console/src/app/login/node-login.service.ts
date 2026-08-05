@@ -43,12 +43,12 @@ export class NodeLoginService extends LoginServiceClass {
         return this.checkForValidNodeSession();
     }
 
-    async login(prefix: string, url: string, username: string, password: string, doNav = true) {
-        return this.nodeLogin(url, username, password, doNav);
+    async login(prefix: string, url: string, username: string, password: string, doNav = true, type?, token?) {
+        return this.nodeLogin(url, username, password, doNav, type, token);
     }
 
-    nodeLogin(controllerURL: string, username: string, password: string, doNav = true) {
-        return lastValueFrom(this.observeLogin(controllerURL, username, password, doNav)
+    nodeLogin(controllerURL: string, username: string, password: string, doNav = true, type?, token?) {
+        return lastValueFrom(this.observeLogin(controllerURL, username, password, doNav, type, token)
             ).then(() => {
                 if (doNav) {
                     this.router.navigate(['/']);
@@ -56,11 +56,13 @@ export class NodeLoginService extends LoginServiceClass {
             });
     }
 
-    observeLogin(controllerURL: string, username: string, password: string, doNav = true): Observable<any> {
+    observeLogin(controllerURL: string, username: string, password: string, doNav = true, type?, token?): Observable<any> {
         const loginURL = '/api/login';
+        // For ext-jwt (IdP/OIDC) logins the browser already holds the IdP token; forward it so the
+        // node server can exchange it for a ziti session. See openziti/ziti-console#915.
         return this.httpClient.post(
             loginURL,
-            { url: controllerURL, username: username, password: password },
+            { url: controllerURL, username: username, password: password, type: type, token: token },
             {
                 headers: {
                     "content-type": "application/json"
