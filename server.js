@@ -952,19 +952,18 @@ function GetClientItems(type, paging, request, response) {
 // Resolve the client-API controller base; a browser controllerUrl is honored only if it matches
 // a configured controller (SSRF guard), else fall back to session/global.
 function GetClientControllerBase(request) {
-	if (request.body.controllerUrl) {
-		var requested = trimTrailingSlash(request.body.controllerUrl);
-		var match = "";
-		if (settings.edgeControllers) {
-			settings.edgeControllers.forEach(function(controller) {
-				// return the configured URL on match, never the request value
-				if (trimTrailingSlash(controller.url) === requested) match = trimTrailingSlash(controller.url);
-			});
-		}
-		return match;
+	// Resolve a candidate, then always return the matching CONFIGURED url - never the request or
+	// session value - so the request target is fully trusted.
+	var requested = request.body.controllerUrl || request.session.baseUrl || baseUrl;
+	if (!requested) return "";
+	requested = trimTrailingSlash(requested);
+	var match = "";
+	if (settings.edgeControllers) {
+		settings.edgeControllers.forEach(function(controller) {
+			if (trimTrailingSlash(controller.url) === requested) match = trimTrailingSlash(controller.url);
+		});
 	}
-	var fallback = request.session.baseUrl || baseUrl;
-	return fallback ? trimTrailingSlash(fallback) : "";
+	return match;
 }
 
 /**
