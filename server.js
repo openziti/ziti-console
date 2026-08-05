@@ -182,8 +182,7 @@ if (integration !== 'classic') {
 	helmetOptions.contentSecurityPolicy.directives.scriptSrcAttr.push("'unsafe-eval'");
 }
 
-// Dynamic CSP: allow connect/frame-src only to configured signers' IdP origins so the
-// browser OIDC flow works without a wildcard. Extra origins via ZAC_CSP_CONNECT_SRC.
+// Dynamic CSP: allow connect/frame-src only to configured signers' IdP origins (no wildcard). Extra via ZAC_CSP_CONNECT_SRC.
 let idpConnectOrigins = [];
 const extraCspConnect = (process.env.ZAC_CSP_CONNECT_SRC || '')
 	.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
@@ -359,8 +358,7 @@ for (var i=0; i<settings.edgeControllers.length; i++) {
 	}
 }
 
-// Prime the IdP CSP allowlist at startup; thereafter it is refreshed opportunistically when
-// the login page fetches signers (see GetClientItems / mergeIdpOrigins).
+// Prime the CSP IdP allowlist at startup; refreshed later on the login page's signer fetch.
 refreshIdpOrigins();
 
 var transporter;
@@ -899,12 +897,10 @@ function BuildUrlFilter(paging) {
 	return urlFilter;
 }
 
-// Entity types the unauthenticated client endpoint may fetch pre-login. Keep this tight -
-// it constrains the request path so it can't be steered to arbitrary controller endpoints.
+// Entity types the unauthenticated client endpoint may fetch pre-login.
 var CLIENT_ALLOWED_TYPES = ["external-jwt-signers"];
 
-// Add the IdP origins of the given signers to the CSP allowlist (add-only; full set is
-// (re)primed at startup by refreshIdpOrigins).
+// Add the given signers' IdP origins to the CSP allowlist (add-only).
 function mergeIdpOrigins(signers) {
 	var set = new Set(idpConnectOrigins);
 	(signers || []).forEach(function(signer) {
@@ -914,20 +910,30 @@ function mergeIdpOrigins(signers) {
 	idpConnectOrigins = Array.from(set);
 }
 
-// Fetch from the public client API (edge/client/v1) without a session, for pre-login data
-// like external-jwt-signers. See openziti/ziti-console#915.
+// Minimal sanitized query for the client fetch: numeric limit/offset only, constant sort.
+function ClientPagingQuery(paging) {
+	var limit = parseInt((paging && paging.total) || 100, 10);
+	if (!(limit > 0)) limit = 100;
+	var page = parseInt((paging && paging.page) || 1, 10);
+	if (!(page > 0)) page = 1;
+	return "?limit=" + limit + "&offset=" + ((page - 1) * limit) + "&sort=name%20asc";
+}
+
+// Pre-login fetch (external-jwt-signers) from the public client API. The URL uses only trusted
+// values - configured controller, allowlisted type, numeric paging - so no user input. #915/#129
 function GetClientItems(type, paging, request, response) {
-	if (CLIENT_ALLOWED_TYPES.indexOf(type) === -1) {
+	var typeIdx = CLIENT_ALLOWED_TYPES.indexOf(type);
+	if (typeIdx === -1) {
 		response.json({data: [], error: "unsupported type"});
 		return;
 	}
+	var safeType = CLIENT_ALLOWED_TYPES[typeIdx]; // from our allowlist, never the request value
 	var controllerBase = GetClientControllerBase(request);
 	if (controllerBase==null||controllerBase.trim().length==0) {
 		response.json({data: []});
 		return;
 	}
-	var urlFilter = BuildUrlFilter(paging);
-	var clientUrl = controllerBase+"/edge/client/v1/"+type+urlFilter;
+	var clientUrl = controllerBase+"/edge/client/v1/"+safeType+ClientPagingQuery(paging);
 	log("Calling (client): "+clientUrl);
 	external.get(clientUrl, {json: {}, rejectUnauthorized: rejectUnauthorized}, function(err, res, body) {
 		if (err) {
@@ -935,7 +941,7 @@ function GetClientItems(type, paging, request, response) {
 			response.json({data: [], error: err});
 		} else if (body && body.data) {
 			// keep the CSP IdP allowlist current from the signers we just fetched
-			if (type === "external-jwt-signers") mergeIdpOrigins(body.data);
+			if (safeType === "external-jwt-signers") mergeIdpOrigins(body.data);
 			response.json(body);
 		} else {
 			response.json({data: []});
@@ -943,16 +949,15 @@ function GetClientItems(type, paging, request, response) {
 	});
 }
 
-// Resolve controller base for a client-API call; honor a browser-supplied controllerUrl only
-// if it matches a configured controller (SSRF guard), else fall back to session/global.
+// Resolve the client-API controller base; a browser controllerUrl is honored only if it matches
+// a configured controller (SSRF guard), else fall back to session/global.
 function GetClientControllerBase(request) {
 	if (request.body.controllerUrl) {
 		var requested = trimTrailingSlash(request.body.controllerUrl);
 		var match = "";
 		if (settings.edgeControllers) {
 			settings.edgeControllers.forEach(function(controller) {
-				// Return the configured (trusted) URL on match, never the request value, so the
-				// request target can't be influenced by user input.
+				// return the configured URL on match, never the request value
 				if (trimTrailingSlash(controller.url) === requested) match = trimTrailingSlash(controller.url);
 			});
 		}
