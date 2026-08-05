@@ -182,13 +182,8 @@ if (integration !== 'classic') {
 	helmetOptions.contentSecurityPolicy.directives.scriptSrcAttr.push("'unsafe-eval'");
 }
 
-// --- Dynamic CSP for external OIDC login ------------------------------------
-// OIDC login (discovery, JWKS, token exchange) is a browser fetch from the console
-// to the identity provider. Rather than weaken connect-src to a wildcard, allow only
-// the origins of External JWT Signers the controller admin has already configured as
-// trusted token issuers. The list is refreshed from the controller's public client API
-// (see refreshIdpOrigins) and applied per-request, so newly added signers take effect
-// without a restart. Operators can add extra origins via ZAC_CSP_CONNECT_SRC.
+// Dynamic CSP: allow connect/frame-src only to configured signers' IdP origins so the
+// browser OIDC flow works without a wildcard. Extra origins via ZAC_CSP_CONNECT_SRC.
 let idpConnectOrigins = [];
 const extraCspConnect = (process.env.ZAC_CSP_CONNECT_SRC || '')
 	.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
@@ -213,8 +208,7 @@ function buildHelmetOptions() {
 	};
 }
 
-// Fetch the distinct externalAuthUrl origins of every enabled signer across all
-// configured controllers. Uses the public client API - no session required.
+// Collect distinct externalAuthUrl origins of all signers via the public client API.
 function refreshIdpOrigins() {
 	var controllers = (settings.edgeControllers || [])
 		.map(function(c) { return trimTrailingSlash(c.url); }).filter(Boolean);
@@ -365,8 +359,7 @@ for (var i=0; i<settings.edgeControllers.length; i++) {
 	}
 }
 
-// Prime the IdP CSP allowlist now that controllers/rejectUnauthorized are resolved,
-// then refresh periodically so signers added later are picked up without a restart.
+// Prime the IdP CSP allowlist, then refresh periodically to pick up new signers.
 refreshIdpOrigins();
 setInterval(refreshIdpOrigins, 5 * 60 * 1000);
 
@@ -870,11 +863,7 @@ function GetItems(type, paging, request, response, cli, serviceCall) {
 	}
 }
 
-/**
- * Build the edge API query string (?filter=...&limit=...&offset=...&sort=...) from the
- * paging parameters supplied by the browser. Shared by the authenticated management path
- * (GetItems) and the public client path (GetClientItems) so both behave identically.
- */
+// Build the edge API query string from paging params. Shared by GetItems and GetClientItems.
 function BuildUrlFilter(paging) {
 	var urlFilter = "";
 	var toSearchOn = "name";
@@ -909,11 +898,8 @@ function BuildUrlFilter(paging) {
 	return urlFilter;
 }
 
-/**
- * Fetch a resource from the controller's public client API (edge/client/v1) without a
- * session. Used for data the login page needs pre-authentication - e.g. external-jwt-signers,
- * so the IdP login buttons render in node-server deployments. See openziti/ziti-console#915.
- */
+// Fetch from the public client API (edge/client/v1) without a session, for pre-login data
+// like external-jwt-signers. See openziti/ziti-console#915.
 function GetClientItems(type, paging, request, response) {
 	var controllerBase = GetClientControllerBase(request);
 	if (controllerBase==null||controllerBase.trim().length==0) {
@@ -935,12 +921,8 @@ function GetClientItems(type, paging, request, response) {
 	});
 }
 
-/**
- * Resolve the controller base URL for a public client-API call. A controllerUrl supplied
- * by the browser is honored only when it matches a configured controller (guards against
- * the server being used to reach arbitrary hosts); otherwise fall back to the session /
- * global controller.
- */
+// Resolve controller base for a client-API call; honor a browser-supplied controllerUrl only
+// if it matches a configured controller (SSRF guard), else fall back to session/global.
 function GetClientControllerBase(request) {
 	if (request.body.controllerUrl) {
 		var requested = trimTrailingSlash(request.body.controllerUrl);

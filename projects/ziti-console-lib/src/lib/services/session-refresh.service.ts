@@ -70,9 +70,8 @@ export class SessionRefreshService {
     ) {}
 
     start(): void {
-        // Never run the refresh/expiry monitor while an OAuth/OIDC login is completing on the
-        // /callback route - a stale expired session must not fire handleUnrecoverable() and
-        // redirect to /login before CallbackComponent can exchange the authorization code.
+        // Skip the monitor on /callback so a stale expired session can't redirect to /login
+        // before the code exchange completes. See openziti/ziti-console#915.
         if (window.location.pathname.endsWith('/callback')) {
             return;
         }

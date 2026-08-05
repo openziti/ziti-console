@@ -646,10 +646,8 @@ export class ControllerLoginService extends LoginServiceClass {
         }
         this.sessionRefreshService.stop();
         this.cancelMfaAuth();
-        // Clear the whole session, not just .id - otherwise authMode:'oidc' and the
-        // (expired) refreshToken survive, keeping hasOidcSession() true so an expired
-        // session keeps triggering handleUnrecoverable() on every load, including the
-        // /callback route where it preempts a brand-new login. See openziti/ziti-console#915.
+        // Clear the whole session, not just .id, so a stale expired OIDC session stops
+        // firing handleUnrecoverable(). See openziti/ziti-console#915.
         this.settingsService.settings.session = {} as any;
         this.settingsService.set(this.settingsService.settings);
         localStorage.removeItem('ziti.settings');
