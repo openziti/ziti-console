@@ -105,7 +105,14 @@ const processControllerUrls = (urlString) => {
 // slash (see processControllerUrls), but the console can submit the URL with
 // one — an exact-match check then fails ("Invalid Edge Controller"), and a
 // trailing slash also produces a double slash when request paths are appended.
-const trimTrailingSlash = (url) => (typeof url === 'string' ? url.replace(/\/+$/, '') : url);
+const trimTrailingSlash = (url) => {
+	// Linear scan instead of /\/+$/ - the regex backtracks quadratically on long runs of '/'
+	// (CodeQL js/polynomial-redos). Strips all trailing slashes with no backtracking.
+	if (typeof url !== 'string') return url;
+	var end = url.length;
+	while (end > 0 && url.charCodeAt(end - 1) === 47 /* '/' */) end--;
+	return url.slice(0, end);
+};
 
 var ziti;
 const zitiServiceName = process.env.ZITI_SERVICE_NAME || 'zac';
