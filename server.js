@@ -259,7 +259,16 @@ app.use(session({
 	// that a concurrent /api/login just wrote the user to. This fixes the ext-jwt "Session Expired"
 	// race, where bootstrap polls wiped the freshly-authenticated session.
 	resave: false,
-	saveUninitialized: false
+	saveUninitialized: false,
+	cookie: {
+		httpOnly: true,
+		// 'auto' sets the Secure attribute only over HTTPS, so the cookie stays usable on the
+		// plain-HTTP dev port yet is never sent in the clear over TLS (CodeQL js/clear-text-cookie).
+		secure: 'auto',
+		// SameSite=Lax keeps the session cookie off cross-site POSTs (CSRF protection) while still
+		// allowing the top-level GET redirect back from an IdP (CodeQL js/missing-token-validation).
+		sameSite: 'lax'
+	}
 }));
 app.use(function (req, res, next) {
 	res.setHeader('X-XSS-Protection', '1; mode=block');
@@ -413,6 +422,9 @@ app.post("/api/login", function(request, response) {
 		GetPath().then((prefix) => {
 			serviceUrl = urlToSet+prefix;
 			request.session.serviceUrl = serviceUrl;
+			// Store the API prefix (resolved from the controller's /version response, not the
+			// request) so the authenticate URL can be rebuilt from the allowlisted base. See #915.
+			request.session.apiPrefix = prefix;
 			//request.session.creds = {
 			//	username: request.body.username,
 			//	password: request.body.password
@@ -448,6 +460,16 @@ app.post("/api/logout", function(request, response) {
     });
 });
 
+// Rebuild the controller service URL from the CONFIGURED (allowlisted) controller base - never the
+// raw request/session value - so anything requested from it targets a trusted host. The prefix is
+// resolved server-side from the controller's /version response, so it isn't user-tainted either.
+// Returns "" when the controller isn't allowlisted. Addresses CodeQL js/request-forgery.
+function GetTrustedServiceUrl(request) {
+	var base = GetClientControllerBase(request);
+	if (!base) return "";
+	return base + (request.session.apiPrefix || "");
+}
+
 function Authenticate(request) {
 	return new Promise(function(resolve, reject) {
 		if (!baseUrl||baseUrl.trim().length==0&&request.session.baseUrl) baseUrl = request.session.baseUrl;
@@ -455,7 +477,9 @@ function Authenticate(request) {
 		// ext-jwt (IdP/OIDC) login: exchange the browser-supplied IdP token for a ziti session via
 		// the controller's ext-jwt authenticator. Otherwise fall back to username/password. See #915.
 		var extJwtToken = request.body.token;
-		var authUrl = serviceUrl + (extJwtToken ? "/authenticate?method=ext-jwt" : "/authenticate?method=password");
+		var trustedServiceUrl = GetTrustedServiceUrl(request);
+		if (!trustedServiceUrl) { resolve({error: errors.invalidServer}); return; }
+		var authUrl = trustedServiceUrl + (extJwtToken ? "/authenticate?method=ext-jwt" : "/authenticate?method=password");
 		var options = extJwtToken
 			? {json: {}, rejectUnauthorized: rejectUnauthorized, headers: {authorization: "Bearer "+extJwtToken}}
 			: {json: {username: request.body.username, password: request.body.password}, rejectUnauthorized: rejectUnauthorized};
@@ -488,7 +512,8 @@ function Authenticate(request) {
 function ReAuthenticate(request) {
 	return new Promise(function(resolve) {
 		var token = request.session.extJwtToken;
-		var url = request.session.serviceUrl || serviceUrl;
+		// Trusted, allowlisted base (see GetTrustedServiceUrl) rather than the raw session value.
+		var url = GetTrustedServiceUrl(request);
 		if (!token || !url) { resolve(false); return; }
 		external.post(url+"/authenticate?method=ext-jwt",
 			{json: {}, rejectUnauthorized: rejectUnauthorized, headers: {authorization: "Bearer "+token}},
