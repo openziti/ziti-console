@@ -1,3 +1,16 @@
+# app-ziti-console-v4.5.0
+# ziti-console-lib-v1.5.0
+## Feature/Improvements
+* [PR #918](https://github.com/openziti/ziti-console/pull/918) - External JWT (IdP) login on the node server deployment: the Node server exchanges the browser's IdP token for a ziti session, keeps ext-jwt sessions alive with server-side renewal, and preserves the selected controller across the IdP redirect
+* [PR #914](https://github.com/openziti/ziti-console/pull/914) - Hide the password change form for OIDC-authenticated users and explain that passwords are managed by the external identity provider
+* [PR #911](https://github.com/openziti/ziti-console/pull/911) - Add filtering and sorting to service and router queries so attributes display correctly when a network has more than 1,000 of an attribute type
+* [PR #910](https://github.com/openziti/ziti-console/pull/910) - Remove all references to Google Tag Manager
+
+## Bug Fixes
+* [PR #918](https://github.com/openziti/ziti-console/pull/918) - Fix intermittent "Session Expired" modal and "Invalid Edge Controller" growler during ext-jwt login/logout on the node server; align the IdP login button border with the form inputs; resolve CodeQL findings (SSRF, ReDoS, cookie hardening)
+* [PR #908](https://github.com/openziti/ziti-console/pull/908) - JWT signer Name field no longer appears disabled on the signer form
+
+
 # app-ziti-console-v4.4.0
 # ziti-console-lib-v1.4.0
 ## Feature/Improvements
