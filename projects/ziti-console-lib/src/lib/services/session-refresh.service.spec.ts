@@ -129,6 +129,24 @@ describe('SessionRefreshService', () => {
         expect(loginService.logout).toHaveBeenCalled();
     });
 
+    it('start() does not end an expired session while on the /callback route (openziti/ziti-console#915)', () => {
+        // Same expired-refresh-token scenario as above, but mid-login on /callback: the monitor
+        // must not fire, or it would redirect to /login before the auth code is exchanged.
+        const originalPath = window.location.pathname;
+        history.pushState({}, '', '/zac/callback');
+        try {
+            const nowSec = Math.floor(Date.now() / 1000);
+            settingsService.settings.session.refreshExpiresAt = (nowSec - 60) * 1000;
+
+            service.start();
+            expect(loginService.logout).not.toHaveBeenCalled();
+            expect(growlerService.show).not.toHaveBeenCalled();
+            expect((service as any).running).toBe(false);
+        } finally {
+            history.pushState({}, '', originalPath);
+        }
+    });
+
     it('start() schedules a proactive refresh before the access token expires', () => {
         jasmine.clock().install();
         try {

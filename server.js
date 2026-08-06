@@ -105,7 +105,14 @@ const processControllerUrls = (urlString) => {
 // slash (see processControllerUrls), but the console can submit the URL with
 // one — an exact-match check then fails ("Invalid Edge Controller"), and a
 // trailing slash also produces a double slash when request paths are appended.
-const trimTrailingSlash = (url) => (typeof url === 'string' ? url.replace(/\/+$/, '') : url);
+const trimTrailingSlash = (url) => {
+	// Linear scan instead of /\/+$/ - the regex backtracks quadratically on long runs of '/'
+	// (CodeQL js/polynomial-redos). Strips all trailing slashes with no backtracking.
+	if (typeof url !== 'string') return url;
+	var end = url.length;
+	while (end > 0 && url.charCodeAt(end - 1) === 47 /* '/' */) end--;
+	return url.slice(0, end);
+};
 
 var ziti;
 const zitiServiceName = process.env.ZITI_SERVICE_NAME || 'zac';
@@ -182,12 +189,64 @@ if (integration !== 'classic') {
 	helmetOptions.contentSecurityPolicy.directives.scriptSrcAttr.push("'unsafe-eval'");
 }
 
+// Dynamic CSP: allow connect/frame-src only to configured signers' IdP origins (no wildcard). Extra via ZAC_CSP_CONNECT_SRC.
+let idpConnectOrigins = [];
+const extraCspConnect = (process.env.ZAC_CSP_CONNECT_SRC || '')
+	.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+
+function originOf(url) {
+	try { return new URL(url).origin; } catch (e) { return null; }
+}
+
+function buildHelmetOptions() {
+	var idp = idpConnectOrigins.concat(extraCspConnect);
+	var base = helmetOptions.contentSecurityPolicy.directives;
+	return {
+		contentSecurityPolicy: {
+			directives: Object.assign({}, base, {
+				// concat() returns new arrays, so the base directives are never mutated
+				connectSrc: base.connectSrc.concat(idp),
+				frameSrc: base.frameSrc.concat(idp),
+			}),
+		},
+		frameguard: helmetOptions.frameguard,
+		crossOriginEmbedderPolicy: helmetOptions.crossOriginEmbedderPolicy,
+	};
+}
+
+// Collect distinct externalAuthUrl origins of all signers via the public client API.
+function refreshIdpOrigins() {
+	var controllers = (settings.edgeControllers || [])
+		.map(function(c) { return trimTrailingSlash(c.url); }).filter(Boolean);
+	if (controllers.length === 0) return;
+	var origins = new Set();
+	var pending = controllers.length;
+	controllers.forEach(function(base) {
+		external.get(base + "/edge/client/v1/external-jwt-signers?limit=500", { rejectUnauthorized: rejectUnauthorized }, function(err, res, body) {
+			try {
+				if (!err && body) {
+					var parsed = (typeof body === 'string') ? JSON.parse(body) : body;
+					(parsed.data || []).forEach(function(signer) {
+						var o = originOf(signer.externalAuthUrl);
+						if (o) origins.add(o);
+					});
+				}
+			} catch (e) { /* ignore an unreachable/malformed controller */ }
+			if (--pending === 0) {
+				idpConnectOrigins = Array.from(origins);
+				log("CSP: IdP connect-src origins: " + (idpConnectOrigins.join(' ') || '(none)'));
+			}
+		});
+	});
+}
+
 app.use("/assets", express.static(__dirname + __assets , {
 	maxAge: '31536000000' 
 }));
 if (`${process.env.ALLOW_HTTP}`.toLowerCase() !== "true") {
 	app.use(cors(corsOptions));
-	app.use(helmet(helmetOptions));
+	// Rebuild options per-request so the CSP reflects the current IdP origin cache.
+	app.use(function(req, res, next) { helmet(buildHelmetOptions())(req, res, next); });
 } else {
 	console.log("ALLOW_HTTP - skipping cors/helmet");
 }
@@ -197,14 +256,26 @@ app.use(function(req, res, next) {
 });
 app.use(bodyParser.json());
 app.use(fileUpload());
-app.use(session({ 
-	store: new sessionStore({}), 
-	secret: 'NetFoundryZiti', 
-	retries: 0, 
-	resave: true, 
-	saveUninitialized: true, 
-	ttl: 60000, 
-	logFn: () => {}
+app.use(session({
+	// retries/logFn belong to the store, not to session() - passing them to session() left the store
+	// on its defaults (5 retries + console logging), so a cookie whose file was missing looped on
+	// ENOENT instead of failing fast to a fresh session. See #915.
+	store: new sessionStore({ retries: 0, logFn: () => {} }),
+	secret: 'NetFoundryZiti',
+	// resave/saveUninitialized false: read-only requests must not re-save (and clobber) a session
+	// that a concurrent /api/login just wrote the user to. This fixes the ext-jwt "Session Expired"
+	// race, where bootstrap polls wiped the freshly-authenticated session.
+	resave: false,
+	saveUninitialized: false,
+	cookie: {
+		httpOnly: true,
+		// 'auto' sets the Secure attribute only over HTTPS, so the cookie stays usable on the
+		// plain-HTTP dev port yet is never sent in the clear over TLS (CodeQL js/clear-text-cookie).
+		secure: 'auto',
+		// SameSite=Lax keeps the session cookie off cross-site POSTs (CSRF protection) while still
+		// allowing the top-level GET redirect back from an IdP (CodeQL js/missing-token-validation).
+		sameSite: 'lax'
+	}
 }));
 app.use(function (req, res, next) {
 	res.setHeader('X-XSS-Protection', '1; mode=block');
@@ -306,6 +377,9 @@ for (var i=0; i<settings.edgeControllers.length; i++) {
 	}
 }
 
+// Prime the CSP IdP allowlist at startup; refreshed later on the login page's signer fetch.
+refreshIdpOrigins();
+
 var transporter;
 
 if (settings.mail && settings.mail.host && settings.mail.host.trim().length>0) {
@@ -355,6 +429,9 @@ app.post("/api/login", function(request, response) {
 		GetPath().then((prefix) => {
 			serviceUrl = urlToSet+prefix;
 			request.session.serviceUrl = serviceUrl;
+			// Store the API prefix (resolved from the controller's /version response, not the
+			// request) so the authenticate URL can be rebuilt from the allowlisted base. See #915.
+			request.session.apiPrefix = prefix;
 			//request.session.creds = {
 			//	username: request.body.username,
 			//	password: request.body.password
@@ -381,40 +458,78 @@ if (integration === 'edge-api') {
 
 app.post("/api/logout", function(request, response) {
     request.session.user = null;
+    // Also drop the stored IdP token, otherwise ReAuthenticate would silently renew the session
+    // on the next request and undo the logout. See #915.
+    request.session.extJwtToken = null;
     response.send({
         success: true,
         message: 'Logout Successful'
     });
 });
 
+// Rebuild the controller service URL from the CONFIGURED (allowlisted) controller base - never the
+// raw request/session value - so anything requested from it targets a trusted host. The prefix is
+// resolved server-side from the controller's /version response, so it isn't user-tainted either.
+// Returns "" when the controller isn't allowlisted. Addresses CodeQL js/request-forgery.
+function GetTrustedServiceUrl(request) {
+	var base = GetClientControllerBase(request);
+	if (!base) return "";
+	return base + (request.session.apiPrefix || "");
+}
+
 function Authenticate(request) {
 	return new Promise(function(resolve, reject) {
 		if (!baseUrl||baseUrl.trim().length==0&&request.session.baseUrl) baseUrl = request.session.baseUrl;
 		if (!serviceUrl||serviceUrl.trim().length==0&&request.session.serviceUrl) serviceUrl = request.session.serviceUrl;
-		let params = {
-			username: request.body.username,
-			password: request.body.password
-		};
-		log("Connecting to: "+serviceUrl+"/authenticate?method=password");
-		//if (request.session.creds != null) {
-			external.post(serviceUrl+"/authenticate?method=password", {json: params , rejectUnauthorized: rejectUnauthorized }, function(err, res, body) {
-				if (err) {
-					log(err);
-					var error = "Server Not Accessible";
-					if (err.code!="ECONNREFUSED") resolve( {error: err.code} );
-					resolve( {error: error} );
-				} else {
-					if (body.error) resolve( {error: body.error.message} );
-					else {
-						if (body.data&&body.data.token) {
-							request.session.user = body.data.token;
-							request.session.authorization = 100;
-							resolve( {success: "Logged In"} );
-						} else resolve( {error: "Invalid Account"} );
-					}
-				}				
+		// ext-jwt (IdP/OIDC) login: exchange the browser-supplied IdP token for a ziti session via
+		// the controller's ext-jwt authenticator. Otherwise fall back to username/password. See #915.
+		var extJwtToken = request.body.token;
+		var trustedServiceUrl = GetTrustedServiceUrl(request);
+		if (!trustedServiceUrl) { resolve({error: errors.invalidServer}); return; }
+		var authUrl = trustedServiceUrl + (extJwtToken ? "/authenticate?method=ext-jwt" : "/authenticate?method=password");
+		var options = extJwtToken
+			? {json: {}, rejectUnauthorized: rejectUnauthorized, headers: {authorization: "Bearer "+extJwtToken}}
+			: {json: {username: request.body.username, password: request.body.password}, rejectUnauthorized: rejectUnauthorized};
+		log("Connecting to: "+authUrl);
+		external.post(authUrl, options, function(err, res, body) {
+			if (err) {
+				log(err);
+				var error = "Server Not Accessible";
+				if (err.code!="ECONNREFUSED") resolve( {error: err.code} );
+				resolve( {error: error} );
+			} else {
+				if (body.error) resolve( {error: body.error.message} );
+				else {
+					if (body.data&&body.data.token) {
+						request.session.user = body.data.token;
+						request.session.authorization = 100;
+						// Keep the IdP token (valid well beyond the ziti session) so an expired ziti
+						// session can be renewed without a fresh IdP round-trip. See ReAuthenticate / #915.
+						request.session.extJwtToken = extJwtToken || null;
+						resolve( {success: "Logged In"} );
+					} else resolve( {error: "Invalid Account"} );
+				}
+			}
+		});
+	});
+}
+
+// Renew an expired ziti session from the stored ext-jwt (IdP) token. Returns true if a fresh
+// session token was obtained. Only ext-jwt sessions are renewable this way. See #915.
+function ReAuthenticate(request) {
+	return new Promise(function(resolve) {
+		var token = request.session.extJwtToken;
+		// Trusted, allowlisted base (see GetTrustedServiceUrl) rather than the raw session value.
+		var url = GetTrustedServiceUrl(request);
+		if (!token || !url) { resolve(false); return; }
+		external.post(url+"/authenticate?method=ext-jwt",
+			{json: {}, rejectUnauthorized: rejectUnauthorized, headers: {authorization: "Bearer "+token}},
+			function(err, res, body) {
+				if (!err && body && body.data && body.data.token) {
+					request.session.user = body.data.token;
+					resolve(true);
+				} else resolve(false);
 			});
-		//}
 	});
 }
 
@@ -729,7 +844,11 @@ app.post("/api/call", function(request, response) {
 app.post("/api/data", function(request, response) {
 	var type = request.body.type;
 	var paging = request.body.paging;
-	GetItems(type, paging, request, response);
+	if (request.body.useClient) {
+		GetClientItems(type, paging, request, response);
+	} else {
+		GetItems(type, paging, request, response);
+	}
 });
 
 /**
@@ -750,13 +869,18 @@ function DoCall(url, json, request, isFirst=true) {
 				resolve({ error: err });
 			} else {
 				if (body.error) {
-					if (isFirst) {
-						log("Re-authenticate User");
-						//Authenticate(request).then((results) => {
-							DoCall(url, json, request, false).then((results) => {
-								resolve(results);
-							});
-						//});
+					if (isFirst && res && res.statusCode == 401) {
+						log("Session expired - attempting renewal");
+						// Renew the session from the stored ext-jwt token, then retry once. If renewal
+						// isn't possible (password session, or IdP token also expired), return the
+						// original error so the UI prompts for login. See #915.
+						ReAuthenticate(request).then((renewed) => {
+							if (renewed) {
+								DoCall(url, json, request, false).then((results) => {
+									resolve(results);
+								});
+							} else resolve(body);
+						});
 					} else resolve(body);
 				} else if (body.data) {
 					log("Items Returned: "+body.data.length);
@@ -791,36 +915,7 @@ function GetItems(type, paging, request, response, cli, serviceCall) {
 	if (request.body.url) {
 		GetSubs(request.body.url.split("./").join(""), request.body.type, "", "", request, response);
 	} else {
-		var urlFilter = "";
-		var toSearchOn = "name";
-		var noSearch = false;
-		if (paging && paging.sort!=null) {
-			if (paging.searchOn) toSearchOn = paging.searchOn;
-			if (paging.noSearch) noSearch = true;
-			if (!paging.filter) paging.filter = "";
-			if (!paging.rawFilter) paging.filter = paging.filter.split('#').join('');
-			if (noSearch) {
-				if (paging.page!=-1) urlFilter = "?limit="+paging.total+"&offset="+((paging.page-1)*paging.total);
-			} else {
-				if (paging.rawFilter) {
-					urlFilter = "?filter=" + paging.filter.trim();
-					if (paging.total) {
-						urlFilter += "&limit="+paging.total;
-					}
-					if (paging.page) {
-						urlFilter += "&offset="+((paging.page-1)*paging.total);
-					}
-					if (paging.sort) {
-						urlFilter += "&sort="+paging.sort+" "+paging.order;
-					}
-				} else if (paging.page!=-1) urlFilter = "?filter=("+toSearchOn+" contains \""+paging.filter+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+paging.sort+" "+paging.order;
-				if (paging.params) {
-					for (var key in paging.params) {
-						urlFilter += ((urlFilter.length==0)?"?":"&")+key+"="+paging.params[key];
-					}
-				}
-			}
-		}
+		var urlFilter = BuildUrlFilter(paging);
 		if (serviceUrl==null||serviceUrl.trim().length==0) response.json({error:"loggedout"});
 		else {
 			DoCall(serviceUrl+"/"+type+urlFilter, {}, request, true).then((results) => {
@@ -829,6 +924,111 @@ function GetItems(type, paging, request, response, cli, serviceCall) {
 			});
 		}
 	}
+}
+
+// Build the edge API query string from paging params. Shared by GetItems and GetClientItems.
+function BuildUrlFilter(paging) {
+	var urlFilter = "";
+	var toSearchOn = "name";
+	var noSearch = false;
+	if (paging && paging.sort!=null) {
+		if (paging.searchOn) toSearchOn = paging.searchOn;
+		if (paging.noSearch) noSearch = true;
+		if (!paging.filter) paging.filter = "";
+		if (!paging.rawFilter) paging.filter = paging.filter.split('#').join('');
+		if (noSearch) {
+			if (paging.page!=-1) urlFilter = "?limit="+paging.total+"&offset="+((paging.page-1)*paging.total);
+		} else {
+			if (paging.rawFilter) {
+				// rawFilter is a complete filter expression (syntax, not a value) - do not encode it
+				urlFilter = "?filter=" + paging.filter.trim();
+				if (paging.total) {
+					urlFilter += "&limit="+paging.total;
+				}
+				if (paging.page) {
+					urlFilter += "&offset="+((paging.page-1)*paging.total);
+				}
+				if (paging.sort) {
+					urlFilter += "&sort="+encodeURIComponent(paging.sort)+" "+encodeURIComponent(paging.order);
+				}
+			} else if (paging.page!=-1) urlFilter = "?filter=("+encodeURIComponent(toSearchOn)+" contains \""+encodeURIComponent(paging.filter)+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+encodeURIComponent(paging.sort)+" "+encodeURIComponent(paging.order);
+			if (paging.params) {
+				for (var key in paging.params) {
+					urlFilter += ((urlFilter.length==0)?"?":"&")+encodeURIComponent(key)+"="+encodeURIComponent(paging.params[key]);
+				}
+			}
+		}
+	}
+	return urlFilter;
+}
+
+// Entity types the unauthenticated client endpoint may fetch pre-login.
+var CLIENT_ALLOWED_TYPES = ["external-jwt-signers"];
+
+// Add the given signers' IdP origins to the CSP allowlist (add-only).
+function mergeIdpOrigins(signers) {
+	var set = new Set(idpConnectOrigins);
+	(signers || []).forEach(function(signer) {
+		var o = originOf(signer.externalAuthUrl);
+		if (o) set.add(o);
+	});
+	idpConnectOrigins = Array.from(set);
+}
+
+// Minimal sanitized query for the client fetch: numeric limit/offset only, constant sort.
+function ClientPagingQuery(paging) {
+	var limit = parseInt((paging && paging.total) || 100, 10);
+	if (!(limit > 0)) limit = 100;
+	var page = parseInt((paging && paging.page) || 1, 10);
+	if (!(page > 0)) page = 1;
+	return "?limit=" + limit + "&offset=" + ((page - 1) * limit) + "&sort=name%20asc";
+}
+
+// Pre-login fetch (external-jwt-signers) from the public client API. The URL uses only trusted
+// values - configured controller, allowlisted type, numeric paging - so no user input. #915/#129
+function GetClientItems(type, paging, request, response) {
+	var typeIdx = CLIENT_ALLOWED_TYPES.indexOf(type);
+	if (typeIdx === -1) {
+		response.json({data: [], error: "unsupported type"});
+		return;
+	}
+	var safeType = CLIENT_ALLOWED_TYPES[typeIdx]; // from our allowlist, never the request value
+	var controllerBase = GetClientControllerBase(request);
+	if (controllerBase==null||controllerBase.trim().length==0) {
+		response.json({data: []});
+		return;
+	}
+	var clientUrl = controllerBase+"/edge/client/v1/"+safeType+ClientPagingQuery(paging);
+	log("Calling (client): "+clientUrl);
+	external.get(clientUrl, {json: {}, rejectUnauthorized: rejectUnauthorized}, function(err, res, body) {
+		if (err) {
+			log("Server Error (client): "+JSON.stringify(err));
+			response.json({data: [], error: err});
+		} else if (body && body.data) {
+			// keep the CSP IdP allowlist current from the signers we just fetched
+			if (safeType === "external-jwt-signers") mergeIdpOrigins(body.data);
+			response.json(body);
+		} else {
+			response.json({data: []});
+		}
+	});
+}
+
+// Resolve the client-API controller base; a browser controllerUrl is honored only if it matches
+// a configured controller (SSRF guard), else fall back to session/global.
+function GetClientControllerBase(request) {
+	// Resolve a candidate, then always return the matching CONFIGURED url - never the request or
+	// session value - so the request target is fully trusted.
+	var requested = request.body.controllerUrl || request.session.baseUrl || baseUrl;
+	if (!requested) return "";
+	requested = trimTrailingSlash(requested);
+	var match = "";
+	if (settings.edgeControllers) {
+		settings.edgeControllers.forEach(function(controller) {
+			if (trimTrailingSlash(controller.url) === requested) match = trimTrailingSlash(controller.url);
+		});
+	}
+	return match;
 }
 
 /**

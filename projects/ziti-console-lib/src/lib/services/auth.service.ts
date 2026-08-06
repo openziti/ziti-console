@@ -5,6 +5,8 @@ import {GrowlerModel} from "../features/messaging/growler.model";
 import {GrowlerService} from "../features/messaging/growler.service";
 import {APP_BASE_HREF} from "@angular/common";
 import {NavigationEnd, Router} from "@angular/router";
+import {SETTINGS_SERVICE} from "./settings.service";
+import {SettingsServiceClass} from "./settings-service.class";
 
 @Injectable({
     providedIn: 'root'
@@ -14,7 +16,8 @@ export class AuthService {
     constructor(
         private oauthService: OAuthService, private http: HttpClient,
         private growlerService: GrowlerService,
-        private router: Router
+        private router: Router,
+        @Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass
     ) {
         router.events.subscribe((event: any) => {
             if (event instanceof NavigationEnd) {
@@ -35,6 +38,7 @@ export class AuthService {
         window.history.pushState({}, '', urlWithoutHash);
         localStorage.removeItem(configKey);
         localStorage.removeItem(tokenTypeKey);
+        localStorage.removeItem('oauth_callback_controller');
         this.oauthService.logOut();
         this.oauthService.configure({});
     }
@@ -63,6 +67,9 @@ export class AuthService {
         if (extJwtSigner.targetToken) {
             localStorage.setItem(tokenTypeKey || 'oauth_callback_target_token', extJwtSigner.targetToken);
         }
+        // Pin the controller selected when the flow was initiated. The IdP round-trip reloads state,
+        // so the callback must exchange against this controller, not whatever is selected on return.
+        localStorage.setItem('oauth_callback_controller', this.settingsService.settings?.selectedEdgeController || '');
         this.oauthService.configure(oauthConfig);
         return this.oauthService.loadDiscoveryDocumentAndTryLogin().then((initSuccess) => {
             if (initSuccess) {

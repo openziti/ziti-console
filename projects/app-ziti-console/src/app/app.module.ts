@@ -93,7 +93,13 @@ export function initializeApp(settingsService: any, injector: Injector) {
     return () =>
         settingsService.init().then(() => {
             injector.get(ManagementPermissionsService);
-            injector.get(SessionRefreshService).start();
+            // SessionRefreshService renews browser-held controller-native OIDC tokens. The node
+            // deployment authenticates server-side (no browser-held refresh token), so starting it
+            // here only lets a stale authMode:'oidc' localStorage session log the user out of a valid
+            // node session. Only run it for the controller-served (non-node) build. See #915.
+            if (!environment.nodeIntegration) {
+                injector.get(SessionRefreshService).start();
+            }
         });
 }
 

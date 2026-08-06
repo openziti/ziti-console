@@ -70,6 +70,11 @@ export class SessionRefreshService {
     ) {}
 
     start(): void {
+        // Skip the monitor on /callback so a stale expired session can't redirect to /login
+        // before the code exchange completes. See openziti/ziti-console#915.
+        if (window.location.pathname.endsWith('/callback')) {
+            return;
+        }
         if (!this.hasOidcSession()) {
             return;
         }

@@ -40,15 +40,22 @@ export class NodeLoginService extends LoginServiceClass {
     }
 
     init() {
+        // On /callback the OIDC code exchange and /api/login haven't run yet, so this bootstrap probe
+        // hits a userless session and its 401 resolves late - after navigation to /dashboard - popping
+        // the "Session Expired" modal. Skip it here; handleLoginResponse re-checks once login completes.
+        // Mirrors SessionRefreshService.start()'s /callback guard. See openziti/ziti-console#915.
+        if (window.location.pathname.endsWith('/callback')) {
+            return Promise.resolve(false);
+        }
         return this.checkForValidNodeSession();
     }
 
-    async login(prefix: string, url: string, username: string, password: string, doNav = true) {
-        return this.nodeLogin(url, username, password, doNav);
+    async login(prefix: string, url: string, username: string, password: string, doNav = true, type?, token?) {
+        return this.nodeLogin(url, username, password, doNav, type, token);
     }
 
-    nodeLogin(controllerURL: string, username: string, password: string, doNav = true) {
-        return lastValueFrom(this.observeLogin(controllerURL, username, password, doNav)
+    nodeLogin(controllerURL: string, username: string, password: string, doNav = true, type?, token?) {
+        return lastValueFrom(this.observeLogin(controllerURL, username, password, doNav, type, token)
             ).then(() => {
                 if (doNav) {
                     this.router.navigate(['/']);
@@ -56,11 +63,13 @@ export class NodeLoginService extends LoginServiceClass {
             });
     }
 
-    observeLogin(controllerURL: string, username: string, password: string, doNav = true): Observable<any> {
+    observeLogin(controllerURL: string, username: string, password: string, doNav = true, type?, token?): Observable<any> {
         const loginURL = '/api/login';
+        // For ext-jwt (IdP/OIDC) logins the browser already holds the IdP token; forward it so the
+        // node server can exchange it for a ziti session. See openziti/ziti-console#915.
         return this.httpClient.post(
             loginURL,
-            { url: controllerURL, username: username, password: password },
+            { url: controllerURL, username: username, password: password, type: type, token: token },
             {
                 headers: {
                     "content-type": "application/json"
@@ -114,6 +123,10 @@ export class NodeLoginService extends LoginServiceClass {
         const options = {
             headers: {
                 accept: 'application/json',
+                // Mark this as a passive session-validity probe. Its 401 just means "not logged in"
+                // and must route to /login, never pop the re-login modal - otherwise a probe fired
+                // during a logout/login transition leaves a stale modal over the dashboard. See #915.
+                'x-zac-session-check': 'true',
             },
             params: {},
             responseType: 'json' as const,

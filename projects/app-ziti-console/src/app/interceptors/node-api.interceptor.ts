@@ -41,17 +41,30 @@ export class NodeApiInterceptor implements HttpInterceptor {
         return next.handle(req).pipe(
             switchMap((event: HttpEvent<any>) => {
                 if (event instanceof HttpResponse) {
-                    return this.handleResponse(event);
+                    return this.handleResponse(event, req);
                 }
                 return of(event);
             })
         );
     }
 
-    private handleResponse(event: any): Observable<any> {
+    private handleResponse(event: any, req?: HttpRequest<any>): Observable<any> {
         const body = event?.body;
         if (body?.errorObj?.code === 'UNAUTHORIZED') {
             if (this.loginService.loginDialogOpen) {
+                return of(event);
+            }
+            // A passive session-validity probe (checkForValidNodeSession) 401s whenever we're logged
+            // out; that must route to /login, never pop the re-login modal - otherwise a probe fired
+            // during a logout/login transition leaves a stale modal over the dashboard. See #915.
+            if (req?.headers?.get('x-zac-session-check')) {
+                return of(event);
+            }
+            // Don't pop the "Session Expired" modal while a login/logout is mid-flight: on /callback
+            // the ext-jwt session check runs before navigating away, and logout navigates to /login -
+            // in-flight polls momentarily 401 during these transitions. See openziti/ziti-console#915.
+            const path = (this.router.url || '').split('?')[0];
+            if (path.endsWith('/login') || path.endsWith('/callback')) {
                 return of(event);
             }
             this.dialogRef = this.dialogForm.open(LoginDialogComponent, {

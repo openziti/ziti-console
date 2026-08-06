@@ -646,9 +646,11 @@ export class ControllerLoginService extends LoginServiceClass {
         }
         this.sessionRefreshService.stop();
         this.cancelMfaAuth();
-        localStorage.removeItem('ziti.settings');
-        this.settingsService.settings.session.id = undefined;
+        // Clear the whole session, not just .id, so a stale expired OIDC session stops
+        // firing handleUnrecoverable(). See openziti/ziti-console#915.
+        this.settingsService.settings.session = {} as any;
         this.settingsService.set(this.settingsService.settings);
+        localStorage.removeItem('ziti.settings');
         this.haControllerService.reset(); // Clear HA cluster status
         this.router.navigate(['/login']);
     }

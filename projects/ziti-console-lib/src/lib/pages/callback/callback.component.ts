@@ -47,7 +47,11 @@ export class CallbackComponent implements OnInit {
                                 token = this.oauthService.getAccessToken();
                             }
                             const prefix = '/edge/client/v1';
-                            const url = this.settingsService.settings.selectedEdgeController;
+                            // Use the controller pinned when the flow was initiated, not the currently
+                            // selected one (which may have changed across the IdP redirect).
+                            const url = localStorage.getItem('oauth_callback_controller') || this.settingsService.settings.selectedEdgeController;
+                            localStorage.removeItem('oauth_callback_controller');
+                            this.settingsService.settings.selectedEdgeController = url;
                             let doNav = true;
                             let isTest = false;
                             if (!isEmpty(redirectRoute)) {

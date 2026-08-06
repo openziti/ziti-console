@@ -296,6 +296,9 @@
   color: var(--tableText);
   height: var(--defaultInputHeight);
   border-style: solid;
+  // match the input fields' border width; without this it falls back to the CSS default
+  // (medium, ~3px) and reads noticeably thicker than the rest of the form
+  border-width: var(--inputBorderWidth);
   border-color: var(--inputBorder);
   border-radius: var(--inputBorderRadius);
   vertical-align: middle;
