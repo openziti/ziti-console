@@ -40,6 +40,13 @@ export class NodeLoginService extends LoginServiceClass {
     }
 
     init() {
+        // On /callback the OIDC code exchange and /api/login haven't run yet, so this bootstrap probe
+        // hits a userless session and its 401 resolves late - after navigation to /dashboard - popping
+        // the "Session Expired" modal. Skip it here; handleLoginResponse re-checks once login completes.
+        // Mirrors SessionRefreshService.start()'s /callback guard. See openziti/ziti-console#915.
+        if (window.location.pathname.endsWith('/callback')) {
+            return Promise.resolve(false);
+        }
         return this.checkForValidNodeSession();
     }
 
@@ -116,6 +123,10 @@ export class NodeLoginService extends LoginServiceClass {
         const options = {
             headers: {
                 accept: 'application/json',
+                // Mark this as a passive session-validity probe. Its 401 just means "not logged in"
+                // and must route to /login, never pop the re-login modal - otherwise a probe fired
+                // during a logout/login transition leaves a stale modal over the dashboard. See #915.
+                'x-zac-session-check': 'true',
             },
             params: {},
             responseType: 'json' as const,

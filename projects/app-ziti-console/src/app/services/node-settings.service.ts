@@ -145,31 +145,25 @@ export class NodeSettingsService extends SettingsServiceClass {
         return firstValueFrom(this.httpClient.post(callUrl, {}, options)
             .pipe(
                 tap((body: any) => {
-                    try {
-                        if (body.error) {
-                            let growlerData = new GrowlerModel(
-                              'error',
-                              'Error',
-                              'Invalid Edge Controller: ' + body.error,
-                            );
-                            this.growlerService.show(growlerData);
-                        } else {
-                            this.apiVersions = body.data.apiVersions;
-                            this.zitiSemver = body.data?.version?.replace("v", "");
-                        }
-                    } catch (e) {
-                      let growlerData = new GrowlerModel(
-                        'error',
-                        'Error',
-                        'Invalid Edge Controller: ' + body,
-                      );
-                      this.growlerService.show(growlerData);
+                    if (body?.error) {
+                        // a genuine bad-controller response - surface the message, not [object Object]
+                        const detail = body.error?.message || (typeof body.error === 'string' ? body.error : JSON.stringify(body.error));
+                        this.growlerService.show(new GrowlerModel(
+                            'error',
+                            'Error',
+                            'Invalid Edge Controller: ' + detail,
+                        ));
+                    } else if (body?.data?.apiVersions) {
+                        this.apiVersions = body.data.apiVersions;
+                        this.zitiSemver = body.data?.version?.replace("v", "");
                     }
+                    // else: the node server has no controller context yet (e.g. the pre-login version
+                    // probe from the OIDC callback) - skip quietly rather than growling. See #915.
                 }),
                 catchError((err: any) => {
                     throw "Edge Controller not Online: " + err?.message;
                 }),
-                map(body => body.data.apiVersions)));
+                map((body: any) => body?.data?.apiVersions)));
     }
 
     // HA Controller methods - Node server doesn't support HA, so these are no-op implementations

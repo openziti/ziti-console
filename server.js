@@ -249,14 +249,17 @@ app.use(function(req, res, next) {
 });
 app.use(bodyParser.json());
 app.use(fileUpload());
-app.use(session({ 
-	store: new sessionStore({}), 
-	secret: 'NetFoundryZiti', 
-	retries: 0, 
-	resave: true, 
-	saveUninitialized: true, 
-	ttl: 60000, 
-	logFn: () => {}
+app.use(session({
+	// retries/logFn belong to the store, not to session() - passing them to session() left the store
+	// on its defaults (5 retries + console logging), so a cookie whose file was missing looped on
+	// ENOENT instead of failing fast to a fresh session. See #915.
+	store: new sessionStore({ retries: 0, logFn: () => {} }),
+	secret: 'NetFoundryZiti',
+	// resave/saveUninitialized false: read-only requests must not re-save (and clobber) a session
+	// that a concurrent /api/login just wrote the user to. This fixes the ext-jwt "Session Expired"
+	// race, where bootstrap polls wiped the freshly-authenticated session.
+	resave: false,
+	saveUninitialized: false
 }));
 app.use(function (req, res, next) {
 	res.setHeader('X-XSS-Protection', '1; mode=block');
