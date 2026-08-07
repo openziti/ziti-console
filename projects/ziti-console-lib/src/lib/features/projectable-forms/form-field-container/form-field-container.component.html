@@ -9,6 +9,8 @@
         @if (helpText) {
           <div
             class="form-field-help-icon"
+            matTooltip="{{helpText}}"
+            matTooltipPosition="below"
             (click)="onHelpClick()"
           >?</div>
         }
