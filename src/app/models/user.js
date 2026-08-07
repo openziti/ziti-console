@@ -1,0 +1,3 @@
+if (userAuthedByOIDC) {
+	return false;
+}
