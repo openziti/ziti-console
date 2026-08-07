@@ -4,5 +4,6 @@ export class Service {
     terminatorStrategy = '';
     roleAttributes: any[] = [];
     tags: any = {};
-    configs: any[] = []
+    configs: any[] = [];
+    maxIdleTimeMillis = 0;
 };

@@ -618,6 +618,7 @@ export class ServiceFormService {
             configs: this.formData?.configs || [],
             encryptionRequired: this.formData?.encryptionRequired,
             terminatorStrategy: this.formData?.terminatorStrategy || '',
+            maxIdleTimeMillis: this.formData?.maxIdleTimeMillis || 0,
             tags: this.formData?.tags || {}
         }
         return data;

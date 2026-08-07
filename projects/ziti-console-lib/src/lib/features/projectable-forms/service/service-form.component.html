@@ -198,6 +198,22 @@
               </div>
             </lib-form-field-container>
             <lib-form-field-container
+              [title]="'Max Idle Time'"
+              [label]="useStrictReadonlyForm ? '' : 'OPTIONAL'"
+              class="form-field-advanced"
+              >
+              <input
+                type="number"
+                class="form-field-input"
+                min="0"
+                step="1"
+                placeholder="0"
+                [(ngModel)]="formData.maxIdleTimeMillis"
+                [disabled]="useStrictReadonlyForm"
+                id="MaxIdleTimeMillis"
+                />
+            </lib-form-field-container>
+            <lib-form-field-container
               [title]="'Custom Tags'"
               [label]="'OPTIONAL'"
               class="form-field-advanced"
