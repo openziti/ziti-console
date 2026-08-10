@@ -204,7 +204,7 @@ export class ServicePolicyFormService {
     }
 
     public getServiceRoleAttributes() {
-        return this.zitiService.get('service-role-attributes', {}, []).then((result) => {
+        return this.zitiService.get('service-role-attributes', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
             this.serviceRoleAttributes = result.data;
             return result;
         });
@@ -233,14 +233,14 @@ export class ServicePolicyFormService {
     }
 
     public getIdentityRoleAttributes() {
-        return this.zitiService.get('identity-role-attributes', {}, []).then((result) => {
+        return this.zitiService.get('identity-role-attributes', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
             this.identityRoleAttributes = result.data;
             return result;
         });
     }
 
     public getPostureNamedAttributes() {
-        return this.zitiService.get('posture-checks', {}, []).then((result) => {
+        return this.zitiService.get('posture-checks', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
             const namedAttributes = result.data.map((postureCheck) => {
                 this.postureNamedAttributesMap[postureCheck.name] = postureCheck.id;
                 return postureCheck.name;

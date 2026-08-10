@@ -387,7 +387,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
     }
 
     getRoleAttributes(type: string) {
-        return this.zitiService.get(type, {}, []).then((results) => {
+        return this.zitiService.get(type, {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((results) => {
             return results.data;
         });
     }

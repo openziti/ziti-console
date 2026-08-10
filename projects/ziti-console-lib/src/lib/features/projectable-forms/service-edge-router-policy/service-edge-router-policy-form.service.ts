@@ -119,7 +119,7 @@ export class ServiceEdgeRouterPolicyFormService {
     }
 
     public getEdgeRouterRoleAttributes() {
-        return this.zitiService.get('edge-router-role-attributes', {}, []).then((result) => {
+        return this.zitiService.get('edge-router-role-attributes', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
             this.edgeRouterRoleAttributes = result.data;
             return result;
         });
@@ -148,7 +148,7 @@ export class ServiceEdgeRouterPolicyFormService {
     }
 
     public getServiceRoleAttributes() {
-        return this.zitiService.get('service-role-attributes', {}, []).then((result) => {
+        return this.zitiService.get('service-role-attributes', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
             this.serviceRoleAttributes = result.data;
             return result;
         });

@@ -137,14 +137,14 @@ export class EdgeRouterPolicyFormService {
     }
 
     public getEdgeRouterRoleAttributes() {
-        return this.zitiService.get('edge-router-role-attributes', {}, []).then((result) => {
+        return this.zitiService.get('edge-router-role-attributes', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
             this.edgeRouterRoleAttributes = result.data;
             return result;
         });
     }
 
     public getIdentityNamedAttributes() {
-        return this.zitiService.get('identities', {}, []).then((result) => {
+        return this.zitiService.get('identities', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
             const namedAttributes = result.data.map((identity) => {
                 this.identityNamedAttributesMap[identity.name] = identity.id;
                 return identity.name;
@@ -155,7 +155,7 @@ export class EdgeRouterPolicyFormService {
     }
 
     public getEdgeRouterNamedAttributes() {
-        return this.zitiService.get('edge-routers', {}, []).then((result) => {
+        return this.zitiService.get('edge-routers', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
             const namedAttributes = result.data.map((router) => {
                 this.edgeRouterNamedAttributesMap[router.name] = router.id;
                 return router.name;
@@ -166,7 +166,7 @@ export class EdgeRouterPolicyFormService {
     }
 
     public getIdentityRoleAttributes() {
-        return this.zitiService.get('identity-role-attributes', {}, []).then((result) => {
+        return this.zitiService.get('identity-role-attributes', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
             this.identityRoleAttributes = result.data;
             return result;
         });
