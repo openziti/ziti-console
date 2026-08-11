@@ -1,3 +1,14 @@
+# app-ziti-console-v4.5.1
+# ziti-console-lib-v1.5.1
+## Feature/Improvements
+* [PR #921](https://github.com/openziti/ziti-console/pull/921) - Add a "Max Idle Time" field to the service form and include `maxIdleTimeMillis` in the service model
+* [PR #926](https://github.com/openziti/ziti-console/pull/926) - Show a form field's help text as a tooltip on the help icon
+
+## Bug Fixes
+* [PR #924](https://github.com/openziti/ziti-console/pull/924) - Center the empty-state title in the no-items component instead of left-aligning it
+* [Issue #928](https://github.com/openziti/ziti-console/issues/928) - Process/Process Multi posture checks no longer label the optional "Binary Hashes" and "Signer Fingerprints" fields as required, and clarify those field labels
+
+
 # app-ziti-console-v4.5.0
 # ziti-console-lib-v1.5.0
 ## Feature/Improvements
