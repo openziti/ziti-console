@@ -137,14 +137,13 @@
             <div class="form-field-label-container">
               <div class="form-field-header">
                 <div class="form-field-title-container">
-                  <span class="form-field-title">Hashes</span>
+                  <span class="form-field-title">Binary Hashes</span>
                   <div
                     class="form-field-info infoicon"
                     matTooltip="Valid sha256 hashes of a binary"
                     matTooltipPosition="below"
                   ></div>
                 </div>
-                <span class="form-field-label" >Required</span>
               </div>
               <lib-chips-input [(ngModel)]="formData.process.hashes"
                 [allowDuplicate]="false"
@@ -169,14 +168,13 @@
             <div class="form-field-label-container">
               <div class="form-field-header">
                 <div class="form-field-title-container">
-                  <span class="form-field-title">Fingerprint</span>
+                  <span class="form-field-title">Signer Fingerprints</span>
                   <div
                     class="form-field-info infoicon"
                     matTooltip="Fingerprints are the sha1 fingerprints (thumbprints) of valid signing certificates"
                     matTooltipPosition="below"
                   ></div>
                 </div>
-                <span class="form-field-label" >Required</span>
               </div>
               <input class="form-field-input" placeholder="Enter a fingerprint" [(ngModel)]="formData.process.signerFingerprint" [ngClass]="{error: errors['androidOSMin']}"/>
             </div>
@@ -241,14 +239,13 @@
                 <div class="form-field-label-container">
                   <div class="form-field-header">
                     <div class="form-field-title-container">
-                      <span class="form-field-title">Hashes</span>
+                      <span class="form-field-title">Binary Hashes</span>
                       <div
                         class="form-field-info infoicon"
                         matTooltip="Valid sha256 hashes of a binary"
                         matTooltipPosition="below"
                       ></div>
                     </div>
-                    <span class="form-field-label" >Required</span>
                   </div>
                   <lib-chips-input [(ngModel)]="process.hashes"
                     [allowDuplicate]="false"
@@ -273,14 +270,13 @@
                 <div class="form-field-label-container">
                   <div class="form-field-header">
                     <div class="form-field-title-container">
-                      <span class="form-field-title">Fingerprint</span>
+                      <span class="form-field-title">Signer Fingerprints</span>
                       <div
                         class="form-field-info infoicon"
                         matTooltip="Signer fingerprints are the sha1 fingerprints (thumbprints) of valid signing certificates"
                         matTooltipPosition="below"
                       ></div>
                     </div>
-                    <span class="form-field-label" >Required</span>
                   </div>
                   <lib-chips-input (keyup)="macAddressesChange($event)"
                     [(ngModel)]="process.signerFingerprints"
