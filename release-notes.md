@@ -6,6 +6,7 @@
 
 ## Bug Fixes
 * [PR #924](https://github.com/openziti/ziti-console/pull/924) - Center the empty-state title in the no-items component instead of left-aligning it
+* [Issue #928](https://github.com/openziti/ziti-console/issues/928) - Process/Process Multi posture checks no longer label the optional "Binary Hashes" and "Signer Fingerprints" fields as required, and clarify those field labels
 
 
 # app-ziti-console-v4.5.0
