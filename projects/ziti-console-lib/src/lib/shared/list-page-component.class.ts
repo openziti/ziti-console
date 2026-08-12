@@ -19,6 +19,7 @@ import {ListPageServiceClass} from "./list-page-service.class";
 import {inject, Injectable} from "@angular/core";
 import {ManagementPermissionsService} from "../services/management-permissions.service";
 import {Subscription} from "rxjs";
+import {skip} from "rxjs/operators";
 import {ConsoleEventsService} from "../services/console-events.service";
 import {ConfirmComponent} from "../features/confirm/confirm.component";
 import {MatDialog} from "@angular/material/dialog";
@@ -102,9 +103,11 @@ export abstract class ListPageComponent {
                 this.refreshData();
             })
         );
-        this.filterService.pageChanged.subscribe(page => {
-            this.refreshData();
-        });
+        this.subscription.add(
+            this.filterService.pageChanged.pipe(skip(1)).subscribe(page => {
+                this.refreshData();
+            })
+        );
         this.subscription.add(
             this.consoleEvents.closeSideModal.subscribe((event: any) => {
                 this.closeModal();
