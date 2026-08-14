@@ -87,7 +87,7 @@ export class CertificateAuthorityFormService {
     }
 
     getIdentityRoleAttributes() {
-        return this.dataService.get('identity-role-attributes', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []);
+        return this.dataService.get('identity-role-attributes', {}, []);
     }
 
     getAuthPolicyDataModel(formData, isUpdate) {
