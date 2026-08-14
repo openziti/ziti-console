@@ -436,15 +436,15 @@ export class GeolocateComponent implements OnInit, OnDestroy {
   }
 
   public getRouterRoleAttributes() {
-    return this.zitiDataService.get('edge-router-role-attributes', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []);
+    return this.zitiDataService.get('edge-router-role-attributes', {}, []);
   }
 
   public getIdentityRoleAttributes() {
-    return this.zitiDataService.get('identity-role-attributes', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []);
+    return this.zitiDataService.get('identity-role-attributes', {}, []);
   }
 
   public getServiceRoleAttributes() {
-    return this.zitiDataService.get('service-role-attributes', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []);
+    return this.zitiDataService.get('service-role-attributes', {}, []);
   }
 
   loadEntityCounts() {

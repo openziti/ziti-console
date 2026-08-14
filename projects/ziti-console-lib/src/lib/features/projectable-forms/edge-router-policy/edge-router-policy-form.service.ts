@@ -137,14 +137,26 @@ export class EdgeRouterPolicyFormService {
     }
 
     public getEdgeRouterRoleAttributes() {
-        return this.zitiService.get('edge-router-role-attributes', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
+        return this.zitiService.get('edge-router-role-attributes', {}, []).then((result) => {
             this.edgeRouterRoleAttributes = result.data;
             return result;
         });
     }
 
-    public getIdentityNamedAttributes() {
-        return this.zitiService.get('identities', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
+    private identityNamedAttributesRequestId = 0;
+
+    public getIdentityNamedAttributes(filter?: string) {
+        const requestId = ++this.identityNamedAttributesRequestId;
+        const paging = {searchOn: 'name', filter: filter || '', total: 100, page: 1, sort: 'name', order: 'asc'};
+        const filters = [];
+        if (!isEmpty(filter)) {
+            filters.push({filterName: 'name', columnId: 'name', value: filter || '%', label: '', type: 'TEXTINPUT'});
+        }
+        return this.zitiService.get('identities', paging, filters).then((result) => {
+            // a newer search has since started; discard this now-stale response
+            if (requestId !== this.identityNamedAttributesRequestId) {
+                return this.identityNamedAttributes;
+            }
             const namedAttributes = result.data.map((identity) => {
                 this.identityNamedAttributesMap[identity.name] = identity.id;
                 return identity.name;
@@ -154,8 +166,19 @@ export class EdgeRouterPolicyFormService {
         });
     }
 
-    public getEdgeRouterNamedAttributes() {
-        return this.zitiService.get('edge-routers', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
+    private edgeRouterNamedAttributesRequestId = 0;
+
+    public getEdgeRouterNamedAttributes(filter?: string) {
+        const requestId = ++this.edgeRouterNamedAttributesRequestId;
+        const paging = {searchOn: 'name', filter: filter || '', total: 100, page: 1, sort: 'name', order: 'asc'};
+        const filters = [];
+        if (!isEmpty(filter)) {
+            filters.push({filterName: 'name', columnId: 'name', value: filter || '%', label: '', type: 'TEXTINPUT'});
+        }
+        return this.zitiService.get('edge-routers', paging, filters).then((result) => {
+            if (requestId !== this.edgeRouterNamedAttributesRequestId) {
+                return this.edgeRouterNamedAttributes;
+            }
             const namedAttributes = result.data.map((router) => {
                 this.edgeRouterNamedAttributesMap[router.name] = router.id;
                 return router.name;
@@ -166,9 +189,42 @@ export class EdgeRouterPolicyFormService {
     }
 
     public getIdentityRoleAttributes() {
-        return this.zitiService.get('identity-role-attributes', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
+        return this.zitiService.get('identity-role-attributes', {}, []).then((result) => {
             this.identityRoleAttributes = result.data;
             return result;
+        });
+    }
+
+    /**
+     * The policy response includes edgeRouterRolesDisplay/identityRolesDisplay alongside the
+     * raw #role/@id arrays, resolving every referenced name for free (no extra request) even
+     * when that entity falls outside the paged named-attribute fetch above.
+     */
+    public mergeRolesDisplayIntoMaps(formData: any): void {
+        this.mergeDisplayIntoMap(formData?.edgeRouterRolesDisplay, this.edgeRouterNamedAttributesMap);
+        this.mergeDisplayIntoMap(formData?.identityRolesDisplay, this.identityNamedAttributesMap);
+    }
+
+    private mergeDisplayIntoMap(displays: any, namedAttributesMap: any): void {
+        if (!Array.isArray(displays)) {
+            return;
+        }
+        displays.forEach((entry: any) => {
+            const role = entry?.role;
+            const id = typeof role === 'string' && role.charAt(0) === '@' ? role.slice(1) : undefined;
+            if (!id) {
+                return;
+            }
+            let displayName = entry?.name;
+            if (!displayName || typeof displayName !== 'string') {
+                return;
+            }
+            if (displayName.charAt(0) === '@') {
+                displayName = displayName.slice(1);
+            }
+            if (!namedAttributesMap[displayName]) {
+                namedAttributesMap[displayName] = id;
+            }
         });
     }
 

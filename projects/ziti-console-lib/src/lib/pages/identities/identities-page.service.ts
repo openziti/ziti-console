@@ -354,7 +354,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
     }
 
     public getIdentityRoleAttributes() {
-        return this.zitiService.get('identity-role-attributes', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
+        return this.zitiService.get('identity-role-attributes', {}, []).then((result) => {
             this.identityRoleAttributes = result.data;
             return result;
         });
@@ -440,7 +440,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
     }
 
     public getIdentitiesRoleAttributes() {
-        return this.zitiService.get('identity-role-attributes', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []);
+        return this.zitiService.get('identity-role-attributes', {}, []);
     }
 
     public resetMFA(identity) {

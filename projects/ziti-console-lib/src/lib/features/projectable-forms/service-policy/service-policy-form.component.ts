@@ -14,7 +14,7 @@ import {Subscription} from 'rxjs';
 import {ProjectableForm} from "../projectable-form.class";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 
-import {isEmpty, cloneDeep, invert} from 'lodash';
+import {isEmpty, cloneDeep, invert, debounce} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {ServicePolicyFormService, SERVICE_POLICY_EXTENSION_SERVICE} from './service-policy-form.service';
@@ -81,8 +81,13 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
     );
   }
 
+  getServiceNamedAttributesDebounced = debounce((filter: string) => this.svc.getServiceNamedAttributes(filter).then(() => this.mergeSelectedIntoAvailable()), 250);
+  getIdentityNamedAttributesDebounced = debounce((filter: string) => this.svc.getIdentityNamedAttributes(filter).then(() => this.mergeSelectedIntoAvailable()), 250);
+  getPostureNamedAttributesDebounced = debounce((filter: string) => this.svc.getPostureNamedAttributes(filter).then(() => this.mergeSelectedIntoAvailable()), 250);
+
   override entityUpdated() {
     super.entityUpdated();
+    this.svc.mergeRolesDisplayIntoMaps(this.formData);
     const promises = [];
     promises.push(this.svc.getServiceRoleAttributes());
     promises.push(this.svc.getIdentityRoleAttributes());
@@ -115,6 +120,19 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
 
   ngOnChanges(changes: SimpleChanges) {
     this.isEditing = !isEmpty(this.formData.id);
+  }
+
+  /**
+   * Keeps already-selected names visible in each picker's available list even though the
+   * underlying fetch only returns a bounded/filtered page.
+   */
+  mergeSelectedIntoAvailable() {
+    const serviceNames = new Set([...(this.svc.serviceNamedAttributes || []), ...this.selectedServiceNamedAttributes.filter((n) => n != null)]);
+    this.svc.serviceNamedAttributes = Array.from(serviceNames).sort((a, b) => String(a).localeCompare(String(b)));
+    const identityNames = new Set([...(this.svc.identityNamedAttributes || []), ...this.selectedIdentityNamedAttributes.filter((n) => n != null)]);
+    this.svc.identityNamedAttributes = Array.from(identityNames).sort((a, b) => String(a).localeCompare(String(b)));
+    const postureNames = new Set([...(this.svc.postureNamedAttributes || []), ...this.selectedPostureNamedAttributes.filter((n) => n != null)]);
+    this.svc.postureNamedAttributes = Array.from(postureNames).sort((a, b) => String(a).localeCompare(String(b)));
   }
 
   initSelectedAttributes() {
@@ -157,6 +175,7 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
         this.selectedPostureRoleAttributes.push(attr.substring(1));
       }
     });
+    this.mergeSelectedIntoAvailable();
     this.updateAssociations();
   }
 

@@ -222,14 +222,14 @@ export class ServicesPageService extends ListPageServiceClass {
     }
 
     public getServiceRoleAttributes() {
-        return this.zitiService.get('service-role-attributes', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result: any) => {
+        return this.zitiService.get('service-role-attributes', {}, []).then((result: any) => {
             this.roleAttributes = result.data;
             return result;
         });
     }
 
     public getIdentityNamedAttributes() {
-        return this.zitiService.get('identities', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
+        return this.zitiService.get('identities', {}, []).then((result) => {
             const namedAttributes = result.data.map((identity) => {
                 return identity.name;
             });
@@ -238,7 +238,7 @@ export class ServicesPageService extends ListPageServiceClass {
     }
 
     public getIdentityRoleAttributes() {
-        return this.zitiService.get('identity-role-attributes', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []);
+        return this.zitiService.get('identity-role-attributes', {}, []);
     }
 
     public openSelection() {

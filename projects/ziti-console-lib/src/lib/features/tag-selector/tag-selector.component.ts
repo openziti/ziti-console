@@ -17,6 +17,7 @@ export class TagSelectorComponent implements AfterViewInit {
   @Input() isLoading = false;
   @Input() errorMessage = '';
   @Input() focusOnInit = false;
+  @Input() namedAttributesServerFiltered = false;
   @Output() addRoleAttribute = new EventEmitter<any>();
   @Output() addNamedAttribute = new EventEmitter<any>();
   @Output() roleAttributeRemoved = new EventEmitter<any>();
@@ -219,12 +220,13 @@ export class TagSelectorComponent implements AfterViewInit {
     let filteredAvailableRoleAttributes: any[] = [];
     let filteredAvailableNamedAttributes: any[] = [];
     if (this.filterString) {
+      const filterLower = this.filterString.toLowerCase();
       filteredAvailableRoleAttributes = this._availableRoleAttributes.filter((attr) => {
-        return attr.indexOf(this.filterString) >= 0
+        return attr.toLowerCase().indexOf(filterLower) >= 0
       });
-      filteredAvailableNamedAttributes = this._availableNamedAttributes.filter((attr) => {
-        return attr.indexOf(this.filterString) >= 0
-      });
+      filteredAvailableNamedAttributes = this.namedAttributesServerFiltered
+        ? this._availableNamedAttributes
+        : this._availableNamedAttributes.filter((attr) => attr.toLowerCase().indexOf(filterLower) >= 0);
     } else {
       filteredAvailableRoleAttributes = this._availableRoleAttributes;
       filteredAvailableNamedAttributes = this._availableNamedAttributes;

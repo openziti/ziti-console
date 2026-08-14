@@ -14,7 +14,7 @@ import {Subscription} from 'rxjs';
 import {ProjectableForm} from "../projectable-form.class";
 import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 
-import {isEmpty, cloneDeep, invert} from 'lodash';
+import {isEmpty, cloneDeep, invert, debounce} from 'lodash';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {ServiceEdgeRouterPolicyFormService, SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE} from './service-edge-router-policy-form.service';
@@ -127,7 +127,11 @@ export class ServiceEdgeRouterPolicyFormComponent extends ProjectableForm implem
     this.isEditing = !isEmpty(this.formData.id);
   }
 
+  getEdgeRouterNamedAttributesDebounced = debounce((filter: string) => this.svc.getEdgeRouterNamedAttributes(filter).then(() => this.mergeSelectedIntoAvailable()), 250);
+  getServiceNamedAttributesDebounced = debounce((filter: string) => this.svc.getServiceNamedAttributes(filter).then(() => this.mergeSelectedIntoAvailable()), 250);
+
   loadAttributes() {
+    this.svc.mergeRolesDisplayIntoMaps(this.formData);
     const promises = [];
     promises.push(this.svc.getEdgeRouterRoleAttributes());
     promises.push(this.svc.getServiceRoleAttributes());
@@ -136,6 +140,17 @@ export class ServiceEdgeRouterPolicyFormComponent extends ProjectableForm implem
     Promise.all(promises).then(() => {
       this.initSelectedAttributes();
     });
+  }
+
+  /**
+   * Keeps already-selected names visible in the picker's available list even though the
+   * underlying fetch only returns a bounded/filtered page.
+   */
+  mergeSelectedIntoAvailable() {
+    const edgeRouterNames = new Set([...(this.svc.edgeRouterNamedAttributes || []), ...this.selectedEdgeRouterNamedAttributes.filter((n) => n != null)]);
+    this.svc.edgeRouterNamedAttributes = Array.from(edgeRouterNames).sort((a, b) => String(a).localeCompare(String(b)));
+    const serviceNames = new Set([...(this.svc.serviceNamedAttributes || []), ...this.selectedServiceNamedAttributes.filter((n) => n != null)]);
+    this.svc.serviceNamedAttributes = Array.from(serviceNames).sort((a, b) => String(a).localeCompare(String(b)));
   }
 
   initSelectedAttributes() {
@@ -166,6 +181,7 @@ export class ServiceEdgeRouterPolicyFormComponent extends ProjectableForm implem
         this.selectedServiceRoleAttributes.push(attr.substring(1));
       }
     });
+    this.mergeSelectedIntoAvailable();
     this.updateAssociations();
   }
 
