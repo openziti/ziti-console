@@ -31,31 +31,27 @@ export class AttributesComponent implements OnInit, OnDestroy {
     this.loadData();
   }
 
-  private loadAllPaging() {
-      return {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1};
-  }
-
   loadData() {
       const promises: Promise<any>[] = [];
-      promises.push(this.zitiDataService.get('identities', this.loadAllPaging(), []).then(data => {
+      promises.push(this.zitiDataService.get('identities', {}, []).then(data => {
           this.identities = data?.data || [];
       }));
-      promises.push(this.zitiDataService.get('services', this.loadAllPaging(), []).then(data => {
+      promises.push(this.zitiDataService.get('services', {}, []).then(data => {
           this.services = data?.data || [];
       }));
-      promises.push(this.zitiDataService.get('edge-routers', this.loadAllPaging(), []).then(data => {
+      promises.push(this.zitiDataService.get('edge-routers', {}, []).then(data => {
           this.edgeRouters = data?.data || [];
       }));
-      promises.push(this.zitiDataService.get('posture-checks', this.loadAllPaging(), []).then(data => {
+      promises.push(this.zitiDataService.get('posture-checks', {}, []).then(data => {
           this.postureChecks = data?.data || [];
       }));
-      promises.push(this.zitiDataService.get('identity-role-attributes', this.loadAllPaging(), []).then(data => {
+      promises.push(this.zitiDataService.get('identity-role-attributes', {}, []).then(data => {
           this.identityAttributes = data?.data || [];
       }));
-      promises.push(this.zitiDataService.get('edge-router-role-attributes', this.loadAllPaging(), []).then(data => {
+      promises.push(this.zitiDataService.get('edge-router-role-attributes', {}, []).then(data => {
           this.edgeRouterAttributes = data?.data || [];
       }));
-      promises.push(this.zitiDataService.get('service-role-attributes', this.loadAllPaging(), []).then(data => {
+      promises.push(this.zitiDataService.get('service-role-attributes', {}, []).then(data => {
           this.serviceAttributes = data?.data || [];
       }));
       Promise.all(promises).then(() => {
