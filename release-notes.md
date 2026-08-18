@@ -1,3 +1,12 @@
+# app-ziti-console-v4.5.2
+# ziti-console-lib-v1.5.2
+## Feature/Improvements
+* [PR #927](https://github.com/openziti/ziti-console/pull/927) - Service, service-edge-router, and edge-router policy forms load role attributes with pagination, sorting, and server-side typeahead filtering (resolving existing roles from each entity's `*RolesDisplay` values) instead of fetching the entire list, keeping the attribute selectors responsive on networks with large numbers of entities
+
+## Bug Fixes
+* [PR #931](https://github.com/openziti/ziti-console/pull/931) - Entity list pages no longer issue a duplicate data request on initial load
+
+
 # app-ziti-console-v4.5.1
 # ziti-console-lib-v1.5.1
 ## Feature/Improvements
