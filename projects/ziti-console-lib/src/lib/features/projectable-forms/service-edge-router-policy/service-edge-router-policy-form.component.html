@@ -46,6 +46,8 @@
               [availableNamedAttributes]="svc.edgeRouterNamedAttributes"
               (selectedNamedAttributesChange)="svc.getAssociatedEdgeRoutersByAttribute(selectedEdgeRouterRoleAttributes, selectedEdgeRouterNamedAttributes, formData.semantic)"
               (selectedRoleAttributesChange)="svc.getAssociatedEdgeRoutersByAttribute(selectedEdgeRouterRoleAttributes, selectedEdgeRouterNamedAttributes, formData.semantic)"
+              (filterChange)="getEdgeRouterNamedAttributesDebounced($event)"
+              [namedAttributesServerFiltered]="true"
               [placeholder]="'Select edge router attributes'"
             ></lib-tag-selector>
           </lib-form-field-container>
@@ -64,6 +66,8 @@
               [availableNamedAttributes]="svc.serviceNamedAttributes"
               (selectedNamedAttributesChange)="svc.getAssociatedServicesByAttribute(selectedServiceRoleAttributes, selectedServiceNamedAttributes, formData.semantic)"
               (selectedRoleAttributesChange)="svc.getAssociatedServicesByAttribute(selectedServiceRoleAttributes, selectedServiceNamedAttributes, formData.semantic)"
+              (filterChange)="getServiceNamedAttributesDebounced($event)"
+              [namedAttributesServerFiltered]="true"
               [placeholder]="'Select service attributes'"
             ></lib-tag-selector>
           </lib-form-field-container>

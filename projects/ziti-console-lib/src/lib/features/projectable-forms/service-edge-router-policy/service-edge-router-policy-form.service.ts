@@ -125,8 +125,19 @@ export class ServiceEdgeRouterPolicyFormService {
         });
     }
 
-    public getServiceNamedAttributes() {
-        return this.zitiService.get('services', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
+    private serviceNamedAttributesRequestId = 0;
+
+    public getServiceNamedAttributes(filter?: string) {
+        const requestId = ++this.serviceNamedAttributesRequestId;
+        const paging = {searchOn: 'name', filter: filter || '', total: 100, page: 1, sort: 'name', order: 'asc'};
+        const filters = [];
+        if (!isEmpty(filter)) {
+            filters.push({filterName: 'name', columnId: 'name', value: filter || '%', label: '', type: 'TEXTINPUT'});
+        }
+        return this.zitiService.get('services', paging, filters).then((result) => {
+            if (requestId !== this.serviceNamedAttributesRequestId) {
+                return this.serviceNamedAttributes;
+            }
             const namedAttributes = result.data.map((service) => {
                 this.serviceNamedAttributesMap[service.name] = service.id;
                 return service.name;
@@ -136,8 +147,19 @@ export class ServiceEdgeRouterPolicyFormService {
         });
     }
 
-    public getEdgeRouterNamedAttributes() {
-        return this.zitiService.get('edge-routers', {rawFilter: true, filter: '', sort: 'name', order: 'asc', total: -1, page: 1}, []).then((result) => {
+    private edgeRouterNamedAttributesRequestId = 0;
+
+    public getEdgeRouterNamedAttributes(filter?: string) {
+        const requestId = ++this.edgeRouterNamedAttributesRequestId;
+        const paging = {searchOn: 'name', filter: filter || '', total: 100, page: 1, sort: 'name', order: 'asc'};
+        const filters = [];
+        if (!isEmpty(filter)) {
+            filters.push({filterName: 'name', columnId: 'name', value: filter || '%', label: '', type: 'TEXTINPUT'});
+        }
+        return this.zitiService.get('edge-routers', paging, filters).then((result) => {
+            if (requestId !== this.edgeRouterNamedAttributesRequestId) {
+                return this.edgeRouterNamedAttributes;
+            }
             const namedAttributes = result.data.map((router) => {
                 this.edgeRouterNamedAttributesMap[router.name] = router.id;
                 return router.name;
@@ -151,6 +173,39 @@ export class ServiceEdgeRouterPolicyFormService {
         return this.zitiService.get('service-role-attributes', {}, []).then((result) => {
             this.serviceRoleAttributes = result.data;
             return result;
+        });
+    }
+
+    /**
+     * The policy response includes edgeRouterRolesDisplay/serviceRolesDisplay alongside the
+     * raw #role/@id arrays, resolving every referenced name for free (no extra request) even
+     * when that entity falls outside the paged named-attribute fetch above.
+     */
+    public mergeRolesDisplayIntoMaps(formData: any): void {
+        this.mergeDisplayIntoMap(formData?.edgeRouterRolesDisplay, this.edgeRouterNamedAttributesMap);
+        this.mergeDisplayIntoMap(formData?.serviceRolesDisplay, this.serviceNamedAttributesMap);
+    }
+
+    private mergeDisplayIntoMap(displays: any, namedAttributesMap: any): void {
+        if (!Array.isArray(displays)) {
+            return;
+        }
+        displays.forEach((entry: any) => {
+            const role = entry?.role;
+            const id = typeof role === 'string' && role.charAt(0) === '@' ? role.slice(1) : undefined;
+            if (!id) {
+                return;
+            }
+            let displayName = entry?.name;
+            if (!displayName || typeof displayName !== 'string') {
+                return;
+            }
+            if (displayName.charAt(0) === '@') {
+                displayName = displayName.slice(1);
+            }
+            if (!namedAttributesMap[displayName]) {
+                namedAttributesMap[displayName] = id;
+            }
         });
     }
 
