@@ -15,8 +15,14 @@
 */
 
 import {Injectable, Inject} from '@angular/core';
-import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import { HttpContextToken, HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import {map} from 'rxjs/operators';
+
+// Marks a request that has already been retried once after a session refresh.
+// If such a request 401s again the session can't be recovered silently, so we
+// stop refreshing and return to the login page instead of looping. See the
+// session-expiry retry loop on ext-jwt-signers.
+const RETRIED_AFTER_REFRESH = new HttpContextToken<boolean>(() => false);
 
 import {BehaviorSubject, filter, finalize, from, Observable, of, switchMap, take, EMPTY, catchError, throwError} from 'rxjs';
 import {
@@ -52,6 +58,12 @@ export class ZitiApiInterceptor implements HttpInterceptor {
 
     private handleErrorResponse(err: HttpErrorResponse, req?, next?: HttpHandler): Observable<any> {
         if (err.status === 401) {
+            // Already retried once after a refresh and still 401 - the session is
+            // unrecoverable. Bail to login rather than refreshing/retrying again.
+            if (req?.context?.get(RETRIED_AFTER_REFRESH)) {
+                this.redirectToLogin(err);
+                return throwError(() => err);
+            }
             if (this.doingCertRefresh || this.doingTokenRefresh) {
                 return new Observable((observer) => {
                     this.retryRequestQue.push({ req, next, observer });
@@ -74,7 +86,7 @@ export class ZitiApiInterceptor implements HttpInterceptor {
                             this.retryFailedRequest(failedRequest);
                         });
                         this.retryRequestQue = [];
-                        return next.handle(this.addAuthToken(req));
+                        return next.handle(this.markRetried(req));
                     })
                 );
             }
@@ -87,7 +99,7 @@ export class ZitiApiInterceptor implements HttpInterceptor {
                             this.retryFailedRequest(failedRequest);
                         });
                         this.retryRequestQue = [];
-                        return next.handle(this.addAuthToken(req));
+                        return next.handle(this.markRetried(req));
                     })
                 ).pipe(catchError(err => {
                     this.doingCertRefresh = false;
@@ -103,7 +115,7 @@ export class ZitiApiInterceptor implements HttpInterceptor {
 
     private retryFailedRequest(queuedRequest: any): void {
         const { req, next, observer } = queuedRequest;
-        next.handle(this.addAuthToken(req)).subscribe(
+        next.handle(this.markRetried(req)).subscribe(
             (response) => observer.next(response),
             (error) => observer.error(error)
         );
@@ -158,6 +170,13 @@ export class ZitiApiInterceptor implements HttpInterceptor {
         this.retryRequestQue.forEach(({observer}) => observer.error(err));
         this.retryRequestQue = [];
         this.router.navigate(['/login']);
+    }
+
+    // Re-auth a request for replay after a refresh, tagging it so a second 401
+    // routes to login instead of triggering another refresh (avoids the loop).
+    private markRetried(request: any) {
+        const authed = this.addAuthToken(request);
+        return authed.clone({context: authed.context.set(RETRIED_AFTER_REFRESH, true)});
     }
 
     private addAuthToken(request: any) {

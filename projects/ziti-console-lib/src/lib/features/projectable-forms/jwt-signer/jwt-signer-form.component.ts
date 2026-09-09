@@ -75,6 +75,7 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
     oidcAuthTokenClaims;
     oidcClaims;
     overrideFormData;
+    authPolicies: any[] = [];
     override usePreviousLocation = false
     override entityType = 'external-jwt-signers';
     override entityClass = JwtSigner;
@@ -109,9 +110,25 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         this.settingsService.settingsChange.subscribe((results:any) => {
             this.settings = results;
         });
+        this.getAuthPolicies();
         if (window.location.href.indexOf('test-auth') > 0) {
             this.handleOAuthCallback();
         }
+    }
+
+    getAuthPolicies() {
+        const paging = {
+            filter: "",
+            noSearch: true,
+            order: "asc",
+            page: 1,
+            searchOn: "name",
+            sort: "name",
+            total: 100
+        };
+        this.zitiService.get('auth-policies', paging, []).then((result: any) => {
+            this.authPolicies = [...result.data];
+        });
     }
 
     override ngAfterViewInit() {
@@ -313,6 +330,20 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         this.formData.targetToken = val;
     }
 
+    get enrollAuthPolicyId() {
+        if (this.formData && isNil(this.formData.enrollAuthPolicyId)) {
+            this.formData.enrollAuthPolicyId = '';
+        }
+        return this.formData?.enrollAuthPolicyId;
+    }
+
+    set enrollAuthPolicyId(val) {
+        if (!this.formData) {
+            return;
+        }
+        this.formData.enrollAuthPolicyId = val;
+    }
+
     get apiCallURL() {
         return this.settings.selectedEdgeController + '/edge/management/v1/external-jwt-signers' + (this.formData.id ? `/${this.formData.id}` : '');
     }
@@ -339,6 +370,11 @@ export class JwtSignerFormComponent extends ProjectableForm implements OnInit, O
         }
         if (!isEmpty(this.formData.targetToken) && this.showTokenType) {
             data.targetToken = this.formData.targetToken;
+        }
+        if (this.showAutoEnrollment) {
+            data.enrollAuthPolicyId = this.formData.enrollAuthPolicyId || '';
+            data.enrollNameClaimsSelector = this.formData.enrollNameClaimsSelector || '';
+            data.enrollAttributeClaimsSelector = this.formData.enrollAttributeClaimsSelector || '';
         }
         if (!isEmpty(this.formData.id)) {
             data.id = this.formData.id;
