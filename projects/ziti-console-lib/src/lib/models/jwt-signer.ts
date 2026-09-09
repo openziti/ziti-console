@@ -15,4 +15,7 @@ export class JwtSigner {
     targetToken: string = 'ACCESS';
     enrollToCertEnabled: boolean = false;
     enrollToTokenEnabled: boolean = false;
+    enrollAuthPolicyId: string = '';
+    enrollNameClaimsSelector: string = '';
+    enrollAttributeClaimsSelector: string = '';
 };

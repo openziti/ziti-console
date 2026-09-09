@@ -202,6 +202,57 @@
           </lib-form-field-container>
         }
         <div [hidden]="!showMore" class="form-group-column">
+          @if (showAutoEnrollment) {
+            <lib-form-field-container
+              [title]="'Auto Enrollment Options'"
+              class="form-field-advanced"
+              >
+              <div class="form-field-label-container">
+                <div class="form-field-title-container">
+                  <span class="form-field-title">Enrollment Auth Policy</span>
+                  <div
+                    class="form-field-info infoicon"
+                    matTooltip="The authentication policy assigned to identities created through auto-enrollment. Defaults to the &quot;default&quot; policy."
+                    matTooltipPosition="below"
+                  ></div>
+                </div>
+                <select
+                  [(ngModel)]="enrollAuthPolicyId"
+                  class="form-field-dropdown"
+                  [disabled]="useStrictReadonlyForm"
+                  >
+                  <option value="">Select an Authentication Policy</option>
+                  @for (policy of authPolicies; track policy.id) {
+                    <option [value]="policy.id">{{ policy.name }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-field-row">
+                <div class="form-field-label-container">
+                  <div class="form-field-title-container">
+                    <span class="form-field-title">Name Claims Selector</span>
+                    <div
+                      class="form-field-info infoicon"
+                      matTooltip="The claims JSON pointer selector or top level property used for the name of enrolling identities. Defaults to /sub"
+                      matTooltipPosition="below"
+                    ></div>
+                  </div>
+                  <input class="form-field-input" placeholder="Enter name claims selector" [(ngModel)]="formData.enrollNameClaimsSelector" [disabled]="useStrictReadonlyForm" />
+                </div>
+                <div class="form-field-label-container">
+                  <div class="form-field-title-container">
+                    <span class="form-field-title">Attribute Claims Selector</span>
+                    <div
+                      class="form-field-info infoicon"
+                      matTooltip="The claims JSON pointer selector or top level property used for the attributes of enrolling identities."
+                      matTooltipPosition="below"
+                    ></div>
+                  </div>
+                  <input class="form-field-input" placeholder="Enter attribute claims selector" [(ngModel)]="formData.enrollAttributeClaimsSelector" [disabled]="useStrictReadonlyForm" />
+                </div>
+              </div>
+            </lib-form-field-container>
+          }
           <lib-form-field-container
             [title]="'Verify OIDC Authentication'"
             class="form-field-advanced"
@@ -431,6 +482,36 @@
       </h3>
       <p class="help-panel-text">
         When enabled, the controller will automatically create an identity and enroll it with an authentication token when a user authenticates using a JWT token. This is useful for token-based authentication workflows.
+      </p>
+    </div>
+
+    <div class="help-panel-section">
+      <h3 class="help-panel-subtitle">
+        <span class="icon-lock"></span>
+        Enrollment Auth Policy
+      </h3>
+      <p class="help-panel-text">
+        The authentication policy assigned to identities that are created through auto-enrollment. When left unset, the controller's "default" authentication policy is used.
+      </p>
+    </div>
+
+    <div class="help-panel-section">
+      <h3 class="help-panel-subtitle">
+        <span class="icon-identity"></span>
+        Name Claims Selector
+      </h3>
+      <p class="help-panel-text">
+        A JSON pointer selector (or top-level claim property) identifying which JWT claim supplies the name for enrolling identities. Defaults to <code>/sub</code> when unset.
+      </p>
+    </div>
+
+    <div class="help-panel-section">
+      <h3 class="help-panel-subtitle">
+        <span class="icon-identity"></span>
+        Attribute Claims Selector
+      </h3>
+      <p class="help-panel-text">
+        A JSON pointer selector (or top-level claim property) identifying which JWT claim supplies the role attributes for enrolling identities.
       </p>
     </div>
 
