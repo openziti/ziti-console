@@ -15,6 +15,7 @@
 */
 
 import {DataTableFilterService} from "../features/data-table/data-table-filter.service";
+import type {ListTableComponent} from "../features/list-table/list-table.component";
 import {ListPageServiceClass} from "./list-page-service.class";
 import {inject, Injectable} from "@angular/core";
 import {ManagementPermissionsService} from "../services/management-permissions.service";
@@ -51,6 +52,7 @@ export abstract class ListPageComponent {
     dialogRef: any;
     modalOpen = false;
     gridObj: any = {};
+    tableObj: any = null;
 
     subscription: Subscription = new Subscription();
 
@@ -274,6 +276,11 @@ export abstract class ListPageComponent {
 
     gridReady(event) {
         this.gridObj = event;
+    }
+
+    /** Ready hook for {@link ListTableComponent}; keeps the instance for extension use. */
+    tableReady(event: {component: ListTableComponent}) {
+        this.tableObj = event?.component;
     }
 
     refreshCells() {

@@ -1,0 +1,71 @@
+:host {
+  display: contents;
+}
+
+// fixed so the menu escapes the table's overflow:auto scroll container
+.lt-menu {
+  position: fixed;
+  z-index: 1000;
+  min-width: 11rem;
+  padding: 0.25rem;
+  background: var(--lt-control-bg);
+  border: 1px solid var(--lt-border);
+  border-radius: var(--lt-radius);
+  box-shadow: var(--shadowLarge);
+  font-family: var(--lt-font);
+  animation: lt-menu-in 0.1s ease-out;
+}
+
+@keyframes lt-menu-in {
+  from { opacity: 0; transform: translateY(-0.25rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.lt-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.4375rem 0.5rem;
+  font-family: var(--lt-font);
+  font-size: 0.8125rem;
+  color: var(--lt-cell-text);
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: var(--lt-radius);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--lt-row-hover);
+    color: var(--lt-link);
+
+    .lt-menu-icon {
+      color: var(--lt-link);
+    }
+  }
+
+  &.is-hidden {
+    display: none;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: default;
+
+    &:hover {
+      background: transparent;
+      color: var(--lt-cell-text);
+    }
+  }
+}
+
+.lt-menu-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  font-size: 0.9375rem;
+  color: var(--lt-icon);
+}

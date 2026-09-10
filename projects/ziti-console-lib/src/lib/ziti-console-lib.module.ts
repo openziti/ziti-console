@@ -39,6 +39,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { OverlayModule } from '@angular/cdk/overlay';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import {
     ProtocolAddressPortInputComponent
 } from './features/dynamic-widgets/protocol-address-port/protocol-address-port-input.component';
@@ -59,6 +60,15 @@ import {TableColumnDefaultComponent} from "./features/data-table/column-headers/
 import {TableColumnFilterComponent} from "./features/data-table/column-headers/table-column-filter/table-column-filter.component";
 import {HiddenColumnsBarComponent} from "./features/data-table/table-hidden-columns-bar/hidden-columns-bar.component";
 import {FilterBarComponent} from "./features/data-table/table-filter-bar/filter-bar.component";
+import {ListTableComponent} from "./features/list-table/list-table.component";
+import {ListMenuComponent} from "./features/list-table/list-menu/list-menu.component";
+import {NameCellComponent} from "./features/list-table/name-cell/name-cell.component";
+import {SelectCellComponent} from "./features/list-table/select-cell/select-cell.component";
+import {ListHeaderCellComponent} from "./features/list-table/list-header-cell/list-header-cell.component";
+import {ListFilterCellComponent} from "./features/list-table/list-filter-cell/list-filter-cell.component";
+import {OsInfoTooltipComponent} from "./features/list-table/os-info-tooltip/os-info-tooltip.component";
+import {BooleanCellComponent} from "./features/list-table/boolean-cell/boolean-cell.component";
+import {TokenCellComponent} from "./features/list-table/token-cell/token-cell.component";
 import {AgGridModule} from "ag-grid-angular";
 import {IdentitiesPageComponent} from "./pages/identities/identities-page.component";
 import {EdgeRoutersPageComponent} from "./pages/edge-routers/edge-routers-page.component";
@@ -193,6 +203,15 @@ export function playerFactory() {
         EdgeRoutersPageComponent,
         TransitRoutersPageComponent,
         DataTableComponent,
+        ListTableComponent,
+        ListMenuComponent,
+        NameCellComponent,
+        SelectCellComponent,
+        ListHeaderCellComponent,
+        ListFilterCellComponent,
+        OsInfoTooltipComponent,
+        BooleanCellComponent,
+        TokenCellComponent,
         TableCellSelectComponent,
         TableColumnSelectComponent,
         TableCellMenuComponent,
@@ -349,7 +368,8 @@ export function playerFactory() {
         SideNavigatorComponent,
         FilterSelectComponent,
         FilterSelectOptionTemplateDirective,
-        FilterSelectTriggerTemplateDirective
+        FilterSelectTriggerTemplateDirective,
+        ListTableComponent
     ], imports: [
         CommonModule,
         FormsModule,
@@ -364,6 +384,7 @@ export function playerFactory() {
         MatButtonModule,
         MatIconModule,
         OverlayModule,
+        DragDropModule,
         AgGridModule,
         QRCodeComponent,
         ClickOutsideModule,

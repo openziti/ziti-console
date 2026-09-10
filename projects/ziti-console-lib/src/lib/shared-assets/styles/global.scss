@@ -48,6 +48,30 @@ body {
   --tableText: #22222a;
   --groupText: #78859f;
   --table: #ffffff;
+
+  /* ListTable (custom list table) tokens — default to the current ZAC look.
+     Consumer apps (e.g. cloud-ziti / Customer Connect) reskin the table by
+     overriding these (or the underlying tokens) in their own global styles.
+     The table blends into the page: transparent surface, white base rows, and a
+     subtle zebra — so there is no hard-edged filled rectangle on the page. */
+  --lt-bg: transparent;
+  --lt-header-bg: var(--background);
+  --lt-header-text: var(--tableText);
+  --lt-header-underline: var(--primary);
+  --lt-row-bg: transparent;
+  --lt-row-alt-bg: var(--shaded);
+  --lt-row-hover: var(--tableRowHover, rgba(0, 39, 171, 0.06));
+  --lt-row-selected: var(--shaded);
+  --lt-cell-text: var(--text);
+  --lt-link: var(--primary);
+  --lt-border: var(--stroke);
+  --lt-icon: var(--icon);
+  --lt-icon-active: var(--primary);
+  --lt-row-height: 3.125rem;
+  --lt-radius: var(--inputBorderRadius);
+  --lt-toolbar-height: 2.25rem;
+  --lt-control-bg: var(--background);
+  --lt-font: 'Open Sans', sans-serif;
   --redShadow: rgba(255, 13, 73, 0.3);
   --redText: #9c0027;
   --shadow: 0rem 0rem 0.5rem 0.125rem rgba(0,0,0,0.08);

@@ -1,0 +1,39 @@
+<div
+  (click)="sort()"
+  [ngClass]="{ 'nf-can-sort': enableSorting }"
+  class="lt-header-container"
+  id="TableHeaderContainer_{{ column.key }}"
+>
+  @if (column.hideable !== false) {
+    <span
+      (click)="hide($event)"
+      class="lt-header-icon lt-col-hide-button"
+      id="HeaderHide_{{ column.key }}"
+      title="Hide Column"
+    >
+      <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+        <path fill="none" stroke="currentColor" stroke-width="1.3"
+          d="M1 8s2.7-4.5 7-4.5S15 8 15 8s-2.7 4.5-7 4.5S1 8 1 8Z"/>
+        <circle cx="8" cy="8" r="1.9" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <line x1="2.5" y1="13.5" x2="13.5" y2="2.5" stroke="currentColor" stroke-width="1.3"/>
+      </svg>
+    </span>
+  }
+  <div class="lt-header-label">
+    <span
+      [title]="column.label"
+      class="lt-header-text"
+      [class.is-sorted]="sortDir === 'asc' || sortDir === 'desc'"
+      id="HeaderName_{{ column.key }}"
+      unselectable="on"
+    >{{ column.label }}</span>
+    @if (enableSorting) {
+      <span class="lt-sort" [class.asc]="sortDir === 'asc'" [class.desc]="sortDir === 'desc'">
+        <svg viewBox="0 0 8 14" width="8" height="13" aria-hidden="true">
+          <path class="lt-sort-up" d="M4 0 7.5 4.5H0.5z"/>
+          <path class="lt-sort-down" d="M4 14 0.5 9.5H7.5z"/>
+        </svg>
+      </span>
+    }
+  </div>
+</div>

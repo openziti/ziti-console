@@ -1,0 +1,21 @@
+<div class="os-tip">
+  <div class="os-tip-head">
+    <span class="os-tip-icon {{ osClass }}"></span>
+    <span class="os-tip-title">{{ osTitle }}</span>
+  </div>
+  @if (hasInfo) {
+    <div class="os-tip-body">
+      @if (envInfo?.osVersion) {
+        <div class="os-tip-row"><span class="os-tip-key">Version</span><span class="os-tip-val">{{ envInfo.osVersion }}</span></div>
+      }
+      @if (envInfo?.osRelease) {
+        <div class="os-tip-row"><span class="os-tip-key">Release</span><span class="os-tip-val">{{ envInfo.osRelease }}</span></div>
+      }
+      @if (envInfo?.arch) {
+        <div class="os-tip-row"><span class="os-tip-key">Arch</span><span class="os-tip-val">{{ envInfo.arch }}</span></div>
+      }
+    </div>
+  } @else {
+    <div class="os-tip-empty">No environment info reported</div>
+  }
+</div>
