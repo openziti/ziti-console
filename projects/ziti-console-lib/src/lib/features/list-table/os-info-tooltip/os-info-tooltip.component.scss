@@ -1,0 +1,81 @@
+:host {
+  display: block;
+}
+
+.os-tip {
+  min-width: 11rem;
+  max-width: 16rem;
+  padding: 0.625rem 0.75rem;
+  background: var(--lt-control-bg);
+  border: 1px solid var(--lt-border);
+  border-radius: var(--lt-radius);
+  box-shadow: var(--shadowLarge);
+  font-family: var(--lt-font);
+}
+
+.os-tip-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--lt-border);
+}
+
+.os-tip-icon {
+  flex: 0 0 auto;
+  width: 1.25rem;
+  height: 1.25rem;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+
+  &.apple { background-image: url('/assets/images/apple.png'); }
+  &.windows { background-image: url('/assets/images/windows.png'); }
+  &.linux { background-image: url('/assets/images/linux.png'); }
+  &.android { background-image: url('/assets/images/android.png'); }
+  &.other { background-image: url('/assets/images/other.png'); }
+}
+
+.os-tip-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--lt-cell-text);
+}
+
+.os-tip-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3125rem;
+}
+
+.os-tip-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+}
+
+.os-tip-key {
+  flex: 0 0 auto;
+  color: var(--groupText);
+  font-size: 0.75rem;
+}
+
+.os-tip-val {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: right;
+  font-weight: 600;
+  color: var(--lt-cell-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.os-tip-empty {
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--groupText);
+}

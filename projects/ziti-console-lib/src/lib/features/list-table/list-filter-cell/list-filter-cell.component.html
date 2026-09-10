@@ -1,0 +1,87 @@
+@switch (mode) {
+  @case ('text') {
+    <div class="fc-text">
+      <input
+        class="fc-input"
+        type="text"
+        [placeholder]="column.filterPlaceholder || 'Filter'"
+        [(ngModel)]="textValue"
+        (keyup)="onTextInput()"
+      />
+      @if (textValue) {
+        <span class="fc-clear" (click)="clear($event)" title="Clear" aria-label="Clear filter">&times;</span>
+      }
+    </div>
+  }
+  @default {
+    <button
+      #trigger
+      type="button"
+      class="fc-pill"
+      [class.has-value]="hasValue"
+      [class.is-open]="open"
+      (click)="toggleMenu($event)"
+      aria-haspopup="listbox"
+      [attr.aria-expanded]="open"
+    >
+      <span class="fc-pill-field">{{ column.label }}</span>
+      @if (hasValue) {
+        <span class="fc-pill-value" [title]="valueLabel">{{ valueLabel }}</span>
+        <span class="fc-clear" (click)="clear($event)" title="Clear" aria-label="Clear filter">&times;</span>
+      } @else {
+        <span class="fc-caret" aria-hidden="true">
+          <svg viewBox="0 0 10 6" width="9" height="6"><path fill="currentColor" d="M0 0h10L5 6z"/></svg>
+        </span>
+      }
+    </button>
+
+    @if (open) {
+      <div
+        class="fc-menu"
+        (clickOutside)="closeMenu()"
+        [ngStyle]="{ left: menuLeft + 'px', top: menuTop + 'px', 'min-width.px': menuWidth }"
+      >
+        @if (mode === 'multi') {
+          @if (!options.length) {
+            <div class="fc-empty">No attributes available</div>
+          }
+          @for (opt of options; track opt.value) {
+            <button type="button" class="fc-opt" [class.selected]="isOptionSelected(opt)" (click)="toggleOption(opt)">
+              <span class="fc-check" aria-hidden="true">
+                @if (isOptionSelected(opt)) {
+                  <svg viewBox="0 0 12 12" width="10" height="10"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M2 6.3 4.6 9 10 3"/></svg>
+                }
+              </span>
+              <span class="fc-opt-label">{{ opt.label }}</span>
+            </button>
+          }
+        } @else if (mode === 'daterange') {
+          @for (opt of options; track opt.value) {
+            <button type="button" class="fc-opt" [class.selected]="isOptionSelected(opt)" (click)="selectDatePreset(opt)">
+              <span class="fc-opt-label">{{ opt.label }}</span>
+            </button>
+          }
+          <div class="fc-divider"></div>
+          <button type="button" class="fc-opt" [class.selected]="selectedValue === 'custom'" (click)="openCustomRange($event)">
+            <span class="fc-opt-label">Custom range…</span>
+          </button>
+        } @else {
+          @for (opt of options; track opt.value) {
+            <button type="button" class="fc-opt" [class.selected]="isOptionSelected(opt)" (click)="selectOption(opt)">
+              <span class="fc-opt-label">{{ opt.label }}</span>
+            </button>
+          }
+        }
+      </div>
+    }
+  }
+}
+
+@if (mode === 'daterange') {
+  <!-- hidden Material range input; the calendar is opened from the "Custom range…" option -->
+  <mat-date-range-input class="fc-hidden-range" [rangePicker]="rangePicker">
+    <input matStartDate [(ngModel)]="dateRangeStart" (dateChange)="onRangeStartChanged($event.value)" tabindex="-1" aria-hidden="true" />
+    <input matEndDate [(ngModel)]="dateRangeEnd" (dateChange)="onRangeEndChanged($event.value)" tabindex="-1" aria-hidden="true" />
+  </mat-date-range-input>
+  <mat-date-range-picker #rangePicker xPosition="start" yPosition="below"></mat-date-range-picker>
+}

@@ -1,0 +1,37 @@
+.row-toggle {
+  &.tSelect {
+    width: var(--checkboxHeightWidth);
+    height: var(--checkboxHeightWidth);
+    border: 0.1rem var(--inputBorder) solid;
+    border-radius: var(--inputBorderRadius);
+    cursor: pointer;
+    position: absolute;
+    top: 0.8125rem;
+    left: 0.625rem;
+    background-color: var(--navigation);
+
+    &:hover {
+      border: 0.125rem var(--placeholder) solid;
+      background-color: var(--background);
+    }
+
+    &.selected {
+      background-color: var(--green);
+      background-size: 45%;
+      background-position: center center;
+      border: none;
+      background-image: url('/assets/images/check.png');
+    }
+
+    &.disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      transform: initial !important;
+
+      &:hover {
+        border: .1rem var(--stroke) solid;
+        background-color: var(--navigation);
+      }
+    }
+  }
+}

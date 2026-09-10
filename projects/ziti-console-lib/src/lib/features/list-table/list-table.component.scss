@@ -1,0 +1,702 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+// shared toolbar control looks (Columns + filter "More" buttons and their count badges)
+%lt-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  height: var(--lt-toolbar-height);
+  padding: 0 0.75rem;
+  font-family: var(--lt-font);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--lt-cell-text);
+  background: var(--lt-control-bg);
+  border: var(--inputBorderWidth) solid var(--lt-border);
+  border-radius: var(--lt-radius);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+
+  svg { display: block; }
+
+  &:hover,
+  &.is-open,
+  &.is-on {
+    border-color: var(--lt-link);
+    color: var(--lt-link);
+  }
+}
+
+%lt-toolbar-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  padding: 0 0.3125rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--lt-control-bg);
+  background: var(--lt-link);
+  border-radius: 0.5625rem;
+}
+
+.lt-container {
+  display: flex;
+  position: relative;
+  height: calc(100% - 5.625rem);
+  width: 100%;
+  flex-direction: column;
+}
+
+.lt-scroll {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: var(--lt-bg);
+
+  .no-rows-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--lt-cell-text);
+    font-size: 0.875rem;
+    pointer-events: none;
+  }
+}
+
+.lt-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-family: var(--lt-font);
+  font-size: 0.8125rem;
+  color: var(--lt-cell-text);
+}
+
+// ---------------------------------------------------------------- header
+.lt-head {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  th {
+    position: relative;
+    box-sizing: border-box;
+    height: 3.4375rem;
+    padding: 0 0.3125rem 0 0.625rem;
+    text-align: left;
+    vertical-align: middle;
+    background-color: var(--lt-header-bg);
+    border-bottom: 0.1875rem solid var(--lt-header-underline);
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  .lt-select-cell,
+  .lt-menu-cell {
+    width: 3.75rem;
+    padding: 0;
+  }
+}
+
+// column resize grip — always-visible double vertical line at the column boundary
+.lt-resize {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.625rem;
+  height: 0.875rem;
+  cursor: col-resize;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 1px;
+    background: var(--lt-border);
+    transition: background 0.15s;
+  }
+
+  &::before {
+    right: 0.25rem;
+  }
+
+  &::after {
+    right: 0.125rem;
+  }
+
+  &:hover::before,
+  &:hover::after {
+    background: var(--lt-icon);
+  }
+}
+
+// header select-all — matches the row checkbox (square), with checked + indeterminate
+.lt-select-all {
+  position: absolute;
+  top: 50%;
+  left: 0.625rem;
+  transform: translateY(-50%);
+  box-sizing: border-box;
+  width: var(--checkboxHeightWidth);
+  height: var(--checkboxHeightWidth);
+  border: 0.1rem solid var(--lt-border);
+  border-radius: var(--lt-radius);
+  background: var(--lt-control-bg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--placeholder);
+  }
+
+  &.checked {
+    background-color: var(--green);
+    background-image: url('/assets/images/check.png');
+    background-size: 45%;
+    border-color: var(--green);
+  }
+
+  &.indeterminate {
+    background-color: var(--lt-link);
+    border-color: var(--lt-link);
+    background-image: linear-gradient(var(--lt-control-bg), var(--lt-control-bg));
+    background-size: 55% 0.125rem;
+  }
+}
+
+.lt-header-menu-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 1.25rem;
+  color: var(--lt-icon);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--lt-icon-active);
+  }
+}
+
+// per-row actions kebab — centered icon button, consistent with the header
+.lt-row-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--lt-icon);
+  background: transparent;
+  border: none;
+  border-radius: var(--lt-radius);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+
+  &:hover {
+    color: var(--lt-icon-active);
+    background: var(--lt-row-hover);
+  }
+}
+
+// cdk drag styling for header reorder
+.cdk-drag-preview {
+  box-sizing: border-box;
+  background-color: var(--lt-header-bg);
+  color: var(--lt-header-text);
+  box-shadow: var(--shadowLarge);
+  padding: 0 0.625rem;
+  display: flex;
+  align-items: center;
+  border-radius: var(--lt-radius);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}
+
+.cdk-drag-animating {
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+// ---------------------------------------------------------------- body
+.lt-row {
+  height: var(--lt-row-height);
+  background-color: var(--lt-row-bg);
+  color: var(--lt-cell-text);
+
+  &.lt-row-odd {
+    background-color: var(--lt-row-alt-bg);
+  }
+
+  &:hover {
+    background-color: var(--lt-row-hover);
+  }
+
+  &.lt-row-selected {
+    background-color: var(--lt-row-selected);
+
+    &:hover {
+      background-color: var(--lt-row-hover);
+    }
+  }
+
+  &.row-invalid {
+    background-color: var(--invalid) !important;
+  }
+
+  &.row-copied {
+    background-color: var(--copiedRow) !important;
+  }
+}
+
+.lt-cell {
+  height: var(--lt-row-height);
+  padding: 0 0.625rem 0 1.25rem;
+  text-align: left;
+  vertical-align: middle;
+  border: none;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  user-select: text;
+}
+
+.lt-cell-text {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.lt-select-cell,
+.lt-menu-cell {
+  width: 3.75rem;
+  padding: 0;
+  text-align: center;
+  vertical-align: middle;
+  overflow: visible;
+  // the reused select toggle / menu dots are absolutely positioned, so each cell
+  // must be their positioning context (was the ag-grid cell before)
+  position: relative;
+}
+
+// ---------------------------------------------------------------- toolbar + column chooser
+.lt-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0 0 0.625rem;
+  min-height: var(--lt-toolbar-height);
+  // sit above the (sticky) table header so the Columns dropdown is never covered
+  position: relative;
+  z-index: 30;
+}
+
+.lt-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  // one line: filters condense into "More" rather than wrapping
+  flex-wrap: nowrap;
+}
+
+// sits right after search and hugs its content so the Columns control stays
+// adjacent; the overflow budget is computed from the toolbar row, not this element
+.lt-filter-zone {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.lt-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  min-width: 0;
+  flex: 0 1 auto;
+  overflow: hidden;
+}
+
+.lt-filter-item {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+.lt-filter-more {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.lt-filter-more-btn {
+  @extend %lt-toolbar-btn;
+  gap: 0.375rem;
+  padding: 0 0.625rem;
+
+  // funnel follows the button text colour (neutral, or accent when active/hover)
+  .lt-filter-more-icon { display: inline-flex; }
+}
+
+.lt-filter-more-count {
+  @extend %lt-toolbar-count;
+}
+
+// right-aligned dropdown holding the condensed filter controls
+.lt-filter-overflow {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  right: 0;
+  z-index: 1000;
+  min-width: 15rem;
+  max-width: min(22rem, 90vw);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.625rem;
+  background: var(--lt-control-bg);
+  border: 1px solid var(--lt-border);
+  border-radius: var(--lt-radius);
+  box-shadow: var(--shadowLarge);
+  animation: lt-chooser-in 0.12s ease-out;
+}
+
+.lt-filter-overflow-title {
+  font-family: var(--lt-font);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--groupText);
+}
+
+.lt-filter-overflow-row {
+  display: flex;
+
+  // filter controls stretch to fill the dropdown width
+  lib-list-filter-cell,
+  .lt-filter-item {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+.lt-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 0 0 auto;
+}
+
+.lt-divider {
+  flex: 0 0 auto;
+  width: 1px;
+  height: 1.5rem;
+  background: var(--lt-border);
+}
+
+// --- search ---
+.lt-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 18rem;
+  max-width: 40vw;
+  flex: 0 1 18rem;
+}
+
+.lt-search-icon {
+  position: absolute;
+  left: 0.625rem;
+  display: block;
+  color: var(--lt-icon);
+  pointer-events: none;
+}
+
+.lt-search-input {
+  width: 100%;
+  height: var(--lt-toolbar-height);
+  padding: 0 0.75rem 0 1.75rem;
+  font-family: var(--lt-font);
+  font-size: 0.8125rem;
+  color: var(--lt-cell-text);
+  background: var(--lt-control-bg);
+  border: var(--inputBorderWidth) solid var(--lt-border);
+  border-radius: var(--lt-radius);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &::placeholder {
+    color: var(--placeholder);
+  }
+
+  &:focus {
+    border-color: var(--lt-link);
+    box-shadow: 0 0 0 0.1875rem color-mix(in srgb, var(--lt-link) 18%, transparent);
+  }
+}
+
+// --- count + pager ---
+.lt-count {
+  font-size: 0.8125rem;
+  color: var(--groupText);
+  white-space: nowrap;
+
+  .lt-count-of {
+    color: var(--groupText);
+  }
+}
+
+.lt-pager {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.lt-page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--lt-toolbar-height);
+  height: var(--lt-toolbar-height);
+  color: var(--lt-icon);
+  background: var(--lt-control-bg);
+  border: var(--inputBorderWidth) solid var(--lt-border);
+  border-radius: var(--lt-radius);
+  cursor: pointer;
+  font-size: 0.9375rem;
+  transition: border-color 0.15s, color 0.15s;
+
+  &:not(:disabled):hover {
+    border-color: var(--lt-link);
+    color: var(--lt-link);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+}
+
+.lt-columns {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.lt-columns-btn {
+  @extend %lt-toolbar-btn;
+}
+
+.lt-columns-count {
+  @extend %lt-toolbar-count;
+}
+
+.lt-column-chooser {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  z-index: 1000;
+  width: 15rem;
+  // grow to fit all columns; only cap (and scroll the list) near the viewport edge
+  max-height: calc(100vh - 9rem);
+  display: flex;
+  flex-direction: column;
+  background: var(--lt-control-bg);
+  border: 1px solid var(--lt-border);
+  border-radius: var(--lt-radius);
+  box-shadow: var(--shadowLarge);
+  overflow: hidden;
+  animation: lt-chooser-in 0.12s ease-out;
+}
+
+@keyframes lt-chooser-in {
+  from { opacity: 0; transform: translateY(-0.25rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.lt-chooser-header {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0.625rem 0.75rem 0.5rem;
+  border-bottom: 1px solid var(--lt-border);
+}
+
+.lt-chooser-title {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--lt-cell-text);
+}
+
+.lt-chooser-subtitle {
+  font-size: 0.6875rem;
+  color: var(--groupText);
+}
+
+.lt-chooser-list {
+  flex: 1 1 auto;
+  list-style: none;
+  margin: 0;
+  padding: 0.375rem 0.5rem;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.lt-chooser-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.5rem;
+  border-radius: var(--lt-radius);
+  background: var(--lt-control-bg);
+
+  &:hover {
+    background: var(--lt-row-hover);
+
+    .lt-chooser-handle {
+      opacity: 1;
+    }
+  }
+}
+
+.lt-chooser-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--lt-cell-text);
+  text-align: left;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+}
+
+.lt-chooser-box {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 1rem;
+  height: 1rem;
+  border: 0.09375rem solid var(--lt-border);
+  border-radius: 0.25rem;
+  color: var(--lt-control-bg);
+  background: var(--lt-control-bg);
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.lt-chooser-toggle.checked .lt-chooser-box {
+  background: var(--lt-link);
+  border-color: var(--lt-link);
+}
+
+.lt-chooser-toggle:not(:disabled):hover .lt-chooser-box {
+  border-color: var(--lt-link);
+}
+
+.lt-chooser-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lt-chooser-default-tag {
+  flex: 0 0 auto;
+  margin-left: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--groupText);
+  white-space: nowrap;
+}
+
+.lt-chooser-handle {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  color: var(--lt-icon);
+  cursor: grab;
+  padding-left: 0.5rem;
+  user-select: none;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.lt-chooser-footer {
+  flex: 0 0 auto;
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid var(--lt-border);
+}
+
+.lt-chooser-reset {
+  width: 100%;
+  height: 1.875rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--lt-link);
+  background: transparent;
+  border: 1px solid var(--lt-border);
+  border-radius: var(--lt-radius);
+  cursor: pointer;
+
+  &:disabled {
+    color: var(--groupText);
+    cursor: default;
+    opacity: 0.6;
+  }
+
+  &:not(:disabled):hover {
+    border-color: var(--lt-link);
+  }
+}
+
+// ---------------------------------------------------------------- hover tooltip
+.lt-tooltip {
+  position: fixed;
+  z-index: 1100;
+  pointer-events: none;
+  animation: lt-tooltip-in 0.12s ease-out;
+}
+
+@keyframes lt-tooltip-in {
+  from { opacity: 0; transform: translateY(-0.1875rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+

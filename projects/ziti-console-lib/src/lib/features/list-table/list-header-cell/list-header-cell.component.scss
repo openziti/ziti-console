@@ -1,0 +1,124 @@
+:host {
+  display: flex;
+  width: 100%;
+  align-items: center;
+}
+
+.lt-header-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  cursor: default;
+  gap: 0.25rem;
+
+  &.nf-can-sort {
+    cursor: pointer;
+  }
+}
+
+.lt-header-label {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 0.25rem;
+}
+
+.lt-header-text {
+  color: var(--lt-header-text);
+  font-family: var(--lt-font);
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.15s;
+
+  // active sort column: the label takes the same accent as its emphasized caret,
+  // so the whole header (label + arrow) reads as the sorted column.
+  &.is-sorted {
+    color: var(--lt-icon-active);
+    font-weight: 700;
+  }
+}
+
+.lt-header-text-container {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex: 1 1 auto;
+
+  &.show-input-filter {
+    width: 100%;
+  }
+}
+
+.lt-header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--lt-icon);
+  cursor: pointer;
+  transition: opacity 0.2s, color 0.2s;
+
+  svg {
+    display: block;
+  }
+
+  &:hover {
+    color: var(--lt-icon-active);
+  }
+}
+
+// hide + filter affordances reveal on header hover (parity with the old table)
+.lt-col-hide-button,
+.lt-col-filter-button {
+  opacity: 0;
+}
+
+.lt-header-container:hover .lt-col-hide-button,
+.lt-header-container:hover .lt-col-filter-button {
+  opacity: 1;
+}
+
+.lt-col-filter-button.nf-filter-applied {
+  opacity: 1;
+  color: var(--lt-icon-active);
+}
+
+// dual up/down caret: faint on sortable columns, active direction emphasized.
+// Right-justified within the header cell (matches Customer Connect); margin-right
+// keeps it clear of the column resize grip.
+.lt-sort {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  margin-left: auto;
+  margin-right: 0.375rem;
+
+  svg {
+    display: block;
+  }
+
+  .lt-sort-up,
+  .lt-sort-down {
+    fill: var(--lt-icon);
+    opacity: 0.35;
+    transition: opacity 0.15s, fill 0.15s;
+  }
+
+  &.asc .lt-sort-up {
+    fill: var(--lt-icon-active);
+    opacity: 1;
+  }
+
+  &.desc .lt-sort-down {
+    fill: var(--lt-icon-active);
+    opacity: 1;
+  }
+}
+
+.nf-hidden {
+  display: none;
+}
