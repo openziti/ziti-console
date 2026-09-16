@@ -38,7 +38,7 @@ import {ManagementPermissionsService} from "../services/management-permissions.s
 export abstract class ListPageServiceClass {
 
     abstract initTableColumns(): any[];
-    abstract getData(filters?: FilterObj[], sort?: any, page?: any): Promise<any[]>;
+    abstract getData(filters?: FilterObj[], sort?: any, page?: any, pageSize?: number): Promise<any[]>;
     abstract openUpdate(entity?: any);
     abstract resourceType: string;
 
@@ -165,6 +165,14 @@ export abstract class ListPageServiceClass {
                 this.basePath = pathSegments[0];
               }
         });
+        // The subscription above misses the NavigationEnd that already fired before
+        // this root-provided service was lazily constructed (first page load), which
+        // would leave basePath empty and send name links / openEditForm to "/<id>".
+        // Seed it from the current route immediately.
+        const currentConfig = this.router?.routerState?.snapshot?.root?.firstChild?.routeConfig;
+        if (currentConfig?.path) {
+            this.basePath = currentConfig.path.split('/')[0];
+        }
     }
 
     /**

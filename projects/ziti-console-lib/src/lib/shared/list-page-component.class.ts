@@ -85,7 +85,7 @@ export abstract class ListPageComponent {
         this.svc.refreshData = this.refreshData.bind(this);
         this.svc.resetMenusForInit();
         this.svc.initMenuActions();
-        this.columnDefs = this.svc.initTableColumns();
+        this.columnDefs = this.loadTableColumns();
         this.svc.capturePermissionSnapshots();
         this.subscription.add(
             this.managementPermissions.stateVersion$.subscribe(() => {
@@ -107,6 +107,11 @@ export abstract class ListPageComponent {
         );
         this.subscription.add(
             this.filterService.pageChanged.pipe(skip(1)).subscribe(page => {
+                this.refreshData();
+            })
+        );
+        this.subscription.add(
+            this.filterService.pageSizeChanged.pipe(skip(1)).subscribe(() => {
                 this.refreshData();
             })
         );
@@ -170,7 +175,7 @@ export abstract class ListPageComponent {
         }
         this.isLoading = true;
         sort = sort ? sort : this.svc.currentSort;
-        this.svc.getData(this.filterService.filters, sort, this.filterService.currentPage)
+        this.svc.getData(this.filterService.filters, sort, this.filterService.currentPage, this.filterService.pageSize)
             .then((data: any) => {
                 this.rowData = [];
                 if (hardRefresh) {
@@ -272,6 +277,16 @@ export abstract class ListPageComponent {
             });
         }
         return extensionFound;
+    }
+
+    /**
+     * Column set loaded into the table on init. Defaults to the service's ag-grid
+     * column defs (the legacy {@link DataTableComponent}). A page that renders the
+     * new {@link ListTableComponent} overrides this to return the `ListColumn` set
+     * instead, leaving every other page untouched.
+     */
+    protected loadTableColumns(): any[] {
+        return this.svc.initTableColumns();
     }
 
     gridReady(event) {

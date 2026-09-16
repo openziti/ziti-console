@@ -1,0 +1,29 @@
+<div class="sdk-tip">
+  <div class="sdk-tip-head">
+    <span class="sdk-tip-title">{{ title }}</span>
+  </div>
+  @if (hasInfo) {
+    <div class="sdk-tip-body">
+      @if (sdkInfo?.appId) {
+        <div class="sdk-tip-row"><span class="sdk-tip-key">App ID</span><span class="sdk-tip-val">{{ sdkInfo.appId }}</span></div>
+      }
+      @if (sdkInfo?.appVersion) {
+        <div class="sdk-tip-row"><span class="sdk-tip-key">App Version</span><span class="sdk-tip-val">{{ sdkInfo.appVersion }}</span></div>
+      }
+      @if (sdkInfo?.version) {
+        <div class="sdk-tip-row"><span class="sdk-tip-key">Version</span><span class="sdk-tip-val">{{ sdkInfo.version }}</span></div>
+      }
+      @if (sdkInfo?.type) {
+        <div class="sdk-tip-row"><span class="sdk-tip-key">Type</span><span class="sdk-tip-val">{{ sdkInfo.type }}</span></div>
+      }
+      @if (sdkInfo?.branch) {
+        <div class="sdk-tip-row"><span class="sdk-tip-key">Branch</span><span class="sdk-tip-val">{{ sdkInfo.branch }}</span></div>
+      }
+      @if (sdkInfo?.revision) {
+        <div class="sdk-tip-row"><span class="sdk-tip-key">Revision</span><span class="sdk-tip-val">{{ sdkInfo.revision }}</span></div>
+      }
+    </div>
+  } @else {
+    <div class="sdk-tip-empty">No SDK info reported</div>
+  }
+</div>

@@ -47,6 +47,7 @@ import {SideNavbarComponent} from './features/sidebars/side-navbar/side-navbar.c
 import {PasswordInputComponent} from './features/dynamic-widgets/password/password-input.component';
 import {ConfigurationsPageComponent} from './pages/configurations/configurations-page.component';
 import {ListPageHeaderComponent} from './features/list-page-features/list-page-header/list-page-header.component';
+import {ListTableHeaderComponent} from './features/list-page-features/list-table-header/list-table-header.component';
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatRadioModule} from '@angular/material/radio';
 import {TerminatorFormComponent} from "./features/projectable-forms/terminator/terminator-form.component";
@@ -67,10 +68,12 @@ import {SelectCellComponent} from "./features/list-table/select-cell/select-cell
 import {ListHeaderCellComponent} from "./features/list-table/list-header-cell/list-header-cell.component";
 import {ListFilterCellComponent} from "./features/list-table/list-filter-cell/list-filter-cell.component";
 import {OsInfoTooltipComponent} from "./features/list-table/os-info-tooltip/os-info-tooltip.component";
+import {SdkInfoTooltipComponent} from "./features/list-table/sdk-info-tooltip/sdk-info-tooltip.component";
 import {BooleanCellComponent} from "./features/list-table/boolean-cell/boolean-cell.component";
 import {TokenCellComponent} from "./features/list-table/token-cell/token-cell.component";
 import {AgGridModule} from "ag-grid-angular";
 import {IdentitiesPageComponent} from "./pages/identities/identities-page.component";
+import {IdentitiesListPageComponent} from "./pages/identities/identities-list-page.component";
 import {EdgeRoutersPageComponent} from "./pages/edge-routers/edge-routers-page.component";
 import {TransitRoutersPageComponent} from "./pages/transit-routers/transit-routers-page.component";
 import {ServicesPageComponent} from "./pages/services/services-page.component";
@@ -197,9 +200,11 @@ export function playerFactory() {
         ConfigTypesPageComponent,
         ConfigTypeFormComponent,
         ListPageHeaderComponent,
+        ListTableHeaderComponent,
         FilterBarComponent,
         ListPageFormComponent,
         IdentitiesPageComponent,
+        IdentitiesListPageComponent,
         EdgeRoutersPageComponent,
         TransitRoutersPageComponent,
         DataTableComponent,
@@ -210,6 +215,7 @@ export function playerFactory() {
         ListHeaderCellComponent,
         ListFilterCellComponent,
         OsInfoTooltipComponent,
+        SdkInfoTooltipComponent,
         BooleanCellComponent,
         TokenCellComponent,
         TableCellSelectComponent,
@@ -325,6 +331,7 @@ export function playerFactory() {
         EdgeRouterFormComponent,
         TransitRouterFormComponent,
         IdentitiesPageComponent,
+        IdentitiesListPageComponent,
         EdgeRoutersPageComponent,
         TransitRoutersPageComponent,
         ServicesPageComponent,

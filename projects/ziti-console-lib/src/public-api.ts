@@ -5,6 +5,7 @@
 export * from './lib/ziti-console-lib.module';
 export * from './lib/zac-routing.module';
 export * from './lib/pages/identities/identities-page.component';
+export * from './lib/pages/identities/identities-list-page.component';
 export * from './lib/pages/identities/identities-page.service';
 export * from './lib/pages/edge-routers/edge-routers-page.component';
 export * from './lib/pages/edge-routers/edge-routers-page.service';
@@ -65,6 +66,7 @@ export * from './lib/features/list-table/select-cell/select-cell.component';
 export * from './lib/features/list-table/list-header-cell/list-header-cell.component';
 export * from './lib/features/list-table/list-filter-cell/list-filter-cell.component';
 export * from './lib/features/list-table/os-info-tooltip/os-info-tooltip.component';
+export * from './lib/features/list-table/sdk-info-tooltip/sdk-info-tooltip.component';
 export * from './lib/features/list-table/boolean-cell/boolean-cell.component';
 export * from './lib/features/list-table/token-cell/token-cell.component';
 export * from './lib/features/card-list/card-list.component';

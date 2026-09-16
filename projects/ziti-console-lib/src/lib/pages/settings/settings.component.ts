@@ -13,6 +13,7 @@ export class SettingsComponent implements OnInit {
   hideTags = false;
   transitions = true;
   isFilterAfterSave = false;
+  betaFeatures = false;
   primaryColor: any;
   secondaryColor: any;
 
@@ -22,6 +23,7 @@ export class SettingsComponent implements OnInit {
     this.isDark = localStorage.getItem('mode') === 'dark';
     this.hideTags = localStorage.getItem('hideTags') === 'yes';
     this.isFilterAfterSave = localStorage.getItem('filterAfterSave') === 'on';
+    this.betaFeatures = localStorage.getItem('betaFeatures') === 'on';
     const transitions = localStorage.getItem('Transitions');
     this.transitions = transitions !== 'off';
     this.updateTransitions();
@@ -41,6 +43,11 @@ export class SettingsComponent implements OnInit {
   filterAfter() {
     const mode = this.isFilterAfterSave ? 'on' : 'off';
     localStorage.setItem('filterAfterSave', mode);
+  }
+
+  betaFeaturesChanged() {
+    const mode = this.betaFeatures ? 'on' : 'off';
+    localStorage.setItem('betaFeatures', mode);
   }
 
   transitionsChange() {

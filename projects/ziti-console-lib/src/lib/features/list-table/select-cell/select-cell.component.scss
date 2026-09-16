@@ -1,36 +1,42 @@
+// Low-profile checkbox: small, thin-bordered square that fills with
+// the table accent (--lt-link) + a white check when selected. Token-driven so it picks
+// up the skin accent on skinned pages and the host accent elsewhere.
 .row-toggle {
   &.tSelect {
-    width: var(--checkboxHeightWidth);
-    height: var(--checkboxHeightWidth);
-    border: 0.1rem var(--inputBorder) solid;
-    border-radius: var(--inputBorderRadius);
+    box-sizing: border-box;
+    width: 1rem;
+    height: 1rem;
+    border: 1px solid var(--lt-border);
+    border-radius: 0.25rem;
     cursor: pointer;
     position: absolute;
-    top: 0.8125rem;
-    left: 0.625rem;
-    background-color: var(--navigation);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--lt-control-bg);
+    background-repeat: no-repeat;
+    background-position: center center;
+    transition: border-color 0.12s, background-color 0.12s;
 
     &:hover {
-      border: 0.125rem var(--placeholder) solid;
-      background-color: var(--background);
+      border-color: var(--lt-link);
     }
 
     &.selected {
-      background-color: var(--green);
-      background-size: 45%;
-      background-position: center center;
-      border: none;
-      background-image: url('/assets/images/check.png');
+      border-color: var(--lt-link);
+      background-color: var(--lt-link);
+      background-size: 0.75rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M2.5 7.6 5.7 10.8 11.5 3.6'/%3E%3C/svg%3E");
     }
 
     &.disabled {
       opacity: 0.3;
       cursor: not-allowed;
-      transform: initial !important;
+      transform: translate(-50%, -50%) !important;
 
       &:hover {
-        border: .1rem var(--stroke) solid;
-        background-color: var(--navigation);
+        border-color: var(--lt-border);
+        background-color: var(--lt-control-bg);
       }
     }
   }

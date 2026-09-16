@@ -58,7 +58,36 @@
             }
           </div>
         }
-        <span class="lt-divider" aria-hidden="true"></span>
+      </div>
+      <div class="lt-toolbar-right">
+        <ng-template #refreshIcon>
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+            <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M13.4 8a5.4 5.4 0 1 1-1.5-3.8"/>
+            <path fill="currentColor" d="M13.9 2.1l.5 3.2-3.2-.5z"/>
+          </svg>
+        </ng-template>
+        <button
+          type="button"
+          class="lt-refresh-btn"
+          (click)="refresh()"
+          [disabled]="filtering"
+          aria-label="Refresh"
+          title="Refresh"
+          id="RefreshTableButton"
+        >
+          <ng-container [ngTemplateOutlet]="refreshIcon"></ng-container>
+        </button>
+        <button
+          type="button"
+          class="lt-autorefresh-btn"
+          [class.is-on]="autoRefresh"
+          (click)="toggleAutoRefresh()"
+          [attr.aria-pressed]="autoRefresh"
+          id="AutoRefreshButton"
+        >
+          <ng-container [ngTemplateOutlet]="refreshIcon"></ng-container>
+          <span>Auto-refresh: {{ autoRefresh ? 'On' : 'Off' }}</span>
+        </button>
         <div class="lt-columns">
           <button
             type="button"
@@ -135,16 +164,6 @@
               </div>
             </div>
           }
-        </div>
-      </div>
-      <div class="lt-toolbar-right">
-        <div class="lt-count">
-          <span id="Start">{{ startCount }}</span>&#8211;<span id="End">{{ endCount }}</span>
-          <span class="lt-count-of">of</span> <span id="Total">{{ totalCount }}</span>
-        </div>
-        <div class="lt-pager">
-          <button type="button" class="lt-page-btn icon-prev" [disabled]="prevDisabled" (click)="prevPage()" aria-label="Previous page"></button>
-          <button type="button" class="lt-page-btn icon-next" [disabled]="nextDisabled" (click)="nextPage()" aria-label="Next page"></button>
         </div>
       </div>
     </div>
@@ -236,15 +255,27 @@
               }
               @if (!options.noMenu) {
                 <td class="lt-menu-cell">
-                  @if (row.actionList?.length) {
-                    <button
-                      type="button"
-                      class="lt-row-menu-trigger"
-                      (click)="$event.stopPropagation(); openActionMenu($event, row)"
-                      attr.id="RowMenu_{{ row.id }}"
-                      aria-label="Row actions"
-                    >&#8942;</button>
-                  }
+                  <div class="lt-row-actions">
+                    @for (a of inlineActions(row); track a.action) {
+                      <button
+                        type="button"
+                        class="lt-row-action-btn"
+                        [title]="a.label"
+                        [attr.aria-label]="a.label"
+                        (click)="onInlineAction(a.action, row, $event)"
+                        [innerHTML]="a.icon"
+                      ></button>
+                    }
+                    @if (hasOverflowActions(row)) {
+                      <button
+                        type="button"
+                        class="lt-row-menu-trigger"
+                        (click)="$event.stopPropagation(); openActionMenu($event, row)"
+                        attr.id="RowMenu_{{ row.id }}"
+                        aria-label="More actions"
+                      >&#8942;</button>
+                    }
+                  </div>
                 </td>
               }
             </tr>
@@ -254,6 +285,45 @@
       @if (!isLoading && filterApplied && (!rowData || rowData.length === 0)) {
         <div class="no-rows-message">No Rows To Show</div>
       }
+    </div>
+
+    <div class="lt-footer">
+      <div class="lt-footer-count">
+        Showing <span id="Start">{{ startCount }}</span>&#8211;<span id="End">{{ endCount }}</span>
+        of <span id="Total">{{ totalCount }}</span>
+      </div>
+      <div class="lt-footer-controls">
+        <div class="lt-rpp">
+          <span class="lt-rpp-label">Rows per page</span>
+          <select
+            class="lt-rpp-select"
+            [disabled]="filtering"
+            [value]="pageSize"
+            (change)="onPageSizeChange(+$any($event.target).value)"
+            aria-label="Rows per page"
+          >
+            @for (opt of pageSizeOptions; track opt) {
+              <option [value]="opt">{{ opt }}</option>
+            }
+          </select>
+        </div>
+        <div class="lt-pager">
+          <button type="button" class="lt-page-btn icon-prev" [disabled]="prevDisabled" (click)="prevPage()" aria-label="Previous page"></button>
+          @for (p of pageWindow; track $index) {
+            @if (p === 0) {
+              <span class="lt-page-gap">&#8230;</span>
+            } @else {
+              <button
+                type="button"
+                class="lt-page-num"
+                [class.is-current]="p === currentPageNum"
+                (click)="goToPage(p)"
+              >{{ p }}</button>
+            }
+          }
+          <button type="button" class="lt-page-btn icon-next" [disabled]="nextDisabled" (click)="nextPage()" aria-label="Next page"></button>
+        </div>
+      </div>
     </div>
 
     <!-- header action menu -->

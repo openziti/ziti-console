@@ -29,18 +29,20 @@ import {ExtensionService} from "../../features/extendable/extensions-noop.servic
 import {IdentityServicePathComponent} from "../../features/visualizer/identity-service-path/identity-service-path.component";
 
 /**
- * Legacy Identities page (ag-grid `lib-data-table`). Selected by the route when the
- * "Beta Features" flag is off. Slated for removal once the new list-table page (see
- * {@link IdentitiesListPageComponent}) graduates — at which point this file and its
- * template are deleted outright.
+ * New Identities page, rendered on the shared `lib-list-table`. Extends the common
+ * {@link ListPageComponent} (which future list-table pages extend the same way).
+ * Selected by the route when the "Beta Features" flag is on; the legacy ag-grid page
+ * ({@link IdentitiesPageComponent}) handles the flag-off case. The two pages carry
+ * their own copies of the identity actions during the migration so the legacy one can
+ * be deleted outright once this graduates.
  */
 @Component({
-    selector: 'lib-identities',
-    templateUrl: './identities-page.component.html',
+    selector: 'lib-identities-list',
+    templateUrl: './identities-list-page.component.html',
     styleUrls: ['./identities-page.component.scss'],
     standalone: false
 })
-export class IdentitiesPageComponent extends ListPageComponent implements OnInit, OnDestroy {
+export class IdentitiesListPageComponent extends ListPageComponent implements OnInit, OnDestroy {
 
   title = 'Identities'
   tabs: { url: string, label: string }[] ;
@@ -57,6 +59,11 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       @Inject(IDENTITY_EXTENSION_SERVICE) private extService: ExtensionService,
   ) {
     super(filterService, svc, consoleEvents, dialogForm, extService);
+  }
+
+  /** The new table consumes the declarative ListColumn set. */
+  protected override loadTableColumns(): any[] {
+    return this.svc.initListTableColumns();
   }
 
   override ngOnInit() {
