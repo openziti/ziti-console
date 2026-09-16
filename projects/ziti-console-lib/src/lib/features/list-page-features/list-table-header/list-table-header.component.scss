@@ -1,0 +1,164 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.lth {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-bottom: 0.5rem;
+}
+
+.lth-main {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+// rounded icon tile — a soft brand-tinted square holding the page's glyph
+.lth-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, var(--background));
+
+  svg,
+  img {
+    display: block;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+.lth-titles {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.lth-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lth-title {
+  margin: 0;
+  font-family: var(--lt-font, 'Open Sans', sans-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--tableText, var(--text));
+}
+
+.lth-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--groupText);
+  background: transparent;
+  border: 1px solid var(--stroke);
+  border-radius: 50%;
+  cursor: help;
+}
+
+.lth-subtitle {
+  margin: 0.125rem 0 0;
+  font-family: var(--lt-font, 'Open Sans', sans-serif);
+  font-size: 0.8125rem;
+  color: var(--groupText);
+}
+
+.lth-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lth-create {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  height: 2.5rem;
+  padding: 0 1rem;
+  font-family: var(--lt-font, 'Open Sans', sans-serif);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--primary);
+  border: none;
+  border-radius: var(--inputBorderRadius, 0.5rem);
+  cursor: pointer;
+  transition: filter 0.15s;
+
+  &:hover {
+    filter: brightness(1.06);
+  }
+}
+
+.lth-create-plus {
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+.lth-delete {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  height: 2.5rem;
+  padding: 0 1rem;
+  font-family: var(--lt-font, 'Open Sans', sans-serif);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--redText, #9c0027);
+  background: transparent;
+  border: 1px solid var(--redText, #9c0027);
+  border-radius: var(--inputBorderRadius, 0.5rem);
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: color-mix(in srgb, var(--redText, #9c0027) 8%, transparent);
+  }
+}
+
+// tab strip beneath the header — quiet links, brand underline on the active one
+.lth-tabs {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  border-bottom: 1px solid var(--stroke);
+}
+
+.lth-tab {
+  padding: 0.4375rem 0.125rem;
+  font-family: var(--lt-font, 'Open Sans', sans-serif);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--groupText);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+
+  &:hover {
+    color: var(--text);
+  }
+
+  &.selected {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+}

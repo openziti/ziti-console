@@ -23,6 +23,7 @@ import {
   ConfigTypeFormComponent,
   ConfigTypesPageComponent,
   IdentitiesPageComponent,
+  IdentitiesListPageComponent,
   DeactivateGuardService,
   EdgeRoutersPageComponent,
   ServicesPageComponent,
@@ -66,6 +67,10 @@ import {environment} from "./environments/environment";
 import {URLS} from "./app-urls.constants";
 import {AuthenticationGuard} from "./guards/authentication.guard";
 
+/** Route matches only when the "Beta Features" toggle is on (localStorage). Lets a
+ *  path serve the new list-table page as beta and fall through to the legacy page. */
+const betaFeaturesMatch = () => localStorage.getItem('betaFeatures') === 'on';
+
 const routes: Routes = [
   {
     path: '',
@@ -99,6 +104,14 @@ const routes: Routes = [
     path: 'attributes',
     component: AttributesComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'identities',
+    component: IdentitiesListPageComponent,
+    canMatch: [betaFeaturesMatch],
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    canDeactivate: [DeactivateGuardService],
     runGuardsAndResolvers: 'always',
   },
   {

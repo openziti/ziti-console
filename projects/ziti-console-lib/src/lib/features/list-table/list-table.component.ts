@@ -31,6 +31,7 @@ import {
 import _ from 'lodash';
 import {Subscription} from 'rxjs';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 
 import {DataTableFilterService, FilterObj} from '../data-table/data-table-filter.service';
 import {ListColumn, ListCellContext, ListLegacyCellShim, ListSortDir} from './list-column';
@@ -108,7 +109,7 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     // ---- selection ----
     allToggled = false;
 
-    // ---- column chooser (Customer-Connect-style show/hide + reorder panel) ----
+    // ---- column chooser (skinned show/hide + reorder panel) ----
     showColumnChooser = false;
 
     // ---- integrated toolbar: search + filter chips + pagination ----
@@ -143,7 +144,8 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         public svc: ListTableService,
         private tableFilterService: DataTableFilterService,
         private el: ElementRef,
-        private ngZone: NgZone
+        private ngZone: NgZone,
+        private sanitizer: DomSanitizer
     ) {}
 
     ngOnInit(): void {
@@ -191,6 +193,9 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         this.filterRO?.disconnect();
         if (this.overflowRaf) {
             cancelAnimationFrame(this.overflowRaf);
+        }
+        if (this.autoRefreshTimer) {
+            clearInterval(this.autoRefreshTimer);
         }
     }
 
@@ -684,13 +689,14 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         this.closeHeaderActionMenu();
     }
 
-    /** Row action menu rows, built from `menuItems` against the currently selected row. */
+    /** Row action menu rows, built from `menuItems` against the currently selected row.
+     *  Actions shown as inline icons are hidden here so the kebab only carries overflow. */
     get rowMenuItems(): ListMenuItem[] {
         return _.map(this.menuItems, (mi) => ({
             label: mi.name || mi.label,
             action: mi.action,
             id: 'TableActionButton_' + mi.action,
-            hidden: this.hideMenuItem(mi, this.selectedItem),
+            hidden: this.hideMenuItem(mi, this.selectedItem) || !!mi.icon,
             data: mi,
         }));
     }
@@ -747,6 +753,114 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         return Number(this.startCount) <= 1;
     }
 
+    // ---- rows-per-page + numbered pagination (the skin footer) ----
+    pageSizeOptions = [25, 50, 100];
+
+    get pageSize(): number {
+        return this.tableFilterService.pageSize;
+    }
+
+    get currentPageNum(): number {
+        return this.tableFilterService.currentPage || 1;
+    }
+
+    get totalPages(): number {
+        if (!_.isNumber(this.totalCount) || Number(this.totalCount) <= 0) {
+            return 1;
+        }
+        return Math.max(1, Math.ceil(Number(this.totalCount) / this.pageSize));
+    }
+
+    /** Page numbers to render, with `0` marking a gap ("..."). Shows the first and
+     *  last page plus a window around the current page so long lists stay compact. */
+    get pageWindow(): number[] {
+        const total = this.totalPages;
+        const cur = this.currentPageNum;
+        if (total <= 7) {
+            return Array.from({length: total}, (_v, i) => i + 1);
+        }
+        const pages = new Set<number>([1, total, cur, cur - 1, cur + 1]);
+        const sorted = [...pages].filter((p) => p >= 1 && p <= total).sort((a, b) => a - b);
+        const out: number[] = [];
+        let prev = 0;
+        for (const p of sorted) {
+            if (prev && p - prev > 1) {
+                out.push(0); // gap sentinel
+            }
+            out.push(p);
+            prev = p;
+        }
+        return out;
+    }
+
+    goToPage(page: number): void {
+        if (page < 1 || page > this.totalPages || page === this.currentPageNum || this.filtering) {
+            return;
+        }
+        this.tableFilterService.changePage(page);
+    }
+
+    onPageSizeChange(size: number): void {
+        if (!size || size === this.pageSize) {
+            return;
+        }
+        this.tableFilterService.changePageSize(size);
+    }
+
+    /** Re-fetch the current page (re-emits the page so the host reloads its data). */
+    refresh(): void {
+        if (this.filtering) {
+            return;
+        }
+        this.tableFilterService.changePage(this.currentPageNum);
+    }
+
+    // ---- auto-refresh (the skin toolbar toggle) ----
+    autoRefresh = false;
+    readonly autoRefreshIntervalMs = 30000;
+    private autoRefreshTimer?: ReturnType<typeof setInterval>;
+
+    toggleAutoRefresh(): void {
+        this.autoRefresh = !this.autoRefresh;
+        if (this.autoRefresh) {
+            this.autoRefreshTimer = setInterval(() => this.ngZone.run(() => this.refresh()), this.autoRefreshIntervalMs);
+        } else if (this.autoRefreshTimer) {
+            clearInterval(this.autoRefreshTimer);
+            this.autoRefreshTimer = undefined;
+        }
+    }
+
+    // ---- inline row actions ----
+    // Icons are host-supplied and domain-agnostic: a menu item carrying an `icon`
+    // (SVG markup) renders as an inline action button; items without one fall into
+    // the kebab overflow.
+    private iconCache = new Map<string, SafeHtml>();
+
+    /** Host menu items available for this row that carry an icon → rendered inline. */
+    inlineActions(row: any): {action: string; label: string; icon: SafeHtml}[] {
+        return this.menuItems
+            .filter((mi) => mi?.icon && !this.hideMenuItem(mi, row))
+            .map((mi) => ({action: mi.action, label: mi.name || mi.label, icon: this.safeIcon(mi.icon)}));
+    }
+
+    private safeIcon(svg: string): SafeHtml {
+        let safe = this.iconCache.get(svg);
+        if (!safe) {
+            safe = this.sanitizer.bypassSecurityTrustHtml(svg);
+            this.iconCache.set(svg, safe);
+        }
+        return safe;
+    }
+
+    /** True when the row has available actions without an inline icon (need the kebab). */
+    hasOverflowActions(row: any): boolean {
+        return this.menuItems.some((mi) => !mi?.icon && !this.hideMenuItem(mi, row));
+    }
+
+    onInlineAction(action: string, row: any, event: MouseEvent): void {
+        event.stopPropagation();
+        this.actionRequested.emit({action, item: row});
+    }
 
     private updateEntityTypeLabel(): void {
         const map: Record<string, string> = {
