@@ -1,0 +1,83 @@
+/*
+    Copyright NetFoundry Inc.
+    Licensed under the Apache License, Version 2.0.
+
+    ─────────────────────────────────────────────────────────────────────────────
+    ListTable theming reference + Customer Connect re-skin example
+    ─────────────────────────────────────────────────────────────────────────────
+
+    The shared list table (`<lib-list-table>`, replacing the ag-grid `lib-data-table`)
+    is fully driven by CSS custom properties and hardcodes NO colors, fonts, or
+    key dimensions. There are two layers:
+
+    1. UNDERLYING app tokens (--primary, --formBackground, --stroke, --icon, …).
+       Each `--lt-*` token DEFAULTS to one of these, so the table automatically
+       takes on the host app's palette:
+         • In OpenZiti ZAC it uses ZAC's tokens  → the default look shipped here.
+         • In CloudZiti / netfoundry-ui it uses that app's tokens → it already
+           picks up CloudZiti's blues/surfaces with zero extra work.
+
+    2. The `--lt-*` layer (defined in shared-assets/styles/global.scss `body{}`).
+       Override these to fine-tune table-specific styling per host without touching
+       the component code or the ZAC default.
+
+    The full token contract (defaults shown in global.scss):
+
+      --lt-font              typography for all table text/controls
+      --lt-bg               scroll-area surface (default: transparent → page bg)
+      --lt-header-bg        header row background
+      --lt-header-text      header label color
+      --lt-header-underline the accent rule under the header (ZAC: bold blue)
+      --lt-row-bg           base row background (default transparent)
+      --lt-row-alt-bg       zebra row background
+      --lt-row-hover        row hover background
+      --lt-row-selected     selected row background
+      --lt-cell-text        cell text color
+      --lt-link             accent (links, active sort, chips, focus)
+      --lt-border           borders / dividers / resize grips
+      --lt-icon             default icon color
+      --lt-icon-active      icon hover/active color
+      --lt-control-bg       solid surface for popovers, inputs, chips, menus
+      --lt-radius           control/border radius
+      --lt-row-height       body row height
+      --lt-toolbar-height   search / filter / columns control height
+
+    ─────────────────────────────────────────────────────────────────────────────
+    HOW TO RE-SKIN FOR CUSTOMER CONNECT (CloudZiti)
+    ─────────────────────────────────────────────────────────────────────────────
+
+    In the cloud-ziti app's global stylesheet (loaded AFTER the lib's global.scss —
+    e.g. apps/cloud-ziti/src/assets/styles/overrides.scss), drop in the block below.
+    Most colors already follow CloudZiti's own tokens; these tune the table-specific
+    bits toward the Customer Connect look. Replace the fallback literals with the
+    matching cloud-ziti design tokens where they exist.
+
+    NOTE: this file is an EXAMPLE/reference — it is not imported by the lib build.
+*/
+
+// Customer Connect flavor — apply in the consuming (cloud-ziti) app, not here.
+body {
+  // typography
+  --lt-font: var(--font-family, 'Inter', system-ui, -apple-system, sans-serif);
+
+  // surfaces: flat white table, no heavy zebra — hover-driven like CC
+  --lt-header-bg: var(--surface-raised, #ffffff);
+  --lt-header-text: var(--text-secondary, #6b7280);
+  --lt-header-underline: var(--border-color, #e5e7eb); // subtle rule, not ZAC's bold blue
+  --lt-row-bg: var(--surface-base, #ffffff);
+  --lt-row-alt-bg: transparent; // CC has no zebra; rely on hover
+  --lt-row-hover: var(--surface-sunken, #f6f8fb);
+  --lt-row-selected: color-mix(in srgb, var(--brand-primary, #0273fb) 8%, #ffffff);
+  --lt-cell-text: var(--text-primary, #111827);
+
+  // accent + chrome
+  --lt-link: var(--brand-primary, #0273fb);
+  --lt-icon-active: var(--brand-primary, #0273fb);
+  --lt-border: var(--border-color, #e5e7eb);
+  --lt-control-bg: var(--surface-raised, #ffffff);
+
+  // shape + density: softer corners, roomier rows (Customer Connect proportions)
+  --lt-radius: 0.5rem;
+  --lt-row-height: 3.5rem;
+  --lt-toolbar-height: 2.5rem;
+}

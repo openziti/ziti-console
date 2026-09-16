@@ -1,0 +1,298 @@
+@if (showTable && !accessDenied) {
+  <div class="lt-container">
+    <div class="lt-toolbar">
+      <div class="lt-toolbar-left">
+        <div class="lt-search">
+          <svg class="lt-search-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+            <circle cx="7" cy="7" r="4.3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="10.4" y1="10.4" x2="14.6" y2="14.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <input
+            class="lt-search-input"
+            id="SearchFilter"
+            type="text"
+            [placeholder]="'Search ' + (entityTypeLabel || 'items')"
+            [(ngModel)]="searchString"
+            (keyup)="onSearchInput()"
+          />
+        </div>
+        @if (filterableColumns.length) {
+          <div class="lt-filter-zone" #filterZone>
+            <div class="lt-filters" #filtersRow>
+              @for (col of visibleFilterColumns; track col.key) {
+                <span class="lt-filter-item" [attr.data-filter-key]="col.key">
+                  <lib-list-filter-cell [column]="col"></lib-list-filter-cell>
+                </span>
+              }
+            </div>
+            @if (overflowFilterColumns.length) {
+              <div class="lt-filter-more">
+                <button
+                  type="button"
+                  class="lt-filter-more-btn"
+                  [class.is-on]="hiddenActiveCount > 0"
+                  [class.is-open]="showFilterOverflow"
+                  (click)="toggleFilterOverflow($event)"
+                  aria-haspopup="true"
+                  [attr.aria-expanded]="showFilterOverflow"
+                  [attr.aria-label]="overflowFilterColumns.length + ' more filters'"
+                  id="FilterOverflowButton"
+                >
+                  <span class="lt-filter-more-icon" aria-hidden="true">
+                    <svg viewBox="0 0 16 16" width="14" height="14"><path fill="currentColor" d="M2 3h12l-4.6 5.6v4l-2.8 1.4v-5.4z"/></svg>
+                  </span>
+                  <span class="lt-filter-more-label">More</span>
+                  <span class="lt-filter-more-count">{{ overflowFilterColumns.length }}</span>
+                </button>
+                @if (showFilterOverflow) {
+                  <div class="lt-filter-overflow" (clickOutside)="closeFilterOverflow($event)">
+                    <div class="lt-filter-overflow-title">Filters</div>
+                    @for (col of overflowFilterColumns; track col.key) {
+                      <div class="lt-filter-overflow-row" [class.is-active]="isFilterActive(col)">
+                        <lib-list-filter-cell [column]="col"></lib-list-filter-cell>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+        <span class="lt-divider" aria-hidden="true"></span>
+        <div class="lt-columns">
+          <button
+            type="button"
+            class="lt-columns-btn"
+            [class.is-on]="hiddenColumnCount > 0"
+            [class.is-open]="showColumnChooser"
+            (click)="toggleColumnChooser($event)"
+            aria-haspopup="true"
+            [attr.aria-expanded]="showColumnChooser"
+            id="ColumnChooserButton"
+          >
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+              <path fill="currentColor" d="M2 3.5h9v1.4H2zM2 7.3h6v1.4H2zM2 11.1h11v1.4H2z"/>
+              <circle cx="13" cy="4.2" r="1.7" fill="currentColor"/>
+              <circle cx="10" cy="8" r="1.7" fill="currentColor"/>
+              <circle cx="14.4" cy="11.8" r="1.7" fill="currentColor"/>
+            </svg>
+            <span>Columns</span>
+            @if (hiddenColumnCount > 0) {
+              <span class="lt-columns-count">{{ hiddenColumnCount }}</span>
+            }
+          </button>
+          @if (showColumnChooser) {
+            <div class="lt-column-chooser" (clickOutside)="closeColumnChooser()">
+              <div class="lt-chooser-header">
+                <span class="lt-chooser-title">Columns</span>
+                <span class="lt-chooser-subtitle">Customize order and visibility</span>
+              </div>
+              <ul class="lt-chooser-list" cdkDropList cdkDropListLockAxis="y" (cdkDropListDropped)="chooserReorder($event)">
+                @for (col of allColumns; track col.key) {
+                  <li class="lt-chooser-row" cdkDrag cdkDragLockAxis="y" [cdkDragDisabled]="col.reorderable === false">
+                    <button
+                      type="button"
+                      class="lt-chooser-toggle"
+                      [class.checked]="!col.hidden"
+                      [disabled]="col.hideable === false"
+                      (click)="toggleColumnVisible(col)"
+                      [attr.aria-pressed]="!col.hidden"
+                    >
+                      <span class="lt-chooser-box" aria-hidden="true">
+                        @if (!col.hidden) {
+                          <svg viewBox="0 0 12 12" width="10" height="10">
+                            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M2 6.3 4.6 9 10 3"/>
+                          </svg>
+                        }
+                      </span>
+                      <span class="lt-chooser-text">{{ col.label }}</span>
+                      @if (isDefaultHidden(col)) {
+                        <span class="lt-chooser-default-tag">hidden by default</span>
+                      }
+                    </button>
+                    @if (col.reorderable !== false) {
+                      <span class="lt-chooser-handle" cdkDragHandle aria-label="Drag to reorder" title="Drag to reorder">
+                        <svg viewBox="0 0 10 16" width="10" height="15" fill="currentColor" aria-hidden="true">
+                          <circle cx="3" cy="3" r="1.25"/><circle cx="7" cy="3" r="1.25"/>
+                          <circle cx="3" cy="8" r="1.25"/><circle cx="7" cy="8" r="1.25"/>
+                          <circle cx="3" cy="13" r="1.25"/><circle cx="7" cy="13" r="1.25"/>
+                        </svg>
+                      </span>
+                    }
+                  </li>
+                }
+              </ul>
+              <div class="lt-chooser-footer">
+                <button
+                  type="button"
+                  class="lt-chooser-reset"
+                  [disabled]="columnsAtDefault"
+                  (click)="resetTableColumns()"
+                  id="ResetColumnsButton"
+                >
+                  Reset to default
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+      <div class="lt-toolbar-right">
+        <div class="lt-count">
+          <span id="Start">{{ startCount }}</span>&#8211;<span id="End">{{ endCount }}</span>
+          <span class="lt-count-of">of</span> <span id="Total">{{ totalCount }}</span>
+        </div>
+        <div class="lt-pager">
+          <button type="button" class="lt-page-btn icon-prev" [disabled]="prevDisabled" (click)="prevPage()" aria-label="Previous page"></button>
+          <button type="button" class="lt-page-btn icon-next" [disabled]="nextDisabled" (click)="nextPage()" aria-label="Next page"></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="lt-scroll" id="ItemTable">
+      <table class="lt-table">
+        <colgroup>
+          @if (!options.noSelect) { <col class="lt-col-select" /> }
+          @for (col of visibleColumns; track trackCol($index, col)) {
+            <col [style.width]="colWidth(col)" />
+          }
+          @if (!options.noMenu) { <col class="lt-col-menu" /> }
+        </colgroup>
+        <thead class="lt-head">
+          <tr cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="onReorder($event)">
+            @if (!options.noSelect) {
+              <th class="lt-select-cell">
+                <div
+                  class="lt-select-all"
+                  [class.checked]="allToggled"
+                  [class.indeterminate]="someSelected"
+                  (click)="toggleAll()"
+                  id="SelectAllRows"
+                ></div>
+              </th>
+            }
+            @for (col of visibleColumns; track trackCol($index, col)) {
+              <th
+                cdkDrag
+                [cdkDragDisabled]="col.reorderable === false"
+                class="lt-th"
+                [ngClass]="col.cellClass"
+                id="Header_{{ col.key }}"
+              >
+                <lib-list-header-cell
+                  [column]="col"
+                  [sortDir]="col.sortDir"
+                  (sortChanged)="onHeaderSort($event)"
+                  (hideColumn)="hideColumn($event)"
+                ></lib-list-header-cell>
+                @if (col.resizable !== false) {
+                  <span class="lt-resize" (pointerdown)="startResize(col, $event)"></span>
+                }
+              </th>
+            }
+            @if (!options.noMenu) {
+              <th class="lt-menu-cell">
+                <div class="lt-header-menu-trigger" (click)="openHeaderActionMenu($event)" id="ColumnMenuHeader">
+                  &#8942;
+                </div>
+              </th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rowData; track trackRow($index, row); let i = $index) {
+            <tr
+              class="lt-row"
+              [class.lt-row-odd]="i % 2 === 1"
+              [class.lt-row-selected]="row.selected"
+              [class.row-invalid]="row.invalid"
+              [class.row-copied]="row.copied"
+            >
+              @if (!options.noSelect) {
+                <td class="lt-select-cell">
+                  <lib-select-cell [row]="row" [toggleItem]="toggleItem"></lib-select-cell>
+                </td>
+              }
+              @for (col of visibleColumns; track trackCol($index, col)) {
+                <td
+                  class="lt-cell"
+                  [ngClass]="cellClass(col)"
+                  (click)="onCellClick(col, row, i)"
+                  (mouseenter)="onCellHover(col, row, i, $event)"
+                  (mouseleave)="onCellLeave()"
+                >
+                  @switch (renderMode(col)) {
+                    @case ('component') {
+                      <ng-container *ngComponentOutlet="col.cell; inputs: cellInputs(col, row, i)"></ng-container>
+                    }
+                    @case ('html') {
+                      <span class="lt-cell-html" [innerHTML]="cellHtml(col, row, i)"></span>
+                    }
+                    @default {
+                      <span class="lt-cell-text">{{ cellText(col, row, i) }}</span>
+                    }
+                  }
+                </td>
+              }
+              @if (!options.noMenu) {
+                <td class="lt-menu-cell">
+                  @if (row.actionList?.length) {
+                    <button
+                      type="button"
+                      class="lt-row-menu-trigger"
+                      (click)="$event.stopPropagation(); openActionMenu($event, row)"
+                      attr.id="RowMenu_{{ row.id }}"
+                      aria-label="Row actions"
+                    >&#8942;</button>
+                  }
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+      @if (!isLoading && filterApplied && (!rowData || rowData.length === 0)) {
+        <div class="no-rows-message">No Rows To Show</div>
+      }
+    </div>
+
+    <!-- header action menu -->
+    <lib-list-menu
+      menuId="HeaderActionMenu"
+      [open]="openHeaderMenu"
+      [items]="headerMenuItems"
+      [left]="menuLeft"
+      [top]="menuTop"
+      (itemClick)="onHeaderMenuClick($event)"
+      (closed)="closeHeaderActionMenu()"
+    ></lib-list-menu>
+
+    <!-- row action menu -->
+    <lib-list-menu
+      menuId="RowActionMenu"
+      [open]="openMenu"
+      [items]="rowMenuItems"
+      [left]="menuLeft"
+      [top]="menuTop"
+      (itemClick)="onRowMenuClick($event)"
+      (closed)="closeActionMenu()"
+    ></lib-list-menu>
+  </div>
+} @else {
+  <lib-no-items
+    (clickEmit)="openCreate()"
+    [image]="noItemsImage"
+    [isEmpty]="!rowData || rowData.length === 0"
+    [isLoading]="isLoading"
+    [typeName]="entityTypeLabel"
+    [hasAdd]="showNoItemsAdd"
+    [readonly]="noItemsReadonly"
+    [accessDenied]="accessDenied"
+  ></lib-no-items>
+}
+
+@if (hoverTooltip) {
+  <div class="lt-tooltip" [ngStyle]="{ left: hoverTooltip.left + 'px', top: hoverTooltip.top + 'px' }">
+    <ng-container *ngComponentOutlet="hoverTooltip.component; inputs: hoverTooltip.inputs"></ng-container>
+  </div>
+}

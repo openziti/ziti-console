@@ -1,0 +1,22 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+}
+
+.bool {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  font-family: var(--lt-font);
+}
+
+.bool-true {
+  color: var(--lt-cell-text);
+
+  .bool-check {
+    flex: 0 0 auto;
+    display: block;
+    color: var(--green);
+  }
+}

@@ -1,0 +1,29 @@
+@if (status !== 'none') {
+  <button
+    #trigger
+    type="button"
+    class="token-chip {{ status }}"
+    [class.is-open]="open"
+    (click)="toggleMenu($event)"
+    aria-haspopup="menu"
+    [attr.aria-expanded]="open"
+  >
+    <span class="token-chip-label">{{ statusLabel }}</span>
+    <svg class="token-caret" viewBox="0 0 10 6" width="9" height="6" aria-hidden="true">
+      <path fill="currentColor" d="M0 0h10L5 6z"/>
+    </svg>
+  </button>
+
+  @if (open) {
+    <div class="token-menu" [ngStyle]="{ left: menuLeft + 'px', top: menuTop + 'px' }" (clickOutside)="closeMenu()">
+      @for (a of actions; track a.action) {
+        <button type="button" class="token-menu-item" (click)="runAction(a.action, $event)">
+          <span class="token-menu-icon {{ a.icon }}" aria-hidden="true"></span>
+          <span class="token-menu-label">{{ a.label }}</span>
+        </button>
+      }
+    </div>
+  }
+} @else {
+  <span class="token-empty">&#8212;</span>
+}
