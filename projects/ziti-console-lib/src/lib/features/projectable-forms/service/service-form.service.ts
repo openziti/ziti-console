@@ -328,6 +328,14 @@ export class ServiceFormService {
                     saveModel[prop] = formData[prop];
             }
         });
+        // Carry through any fields not on the known Service model (e.g. edited via the
+        // raw JSON editor) so they aren't silently dropped before saving.
+        const excludedProperties = ['id'];
+        Object.keys(formData || {}).forEach((prop) => {
+            if (!modelProperties.includes(prop) && !excludedProperties.includes(prop)) {
+                saveModel[prop] = formData[prop];
+            }
+        });
         return saveModel;
     }
 
