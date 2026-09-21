@@ -28,7 +28,6 @@ import moment from 'moment';
 import Influx from 'influx';
 import helmet from 'helmet';
 import https from 'https';
-import $RefParser from '@apidevtools/json-schema-ref-parser';
 import nodemailer from 'nodemailer';
 import {fileURLToPath} from 'url';
 import crypto from 'crypto';
@@ -390,23 +389,6 @@ if (settings.mail && settings.mail.host && settings.mail.host.trim().length>0) {
 
 
 /**------------- Authentication Section -------------**/
-app.get("/sso", (request, response) => {
-	var controller = request.query.controller;
-	var session = request.query.session;
-	baseUrl = controller;
-	request.session.baseUrl = baseUrl;
-	GetPath().then((prefix) => {
-		serviceUrl = baseUrl+prefix;
-		request.session.serviceUrl = serviceUrl;
-		request.session.user = session
-		request.session.authorization = 100;
-		console.log(baseUrl, request.session.user);
-		response.redirect("/");
-	}).catch((error) => {
-		console.log(error);
-		response.redirect("/login");
-	});
-});
 
 /**
  * Just tests if the user exists as a session or not, would add on to validate roles, etc if the system is expanded to 
@@ -1567,15 +1549,6 @@ app.post("/api/verify", function(request, response) {
 /*
  * Schema Dereference Tool
  */ 
-app.post("/api/schema", function(request, response) {
-	var data = request.body.schema;
-	$RefParser.dereference(data, (err, schema) => {
-		if (err) response.json({error:err});
-		else response.json({data:schema});
-	})	
-});
-
-
 /**------------- Data Deletion Section -------------**/
 
 
@@ -1870,119 +1843,6 @@ app.post("/api/series", function(request, response) {
 
 
 
-/***
- * Send a message to NetFoundry to report errors or request features
- */
-app.post("/api/message", function(request, response) {
-	var type = request.body.type;
-	var from = request.body.from;
-	var message = request.body.message;
-	var email = request.body.email;
-
-	var params = {
-		body: "A "+type+" message was set to you by "+from+" at "+(new Date())+" with email "+email+": "+message,
-		subject: "NetFoundry Ziti - Message"
-	};
-	
-	if (transporter) {
-		var body = params.body;
-		var subject = params.subject;
-		var from = 'ziggy@zac.openziti.org';
-		var to = 'ziggy@zac.openziti.org';
-		if (settings.from && settings.from.match(emailRegEx)) from = settings.from;
-		if (settings.to && settings.to.match(emailRegEx)) to = settings.to;
-		var mailOptions = {
-			from: 'Ziggy <'+from+'>',
-			to: "jeremy.tellier@netfoundry.io",
-			subject: subject,
-			html: body
-		};
-		log(JSON.stringify(mailOptions));
-		transporter.sendMail(mailOptions, function(error, info){
-			if (error) {
-				log("Error: "+error);
-				response.json({ error: error });
-			} else {
-				if (info) {
-					log("Info: "+JSON.stringify(info));
-					response.json({ complete: info });
-				}
-			}
-		});
-	} else {
-		external.post("https://sendmail.netfoundry.io/message", {json: params, rejectUnauthorized: rejectUnauthorized }, function(err, res, body) {
-			if (err) response.json({ errors: err });
-			else {
-				if (body.error) response.json({ errors: body.error });
-				else response.json({ success: "Mail Sent" });
-			}
-		});
-	}
-});
-
-
-/***
- * Send a message to NetFoundry to report errors or request features
- */
-app.post("/api/send", function(request, response) {
-	if (transporter) {
-		var codes = request.body.codes;
-		var attachements = request.body.attachments;
-
-		if (attachements.length!=codes.length) response.json({ complete: "Message Sent" });
-		else {
-			var html = '';
-			for (var i=0; i<codes.length; i++) {
-				if (codes[i].indexOf("data:image/png;base64")==0) {
-					var name = attachements[i].filename.split('.jwt').join('');
-					html += '<h3>'+name+'</h3>';
-					html += '<img alt="QR '+name+'" src="'+codes[i]+'" style="display: block;"/>';
-				}
-			}
-			var body = '<html><body><center><h2>The following identities have been created for you</h2><div style="position:relative; display: inline-block">'+html+'</div></center></body></html>';
-			var subject = request.body.subject;
-			var to = request.body.to;
-			var from = 'ziggy@zac.openziti.org';
-			if (settings.from && settings.from.match(emailRegEx)) from = settings.from;
-			var mailOptions = {
-				from: 'Ziggy <'+from+'>',
-				to: [to],
-				subject: subject,
-				text: "OpenZiti Identities Attached",
-				html: body,
-				list: {
-					help: from+'?subject=help',
-					unsubscribe: {
-						comment: 'Account'
-					}
-				}
-			};
-			if (request.body.attachments) {
-				mailOptions.attachments = request.body.attachments;
-			}
-			log(JSON.stringify(mailOptions));
-			transporter.sendMail(mailOptions, function(error, info){
-				if (error) {
-					log("Error: "+error);
-					response.json({ error: error });
-				} else {
-					if (info) {
-						log("Info: "+JSON.stringify(info));
-						response.json({ complete: "Message Sent"  });
-					}
-				}
-			});
-		}
-	} else {
-		external.post("https://sendmail.netfoundry.io/send", {json: request.body, rejectUnauthorized: rejectUnauthorized }, function(err, res, body) {
-			if (err) response.json({ errors: err });
-			else {
-				if (body.error) response.json({ errors: body.error });
-				else response.json({ success: "Message Sent" });
-			}
-		});
-	}
-});
 
 /**
  * If debugging is turned on show the log on the console.
