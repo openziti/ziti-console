@@ -87,8 +87,7 @@ export class IdentityFormService {
                     saveModel[prop] = formData[prop];
             }
         });
-        // `badges` is a UI-only property added directly onto formData and must not be sent to the API.
-        return this.zitiService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id', 'badges']);
+        return this.zitiService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id']);
     }
 
     testService(identityId, serviceId) {
