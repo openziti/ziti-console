@@ -59,7 +59,10 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  height: 100%;
+  // size to the rows (so the footer hugs the table) but shrink + scroll internally
+  // once the list is taller than the available space
+  flex: 0 1 auto;
+  min-height: 0;
   overflow: auto;
   background-color: var(--lt-bg);
 
@@ -92,14 +95,19 @@
   th {
     position: relative;
     box-sizing: border-box;
-    height: 3.4375rem;
+    height: 2.75rem;
     padding: 0 0.3125rem 0 0.625rem;
     text-align: left;
     vertical-align: middle;
     background-color: var(--lt-header-bg);
-    border-bottom: 0.1875rem solid var(--lt-header-underline);
+    border-bottom: 1px solid var(--lt-header-underline);
     white-space: nowrap;
     user-select: none;
+  }
+
+  // hairline column separators between data headers (the skin)
+  th.lt-th {
+    border-right: 1px solid var(--lt-border);
   }
 
   .lt-select-cell,
@@ -119,6 +127,8 @@
   height: 0.875rem;
   cursor: col-resize;
 
+  // hidden by default — the persistent column separator is the header's border-right;
+  // the grab handle only reveals on header hover so boundaries don't look doubled
   &::before,
   &::after {
     content: '';
@@ -126,7 +136,7 @@
     top: 0;
     height: 100%;
     width: 1px;
-    background: var(--lt-border);
+    background: transparent;
     transition: background 0.15s;
   }
 
@@ -144,38 +154,44 @@
   }
 }
 
-// header select-all — matches the row checkbox (square), with checked + indeterminate
+.lt-head th:hover .lt-resize::before,
+.lt-head th:hover .lt-resize::after {
+  background: var(--lt-border);
+}
+
+// header select-all — matches the low-profile row checkbox (skinned)
 .lt-select-all {
   position: absolute;
   top: 50%;
-  left: 0.625rem;
-  transform: translateY(-50%);
+  left: 50%;
+  transform: translate(-50%, -50%);
   box-sizing: border-box;
-  width: var(--checkboxHeightWidth);
-  height: var(--checkboxHeightWidth);
-  border: 0.1rem solid var(--lt-border);
-  border-radius: var(--lt-radius);
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid var(--lt-border);
+  border-radius: 0.25rem;
   background: var(--lt-control-bg);
   background-repeat: no-repeat;
   background-position: center center;
   cursor: pointer;
+  transition: border-color 0.12s, background-color 0.12s;
 
   &:hover {
-    border-color: var(--placeholder);
+    border-color: var(--lt-link);
   }
 
   &.checked {
-    background-color: var(--green);
-    background-image: url('/assets/images/check.png');
-    background-size: 45%;
-    border-color: var(--green);
+    background-color: var(--lt-link);
+    border-color: var(--lt-link);
+    background-size: 0.75rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M2.5 7.6 5.7 10.8 11.5 3.6'/%3E%3C/svg%3E");
   }
 
   &.indeterminate {
     background-color: var(--lt-link);
     border-color: var(--lt-link);
-    background-image: linear-gradient(var(--lt-control-bg), var(--lt-control-bg));
-    background-size: 55% 0.125rem;
+    background-image: linear-gradient(#fff, #fff);
+    background-size: 0.5rem 0.125rem;
   }
 }
 
@@ -242,6 +258,11 @@
   background-color: var(--lt-row-bg);
   color: var(--lt-cell-text);
 
+  // hairline divider under every row (flat, no zebra — the skin)
+  td {
+    border-bottom: 1px solid var(--lt-border);
+  }
+
   &.lt-row-odd {
     background-color: var(--lt-row-alt-bg);
   }
@@ -285,6 +306,28 @@
   text-overflow: ellipsis;
   max-width: 100%;
   vertical-align: middle;
+}
+
+// a column can center its cell content (e.g. the O/S glyph) via cellClass
+.lt-cell.lt-cell-center {
+  text-align: center;
+}
+
+// a column can opt its plain-text value into a soft rounded badge (the skin
+// style) by adding `lt-badge-cell` to its cellClass — used for e.g. the Type column
+.lt-badge-cell .lt-cell-text {
+  padding: 0.1875rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--lt-cell-text);
+  background: color-mix(in srgb, var(--lt-border) 45%, transparent);
+  border: 1px solid var(--lt-border);
+  border-radius: 999px;
+}
+
+.lt-badge-cell .lt-cell-text:empty {
+  display: none;
 }
 
 .lt-select-cell,
@@ -502,6 +545,26 @@
   }
 }
 
+// square icon-only button (refresh) sitting in the toolbar's right cluster
+.lt-refresh-btn {
+  @extend %lt-toolbar-btn;
+  padding: 0;
+  width: var(--lt-toolbar-height);
+  justify-content: center;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+    border-color: var(--lt-border);
+    color: var(--lt-cell-text);
+  }
+}
+
+// auto-refresh toggle (label + icon); accent border/text when on via %lt-toolbar-btn
+.lt-autorefresh-btn {
+  @extend %lt-toolbar-btn;
+}
+
 .lt-columns {
   position: relative;
   flex: 0 0 auto;
@@ -518,7 +581,9 @@
 .lt-column-chooser {
   position: absolute;
   top: calc(100% + 0.25rem);
-  left: 0;
+  // Columns button sits at the toolbar's right edge, so anchor the panel to the
+  // right and open leftward into the page (was left:0 -> ran off-screen)
+  right: 0;
   z-index: 1000;
   width: 15rem;
   // grow to fit all columns; only cap (and scroll the list) near the viewport edge
@@ -685,6 +750,113 @@
   &:not(:disabled):hover {
     border-color: var(--lt-link);
   }
+}
+
+// ---------------------------------------------------------------- footer (pagination)
+.lt-footer {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.625rem 0.125rem 0;
+  font-family: var(--lt-font);
+  font-size: 0.8125rem;
+  color: var(--groupText);
+}
+
+.lt-footer-count {
+  white-space: nowrap;
+
+  span {
+    color: var(--lt-cell-text);
+    font-weight: 600;
+  }
+}
+
+.lt-footer-controls {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: nowrap;
+}
+
+.lt-rpp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.lt-rpp-label {
+  // escape ZAC's global label styling (uppercase / block) — this is a plain caption
+  text-transform: none;
+  font-weight: 400;
+  color: var(--groupText);
+}
+
+.lt-rpp-select {
+  width: auto;
+  min-width: 4rem;
+  height: var(--lt-toolbar-height);
+  padding: 0 1.75rem 0 0.625rem;
+  font-family: var(--lt-font);
+  font-size: 0.8125rem;
+  color: var(--lt-cell-text);
+  background-color: var(--lt-control-bg);
+  // custom chevron so the affordance matches the skin across browsers
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M3 4.5 6 7.5 9 4.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  border: var(--inputBorderWidth) solid var(--lt-border);
+  border-radius: var(--lt-radius);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: var(--lt-link);
+  }
+}
+
+.lt-page-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--lt-toolbar-height);
+  height: var(--lt-toolbar-height);
+  padding: 0 0.5rem;
+  font-family: var(--lt-font);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--lt-cell-text);
+  background: var(--lt-control-bg);
+  border: var(--inputBorderWidth) solid var(--lt-border);
+  border-radius: var(--lt-radius);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+
+  &:hover {
+    border-color: var(--lt-link);
+    color: var(--lt-link);
+  }
+
+  &.is-current {
+    color: #fff;
+    background: var(--lt-link);
+    border-color: var(--lt-link);
+    cursor: default;
+  }
+}
+
+.lt-page-gap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  color: var(--groupText);
 }
 
 // ---------------------------------------------------------------- hover tooltip

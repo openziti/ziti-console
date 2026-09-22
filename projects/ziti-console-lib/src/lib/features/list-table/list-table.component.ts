@@ -31,6 +31,7 @@ import {
 import _ from 'lodash';
 import {Subscription} from 'rxjs';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 
 import {DataTableFilterService, FilterObj} from '../data-table/data-table-filter.service';
 import {ListColumn, ListCellContext, ListLegacyCellShim, ListSortDir} from './list-column';
@@ -108,7 +109,7 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     // ---- selection ----
     allToggled = false;
 
-    // ---- column chooser (Customer-Connect-style show/hide + reorder panel) ----
+    // ---- column chooser (skinned show/hide + reorder panel) ----
     showColumnChooser = false;
 
     // ---- integrated toolbar: search + filter chips + pagination ----
@@ -143,7 +144,8 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         public svc: ListTableService,
         private tableFilterService: DataTableFilterService,
         private el: ElementRef,
-        private ngZone: NgZone
+        private ngZone: NgZone,
+        private sanitizer: DomSanitizer
     ) {}
 
     ngOnInit(): void {
@@ -191,6 +193,9 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         this.filterRO?.disconnect();
         if (this.overflowRaf) {
             cancelAnimationFrame(this.overflowRaf);
+        }
+        if (this.autoRefreshTimer) {
+            clearInterval(this.autoRefreshTimer);
         }
     }
 
@@ -659,16 +664,21 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         this.openHeaderMenu = false;
     };
 
-    /** Header action menu rows: the reset action followed by host-provided header actions. */
+    /** Restore-default (rotate) icon for the built-in header action. */
+    private readonly RESET_TABLE_ICON = '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" d="M3.2 8a4.8 4.8 0 1 0 1.3-3.3"/><path fill="currentColor" d="M2.8 2.8l-.3 2.9 2.8-.4z"/></svg>';
+
+    /** Header action menu rows: the reset action followed by host-provided header actions.
+     *  A host action's `icon` (SVG markup) is rendered before its label, like the row menu. */
     get headerMenuItems(): ListMenuItem[] {
         const items: ListMenuItem[] = [
-            {label: 'Restore Default Table', action: '__reset_table__', id: 'ResetTableButton'},
+            {label: 'Restore Default Table', action: '__reset_table__', id: 'ResetTableButton', iconSvg: this.safeIcon(this.RESET_TABLE_ICON)},
         ];
         _.forEach(this.headerActions, (ha) => {
             items.push({
                 label: ha.name || ha.label,
                 action: ha.action,
                 id: 'HeaderAction_' + ha.action,
+                iconSvg: ha.icon ? this.safeIcon(ha.icon) : undefined,
                 data: ha,
             });
         });
@@ -684,13 +694,15 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         this.closeHeaderActionMenu();
     }
 
-    /** Row action menu rows, built from `menuItems` against the currently selected row. */
+    /** Row action menu rows, built from `menuItems` against the currently selected row.
+     *  A menu item's `icon` (SVG markup) is rendered before its label in the menu. */
     get rowMenuItems(): ListMenuItem[] {
         return _.map(this.menuItems, (mi) => ({
             label: mi.name || mi.label,
             action: mi.action,
             id: 'TableActionButton_' + mi.action,
             hidden: this.hideMenuItem(mi, this.selectedItem),
+            iconSvg: mi.icon ? this.safeIcon(mi.icon) : undefined,
             data: mi,
         }));
     }
@@ -747,6 +759,96 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         return Number(this.startCount) <= 1;
     }
 
+    // ---- rows-per-page + numbered pagination (the skin footer) ----
+    pageSizeOptions = [25, 50, 100];
+
+    get pageSize(): number {
+        return this.tableFilterService.pageSize;
+    }
+
+    get currentPageNum(): number {
+        return this.tableFilterService.currentPage || 1;
+    }
+
+    get totalPages(): number {
+        if (!_.isNumber(this.totalCount) || Number(this.totalCount) <= 0) {
+            return 1;
+        }
+        return Math.max(1, Math.ceil(Number(this.totalCount) / this.pageSize));
+    }
+
+    /** Page numbers to render, with `0` marking a gap ("..."). Shows the first and
+     *  last page plus a window around the current page so long lists stay compact. */
+    get pageWindow(): number[] {
+        const total = this.totalPages;
+        const cur = this.currentPageNum;
+        if (total <= 7) {
+            return Array.from({length: total}, (_v, i) => i + 1);
+        }
+        const pages = new Set<number>([1, total, cur, cur - 1, cur + 1]);
+        const sorted = [...pages].filter((p) => p >= 1 && p <= total).sort((a, b) => a - b);
+        const out: number[] = [];
+        let prev = 0;
+        for (const p of sorted) {
+            if (prev && p - prev > 1) {
+                out.push(0); // gap sentinel
+            }
+            out.push(p);
+            prev = p;
+        }
+        return out;
+    }
+
+    goToPage(page: number): void {
+        if (page < 1 || page > this.totalPages || page === this.currentPageNum || this.filtering) {
+            return;
+        }
+        this.tableFilterService.changePage(page);
+    }
+
+    onPageSizeChange(size: number): void {
+        if (!size || size === this.pageSize) {
+            return;
+        }
+        this.tableFilterService.changePageSize(size);
+    }
+
+    /** Re-fetch the current page (re-emits the page so the host reloads its data). */
+    refresh(): void {
+        if (this.filtering) {
+            return;
+        }
+        this.tableFilterService.changePage(this.currentPageNum);
+    }
+
+    // ---- auto-refresh (the skin toolbar toggle) ----
+    autoRefresh = false;
+    readonly autoRefreshIntervalMs = 30000;
+    private autoRefreshTimer?: ReturnType<typeof setInterval>;
+
+    toggleAutoRefresh(): void {
+        this.autoRefresh = !this.autoRefresh;
+        if (this.autoRefresh) {
+            this.autoRefreshTimer = setInterval(() => this.ngZone.run(() => this.refresh()), this.autoRefreshIntervalMs);
+        } else if (this.autoRefreshTimer) {
+            clearInterval(this.autoRefreshTimer);
+            this.autoRefreshTimer = undefined;
+        }
+    }
+
+    // ---- row action icons ----
+    // A menu item's host-supplied `icon` (SVG markup) is rendered before its label in
+    // the row's kebab menu. Sanitized once per unique SVG and cached.
+    private iconCache = new Map<string, SafeHtml>();
+
+    private safeIcon(svg: string): SafeHtml {
+        let safe = this.iconCache.get(svg);
+        if (!safe) {
+            safe = this.sanitizer.bypassSecurityTrustHtml(svg);
+            this.iconCache.set(svg, safe);
+        }
+        return safe;
+    }
 
     private updateEntityTypeLabel(): void {
         const map: Record<string, string> = {

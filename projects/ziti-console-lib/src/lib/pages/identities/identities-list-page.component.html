@@ -1,0 +1,44 @@
+<div class="ziti-page-container ziti-identities-container lt-skin-page">
+  <lib-list-table-header
+    [title]="title"
+    subtitle="Manage identities across the network"
+    createLabel="Create Identity"
+    infoText="Identities are the clients, services, and routers enrolled in this network."
+    [tabs]="tabs"
+    [showAdd]="!itemsSelected"
+    [blockCreate]="headerBlockCreate"
+    [blockDelete]="headerBlockDelete"
+    (actionClicked)="headerActionClicked($event)"
+  >
+    <span header-icon class="icon-identity" aria-hidden="true"></span>
+  </lib-list-table-header>
+  <ng-content select="[slot=list-page-subheader]"></ng-content>
+  <lib-list-table class="lt-skin" [tableId]="'identities'"
+    [noItemsReadonly]="headerBlockCreate"
+    [accessDenied]="headerBlockRead"
+    [rowData]="rowData"
+    [isLoading]="isLoading"
+    [columns]="columnDefs"
+    (actionRequested)="tableAction($event)"
+    [startCount]="startCount"
+    [endCount]="endCount"
+    [totalCount]="totalCount"
+    [filterApplied]="filterApplied"
+    [menuItems]="svc.menuItems"
+    [headerActions]="svc.tableHeaderActions"
+    [noItemsImage]="'No_Clients'"
+    (tableReady)="tableReady($event)"
+    >
+  </lib-list-table>
+</div>
+<lib-side-modal [(open)]="svc.sideModalOpen" [showClose]="false">
+  @if (svc.modalType === 'overrides' && svc.sideModalOpen) {
+    <lib-overrides
+      [identity]="svc.selectedIdentity"
+      (close)="closeModal($event)"
+    ></lib-overrides>
+  }
+</lib-side-modal>
+@if (isLoading) {
+  <lib-loading-indicator [isLoading]="isLoading"></lib-loading-indicator>
+}

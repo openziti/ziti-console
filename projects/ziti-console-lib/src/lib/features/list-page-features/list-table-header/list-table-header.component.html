@@ -1,0 +1,46 @@
+<div class="lth">
+  <div class="lth-main">
+    <div class="lth-icon" aria-hidden="true">
+      <ng-content select="[header-icon]"></ng-content>
+    </div>
+    <div class="lth-titles">
+      <div class="lth-title-row">
+        <h1 class="lth-title">{{ title }}</h1>
+        @if (infoText) {
+          <span class="lth-info" [title]="infoText" tabindex="0" role="img" [attr.aria-label]="infoText">
+            <span class="lth-info-badge" aria-hidden="true">i</span>
+          </span>
+        }
+      </div>
+      @if (subtitle) {
+        <p class="lth-subtitle">{{ subtitle }}</p>
+      }
+    </div>
+    <div class="lth-actions">
+      @if (showAdd && !blockCreate) {
+        <button type="button" class="lth-create" (click)="clickAction('add')" data-action="add" id="CreateButton">
+          <span class="lth-create-plus" aria-hidden="true">+</span>
+          <span>{{ createLabel }}</span>
+        </button>
+      }
+      @if (!showAdd && !blockDelete) {
+        <button type="button" class="lth-delete" (click)="clickAction('delete')" data-action="delete" id="DeleteButton">
+          <span class="lth-delete-icon icon-minus" aria-hidden="true"></span>
+          <span>Delete</span>
+        </button>
+      }
+    </div>
+  </div>
+  @if (tabs?.length) {
+    <div class="lth-tabs">
+      @for (tab of tabs; track tab) {
+        <a
+          class="lth-tab"
+          [ngClass]="{ selected: tabSelected(tab) }"
+          [routerLink]="tab.url"
+          [hidden]="tab.hidden"
+        >{{ tab.label }}</a>
+      }
+    </div>
+  }
+</div>

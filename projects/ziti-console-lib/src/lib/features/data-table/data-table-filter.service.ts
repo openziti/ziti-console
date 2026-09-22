@@ -22,10 +22,14 @@ export class DataTableFilterService {
 
     filters: FilterObj[] = [];
     currentPage = 1;
+    /** Rows requested per page. Defaults to the legacy page size; the list-table's
+     *  rows-per-page control changes it via {@link changePageSize}. */
+    pageSize = 50;
     filtersChanged = new BehaviorSubject<FilterObj[]>(this.filters);
     public filtering = new BehaviorSubject<boolean>(false);
 
     pageChanged = new BehaviorSubject<any>(this.currentPage);
+    pageSizeChanged = new BehaviorSubject<number>(this.pageSize);
 
     currentQueryParams = [];
 
@@ -76,6 +80,12 @@ export class DataTableFilterService {
     changePage(page: any) {
         this.currentPage = page;
         this.pageChanged.next(page);
+    }
+
+    changePageSize(size: number) {
+        this.pageSize = size;
+        this.currentPage = 1;
+        this.pageSizeChanged.next(size);
     }
 
     clearFilters() {

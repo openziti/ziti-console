@@ -195,3 +195,78 @@
   font-size: 0.75rem;
   color: var(--groupText);
 }
+
+// ---- searchable multi-select attribute combo ----
+.fc-search {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.125rem 0.25rem 0.375rem;
+  background: var(--lt-control-bg);
+}
+
+.fc-search-icon {
+  flex: 0 0 auto;
+  margin-left: 0.25rem;
+  color: var(--lt-icon);
+}
+
+.fc-search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 1.75rem;
+  padding: 0 0.5rem;
+  font-family: var(--lt-font);
+  font-size: 0.75rem;
+  color: var(--lt-cell-text);
+  background: var(--lt-control-bg);
+  border: 1px solid var(--lt-border);
+  border-radius: var(--lt-radius);
+  outline: none;
+
+  &::placeholder {
+    color: var(--placeholder);
+  }
+
+  &:focus {
+    border-color: var(--lt-link);
+  }
+}
+
+.fc-opt-list {
+  display: flex;
+  flex-direction: column;
+}
+
+// option rendered as a #/@ attribute chip (matches the Roles column)
+.fc-attr {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.0625rem 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  border-radius: 0.25rem;
+  color: var(--lt-link);
+  background: color-mix(in srgb, var(--lt-link) 12%, transparent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fc-attr.at {
+  color: var(--secondary);
+  background: color-mix(in srgb, var(--secondary) 14%, transparent);
+}
+
+// the chip already carries the accent, so don't also recolor it on select
+.fc-opt.selected .fc-attr {
+  color: var(--lt-link);
+}
+
+.fc-opt.selected .fc-attr.at {
+  color: var(--secondary);
+}

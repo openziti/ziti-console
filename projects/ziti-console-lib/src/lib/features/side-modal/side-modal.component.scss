@@ -1,6 +1,9 @@
 .side-modal-container {
   position: fixed;
-  right: -30%;
+  // Closed off-screen. Must clear the panel's own width (max 37.5rem) plus its
+  // left box-shadow; a viewport-percentage (was -30%) fails once the viewport is
+  // narrower than the min-width clamp, leaving a strip peeking over the content.
+  right: -42rem;
   top: 0;
   padding: 1.875rem;
   height: 100%;
