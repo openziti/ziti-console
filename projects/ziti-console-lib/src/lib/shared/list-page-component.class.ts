@@ -142,7 +142,8 @@ export abstract class ListPageComponent {
         const index = this.svc.tableHeaderActions.findIndex((a) => a.action === 'download-selected');
         const allow = this.managementPermissions.canRead(this.svc.resourceType);
         if (hasSelection && allow && index === -1) {
-            this.svc.tableHeaderActions.push({ name: 'Download Selected', action: 'download-selected' });
+            // icon (SVG) is rendered by the new list-table's header menu; legacy ignores it
+            this.svc.tableHeaderActions.push({ name: 'Download Selected', action: 'download-selected', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>' });
         }
         if ((!hasSelection || !allow) && index !== -1) {
             this.svc.tableHeaderActions.splice(index, 1);

@@ -255,27 +255,15 @@
               }
               @if (!options.noMenu) {
                 <td class="lt-menu-cell">
-                  <div class="lt-row-actions">
-                    @for (a of inlineActions(row); track a.action) {
-                      <button
-                        type="button"
-                        class="lt-row-action-btn"
-                        [title]="a.label"
-                        [attr.aria-label]="a.label"
-                        (click)="onInlineAction(a.action, row, $event)"
-                        [innerHTML]="a.icon"
-                      ></button>
-                    }
-                    @if (hasOverflowActions(row)) {
-                      <button
-                        type="button"
-                        class="lt-row-menu-trigger"
-                        (click)="$event.stopPropagation(); openActionMenu($event, row)"
-                        attr.id="RowMenu_{{ row.id }}"
-                        aria-label="More actions"
-                      >&#8942;</button>
-                    }
-                  </div>
+                  @if (row.actionList?.length) {
+                    <button
+                      type="button"
+                      class="lt-row-menu-trigger"
+                      (click)="$event.stopPropagation(); openActionMenu($event, row)"
+                      attr.id="RowMenu_{{ row.id }}"
+                      aria-label="Row actions"
+                    >&#8942;</button>
+                  }
                 </td>
               }
             </tr>

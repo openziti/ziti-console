@@ -209,40 +209,6 @@
   }
 }
 
-// inline per-row action icons (the skin actions column)
-.lt-row-actions {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.125rem;
-}
-
-.lt-row-action-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  padding: 0;
-  color: var(--lt-icon);
-  background: transparent;
-  border: none;
-  border-radius: var(--lt-radius);
-  cursor: pointer;
-  transition: color 0.15s, background 0.15s;
-
-  &:hover {
-    color: var(--lt-icon-active);
-    background: var(--lt-row-hover);
-  }
-}
-
-// widen the actions column so the inline icons have room (header + body cells)
-.lt-head .lt-menu-cell,
-.lt-menu-cell {
-  width: 11rem;
-}
-
 // per-row actions kebab — centered icon button, consistent with the header
 .lt-row-menu-trigger {
   display: inline-flex;

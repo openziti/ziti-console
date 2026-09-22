@@ -9,13 +9,15 @@
       <button
         type="button"
         class="lt-menu-item"
-        [class.has-icon]="!!item.icon"
+        [class.has-icon]="!!item.icon || !!item.iconSvg"
         [class.is-hidden]="item.hidden"
         [disabled]="!!item.disabled"
         [attr.id]="item.id || null"
         (click)="onItem(item, $event)"
       >
-        @if (item.icon) {
+        @if (item.iconSvg) {
+          <span class="lt-menu-icon" aria-hidden="true" [innerHTML]="item.iconSvg"></span>
+        } @else if (item.icon) {
           <span class="lt-menu-icon {{ item.icon }}" aria-hidden="true"></span>
         }
         <span class="lt-menu-label">{{ item.label }}</span>

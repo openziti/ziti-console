@@ -10,10 +10,7 @@
     [blockDelete]="headerBlockDelete"
     (actionClicked)="headerActionClicked($event)"
   >
-    <svg header-icon viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
-      <circle cx="12" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7"/>
-      <path d="M5 19.2c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-    </svg>
+    <span header-icon class="icon-identity" aria-hidden="true"></span>
   </lib-list-table-header>
   <ng-content select="[slot=list-page-subheader]"></ng-content>
   <lib-list-table class="lt-skin" [tableId]="'identities'"

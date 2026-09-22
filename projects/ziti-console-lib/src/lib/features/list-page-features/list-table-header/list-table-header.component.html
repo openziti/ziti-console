@@ -7,7 +7,9 @@
       <div class="lth-title-row">
         <h1 class="lth-title">{{ title }}</h1>
         @if (infoText) {
-          <span class="lth-info" [title]="infoText" tabindex="0" role="img" [attr.aria-label]="infoText">i</span>
+          <span class="lth-info" [title]="infoText" tabindex="0" role="img" [attr.aria-label]="infoText">
+            <span class="lth-info-badge" aria-hidden="true">i</span>
+          </span>
         }
       </div>
       @if (subtitle) {

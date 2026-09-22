@@ -68,4 +68,10 @@
   width: 1rem;
   font-size: 0.9375rem;
   color: var(--lt-icon);
+
+  ::ng-deep svg {
+    display: block;
+    width: 0.9375rem;
+    height: 0.9375rem;
+  }
 }

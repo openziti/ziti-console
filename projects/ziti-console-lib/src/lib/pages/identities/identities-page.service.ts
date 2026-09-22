@@ -82,8 +82,8 @@ export class IdentitiesPageService extends ListPageServiceClass {
         createdAt: '',
     };
 
-    // `icon` (SVG markup) makes the new list-table render the action as an inline icon;
-    // items without one fall into its kebab overflow. The legacy ag-grid menu ignores it.
+    // `icon` (SVG markup) is rendered before the label in the new list-table's row kebab
+    // (3-dot) menu. The legacy ag-grid menu ignores it.
     override menuItems = [
         {name: 'Edit', action: 'update', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M11.2 2.6 13.4 4.8 6 12.2l-2.8.6.6-2.8z"/></svg>'},
         {name: 'Download JWT', action: 'download-enrollment', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
@@ -97,7 +97,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
     ];
 
     override tableHeaderActions = [
-        {name: 'Download All', action: 'download-all'},
+        {name: 'Download All', action: 'download-all', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
     ]
 
     resourceType = 'identities';

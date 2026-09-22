@@ -664,16 +664,21 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         this.openHeaderMenu = false;
     };
 
-    /** Header action menu rows: the reset action followed by host-provided header actions. */
+    /** Restore-default (rotate) icon for the built-in header action. */
+    private readonly RESET_TABLE_ICON = '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" d="M3.2 8a4.8 4.8 0 1 0 1.3-3.3"/><path fill="currentColor" d="M2.8 2.8l-.3 2.9 2.8-.4z"/></svg>';
+
+    /** Header action menu rows: the reset action followed by host-provided header actions.
+     *  A host action's `icon` (SVG markup) is rendered before its label, like the row menu. */
     get headerMenuItems(): ListMenuItem[] {
         const items: ListMenuItem[] = [
-            {label: 'Restore Default Table', action: '__reset_table__', id: 'ResetTableButton'},
+            {label: 'Restore Default Table', action: '__reset_table__', id: 'ResetTableButton', iconSvg: this.safeIcon(this.RESET_TABLE_ICON)},
         ];
         _.forEach(this.headerActions, (ha) => {
             items.push({
                 label: ha.name || ha.label,
                 action: ha.action,
                 id: 'HeaderAction_' + ha.action,
+                iconSvg: ha.icon ? this.safeIcon(ha.icon) : undefined,
                 data: ha,
             });
         });
@@ -690,13 +695,14 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     }
 
     /** Row action menu rows, built from `menuItems` against the currently selected row.
-     *  Actions shown as inline icons are hidden here so the kebab only carries overflow. */
+     *  A menu item's `icon` (SVG markup) is rendered before its label in the menu. */
     get rowMenuItems(): ListMenuItem[] {
         return _.map(this.menuItems, (mi) => ({
             label: mi.name || mi.label,
             action: mi.action,
             id: 'TableActionButton_' + mi.action,
-            hidden: this.hideMenuItem(mi, this.selectedItem) || !!mi.icon,
+            hidden: this.hideMenuItem(mi, this.selectedItem),
+            iconSvg: mi.icon ? this.safeIcon(mi.icon) : undefined,
             data: mi,
         }));
     }
@@ -830,18 +836,10 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         }
     }
 
-    // ---- inline row actions ----
-    // Icons are host-supplied and domain-agnostic: a menu item carrying an `icon`
-    // (SVG markup) renders as an inline action button; items without one fall into
-    // the kebab overflow.
+    // ---- row action icons ----
+    // A menu item's host-supplied `icon` (SVG markup) is rendered before its label in
+    // the row's kebab menu. Sanitized once per unique SVG and cached.
     private iconCache = new Map<string, SafeHtml>();
-
-    /** Host menu items available for this row that carry an icon → rendered inline. */
-    inlineActions(row: any): {action: string; label: string; icon: SafeHtml}[] {
-        return this.menuItems
-            .filter((mi) => mi?.icon && !this.hideMenuItem(mi, row))
-            .map((mi) => ({action: mi.action, label: mi.name || mi.label, icon: this.safeIcon(mi.icon)}));
-    }
 
     private safeIcon(svg: string): SafeHtml {
         let safe = this.iconCache.get(svg);
@@ -850,16 +848,6 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
             this.iconCache.set(svg, safe);
         }
         return safe;
-    }
-
-    /** True when the row has available actions without an inline icon (need the kebab). */
-    hasOverflowActions(row: any): boolean {
-        return this.menuItems.some((mi) => !mi?.icon && !this.hideMenuItem(mi, row));
-    }
-
-    onInlineAction(action: string, row: any, event: MouseEvent): void {
-        event.stopPropagation();
-        this.actionRequested.emit({action, item: row});
     }
 
     private updateEntityTypeLabel(): void {
