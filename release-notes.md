@@ -1,3 +1,15 @@
+# app-ziti-console-v4.5.3
+# ziti-console-lib-v1.5.3
+## Feature/Improvements
+* [Issue #938](https://github.com/openziti/ziti-console/issues/938) - Add a reusable, themeable list-table component, skinned entirely through CSS design tokens, as the foundation for replacing ag-grid on entity list pages
+* [Issue #940](https://github.com/openziti/ziti-console/issues/940) - Adopt the new list-table on the Identities page behind a "Beta Features" toggle in Settings, with a card-style page header, status/type/role cell renderers, an SDK-info hover card, rows-per-page and numbered paging, and all row actions consolidated into a single menu
+* [Issue #907](https://github.com/openziti/ziti-console/issues/907) - Add the enrollment auth policy and claims selectors to the external JWT signer form
+* [Issue #946](https://github.com/openziti/ziti-console/issues/946) - Remove unused endpoints from the Node server
+
+## Bug Fixes
+* [Issue #907](https://github.com/openziti/ziti-console/issues/907) - Fix a session-expiry 401 retry loop in the API interceptor
+
+
 # app-ziti-console-v4.5.2
 # ziti-console-lib-v1.5.2
 ## Feature/Improvements
