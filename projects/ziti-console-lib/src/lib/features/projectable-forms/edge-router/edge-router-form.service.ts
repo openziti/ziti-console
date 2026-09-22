@@ -76,8 +76,7 @@ export class EdgeRouterFormService {
                     saveModel[prop] = formData[prop];
             }
         });
-        // `badges` is a UI-only property added directly onto formData and must not be sent to the API.
-        return this.zitiService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id', 'badges']);
+        return this.zitiService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id']);
     }
 
     getAuthPolicies() {
