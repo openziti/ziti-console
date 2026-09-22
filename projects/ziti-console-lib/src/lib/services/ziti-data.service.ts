@@ -122,6 +122,23 @@ export abstract class ZitiDataService {
     return filters;
   }
 
+  /**
+   * Copies any properties present on `formData` but not already declared on `saveModel`
+   * (i.e. not part of the entity's known model fields) onto `saveModel`. Entity forms
+   * build their save payload from a blank typed model instance and only copy over its
+   * declared fields; without this, edits/additions made through the raw JSON editor to
+   * fields the model class doesn't know about are silently dropped before being sent
+   * to the controller.
+   */
+  mergeUnknownFormProperties(saveModel: any, formData: any, modelProperties: string[], excludedProperties: string[] = ['id']): any {
+    Object.keys(formData || {}).forEach((prop) => {
+      if (!modelProperties.includes(prop) && !excludedProperties.includes(prop)) {
+        saveModel[prop] = formData[prop];
+      }
+    });
+    return saveModel;
+  }
+
   getErrorMessage(resp) {
     let errorMessage;
 

@@ -118,6 +118,6 @@ export class AuthPolicyFormService {
                     saveModel[prop] = formData[prop];
             }
         });
-        return saveModel;
+        return this.dataService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id']);
     }
 }

@@ -179,7 +179,7 @@ export class ServicePolicyFormService {
                     saveModel[prop] = formData[prop];
             }
         });
-        return saveModel;
+        return this.zitiService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id']);
     }
 
     copyToClipboard(val) {

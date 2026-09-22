@@ -137,6 +137,6 @@ export class ConfigurationService {
             }
         });
         saveModel.data = this.validationService.redefineObject(saveModel.data);
-        return saveModel;
+        return this.dataService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id']);
     }
 }

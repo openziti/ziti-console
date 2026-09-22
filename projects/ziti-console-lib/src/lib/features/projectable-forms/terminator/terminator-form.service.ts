@@ -100,7 +100,7 @@ export class TerminatorFormService {
                     saveModel[prop] = formData[prop];
             }
         });
-        return saveModel;
+        return this.dataService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id']);
     }
 
     public getIdentityNamedAttributes() {
