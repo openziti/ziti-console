@@ -72,7 +72,7 @@ export class TransitRouterFormService {
                     saveModel[prop] = formData[prop];
             }
         });
-        return this.zitiService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id']);
+        return this.zitiService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id', 'badges']);
     }
 
     getAuthPolicies() {
