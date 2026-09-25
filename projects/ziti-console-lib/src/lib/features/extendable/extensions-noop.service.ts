@@ -16,6 +16,7 @@
 
 import { Injectable, InjectionToken, ViewContainerRef, EventEmitter } from '@angular/core';
 import {BehaviorSubject, Subject} from "rxjs";
+import type {ListColumn} from "../list-table/list-column";
 
 export const SHAREDZ_EXTENSION = new InjectionToken<any>('SHAREDZ_EXTENSION');
 
@@ -51,6 +52,8 @@ export interface ExtensionService {
   validateData(): Promise<any>;
   formDataSaved(data: any): Promise<any>;
   processTableColumns(tableColumns: any): any[];
+  /** Typed hook for the new list-table columns (vs the ColDef processTableColumns above). */
+  processListTableColumns?(tableColumns: ListColumn[]): ListColumn[];
 }
 
 @Injectable({
@@ -89,6 +92,10 @@ export class ExtensionsNoopService implements ExtensionService {
   }
 
   processTableColumns(tableColumns: any): any[] {
+    return tableColumns;
+  }
+
+  processListTableColumns(tableColumns: ListColumn[]): ListColumn[] {
     return tableColumns;
   }
 

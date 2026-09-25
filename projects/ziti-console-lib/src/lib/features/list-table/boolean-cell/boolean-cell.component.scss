@@ -3,20 +3,24 @@
   align-items: center;
 }
 
-.bool {
+// soft green "yes" pill with a checkmark (the skin style); nothing renders
+// when false. Muted green so it reads as a status, not a bright alert.
+.bool-true {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  font-size: 0.8125rem;
+  gap: 0.3125rem;
+  padding: 0.1875rem 0.5rem 0.1875rem 0.4375rem;
   font-family: var(--lt-font);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #15803d;
+  background: color-mix(in srgb, #16a34a 12%, transparent);
+  border-radius: 999px;
 }
 
-.bool-true {
-  color: var(--lt-cell-text);
-
-  .bool-check {
-    flex: 0 0 auto;
-    display: block;
-    color: var(--green);
-  }
+.bool-check {
+  flex: 0 0 auto;
+  display: block;
+  color: #16a34a;
 }

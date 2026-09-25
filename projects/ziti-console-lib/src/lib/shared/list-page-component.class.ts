@@ -16,6 +16,7 @@
 
 import {DataTableFilterService} from "../features/data-table/data-table-filter.service";
 import type {ListTableComponent} from "../features/list-table/list-table.component";
+import {ListTableService} from "../features/list-table/list-table.service";
 import {ListPageServiceClass} from "./list-page-service.class";
 import {inject, Injectable} from "@angular/core";
 import {ManagementPermissionsService} from "../services/management-permissions.service";
@@ -54,6 +55,12 @@ export abstract class ListPageComponent {
     gridObj: any = {};
     tableObj: any = null;
 
+    /** Set by a new list-table page to enable per-table rows-per-page memory. When set,
+     *  the base pre-seeds the remembered size before the first fetch (see ngOnInit). */
+    protected tableId?: string;
+    /** Default rows-per-page used when nothing is remembered for {@link tableId}. */
+    protected initialPageSize?: number;
+
     subscription: Subscription = new Subscription();
 
     private growlerSvc = inject(GrowlerService);
@@ -81,11 +88,16 @@ export abstract class ListPageComponent {
 
     ngOnInit() {
         this.filterService.currentPage = 1;
+        // new list-table pages: adopt this table's remembered rows-per-page before the
+        // first fetch so the initial load honors it (consumers get this without copying)
+        if (this.tableId) {
+            this.filterService.pageSize = ListTableService.readPersistedPageSize(this.tableId, this.initialPageSize ?? this.filterService.pageSize);
+        }
         this.svc.sideModalOpen = false;
         this.svc.refreshData = this.refreshData.bind(this);
         this.svc.resetMenusForInit();
         this.svc.initMenuActions();
-        this.columnDefs = this.svc.initTableColumns();
+        this.columnDefs = this.loadTableColumns();
         this.svc.capturePermissionSnapshots();
         this.subscription.add(
             this.managementPermissions.stateVersion$.subscribe(() => {
@@ -107,6 +119,11 @@ export abstract class ListPageComponent {
         );
         this.subscription.add(
             this.filterService.pageChanged.pipe(skip(1)).subscribe(page => {
+                this.refreshData();
+            })
+        );
+        this.subscription.add(
+            this.filterService.pageSizeChanged.pipe(skip(1)).subscribe(() => {
                 this.refreshData();
             })
         );
@@ -137,7 +154,8 @@ export abstract class ListPageComponent {
         const index = this.svc.tableHeaderActions.findIndex((a) => a.action === 'download-selected');
         const allow = this.managementPermissions.canRead(this.svc.resourceType);
         if (hasSelection && allow && index === -1) {
-            this.svc.tableHeaderActions.push({ name: 'Download Selected', action: 'download-selected' });
+            // icon (SVG) is rendered by the new list-table's header menu; legacy ignores it
+            this.svc.tableHeaderActions.push({ name: 'Download Selected', action: 'download-selected', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>' });
         }
         if ((!hasSelection || !allow) && index !== -1) {
             this.svc.tableHeaderActions.splice(index, 1);
@@ -170,7 +188,7 @@ export abstract class ListPageComponent {
         }
         this.isLoading = true;
         sort = sort ? sort : this.svc.currentSort;
-        this.svc.getData(this.filterService.filters, sort, this.filterService.currentPage)
+        this.svc.getData(this.filterService.filters, sort, this.filterService.currentPage, this.filterService.pageSize)
             .then((data: any) => {
                 this.rowData = [];
                 if (hardRefresh) {
@@ -272,6 +290,16 @@ export abstract class ListPageComponent {
             });
         }
         return extensionFound;
+    }
+
+    /**
+     * Column set loaded into the table on init. Defaults to the service's ag-grid
+     * column defs (the legacy {@link DataTableComponent}). A page that renders the
+     * new {@link ListTableComponent} overrides this to return the `ListColumn` set
+     * instead, leaving every other page untouched.
+     */
+    protected loadTableColumns(): any[] {
+        return this.svc.initTableColumns();
     }
 
     gridReady(event) {

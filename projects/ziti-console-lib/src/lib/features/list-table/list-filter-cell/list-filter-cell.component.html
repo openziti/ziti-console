@@ -42,19 +42,41 @@
         [ngStyle]="{ left: menuLeft + 'px', top: menuTop + 'px', 'min-width.px': menuWidth }"
       >
         @if (mode === 'multi') {
-          @if (!options.length) {
-            <div class="fc-empty">No attributes available</div>
+          <div class="fc-search">
+            <svg class="fc-search-icon" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true">
+              <circle cx="7" cy="7" r="4.3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="10.4" y1="10.4" x2="14.6" y2="14.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input
+              class="fc-search-input"
+              type="text"
+              [(ngModel)]="attrSearch"
+              [placeholder]="isAttributeMode ? 'Search attributes' : 'Search'"
+              (click)="$event.stopPropagation()"
+              autocomplete="off"
+            />
+          </div>
+          @if (!filteredOptions.length) {
+            <div class="fc-empty">{{ options.length ? 'No matches' : (isAttributeMode ? 'No attributes available' : 'No options available') }}</div>
           }
-          @for (opt of options; track opt.value) {
-            <button type="button" class="fc-opt" [class.selected]="isOptionSelected(opt)" (click)="toggleOption(opt)">
-              <span class="fc-check" aria-hidden="true">
-                @if (isOptionSelected(opt)) {
-                  <svg viewBox="0 0 12 12" width="10" height="10"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M2 6.3 4.6 9 10 3"/></svg>
+          <div class="fc-opt-list">
+            @for (opt of filteredOptions; track opt.value) {
+              <button type="button" class="fc-opt" [class.selected]="isOptionSelected(opt)" (click)="toggleOption(opt)">
+                <span class="fc-check" aria-hidden="true">
+                  @if (isOptionSelected(opt)) {
+                    <svg viewBox="0 0 12 12" width="10" height="10"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M2 6.3 4.6 9 10 3"/></svg>
+                  }
+                </span>
+                @if (isAttributeMode) {
+                  <span class="fc-attr" [class.at]="isNamedOption(opt)">{{ optionLabel(opt) }}</span>
+                } @else if (opt.chipClass) {
+                  <span [ngClass]="opt.chipClass">{{ opt.label }}</span>
+                } @else {
+                  <span class="fc-opt-label">{{ optionLabel(opt) }}</span>
                 }
-              </span>
-              <span class="fc-opt-label">{{ opt.label }}</span>
-            </button>
-          }
+              </button>
+            }
+          </div>
         } @else if (mode === 'daterange') {
           @for (opt of options; track opt.value) {
             <button type="button" class="fc-opt" [class.selected]="isOptionSelected(opt)" (click)="selectDatePreset(opt)">
@@ -68,7 +90,11 @@
         } @else {
           @for (opt of options; track opt.value) {
             <button type="button" class="fc-opt" [class.selected]="isOptionSelected(opt)" (click)="selectOption(opt)">
-              <span class="fc-opt-label">{{ opt.label }}</span>
+              @if (opt.chipClass) {
+                <span [ngClass]="opt.chipClass">{{ opt.label }}</span>
+              } @else {
+                <span class="fc-opt-label">{{ opt.label }}</span>
+              }
             </button>
           }
         }

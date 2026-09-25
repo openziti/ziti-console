@@ -28,6 +28,8 @@ type FilterMode = 'text' | 'single' | 'multi' | 'daterange';
 interface FilterOption {
     label: string;
     value: any;
+    /** Optional class(es) to render the option as a colored chip/badge (e.g. Type). */
+    chipClass?: string;
 }
 
 const DATE_PRESETS: FilterOption[] = [
@@ -59,6 +61,8 @@ export class ListFilterCellComponent implements OnInit, OnDestroy {
     textValue = '';
     selectedValue: any = '';
     selectedValues: string[] = [];
+    /** In-dropdown search text for the multi-select attribute combo. */
+    attrSearch = '';
 
     open = false;
     menuLeft = 0;
@@ -109,11 +113,17 @@ export class ListFilterCellComponent implements OnInit, OnDestroy {
         return this.column.filterPlaceholder || 'All';
     }
 
+    /** True only for the Ziti role-attribute flavor of multi-select (adds #/@ prefixing). */
+    get isAttributeMode(): boolean {
+        return this.column.filterType === 'ATTRIBUTE';
+    }
+
     private resolveMode(): FilterMode {
         switch (this.column.filterType) {
             case 'TEXTINPUT':
                 return 'text';
             case 'ATTRIBUTE':
+            case 'MULTISELECT':
                 return 'multi';
             case 'DATETIME':
                 return 'daterange';
@@ -127,9 +137,14 @@ export class ListFilterCellComponent implements OnInit, OnDestroy {
             return DATE_PRESETS;
         }
         if (this.mode === 'multi') {
-            const getAttrs = this.column.headerParams?.['getRoleAttributes'];
-            const attrs = (typeof getAttrs === 'function' ? getAttrs() : null) || this.column.filterOptions || [];
-            return attrs.map((a: any) => (typeof a === 'string' ? {label: a, value: a} : a));
+            let raw: any[];
+            if (this.isAttributeMode) {
+                const getAttrs = this.column.headerParams?.['getRoleAttributes'];
+                raw = (typeof getAttrs === 'function' ? getAttrs() : null) || this.column.filterOptions || [];
+            } else {
+                raw = this.column.getFilterOptions ? this.column.getFilterOptions() : (this.column.filterOptions || []);
+            }
+            return raw.map((a: any) => (typeof a === 'string' ? {label: a, value: a} : a));
         }
         const raw = this.column.getFilterOptions ? this.column.getFilterOptions() : this.column.filterOptions || [];
         return raw as FilterOption[];
@@ -171,6 +186,32 @@ export class ListFilterCellComponent implements OnInit, OnDestroy {
         return `${opt.value}` === `${this.selectedValue}`;
     }
 
+    /** Attribute options filtered by the in-dropdown search box (multi mode). */
+    get filteredOptions(): FilterOption[] {
+        if (this.mode !== 'multi' || !this.attrSearch) {
+            return this.options;
+        }
+        const q = this.attrSearch.toLowerCase();
+        return this.options.filter((o) => `${o.label ?? o.value}`.toLowerCase().includes(q));
+    }
+
+    /** A named attribute (rendered with @ + secondary color) vs a role attribute (# + primary). */
+    isNamedOption(opt: FilterOption): boolean {
+        return this.isAttributeMode && String(opt?.value ?? opt?.label ?? '').charAt(0) === '@';
+    }
+
+    /** Option label. The attribute flavor prefixes # (role) / keeps @ (named); others render plain. */
+    optionLabel(opt: FilterOption): string {
+        const raw = String(opt?.label ?? opt?.value ?? '');
+        if (!this.isAttributeMode) {
+            return raw;
+        }
+        if (raw.charAt(0) === '@' || raw.charAt(0) === '#') {
+            return raw;
+        }
+        return '#' + raw;
+    }
+
     // ------------------------------------------------------------------ open/close
     toggleMenu(event: MouseEvent): void {
         event.stopPropagation();
@@ -182,10 +223,11 @@ export class ListFilterCellComponent implements OnInit, OnDestroy {
         if (rect) {
             this.menuLeft = rect.left;
             this.menuTop = rect.bottom + 4;
-            this.menuWidth = Math.max(rect.width, 160);
+            this.menuWidth = Math.max(rect.width, this.mode === 'multi' ? 220 : 160);
         }
         // refresh dynamic option sources (e.g. role attributes) each open
         this.options = this.resolveOptions();
+        this.attrSearch = '';
         this.open = true;
         this.listSvc.notifyMenuOpened(this);
     }
@@ -247,7 +289,7 @@ export class ListFilterCellComponent implements OnInit, OnDestroy {
             columnId: this.field,
             value: [...this.selectedValues],
             label: this.selectedValues.join(', '),
-            type: 'ATTRIBUTE',
+            type: this.isAttributeMode ? 'ATTRIBUTE' : 'MULTISELECT',
             semantic: 'AnyOf',
         };
         this.filterService.updateFilter(filter);

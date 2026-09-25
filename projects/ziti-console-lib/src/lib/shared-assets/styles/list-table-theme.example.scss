@@ -3,7 +3,7 @@
     Licensed under the Apache License, Version 2.0.
 
     ─────────────────────────────────────────────────────────────────────────────
-    ListTable theming reference + Customer Connect re-skin example
+    ListTable theming reference + re-skin example
     ─────────────────────────────────────────────────────────────────────────────
 
     The shared list table (`<lib-list-table>`, replacing the ag-grid `lib-data-table`)
@@ -14,8 +14,8 @@
        Each `--lt-*` token DEFAULTS to one of these, so the table automatically
        takes on the host app's palette:
          • In OpenZiti ZAC it uses ZAC's tokens  → the default look shipped here.
-         • In CloudZiti / netfoundry-ui it uses that app's tokens → it already
-           picks up CloudZiti's blues/surfaces with zero extra work.
+         • In a consuming app it uses that app's tokens → it picks up that app's
+           colors/surfaces with zero extra work.
 
     2. The `--lt-*` layer (defined in shared-assets/styles/global.scss `body{}`).
        Override these to fine-tune table-specific styling per host without touching
@@ -27,7 +27,7 @@
       --lt-bg               scroll-area surface (default: transparent → page bg)
       --lt-header-bg        header row background
       --lt-header-text      header label color
-      --lt-header-underline the accent rule under the header (ZAC: bold blue)
+      --lt-header-underline the accent rule under the header
       --lt-row-bg           base row background (default transparent)
       --lt-row-alt-bg       zebra row background
       --lt-row-hover        row hover background
@@ -43,40 +43,40 @@
       --lt-toolbar-height   search / filter / columns control height
 
     ─────────────────────────────────────────────────────────────────────────────
-    HOW TO RE-SKIN FOR CUSTOMER CONNECT (CloudZiti)
+    HOW TO RE-SKIN IN A CONSUMING APP
     ─────────────────────────────────────────────────────────────────────────────
 
-    In the cloud-ziti app's global stylesheet (loaded AFTER the lib's global.scss —
-    e.g. apps/cloud-ziti/src/assets/styles/overrides.scss), drop in the block below.
-    Most colors already follow CloudZiti's own tokens; these tune the table-specific
-    bits toward the Customer Connect look. Replace the fallback literals with the
-    matching cloud-ziti design tokens where they exist.
+    In the host app's global stylesheet (loaded AFTER the lib's global.scss — e.g.
+    an app-level overrides.scss), drop in the block below. Most colors already follow
+    the host's own tokens; these tune the table-specific bits toward a flat, card-based
+    look. Replace the fallback literals with the matching host design tokens where they
+    exist.
 
     NOTE: this file is an EXAMPLE/reference — it is not imported by the lib build.
 */
 
-// Customer Connect flavor — apply in the consuming (cloud-ziti) app, not here.
+// Example flat, card-based flavor — apply in the consuming app, not here.
 body {
   // typography
   --lt-font: var(--font-family, 'Inter', system-ui, -apple-system, sans-serif);
 
-  // surfaces: flat white table, no heavy zebra — hover-driven like CC
+  // surfaces: flat white table, no heavy zebra — hover-driven
   --lt-header-bg: var(--surface-raised, #ffffff);
   --lt-header-text: var(--text-secondary, #6b7280);
-  --lt-header-underline: var(--border-color, #e5e7eb); // subtle rule, not ZAC's bold blue
+  --lt-header-underline: var(--border-color, #e5e7eb); // subtle rule
   --lt-row-bg: var(--surface-base, #ffffff);
-  --lt-row-alt-bg: transparent; // CC has no zebra; rely on hover
+  --lt-row-alt-bg: transparent; // no zebra; rely on hover
   --lt-row-hover: var(--surface-sunken, #f6f8fb);
-  --lt-row-selected: color-mix(in srgb, var(--brand-primary, #0273fb) 8%, #ffffff);
+  --lt-row-selected: color-mix(in srgb, var(--brand-primary, #1d4ed8) 8%, #ffffff);
   --lt-cell-text: var(--text-primary, #111827);
 
   // accent + chrome
-  --lt-link: var(--brand-primary, #0273fb);
-  --lt-icon-active: var(--brand-primary, #0273fb);
+  --lt-link: var(--brand-primary, #1d4ed8);
+  --lt-icon-active: var(--brand-primary, #1d4ed8);
   --lt-border: var(--border-color, #e5e7eb);
   --lt-control-bg: var(--surface-raised, #ffffff);
 
-  // shape + density: softer corners, roomier rows (Customer Connect proportions)
+  // shape + density: softer corners, roomier rows
   --lt-radius: 0.5rem;
   --lt-row-height: 3.5rem;
   --lt-toolbar-height: 2.5rem;

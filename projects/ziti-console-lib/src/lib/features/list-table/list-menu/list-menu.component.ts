@@ -1,4 +1,5 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {SafeHtml} from '@angular/platform-browser';
 
 /**
  * A single row in a {@link ListMenuComponent}.
@@ -14,6 +15,8 @@ export interface ListMenuItem {
     action: string;
     /** Optional icon class(es) rendered before the label. */
     icon?: string;
+    /** Optional sanitized SVG rendered before the label (takes precedence over `icon`). */
+    iconSvg?: SafeHtml;
     /** When true the row is present but visually removed (keeps list order stable). */
     hidden?: boolean;
     /** When true the row is shown but not clickable. */

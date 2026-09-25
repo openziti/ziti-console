@@ -49,19 +49,19 @@ body {
   --groupText: #78859f;
   --table: #ffffff;
 
-  /* ListTable (custom list table) tokens — default to the current ZAC look.
-     Consumer apps (e.g. cloud-ziti / Customer Connect) reskin the table by
-     overriding these (or the underlying tokens) in their own global styles.
-     The table blends into the page: transparent surface, white base rows, and a
-     subtle zebra — so there is no hard-edged filled rectangle on the page. */
+  /* ListTable (custom list table) tokens. The default look is a flat list-page
+     pattern (flat white rows, no zebra, hover-driven, uppercase hairline-divided
+     headers, roomy rows) while still drawing color from the host app's tokens
+     (--primary, --background, --stroke, ...). Consuming apps reskin the table by
+     overriding these (or the underlying tokens) in their own global styles. */
   --lt-bg: transparent;
   --lt-header-bg: var(--background);
-  --lt-header-text: var(--tableText);
-  --lt-header-underline: var(--primary);
+  --lt-header-text: var(--groupText);
+  --lt-header-underline: var(--stroke);
   --lt-row-bg: transparent;
-  --lt-row-alt-bg: var(--shaded);
+  --lt-row-alt-bg: transparent; /* no zebra — rows read via the hairline divider + hover */
   --lt-row-hover: var(--tableRowHover, rgba(0, 39, 171, 0.06));
-  --lt-row-selected: var(--shaded);
+  --lt-row-selected: color-mix(in srgb, var(--primary) 8%, transparent);
   --lt-cell-text: var(--text);
   --lt-link: var(--primary);
   --lt-border: var(--stroke);
@@ -69,7 +69,7 @@ body {
   --lt-icon-active: var(--primary);
   --lt-row-height: 3.125rem;
   --lt-radius: var(--inputBorderRadius);
-  --lt-toolbar-height: 2.25rem;
+  --lt-toolbar-height: 2.5rem;
   --lt-control-bg: var(--background);
   --lt-font: 'Open Sans', sans-serif;
   --redShadow: rgba(255, 13, 73, 0.3);
@@ -2284,6 +2284,199 @@ a {
   &.other {
     background-image: url(/assets/images/other.png);
   }
+}
+
+// Flat, card-based skin for a list table (via `class="lt-skin"`). Overrides the
+// --lt-* defaults for that table's subtree only, drawing from ZAC's own tokens so it
+// matches the app and follows its theming; the legacy page (.ag-cell) is untouched.
+.lt-skin {
+  --lt-bg: var(--background);
+  --lt-header-bg: var(--shaded);
+  --lt-header-text: var(--groupText);
+  --lt-header-underline: var(--stroke);
+  --lt-row-bg: var(--background);
+  --lt-row-alt-bg: transparent;
+  --lt-row-hover: var(--shaded);
+  --lt-row-selected: color-mix(in srgb, var(--primary) 8%, transparent);
+  --lt-cell-text: var(--text);
+  --lt-link: var(--primary);
+  --lt-icon: var(--icon);
+  --lt-icon-active: var(--primary);
+  --lt-border: var(--stroke);
+  --lt-control-bg: var(--background);
+  --lt-radius: 0.375rem;
+  --lt-row-height: 3.375rem;
+
+  // extra skin knobs; defaults match the values above so ZAC is unchanged
+  --lt-control-border: var(--lt-border);
+  --lt-header-sorted-text: var(--lt-icon-active);
+  --lt-header-sorted-weight: 700;
+  --lt-name-text: var(--tableText);
+  --lt-name-weight: 700;
+  --lt-name-size: 0.8125rem;
+  --lt-name-hover: var(--lt-link);
+  --lt-toolbar-margin-y: 0;
+  --lt-toolbar-pad-bottom: 0.625rem;
+  --lt-container-reserve: 5.625rem;
+}
+
+// Skinned page: the table becomes a bordered card floating on a subtle page surface,
+// with the toolbar + footer on the page around it.
+.lt-skin-page {
+  background: var(--formBackground);
+  --inputBorderRadius: 0.375rem;
+}
+
+.lt-skin .lt-scroll {
+  border: 1px solid var(--lt-control-border, var(--lt-border));
+  border-radius: var(--lt-radius);
+}
+
+// the card's own bottom edge replaces the last row's divider (avoids a doubled line)
+.lt-skin .lt-row:last-child td {
+  border-bottom: none;
+}
+
+// name cell (scoped to .lt-cell; legacy .ag-cell untouched)
+.lt-cell .cell-name-link {
+  color: var(--lt-name-text, var(--tableText));
+}
+.lt-cell .cell-name-renderer strong {
+  color: var(--lt-name-text, var(--tableText));
+  font-weight: var(--lt-name-weight, 700);
+  font-size: var(--lt-name-size, 0.8125rem);
+}
+.lt-cell .cell-name-link:hover,
+.lt-cell .cell-name-link:hover strong {
+  color: var(--lt-name-hover, var(--lt-link));
+}
+
+// New list-table cell-content overrides. Scoped to .lt-cell so the legacy ag-grid
+// page (which uses .ag-cell) is untouched: compact, aligned O/S glyphs and light
+// role chips that follow the table's accent token (so they pick up the skin).
+.lt-cell .os {
+  width: 1.375rem;
+  height: 1.375rem;
+  top: 0;
+  vertical-align: middle;
+  cursor: default;
+}
+
+// Role/named-attribute chips: role (#) = primary, named (@) = secondary — the tag
+// selector's distinction, kept as soft tinted pills rather than solid fills.
+.lt-cell .lt-chip {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--lt-link);
+  background: color-mix(in srgb, var(--lt-link) 12%, transparent);
+  border-radius: 0.25rem;
+  vertical-align: middle;
+}
+
+.lt-cell .lt-chip-at {
+  color: var(--secondary);
+  background: color-mix(in srgb, var(--secondary) 14%, transparent);
+}
+
+// Online/Offline status pill (Status column): online gets a green checkmark
+// (like the Is Admin badge), offline a muted dot. Both icons are drawn via
+// ::before because inline <svg> is stripped from [innerHTML] cellHtml output.
+.lt-cell .lt-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.1875rem 0.5rem 0.1875rem 0.4375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  border-radius: 999px;
+
+  &::before {
+    content: '';
+    flex: 0 0 auto;
+  }
+}
+
+.lt-cell .lt-status-online::before {
+  width: 0.8125rem;
+  height: 0.8125rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath fill='none' stroke='%2316a34a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M2.5 7.6 5.7 10.8 11.5 3.6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.lt-cell .lt-status-offline::before {
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+// Color-coded Type pill: Default = blue, Router = green, each with a small icon.
+// Icon via ::before (data-URI SVG, hued to match) because inline <svg> is stripped
+// from [innerHTML] cellHtml.
+.lt-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.1875rem 0.5rem 0.1875rem 0.4375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  border-radius: 999px;
+
+  &::before {
+    content: '';
+    flex: 0 0 auto;
+    width: 0.8125rem;
+    height: 0.8125rem;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+  }
+}
+
+.lt-type-default {
+  color: #1d4ed8;
+  background: color-mix(in srgb, #2563eb 12%, transparent);
+
+  &::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cg fill='none' stroke='%232563eb' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2.5' y='3' width='11' height='7' rx='1'/%3E%3Cpath d='M6 12.5h4M8 10v2.5'/%3E%3C/g%3E%3C/svg%3E");
+  }
+}
+
+.lt-type-router {
+  color: #15803d;
+  background: color-mix(in srgb, #16a34a 12%, transparent);
+
+  &::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cg fill='none' stroke='%2316a34a' stroke-width='1.3'%3E%3Cpath d='M8 5.4 4.5 11M8 5.4 11.5 11'/%3E%3C/g%3E%3Cg fill='%2316a34a'%3E%3Ccircle cx='8' cy='4' r='1.7'/%3E%3Ccircle cx='4' cy='12' r='1.7'/%3E%3Ccircle cx='12' cy='12' r='1.7'/%3E%3C/g%3E%3C/svg%3E");
+  }
+}
+
+.lt-type-other {
+  color: var(--lt-cell-text);
+  background: color-mix(in srgb, var(--lt-border) 45%, transparent);
+
+  &::before {
+    display: none;
+  }
+}
+
+.lt-cell .lt-status-online {
+  color: #15803d;
+  background: color-mix(in srgb, #16a34a 12%, transparent);
+}
+
+.lt-cell .lt-status-offline {
+  color: var(--groupText);
+  background: color-mix(in srgb, var(--groupText) 14%, transparent);
 }
 
 .cert {

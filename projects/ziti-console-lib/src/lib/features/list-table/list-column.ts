@@ -86,7 +86,7 @@ export interface ListColumn<T = any> {
     onCellClick?: (ctx: ListCellContext<T>) => void;
 
     // ---- header filter plumbing (reuses the existing filter overlays) ---------
-    filterType?: 'TEXTINPUT' | 'SELECT' | 'COMBO' | 'DATETIME' | 'ATTRIBUTE' | 'CUSTOM' | string;
+    filterType?: 'TEXTINPUT' | 'SELECT' | 'COMBO' | 'DATETIME' | 'ATTRIBUTE' | 'MULTISELECT' | 'CUSTOM' | string;
     /** API field the filter queries. Defaults to `field` then `key`. Use when the
      *  display field differs from the filterable field (e.g. key `os` → `envInfo.os`,
      *  key `type` (display `type.name`) → `typeId`). */

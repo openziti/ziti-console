@@ -28,8 +28,10 @@
 .lt-header-text {
   color: var(--lt-header-text);
   font-family: var(--lt-font);
-  font-size: 0.875rem;
+  font-size: 0.6875rem;
   font-weight: 600;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -38,8 +40,8 @@
   // active sort column: the label takes the same accent as its emphasized caret,
   // so the whole header (label + arrow) reads as the sorted column.
   &.is-sorted {
-    color: var(--lt-icon-active);
-    font-weight: 700;
+    color: var(--lt-header-sorted-text, var(--lt-icon-active));
+    font-weight: var(--lt-header-sorted-weight, 700);
   }
 }
 
@@ -88,7 +90,7 @@
 }
 
 // dual up/down caret: faint on sortable columns, active direction emphasized.
-// Right-justified within the header cell (matches Customer Connect); margin-right
+// Right-justified within the header cell (matches the skin); margin-right
 // keeps it clear of the column resize grip.
 .lt-sort {
   display: inline-flex;
