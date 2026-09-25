@@ -1,3 +1,13 @@
+# app-ziti-console-v4.5.4
+# ziti-console-lib-v1.5.4
+## Feature/Improvements
+* [Issue #938](https://github.com/openziti/ziti-console/issues/938) - Refine the beta Identities list-table: header layout, row action menus, side modal, and column filter cells
+* [Issue #951](https://github.com/openziti/ziti-console/issues/951) - Encode controller-supplied entity names and attributes when rendering network visualizer node labels and tooltips, so they always display as text
+
+## Bug Fixes
+* [PR #948](https://github.com/openziti/ziti-console/pull/948) - Correct the header-bar Quick Add button tooltip, which was mislabeled "Support"
+
+
 # app-ziti-console-v4.5.3
 # ziti-console-lib-v1.5.3
 ## Feature/Improvements
