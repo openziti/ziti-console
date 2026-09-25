@@ -33,6 +33,9 @@ export class DataTableFilterService {
 
     currentQueryParams = [];
 
+    // filter params live under this prefix so unrelated params (e.g. ?tab=) aren't treated as filters
+    private static readonly URL_FILTER_PREFIX = 'f.';
+
     constructor(private location: Location, private router: Router, private activatedRoute: ActivatedRoute) {
     }
 
@@ -105,18 +108,25 @@ export class DataTableFilterService {
     }
 
     updateUrlParameters(filtersToRemove: any[] = []) {
+        const prefix = DataTableFilterService.URL_FILTER_PREFIX;
         const urlFiltersMap = this.getUrlFiltersMap();
-        let params: HttpParams = new HttpParams();
         this.filters.forEach(filter => {
             urlFiltersMap[filter.columnId] = filter;
         });
+        const currentParamString = window.location.href.split("?")[1] || '';
+        let params: HttpParams = new HttpParams({ fromString: currentParamString });
+        params.keys()
+            .filter((key) => key.startsWith(prefix))
+            .forEach((key) => {
+                params = params.delete(key);
+            });
         const newFilters = [];
         forEach(urlFiltersMap, (value, key) => {
             const filterRemoved = filtersToRemove.some((removed) => {
                 return removed.columnId === key;
             })
             if (!filterRemoved) {
-                params = params.append(key, value.value);
+                params = params.append(prefix + key, value.value);
                 newFilters.push(value);
             }
         });
@@ -127,19 +137,24 @@ export class DataTableFilterService {
     }
 
     getUrlFiltersMap(): any {
+        const prefix = DataTableFilterService.URL_FILTER_PREFIX;
         const paramString = window.location.href.split("?")[1];
         const params: HttpParams = new HttpParams({ fromString: paramString });
         const storedFilters = this.getStoredFilters();
         const appliedFiltersMap = {};
 
-        params.keys().forEach((key) => {
+        params.keys().forEach((rawKey) => {
+            if (!rawKey.startsWith(prefix)) {
+                return;
+            }
+            const key = rawKey.slice(prefix.length);
             const storedFilter = storedFilters.find((filter) => {
                 return filter.columnId === key;
             });
             if (storedFilter) {
                 appliedFiltersMap[key] = storedFilter;
             } else {
-                let val: any = params.get(key);
+                let val: any = params.get(rawKey);
                 let type = 'TEXTINPUT'
                 let label = val;
                 if (val?.split(',')?.length > 1) {

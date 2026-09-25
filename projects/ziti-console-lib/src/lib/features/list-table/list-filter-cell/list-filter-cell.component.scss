@@ -62,7 +62,7 @@
   font-weight: 600;
   color: var(--lt-cell-text);
   background: var(--lt-control-bg);
-  border: 1px solid var(--lt-border);
+  border: 1px solid var(--lt-control-border, var(--lt-border));
   border-radius: var(--lt-radius);
   cursor: pointer;
   white-space: nowrap;

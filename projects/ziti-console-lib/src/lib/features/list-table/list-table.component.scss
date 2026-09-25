@@ -17,7 +17,7 @@
   font-weight: 600;
   color: var(--lt-cell-text);
   background: var(--lt-control-bg);
-  border: var(--inputBorderWidth) solid var(--lt-border);
+  border: var(--inputBorderWidth) solid var(--lt-control-border, var(--lt-border));
   border-radius: var(--lt-radius);
   cursor: pointer;
   white-space: nowrap;
@@ -50,7 +50,7 @@
 .lt-container {
   display: flex;
   position: relative;
-  height: calc(100% - 5.625rem);
+  height: calc(100% - var(--lt-container-reserve, 5.625rem));
   width: 100%;
   flex-direction: column;
 }
@@ -168,7 +168,7 @@
   box-sizing: border-box;
   width: 1rem;
   height: 1rem;
-  border: 1px solid var(--lt-border);
+  border: 1px solid var(--lt-control-border, var(--lt-border));
   border-radius: 0.25rem;
   background: var(--lt-control-bg);
   background-repeat: no-repeat;
@@ -348,7 +348,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0 0 0.625rem;
+  margin: var(--lt-toolbar-margin-y, 0) 0;
+  padding: 0 0 var(--lt-toolbar-pad-bottom, 0.625rem);
   min-height: var(--lt-toolbar-height);
   // sit above the (sticky) table header so the Columns dropdown is never covered
   position: relative;
@@ -488,7 +489,7 @@
   font-size: 0.8125rem;
   color: var(--lt-cell-text);
   background: var(--lt-control-bg);
-  border: var(--inputBorderWidth) solid var(--lt-border);
+  border: var(--inputBorderWidth) solid var(--lt-control-border, var(--lt-border));
   border-radius: var(--lt-radius);
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
@@ -528,7 +529,7 @@
   height: var(--lt-toolbar-height);
   color: var(--lt-icon);
   background: var(--lt-control-bg);
-  border: var(--inputBorderWidth) solid var(--lt-border);
+  border: var(--inputBorderWidth) solid var(--lt-control-border, var(--lt-border));
   border-radius: var(--lt-radius);
   cursor: pointer;
   font-size: 0.9375rem;
@@ -678,7 +679,7 @@
   box-sizing: border-box;
   width: 1rem;
   height: 1rem;
-  border: 0.09375rem solid var(--lt-border);
+  border: 0.09375rem solid var(--lt-control-border, var(--lt-border));
   border-radius: 0.25rem;
   color: var(--lt-control-bg);
   background: var(--lt-control-bg);
@@ -809,7 +810,7 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M3 4.5 6 7.5 9 4.5'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.5rem center;
-  border: var(--inputBorderWidth) solid var(--lt-border);
+  border: var(--inputBorderWidth) solid var(--lt-control-border, var(--lt-border));
   border-radius: var(--lt-radius);
   appearance: none;
   -webkit-appearance: none;
@@ -833,7 +834,7 @@
   font-weight: 600;
   color: var(--lt-cell-text);
   background: var(--lt-control-bg);
-  border: var(--inputBorderWidth) solid var(--lt-border);
+  border: var(--inputBorderWidth) solid var(--lt-control-border, var(--lt-border));
   border-radius: var(--lt-radius);
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s, background 0.15s;

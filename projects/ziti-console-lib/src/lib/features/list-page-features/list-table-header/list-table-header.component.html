@@ -37,8 +37,12 @@
         <a
           class="lth-tab"
           [ngClass]="{ selected: tabSelected(tab) }"
-          [routerLink]="tab.url"
+          [routerLink]="tabsUseRouter ? tab.url : null"
           [hidden]="tab.hidden"
+          [attr.role]="tabsUseRouter ? null : 'button'"
+          [attr.tabindex]="tabsUseRouter ? null : 0"
+          (click)="onTabClick(tab)"
+          (keydown.enter)="tabsUseRouter ? null : onTabClick(tab)"
         >{{ tab.label }}</a>
       }
     </div>

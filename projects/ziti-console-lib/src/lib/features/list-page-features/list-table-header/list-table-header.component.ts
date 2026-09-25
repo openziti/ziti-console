@@ -42,14 +42,32 @@ export class ListTableHeaderComponent {
     @Input() blockCreate = false;
     /** Hide the bulk-delete control shown when rows are selected. */
     @Input() blockDelete = false;
+    /** When true (default) tabs navigate via routerLink and highlight by matching the
+     *  URL path. Set false for a consumer that owns navigation (e.g. query-param tabs):
+     *  tabs then only emit `tabClicked`, and the active one is driven by `activeTab`. */
+    @Input() tabsUseRouter = true;
+    /** Active tab when `tabsUseRouter` is false. Matched by identity or by the tab's
+     *  `id` / `value` / `url` / `label`. */
+    @Input() activeTab: any = null;
 
     @Output() actionClicked = new EventEmitter<string>();
+    @Output() tabClicked = new EventEmitter<any>();
 
     clickAction(value: string) {
         this.actionClicked.emit(value);
     }
 
+    onTabClick(tab: any) {
+        this.tabClicked.emit(tab);
+    }
+
     tabSelected(tab: any): boolean {
+        if (!this.tabsUseRouter) {
+            return this.tabMatchesActive(tab);
+        }
+        if (!tab?.url) {
+            return false;
+        }
         const parsedUrl = new URL(window.location.href);
         let path = parsedUrl.pathname;
         if (document.baseURI) {
@@ -66,5 +84,16 @@ export class ListTableHeaderComponent {
             path = path.slice(1);
         }
         return tabUrl === path;
+    }
+
+    private tabMatchesActive(tab: any): boolean {
+        const active = this.activeTab;
+        if (active == null) {
+            return false;
+        }
+        if (active === tab) {
+            return true;
+        }
+        return active === tab?.id || active === tab?.value || active === tab?.url || active === tab?.label;
     }
 }

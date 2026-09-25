@@ -113,11 +113,17 @@ export class ListFilterCellComponent implements OnInit, OnDestroy {
         return this.column.filterPlaceholder || 'All';
     }
 
+    /** True only for the Ziti role-attribute flavor of multi-select (adds #/@ prefixing). */
+    get isAttributeMode(): boolean {
+        return this.column.filterType === 'ATTRIBUTE';
+    }
+
     private resolveMode(): FilterMode {
         switch (this.column.filterType) {
             case 'TEXTINPUT':
                 return 'text';
             case 'ATTRIBUTE':
+            case 'MULTISELECT':
                 return 'multi';
             case 'DATETIME':
                 return 'daterange';
@@ -131,9 +137,14 @@ export class ListFilterCellComponent implements OnInit, OnDestroy {
             return DATE_PRESETS;
         }
         if (this.mode === 'multi') {
-            const getAttrs = this.column.headerParams?.['getRoleAttributes'];
-            const attrs = (typeof getAttrs === 'function' ? getAttrs() : null) || this.column.filterOptions || [];
-            return attrs.map((a: any) => (typeof a === 'string' ? {label: a, value: a} : a));
+            let raw: any[];
+            if (this.isAttributeMode) {
+                const getAttrs = this.column.headerParams?.['getRoleAttributes'];
+                raw = (typeof getAttrs === 'function' ? getAttrs() : null) || this.column.filterOptions || [];
+            } else {
+                raw = this.column.getFilterOptions ? this.column.getFilterOptions() : (this.column.filterOptions || []);
+            }
+            return raw.map((a: any) => (typeof a === 'string' ? {label: a, value: a} : a));
         }
         const raw = this.column.getFilterOptions ? this.column.getFilterOptions() : this.column.filterOptions || [];
         return raw as FilterOption[];
@@ -186,12 +197,15 @@ export class ListFilterCellComponent implements OnInit, OnDestroy {
 
     /** A named attribute (rendered with @ + secondary color) vs a role attribute (# + primary). */
     isNamedOption(opt: FilterOption): boolean {
-        return String(opt?.value ?? opt?.label ?? '').charAt(0) === '@';
+        return this.isAttributeMode && String(opt?.value ?? opt?.label ?? '').charAt(0) === '@';
     }
 
-    /** Option label with its #/@ prefix, matching the Roles column chips. */
-    attrLabel(opt: FilterOption): string {
+    /** Option label. The attribute flavor prefixes # (role) / keeps @ (named); others render plain. */
+    optionLabel(opt: FilterOption): string {
         const raw = String(opt?.label ?? opt?.value ?? '');
+        if (!this.isAttributeMode) {
+            return raw;
+        }
         if (raw.charAt(0) === '@' || raw.charAt(0) === '#') {
             return raw;
         }
@@ -275,7 +289,7 @@ export class ListFilterCellComponent implements OnInit, OnDestroy {
             columnId: this.field,
             value: [...this.selectedValues],
             label: this.selectedValues.join(', '),
-            type: 'ATTRIBUTE',
+            type: this.isAttributeMode ? 'ATTRIBUTE' : 'MULTISELECT',
             semantic: 'AnyOf',
         };
         this.filterService.updateFilter(filter);

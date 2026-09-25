@@ -13,7 +13,7 @@
     <span header-icon class="icon-identity" aria-hidden="true"></span>
   </lib-list-table-header>
   <ng-content select="[slot=list-page-subheader]"></ng-content>
-  <lib-list-table class="lt-skin" [tableId]="'identities'"
+  <lib-list-table class="lt-skin" [tableId]="tableId" [initialPageSize]="initialPageSize"
     [noItemsReadonly]="headerBlockCreate"
     [accessDenied]="headerBlockRead"
     [rowData]="rowData"

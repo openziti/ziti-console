@@ -16,6 +16,7 @@
 
 import {DataTableFilterService} from "../features/data-table/data-table-filter.service";
 import type {ListTableComponent} from "../features/list-table/list-table.component";
+import {ListTableService} from "../features/list-table/list-table.service";
 import {ListPageServiceClass} from "./list-page-service.class";
 import {inject, Injectable} from "@angular/core";
 import {ManagementPermissionsService} from "../services/management-permissions.service";
@@ -54,6 +55,12 @@ export abstract class ListPageComponent {
     gridObj: any = {};
     tableObj: any = null;
 
+    /** Set by a new list-table page to enable per-table rows-per-page memory. When set,
+     *  the base pre-seeds the remembered size before the first fetch (see ngOnInit). */
+    protected tableId?: string;
+    /** Default rows-per-page used when nothing is remembered for {@link tableId}. */
+    protected initialPageSize?: number;
+
     subscription: Subscription = new Subscription();
 
     private growlerSvc = inject(GrowlerService);
@@ -81,6 +88,11 @@ export abstract class ListPageComponent {
 
     ngOnInit() {
         this.filterService.currentPage = 1;
+        // new list-table pages: adopt this table's remembered rows-per-page before the
+        // first fetch so the initial load honors it (consumers get this without copying)
+        if (this.tableId) {
+            this.filterService.pageSize = ListTableService.readPersistedPageSize(this.tableId, this.initialPageSize ?? this.filterService.pageSize);
+        }
         this.svc.sideModalOpen = false;
         this.svc.refreshData = this.refreshData.bind(this);
         this.svc.resetMenusForInit();

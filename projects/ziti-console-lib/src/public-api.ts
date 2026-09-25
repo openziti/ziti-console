@@ -60,6 +60,7 @@ export * from './lib/features/data-table/data-table-filter.service';
 export * from './lib/features/list-table/list-column';
 export * from './lib/features/list-table/list-table.service';
 export * from './lib/features/list-table/list-table.component';
+export * from './lib/features/list-page-features/list-table-header/list-table-header.component';
 export * from './lib/features/list-table/list-menu/list-menu.component';
 export * from './lib/features/list-table/name-cell/name-cell.component';
 export * from './lib/features/list-table/select-cell/select-cell.component';

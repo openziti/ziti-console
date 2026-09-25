@@ -495,6 +495,9 @@ export class ZitiControllerDataService extends ZitiDataService {
                 case 'ATTRIBUTE':
                     filterVal = this.getAttributeFilter(filter.value, filter.columnId, filter.semantic);
                     break;
+                case 'MULTISELECT':
+                    filterVal = this.getMultiSelectFilter(filter.value, filter.columnId, filter.semantic);
+                    break;
                 case 'BOOLEAN':
                     filterVal = `${filter.columnId}=${filter.value}`;
                     break;

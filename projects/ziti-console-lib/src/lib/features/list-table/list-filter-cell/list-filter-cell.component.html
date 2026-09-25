@@ -51,13 +51,13 @@
               class="fc-search-input"
               type="text"
               [(ngModel)]="attrSearch"
-              placeholder="Search attributes"
+              [placeholder]="isAttributeMode ? 'Search attributes' : 'Search'"
               (click)="$event.stopPropagation()"
               autocomplete="off"
             />
           </div>
           @if (!filteredOptions.length) {
-            <div class="fc-empty">{{ options.length ? 'No matches' : 'No attributes available' }}</div>
+            <div class="fc-empty">{{ options.length ? 'No matches' : (isAttributeMode ? 'No attributes available' : 'No options available') }}</div>
           }
           <div class="fc-opt-list">
             @for (opt of filteredOptions; track opt.value) {
@@ -67,7 +67,13 @@
                     <svg viewBox="0 0 12 12" width="10" height="10"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M2 6.3 4.6 9 10 3"/></svg>
                   }
                 </span>
-                <span class="fc-attr" [class.at]="isNamedOption(opt)">{{ attrLabel(opt) }}</span>
+                @if (isAttributeMode) {
+                  <span class="fc-attr" [class.at]="isNamedOption(opt)">{{ optionLabel(opt) }}</span>
+                } @else if (opt.chipClass) {
+                  <span [ngClass]="opt.chipClass">{{ opt.label }}</span>
+                } @else {
+                  <span class="fc-opt-label">{{ optionLabel(opt) }}</span>
+                }
               </button>
             }
           </div>
