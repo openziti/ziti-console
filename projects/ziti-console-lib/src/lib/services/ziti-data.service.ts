@@ -24,7 +24,7 @@ import { HttpClient } from "@angular/common/http";
 import {FilterObj} from "../features/data-table/data-table-filter.service";
 import { LoginServiceClass } from './login-service.class';
 
-import {cloneDeep, isEmpty, sortedUniq, isString, isArray, isNumber, isBoolean} from "lodash";
+import {cloneDeep, isEmpty, sortedUniq, isString, isArray, isNumber, isBoolean, isEqual} from "lodash";
 import {SettingsServiceClass} from "./settings-service.class";
 
 export const ZITI_DATA_SERVICE = new InjectionToken<ZitiDataService>('ZITI_DATA_SERVICE');
@@ -123,18 +123,19 @@ export abstract class ZitiDataService {
   }
 
   /**
-   * Copies any properties present on `formData` but not already declared on `saveModel`
-   * (i.e. not part of the entity's known model fields) onto `saveModel`. Entity forms
-   * build their save payload from a blank typed model instance and only copy over its
-   * declared fields; without this, edits/additions made through the raw JSON editor to
-   * fields the model class doesn't know about are silently dropped before being sent
-   * to the controller.
+   * Copies unknown fields (on `formData` but not the model or `excludedProperties`) onto
+   * `saveModel` so raw-JSON-editor edits aren't dropped. On update, pass `originalData` (the
+   * loaded entity) to skip unchanged server-supplied fields (_links, createdAt, enrollment).
    */
-  mergeUnknownFormProperties(saveModel: any, formData: any, modelProperties: string[], excludedProperties: string[] = ['id']): any {
+  mergeUnknownFormProperties(saveModel: any, formData: any, modelProperties: string[], excludedProperties: string[] = ['id'], originalData?: any): any {
     Object.keys(formData || {}).forEach((prop) => {
-      if (!modelProperties.includes(prop) && !excludedProperties.includes(prop)) {
-        saveModel[prop] = formData[prop];
+      if (modelProperties.includes(prop) || excludedProperties.includes(prop)) {
+        return;
       }
+      if (originalData && isEqual(formData[prop], originalData[prop])) {
+        return;
+      }
+      saveModel[prop] = formData[prop];
     });
     return saveModel;
   }

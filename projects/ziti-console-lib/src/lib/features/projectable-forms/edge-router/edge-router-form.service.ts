@@ -29,9 +29,9 @@ export class EdgeRouterFormService {
         @Inject(EDGE_ROUTER_EXTENSION_SERVICE)private extService: ExtensionService
     ) {}
  
-    save(formData): Promise<any> {
+    save(formData, originalData?): Promise<any> {
         const isUpdate = !isEmpty(formData.id);
-        const data: any = this.getEdgeRouterDataModel(formData, isUpdate);
+        const data: any = this.getEdgeRouterDataModel(formData, isUpdate, originalData);
         const svc = isUpdate ? this.zitiService.patch.bind(this.zitiService) : this.zitiService.post.bind(this.zitiService);
         return svc('edge-routers', data, formData.id).then(async (result: any) => {
             const id = result?.data?.id || formData.id;
@@ -67,7 +67,7 @@ export class EdgeRouterFormService {
         })
     }
 
-    getEdgeRouterDataModel(formData, isUpdate) {
+    getEdgeRouterDataModel(formData, isUpdate, originalData?) {
         const saveModel = new EdgeRouter();
         const modelProperties = keys(saveModel);
         modelProperties.forEach((prop) => {
@@ -76,7 +76,7 @@ export class EdgeRouterFormService {
                     saveModel[prop] = formData[prop];
             }
         });
-        return this.zitiService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id', 'badges']);
+        return this.zitiService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id', 'badges'], isUpdate ? originalData : undefined);
     }
 
     getAuthPolicies() {

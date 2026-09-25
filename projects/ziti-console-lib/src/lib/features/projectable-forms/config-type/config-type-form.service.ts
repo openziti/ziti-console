@@ -39,9 +39,9 @@ export class ConfigTypeFormService {
         }
     }
 
-    save(formData) {
+    save(formData, originalData?) {
         const isUpdate = !isEmpty(formData.id);
-        const data: any = this.getConfigTypeDataModel(formData, isUpdate);
+        const data: any = this.getConfigTypeDataModel(formData, isUpdate, originalData);
         let prom;
         if (isUpdate) {
             prom = this.dataService.patch('config-types', data, formData.id, true);
@@ -82,7 +82,7 @@ export class ConfigTypeFormService {
         })
     }
 
-    getConfigTypeDataModel(formData, isUpdate) {
+    getConfigTypeDataModel(formData, isUpdate, originalData?) {
         const saveModel = new ConfigType();
         const modelProperties = keys(saveModel);
         modelProperties.forEach((prop) => {
@@ -91,6 +91,6 @@ export class ConfigTypeFormService {
                     saveModel[prop] = formData[prop];
             }
         });
-        return this.dataService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id']);
+        return this.dataService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id'], isUpdate ? originalData : undefined);
     }
 }
