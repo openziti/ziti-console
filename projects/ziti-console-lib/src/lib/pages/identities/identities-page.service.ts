@@ -619,8 +619,8 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 hidden: true,
             },
         ];
-        if (this.extService.processTableColumns) {
-            tableColumns = this.extService.processTableColumns(tableColumns);
+        if (this.extService.processListTableColumns) {
+            tableColumns = this.extService.processListTableColumns(tableColumns);
         }
         return tableColumns;
     }

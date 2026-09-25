@@ -430,6 +430,10 @@ export class NodeDataService extends ZitiDataService {
                     paging.rawFilter = true;
                     filterVal = this.getAttributeFilter(filter.value, filter.columnId);
                     break;
+                case 'MULTISELECT':
+                    paging.rawFilter = true;
+                    filterVal = this.getMultiSelectFilter(filter.value, filter.columnId, filter.semantic);
+                    break;
                 default:
                     filterVal = `${filter.columnId} contains "${filter.value}"`;
                     break;

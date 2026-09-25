@@ -40,8 +40,8 @@
   // active sort column: the label takes the same accent as its emphasized caret,
   // so the whole header (label + arrow) reads as the sorted column.
   &.is-sorted {
-    color: var(--lt-icon-active);
-    font-weight: 700;
+    color: var(--lt-header-sorted-text, var(--lt-icon-active));
+    font-weight: var(--lt-header-sorted-weight, 700);
   }
 }
 

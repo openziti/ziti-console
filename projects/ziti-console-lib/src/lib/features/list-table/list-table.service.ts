@@ -20,8 +20,8 @@ import {ListColumn} from './list-column';
 
 /**
  * Per-instance state + localStorage persistence for {@link ListTableComponent}.
- * Reuses the legacy `ziti_<tableId>_table_state` / `_column_widths` keys so saved
- * layouts carry over; unknown (ag-only) fields are ignored.
+ * Uses its own `lt_<tableId>_*` keys (separate from the legacy ag-grid table) so a
+ * first visit starts from the column defs' default widths, not a carried-over ag layout.
  */
 @Injectable()
 export class ListTableService {
@@ -38,11 +38,42 @@ export class ListTableService {
     }
 
     private stateKey(): string {
-        return `ziti_${this.tableId}_table_state`;
+        return `lt_${this.tableId}_table_state`;
     }
 
     private widthsKey(): string {
-        return `ziti_${this.tableId}_column_widths`;
+        return `lt_${this.tableId}_column_widths`;
+    }
+
+    private pageSizeKey(): string {
+        return `lt_${this.tableId}_page_size`;
+    }
+
+    private static pageSizeKeyFor(tableId: string): string {
+        return `lt_${tableId}_page_size`;
+    }
+
+    restorePageSize(fallback: number): number {
+        return ListTableService.readPersistedPageSize(this.tableId, fallback);
+    }
+
+    savePageSize(size: number): void {
+        try {
+            localStorage.setItem(this.pageSizeKey(), String(size));
+        } catch {
+            // ignore
+        }
+    }
+
+    /** Reads a table's remembered rows-per-page without an instance (for host pre-seeding). */
+    static readPersistedPageSize(tableId: string, fallback: number): number {
+        try {
+            const raw = localStorage.getItem(ListTableService.pageSizeKeyFor(tableId));
+            const n = raw ? parseInt(raw, 10) : NaN;
+            return Number.isFinite(n) && n > 0 ? n : fallback;
+        } catch {
+            return fallback;
+        }
     }
 
     /**
@@ -130,6 +161,7 @@ export class ListTableService {
         try {
             localStorage.removeItem(this.stateKey());
             localStorage.removeItem(this.widthsKey());
+            localStorage.removeItem(this.pageSizeKey());
         } catch {
             // ignore
         }

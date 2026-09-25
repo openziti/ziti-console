@@ -2306,6 +2306,18 @@ a {
   --lt-control-bg: var(--background);
   --lt-radius: 0.375rem;
   --lt-row-height: 3.375rem;
+
+  // extra skin knobs; defaults match the values above so ZAC is unchanged
+  --lt-control-border: var(--lt-border);
+  --lt-header-sorted-text: var(--lt-icon-active);
+  --lt-header-sorted-weight: 700;
+  --lt-name-text: var(--tableText);
+  --lt-name-weight: 700;
+  --lt-name-size: 0.8125rem;
+  --lt-name-hover: var(--lt-link);
+  --lt-toolbar-margin-y: 0;
+  --lt-toolbar-pad-bottom: 0.625rem;
+  --lt-container-reserve: 5.625rem;
 }
 
 // Skinned page: the table becomes a bordered card floating on a subtle page surface,
@@ -2316,13 +2328,27 @@ a {
 }
 
 .lt-skin .lt-scroll {
-  border: 1px solid var(--lt-border);
+  border: 1px solid var(--lt-control-border, var(--lt-border));
   border-radius: var(--lt-radius);
 }
 
 // the card's own bottom edge replaces the last row's divider (avoids a doubled line)
 .lt-skin .lt-row:last-child td {
   border-bottom: none;
+}
+
+// name cell (scoped to .lt-cell; legacy .ag-cell untouched)
+.lt-cell .cell-name-link {
+  color: var(--lt-name-text, var(--tableText));
+}
+.lt-cell .cell-name-renderer strong {
+  color: var(--lt-name-text, var(--tableText));
+  font-weight: var(--lt-name-weight, 700);
+  font-size: var(--lt-name-size, 0.8125rem);
+}
+.lt-cell .cell-name-link:hover,
+.lt-cell .cell-name-link:hover strong {
+  color: var(--lt-name-hover, var(--lt-link));
 }
 
 // New list-table cell-content overrides. Scoped to .lt-cell so the legacy ag-grid

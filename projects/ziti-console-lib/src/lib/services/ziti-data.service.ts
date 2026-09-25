@@ -24,7 +24,7 @@ import { HttpClient } from "@angular/common/http";
 import {FilterObj} from "../features/data-table/data-table-filter.service";
 import { LoginServiceClass } from './login-service.class';
 
-import {cloneDeep, isEmpty, sortedUniq, isString} from "lodash";
+import {cloneDeep, isEmpty, sortedUniq, isString, isArray, isNumber, isBoolean} from "lodash";
 import {SettingsServiceClass} from "./settings-service.class";
 
 export const ZITI_DATA_SERVICE = new InjectionToken<ZitiDataService>('ZITI_DATA_SERVICE');
@@ -120,6 +120,22 @@ export abstract class ZitiDataService {
       ];
     }
     return filters;
+  }
+
+  // escape ziti-ql string contents so a value with a quote/backslash can't alter the query
+  protected escapeQlString(v: any): string {
+    return String(v).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+  }
+
+  // generic multi-select over a scalar field: `col = "a" or col = "b"` (vs anyOf() for collections)
+  getMultiSelectFilter(val, columnId, semantic = 'AnyOf') {
+    const join = semantic === 'AllOf' ? 'and' : 'or';
+    const clause = (v) => `${columnId} = ${(isNumber(v) || isBoolean(v)) ? `${v}` : `"${this.escapeQlString(v)}"`}`;
+    if (isArray(val)) {
+      const parts = val.map(clause);
+      return parts.length > 1 ? `(${parts.join(` ${join} `)})` : (parts[0] || '');
+    }
+    return clause(val);
   }
 
   getErrorMessage(resp) {

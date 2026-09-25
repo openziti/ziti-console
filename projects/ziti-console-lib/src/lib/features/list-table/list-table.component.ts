@@ -150,6 +150,8 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
 
     ngOnInit(): void {
         this._initialized = true;
+        // set directly (no emit) to avoid forcing a second fetch when a host pre-seeded it
+        this.tableFilterService.pageSize = this.svc.restorePageSize(this.initialPageSize);
         this.buildColumns();
         this.updateEntityTypeLabel();
         this.subscription.add(
@@ -762,6 +764,9 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     // ---- rows-per-page + numbered pagination (the skin footer) ----
     pageSizeOptions = [25, 50, 100];
 
+    /** Default rows-per-page when nothing is remembered (the persisted choice wins). */
+    @Input() initialPageSize = 50;
+
     get pageSize(): number {
         return this.tableFilterService.pageSize;
     }
@@ -810,6 +815,7 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         if (!size || size === this.pageSize) {
             return;
         }
+        this.svc.savePageSize(size);
         this.tableFilterService.changePageSize(size);
     }
 

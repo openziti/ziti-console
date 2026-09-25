@@ -48,6 +48,8 @@ export class IdentitiesListPageComponent extends ListPageComponent implements On
   tabs: { url: string, label: string }[] ;
   isLoading = false;
   formDataChanged = false;
+  protected override readonly tableId = 'identities';
+  protected override readonly initialPageSize = 50;
 
   constructor(
       public override svc: IdentitiesPageService,

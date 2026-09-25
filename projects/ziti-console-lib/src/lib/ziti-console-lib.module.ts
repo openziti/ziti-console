@@ -376,7 +376,8 @@ export function playerFactory() {
         FilterSelectComponent,
         FilterSelectOptionTemplateDirective,
         FilterSelectTriggerTemplateDirective,
-        ListTableComponent
+        ListTableComponent,
+        ListTableHeaderComponent
     ], imports: [
         CommonModule,
         FormsModule,
