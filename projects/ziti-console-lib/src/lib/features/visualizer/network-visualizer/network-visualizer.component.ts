@@ -1623,8 +1623,8 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
              })
             .append('xhtml:body')
             .style('background', 'transparent')
-            .html(function (d) {
-                return `<div class="node-text-container"><span>${d.data.name}</span></div>`;
+            .html((d) => {
+                return `<div class="node-text-container"><span>${this.escapeHtml(d.data.name)}</span></div>`;
             });
 
         this.nodeUpdate = this.nodeEnter.merge(this.node);
@@ -1863,7 +1863,14 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
         this.treetooltip.style('top', y);
         document.getElementById('tooltip').innerHTML = this.readTreeKeyValues(event, s);
     }
+
+    escapeHtml(value) {
+      return String(value == null ? '' : value).replace(/[&<>"]/g, (c) =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    }
+
     readTreeKeyValues(event, d) {
+      const self = this;
       const startIndex = d.data.name.indexOf('(');
       const finIndex = d.data.name.indexOf(')');
       const countStr:number = startIndex >0? d.data.name.substring(startIndex + 1, finIndex): 0;
@@ -1893,13 +1900,13 @@ export class NetworkVisualizerComponent extends VisualizerServiceClass implement
                 info =
                     info +
                     '<div class="prop-row"><div class="prop-name">' +
-                    k +
+                    self.escapeHtml(k) +
                     ':</div><div class="prop-val">' +
-                    d[k].join('<br> &nbsp;&nbsp; &nbsp;&nbsp;') +
+                    d[k].map((v) => self.escapeHtml(v)).join('<br> &nbsp;&nbsp; &nbsp;&nbsp;') +
                     '</div></div>';
             } else {
                 const propVal = d.data[k] || '';
-                info = info + '<div class="prop-row"><div class="prop-name">' + k + ':</div><div class="prop-val">' + propVal + '</div></div>';
+                info = info + '<div class="prop-row"><div class="prop-name">' + self.escapeHtml(k) + ':</div><div class="prop-val">' + self.escapeHtml(propVal) + '</div></div>';
             }
         });
         if (d.data.firstChild && d.data.firstChild === 'Yes' && countStr > this.maxObjectsPerNode-1) {
