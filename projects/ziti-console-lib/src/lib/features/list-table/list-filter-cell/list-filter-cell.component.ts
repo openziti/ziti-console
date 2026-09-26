@@ -151,11 +151,16 @@ export class ListFilterCellComponent implements OnInit, OnDestroy {
     }
 
     // ------------------------------------------------------------------ display
+    private labelForValue(value: any): string {
+        const opt = this.options.find((o) => `${o.value}` === `${value}`);
+        return opt ? opt.label : `${value}`;
+    }
+
     /** Short display of the current selection, shown after the field label when set. */
     get valueLabel(): string {
         if (this.mode === 'multi') {
             if (this.selectedValues.length === 1) {
-                return this.selectedValues[0];
+                return this.labelForValue(this.selectedValues[0]);
             }
             return `${this.selectedValues.length}`;
         }
@@ -288,7 +293,7 @@ export class ListFilterCellComponent implements OnInit, OnDestroy {
             filterName: this.column.label,
             columnId: this.field,
             value: [...this.selectedValues],
-            label: this.selectedValues.join(', '),
+            label: this.selectedValues.map((v) => this.labelForValue(v)).join(', '),
             type: this.isAttributeMode ? 'ATTRIBUTE' : 'MULTISELECT',
             semantic: 'AnyOf',
         };
