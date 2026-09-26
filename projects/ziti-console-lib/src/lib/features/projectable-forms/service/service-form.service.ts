@@ -137,9 +137,9 @@ export class ServiceFormService {
         this.newConfigName = '';
     }
 
-    save(formData): Promise<any> {
+    save(formData, originalData?): Promise<any> {
         const isUpdate = !isEmpty(formData.id);
-        const data: any = this.getServiceDataModel(formData, isUpdate);
+        const data: any = this.getServiceDataModel(formData, isUpdate, originalData);
         let prom;
         if (isUpdate) {
             prom = this.zitiService.patch('services', data, formData.id, true);
@@ -319,7 +319,7 @@ export class ServiceFormService {
         });
     }
 
-    getServiceDataModel(formData, isUpdate) {
+    getServiceDataModel(formData, isUpdate, originalData?) {
         const saveModel = new Service();
         const modelProperties = keys(saveModel);
         modelProperties.forEach((prop) => {
@@ -328,7 +328,7 @@ export class ServiceFormService {
                     saveModel[prop] = formData[prop];
             }
         });
-        return this.zitiService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id']);
+        return this.zitiService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id'], isUpdate ? originalData : undefined);
     }
 
     getConfigTypes() {

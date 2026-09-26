@@ -364,7 +364,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
       });
     }
     this.isLoading = true;
-    this.svc.save(this.formData).then((result) => {
+    this.svc.save(this.formData, this.initData).then((result) => {
       if (this.isModal) {
         this.closeModal(true, true);
         return;

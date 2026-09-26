@@ -39,9 +39,9 @@ export class IdentityFormService {
         private growlerService: GrowlerService
     ) {}
  
-    save(formData) {
+    save(formData, originalData?) {
         const isUpdate = !isEmpty(formData.id);
-        const data: any = this.getIdentityDataModel(formData, isUpdate);
+        const data: any = this.getIdentityDataModel(formData, isUpdate, originalData);
         const svc = isUpdate ? this.zitiService.patch.bind(this.zitiService) : this.zitiService.post.bind(this.zitiService);
         return svc('identities', data, formData.id).then((result) => {
             const growlerData = new GrowlerModel(
@@ -64,7 +64,7 @@ export class IdentityFormService {
         })
     }
 
-    getIdentityDataModel(formData, isUpdate) {
+    getIdentityDataModel(formData, isUpdate, originalData?) {
         const saveModel = new Identity();
         const modelProperties = keys(saveModel);
         modelProperties.forEach((prop) => {
@@ -87,7 +87,7 @@ export class IdentityFormService {
                     saveModel[prop] = formData[prop];
             }
         });
-        return this.zitiService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id', 'badges']);
+        return this.zitiService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id', 'badges'], isUpdate ? originalData : undefined);
     }
 
     testService(identityId, serviceId) {

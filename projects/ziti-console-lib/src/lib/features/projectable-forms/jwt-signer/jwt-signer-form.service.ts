@@ -24,9 +24,9 @@ export class JwtSignerFormService {
     ) {
     }
 
-    save(formData) {
+    save(formData, originalData?) {
         const isUpdate = !isEmpty(formData.id);
-        const data: any = this.getJwtSignerDataModel(formData, isUpdate);
+        const data: any = this.getJwtSignerDataModel(formData, isUpdate, originalData);
         let prom;
         if (isUpdate) {
             prom = this.dataService.put('external-jwt-signers', data, formData.id, true);
@@ -67,7 +67,7 @@ export class JwtSignerFormService {
         })
     }
 
-    getJwtSignerDataModel(formData, isUpdate) {
+    getJwtSignerDataModel(formData, isUpdate, originalData?) {
         const saveModel = new JwtSigner();
         const modelProperties = keys(saveModel);
         modelProperties.forEach((prop) => {
@@ -76,7 +76,7 @@ export class JwtSignerFormService {
                     saveModel[prop] = formData[prop];
             }
         });
-        return this.dataService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id']);
+        return this.dataService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id'], isUpdate ? originalData : undefined);
     }
 
 }
