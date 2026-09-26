@@ -368,7 +368,7 @@ export class PostureCheckFormComponent extends ProjectableForm implements OnInit
                 this.formData.processes = this.processMultiItems;
             }
         }
-        const configId = await this.svc.save(this.formData).then((result) => {
+        const configId = await this.svc.save(this.formData, this.initData).then((result) => {
             if (!isEmpty(result?.id)) {
                 this.formData = result;
                 this.initData = cloneDeep(this.formData);

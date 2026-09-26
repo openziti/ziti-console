@@ -233,7 +233,7 @@ export class ServiceEdgeRouterPolicyFormComponent extends ProjectableForm implem
 
     this.isLoading = true;
     this.applySelectedAttributes();
-    this.svc.save(this.formData).then((result) => {
+    this.svc.save(this.formData, this.initData).then((result) => {
       const data = result?.data?.id ? result.data : result;
       this._dataChange = false;
       if (!isEmpty(data.id)) {

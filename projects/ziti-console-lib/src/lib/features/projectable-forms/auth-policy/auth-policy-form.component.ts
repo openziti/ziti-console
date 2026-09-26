@@ -173,7 +173,7 @@ export class AuthPolicyFormComponent extends ProjectableForm implements OnInit, 
         const apiData = this.apiData;
         apiData.id = this.formData.id;
         this.isLoading = true;
-        this.svc.save(apiData).then((result) => {
+        this.svc.save(apiData, this.initData).then((result) => {
             if (this.isModal) {
                 this.closeModal(true, true);
                 return;

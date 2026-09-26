@@ -24,7 +24,7 @@ import { HttpClient } from "@angular/common/http";
 import {FilterObj} from "../features/data-table/data-table-filter.service";
 import { LoginServiceClass } from './login-service.class';
 
-import {cloneDeep, isEmpty, sortedUniq, isString, isArray, isNumber, isBoolean} from "lodash";
+import {cloneDeep, isEmpty, sortedUniq, isString, isArray, isNumber, isBoolean, isEqual} from "lodash";
 import {SettingsServiceClass} from "./settings-service.class";
 
 export const ZITI_DATA_SERVICE = new InjectionToken<ZitiDataService>('ZITI_DATA_SERVICE');
@@ -120,6 +120,24 @@ export abstract class ZitiDataService {
       ];
     }
     return filters;
+  }
+
+  /**
+   * Copies unknown fields (on `formData` but not the model or `excludedProperties`) onto
+   * `saveModel` so raw-JSON-editor edits aren't dropped. On update, pass `originalData` (the
+   * loaded entity) to skip unchanged server-supplied fields (_links, createdAt, enrollment).
+   */
+  mergeUnknownFormProperties(saveModel: any, formData: any, modelProperties: string[], excludedProperties: string[] = ['id'], originalData?: any): any {
+    Object.keys(formData || {}).forEach((prop) => {
+      if (modelProperties.includes(prop) || excludedProperties.includes(prop)) {
+        return;
+      }
+      if (originalData && isEqual(formData[prop], originalData[prop])) {
+        return;
+      }
+      saveModel[prop] = formData[prop];
+    });
+    return saveModel;
   }
 
   // escape ziti-ql string contents so a value with a quote/backslash can't alter the query

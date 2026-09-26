@@ -167,7 +167,7 @@ export class TransitRouterFormComponent extends ProjectableForm implements OnIni
     }
 
     this.isLoading = true;
-    this.svc.save(this.formData).then((result) => {
+    this.svc.save(this.formData, this.initData).then((result) => {
       if (result?.close) {
         if (this.isModal) {
           this.closeModal(true, true);

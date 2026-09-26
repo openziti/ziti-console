@@ -177,7 +177,7 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
     }
 
     this.isLoading = true;
-    this.svc.save(this.formData).then((result) => {
+    this.svc.save(this.formData, this.initData).then((result) => {
       if (result?.close) {
         if (this.isModal) {
           this.closeModal(true, true);
@@ -261,11 +261,5 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
 
   get tunnelerEnabledReadOnly(): boolean {
     return this.config.isOpenZiti ? true : !this.isTunnelerDisabled()
-  }
-
-  get isCustomerHosted(): boolean {
-    return this.extService.disabledComponents.some(
-      item => item.key === 'customer-hosted'
-    );
   }
 }
