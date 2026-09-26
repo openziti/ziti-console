@@ -68,7 +68,9 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
 
     @Input() rowData: any[] = [];
     @Input() isLoading = false;
-    @Input() options: {noSelect?: boolean; noMenu?: boolean} = {noSelect: false, noMenu: false};
+    @Input() options: {noSelect?: boolean; noMenu?: boolean; pager?: 'pages' | 'cursor'} = {noSelect: false, noMenu: false};
+    @Input() hasNext = false;
+    @Input() hasPrev = false;
     @Input() startCount: any = '-';
     @Input() endCount: any = '-';
     @Input() totalCount: any = '-';
@@ -747,15 +749,31 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         this.tableFilterService.changePage((this.tableFilterService.currentPage || 1) - 1);
     }
 
+    get cursorPager(): boolean {
+        return this.options?.pager === 'cursor';
+    }
+
     get nextDisabled(): boolean {
-        if (!_.isNumber(this.totalCount) || !_.isNumber(this.endCount) || this.filtering) {
+        if (this.filtering) {
+            return true;
+        }
+        if (this.cursorPager) {
+            return !this.hasNext;
+        }
+        if (!_.isNumber(this.totalCount) || !_.isNumber(this.endCount)) {
             return true;
         }
         return Number(this.endCount) >= Number(this.totalCount);
     }
 
     get prevDisabled(): boolean {
-        if (!_.isNumber(this.startCount) || !_.isNumber(this.totalCount) || this.filtering) {
+        if (this.filtering) {
+            return true;
+        }
+        if (this.cursorPager) {
+            return !this.hasPrev;
+        }
+        if (!_.isNumber(this.startCount) || !_.isNumber(this.totalCount)) {
             return true;
         }
         return Number(this.startCount) <= 1;
