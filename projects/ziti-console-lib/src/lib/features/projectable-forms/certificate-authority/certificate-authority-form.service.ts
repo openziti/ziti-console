@@ -99,6 +99,6 @@ export class CertificateAuthorityFormService {
                     saveModel[prop] = formData[prop];
             }
         });
-        return saveModel;
+        return this.dataService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id']);
     }
 }

@@ -38,9 +38,9 @@ export class ServiceEdgeRouterPolicyFormService {
         @Inject(SERVICE_EDGE_ROUTER_POLICY_EXTENSION_SERVICE)private extService: ExtensionService
     ) {}
 
-    save(formData): Promise<any> {
+    save(formData, originalData?): Promise<any> {
         const isUpdate = !isEmpty(formData.id);
-        const data: any = this.getEdgeRouterPolicyDataModel(formData, isUpdate);
+        const data: any = this.getEdgeRouterPolicyDataModel(formData, isUpdate, originalData);
         const svc = isUpdate ? this.zitiService.patch.bind(this.zitiService) : this.zitiService.post.bind(this.zitiService);
         return svc('service-edge-router-policies', data, formData.id).then(async (result: any) => {
             const id = result?.data?.id || formData.id;
@@ -209,7 +209,7 @@ export class ServiceEdgeRouterPolicyFormService {
         });
     }
 
-    getEdgeRouterPolicyDataModel(formData, isUpdate) {
+    getEdgeRouterPolicyDataModel(formData, isUpdate, originalData?) {
         const saveModel = new ServiceEdgeRouterPolicy();
         const modelProperties = keys(saveModel);
         modelProperties.forEach((prop) => {
@@ -218,7 +218,7 @@ export class ServiceEdgeRouterPolicyFormService {
                     saveModel[prop] = formData[prop];
             }
         });
-        return saveModel;
+        return this.zitiService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id'], isUpdate ? originalData : undefined);
     }
 
     copyToClipboard(val) {

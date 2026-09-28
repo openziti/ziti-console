@@ -66,9 +66,9 @@ export class AuthPolicyFormService {
         });
     }
 
-    save(formData) {
+    save(formData, originalData?) {
         const isUpdate = !isEmpty(formData.id);
-        const data: any = this.getAuthPolicyDataModel(formData, isUpdate);
+        const data: any = this.getAuthPolicyDataModel(formData, isUpdate, originalData);
         let prom;
         if (isUpdate) {
             prom = this.dataService.put('auth-policies', data, formData.id, true);
@@ -109,7 +109,7 @@ export class AuthPolicyFormService {
         })
     }
 
-    getAuthPolicyDataModel(formData, isUpdate) {
+    getAuthPolicyDataModel(formData, isUpdate, originalData?) {
         const saveModel = new AuthPolicy();
         const modelProperties = keys(saveModel);
         modelProperties.forEach((prop) => {
@@ -118,6 +118,6 @@ export class AuthPolicyFormService {
                     saveModel[prop] = formData[prop];
             }
         });
-        return saveModel;
+        return this.dataService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id'], isUpdate ? originalData : undefined);
     }
 }

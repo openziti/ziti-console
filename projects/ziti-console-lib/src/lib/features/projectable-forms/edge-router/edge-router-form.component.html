@@ -84,31 +84,6 @@
                   </div>
                 </div>
               </lib-form-field-container>
-              @if (isCustomerHosted) {
-                <lib-form-field-container
-                  [title]="'LINK LISTENER'"
-                  class="form-field-advanced"
-                  >
-                  <div class="config-item disabled">
-                    <div class="config-container toggle-container">
-                      <div class="config-container-label">ENABLE LINK LISTENER</div>
-                      <div
-                        [ngClass]="{ on: formData.linkListener, disabled: true }"
-                        class="toggle"
-                        role="switch"
-                        aria-disabled="true"
-                        [attr.aria-checked]="!!formData.linkListener"
-                        matTooltip="This value is reported by the router and can't be changed here."
-                        matTooltipPosition="above"
-                        >
-                        <span [hidden]="!formData.linkListener" class="on-label">YES</span>
-                        <span [hidden]="formData.linkListener" class="off-label">NO</span>
-                        <div class="switch"></div>
-                      </div>
-                    </div>
-                  </div>
-                </lib-form-field-container>
-              }
               @if (formData?.hostname || formData?.supportedProtocols?.tls || formData?.supportedProtocols?.wss) {
                 <lib-form-field-container [showHeader]="false">
                       @if (formData?.hostname) {

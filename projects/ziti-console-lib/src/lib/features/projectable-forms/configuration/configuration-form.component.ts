@@ -236,7 +236,7 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
             this.isLoading = false;
             return;
         }
-        const configId = await this.svc.save(this.formData).then((result) => {
+        const configId = await this.svc.save(this.formData, this.initData).then((result) => {
             if (!isEmpty(result?.id)) {
                 this.formData = result;
                 this.initData = this.formData;

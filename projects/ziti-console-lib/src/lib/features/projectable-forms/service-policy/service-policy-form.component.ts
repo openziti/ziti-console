@@ -274,7 +274,7 @@ export class ServicePolicyFormComponent extends ProjectableForm implements OnIni
 
     this.isLoading = true;
     this.applySelectedAttributes();
-    this.svc.save(this.formData).then((result) => {
+    this.svc.save(this.formData, this.initData).then((result) => {
       if (result?.close) {
         this.closeModal(true, true);
       }

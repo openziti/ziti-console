@@ -440,7 +440,7 @@ export class ServiceFormComponent extends ProjectableForm implements OnInit, OnC
     }
 
     this.isLoading = true;
-    const serviceId = await this.svc.save(this.formData).then((result) => {
+    const serviceId = await this.svc.save(this.formData, this.initData).then((result) => {
       if (!isEmpty(result?.id)) {
         this.formData = result;
         this.initData = this.formData;

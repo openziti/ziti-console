@@ -84,9 +84,9 @@ export class ConfigurationService {
         }
     }
 
-    save(formData) {
+    save(formData, originalData?) {
         const isUpdate = !isEmpty(formData.id);
-        const data: any = this.getConfigDataModel(formData, isUpdate);
+        const data: any = this.getConfigDataModel(formData, isUpdate, originalData);
         let prom;
         if (isUpdate) {
             prom = this.dataService.patch('configs', data, formData.id, true);
@@ -127,7 +127,7 @@ export class ConfigurationService {
         })
     }
 
-    getConfigDataModel(formData, isUpdate) {
+    getConfigDataModel(formData, isUpdate, originalData?) {
         const saveModel = new Config();
         const modelProperties = keys(saveModel);
         modelProperties.forEach((prop) => {
@@ -137,6 +137,6 @@ export class ConfigurationService {
             }
         });
         saveModel.data = this.validationService.redefineObject(saveModel.data);
-        return saveModel;
+        return this.dataService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id'], isUpdate ? originalData : undefined);
     }
 }

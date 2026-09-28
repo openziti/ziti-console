@@ -39,9 +39,9 @@ export class TerminatorFormService {
     ) {
     }
 
-    save(formData) {
+    save(formData, originalData?) {
         const isUpdate = !isEmpty(formData.id);
-        const data: any = this.getTerminatorDataModel(formData, isUpdate);
+        const data: any = this.getTerminatorDataModel(formData, isUpdate, originalData);
         let prom;
         if (isUpdate) {
             prom = this.dataService.patch('terminators', data, formData.id, true);
@@ -91,7 +91,7 @@ export class TerminatorFormService {
         })
     }
 
-    getTerminatorDataModel(formData, isUpdate) {
+    getTerminatorDataModel(formData, isUpdate, originalData?) {
         const saveModel = new Terminator();
         const modelProperties = keys(saveModel);
         modelProperties.forEach((prop) => {
@@ -100,7 +100,7 @@ export class TerminatorFormService {
                     saveModel[prop] = formData[prop];
             }
         });
-        return saveModel;
+        return this.dataService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id'], isUpdate ? originalData : undefined);
     }
 
     public getIdentityNamedAttributes() {

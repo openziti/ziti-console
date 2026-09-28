@@ -28,9 +28,9 @@ export class PostureCheckFormService {
     ) {
     }
 
-    save(formData) {
+    save(formData, originalData?) {
         const isUpdate = !isEmpty(formData.id);
-        const data: any = this.getConfigTypeDataModel(formData, isUpdate);
+        const data: any = this.getConfigTypeDataModel(formData, isUpdate, originalData);
         let prom;
         if (isUpdate) {
             prom = this.dataService.patch('posture-checks', data, formData.id, true);
@@ -71,7 +71,7 @@ export class PostureCheckFormService {
         })
     }
 
-    getConfigTypeDataModel(formData, isUpdate) {
+    getConfigTypeDataModel(formData, isUpdate, originalData?) {
         const saveModel = new PostureCheck();
         const modelProperties = keys(saveModel);
         modelProperties.forEach((prop) => {
@@ -80,6 +80,6 @@ export class PostureCheckFormService {
                     saveModel[prop] = formData[prop];
             }
         });
-        return saveModel;
+        return this.dataService.mergeUnknownFormProperties(saveModel, formData, modelProperties, ['id'], isUpdate ? originalData : undefined);
     }
 }

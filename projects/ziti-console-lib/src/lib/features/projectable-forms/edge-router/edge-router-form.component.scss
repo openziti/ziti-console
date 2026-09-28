@@ -105,22 +105,11 @@
   &.advertise-address-label {
     text-transform: lowercase;
   }
-
-  &.advertise-address-label {
-    height: auto;
-    padding: 0.125rem 0;
-  }
 }
 
 .config-container {
   &.domain-container,
   &.advertise-address-container {
     background-color: var(--stroke);
-  }
-
-  &.advertise-address-container {
-    height: auto;
-    min-height: var(--defaultInputHeight);
-    padding: 0rem 1.25rem;
   }
 }

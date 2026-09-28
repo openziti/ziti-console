@@ -203,7 +203,7 @@ export class ConfigTypeFormComponent extends ProjectableForm implements OnInit, 
             this.isLoading = false;
             return;
         }
-        const configId = await this.svc.save(this.formData).then((result) => {
+        const configId = await this.svc.save(this.formData, this.initData).then((result) => {
             if (!isEmpty(result?.id)) {
                 this.formData = result;
                 this.initData = cloneDeep(this.formData);
