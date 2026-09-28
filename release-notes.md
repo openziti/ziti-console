@@ -1,3 +1,14 @@
+# app-ziti-console-v4.5.5
+# ziti-console-lib-v1.5.5
+## Feature/Improvements
+* [Issue #938](https://github.com/openziti/ziti-console/issues/938) - Show a display "label" for beta list-table filter chips instead of the raw single-select option value
+* [Issue #938](https://github.com/openziti/ziti-console/issues/938) - Add a cursor paging mode (prev/next only) to the beta list-table for data sources that report no total count
+
+## Bug Fixes
+* [PR #943](https://github.com/openziti/ziti-console/pull/943) - Preserve unknown/custom fields the console does not render when saving entity forms, and stop submitting the internal "badges" field to the API
+* [PR #953](https://github.com/openziti/ziti-console/pull/953) - Merge only the unknown fields the user actually changed, diffing against the loaded entity so read-only server fields (_links, createdAt, enrollment, ...) are no longer resent on update
+
+
 # app-ziti-console-v4.5.4
 # ziti-console-lib-v1.5.4
 ## Feature/Improvements
