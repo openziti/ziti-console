@@ -297,16 +297,18 @@
         </div>
         <div class="lt-pager">
           <button type="button" class="lt-page-btn icon-prev" [disabled]="prevDisabled" (click)="prevPage()" aria-label="Previous page"></button>
-          @for (p of pageWindow; track $index) {
-            @if (p === 0) {
-              <span class="lt-page-gap">&#8230;</span>
-            } @else {
-              <button
-                type="button"
-                class="lt-page-num"
-                [class.is-current]="p === currentPageNum"
-                (click)="goToPage(p)"
-              >{{ p }}</button>
+          @if (!cursorPager) {
+            @for (p of pageWindow; track $index) {
+              @if (p === 0) {
+                <span class="lt-page-gap">&#8230;</span>
+              } @else {
+                <button
+                  type="button"
+                  class="lt-page-num"
+                  [class.is-current]="p === currentPageNum"
+                  (click)="goToPage(p)"
+                >{{ p }}</button>
+              }
             }
           }
           <button type="button" class="lt-page-btn icon-next" [disabled]="nextDisabled" (click)="nextPage()" aria-label="Next page"></button>
