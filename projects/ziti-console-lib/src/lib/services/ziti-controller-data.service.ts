@@ -477,6 +477,7 @@ export class ZitiControllerDataService extends ZitiDataService {
                 paging.filter = paging.filter.split('#').join('');
             }
         }
+        let filterExpression = '';
         filters.forEach((filter, index) => {
             let filterVal = '';
             switch (filter.type) {
@@ -506,15 +507,18 @@ export class ZitiControllerDataService extends ZitiDataService {
                     break;
             }
             if (index <= 0) {
-                urlFilter = `?filter= ${filterVal}`;
+                filterExpression = ` ${filterVal}`;
             } else {
-                urlFilter += ` and ${filterVal}`
+                filterExpression += ` and ${filterVal}`;
             }
         });
         if (noSearch) {
             if (paging.page !== -1) urlFilter = "?limit=" + paging.total + "&offset=" + ((paging.page - 1) * paging.total)  + "&sort=" + paging.sort + " " + paging.order;
         } else {
-            urlFilter += `&limit=${paging.total}&offset=${((paging.page - 1) * paging.total)}&sort=${paging.sort}  ${paging.order}`
+            // Encode the filter expression so entity-supplied values containing URL-reserved
+            // characters (e.g. "&", "#", "+") do not truncate or corrupt the query string.
+            urlFilter = `?filter=${encodeURIComponent(filterExpression)}`;
+            urlFilter += `&limit=${paging.total}&offset=${((paging.page - 1) * paging.total)}&sort=${paging.sort}  ${paging.order}`;
         }
         return urlFilter;
     }
