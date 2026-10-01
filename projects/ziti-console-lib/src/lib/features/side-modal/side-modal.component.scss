@@ -4,9 +4,10 @@
   // left box-shadow; a viewport-percentage (was -30%) fails once the viewport is
   // narrower than the min-width clamp, leaving a strip peeking over the content.
   right: -42rem;
-  top: 0;
+  // Below the header so the close button isn't hidden behind it.
+  top: var(--headerHeight);
   padding: 1.875rem;
-  height: 100%;
+  height: calc(100% - var(--headerHeight));
   width: 30%;
   min-width: 28.125rem;
   max-width: 37.5rem;
@@ -23,7 +24,7 @@
 
   .close {
     position: absolute;
-    top: 1rem;
+    top: 1.625rem;
     right: 1rem;
     font-size: 1.5rem;
     cursor: pointer;
