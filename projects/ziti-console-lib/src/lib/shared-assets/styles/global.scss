@@ -1027,6 +1027,17 @@ lib-form-field-container {
   }
 }
 
+// Reserve room for the copy icon so it clears the input's right edge.
+.form-row:has(> .icon-copy.copy-text) {
+  .form-field-input {
+    padding-right: 2rem;
+  }
+
+  > .icon-copy.copy-text {
+    right: 0.75rem;
+  }
+}
+
 a {
   &.delete-button,
   &.download-button {
