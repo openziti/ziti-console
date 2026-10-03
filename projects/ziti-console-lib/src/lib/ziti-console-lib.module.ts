@@ -150,6 +150,7 @@ import {CallbackComponent} from "./pages/callback/callback.component";
 import {ProgressMeterComponent} from "./features/progress-meter/progress-meter.component";
 import {ProgressWizardComponent} from "./features/progress-wizard/progress-wizard.component";
 import { SettingsComponent } from './pages/settings/settings.component';
+import { ConfigBuilderModule } from './pages/config-builder/config-builder.module';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { GeolocateComponent } from './pages/geolocate/geolocate.component';
 import { MapLegendComponent } from './pages/geolocate/components/map-legend/map-legend.component';
@@ -380,6 +381,7 @@ export function playerFactory() {
         ListTableHeaderComponent
     ], imports: [
         CommonModule,
+        ConfigBuilderModule,
         FormsModule,
         MatDialogModule,
         MatRadioModule,

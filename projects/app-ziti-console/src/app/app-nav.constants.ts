@@ -85,6 +85,13 @@ export const ZITI_CONSOLE_NAVIGATOR = {
                     iconClass: 'icon-time',
                     selectedRoutes: [URLS.ZITI_SESSIONS, URLS.ZITI_API_SESSIONS]
                 },
+                {
+                    label: 'Config Builder',
+                    route: URLS.ZITI_CONFIG_BUILDER,
+                    iconClass: 'icon-AdvancedOptions',
+                    selectedRoutes: [URLS.ZITI_CONFIG_BUILDER],
+                    isBetaFeature: true
+                },
             ]
         }
     ]

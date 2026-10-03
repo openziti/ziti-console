@@ -59,6 +59,7 @@ import {
   APISessionFormComponent,
   CallbackComponent,
   SettingsComponent,
+  ConfigBuilderComponent,
   ProfileComponent,
   GeolocateComponent,
   AttributesComponent
@@ -377,6 +378,13 @@ const routes: Routes = [
   {
     path: 'settings',
     component: SettingsComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'config-builder',
+    component: ConfigBuilderComponent,
+    canMatch: [betaFeaturesMatch],
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
   },
