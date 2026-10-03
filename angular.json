@@ -329,6 +329,72 @@
         }
       }
     },
+    "config-builder": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "projects/app-config-builder",
+      "sourceRoot": "projects/app-config-builder/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/config-builder",
+            "index": "projects/app-config-builder/src/index.html",
+            "main": "projects/app-config-builder/src/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "projects/app-config-builder/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "./node_modules/ziti-console-lib/assets/fonts/",
+                "output": "/assets/fonts"
+              },
+              {
+                "glob": "favicon.ico",
+                "input": "./node_modules/ziti-console-lib/assets/icons/",
+                "output": "/assets/icons"
+              }
+            ],
+            "styles": [
+              "projects/ziti-console-lib/src/lib/shared-assets/styles/global.scss",
+              "projects/ziti-console-lib/src/lib/shared-assets/styles/icons.scss",
+              "projects/app-config-builder/src/styles.scss"
+            ],
+            "scripts": [],
+            "preserveSymlinks": true,
+            "allowedCommonJsDependencies": [
+              "lodash"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "6mb",
+                  "maximumError": "10mb"
+                }
+              ],
+              "outputHashing": "all",
+              "aot": true,
+              "optimization": true,
+              "sourceMap": false,
+              "extractLicenses": true,
+              "buildOptimizer": true
+            }
+          },
+          "defaultConfiguration": "production"
+        }
+      }
+    },
     "ziti-console-lib": {
       "projectType": "library",
       "root": "projects/ziti-console-lib",

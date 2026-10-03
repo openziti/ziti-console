@@ -11,7 +11,8 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
-const distRoot = join(here, '..', 'dist', 'app-ziti-console');
+// default is the ZAC bundle; pass another dist folder name to rewrite a different app, e.g. `config-builder`
+const distRoot = join(here, '..', 'dist', process.argv[2] ?? 'app-ziti-console');
 
 async function* walk(dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {

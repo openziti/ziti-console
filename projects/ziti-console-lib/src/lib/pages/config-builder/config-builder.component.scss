@@ -1,0 +1,959 @@
+// Config Builder. Theme tokens only, so dark mode flips for free.
+// The YAML preview is a deliberately dark "terminal" surface in both themes.
+
+@keyframes cb-rise {
+    from { opacity: 0; transform: translateY(0.6rem); }
+    to { opacity: 1; transform: none; }
+}
+
+@keyframes cb-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 45%, transparent); }
+    50% { box-shadow: 0 0 0 0.45rem transparent; }
+}
+
+// `main` in the app shell is a centering flex box; fill it instead of shrink-wrapping.
+:host {
+    display: block;
+    flex: 1;
+    align-self: stretch;
+    width: 100%;
+    min-width: 0;
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--subText) 45%, transparent) transparent;
+}
+
+.cb {
+    padding: var(--paddingXL, 1.5rem) 2rem;
+    min-height: 100%;
+    box-sizing: border-box;
+    color: var(--text);
+    background:
+        radial-gradient(60rem 24rem at 12% -8%, color-mix(in srgb, var(--primary) 14%, transparent), transparent 70%),
+        radial-gradient(44rem 22rem at 100% 0%, color-mix(in srgb, var(--secondary) 10%, transparent), transparent 70%),
+        var(--background);
+    font-family: 'Open Sans', sans-serif;
+}
+
+// ---- hero ----
+.cb-hero {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.75rem;
+    animation: cb-rise 0.5s ease both;
+}
+
+.cb-eyebrow {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 12%, transparent);
+    padding: 0.2rem 0.65rem;
+    border-radius: 2rem;
+}
+
+.cb-eyebrow-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    position: relative;
+}
+
+.cb-help-btn {
+    all: unset;
+    box-sizing: border-box;
+    cursor: pointer;
+    width: 1.6rem;
+    height: 1.6rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-family: 'Russo One', sans-serif;
+    font-size: 0.85rem;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+    transition: all var(--transition, 0.5s) ease;
+
+    &:hover,
+    &.open {
+        color: #fff;
+        background: var(--primary);
+        box-shadow: 0 0.25rem 0.8rem color-mix(in srgb, var(--primary) 40%, transparent);
+    }
+}
+
+.cb-help-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 19;
+}
+
+.cb-help {
+    position: absolute;
+    top: calc(100% + 0.7rem);
+    left: 0;
+    z-index: 20;
+    width: 25rem;
+    max-width: 90vw;
+    padding: 1.1rem 1.25rem;
+    color: var(--text);
+    background: var(--formBackground, #fff);
+    border: 1px solid var(--stroke);
+    border-top: 0.25rem solid var(--highlighted);
+    border-radius: calc(var(--defaultBorderRadius) * 2);
+    box-shadow: 0 1rem 2.5rem var(--shadow);
+    animation: cb-rise 0.25s ease both;
+
+    // pointer toward the ? button
+    &::before {
+        content: '';
+        position: absolute;
+        top: -0.55rem;
+        left: 7.2rem;
+        width: 0.8rem;
+        height: 0.8rem;
+        background: var(--highlighted);
+        transform: rotate(45deg);
+    }
+}
+
+.cb-help-title {
+    font-family: 'Russo One', sans-serif;
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+}
+
+.cb-help ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: var(--subText);
+
+    b { color: var(--text); }
+}
+
+.cb-help .cb-help-close {
+    margin-top: 1.5rem;
+    height: 2.1rem;
+    padding: 0 0.9rem;
+}
+
+.cb-title {
+    font-family: 'Russo One', sans-serif;
+    font-weight: 400;
+    font-size: 2.2rem;
+    line-height: 1.1;
+    margin: 0.6rem 0 0.35rem;
+
+    span {
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+}
+
+.cb-sub {
+    margin: 0;
+    color: var(--subText);
+    font-size: 0.95rem;
+}
+
+.cb-hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.cb-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 2rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--green);
+    background: color-mix(in srgb, var(--green) 12%, transparent);
+
+    .dot {
+        width: 0.55rem;
+        height: 0.55rem;
+        border-radius: 50%;
+        background: currentColor;
+        animation: cb-pulse 2.2s ease infinite;
+    }
+
+    &.bad { color: var(--red); background: color-mix(in srgb, var(--red) 12%, transparent); }
+    &.meh { color: var(--highlighted); background: color-mix(in srgb, var(--highlighted) 14%, transparent); }
+
+    &.clickable {
+        cursor: pointer;
+        transition: all var(--transition, 0.5s) ease;
+
+        &:hover { box-shadow: 0 0.2rem 0.7rem color-mix(in srgb, currentColor 30%, transparent); }
+        &:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+    }
+}
+
+// error text on a field's label: sits on the label line so the form never changes height
+.cb-field label .cb-tag {
+    margin-left: auto;
+    min-width: 0;
+    padding: 0.1rem 0.5rem;
+    border-radius: 1rem;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--red);
+    background: color-mix(in srgb, var(--red) 12%, transparent);
+}
+
+.cb { position: relative; }
+
+.cb-hero-actions { flex-wrap: wrap; justify-content: flex-end; }
+
+.cb-file-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 2rem;
+    border: 1px solid var(--stroke);
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 0.78rem;
+}
+
+.cb-dirty {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--highlighted);
+}
+
+.cb-banner {
+    margin-bottom: 1rem;
+    padding: 0.65rem 1rem;
+    font-size: 0.82rem;
+    border-radius: var(--defaultBorderRadius);
+    border-left: 0.25rem solid;
+    animation: cb-rise 0.3s ease both;
+
+    &.error { color: var(--red); background: color-mix(in srgb, var(--red) 9%, transparent); }
+    &.ok { color: var(--green); background: color-mix(in srgb, var(--green) 9%, transparent); }
+    &.warn { color: var(--highlighted); background: color-mix(in srgb, var(--highlighted) 12%, transparent); }
+}
+
+.cb-drop {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: grid;
+    place-items: center;
+    font-family: 'Russo One', sans-serif;
+    font-size: 1.5rem;
+    color: var(--primary);
+    background: color-mix(in srgb, var(--background) 82%, transparent);
+    border: 3px dashed var(--primary);
+    border-radius: calc(var(--defaultBorderRadius) * 2);
+    pointer-events: none;
+}
+
+// ---- layout ----
+.cb-layout {
+    display: grid;
+    grid-template-columns: 17rem minmax(0, 1fr) 0.9rem var(--cb-preview-w, 520px);
+    column-gap: 0.5rem;
+    row-gap: 1.25rem;
+    align-items: start;
+
+    // keep text selection and the cursor stable while dragging the splitter
+    &.resizing { user-select: none; cursor: col-resize; }
+}
+
+// drag handle between the form and the preview
+.cb-splitter {
+    position: sticky;
+    top: 1rem;
+    align-self: start;
+    height: calc(100vh - var(--headerHeight, 4rem) - 3rem);
+    display: grid;
+    place-items: center;
+    cursor: col-resize;
+    touch-action: none;
+    border-radius: 0.5rem;
+    outline: none;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 2px;
+        transform: translateX(-50%);
+        background: var(--stroke);
+        transition: all var(--transition, 0.5s) ease;
+    }
+
+    .cb-grip {
+        position: relative;
+        width: 0.45rem;
+        height: 2.6rem;
+        border-radius: 1rem;
+        background: var(--stroke);
+        transition: all var(--transition, 0.5s) ease;
+    }
+
+    &:hover,
+    &:focus-visible,
+    &.active {
+        &::before { background: var(--primary); width: 3px; }
+        .cb-grip {
+            background: var(--primary);
+            box-shadow: 0 0 0 0.3rem color-mix(in srgb, var(--primary) 20%, transparent);
+        }
+    }
+}
+
+@media (max-width: 1400px) {
+    .cb .cb-splitter { display: none; }
+    .cb-layout { grid-template-columns: 15rem minmax(0, 1fr); }
+    .cb .cb-preview { grid-column: 1 / -1; position: static; }
+}
+
+// Wide screens: the layout fills exactly the space under the hero, and the rail, form and preview scroll on their
+// own. No page scrollbar, and the splitter spans the same height as the panes.
+@media (min-width: 1401px) {
+    :host { display: flex; flex-direction: column; overflow: hidden; }
+    .cb { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+    .cb > * { flex: none; }
+    .cb > .cb-layout { flex: 1 1 auto; min-height: 0; grid-template-rows: minmax(0, 1fr); align-items: stretch; }
+    // default widths: the form has a floor and a ceiling and the preview takes everything left over
+    .cb .cb-layout.auto { grid-template-columns: 17rem minmax(26rem, 40rem) 0.9rem minmax(24rem, 1fr); }
+    .cb .cb-panel { position: static; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+    // overflow clips sideways too, so widen the rail over the gap to leave room for the active tab's bridge
+    .cb .cb-rail {
+        position: relative;
+        min-height: 0;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        padding-right: 0.75rem;
+        margin-right: -0.75rem;
+    }
+    .cb .cb-preview { position: static; max-height: none; min-height: 0; }
+    .cb .cb-splitter { position: relative; top: auto; height: auto; align-self: stretch; }
+}
+
+@media (max-width: 900px) {
+    .cb-layout { grid-template-columns: 1fr; }
+    .cb .cb-step.active::after { display: none; }
+    .cb .cb-rail { flex-direction: row; overflow-x: auto; }
+}
+
+// ---- rail ----
+.cb-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    position: sticky;
+    top: 1rem;
+    z-index: 1; // paint the active tab's bridge over the panel's left border
+    animation: cb-rise 0.5s 0.05s ease both;
+}
+
+.cb-step {
+    all: unset;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.75rem 0.9rem;
+    cursor: pointer;
+    border-radius: var(--defaultBorderRadius);
+    border: 1px solid transparent;
+    transition: all var(--transition, 0.5s) ease;
+
+    &:hover { background: var(--hoverBackground); }
+
+    // the active step is a tab: it shares the panel's fill and a bridge carries that fill across the gap
+    &.active {
+        position: relative;
+        z-index: 2;
+        background: var(--formBackground, #fff);
+        border-color: var(--stroke);
+        border-right-color: var(--formBackground, #fff);
+        border-radius: var(--defaultBorderRadius) 0 0 var(--defaultBorderRadius);
+
+        // gap between rail and panel (0.5rem) plus the panel's own 1px border; it also continues the tab's top and
+        // bottom outline across the gap, and starts under the tab's own right border to hide it
+        &::after {
+            content: '';
+            position: absolute;
+            top: -1px;
+            bottom: -1px;
+            left: calc(100% - 1px);
+            width: calc(0.5rem + 3px);
+            box-sizing: border-box;
+            background: var(--formBackground, #fff);
+            border-top: 1px solid var(--stroke);
+            border-bottom: 1px solid var(--stroke);
+        }
+
+        .cb-step-num { background: var(--primary); color: #fff; }
+    }
+}
+
+.cb-step-num {
+    flex: none;
+    width: 1.9rem;
+    height: 1.9rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-family: 'Russo One', sans-serif;
+    font-size: 0.85rem;
+    background: var(--stroke);
+    color: var(--subText);
+    transition: all var(--transition, 0.5s) ease;
+}
+
+.cb-step-body { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+.cb-step-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.cb-step-blurb {
+    font-size: 0.72rem;
+    color: var(--subText);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cb-badge {
+    flex: none;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--green);
+
+    &.warn { background: var(--highlighted); }
+    &.error { background: var(--red); }
+}
+
+// ---- panel ----
+.cb-panel {
+    background: var(--formBackground, #fff);
+    border: 1px solid var(--stroke);
+    border-radius: calc(var(--defaultBorderRadius) * 2);
+    box-shadow: 0 0.6rem 2rem var(--shadow);
+    padding: 1.5rem 1.75rem;
+    animation: cb-rise 0.5s 0.1s ease both;
+}
+
+.cb-panel-head {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: var(--marginXL, 0.9375rem);
+}
+
+.cb .cb-help-btn.small {
+    width: 1.35rem;
+    height: 1.35rem;
+    font-size: 0.72rem;
+}
+
+.cb .cb-section-help {
+    top: calc(100% + 0.5rem);
+    width: 24rem;
+
+    &::before { left: 1.2rem; }
+
+    p { margin: 0 0 0.6rem; font-size: 0.82rem; line-height: 1.45; color: var(--subText); }
+    .cb-help-tip { margin: 0; color: var(--text); }
+}
+
+.cb-panel-title {
+    font-family: 'Russo One', sans-serif;
+    font-size: 1.35rem;
+}
+
+.cb-fade { animation: cb-rise 0.35s ease both; }
+
+.cb-issues {
+    list-style: none;
+    margin: 0 0 1.1rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+
+    li {
+        font-size: 0.8rem;
+        padding: 0.45rem 0.75rem;
+        border-radius: var(--defaultBorderRadius);
+        border-left: 0.25rem solid;
+    }
+
+    .error { color: var(--red); background: color-mix(in srgb, var(--red) 9%, transparent); }
+    .warn { color: var(--highlighted); background: color-mix(in srgb, var(--highlighted) 12%, transparent); }
+}
+
+.cb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: var(--gapSmall, 0.3125rem) var(--marginXXL, 1.25rem);
+
+    .wide { grid-column: 1 / -1; }
+}
+
+.cb-gap { margin-top: var(--marginXXL, 1.25rem); }
+
+.cb-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gapSmall, 0.3125rem);
+
+    // keep the (?) tooltip icon on the label's line instead of wrapping under it
+    label {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--subText);
+    }
+}
+
+.form-field-input {
+    width: 100%;
+    box-sizing: border-box;
+    height: var(--defaultInputHeight);
+    padding: 0 0.9rem;
+    color: var(--text);
+    background: var(--background);
+    border: var(--inputBorderWidth) solid var(--inputBorder);
+    border-radius: var(--defaultBorderRadius);
+    font: inherit;
+    transition: border-color var(--transition, 0.5s) ease, box-shadow var(--transition, 0.5s) ease;
+
+    &:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.25rem color-mix(in srgb, var(--primary) 18%, transparent);
+    }
+
+    &.invalid {
+        border-color: var(--red);
+        box-shadow: 0 0 0 0.25rem color-mix(in srgb, var(--red) 14%, transparent);
+    }
+}
+
+.cb-hint {
+    margin: 1.25rem 0 0;
+    font-size: 0.8rem;
+    color: var(--subText);
+
+    code {
+        font-family: ui-monospace, Consolas, monospace;
+        background: var(--hoverBackground);
+        padding: 0.1rem 0.4rem;
+        border-radius: 0.25rem;
+    }
+}
+
+// ---- mode cards ----
+.cb-choice {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gapXL, 0.9375rem);
+    margin-bottom: var(--marginXXL, 1.25rem);
+}
+
+.cb-card {
+    all: unset;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 1.1rem 1.2rem;
+    border: var(--inputBorderWidth) solid var(--stroke);
+    border-radius: calc(var(--defaultBorderRadius) * 2);
+    transition: all var(--transition, 0.5s) ease;
+
+    &:hover { transform: translateY(-0.15rem); box-shadow: 0 0.6rem 1.4rem var(--shadow); }
+
+    &.on {
+        border-color: var(--primary);
+        background: color-mix(in srgb, var(--primary) 8%, transparent);
+        box-shadow: 0 0 0 0.25rem color-mix(in srgb, var(--primary) 14%, transparent);
+    }
+}
+
+.cb-card-title { font-family: 'Russo One', sans-serif; font-size: 1.05rem; }
+.cb-card-text { font-size: 0.8rem; color: var(--subText); }
+
+.cb-switchrow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.25rem;
+    background: var(--background);
+    border: 1px solid var(--stroke);
+    border-radius: calc(var(--defaultBorderRadius) * 2);
+}
+
+.cb-switchrow-title { font-weight: 700; }
+.cb-switchrow-text { font-size: 0.8rem; color: var(--subText); }
+
+// ---- listeners / loggers ----
+.cb-listener {
+    padding: 1.1rem 1.2rem;
+    margin-bottom: 1rem;
+    background: var(--background);
+    border: 1px solid var(--stroke);
+    border-radius: calc(var(--defaultBorderRadius) * 2);
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    animation: cb-rise 0.3s ease both;
+}
+
+.cb-listener-head { display: flex; gap: 0.6rem; align-items: center; }
+.cb-name { font-weight: 700; flex: 1; }
+.cb-fmt { width: 6rem; flex: none; }
+.cb-bind { display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.6rem; }
+.cb-bind.single { grid-template-columns: 1fr auto; }
+
+.cb-addrow { display: flex; gap: 1.25rem; }
+
+// a bordered sub-card that visibly belongs to one choice above it
+.cb-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gapMedium, 0.625rem);
+    padding: 0.9rem 1rem 1rem;
+    border: 1px solid var(--stroke);
+    border-left: 0.25rem solid var(--primary);
+    border-radius: var(--defaultBorderRadius);
+    background: color-mix(in srgb, var(--primary) 4%, var(--formBackground, #fff));
+}
+
+.cb-group-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+}
+
+.cb-group-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--primary);
+}
+
+.cb-kind {
+    display: inline-flex;
+    margin-top: 0.9rem;
+    padding: 0.2rem;
+    border: 1px solid var(--stroke);
+    border-radius: 2rem;
+    background: var(--formBackground);
+}
+
+.cb-kind-btn {
+    all: unset;
+    cursor: pointer;
+    padding: 0.35rem 1.1rem;
+    border-radius: 2rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--subText);
+    transition: all 0.25s ease;
+
+    &:hover { color: var(--text); }
+    &:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+    &.on { background: var(--primary); color: #fff; }
+}
+
+.cb-sublabel {
+    margin-top: 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--subText);
+}
+
+.cb-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.cb-chip {
+    all: unset;
+    cursor: pointer;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border-radius: 2rem;
+    border: 1px solid var(--stroke);
+    color: var(--subText);
+    transition: all var(--transition, 0.5s) ease;
+
+    &:hover { border-color: var(--primary); color: var(--text); }
+
+    &.on {
+        color: #fff;
+        background: var(--primary);
+        border-color: var(--primary);
+        box-shadow: 0 0.25rem 0.8rem color-mix(in srgb, var(--primary) 40%, transparent);
+    }
+}
+
+.cb-empty {
+    text-align: center;
+    padding: 2rem 1rem;
+    margin-bottom: 1rem;
+    border: 2px dashed var(--stroke);
+    border-radius: calc(var(--defaultBorderRadius) * 2);
+}
+
+.cb-empty-title { font-family: 'Russo One', sans-serif; font-size: 1.1rem; }
+.cb-empty-text { font-size: 0.85rem; color: var(--subText); }
+
+// ---- buttons ----
+.cb-btn {
+    all: unset;
+    box-sizing: border-box;
+    cursor: pointer;
+    padding: 0 1.3rem;
+    height: var(--defaultInputHeight);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: var(--defaultBorderRadius);
+    transition: all var(--transition, 0.5s) ease;
+
+    &.primary {
+        color: #fff;
+        background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 70%, var(--secondary)));
+        box-shadow: 0 0.4rem 1rem color-mix(in srgb, var(--primary) 35%, transparent);
+
+        &:hover:not([disabled]) { transform: translateY(-0.12rem); filter: brightness(1.1); }
+    }
+
+    &.ghost {
+        color: var(--text);
+        border: 1px solid var(--stroke);
+
+        &:hover:not([disabled]) { border-color: var(--primary); color: var(--primary); }
+    }
+
+    &.link { height: auto; padding: 0.2rem 0; color: var(--primary); align-self: flex-start; letter-spacing: 0.04em; }
+    &.small { height: 2.1rem; padding: 0 0.8rem; }
+    &[disabled] { opacity: 0.4; cursor: not-allowed; }
+}
+
+.cb-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--stroke);
+}
+
+// ---- preview ----
+.cb-preview {
+    position: sticky;
+    top: 1rem;
+    display: flex;
+    flex-direction: column;
+    // the hero sits above the pane, so reserve its height too or the pane starts below the fold
+    max-height: max(24rem, calc(100vh - var(--headerHeight, 4rem) - 15rem));
+    border-radius: calc(var(--defaultBorderRadius) * 2);
+    background: #0f1320;
+    border: 1px solid #232a40;
+    box-shadow: 0 1rem 3rem rgba(5, 8, 20, 0.45);
+    overflow: hidden;
+    animation: cb-rise 0.5s 0.15s ease both;
+}
+
+.cb-preview-bar {
+    flex: none;
+}
+
+.cb-preview-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.7rem 1rem;
+    background: #151b2e;
+    border-bottom: 1px solid #232a40;
+}
+
+.cb-dots {
+    display: flex;
+    gap: 0.35rem;
+
+    i { width: 0.65rem; height: 0.65rem; border-radius: 50%; background: #ff5f57; }
+    i:nth-child(2) { background: #febc2e; }
+    i:nth-child(3) { background: #28c840; }
+}
+
+// Open / Save / New live in the preview's title bar, styled as compact pills for the dark chrome
+.cb-bar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding-left: 0.6rem;
+    border-left: 1px solid #232a40;
+
+    .cb-btn {
+        height: 1.65rem;
+        padding: 0 0.85rem;
+        border-radius: 2rem;
+        font-size: 0.64rem;
+        letter-spacing: 0.12em;
+    }
+
+    .cb-btn.ghost {
+        color: #c5cbe0;
+        border-color: #2f3a5c;
+        background: #1b2340;
+
+        &:hover:not([disabled]) { color: #fff; border-color: var(--primary); background: color-mix(in srgb, var(--primary) 30%, #1b2340); }
+    }
+
+    .cb-btn.primary {
+        box-shadow: 0 0.2rem 0.7rem color-mix(in srgb, var(--primary) 45%, transparent);
+
+        &:hover:not([disabled]) { transform: translateY(-0.08rem); box-shadow: 0 0.35rem 0.9rem color-mix(in srgb, var(--primary) 55%, transparent); }
+    }
+}
+
+.cb-file { flex: 1; font-family: ui-monospace, Consolas, monospace; font-size: 0.78rem; color: #8b93b0; }
+
+.cb-verbose {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.7rem;
+    color: #8b93b0;
+    cursor: pointer;
+    white-space: nowrap;
+    // the global `label` rule adds a top margin and full width, which pushes the text below the box
+    width: auto;
+    margin: 0;
+
+    // the global `input` rule is full-width and tall; reset it for the checkbox
+    // it also forces `background-color` over any override, so the fill is drawn with `background-image` instead
+    input {
+        appearance: none;
+        flex: none;
+        width: 0.95rem;
+        height: 0.95rem;
+        margin: 0;
+        padding: 0;
+        border: 1px solid #3a4468;
+        border-radius: 0.25rem;
+        background-image: linear-gradient(#0f1320, #0f1320);
+        display: grid;
+        place-content: center;
+        cursor: pointer;
+        transition: all var(--transition, 0.5s) ease;
+
+        &::after {
+            content: '';
+            width: 0.28rem;
+            height: 0.5rem;
+            margin-top: -0.1rem;
+            border: solid #fff;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg) scale(0);
+            transition: transform 0.15s ease;
+        }
+
+        &:hover { border-color: var(--primary); }
+        &:checked { background-image: linear-gradient(var(--primary), var(--primary)); border-color: var(--primary); }
+        &:checked::after { transform: rotate(45deg) scale(1); }
+        &:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+    }
+}
+
+.cb-code {
+    flex: 1 1 auto;
+    min-height: 0; // lets the code scroll inside the pane instead of growing it past the viewport
+    margin: 0;
+    padding: 1rem 1rem 1.25rem 0;
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #2f3a5c transparent;
+
+    // slim dark scrollbars with no arrow buttons (Chromium/WebKit)
+    &::-webkit-scrollbar { width: 0.55rem; height: 0.55rem; }
+    &::-webkit-scrollbar-track { background: transparent; }
+    &::-webkit-scrollbar-corner { background: transparent; }
+    &::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+    &::-webkit-scrollbar-thumb {
+        background: #2f3a5c;
+        border-radius: 1rem;
+        border: 2px solid #0f1320;
+
+        &:hover { background: #4a5a8c; }
+    }
+
+    font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: #d6dcf5;
+    tab-size: 2;
+
+    ::ng-deep {
+        .ln { display: inline-block; width: 2.6rem; padding-right: 0.8rem; text-align: right; color: #4a526e; user-select: none; }
+        .k { color: #7aa2ff; }
+        .s { color: #9ece6a; }
+        .n { color: #ff9e64; }
+        .b { color: #bb9af7; }
+        .e { color: #f7768e; }
+        .c { color: #5c6586; font-style: italic; }
+    }
+}
+
+// `.cb [class]` out-ranks the single-class animation rules above, so no override flags are needed.
+@media (prefers-reduced-motion: reduce) {
+    .cb,
+    .cb [class] { animation: none; }
+}

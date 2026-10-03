@@ -17,6 +17,7 @@
     "build": "node ./scripts/check-route-segments.mjs && ng build ziti-console-lib && ng build ziti-console --base-href ./ && node ./scripts/rewrite-bundle-css.mjs && ng build ziti-console-node",
     "build-lib": "node ./scripts/check-route-segments.mjs && ng build ziti-console-lib && shx cp -r ./assets ./dist/ziti-console-lib && shx cp -r ./html ./dist/ziti-console-lib/assets && ng build ziti-console --base-href ./ && node ./scripts/rewrite-bundle-css.mjs && ng build ziti-console-node",
     "build-lib:once": "ng build ziti-console-lib",
+    "build:config-builder": "ng build ziti-console-lib && ng build config-builder && node ./scripts/rewrite-bundle-css.mjs config-builder",
     "watch:lib": "ng build ziti-console-lib --watch",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
@@ -117,6 +118,7 @@
     "session-file-store": "^1.5.0",
     "tslib": "^2.3.0",
     "vanilla-jsoneditor": "^1.1.2",
+    "yaml": "^2.9.1",
     "ziti-console-lib": "file:dist/ziti-console-lib",
     "zone.js": "~0.15.1"
   },

@@ -1,0 +1,40 @@
+/* Theme tokens the builder reads. Same values as the ZAC app so the two look identical. */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+:root {
+  --navigation: #ffffff;
+  --primary: #0027ab;
+  --primaryColor: #0027ab;
+  --secondary: #fe0029;
+  --secondaryColor: #fe0029;
+  --transition: 0.5s;
+  --highlighted: #f5a93d;
+  --menu: #434c5e;
+  --inputBorder: #d4d9e2;
+  --icon: #658292;
+  --stroke: #d4d9e2;
+  --shaded: #f6f7fb;
+  --background: #f6f7fb;
+  --placeholder: #CDCDCD;
+  --text: #000;
+  --subText: #97a0b2;
+  --shadow: 0rem 0rem 0.5rem 0.125rem rgba(0, 0, 0, 0.08);
+  --shadowLarge: 0 0.75rem 1.4375rem 0 rgba(0, 0, 0, .07);
+  --shadowColor: rgba(0, 0, 0, 0.08);
+  --redText: #9c0027;
+  --hoverBackground: #ebeef3;
+}
+
+html {
+  font-size: 90%;
+}
+
+body {
+  margin: 0;
+}
+
+/* the builder fills the page; in an iframe that is the frame */
+lib-config-builder {
+  display: block;
+  height: 100vh;
+}

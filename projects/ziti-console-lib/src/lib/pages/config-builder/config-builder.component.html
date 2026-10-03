@@ -1,0 +1,769 @@
+<input #fileInput type="file" accept=".yml,.yaml,text/yaml" hidden (change)="onFileInput($event)" />
+<div class="cb" [class.dragging]="dragOver" (input)="refresh()" (change)="refresh()"
+     (dragover)="onDragOver($event)" (dragleave)="dragOver = false" (drop)="onDrop($event)">
+    <div class="cb-drop" *ngIf="dragOver">Drop a controller or router config to edit it</div>
+    <header class="cb-hero">
+        <div class="cb-hero-text">
+            <div class="cb-eyebrow-row">
+                <div class="cb-eyebrow">Beta prototype</div>
+                <button class="cb-help-btn" [class.open]="showHelp" (click)="toggleHelp()"
+                        aria-label="About this editor" aria-haspopup="dialog" [attr.aria-expanded]="showHelp">?</button>
+                <ng-container *ngIf="showHelp">
+                    <div class="cb-help-backdrop" (click)="toggleHelp()"></div>
+                    <div class="cb-help" role="dialog" aria-label="About this editor">
+                        <div class="cb-help-title">This is an editor, not a control panel</div>
+                        <ul>
+                            <li>Your edits stay in this browser. <b>Nothing is sent to the {{kindLabel | lowercase}}.</b></li>
+                            <li>The running {{kindLabel | lowercase}} keeps its current configuration.</li>
+                            <li>A change takes effect only after <b>you</b> save the file, place it on the
+                                {{kindLabel | lowercase}} host, and restart the {{kindLabel | lowercase}}.</li>
+                            <li>Save writes back to the file you opened in Chrome and Edge. Other browsers download a copy.</li>
+                        </ul>
+                        <button class="cb-btn ghost cb-help-close" (click)="toggleHelp()">Got it</button>
+                    </div>
+                </ng-container>
+            </div>
+            <h1 class="cb-title">{{kindLabel}} <span>Config</span> Builder</h1>
+            <p class="cb-sub">Open a config or start fresh, edit it, save it back. Controller and router configs are
+                detected automatically. Everything runs in your browser.</p>
+            <div class="cb-kind" role="tablist" aria-label="Config type">
+                <button role="tab" class="cb-kind-btn" [class.on]="kind === 'controller'"
+                        [attr.aria-selected]="kind === 'controller'" (click)="setKind('controller')">Controller</button>
+                <button role="tab" class="cb-kind-btn" [class.on]="kind === 'router'"
+                        [attr.aria-selected]="kind === 'router'" (click)="setKind('router')">Router</button>
+            </div>
+        </div>
+        <div class="cb-hero-actions">
+            <div class="cb-file-chip" *ngIf="fileName" [matTooltip]="canPickFiles ? 'Save writes to this file' : 'Save downloads a copy'">
+                <span class="cb-file-name">{{fileName}}</span>
+                <span class="cb-dirty" *ngIf="dirty"></span>
+            </div>
+            <div class="cb-status" [class.bad]="errorCount" [class.meh]="!errorCount && warnCount"
+                 [class.clickable]="errorCount || warnCount" [attr.role]="errorCount || warnCount ? 'button' : null"
+                 [attr.tabindex]="errorCount || warnCount ? 0 : null"
+                 [matTooltip]="errorCount || warnCount ? 'Go to the first problem' : ''"
+                 (click)="goToFirstIssue()" (keydown.enter)="goToFirstIssue()">
+                <span class="dot"></span>
+                <span *ngIf="!errorCount && !warnCount">Valid</span>
+                <span *ngIf="errorCount">{{errorCount}} error{{errorCount === 1 ? '' : 's'}}</span>
+                <span *ngIf="!errorCount && warnCount">{{warnCount}} warning{{warnCount === 1 ? '' : 's'}}</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="cb-banner error" *ngIf="loadError">{{loadError}}</div>
+    <div class="cb-banner ok" *ngIf="notice">{{notice}}</div>
+    <div class="cb-banner warn" *ngIf="loadWarnings.length">
+        <div *ngFor="let w of loadWarnings">{{w}}</div>
+        <div>Comments and key order inside edited sections are not preserved on save.</div>
+    </div>
+
+    <div class="cb-layout" [class.resizing]="resizing" [class.auto]="previewAuto"
+         [ngStyle]="previewAuto ? null : {'--cb-preview-w': previewWidth + 'px'}">
+        <!-- Section rail -->
+        <nav class="cb-rail">
+            <button *ngFor="let s of sections; let i = index" class="cb-step"
+                    [class.active]="active === s.id" (click)="select(s.id)">
+                <span class="cb-step-num">{{i + 1}}</span>
+                <span class="cb-step-body">
+                    <span class="cb-step-label">{{s.label}}</span>
+                    <span class="cb-step-blurb">{{s.blurb}}</span>
+                </span>
+                <span class="cb-badge" [ngClass]="badge(s.id)"></span>
+            </button>
+        </nav>
+
+        <!-- Form panel -->
+        <main class="cb-panel">
+            <div class="cb-panel-head">
+                <div class="cb-panel-title">{{activeSection.label}}</div>
+                <button *ngIf="sectionHelp" class="cb-help-btn small" [class.open]="sectionHelpOpen"
+                        (click)="toggleSectionHelp()" aria-haspopup="dialog" [attr.aria-expanded]="sectionHelpOpen"
+                        [attr.aria-label]="'About ' + activeSection.label">?</button>
+                <ng-container *ngIf="sectionHelp && sectionHelpOpen">
+                    <div class="cb-help-backdrop" (click)="toggleSectionHelp()"></div>
+                    <div class="cb-help cb-section-help" role="dialog" [attr.aria-label]="'About ' + activeSection.label">
+                        <div class="cb-help-title">{{activeSection.label}}</div>
+                        <p>{{sectionHelp.what}}</p>
+                        <p class="cb-help-tip">{{sectionHelp.tip}}</p>
+                    </div>
+                </ng-container>
+            </div>
+
+            <ul class="cb-issues" *ngIf="bannerIssues(active).length">
+                <li *ngFor="let i of bannerIssues(active)" [class.error]="i.level === 'error'" [class.warn]="i.level === 'warn'">
+                    {{i.message}}
+                </li>
+            </ul>
+
+            <!-- IDENTITY -->
+            <section *ngIf="active === 'identity'" class="cb-fade">
+                <div class="cb-grid">
+                    <div class="cb-field wide">
+                        <label>Trust domain <span class="infoicon" matTooltip="Optional. In HA the server cert needs a spiffe://&lt;domain&gt;/controller/&lt;id&gt; URI SAN. Standalone derives it from the cert."></span><span class="cb-tag" *ngIf="tagFor('trustDomain') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.trustDomain" [class.invalid]="bad('trustDomain')" placeholder="e.g. mynetwork.example.com" />
+                    </div>
+                    <div class="cb-field wide">
+                        <label>Client certificate<span class="cb-tag" *ngIf="tagFor('identity.cert') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.identity.cert" [class.invalid]="bad('identity.cert')" />
+                    </div>
+                    <div class="cb-field wide">
+                        <label>Server certificate chain <span class="infoicon" matTooltip="Optional. Defaults to the client certificate."></span><span class="cb-tag" *ngIf="tagFor('identity.serverCert') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.identity.serverCert" [class.invalid]="bad('identity.serverCert')" />
+                    </div>
+                    <div class="cb-field wide">
+                        <label>Private key<span class="cb-tag" *ngIf="tagFor('identity.key') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.identity.key" [class.invalid]="bad('identity.key')" />
+                    </div>
+                    <div class="cb-field wide">
+                        <label>CA bundle<span class="cb-tag" *ngIf="tagFor('identity.ca') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.identity.ca" [class.invalid]="bad('identity.ca')" />
+                    </div>
+                </div>
+                <p class="cb-hint">Tip: any value can reference the environment, e.g. <code>&#36;&#123;ZITI_PKI&#125;/ctrl.cert</code>.</p>
+            </section>
+
+            <!-- STORAGE -->
+            <section *ngIf="active === 'storage'" class="cb-fade">
+                <div class="cb-choice">
+                    <button class="cb-card" [class.on]="cfg.mode === 'standalone'" (click)="setMode('standalone')">
+                        <span class="cb-card-title">Standalone</span>
+                        <span class="cb-card-text">One controller, one bolt database file.</span>
+                    </button>
+                    <button class="cb-card" [class.on]="cfg.mode === 'ha'" (click)="setMode('ha')">
+                        <span class="cb-card-title">High Availability</span>
+                        <span class="cb-card-text">Raft cluster. Replicated state, leader election.</span>
+                    </button>
+                </div>
+
+                <div class="cb-grid" *ngIf="cfg.mode === 'standalone'">
+                    <div class="cb-field wide">
+                        <label>Database path<span class="cb-tag" *ngIf="tagFor('db') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.db" [class.invalid]="bad('db')" />
+                    </div>
+                </div>
+
+                <div class="cb-grid" *ngIf="cfg.mode === 'ha'">
+                    <div class="cb-field wide">
+                        <label>Data directory<span class="cb-tag" *ngIf="tagFor('cluster.dataDir') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.cluster.dataDir" [class.invalid]="bad('cluster.dataDir')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Snapshot interval<span class="cb-tag" *ngIf="tagFor('cluster.snapshotInterval') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.cluster.snapshotInterval" [class.invalid]="bad('cluster.snapshotInterval')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Snapshot threshold<span class="cb-tag" *ngIf="tagFor('cluster.snapshotThreshold') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" type="number" [(ngModel)]="cfg.cluster.snapshotThreshold" [class.invalid]="bad('cluster.snapshotThreshold')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Election timeout<span class="cb-tag" *ngIf="tagFor('cluster.electionTimeout') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.cluster.electionTimeout" [class.invalid]="bad('cluster.electionTimeout')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Heartbeat timeout<span class="cb-tag" *ngIf="tagFor('cluster.heartbeatTimeout') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.cluster.heartbeatTimeout" [class.invalid]="bad('cluster.heartbeatTimeout')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Log level</label>
+                        <select class="form-field-input" [(ngModel)]="cfg.cluster.logLevel">
+                            <option *ngFor="let l of logLevels" [value]="l">{{l}}</option>
+                        </select>
+                    </div>
+                    <div class="cb-field">
+                        <label>Preferred leader</label>
+                        <div class="toggle" [class.on]="cfg.cluster.preferredLeader" (click)="toggle(cfg.cluster, 'preferredLeader')">
+                            <div class="switch"></div><div class="label"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CTRL -->
+            <section *ngIf="active === 'ctrl'" class="cb-fade">
+                <div class="cb-grid">
+                    <div class="cb-field wide">
+                        <label>Listener <span class="infoicon" matTooltip="Address routers dial. Format: tls:host:port"></span><span class="cb-tag" *ngIf="tagFor('ctrl.listener') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.ctrl.listener" [class.invalid]="bad('ctrl.listener')" />
+                    </div>
+                    <div class="cb-field wide">
+                        <label>Advertise address <span class="infoicon" matTooltip="Required for HA. How peers and routers reach this node, e.g. tls:ctrl1.example.com:6262"></span><span class="cb-tag" *ngIf="tagFor('ctrl.advertiseAddress') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.ctrl.advertiseAddress" [class.invalid]="bad('ctrl.advertiseAddress')" placeholder="tls:ctrl1.example.com:6262" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Connect timeout (ms)<span class="cb-tag" *ngIf="tagFor('ctrl.connectTimeoutMs') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" type="number" [(ngModel)]="cfg.ctrl.connectTimeoutMs" [class.invalid]="bad('ctrl.connectTimeoutMs')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Max queued connects<span class="cb-tag" *ngIf="tagFor('ctrl.maxQueuedConnects') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" type="number" [(ngModel)]="cfg.ctrl.maxQueuedConnects" [class.invalid]="bad('ctrl.maxQueuedConnects')" />
+                    </div>
+                </div>
+            </section>
+
+            <!-- NETWORK -->
+            <section *ngIf="active === 'network'" class="cb-fade">
+                <div class="cb-grid">
+                    <div class="cb-field">
+                        <label>Cycle (s)<span class="cb-tag" *ngIf="tagFor('network.cycleSeconds') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" type="number" [(ngModel)]="cfg.network.cycleSeconds" [class.invalid]="bad('network.cycleSeconds')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Route timeout (s)<span class="cb-tag" *ngIf="tagFor('network.routeTimeoutSeconds') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" type="number" [(ngModel)]="cfg.network.routeTimeoutSeconds" [class.invalid]="bad('network.routeTimeoutSeconds')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Circuit retries<span class="cb-tag" *ngIf="tagFor('network.createCircuitRetries') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" type="number" [(ngModel)]="cfg.network.createCircuitRetries" [class.invalid]="bad('network.createCircuitRetries')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Pending link timeout (s)<span class="cb-tag" *ngIf="tagFor('network.pendingLinkTimeoutSeconds') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" type="number" [(ngModel)]="cfg.network.pendingLinkTimeoutSeconds" [class.invalid]="bad('network.pendingLinkTimeoutSeconds')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Min router cost <span class="infoicon" matTooltip="0 to 65535"></span><span class="cb-tag" *ngIf="tagFor('network.minRouterCost') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" type="number" [(ngModel)]="cfg.network.minRouterCost" [class.invalid]="bad('network.minRouterCost')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Router connect churn limit<span class="cb-tag" *ngIf="tagFor('network.routerConnectChurnLimit') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.network.routerConnectChurnLimit" [class.invalid]="bad('network.routerConnectChurnLimit')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Smart reroute</label>
+                        <div class="toggle" [class.on]="cfg.network.smartReroute" (click)="toggle(cfg.network, 'smartReroute')">
+                            <div class="switch"></div><div class="label"></div>
+                        </div>
+                    </div>
+                    <ng-container *ngIf="cfg.network.smartReroute">
+                        <div class="cb-field">
+                            <label>Reroute fraction<span class="cb-tag" *ngIf="tagFor('network.rerouteFraction') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                            <input class="form-field-input" type="number" step="0.01" [(ngModel)]="cfg.network.rerouteFraction" [class.invalid]="bad('network.rerouteFraction')" />
+                        </div>
+                        <div class="cb-field">
+                            <label>Reroute cap<span class="cb-tag" *ngIf="tagFor('network.rerouteCap') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                            <input class="form-field-input" type="number" [(ngModel)]="cfg.network.rerouteCap" [class.invalid]="bad('network.rerouteCap')" />
+                        </div>
+                    </ng-container>
+                </div>
+            </section>
+
+            <!-- EDGE -->
+            <section *ngIf="active === 'edge'" class="cb-fade">
+                <div class="cb-grid">
+                    <div class="cb-field wide">
+                        <label>API address<span class="cb-tag" *ngIf="tagFor('edge.apiAddress') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.edge.apiAddress" [class.invalid]="bad('edge.apiAddress')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Session timeout<span class="cb-tag" *ngIf="tagFor('edge.sessionTimeout') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.edge.sessionTimeout" [class.invalid]="bad('edge.sessionTimeout')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>TOTP hostname<span class="cb-tag" *ngIf="tagFor('edge.totpHostname') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.edge.totpHostname" [class.invalid]="bad('edge.totpHostname')" placeholder="openziti.io" />
+                    </div>
+                    <div class="cb-field wide">
+                        <label>Signing certificate<span class="cb-tag" *ngIf="tagFor('edge.signingCert') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.edge.signingCert" [class.invalid]="bad('edge.signingCert')" />
+                    </div>
+                    <div class="cb-field wide">
+                        <label>Signing key<span class="cb-tag" *ngIf="tagFor('edge.signingKey') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.edge.signingKey" [class.invalid]="bad('edge.signingKey')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Identity enrollment duration<span class="cb-tag" *ngIf="tagFor('edge.identityEnrollmentDuration') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.edge.identityEnrollmentDuration" [class.invalid]="bad('edge.identityEnrollmentDuration')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Router enrollment duration<span class="cb-tag" *ngIf="tagFor('edge.routerEnrollmentDuration') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.edge.routerEnrollmentDuration" [class.invalid]="bad('edge.routerEnrollmentDuration')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Access token duration<span class="cb-tag" *ngIf="tagFor('edge.accessTokenDuration') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.edge.accessTokenDuration" [class.invalid]="bad('edge.accessTokenDuration')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Refresh token duration<span class="cb-tag" *ngIf="tagFor('edge.refreshTokenDuration') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.edge.refreshTokenDuration" [class.invalid]="bad('edge.refreshTokenDuration')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Auth rate limiter</label>
+                        <div class="toggle" [class.on]="cfg.edge.authRateLimiter" (click)="toggle(cfg.edge, 'authRateLimiter')">
+                            <div class="switch"></div><div class="label"></div>
+                        </div>
+                    </div>
+                    <div class="cb-field" *ngIf="cfg.edge.authRateLimiter">
+                        <label>Rate limiter max size<span class="cb-tag" *ngIf="tagFor('edge.authRateLimiterMax') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" type="number" [(ngModel)]="cfg.edge.authRateLimiterMax" [class.invalid]="bad('edge.authRateLimiterMax')" />
+                    </div>
+                </div>
+            </section>
+
+            <!-- WEB -->
+            <section *ngIf="active === 'web'" class="cb-fade">
+                <div class="cb-listener" *ngFor="let w of cfg.web; let wi = index; trackBy: trackByIndex">
+                    <div class="cb-listener-head">
+                        <input class="form-field-input cb-name" [(ngModel)]="w.name" placeholder="listener name" />
+                        <button class="cb-btn ghost small" (click)="removeListener(wi)" *ngIf="cfg.web.length > 1">Remove</button>
+                    </div>
+
+                    <label class="cb-sublabel">Bind points</label>
+                    <ng-container *ngFor="let b of w.bindPoints; let bi = index; trackBy: trackByIndex">
+                        <div class="cb-bind" *ngIf="!b.identity">
+                            <input class="form-field-input" [(ngModel)]="b.interface" placeholder="interface 0.0.0.0:1280" />
+                            <input class="form-field-input" [(ngModel)]="b.address" placeholder="address host:port" />
+                            <button class="cb-btn ghost small" (click)="removeBindPoint(w, bi)" *ngIf="w.bindPoints.length > 1">&times;</button>
+                        </div>
+                        <div class="cb-group cb-idbind" *ngIf="b.identity">
+                            <div class="cb-group-head">
+                                <span class="cb-group-title">Identity bind point
+                                    <span class="infoicon" matTooltip="Listens on a Ziti service through an identity, so the API is reachable over the overlay instead of a local port."></span>
+                                </span>
+                                <button class="cb-btn ghost small" (click)="removeBindPoint(w, bi)" *ngIf="w.bindPoints.length > 1">&times;</button>
+                            </div>
+                            <div class="cb-grid">
+                                <div class="cb-field">
+                                    <label>Identity from</label>
+                                    <select class="form-field-input" [(ngModel)]="b.identity.source">
+                                        <option value="file">file</option>
+                                        <option value="env">env variable</option>
+                                    </select>
+                                </div>
+                                <div class="cb-field">
+                                    <label>{{b.identity.source === 'file' ? 'Identity file' : 'Env variable'}}
+                                        <span class="infoicon" matTooltip="A file holds the identity JSON. An env variable holds it base64-encoded."></span>
+                                    </label>
+                                    <input class="form-field-input" [(ngModel)]="b.identity.value"
+                                           [placeholder]="b.identity.source === 'file' ? './identity.json' : 'ZITI_BIND_IDENTITY'" />
+                                </div>
+                                <div class="cb-field">
+                                    <label>Service to bind</label>
+                                    <input class="form-field-input" [(ngModel)]="b.identity.service" placeholder="service name" />
+                                </div>
+                                <div class="cb-field">
+                                    <label>Client certificate policy</label>
+                                    <select class="form-field-input" [(ngModel)]="b.identity.clientAuth">
+                                        <option *ngFor="let p of clientAuthPolicies" [value]="p.id">{{p.label}}</option>
+                                    </select>
+                                </div>
+                                <div class="cb-field wide">
+                                    <label>Bind using the edge identity
+                                        <span class="infoicon" matTooltip="Passes the identity's name as the terminator ID when binding."></span>
+                                    </label>
+                                    <div class="toggle" [class.on]="b.identity.bindUsingEdgeIdentity" (click)="toggle(b.identity, 'bindUsingEdgeIdentity')">
+                                        <div class="switch"></div><div class="label"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-container>
+                    <div class="cb-addrow">
+                        <button class="cb-btn link" (click)="addBindPoint(w)">+ bind point</button>
+                        <button class="cb-btn link" (click)="addIdentityBindPoint(w)">+ identity bind point</button>
+                    </div>
+
+                    <label class="cb-sublabel">APIs</label>
+                    <div class="cb-chips">
+                        <button *ngFor="let b of bindings" class="cb-chip" [class.on]="w.apis[b.id]"
+                                [matTooltip]="b.hint" (click)="toggle(w.apis, b.id)">
+                            {{b.label}}
+                        </button>
+                    </div>
+
+                    <div class="cb-group cb-spa" *ngIf="w.apis['spa']">
+                        <div class="cb-group-head">
+                            <span class="cb-group-title">ZAC (SPA) settings
+                                <span class="infoicon" matTooltip="Serves this admin console from the controller. These two settings apply only to the ZAC (SPA) API."></span>
+                            </span>
+                        </div>
+                        <div class="cb-grid">
+                            <div class="cb-field">
+                                <label>URL path</label>
+                                <input class="form-field-input" [(ngModel)]="w.spaPath" />
+                            </div>
+                            <div class="cb-field wide">
+                                <label>Files on disk</label>
+                                <input class="form-field-input" [(ngModel)]="w.spaLocation" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="cb-btn primary" (click)="addListener()">+ Add listener</button>
+
+                <div class="cb-grid cb-gap">
+                    <div class="cb-field">
+                        <label>Health check interval<span class="cb-tag" *ngIf="tagFor('healthCheckInterval') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="cfg.healthCheckInterval" [class.invalid]="bad('healthCheckInterval')" />
+                    </div>
+                </div>
+            </section>
+
+            <!-- EVENTS -->
+            <section *ngIf="active === 'events'" class="cb-fade">
+                <div class="cb-empty" *ngIf="!cfg.events.length">
+                    <div class="cb-empty-title">No event loggers</div>
+                    <div class="cb-empty-text">Add one to write circuits, routers, and more to a file.</div>
+                </div>
+                <div class="cb-listener" *ngFor="let e of cfg.events; let ei = index; trackBy: trackByIndex">
+                    <div class="cb-listener-head">
+                        <input class="form-field-input cb-name" [(ngModel)]="e.name" placeholder="logger name" />
+                        <select class="form-field-input cb-fmt" [(ngModel)]="e.format">
+                            <option value="json">json</option>
+                            <option value="cs">cs</option>
+                        </select>
+                        <button class="cb-btn ghost small" (click)="removeLogger(ei)">Remove</button>
+                    </div>
+                    <input class="form-field-input" [(ngModel)]="e.path" placeholder="file path" />
+                    <label class="cb-sublabel">Subscriptions</label>
+                    <div class="cb-chips">
+                        <button *ngFor="let s of subscriptions" class="cb-chip"
+                                [class.on]="e.subscriptions.indexOf(s) >= 0" (click)="toggleSub(e, s)">{{s}}</button>
+                    </div>
+                </div>
+                <button class="cb-btn primary" (click)="addLogger()">+ Add event logger</button>
+            </section>
+
+            <!-- ROUTER: IDENTITY -->
+            <section *ngIf="active === 'r-identity'" class="cb-fade">
+                <div class="cb-grid">
+                    <div class="cb-field wide">
+                        <label>Client certificate<span class="cb-tag" *ngIf="tagFor('identity.cert') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="rcfg.identity.cert" [class.invalid]="bad('identity.cert')" />
+                    </div>
+                    <div class="cb-field wide">
+                        <label>Server certificate chain <span class="infoicon" matTooltip="Optional. Defaults to the client certificate."></span><span class="cb-tag" *ngIf="tagFor('identity.serverCert') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="rcfg.identity.serverCert" [class.invalid]="bad('identity.serverCert')" />
+                    </div>
+                    <div class="cb-field wide">
+                        <label>Private key<span class="cb-tag" *ngIf="tagFor('identity.key') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="rcfg.identity.key" [class.invalid]="bad('identity.key')" />
+                    </div>
+                    <div class="cb-field wide">
+                        <label>CA bundle<span class="cb-tag" *ngIf="tagFor('identity.ca') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="rcfg.identity.ca" [class.invalid]="bad('identity.ca')" />
+                    </div>
+                </div>
+                <p class="cb-hint">A router normally receives these files when it is enrolled with a JWT. Point at the
+                    enrolled files here. Values may reference the environment, e.g. <code>&#36;&#123;ZITI_PKI&#125;/router.cert</code>.</p>
+            </section>
+
+            <!-- ROUTER: CONTROLLERS -->
+            <section *ngIf="active === 'r-ctrl'" class="cb-fade">
+                <label class="cb-sublabel">Controller endpoints <span class="infoicon" matTooltip="Format: tls:host:port. List every controller in an HA cluster."></span></label>
+                <div class="cb-bind single" *ngFor="let e of rcfg.ctrl.endpoints; let i = index; trackBy: trackByIndex">
+                    <input class="form-field-input" [(ngModel)]="rcfg.ctrl.endpoints[i]" placeholder="tls:ctrl.example.com:6262" />
+                    <button class="cb-btn ghost small" (click)="removeCtrlEndpoint(i)">&times;</button>
+                </div>
+                <button class="cb-btn link" (click)="addCtrlEndpoint()">+ controller</button>
+                <div class="cb-grid cb-gap">
+                    <div class="cb-field wide">
+                        <label>Endpoints file <span class="infoicon" matTooltip="Optional. The router keeps the controllers it learns about here, so it can find a cluster after restarts."></span><span class="cb-tag" *ngIf="tagFor('ctrl.endpointsFile') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="rcfg.ctrl.endpointsFile" [class.invalid]="bad('ctrl.endpointsFile')" />
+                    </div>
+                </div>
+            </section>
+
+            <!-- ROUTER: LINKS -->
+            <section *ngIf="active === 'r-link'" class="cb-fade">
+                <div class="cb-switchrow">
+                    <div>
+                        <div class="cb-switchrow-title">Dial links</div>
+                        <div class="cb-switchrow-text">Connect out to other routers that listen.</div>
+                    </div>
+                    <div class="toggle" [class.on]="rcfg.link.dial" (click)="toggle(rcfg.link, 'dial')">
+                        <div class="switch"></div><div class="label"></div>
+                    </div>
+                </div>
+                <div class="cb-switchrow">
+                    <div>
+                        <div class="cb-switchrow-title">Listen for links</div>
+                        <div class="cb-switchrow-text">Accept connections from other routers. Needs a reachable address.</div>
+                    </div>
+                    <div class="toggle" [class.on]="rcfg.link.listen" (click)="toggle(rcfg.link, 'listen')">
+                        <div class="switch"></div><div class="label"></div>
+                    </div>
+                </div>
+                <div class="cb-grid" *ngIf="rcfg.link.listen">
+                    <div class="cb-field wide">
+                        <label>Bind <span class="infoicon" matTooltip="Local interface to listen on, e.g. tls:0.0.0.0:10080"></span><span class="cb-tag" *ngIf="tagFor('link.bind') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="rcfg.link.bind" [class.invalid]="bad('link.bind')" />
+                    </div>
+                    <div class="cb-field wide">
+                        <label>Advertise <span class="infoicon" matTooltip="Address other routers dial, e.g. tls:router.example.com:10080"></span><span class="cb-tag" *ngIf="tagFor('link.advertise') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="rcfg.link.advertise" [class.invalid]="bad('link.advertise')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Out queue size<span class="cb-tag" *ngIf="tagFor('link.outQueueSize') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" type="number" [ngModel]="rcfg.link.outQueueSize"
+                               (ngModelChange)="optNum(rcfg.link, 'outQueueSize', $event)" [class.invalid]="bad('link.outQueueSize')" placeholder="default" />
+                    </div>
+                </div>
+            </section>
+
+            <!-- ROUTER: EDGE + TUNNEL -->
+            <section *ngIf="active === 'r-edge'" class="cb-fade">
+                <div class="cb-switchrow">
+                    <div>
+                        <div class="cb-switchrow-title">Edge listener</div>
+                        <div class="cb-switchrow-text">Lets SDK apps and tunnelers connect to this router.</div>
+                    </div>
+                    <div class="toggle" [class.on]="rcfg.edge.enabled" (click)="toggle(rcfg.edge, 'enabled')">
+                        <div class="switch"></div><div class="label"></div>
+                    </div>
+                </div>
+                <div class="cb-grid" *ngIf="rcfg.edge.enabled">
+                    <div class="cb-field wide">
+                        <label>Address <span class="infoicon" matTooltip="Listen address. tls:0.0.0.0:3022, or wss: for websockets."></span><span class="cb-tag" *ngIf="tagFor('edge.address') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="rcfg.edge.address" [class.invalid]="bad('edge.address')" />
+                    </div>
+                    <div class="cb-field wide">
+                        <label>Advertise <span class="infoicon" matTooltip="host:port that SDKs dial. Must be reachable by clients."></span><span class="cb-tag" *ngIf="tagFor('edge.advertise') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="rcfg.edge.advertise" [class.invalid]="bad('edge.advertise')" placeholder="router.example.com:3022" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Connect timeout (ms)<span class="cb-tag" *ngIf="tagFor('edge.connectTimeoutMs') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" type="number" [ngModel]="rcfg.edge.connectTimeoutMs"
+                               (ngModelChange)="optNum(rcfg.edge, 'connectTimeoutMs', $event)" [class.invalid]="bad('edge.connectTimeoutMs')" placeholder="5000" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Get session timeout (s)<span class="cb-tag" *ngIf="tagFor('edge.getSessionTimeout') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" type="number" [ngModel]="rcfg.edge.getSessionTimeout"
+                               (ngModelChange)="optNum(rcfg.edge, 'getSessionTimeout', $event)" [class.invalid]="bad('edge.getSessionTimeout')" placeholder="60" />
+                    </div>
+                </div>
+
+                <div class="cb-switchrow cb-gap">
+                    <div>
+                        <div class="cb-switchrow-title">Tunneler</div>
+                        <div class="cb-switchrow-text">Run an embedded tunneler to intercept or host services.</div>
+                    </div>
+                    <div class="toggle" [class.on]="rcfg.tunnel.enabled" (click)="toggle(rcfg.tunnel, 'enabled')">
+                        <div class="switch"></div><div class="label"></div>
+                    </div>
+                </div>
+                <ng-container *ngIf="rcfg.tunnel.enabled">
+                    <label class="cb-sublabel">Mode</label>
+                    <div class="cb-chips">
+                        <button *ngFor="let m of tunnelModes" class="cb-chip" [class.on]="rcfg.tunnel.mode === m.id"
+                                [matTooltip]="m.hint" (click)="setTunnelMode(m.id)">{{m.label}}</button>
+                    </div>
+                    <div class="cb-grid cb-gap" *ngIf="rcfg.tunnel.mode === 'tproxy'">
+                        <div class="cb-field wide">
+                            <label>Resolver <span class="infoicon" matTooltip="Where the built-in DNS resolver listens, e.g. udp://100.64.0.1:53"></span><span class="cb-tag" *ngIf="tagFor('tunnel.resolver') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                            <input class="form-field-input" [(ngModel)]="rcfg.tunnel.resolver" [class.invalid]="bad('tunnel.resolver')" placeholder="udp://100.64.0.1:53" />
+                        </div>
+                        <div class="cb-field">
+                            <label>DNS service IP range<span class="cb-tag" *ngIf="tagFor('tunnel.dnsSvcIpRange') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                            <input class="form-field-input" [(ngModel)]="rcfg.tunnel.dnsSvcIpRange" [class.invalid]="bad('tunnel.dnsSvcIpRange')" placeholder="100.64.0.1/10" />
+                        </div>
+                        <div class="cb-field">
+                            <label>LAN interface<span class="cb-tag" *ngIf="tagFor('tunnel.lanIf') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                            <input class="form-field-input" [(ngModel)]="rcfg.tunnel.lanIf" [class.invalid]="bad('tunnel.lanIf')" placeholder="eth0" />
+                        </div>
+                    </div>
+                </ng-container>
+            </section>
+
+            <!-- ROUTER: CSR -->
+            <section *ngIf="active === 'r-csr'" class="cb-fade">
+                <div class="cb-empty" *ngIf="!rcfg.edge.enabled && !rcfg.tunnel.enabled">
+                    <div class="cb-empty-title">Not needed</div>
+                    <div class="cb-empty-text">Only routers with an edge or tunnel listener request a certificate.</div>
+                </div>
+                <ng-container *ngIf="rcfg.edge.enabled || rcfg.tunnel.enabled">
+                    <div class="cb-grid">
+                        <div class="cb-field">
+                            <label>Country<span class="cb-tag" *ngIf="tagFor('csr.country') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                            <input class="form-field-input" [(ngModel)]="rcfg.csr.country" [class.invalid]="bad('csr.country')" placeholder="US" />
+                        </div>
+                        <div class="cb-field">
+                            <label>Province</label>
+                            <input class="form-field-input" [(ngModel)]="rcfg.csr.province" />
+                        </div>
+                        <div class="cb-field">
+                            <label>Locality</label>
+                            <input class="form-field-input" [(ngModel)]="rcfg.csr.locality" />
+                        </div>
+                        <div class="cb-field">
+                            <label>Organization</label>
+                            <input class="form-field-input" [(ngModel)]="rcfg.csr.organization" />
+                        </div>
+                        <div class="cb-field wide">
+                            <label>Organizational unit</label>
+                            <input class="form-field-input" [(ngModel)]="rcfg.csr.organizationalUnit" />
+                        </div>
+                    </div>
+
+                    <label class="cb-sublabel">DNS names <span class="infoicon" matTooltip="Hostnames clients use to reach this router."></span></label>
+                    <div class="cb-bind single" *ngFor="let d of rcfg.csr.dns; let i = index; trackBy: trackByIndex">
+                        <input class="form-field-input" [(ngModel)]="rcfg.csr.dns[i]" placeholder="router.example.com" />
+                        <button class="cb-btn ghost small" (click)="removeSan(rcfg.csr.dns, i)">&times;</button>
+                    </div>
+                    <button class="cb-btn link" (click)="addSan(rcfg.csr.dns, '')">+ DNS name</button>
+
+                    <label class="cb-sublabel">IP addresses</label>
+                    <div class="cb-bind single" *ngFor="let d of rcfg.csr.ip; let i = index; trackBy: trackByIndex">
+                        <input class="form-field-input" [(ngModel)]="rcfg.csr.ip[i]" placeholder="127.0.0.1" />
+                        <button class="cb-btn ghost small" (click)="removeSan(rcfg.csr.ip, i)">&times;</button>
+                    </div>
+                    <button class="cb-btn link" (click)="addSan(rcfg.csr.ip, '')">+ IP address</button>
+                </ng-container>
+            </section>
+
+            <!-- ROUTER: ADVANCED -->
+            <section *ngIf="active === 'r-advanced'" class="cb-fade">
+                <p class="cb-hint">Leave a field blank to use the router default. Blank fields are left out of the file.</p>
+                <label class="cb-sublabel">Forwarder</label>
+                <div class="cb-grid">
+                    <div class="cb-field">
+                        <label>Xgress dial queue length<span class="cb-tag" *ngIf="tagFor('forwarder.xgressDialQueueLength') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" type="number" [ngModel]="rcfg.forwarder.xgressDialQueueLength"
+                               (ngModelChange)="optNum(rcfg.forwarder, 'xgressDialQueueLength', $event)" [class.invalid]="bad('forwarder.xgressDialQueueLength')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Xgress dial worker count<span class="cb-tag" *ngIf="tagFor('forwarder.xgressDialWorkerCount') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" type="number" [ngModel]="rcfg.forwarder.xgressDialWorkerCount"
+                               (ngModelChange)="optNum(rcfg.forwarder, 'xgressDialWorkerCount', $event)" [class.invalid]="bad('forwarder.xgressDialWorkerCount')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Link dial queue length<span class="cb-tag" *ngIf="tagFor('forwarder.linkDialQueueLength') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" type="number" [ngModel]="rcfg.forwarder.linkDialQueueLength"
+                               (ngModelChange)="optNum(rcfg.forwarder, 'linkDialQueueLength', $event)" [class.invalid]="bad('forwarder.linkDialQueueLength')" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Link dial worker count<span class="cb-tag" *ngIf="tagFor('forwarder.linkDialWorkerCount') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" type="number" [ngModel]="rcfg.forwarder.linkDialWorkerCount"
+                               (ngModelChange)="optNum(rcfg.forwarder, 'linkDialWorkerCount', $event)" [class.invalid]="bad('forwarder.linkDialWorkerCount')" />
+                    </div>
+                </div>
+
+                <label class="cb-sublabel">Metrics</label>
+                <div class="cb-grid">
+                    <div class="cb-field">
+                        <label>Report interval<span class="cb-tag" *ngIf="tagFor('metrics.reportInterval') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="rcfg.metrics.reportInterval" [class.invalid]="bad('metrics.reportInterval')" placeholder="15s" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Message queue size<span class="cb-tag" *ngIf="tagFor('metrics.messageQueueSize') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" type="number" [ngModel]="rcfg.metrics.messageQueueSize"
+                               (ngModelChange)="optNum(rcfg.metrics, 'messageQueueSize', $event)" [class.invalid]="bad('metrics.messageQueueSize')" />
+                    </div>
+                </div>
+
+                <label class="cb-sublabel">Health checks</label>
+                <div class="cb-grid">
+                    <div class="cb-field">
+                        <label>Controller ping interval<span class="cb-tag" *ngIf="tagFor('health.ctrlPingInterval') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="rcfg.health.ctrlPingInterval" [class.invalid]="bad('health.ctrlPingInterval')" placeholder="30s" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Controller ping timeout<span class="cb-tag" *ngIf="tagFor('health.ctrlPingTimeout') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="rcfg.health.ctrlPingTimeout" [class.invalid]="bad('health.ctrlPingTimeout')" placeholder="15s" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Controller ping initial delay<span class="cb-tag" *ngIf="tagFor('health.ctrlPingInitialDelay') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" [(ngModel)]="rcfg.health.ctrlPingInitialDelay" [class.invalid]="bad('health.ctrlPingInitialDelay')" placeholder="15s" />
+                    </div>
+                    <div class="cb-field">
+                        <label>Minimum links<span class="cb-tag" *ngIf="tagFor('health.minLinks') as t" [matTooltip]="t.full">{{t.short}}</span>
+                    </label>
+                        <input class="form-field-input" type="number" [ngModel]="rcfg.health.minLinks"
+                               (ngModelChange)="optNum(rcfg.health, 'minLinks', $event)" [class.invalid]="bad('health.minLinks')" />
+                    </div>
+                </div>
+            </section>
+
+            <div class="cb-nav">
+                <button class="cb-btn ghost" (click)="next(-1)" [disabled]="active === sections[0].id">Back</button>
+                <button class="cb-btn primary" (click)="next(1)" [disabled]="active === sections[sections.length - 1].id">Next</button>
+            </div>
+        </main>
+
+        <!-- Resize handle -->
+        <div class="cb-splitter" [class.active]="resizing" role="separator" aria-orientation="vertical"
+             tabindex="0" aria-label="Resize preview" title="Drag to resize. Double-click to reset."
+             [attr.aria-valuenow]="previewWidth"
+             (pointerdown)="startResize($event)" (pointermove)="onResize($event)"
+             (pointerup)="endResize($event)" (pointercancel)="endResize($event)"
+             (dblclick)="resetPreviewWidth()" (keydown)="onSplitterKey($event)">
+            <span class="cb-grip"></span>
+        </div>
+
+        <!-- Live preview -->
+        <aside class="cb-preview">
+            <div class="cb-preview-bar">
+                <div class="cb-dots"><i></i><i></i><i></i></div>
+                <div class="cb-file">{{fileName || defaultFileName}}</div>
+                <label class="cb-verbose" *ngIf="kind === 'controller'" matTooltip="Include values that match controller defaults">
+                    <input type="checkbox" [(ngModel)]="verbose" (ngModelChange)="refresh()" /> all defaults
+                </label>
+                <div class="cb-bar-actions">
+                    <button class="cb-btn ghost" (click)="openFile()" matTooltip="Open a config file">Open</button>
+                    <button class="cb-btn primary" (click)="save()" [disabled]="errorCount > 0"
+                            [matTooltip]="errorCount > 0 ? 'Fix the errors to save' : (canPickFiles && fileName ? 'Save writes to ' + fileName : 'Save downloads a copy')">Save</button>
+                    <button class="cb-btn ghost" (click)="reset()" [matTooltip]="'Reset to a blank ' + (kindLabel | lowercase) + ' config'">Reset</button>
+                </div>
+            </div>
+            <pre class="cb-code"><code [innerHTML]="highlighted"></code></pre>
+        </aside>
+    </div>
+</div>

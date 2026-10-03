@@ -31,6 +31,8 @@ export * from './lib/pages/api-sessions/api-sessions-page.component';
 export * from './lib/pages/api-sessions/api-sessions-page.service';
 export * from './lib/pages/callback/callback.component';
 export * from './lib/pages/settings/settings.component';
+export * from './lib/pages/config-builder/config-builder.component';
+export * from './lib/pages/config-builder/config-builder.module';
 export * from './lib/pages/profile/profile.component';
 export * from './lib/pages/geolocate/geolocate.component';
 export * from './lib/pages/geolocate/components/ha-status-indicator/ha-status-indicator.component';
