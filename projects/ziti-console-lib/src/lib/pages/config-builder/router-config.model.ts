@@ -42,7 +42,17 @@ export interface RouterConfig {
     csrTop: boolean;
     identity: { cert: string; serverCert: string; key: string; ca: string };
     ctrl: { endpoints: string[]; endpointsFile: string };
-    link: { dial: boolean; listen: boolean; bind: string; advertise: string; outQueueSize: number | null };
+    link: {
+        dial: boolean;
+        listen: boolean;
+        bind: string;
+        advertise: string;
+        outQueueSize: number | null;
+        /** `groups` on the transport dialer: only dial listeners that share a group. */
+        dialGroups: string[];
+        /** `groups` on the transport listener: the groups this listener belongs to. */
+        listenGroups: string[];
+    };
     edge: {
         enabled: boolean;
         address: string;
@@ -95,7 +105,7 @@ export function defaultRouterConfig(): RouterConfig {
         },
         ctrl: {endpoints: ['tls:ctrl.example.com:6262'], endpointsFile: './endpoints.yml'},
         link: {dial: true, listen: true, bind: 'tls:0.0.0.0:10080', advertise: 'tls:router.example.com:10080',
-            outQueueSize: null},
+            outQueueSize: null, dialGroups: [], listenGroups: []},
         edge: {enabled: true, address: 'tls:0.0.0.0:3022', advertise: 'router.example.com:3022',
             connectTimeoutMs: null, getSessionTimeout: null},
         otherListeners: [],
@@ -320,6 +330,12 @@ function setOrDel(obj: any, key: string, value: any) {
     }
 }
 
+/** Trimmed, non-empty entries, or '' (so `setOrDel` drops the key) when none are left. */
+function cleanList(list: string[]): string[] | '' {
+    const out = list.map(x => x.trim()).filter(x => x !== '');
+    return out.length ? out : '';
+}
+
 /** Find the entry with `binding` in a list, or add one, and return it; null removes it. */
 function upsertBinding(list: any[], binding: string, enabled: boolean): any | null {
     const i = list.findIndex(x => isObj(x) && x.binding === binding);
@@ -375,9 +391,13 @@ export function buildRouterDocument(c: RouterConfig): any {
     const link: any = isObj(doc.link) ? doc.link : {};
     const dialers: any[] = Array.isArray(link.dialers) ? link.dialers : [];
     const lListeners: any[] = Array.isArray(link.listeners) ? link.listeners : [];
-    upsertBinding(dialers, 'transport', c.link.dial);
+    const dl = upsertBinding(dialers, 'transport', c.link.dial);
+    if (dl) {
+        setOrDel(dl, 'groups', cleanList(c.link.dialGroups));
+    }
     const ll = upsertBinding(lListeners, 'transport', c.link.listen);
     if (ll) {
+        setOrDel(ll, 'groups', cleanList(c.link.listenGroups));
         ll.bind = c.link.bind;
         ll.advertise = c.link.advertise;
         ll.options = isObj(ll.options) ? ll.options : {};
@@ -508,8 +528,11 @@ export function routerFromDocument(doc: any): { cfg: RouterConfig; warnings: str
     const find = (list: any, binding: string) =>
         (Array.isArray(list) ? list : []).find((x: any) => isObj(x) && x.binding === binding);
     const ll = find(link.listeners, 'transport');
+    const dl = find(link.dialers, 'transport');
     c.link = {
-        dial: !!find(link.dialers, 'transport'),
+        dial: !!dl,
+        dialGroups: strs(dl?.groups),
+        listenGroups: strs(ll?.groups),
         listen: !!ll,
         bind: s(ll?.bind),
         advertise: s(ll?.advertise),

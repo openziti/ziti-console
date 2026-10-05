@@ -363,6 +363,7 @@
     .cb-layout { grid-template-columns: 1fr; }
     .cb .cb-step.active::after { display: none; }
     .cb .cb-rail { flex-direction: row; overflow-x: auto; }
+    .cb .cb-rail-group { display: none; }
 }
 
 // ---- rail ----
@@ -374,6 +375,17 @@
     top: 1rem;
     z-index: 1; // paint the active tab's bridge over the panel's left border
     animation: cb-rise 0.5s 0.05s ease both;
+}
+
+.cb-rail-group {
+    margin: 0.6rem 0.9rem 0;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--subText);
+
+    &:first-child { margin-top: 0; }
 }
 
 .cb-step {

@@ -134,6 +134,8 @@ interface Section {
     label: string;
     blurb: string;
     icon: string;
+    /** Heading shown in the rail above the first section of each group; sections of a group stay adjacent. */
+    group: string;
 }
 
 @Component({
@@ -178,12 +180,12 @@ export class ConfigBuilderComponent implements OnInit {
     readonly clientAuthPolicies = CLIENT_AUTH_POLICIES;
 
     readonly routerSections: Section[] = [
-        {id: 'r-identity', label: 'Identity & PKI', blurb: 'Who this router is and which certs it trusts.', icon: 'icon-lock'},
-        {id: 'r-ctrl', label: 'Controllers', blurb: 'Where this router dials in.', icon: 'icon-controllers'},
-        {id: 'r-link', label: 'Links', blurb: 'How routers connect to each other.', icon: 'icon-networks'},
-        {id: 'r-edge', label: 'Edge & Tunnel', blurb: 'What SDKs and tunnelers connect to.', icon: 'icon-identity'},
-        {id: 'r-csr', label: 'Certificate Request', blurb: 'Subject and SANs for edge certs.', icon: 'icon-lock'},
-        {id: 'r-advanced', label: 'Advanced', blurb: 'Forwarder, metrics and health checks.', icon: 'icon-AdvancedOptions'},
+        {id: 'r-identity', label: 'Identity & PKI', blurb: 'Who this router is and which certs it trusts.', icon: 'icon-lock', group: 'Core'},
+        {id: 'r-ctrl', label: 'Controllers', blurb: 'Where this router dials in.', icon: 'icon-controllers', group: 'Core'},
+        {id: 'r-link', label: 'Links', blurb: 'How routers connect to each other.', icon: 'icon-networks', group: 'Fabric'},
+        {id: 'r-edge', label: 'Edge & Tunnel', blurb: 'What SDKs and tunnelers connect to.', icon: 'icon-identity', group: 'Edge'},
+        {id: 'r-csr', label: 'Certificate Request', blurb: 'Subject and SANs for edge certs.', icon: 'icon-lock', group: 'Edge'},
+        {id: 'r-advanced', label: 'Advanced', blurb: 'Forwarder, metrics and health checks.', icon: 'icon-AdvancedOptions', group: 'Tuning'},
     ];
 
     get sections(): Section[] {
@@ -199,13 +201,13 @@ export class ConfigBuilderComponent implements OnInit {
     }
 
     readonly controllerSections: Section[] = [
-        {id: 'identity', label: 'Identity & PKI', blurb: 'Who this controller is and which certs it trusts.', icon: 'icon-lock'},
-        {id: 'storage', label: 'Storage & HA', blurb: 'A single bolt file, or a Raft cluster.', icon: 'icon-ha'},
-        {id: 'ctrl', label: 'Control Channel', blurb: 'Where routers dial in.', icon: 'icon-controllers'},
-        {id: 'network', label: 'Network', blurb: 'Routing, timeouts and smart reroute.', icon: 'icon-networks'},
-        {id: 'edge', label: 'Edge', blurb: 'API, enrollment, tokens, rate limits.', icon: 'icon-identity'},
-        {id: 'web', label: 'Web Listeners', blurb: 'Bind points and the APIs they serve.', icon: 'icon-Icon_Globe'},
-        {id: 'events', label: 'Events', blurb: 'Stream controller events to files.', icon: 'icon-Events'},
+        {id: 'identity', label: 'Identity & PKI', blurb: 'Who this controller is and which certs it trusts.', icon: 'icon-lock', group: 'Core'},
+        {id: 'storage', label: 'Storage & HA', blurb: 'A single bolt file, or a Raft cluster.', icon: 'icon-ha', group: 'Core'},
+        {id: 'ctrl', label: 'Control Channel', blurb: 'Where routers dial in.', icon: 'icon-controllers', group: 'Fabric'},
+        {id: 'network', label: 'Network', blurb: 'Routing, timeouts and smart reroute.', icon: 'icon-networks', group: 'Fabric'},
+        {id: 'edge', label: 'Edge', blurb: 'API, enrollment, tokens, rate limits.', icon: 'icon-identity', group: 'Edge API'},
+        {id: 'web', label: 'Web Listeners', blurb: 'Bind points and the APIs they serve.', icon: 'icon-Icon_Globe', group: 'Edge API'},
+        {id: 'events', label: 'Events', blurb: 'Stream controller events to files.', icon: 'icon-Events', group: 'Operations'},
     ];
 
     ngOnInit(): void {
