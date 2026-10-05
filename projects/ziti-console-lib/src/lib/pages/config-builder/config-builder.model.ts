@@ -807,6 +807,22 @@ export function composeDocument(c: ControllerConfig, verbose = false): any {
     if (!c.edge.enabled) {
         delete base.edge;
     }
+    // nested keys the form owns outright: cleared or toggled off means gone, not "keep the source value"
+    const dropNested = (parent: string, key: string, emitted: boolean) => {
+        if (!emitted && isObj(base[parent]) && key in base[parent]) {
+            base[parent] = {...base[parent]};
+            delete base[parent][key];
+        }
+    };
+    dropNested('network', 'smart', !!minimal.network?.smart);
+    dropNested('edge', 'totp', !!minimal.edge?.totp);
+    if (isObj(base.ctrl) && isObj(base.ctrl.options) && !c.ctrl.advertiseAddress) {
+        base.ctrl = {...base.ctrl, options: {...base.ctrl.options}};
+        delete base.ctrl.options.advertiseAddress;
+        if (!Object.keys(base.ctrl.options).length) {
+            delete base.ctrl.options;
+        }
+    }
     const kept = prune(buildDocument(c, true), minimal, base);
     // managed keys the form no longer produces (e.g. emptied trustDomain) must not linger
     MANAGED.forEach(k => {
