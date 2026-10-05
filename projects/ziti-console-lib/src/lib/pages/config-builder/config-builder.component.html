@@ -102,27 +102,27 @@
                     <div class="cb-field wide">
                         <label>Trust domain <span class="infoicon" matTooltip="Optional. In HA the server cert needs a spiffe://&lt;domain&gt;/controller/&lt;id&gt; URI SAN. Standalone derives it from the cert."></span><span class="cb-tag" *ngIf="tagFor('trustDomain') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.trustDomain" [class.invalid]="bad('trustDomain')" placeholder="e.g. mynetwork.example.com" />
+                        <input class="form-field-input" [(ngModel)]="cfg.trustDomain" [class.error]="bad('trustDomain')" placeholder="e.g. mynetwork.example.com" />
                     </div>
                     <div class="cb-field wide">
                         <label>Client certificate<span class="cb-tag" *ngIf="tagFor('identity.cert') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.identity.cert" [class.invalid]="bad('identity.cert')" />
+                        <input class="form-field-input" [(ngModel)]="cfg.identity.cert" [class.error]="bad('identity.cert')" />
                     </div>
                     <div class="cb-field wide">
                         <label>Server certificate chain <span class="infoicon" matTooltip="Optional. Defaults to the client certificate."></span><span class="cb-tag" *ngIf="tagFor('identity.serverCert') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.identity.serverCert" [class.invalid]="bad('identity.serverCert')" />
+                        <input class="form-field-input" [(ngModel)]="cfg.identity.serverCert" [class.error]="bad('identity.serverCert')" />
                     </div>
                     <div class="cb-field wide">
                         <label>Private key<span class="cb-tag" *ngIf="tagFor('identity.key') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.identity.key" [class.invalid]="bad('identity.key')" />
+                        <input class="form-field-input" [(ngModel)]="cfg.identity.key" [class.error]="bad('identity.key')" />
                     </div>
                     <div class="cb-field wide">
                         <label>CA bundle<span class="cb-tag" *ngIf="tagFor('identity.ca') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.identity.ca" [class.invalid]="bad('identity.ca')" />
+                        <input class="form-field-input" [(ngModel)]="cfg.identity.ca" [class.error]="bad('identity.ca')" />
                     </div>
                 </div>
                 <p class="cb-hint">Tip: any value can reference the environment, e.g. <code>&#36;&#123;ZITI_PKI&#125;/ctrl.cert</code>.</p>
@@ -145,7 +145,7 @@
                     <div class="cb-field wide">
                         <label>Database path<span class="cb-tag" *ngIf="tagFor('db') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.db" [class.invalid]="bad('db')" />
+                        <input class="form-field-input" [(ngModel)]="cfg.db" [class.error]="bad('db')" />
                     </div>
                 </div>
 
@@ -153,27 +153,27 @@
                     <div class="cb-field wide">
                         <label>Data directory<span class="cb-tag" *ngIf="tagFor('cluster.dataDir') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.cluster.dataDir" [class.invalid]="bad('cluster.dataDir')" />
+                        <input class="form-field-input" [(ngModel)]="cfg.cluster.dataDir" [class.error]="bad('cluster.dataDir')" />
                     </div>
                     <div class="cb-field">
                         <label>Snapshot interval<span class="cb-tag" *ngIf="tagFor('cluster.snapshotInterval') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.cluster.snapshotInterval" [class.invalid]="bad('cluster.snapshotInterval')" />
+                        <input class="form-field-input" [(ngModel)]="cfg.cluster.snapshotInterval" [class.error]="bad('cluster.snapshotInterval')" />
                     </div>
                     <div class="cb-field">
                         <label>Snapshot threshold<span class="cb-tag" *ngIf="tagFor('cluster.snapshotThreshold') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" type="number" [(ngModel)]="cfg.cluster.snapshotThreshold" [class.invalid]="bad('cluster.snapshotThreshold')" />
+                        <input class="form-field-input" type="number" [(ngModel)]="cfg.cluster.snapshotThreshold" [class.error]="bad('cluster.snapshotThreshold')" />
                     </div>
                     <div class="cb-field">
                         <label>Election timeout<span class="cb-tag" *ngIf="tagFor('cluster.electionTimeout') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.cluster.electionTimeout" [class.invalid]="bad('cluster.electionTimeout')" />
+                        <input class="form-field-input" [(ngModel)]="cfg.cluster.electionTimeout" [class.error]="bad('cluster.electionTimeout')" />
                     </div>
                     <div class="cb-field">
                         <label>Heartbeat timeout<span class="cb-tag" *ngIf="tagFor('cluster.heartbeatTimeout') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.cluster.heartbeatTimeout" [class.invalid]="bad('cluster.heartbeatTimeout')" />
+                        <input class="form-field-input" [(ngModel)]="cfg.cluster.heartbeatTimeout" [class.error]="bad('cluster.heartbeatTimeout')" />
                     </div>
                     <div class="cb-field">
                         <label>Log level</label>
@@ -196,22 +196,22 @@
                     <div class="cb-field wide">
                         <label>Listener <span class="infoicon" matTooltip="Address routers dial. Format: tls:host:port"></span><span class="cb-tag" *ngIf="tagFor('ctrl.listener') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.ctrl.listener" [class.invalid]="bad('ctrl.listener')" />
+                        <input class="form-field-input" [(ngModel)]="cfg.ctrl.listener" [class.error]="bad('ctrl.listener')" />
                     </div>
                     <div class="cb-field wide">
                         <label>Advertise address <span class="infoicon" matTooltip="Required for HA. How peers and routers reach this node, e.g. tls:ctrl1.example.com:6262"></span><span class="cb-tag" *ngIf="tagFor('ctrl.advertiseAddress') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.ctrl.advertiseAddress" [class.invalid]="bad('ctrl.advertiseAddress')" placeholder="tls:ctrl1.example.com:6262" />
+                        <input class="form-field-input" [(ngModel)]="cfg.ctrl.advertiseAddress" [class.error]="bad('ctrl.advertiseAddress')" placeholder="tls:ctrl1.example.com:6262" />
                     </div>
                     <div class="cb-field">
                         <label>Connect timeout (ms)<span class="cb-tag" *ngIf="tagFor('ctrl.connectTimeoutMs') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" type="number" [(ngModel)]="cfg.ctrl.connectTimeoutMs" [class.invalid]="bad('ctrl.connectTimeoutMs')" />
+                        <input class="form-field-input" type="number" [(ngModel)]="cfg.ctrl.connectTimeoutMs" [class.error]="bad('ctrl.connectTimeoutMs')" />
                     </div>
                     <div class="cb-field">
                         <label>Max queued connects<span class="cb-tag" *ngIf="tagFor('ctrl.maxQueuedConnects') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" type="number" [(ngModel)]="cfg.ctrl.maxQueuedConnects" [class.invalid]="bad('ctrl.maxQueuedConnects')" />
+                        <input class="form-field-input" type="number" [(ngModel)]="cfg.ctrl.maxQueuedConnects" [class.error]="bad('ctrl.maxQueuedConnects')" />
                     </div>
                 </div>
             </section>
@@ -222,32 +222,32 @@
                     <div class="cb-field">
                         <label>Cycle (s)<span class="cb-tag" *ngIf="tagFor('network.cycleSeconds') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" type="number" [(ngModel)]="cfg.network.cycleSeconds" [class.invalid]="bad('network.cycleSeconds')" />
+                        <input class="form-field-input" type="number" [(ngModel)]="cfg.network.cycleSeconds" [class.error]="bad('network.cycleSeconds')" />
                     </div>
                     <div class="cb-field">
                         <label>Route timeout (s)<span class="cb-tag" *ngIf="tagFor('network.routeTimeoutSeconds') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" type="number" [(ngModel)]="cfg.network.routeTimeoutSeconds" [class.invalid]="bad('network.routeTimeoutSeconds')" />
+                        <input class="form-field-input" type="number" [(ngModel)]="cfg.network.routeTimeoutSeconds" [class.error]="bad('network.routeTimeoutSeconds')" />
                     </div>
                     <div class="cb-field">
                         <label>Circuit retries<span class="cb-tag" *ngIf="tagFor('network.createCircuitRetries') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" type="number" [(ngModel)]="cfg.network.createCircuitRetries" [class.invalid]="bad('network.createCircuitRetries')" />
+                        <input class="form-field-input" type="number" [(ngModel)]="cfg.network.createCircuitRetries" [class.error]="bad('network.createCircuitRetries')" />
                     </div>
                     <div class="cb-field">
                         <label>Pending link timeout (s)<span class="cb-tag" *ngIf="tagFor('network.pendingLinkTimeoutSeconds') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" type="number" [(ngModel)]="cfg.network.pendingLinkTimeoutSeconds" [class.invalid]="bad('network.pendingLinkTimeoutSeconds')" />
+                        <input class="form-field-input" type="number" [(ngModel)]="cfg.network.pendingLinkTimeoutSeconds" [class.error]="bad('network.pendingLinkTimeoutSeconds')" />
                     </div>
                     <div class="cb-field">
                         <label>Min router cost <span class="infoicon" matTooltip="0 to 65535"></span><span class="cb-tag" *ngIf="tagFor('network.minRouterCost') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" type="number" [(ngModel)]="cfg.network.minRouterCost" [class.invalid]="bad('network.minRouterCost')" />
+                        <input class="form-field-input" type="number" [(ngModel)]="cfg.network.minRouterCost" [class.error]="bad('network.minRouterCost')" />
                     </div>
                     <div class="cb-field">
                         <label>Router connect churn limit<span class="cb-tag" *ngIf="tagFor('network.routerConnectChurnLimit') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.network.routerConnectChurnLimit" [class.invalid]="bad('network.routerConnectChurnLimit')" />
+                        <input class="form-field-input" [(ngModel)]="cfg.network.routerConnectChurnLimit" [class.error]="bad('network.routerConnectChurnLimit')" />
                     </div>
                     <div class="cb-field">
                         <label>Smart reroute</label>
@@ -259,12 +259,12 @@
                         <div class="cb-field">
                             <label>Reroute fraction<span class="cb-tag" *ngIf="tagFor('network.rerouteFraction') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                            <input class="form-field-input" type="number" step="0.01" [(ngModel)]="cfg.network.rerouteFraction" [class.invalid]="bad('network.rerouteFraction')" />
+                            <input class="form-field-input" type="number" step="0.01" [(ngModel)]="cfg.network.rerouteFraction" [class.error]="bad('network.rerouteFraction')" />
                         </div>
                         <div class="cb-field">
                             <label>Reroute cap<span class="cb-tag" *ngIf="tagFor('network.rerouteCap') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                            <input class="form-field-input" type="number" [(ngModel)]="cfg.network.rerouteCap" [class.invalid]="bad('network.rerouteCap')" />
+                            <input class="form-field-input" type="number" [(ngModel)]="cfg.network.rerouteCap" [class.error]="bad('network.rerouteCap')" />
                         </div>
                     </ng-container>
                 </div>
@@ -276,47 +276,47 @@
                     <div class="cb-field wide">
                         <label>API address<span class="cb-tag" *ngIf="tagFor('edge.apiAddress') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.edge.apiAddress" [class.invalid]="bad('edge.apiAddress')" />
+                        <input class="form-field-input" [(ngModel)]="cfg.edge.apiAddress" [class.error]="bad('edge.apiAddress')" />
                     </div>
                     <div class="cb-field">
                         <label>Session timeout<span class="cb-tag" *ngIf="tagFor('edge.sessionTimeout') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.edge.sessionTimeout" [class.invalid]="bad('edge.sessionTimeout')" />
+                        <input class="form-field-input" [(ngModel)]="cfg.edge.sessionTimeout" [class.error]="bad('edge.sessionTimeout')" />
                     </div>
                     <div class="cb-field">
                         <label>TOTP hostname<span class="cb-tag" *ngIf="tagFor('edge.totpHostname') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.edge.totpHostname" [class.invalid]="bad('edge.totpHostname')" placeholder="openziti.io" />
+                        <input class="form-field-input" [(ngModel)]="cfg.edge.totpHostname" [class.error]="bad('edge.totpHostname')" placeholder="openziti.io" />
                     </div>
                     <div class="cb-field wide">
                         <label>Signing certificate<span class="cb-tag" *ngIf="tagFor('edge.signingCert') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.edge.signingCert" [class.invalid]="bad('edge.signingCert')" />
+                        <input class="form-field-input" [(ngModel)]="cfg.edge.signingCert" [class.error]="bad('edge.signingCert')" />
                     </div>
                     <div class="cb-field wide">
                         <label>Signing key<span class="cb-tag" *ngIf="tagFor('edge.signingKey') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.edge.signingKey" [class.invalid]="bad('edge.signingKey')" />
+                        <input class="form-field-input" [(ngModel)]="cfg.edge.signingKey" [class.error]="bad('edge.signingKey')" />
                     </div>
                     <div class="cb-field">
                         <label>Identity enrollment duration<span class="cb-tag" *ngIf="tagFor('edge.identityEnrollmentDuration') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.edge.identityEnrollmentDuration" [class.invalid]="bad('edge.identityEnrollmentDuration')" />
+                        <input class="form-field-input" [(ngModel)]="cfg.edge.identityEnrollmentDuration" [class.error]="bad('edge.identityEnrollmentDuration')" />
                     </div>
                     <div class="cb-field">
                         <label>Router enrollment duration<span class="cb-tag" *ngIf="tagFor('edge.routerEnrollmentDuration') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.edge.routerEnrollmentDuration" [class.invalid]="bad('edge.routerEnrollmentDuration')" />
+                        <input class="form-field-input" [(ngModel)]="cfg.edge.routerEnrollmentDuration" [class.error]="bad('edge.routerEnrollmentDuration')" />
                     </div>
                     <div class="cb-field">
                         <label>Access token duration<span class="cb-tag" *ngIf="tagFor('edge.accessTokenDuration') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.edge.accessTokenDuration" [class.invalid]="bad('edge.accessTokenDuration')" />
+                        <input class="form-field-input" [(ngModel)]="cfg.edge.accessTokenDuration" [class.error]="bad('edge.accessTokenDuration')" />
                     </div>
                     <div class="cb-field">
                         <label>Refresh token duration<span class="cb-tag" *ngIf="tagFor('edge.refreshTokenDuration') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.edge.refreshTokenDuration" [class.invalid]="bad('edge.refreshTokenDuration')" />
+                        <input class="form-field-input" [(ngModel)]="cfg.edge.refreshTokenDuration" [class.error]="bad('edge.refreshTokenDuration')" />
                     </div>
                     <div class="cb-field">
                         <label>Auth rate limiter</label>
@@ -327,7 +327,7 @@
                     <div class="cb-field" *ngIf="cfg.edge.authRateLimiter">
                         <label>Rate limiter max size<span class="cb-tag" *ngIf="tagFor('edge.authRateLimiterMax') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" type="number" [(ngModel)]="cfg.edge.authRateLimiterMax" [class.invalid]="bad('edge.authRateLimiterMax')" />
+                        <input class="form-field-input" type="number" [(ngModel)]="cfg.edge.authRateLimiterMax" [class.error]="bad('edge.authRateLimiterMax')" />
                     </div>
                 </div>
             </section>
@@ -427,7 +427,7 @@
                     <div class="cb-field">
                         <label>Health check interval<span class="cb-tag" *ngIf="tagFor('healthCheckInterval') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="cfg.healthCheckInterval" [class.invalid]="bad('healthCheckInterval')" />
+                        <input class="form-field-input" [(ngModel)]="cfg.healthCheckInterval" [class.error]="bad('healthCheckInterval')" />
                     </div>
                 </div>
             </section>
@@ -463,22 +463,22 @@
                     <div class="cb-field wide">
                         <label>Client certificate<span class="cb-tag" *ngIf="tagFor('identity.cert') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="rcfg.identity.cert" [class.invalid]="bad('identity.cert')" />
+                        <input class="form-field-input" [(ngModel)]="rcfg.identity.cert" [class.error]="bad('identity.cert')" />
                     </div>
                     <div class="cb-field wide">
                         <label>Server certificate chain <span class="infoicon" matTooltip="Optional. Defaults to the client certificate."></span><span class="cb-tag" *ngIf="tagFor('identity.serverCert') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="rcfg.identity.serverCert" [class.invalid]="bad('identity.serverCert')" />
+                        <input class="form-field-input" [(ngModel)]="rcfg.identity.serverCert" [class.error]="bad('identity.serverCert')" />
                     </div>
                     <div class="cb-field wide">
                         <label>Private key<span class="cb-tag" *ngIf="tagFor('identity.key') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="rcfg.identity.key" [class.invalid]="bad('identity.key')" />
+                        <input class="form-field-input" [(ngModel)]="rcfg.identity.key" [class.error]="bad('identity.key')" />
                     </div>
                     <div class="cb-field wide">
                         <label>CA bundle<span class="cb-tag" *ngIf="tagFor('identity.ca') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="rcfg.identity.ca" [class.invalid]="bad('identity.ca')" />
+                        <input class="form-field-input" [(ngModel)]="rcfg.identity.ca" [class.error]="bad('identity.ca')" />
                     </div>
                 </div>
                 <p class="cb-hint">A router normally receives these files when it is enrolled with a JWT. Point at the
@@ -497,7 +497,7 @@
                     <div class="cb-field wide">
                         <label>Endpoints file <span class="infoicon" matTooltip="Optional. The router keeps the controllers it learns about here, so it can find a cluster after restarts."></span><span class="cb-tag" *ngIf="tagFor('ctrl.endpointsFile') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="rcfg.ctrl.endpointsFile" [class.invalid]="bad('ctrl.endpointsFile')" />
+                        <input class="form-field-input" [(ngModel)]="rcfg.ctrl.endpointsFile" [class.error]="bad('ctrl.endpointsFile')" />
                     </div>
                 </div>
             </section>
@@ -526,18 +526,18 @@
                     <div class="cb-field wide">
                         <label>Bind <span class="infoicon" matTooltip="Local interface to listen on, e.g. tls:0.0.0.0:10080"></span><span class="cb-tag" *ngIf="tagFor('link.bind') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="rcfg.link.bind" [class.invalid]="bad('link.bind')" />
+                        <input class="form-field-input" [(ngModel)]="rcfg.link.bind" [class.error]="bad('link.bind')" />
                     </div>
                     <div class="cb-field wide">
                         <label>Advertise <span class="infoicon" matTooltip="Address other routers dial, e.g. tls:router.example.com:10080"></span><span class="cb-tag" *ngIf="tagFor('link.advertise') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="rcfg.link.advertise" [class.invalid]="bad('link.advertise')" />
+                        <input class="form-field-input" [(ngModel)]="rcfg.link.advertise" [class.error]="bad('link.advertise')" />
                     </div>
                     <div class="cb-field">
                         <label>Out queue size<span class="cb-tag" *ngIf="tagFor('link.outQueueSize') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
                         <input class="form-field-input" type="number" [ngModel]="rcfg.link.outQueueSize"
-                               (ngModelChange)="optNum(rcfg.link, 'outQueueSize', $event)" [class.invalid]="bad('link.outQueueSize')" placeholder="default" />
+                               (ngModelChange)="optNum(rcfg.link, 'outQueueSize', $event)" [class.error]="bad('link.outQueueSize')" placeholder="default" />
                     </div>
                 </div>
             </section>
@@ -557,24 +557,24 @@
                     <div class="cb-field wide">
                         <label>Address <span class="infoicon" matTooltip="Listen address. tls:0.0.0.0:3022, or wss: for websockets."></span><span class="cb-tag" *ngIf="tagFor('edge.address') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="rcfg.edge.address" [class.invalid]="bad('edge.address')" />
+                        <input class="form-field-input" [(ngModel)]="rcfg.edge.address" [class.error]="bad('edge.address')" />
                     </div>
                     <div class="cb-field wide">
                         <label>Advertise <span class="infoicon" matTooltip="host:port that SDKs dial. Must be reachable by clients."></span><span class="cb-tag" *ngIf="tagFor('edge.advertise') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="rcfg.edge.advertise" [class.invalid]="bad('edge.advertise')" placeholder="router.example.com:3022" />
+                        <input class="form-field-input" [(ngModel)]="rcfg.edge.advertise" [class.error]="bad('edge.advertise')" placeholder="router.example.com:3022" />
                     </div>
                     <div class="cb-field">
                         <label>Connect timeout (ms)<span class="cb-tag" *ngIf="tagFor('edge.connectTimeoutMs') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
                         <input class="form-field-input" type="number" [ngModel]="rcfg.edge.connectTimeoutMs"
-                               (ngModelChange)="optNum(rcfg.edge, 'connectTimeoutMs', $event)" [class.invalid]="bad('edge.connectTimeoutMs')" placeholder="5000" />
+                               (ngModelChange)="optNum(rcfg.edge, 'connectTimeoutMs', $event)" [class.error]="bad('edge.connectTimeoutMs')" placeholder="5000" />
                     </div>
                     <div class="cb-field">
                         <label>Get session timeout (s)<span class="cb-tag" *ngIf="tagFor('edge.getSessionTimeout') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
                         <input class="form-field-input" type="number" [ngModel]="rcfg.edge.getSessionTimeout"
-                               (ngModelChange)="optNum(rcfg.edge, 'getSessionTimeout', $event)" [class.invalid]="bad('edge.getSessionTimeout')" placeholder="60" />
+                               (ngModelChange)="optNum(rcfg.edge, 'getSessionTimeout', $event)" [class.error]="bad('edge.getSessionTimeout')" placeholder="60" />
                     </div>
                 </div>
 
@@ -597,17 +597,17 @@
                         <div class="cb-field wide">
                             <label>Resolver <span class="infoicon" matTooltip="Where the built-in DNS resolver listens, e.g. udp://100.64.0.1:53"></span><span class="cb-tag" *ngIf="tagFor('tunnel.resolver') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                            <input class="form-field-input" [(ngModel)]="rcfg.tunnel.resolver" [class.invalid]="bad('tunnel.resolver')" placeholder="udp://100.64.0.1:53" />
+                            <input class="form-field-input" [(ngModel)]="rcfg.tunnel.resolver" [class.error]="bad('tunnel.resolver')" placeholder="udp://100.64.0.1:53" />
                         </div>
                         <div class="cb-field">
                             <label>DNS service IP range<span class="cb-tag" *ngIf="tagFor('tunnel.dnsSvcIpRange') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                            <input class="form-field-input" [(ngModel)]="rcfg.tunnel.dnsSvcIpRange" [class.invalid]="bad('tunnel.dnsSvcIpRange')" placeholder="100.64.0.1/10" />
+                            <input class="form-field-input" [(ngModel)]="rcfg.tunnel.dnsSvcIpRange" [class.error]="bad('tunnel.dnsSvcIpRange')" placeholder="100.64.0.1/10" />
                         </div>
                         <div class="cb-field">
                             <label>LAN interface<span class="cb-tag" *ngIf="tagFor('tunnel.lanIf') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                            <input class="form-field-input" [(ngModel)]="rcfg.tunnel.lanIf" [class.invalid]="bad('tunnel.lanIf')" placeholder="eth0" />
+                            <input class="form-field-input" [(ngModel)]="rcfg.tunnel.lanIf" [class.error]="bad('tunnel.lanIf')" placeholder="eth0" />
                         </div>
                     </div>
                 </ng-container>
@@ -624,7 +624,7 @@
                         <div class="cb-field">
                             <label>Country<span class="cb-tag" *ngIf="tagFor('csr.country') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                            <input class="form-field-input" [(ngModel)]="rcfg.csr.country" [class.invalid]="bad('csr.country')" placeholder="US" />
+                            <input class="form-field-input" [(ngModel)]="rcfg.csr.country" [class.error]="bad('csr.country')" placeholder="US" />
                         </div>
                         <div class="cb-field">
                             <label>Province</label>
@@ -669,25 +669,25 @@
                         <label>Xgress dial queue length<span class="cb-tag" *ngIf="tagFor('forwarder.xgressDialQueueLength') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
                         <input class="form-field-input" type="number" [ngModel]="rcfg.forwarder.xgressDialQueueLength"
-                               (ngModelChange)="optNum(rcfg.forwarder, 'xgressDialQueueLength', $event)" [class.invalid]="bad('forwarder.xgressDialQueueLength')" />
+                               (ngModelChange)="optNum(rcfg.forwarder, 'xgressDialQueueLength', $event)" [class.error]="bad('forwarder.xgressDialQueueLength')" />
                     </div>
                     <div class="cb-field">
                         <label>Xgress dial worker count<span class="cb-tag" *ngIf="tagFor('forwarder.xgressDialWorkerCount') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
                         <input class="form-field-input" type="number" [ngModel]="rcfg.forwarder.xgressDialWorkerCount"
-                               (ngModelChange)="optNum(rcfg.forwarder, 'xgressDialWorkerCount', $event)" [class.invalid]="bad('forwarder.xgressDialWorkerCount')" />
+                               (ngModelChange)="optNum(rcfg.forwarder, 'xgressDialWorkerCount', $event)" [class.error]="bad('forwarder.xgressDialWorkerCount')" />
                     </div>
                     <div class="cb-field">
                         <label>Link dial queue length<span class="cb-tag" *ngIf="tagFor('forwarder.linkDialQueueLength') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
                         <input class="form-field-input" type="number" [ngModel]="rcfg.forwarder.linkDialQueueLength"
-                               (ngModelChange)="optNum(rcfg.forwarder, 'linkDialQueueLength', $event)" [class.invalid]="bad('forwarder.linkDialQueueLength')" />
+                               (ngModelChange)="optNum(rcfg.forwarder, 'linkDialQueueLength', $event)" [class.error]="bad('forwarder.linkDialQueueLength')" />
                     </div>
                     <div class="cb-field">
                         <label>Link dial worker count<span class="cb-tag" *ngIf="tagFor('forwarder.linkDialWorkerCount') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
                         <input class="form-field-input" type="number" [ngModel]="rcfg.forwarder.linkDialWorkerCount"
-                               (ngModelChange)="optNum(rcfg.forwarder, 'linkDialWorkerCount', $event)" [class.invalid]="bad('forwarder.linkDialWorkerCount')" />
+                               (ngModelChange)="optNum(rcfg.forwarder, 'linkDialWorkerCount', $event)" [class.error]="bad('forwarder.linkDialWorkerCount')" />
                     </div>
                 </div>
 
@@ -696,13 +696,13 @@
                     <div class="cb-field">
                         <label>Report interval<span class="cb-tag" *ngIf="tagFor('metrics.reportInterval') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="rcfg.metrics.reportInterval" [class.invalid]="bad('metrics.reportInterval')" placeholder="15s" />
+                        <input class="form-field-input" [(ngModel)]="rcfg.metrics.reportInterval" [class.error]="bad('metrics.reportInterval')" placeholder="15s" />
                     </div>
                     <div class="cb-field">
                         <label>Message queue size<span class="cb-tag" *ngIf="tagFor('metrics.messageQueueSize') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
                         <input class="form-field-input" type="number" [ngModel]="rcfg.metrics.messageQueueSize"
-                               (ngModelChange)="optNum(rcfg.metrics, 'messageQueueSize', $event)" [class.invalid]="bad('metrics.messageQueueSize')" />
+                               (ngModelChange)="optNum(rcfg.metrics, 'messageQueueSize', $event)" [class.error]="bad('metrics.messageQueueSize')" />
                     </div>
                 </div>
 
@@ -711,23 +711,23 @@
                     <div class="cb-field">
                         <label>Controller ping interval<span class="cb-tag" *ngIf="tagFor('health.ctrlPingInterval') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="rcfg.health.ctrlPingInterval" [class.invalid]="bad('health.ctrlPingInterval')" placeholder="30s" />
+                        <input class="form-field-input" [(ngModel)]="rcfg.health.ctrlPingInterval" [class.error]="bad('health.ctrlPingInterval')" placeholder="30s" />
                     </div>
                     <div class="cb-field">
                         <label>Controller ping timeout<span class="cb-tag" *ngIf="tagFor('health.ctrlPingTimeout') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="rcfg.health.ctrlPingTimeout" [class.invalid]="bad('health.ctrlPingTimeout')" placeholder="15s" />
+                        <input class="form-field-input" [(ngModel)]="rcfg.health.ctrlPingTimeout" [class.error]="bad('health.ctrlPingTimeout')" placeholder="15s" />
                     </div>
                     <div class="cb-field">
                         <label>Controller ping initial delay<span class="cb-tag" *ngIf="tagFor('health.ctrlPingInitialDelay') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
-                        <input class="form-field-input" [(ngModel)]="rcfg.health.ctrlPingInitialDelay" [class.invalid]="bad('health.ctrlPingInitialDelay')" placeholder="15s" />
+                        <input class="form-field-input" [(ngModel)]="rcfg.health.ctrlPingInitialDelay" [class.error]="bad('health.ctrlPingInitialDelay')" placeholder="15s" />
                     </div>
                     <div class="cb-field">
                         <label>Minimum links<span class="cb-tag" *ngIf="tagFor('health.minLinks') as t" [matTooltip]="t.full">{{t.short}}</span>
                     </label>
                         <input class="form-field-input" type="number" [ngModel]="rcfg.health.minLinks"
-                               (ngModelChange)="optNum(rcfg.health, 'minLinks', $event)" [class.invalid]="bad('health.minLinks')" />
+                               (ngModelChange)="optNum(rcfg.health, 'minLinks', $event)" [class.error]="bad('health.minLinks')" />
                     </div>
                 </div>
             </section>

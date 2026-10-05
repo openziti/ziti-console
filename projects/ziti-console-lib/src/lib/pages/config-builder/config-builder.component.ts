@@ -373,7 +373,7 @@ export class ConfigBuilderComponent implements OnInit {
         // wait for the section to render, then focus the offending field or show the message list
         setTimeout(() => {
             const root: HTMLElement = this.host.nativeElement;
-            const field = root.querySelector<HTMLElement>('.form-field-input.invalid');
+            const field = root.querySelector<HTMLElement>('.form-field-input.error');
             const el = field ?? root.querySelector<HTMLElement>('.cb-issues');
             el?.scrollIntoView({block: 'center', behavior: 'smooth'});
             if (field) {
@@ -686,15 +686,15 @@ export class ConfigBuilderComponent implements OnInit {
     /** Tiny YAML colorizer. Input is escaped first, so the resulting markup is safe to bind. */
     private highlight(yaml: string): string {
         return yaml.split('\n').map((line, i) => {
-            const num = `<span class="ln">${i + 1}</span>`;
+            const num = `<span class="cb-tok-ln">${i + 1}</span>`;
             const safe = this.escape(line);
             if (/^\s*#/.test(line)) {
-                return `${num}<span class="c">${safe}</span>`;
+                return `${num}<span class="cb-tok-c">${safe}</span>`;
             }
             const m = /^(\s*(?:-\s+)?)([A-Za-z0-9_.\-]+)(:)(\s.*)?$/.exec(safe);
             if (m) {
                 const val = (m[4] || '').replace(/^(\s+)(.*)$/, (_x, sp, v) => sp + this.colorValue(v));
-                return `${num}${m[1]}<span class="k">${m[2]}</span>${m[3]}${val}`;
+                return `${num}${m[1]}<span class="cb-tok-k">${m[2]}</span>${m[3]}${val}`;
             }
             const item = /^(\s*-\s+)(.*)$/.exec(safe);
             if (item) {
@@ -706,17 +706,17 @@ export class ConfigBuilderComponent implements OnInit {
 
     private colorValue(v: string): string {
         if (/^&quot;|^"/.test(v) || /^".*"$/.test(v)) {
-            return `<span class="s">${v}</span>`;
+            return `<span class="cb-tok-s">${v}</span>`;
         }
         if (/^(true|false)$/.test(v)) {
-            return `<span class="b">${v}</span>`;
+            return `<span class="cb-tok-b">${v}</span>`;
         }
         if (/^-?\d+(\.\d+)?$/.test(v)) {
-            return `<span class="n">${v}</span>`;
+            return `<span class="cb-tok-n">${v}</span>`;
         }
         if (/\$\{[^}]+\}/.test(v)) {
-            return `<span class="e">${v}</span>`;
+            return `<span class="cb-tok-e">${v}</span>`;
         }
-        return `<span class="s">${v}</span>`;
+        return `<span class="cb-tok-s">${v}</span>`;
     }
 }

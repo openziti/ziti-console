@@ -511,7 +511,7 @@ export function validate(c: ControllerConfig): ValidationIssue[] {
 
 // ---- YAML emitter ----------------------------------------------------------------------------
 
-const PLAIN_UNSAFE = /^[\s\-?:,\[\]{}#&*!|>'"%@`]|[:#]\s|:$|\s$|^$/;
+const PLAIN_UNSAFE = /^[\s\-?:,\[\]{}#&*!|>'"%@`]|[:#]\s|:$|\s$|^$|[\x00-\x1f\x7f]/;
 const RESERVED = /^(true|false|null|yes|no|on|off|~|[-+]?(\d[\d_]*)(\.\d+)?([eE][-+]?\d+)?|0x[0-9a-f]+)$/i;
 
 function scalar(v: any): string {
