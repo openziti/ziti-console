@@ -21,7 +21,7 @@
   }
   <div class="lt-header-label">
     <span
-      [title]="column.label"
+      [title]="column.label || null"
       class="lt-header-text"
       [class.is-sorted]="sortDir === 'asc' || sortDir === 'desc'"
       id="HeaderName_{{ column.key }}"

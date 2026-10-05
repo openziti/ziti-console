@@ -106,6 +106,8 @@ export interface ListColumn<T = any> {
     // ---- column chrome --------------------------------------------------------
     /** Defaults to true. When false the column cannot be hidden. */
     hideable?: boolean;
+    /** Leave the column out of the Columns menu (it still renders in the table). */
+    excludeFromChooser?: boolean;
     /** Defaults to true. When false the column cannot be drag-reordered. */
     reorderable?: boolean;
     /** Initial visibility (was ag-grid `hide`). */

@@ -561,11 +561,6 @@
   }
 }
 
-// auto-refresh toggle (label + icon); accent border/text when on via %lt-toolbar-btn
-.lt-autorefresh-btn {
-  @extend %lt-toolbar-btn;
-}
-
 .lt-columns {
   position: relative;
   flex: 0 0 auto;
