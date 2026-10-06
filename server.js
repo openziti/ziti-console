@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 NetFoundry Inc.
+    Copyright NetFoundry Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -14,1964 +14,795 @@
     limitations under the License.
 */
 
+/*
+ * ZAC reverse proxy. Serves the Angular SPA and proxies the controller API
+ * to the configured controller(s); the ziti token is held server-side (httpOnly
+ * cookie) and injected onto proxied requests. Replaces the deprecated node-api server.
+ *
+ * Env config:
+ *   ZAC_CONTROLLER_URLS   comma-separated controller URLs (multiple)
+ *   ZAC_CONTROLLER_URL    a single controller URL
+ *   ZITI_CTRL_EDGE_ADVERTISED_ADDRESS / _PORT / _NAME   single-controller convenience
+ *   PORT / PORTTLS        HTTP / HTTPS listen ports (default 1408 / 8443)
+ *   BIND_IP               interface to bind (default: all)
+ *   ZAC_SERVER_KEY / ZAC_SERVER_CERT_CHAIN   TLS key/cert; their presence enables HTTPS
+ *   ZAC_REJECT_UNAUTHORIZED   "true" to verify the controller's TLS cert (default off)
+ *   ZAC_COOKIE_SECURE     force the session cookie Secure flag (default: tracks TLS)
+ *   ZAC_SESSION_FILE / ZAC_SESSION_SECRET   session store path / encryption key
+ *   ZAC_CSP_CONNECT_SRC   extra CSP connect/frame-src origins
+ *   ZAC_OIDC_REDIRECT_URI   redirect URI for the server-side OIDC exchange
+ *   ZAC_LEGACY_API        "false" disables the deprecated /api/* layer (on by default; see legacy-api.js)
+ *   ALLOW_HTTP            "true" skips cors/helmet (security headers handled elsewhere)
+ *   ZITI_IDENTITY_FILE / ZITI_SERVICE_NAME   serve over a Ziti service instead of TCP
+ */
+
 import express from 'express';
-import fs from 'fs';
-import fse from 'fs-extra';
-import path from 'path';
-import session from 'express-session';
-import sessionStoreFactory from 'session-file-store';
-import fileUpload from 'express-fileupload';
-import bodyParser from 'body-parser';
-import cors from 'cors';
-import external from 'request';
-import moment from 'moment';
-import Influx from 'influx';
 import helmet from 'helmet';
-import https from 'https';
-import nodemailer from 'nodemailer';
-import {fileURLToPath} from 'url';
+import cors from 'cors';
 import crypto from 'crypto';
-import compression from 'compression';
-import _ from 'lodash';
+import fs from 'fs';
+import http from 'http';
+import https from 'https';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { createProxyMiddleware } from 'http-proxy-middleware';
+import { mountLegacyApi } from './legacy-api.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const sessionStore = sessionStoreFactory(session);
-const __assets = '/dist/ziti-console-lib/assets';
-const __html = '/dist/ziti-console-lib/assets/html';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const rateLimiter = (windowMs, maxRequests) => {
-	const requests = {};
-
-	return (req, res, next) => {
-		const ip = req.ip;
-		const now = Date.now();
-
-		if (!requests[ip]) {
-			requests[ip] = { count: 0, startTime: now };
-		}
-
-		const requestData = requests[ip];
-
-		if (now - requestData.startTime > windowMs) {
-			requestData.count = 0;
-			requestData.startTime = now;
-		}
-
-		requestData.count++;
-
-		if (requestData.count > maxRequests) {
-			return res.status(429).send('Too Many Requests');
-		}
-
-		next();
-	};
-};
-
+// Optionally serve over a Ziti service (ziti-sdk-nodejs loaded lazily, only then).
 const loadModule = async (modulePath) => {
-	try {
-	  return await import(modulePath)
-	} catch (e) {
-	  throw new Error(`Unable to import module ${modulePath}`)
-	}
-}
-
-const processControllerUrls = (urlString) => {
-	if (!urlString) {
-		return [];
-	}
-	const urls = urlString.split(',').map(url => url.trim());
-	const validUrls = urls.map(url => {
-		// If the controller URL doesn't have a protocol, prepend 'https://'
-		if (!/^https?:\/\//i.test(url)) {
-			url = 'https://' + url;
-		}
-		try {
-			const validatedUrl = new URL(url);
-			const ctrlUrl = validatedUrl.toString().replace(/\/$/, '');
-			const setting = { name: ctrlUrl, url: ctrlUrl, default: false };
-			return setting;
-		} catch (error) {
-			log(`Invalid URL: ${url}`);
-			return null;
-		}
-	}).filter(Boolean) || [];
-	return validUrls;
+    try { return await import(modulePath); }
+    catch (e) { throw new Error(`Unable to import module ${modulePath}`); }
 };
-
-// Normalize a controller URL for comparison and request building: strip any
-// trailing slash(es). ZAC_CONTROLLER_URLS values are stored without a trailing
-// slash (see processControllerUrls), but the console can submit the URL with
-// one — an exact-match check then fails ("Invalid Edge Controller"), and a
-// trailing slash also produces a double slash when request paths are appended.
-const trimTrailingSlash = (url) => {
-	// Linear scan instead of /\/+$/ - the regex backtracks quadratically on long runs of '/'
-	// (CodeQL js/polynomial-redos). Strips all trailing slashes with no backtracking.
-	if (typeof url !== 'string') return url;
-	var end = url.length;
-	while (end > 0 && url.charCodeAt(end - 1) === 47 /* '/' */) end--;
-	return url.slice(0, end);
-};
-
-var ziti;
 const zitiServiceName = process.env.ZITI_SERVICE_NAME || 'zac';
 const zitiIdentityFile = process.env.ZITI_IDENTITY_FILE;
+let ziti;
+try { ziti = await loadModule('@openziti/ziti-sdk-nodejs'); }
+catch (e) { if (zitiIdentityFile) { console.error(e); process.exit(1); } }
+const zitified = !!(zitiIdentityFile && zitiServiceName && ziti);
+if (zitified) await ziti.init(zitiIdentityFile).catch(() => process.exit(1));
 
-const integration = _.get(process, 'argv[2]') || "node-api";
+const app = zitified ? ziti.express(express, zitiServiceName) : express();
+const port = process.env.PORT || 1408;
 
-try {
-	ziti = await loadModule('@openziti/ziti-sdk-nodejs')
-} catch (e) {
-	if (typeof zitiIdentityFile !== 'undefined') {
-		console.error(e);
-		process.exit();
-	}
+// ---- Resolve the upstream controller(s) -----------------------------------
+function trimTrailingSlash(u) {
+    return (u || '').replace(/\/+$/, '');
 }
 
-var zitified = false;
-if ((typeof zitiIdentityFile !== 'undefined') && (typeof zitiServiceName !== 'undefined')) {
-	zitified = true;
-}
-if (zitified) {
-	await ziti.init( zitiIdentityFile ).catch(( err ) => { process.exit(); }); // Authenticate ourselves onto the Ziti network using the specified identity file
-}
-
-const packageJsonRaw = fs.readFileSync("./package.json", 'utf8');
-const packageJson = JSON.parse(packageJsonRaw);
-const zacVersion = packageJson.version;
-
-var serviceUrl = "";
-var baseUrl = "";
-var onlyDeleteSelfController = true;
-var isDebugging = false;
-var tlsServer;
-
-var errors = {
-	access: "You Do Not Have Access To Perform This Operations",
-	invalidServer: "Invalid Edge Controller"
+function normUrl(u) {
+    u = (u || '').trim();
+    if (!u) return '';
+    if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+    return trimTrailingSlash(u);
 }
 
-/**
- * Define Express Settings
- */
-var app = express();								// using raw  networking
-
-if (zitified) {
-	app = ziti.express( express, zitiServiceName );	// using Ziti networking
+function slugFor(url, used) {
+    let base;
+    try { const x = new URL(url); base = (x.hostname + (x.port ? '-' + x.port : '')).replace(/[^a-z0-9.-]/gi, '-'); }
+    catch (e) { base = 'controller'; }
+    let s = base, n = 2;
+    while (used.has(s)) s = base + '-' + (n++);
+    used.add(s);
+    return s;
 }
+
+function loadSettingsControllers() {
+    const candidates = [];
+    if (process.env.SETTINGS) candidates.push(path.join(__dirname, process.env.SETTINGS, 'settings.json'));
+    candidates.push(path.join(__dirname, 'assets', 'data', 'settings.json'));
+    for (const p of candidates) {
+        try {
+            const d = JSON.parse(fs.readFileSync(p, 'utf8'));
+            if (Array.isArray(d.edgeControllers) && d.edgeControllers.length) return d.edgeControllers;
+        } catch (e) { /* try next */ }
+    }
+    return [];
+}
+
+// Sources, in order: settings.json, ZAC_CONTROLLER_URLS, ZITI_CTRL_* convenience, ZAC_CONTROLLER_URL.
+function buildControllers() {
+    const list = [];
+    const seen = new Set();
+    const add = (name, url, isDefault) => {
+        url = normUrl(url);
+        if (!url || seen.has(url)) return;
+        seen.add(url);
+        list.push({ name: name || url, url: url, default: !!isDefault });
+    };
+    loadSettingsControllers().forEach(c => add(c.name, c.url, c.default));
+    (process.env.ZAC_CONTROLLER_URLS || '').split(',').map(s => s.trim()).filter(Boolean).forEach(u => add(u, u, false));
+    const addr = process.env.ZITI_CTRL_EDGE_ADVERTISED_ADDRESS, cport = process.env.ZITI_CTRL_EDGE_ADVERTISED_PORT;
+    if (addr && cport) add(process.env.ZITI_CTRL_NAME || 'controller', `https://${addr}:${cport}`, list.length === 0);
+    if (process.env.ZAC_CONTROLLER_URL) add(process.env.ZAC_CONTROLLER_URL, process.env.ZAC_CONTROLLER_URL, list.length === 0);
+    const used = new Set();
+    list.forEach(c => { c.id = slugFor(c.url, used); });
+    if (list.length && !list.some(c => c.default)) list[0].default = true;
+    return list;
+}
+
+const controllers = buildControllers();
+if (controllers.length === 0) {
+    console.error('ERROR: no upstream controller configured. Set ZAC_CONTROLLER_URLS ' +
+        '(comma-separated), ZAC_CONTROLLER_URL, or ZITI_CTRL_EDGE_ADVERTISED_ADDRESS + _PORT.');
+    process.exit(1);
+}
+const defaultController = controllers.find(c => c.default) || controllers[0];
+const controllersById = {};
+controllers.forEach(c => { controllersById[c.id] = c; });
+
+// Resolve the target controller from a /c/<id>/ prefix (default otherwise), and
+// strip that prefix before forwarding.
+function controllerForPath(p) {
+    const m = /^\/c\/([^/]+)(\/|$)/.exec(p || '');
+    return (m && controllersById[m[1]]) || defaultController;
+}
+function controllerIdForPath(p) {
+    const m = /^\/c\/([^/]+)(\/|$)/.exec(p || '');
+    return (m && controllersById[m[1]]) ? m[1] : defaultController.id;
+}
+function stripControllerPrefix(p) {
+    return p.replace(/^\/c\/[^/]+/, '') || '/';
+}
+
+// Controllers are commonly self-signed; don't verify upstream TLS unless opted in.
+const secure = process.env.ZAC_REJECT_UNAUTHORIZED === 'true';
+
+// Resolved up here so the session cookie's Secure flag can track whether we serve HTTPS.
+const tlsKeyPath = process.env.ZAC_SERVER_KEY || path.join(__dirname, 'server.key');
+const tlsCertPath = process.env.ZAC_SERVER_CERT_CHAIN || path.join(__dirname, 'server.chain.pem');
+const tlsConfigured = fs.existsSync(tlsKeyPath) && fs.existsSync(tlsCertPath);
+const cookieSecure = process.env.ZAC_COOKIE_SECURE === 'true'
+    || (process.env.ZAC_COOKIE_SECURE !== 'false' && tlsConfigured);
+
+// Paths forwarded to the controller (optionally behind a /c/<id> prefix); everything
+// else is the static SPA.
+const API_PATH_RE = /^\/(edge|fabric|oidc|\.well-known)(\/|$)/;
+function isApiPath(pathname) {
+    const p = stripControllerPrefix(pathname);
+    return p === '/version' || API_PATH_RE.test(p);
+}
+
+// ---- Middleware -----------------------------------------------------------
 var corsOptions = {
-  origin: '*',
-  optionsSuccessStatus: 200,
-  //credentials: true,
-  //allowedHeaders: 'Accept, Content-Type, Accept-Encoding, Accept-Language, Access-Control-Request-Headers, Access-Control-Request-Method, Connection, Host, Origin, Referer, Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, User-Agent'
-}
-var helmetOptions = {
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'", 'openstreetmap.org'],
-        styleSrc: ["'self'", 'openstreetmap.org', "'unsafe-inline'"],
-        scriptSrc: ["'self'", 'openstreetmap.org', "'unsafe-inline'"],
-		scriptSrcAttr: ["'self'", 'openstreetmap.org', "'unsafe-inline'"],
-        imgSrc: ["'self'", 'openstreetmap.org', 'b.tile.opernstreetmap.org', 'data:', 'blob:', 'https:'],
-        connectSrc: ["'self'", 'openstreetmap.org', 'ws:', 'wss:'],
-        frameSrc: ["'self'", 'openstreetmap.org'],
-        frameAncestors: ["'self'", 'openstreetmap.org'],
-        mediaSrc: ["'self'", 'openstreetmap.org', 'data:', 'blob:', 'https:'],
-      },
-    },
-    frameguard: { action: 'SAMEORIGIN' },
-	crossOriginEmbedderPolicy: false
+    origin: '*',
+    optionsSuccessStatus: 200,
 };
 
-if (integration !== 'classic') {
-	helmetOptions.contentSecurityPolicy.directives.scriptSrc.push("'unsafe-eval'");
-	helmetOptions.contentSecurityPolicy.directives.scriptSrcAttr.push("'unsafe-eval'");
-}
-
-// Dynamic CSP: allow connect/frame-src only to configured signers' IdP origins (no wildcard). Extra via ZAC_CSP_CONNECT_SRC.
-let idpConnectOrigins = [];
-const extraCspConnect = (process.env.ZAC_CSP_CONNECT_SRC || '')
-	.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
-
-function originOf(url) {
-	try { return new URL(url).origin; } catch (e) { return null; }
-}
+// connect/frame-src allow the configured IdP origins (from external-jwt-signers +
+// ZAC_CSP_CONNECT_SRC) so browser OIDC isn't CSP-blocked; no wildcard.
+let idpOrigins = [];
+const extraCspOrigins = (process.env.ZAC_CSP_CONNECT_SRC || '')
+    .split(',').map(function(s) { return s.trim(); }).filter(Boolean);
 
 function buildHelmetOptions() {
-	var idp = idpConnectOrigins.concat(extraCspConnect);
-	var base = helmetOptions.contentSecurityPolicy.directives;
-	return {
-		contentSecurityPolicy: {
-			directives: Object.assign({}, base, {
-				// concat() returns new arrays, so the base directives are never mutated
-				connectSrc: base.connectSrc.concat(idp),
-				frameSrc: base.frameSrc.concat(idp),
-			}),
-		},
-		frameguard: helmetOptions.frameguard,
-		crossOriginEmbedderPolicy: helmetOptions.crossOriginEmbedderPolicy,
-	};
+    const idp = Array.from(new Set(idpOrigins.concat(extraCspOrigins)));
+    return {
+        contentSecurityPolicy: {
+            directives: {
+                styleSrc: ["'self'", "'unsafe-inline'"],
+                scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+                scriptSrcAttr: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+                imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
+                frameSrc: ["'self'"].concat(idp),
+                frameAncestors: ["'self'"],
+                mediaSrc: ["'self'", 'data:', 'blob:', 'https:'],
+                connectSrc: ["'self'"].concat(idp),
+            },
+        },
+        frameguard: { action: 'SAMEORIGIN' },
+        crossOriginEmbedderPolicy: false,
+    };
 }
 
-// Collect distinct externalAuthUrl origins of all signers via the public client API.
-function refreshIdpOrigins() {
-	var controllers = (settings.edgeControllers || [])
-		.map(function(c) { return trimTrailingSlash(c.url); }).filter(Boolean);
-	if (controllers.length === 0) return;
-	var origins = new Set();
-	var pending = controllers.length;
-	controllers.forEach(function(base) {
-		external.get(base + "/edge/client/v1/external-jwt-signers?limit=500", { rejectUnauthorized: rejectUnauthorized }, function(err, res, body) {
-			try {
-				if (!err && body) {
-					var parsed = (typeof body === 'string') ? JSON.parse(body) : body;
-					(parsed.data || []).forEach(function(signer) {
-						var o = originOf(signer.externalAuthUrl);
-						if (o) origins.add(o);
-					});
-				}
-			} catch (e) { /* ignore an unreachable/malformed controller */ }
-			if (--pending === 0) {
-				idpConnectOrigins = Array.from(origins);
-				log("CSP: IdP connect-src origins: " + (idpConnectOrigins.join(' ') || '(none)'));
-			}
-		});
-	});
-}
-
-app.use("/assets", express.static(__dirname + __assets , {
-	maxAge: '31536000000' 
-}));
-if (`${process.env.ALLOW_HTTP}`.toLowerCase() !== "true") {
-	app.use(cors(corsOptions));
-	// Rebuild options per-request so the CSP reflects the current IdP origin cache.
-	app.use(function(req, res, next) { helmet(buildHelmetOptions())(req, res, next); });
+if (`${process.env.ALLOW_HTTP}`.toLowerCase() !== 'true') {
+    app.use(cors(corsOptions));
+    // Per-request so refreshed IdP origins take effect without a restart.
+    app.use(function(req, res, next) { helmet(buildHelmetOptions())(req, res, next); });
 } else {
-	console.log("ALLOW_HTTP - skipping cors/helmet");
-}
-app.use(compression());
-app.use(function(req, res, next) {
-    return next();
-});
-app.use(bodyParser.json());
-app.use(fileUpload());
-app.use(session({
-	// retries/logFn belong to the store, not to session() - passing them to session() left the store
-	// on its defaults (5 retries + console logging), so a cookie whose file was missing looped on
-	// ENOENT instead of failing fast to a fresh session. See #915.
-	store: new sessionStore({ retries: 0, logFn: () => {} }),
-	secret: 'NetFoundryZiti',
-	// resave/saveUninitialized false: read-only requests must not re-save (and clobber) a session
-	// that a concurrent /api/login just wrote the user to. This fixes the ext-jwt "Session Expired"
-	// race, where bootstrap polls wiped the freshly-authenticated session.
-	resave: false,
-	saveUninitialized: false,
-	cookie: {
-		httpOnly: true,
-		// 'auto' sets the Secure attribute only over HTTPS, so the cookie stays usable on the
-		// plain-HTTP dev port yet is never sent in the clear over TLS (CodeQL js/clear-text-cookie).
-		secure: 'auto',
-		// SameSite=Lax keeps the session cookie off cross-site POSTs (CSRF protection) while still
-		// allowing the top-level GET redirect back from an IdP (CodeQL js/missing-token-validation).
-		sameSite: 'lax'
-	}
-}));
-app.use(function (req, res, next) {
-	res.setHeader('X-XSS-Protection', '1; mode=block');
-	next();
-});
-
-
-/**
- * Load configurable settings, or create the settings in place if they have never been defined
- */
-var initial = JSON.parse(fs.readFileSync(path.join(__dirname,__assets,"data","settings.json")));
-
-var port = initial.port;
-var bindIP = initial.bindIP;
-var portTLS = initial.portTLS;
-var updateSettings = initial.update;
-var settingsPath = initial.location;
-var rejectUnauthorized = false;
-var emailRegEx = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-
-/**
- * Override Launch Settings
- */
-if (process.env.SETTINGS) settingsPath = process.env.SETTINGS;
-if (process.env.UPDATESETTINGS) updateSettings = process.env.UPDATESETTINGS;
-
-for (var i=0; i<process.argv.length; i++) {
-	if (process.argv[i]!=null) {
-		if (process.argv[i].toLowerCase()=="debug") {
-			isDebugging = true;
-		} else {
-			var options = process.argv[i].split('=');
-			if (options.length==2) {
-				if (options[0].toLowerCase()=="update"&&options[1]=="true") updateSettings=true;
-				else if (options[0].toLowerCase()=="location") settingsPath=true;
-			}
-		}
-	} 
+    console.log('ALLOW_HTTP set - skipping cors/helmet');
 }
 
-if (settingsPath.indexOf("/")!=0) settingsPath = "/"+settingsPath;
-if (!settingsPath.endsWith("/")) settingsPath = settingsPath+"/";
-if (!fs.existsSync(__dirname+settingsPath)) {
-	fs.mkdirSync(__dirname+settingsPath);
-}
-if (fs.existsSync(__dirname+settingsPath+'settings.json')&&updateSettings) {
-	console.log("Updating Settings File - Backing Up Previous Settings");
-	fs.renameSync(__dirname+settingsPath+'settings.json', __dirname+settingsPath+'settings.'+moment().unix());
-}
-if (!fs.existsSync(__dirname+settingsPath+'settings.json')) {
-	fs.copyFileSync(__dirname+__assets + '/data/settings.json', __dirname+settingsPath+'settings.json');
+function originOf(u) {
+    try { return new URL(u).origin; } catch (e) { return null; }
 }
 
-var settings = JSON.parse(fs.readFileSync(__dirname+settingsPath+'settings.json', 'utf8'));
-
-if (settings.port && !isNaN(settings.port)) port = settings.port;
-if (settings.portTLS && !isNaN(settings.portTLS)) portTLS = settings.portTLS;
-if (settings.rejectUnauthorized && !isNaN(settings.rejectUnauthorized)) rejectUnauthorized = settings.rejectUnauthorized;
-
-if (process.env.ZAC_CONTROLLER_URLS) {
-	const zacControllerUrlsVar = process.env.ZAC_CONTROLLER_URLS;
-	let zacControllerUrls = processControllerUrls(zacControllerUrlsVar);
-	zacControllerUrls = zacControllerUrls.filter((envController) => {
-		let ctrlExists = false;
-		if (settings.edgeControllers) {
-			settings.edgeControllers.forEach((settingsController) => {
-				if (envController.url === settingsController.url) {
-					ctrlExists = true;
-				}
-			});
-		}
-		return !ctrlExists;
-	});
-	settings.edgeControllers = [...settings.edgeControllers, ...zacControllerUrls];
+// Refresh the CSP IdP allowlist across all controllers. Non-fatal; logs only on change.
+async function refreshIdpOrigins() {
+    const origins = new Set();
+    await Promise.all(controllers.map(async function(c) {
+        try {
+            const r = await httpRequest(c.url + '/edge/client/v1/external-jwt-signers?limit=500');
+            ((JSON.parse(r.body) || {}).data || []).forEach(function(s) {
+                const o = originOf(s.externalAuthUrl);
+                if (o) origins.add(o);
+            });
+        } catch (e) { /* skip this controller */ }
+    }));
+    const prev = idpOrigins.join(',');
+    idpOrigins = Array.from(origins);
+    if (idpOrigins.length && idpOrigins.join(',') !== prev) {
+        console.log('  -> CSP allows IdP origins: ' + idpOrigins.join(', '));
+    }
 }
 
-if (process.env.PORT) port = process.env.PORT;
-if (process.env.PORTTLS) portTLS = process.env.PORTTLS;
+// No global body parser: proxied POST/PUT bodies must forward raw. The /zac-session/*
+// routes parse JSON per-route.
 
-for (var i=0; i<process.argv.length; i++) {
-	var options = process.argv[i].split('=');
-	if (options.length==2) {
-		if (options[0].toLowerCase()=="port"&&!isNaN(options[1])) port = options[1];
-		else if (options[0].toLowerCase()=="porttls"&&!isNaN(options[1])) portTLS = options[1];
-		
-		if (options[0].toLowerCase()=="editable") {
-			if (options[1]=="true") settings.editable = true;
-			else settings.editable = false;
-		}
-	}
+// ---- Server-side session layer --------------------------------------------
+// Token held here (never in the browser), keyed by an opaque httpOnly cookie.
+const SID_COOKIE = 'zac.sid';
+const CSRF_COOKIE = 'zac.csrf';
+const MGMT_PREFIX = '/edge/management/v1';
+// sid -> { token, csrf, kind:'legacy'|'oidc', createdAt, lastSeen, refreshToken?, oidcBase?, clientId?, accessExpMs? }
+const sessions = new Map();
+
+// Persisted (AES-256-GCM, 0600) so a restart/upgrade doesn't log everyone out.
+// Single-process; a multi-replica deployment needs a shared store.
+const SESSION_FILE = process.env.ZAC_SESSION_FILE || path.join(__dirname, 'sessions', 'zac-proxy-sessions.json');
+const SESSION_KEY_FILE = SESSION_FILE + '.key';
+const SESSION_MAX_IDLE_MS = 24 * 3600 * 1000;
+
+// Prefer ZAC_SESSION_SECRET (keep it off the session volume); else a generated 0600 key file.
+function sessionKey() {
+    if (process.env.ZAC_SESSION_SECRET) return crypto.createHash('sha256').update(process.env.ZAC_SESSION_SECRET).digest();
+    try { const k = fs.readFileSync(SESSION_KEY_FILE); if (k.length === 32) return k; } catch (e) { /* generate */ }
+    const key = crypto.randomBytes(32);
+    try { fs.mkdirSync(path.dirname(SESSION_KEY_FILE), { recursive: true }); fs.writeFileSync(SESSION_KEY_FILE, key, { mode: 0o600 }); }
+    catch (e) { console.error('Could not persist session key: ' + e.message); }
+    return key;
+}
+const SKEY = sessionKey();
+
+function encryptBlob(plaintext) {
+    const iv = crypto.randomBytes(12);
+    const cipher = crypto.createCipheriv('aes-256-gcm', SKEY, iv);
+    const enc = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()]);
+    return JSON.stringify({ v: 1, iv: iv.toString('base64'), tag: cipher.getAuthTag().toString('base64'), data: enc.toString('base64') });
+}
+function decryptBlob(blob) {
+    const o = JSON.parse(blob);
+    const d = crypto.createDecipheriv('aes-256-gcm', SKEY, Buffer.from(o.iv, 'base64'));
+    d.setAuthTag(Buffer.from(o.tag, 'base64'));
+    return Buffer.concat([d.update(Buffer.from(o.data, 'base64')), d.final()]).toString('utf8');
 }
 
-console.log(settings);
-
-for (var i=0; i<settings.edgeControllers.length; i++) {
-	if (settings.edgeControllers[i].default) {
-		serviceUrl = settings.edgeControllers[i].url;
-		break;
-	}
+function loadSessions() {
+    try {
+        const raw = JSON.parse(decryptBlob(fs.readFileSync(SESSION_FILE, 'utf8'))) || {};
+        const now = Date.now();
+        Object.keys(raw).forEach(function(sid) {
+            const s = raw[sid];
+            if (s && (!s.lastSeen || now - s.lastSeen < SESSION_MAX_IDLE_MS)) sessions.set(sid, s);
+        });
+        if (sessions.size) console.log('  -> restored ' + sessions.size + ' server session(s) from ' + SESSION_FILE);
+    } catch (e) { /* no file, wrong key, or tampered - start empty (users re-login) */ }
 }
 
-// Prime the CSP IdP allowlist at startup; refreshed later on the login page's signer fetch.
-refreshIdpOrigins();
-
-var transporter;
-
-if (settings.mail && settings.mail.host && settings.mail.host.trim().length>0) {
-	console.log("Setting up Mailer from "+settings.mail.host);
-	transporter = nodemailer.createTransport(settings.mail);
+function flushSessions() {
+    try {
+        fs.mkdirSync(path.dirname(SESSION_FILE), { recursive: true });
+        const obj = {};
+        sessions.forEach(function(v, k) { obj[k] = v; });
+        fs.writeFileSync(SESSION_FILE, encryptBlob(JSON.stringify(obj)), { mode: 0o600 });
+    } catch (e) { console.error('Could not persist sessions: ' + e.message); }
 }
 
-
-
-/**------------- Authentication Section -------------**/
-
-/**
- * Just tests if the user exists as a session or not, would add on to validate roles, etc if the system is expanded to 
- * include more well defined authentication structures
- * @param {The current user session} user 
- */
-function hasAccess(user) {
-	return (user!=null);
+let persistTimer = null;
+function persistSessions() {
+    if (persistTimer) return;
+    persistTimer = setTimeout(function() { persistTimer = null; flushSessions(); }, 1000);
+    persistTimer.unref();
 }
 
-/**
- * Authentication method, authenticates the user to the provided edge controller defined by url
- */
-app.post("/api/login", function(request, response) {
-	var urlToSet = trimTrailingSlash(request.body.url);
-	if (!IsServerDefined(urlToSet)) response.json({error: errors.invalidServer });
-	else {
-		baseUrl = urlToSet;
-		request.session.baseUrl = baseUrl;
-		GetPath().then((prefix) => {
-			serviceUrl = urlToSet+prefix;
-			request.session.serviceUrl = serviceUrl;
-			// Store the API prefix (resolved from the controller's /version response, not the
-			// request) so the authenticate URL can be rebuilt from the allowlisted base. See #915.
-			request.session.apiPrefix = prefix;
-			//request.session.creds = {
-			//	username: request.body.username,
-			//	password: request.body.password
-			//};
-			Authenticate(request).then((results) => {
-				response.json(results);
-			});
-		}).catch((error) => {
-			response.json({error: error});
-		});
-	}
+// Flush on graceful shutdown so the last changes survive a restart.
+['SIGTERM', 'SIGINT'].forEach(function(sig) {
+    process.on(sig, function() { flushSessions(); process.exit(0); });
 });
 
-if (integration === 'edge-api') {
-    app.use(bodyParser.urlencoded({extended:false}));
-
-    app.use('/', express.static(__dirname + '/dist/app-ziti-console'));
-    app.use('/:name', express.static(__dirname + '/dist/app-ziti-console'));
-} else {
-    app.use(bodyParser.urlencoded({extended:false}));
-    app.use('/', express.static(__dirname + '/dist/app-ziti-console-node'));
-    app.use('/:name', express.static(__dirname + '/dist/app-ziti-console-node'));
+function parseCookies(req) {
+    const out = {};
+    const header = req.headers.cookie;
+    if (!header) return out;
+    header.split(';').forEach(function(pair) {
+        const idx = pair.indexOf('=');
+        if (idx > -1) out[pair.slice(0, idx).trim()] = decodeURIComponent(pair.slice(idx + 1).trim());
+    });
+    return out;
 }
 
-app.post("/api/logout", function(request, response) {
-    request.session.user = null;
-    // Also drop the stored IdP token, otherwise ReAuthenticate would silently renew the session
-    // on the next request and undo the logout. See #915.
-    request.session.extJwtToken = null;
-    response.send({
-        success: true,
-        message: 'Logout Successful'
+function setCookie(name, value, httpOnly) {
+    let c = name + '=' + encodeURIComponent(value) + '; Path=/; SameSite=Strict';
+    if (httpOnly) c += '; HttpOnly';
+    if (cookieSecure) c += '; Secure';
+    return c;
+}
+
+function clearCookie(name, httpOnly) {
+    let c = name + '=; Path=/; Max-Age=0; SameSite=Strict';
+    if (httpOnly) c += '; HttpOnly';
+    if (cookieSecure) c += '; Secure';
+    return c;
+}
+
+function getSession(req) {
+    const sid = parseCookies(req)[SID_COOKIE];
+    if (!sid) return null;
+    const s = sessions.get(sid);
+    if (!s) return null;
+    s.lastSeen = Date.now();
+    return Object.assign({ sid: sid }, s);
+}
+
+function csrfOk(req, s) {
+    const header = req.headers['x-zac-csrf'];
+    if (!header || !s || !s.csrf || header.length !== s.csrf.length) return false;
+    try { return crypto.timingSafeEqual(Buffer.from(header), Buffer.from(s.csrf)); }
+    catch (e) { return false; }
+}
+
+// A JWT session token is sent as a Bearer; a legacy opaque token as zt-session.
+function looksLikeJwt(t) {
+    return typeof t === 'string' && t.split('.').length === 3;
+}
+
+function authenticateUpstream(ctrlUrl, method, body, bearer, cb) {
+    let u;
+    try { u = new URL(ctrlUrl + MGMT_PREFIX + '/authenticate?method=' + encodeURIComponent(method)); }
+    catch (e) { cb(e); return; }
+    const mod = u.protocol === 'http:' ? http : https;
+    const payload = Buffer.from(JSON.stringify(body || {}));
+    const headers = { 'Content-Type': 'application/json', 'Content-Length': payload.length };
+    if (bearer) headers['Authorization'] = 'Bearer ' + bearer;
+    const r = mod.request(u, { method: 'POST', rejectUnauthorized: secure, headers: headers }, function(res) {
+        let data = '';
+        res.on('data', function(d) { data += d; });
+        res.on('end', function() {
+            let parsed = null;
+            try { parsed = JSON.parse(data); } catch (e) { /* non-JSON error body */ }
+            cb(null, res.statusCode, parsed);
+        });
+    });
+    r.on('error', function(e) { cb(e); });
+    r.setTimeout(10000, function() { r.destroy(new Error('authenticate timed out')); });
+    r.end(payload);
+}
+
+function createSession(res, fields) {
+    const sid = crypto.randomUUID();
+    const csrf = crypto.randomUUID();
+    sessions.set(sid, Object.assign({ csrf: csrf, createdAt: Date.now(), lastSeen: Date.now() }, fields));
+    persistSessions();
+    res.setHeader('Set-Cookie', [setCookie(SID_COOKIE, sid, true), setCookie(CSRF_COOKIE, csrf, false)]);
+}
+
+// ---- Controller-native OIDC (server-side token custody) -------------------
+// The browser does the external-IdP hop and hands us the IdP token; we run the
+// controller's PKCE auth-code flow here and keep the tokens server-side. Server-side
+// we aren't subject to CORS (read 302 Location directly) and use a loopback redirect
+// URI, sidestepping the non-loopback-host limitation of the in-browser flow.
+// The default is derived from PORT; a dev EADDRINUSE port-bump won't update it, but
+// the controller's loopback glob matches any port and we never fetch this URI, so
+// it's harmless - set ZAC_OIDC_REDIRECT_URI explicitly in production.
+const OIDC_REDIRECT_URI = process.env.ZAC_OIDC_REDIRECT_URI || ('http://localhost:' + port + '/auth/callback');
+
+function b64url(buf) {
+    return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function randomUrlSafe(n) { return b64url(crypto.randomBytes(n || 32)); }
+function pkceChallenge(verifier) { return b64url(crypto.createHash('sha256').update(verifier).digest()); }
+function jwtExpMs(token) {
+    try {
+        const seg = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+        const p = JSON.parse(Buffer.from(seg, 'base64').toString());
+        return typeof p.exp === 'number' ? p.exp * 1000 : undefined;
+    } catch (e) { return undefined; }
+}
+function form(obj) { return new URLSearchParams(obj).toString(); }
+
+// Minimal promise HTTP that does NOT follow redirects (we read the 302 Location directly).
+function httpRequest(urlStr, opts) {
+    opts = opts || {};
+    return new Promise(function(resolve, reject) {
+        let u;
+        try { u = new URL(urlStr); } catch (e) { reject(e); return; }
+        const mod = u.protocol === 'http:' ? http : https;
+        const payload = opts.body != null ? Buffer.from(opts.body) : null;
+        const headers = Object.assign({}, opts.headers);
+        if (payload) headers['Content-Length'] = payload.length;
+        const r = mod.request(u, { method: opts.method || 'GET', rejectUnauthorized: secure, headers: headers }, function(res) {
+            let data = '';
+            res.on('data', function(d) { data += d; });
+            res.on('end', function() { resolve({ status: res.statusCode, headers: res.headers, body: data }); });
+        });
+        r.on('error', reject);
+        r.setTimeout(10000, function() { r.destroy(new Error('request timed out')); });
+        if (payload) r.write(payload);
+        r.end();
+    });
+}
+
+async function oidcDiscover(ctrlUrl) {
+    try {
+        const r = await httpRequest(ctrlUrl + '/version');
+        const d = (JSON.parse(r.body) || {}).data || {};
+        const caps = d.capabilities || [];
+        const path = d.apiVersions && d.apiVersions['edge-oidc'] && d.apiVersions['edge-oidc'].v1 && d.apiVersions['edge-oidc'].v1.path;
+        return { available: Array.isArray(caps) && caps.indexOf('OIDC_AUTH') > -1, oidcPath: path || '/oidc' };
+    } catch (e) { return { available: false, oidcPath: '/oidc' }; }
+}
+
+// The /oidc flow is stateful across hops, so cookies ride along.
+function mergeSetCookie(jar, setCookie) {
+    (setCookie || []).forEach(function(sc) {
+        const pair = sc.split(';')[0];
+        const idx = pair.indexOf('=');
+        if (idx > -1) jar[pair.slice(0, idx).trim()] = pair.slice(idx + 1).trim();
+    });
+}
+function jarHeader(jar) {
+    return Object.keys(jar).map(function(k) { return k + '=' + jar[k]; }).join('; ');
+}
+
+// Exchange an external-IdP token for controller OIDC tokens. Returns
+// {accessToken, refreshToken, oidcBase, clientId}, {error}, or null (no OIDC).
+async function oidcExtJwtLogin(ctrlUrl, idpToken) {
+    if (!idpToken) return { error: 'missing IdP token' };
+    const disc = await oidcDiscover(ctrlUrl);
+    if (!disc.available) return null;
+    const oidcBase = ctrlUrl + disc.oidcPath;
+    let ctrlOrigin = null;
+    try { ctrlOrigin = new URL(ctrlUrl).origin; } catch (e) { return { error: 'bad controller url' }; }
+    const verifier = randomUrlSafe(32);
+    const challenge = pkceChallenge(verifier);
+    const state = randomUrlSafe(16);
+    const nonce = randomUrlSafe(16);
+    for (const clientId of ['openziti', 'native']) {
+        const jar = {};
+        const authResp = await httpRequest(oidcBase + '/authorize?' + form({
+            client_id: clientId, scope: 'openid offline_access', response_type: 'code',
+            state: state, nonce: nonce, code_challenge: challenge, code_challenge_method: 'S256',
+            redirect_uri: OIDC_REDIRECT_URI,
+        }));
+        mergeSetCookie(jar, authResp.headers['set-cookie']);
+        const authLoc = authResp.headers['location'];
+        if (!authLoc) continue;
+        let authRequestId = null;
+        try { authRequestId = new URL(authLoc, oidcBase).searchParams.get('authRequestID'); } catch (e) {}
+        if (!authRequestId) continue;
+        const loginResp = await httpRequest(oidcBase + '/login/ext-jwt', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': 'Bearer ' + idpToken, 'Cookie': jarHeader(jar) },
+            body: form({ id: authRequestId }),
+        });
+        mergeSetCookie(jar, loginResp.headers['set-cookie']);
+        if (!loginResp.headers['location']) {
+            return { error: 'ext-jwt rejected or MFA required (MFA unsupported in proxy-session)' };
+        }
+        // Follow the 302 chain (carrying cookies) until the redirect URI carries ?code.
+        let code = null;
+        let loc = loginResp.headers['location'];
+        for (let hop = 0; hop < 6 && loc && !code; hop++) {
+            let abs;
+            try { abs = new URL(loc, oidcBase); } catch (e) { break; }
+            code = abs.searchParams.get('code');
+            if (code) break;
+            if (abs.href.indexOf(OIDC_REDIRECT_URI) === 0) break;
+            if (abs.origin !== ctrlOrigin) break; // never carry the flow cookies off the controller
+            const next = await httpRequest(abs.href, { method: 'GET', headers: { 'Cookie': jarHeader(jar) } });
+            mergeSetCookie(jar, next.headers['set-cookie']);
+            loc = next.headers['location'];
+        }
+        if (!code) return { error: 'no authorization code in login redirect' };
+        const tokResp = await httpRequest(oidcBase + '/oauth/token', {
+            method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: form({ grant_type: 'authorization_code', client_id: clientId, code: code, code_verifier: verifier, redirect_uri: OIDC_REDIRECT_URI }),
+        });
+        let tok;
+        try { tok = JSON.parse(tokResp.body); } catch (e) { return { error: 'token response was not JSON' }; }
+        if (!tok.access_token) return { error: tok.error_description || tok.error || 'no access_token returned' };
+        return { accessToken: tok.access_token, refreshToken: tok.refresh_token, oidcBase: oidcBase, clientId: clientId };
+    }
+    return { error: 'OIDC /authorize failed - is redirect URI "' + OIDC_REDIRECT_URI + '" registered on the controller?' };
+}
+
+// Refresh an OIDC session in place (mutates it). Throws on failure.
+async function oidcRefresh(s) {
+    const r = await httpRequest(s.oidcBase + '/oauth/token', {
+        method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: form({ grant_type: 'refresh_token', client_id: s.clientId, refresh_token: s.refreshToken }),
+    });
+    const tok = JSON.parse(r.body);
+    if (!tok.access_token) throw new Error(tok.error || 'refresh failed');
+    s.token = tok.access_token;
+    if (tok.refresh_token) s.refreshToken = tok.refresh_token;
+    s.accessExpMs = jwtExpMs(tok.access_token) || (Date.now() + ((tok.expires_in || 1800) * 1000));
+    persistSessions();
+}
+
+function oidcRevoke(s) {
+    return httpRequest(s.oidcBase + '/oauth/revoke', {
+        method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: form({ token: s.refreshToken, token_type_hint: 'refresh_token', client_id: s.clientId }),
+    });
+}
+
+// ---- One-time migration from the node-api server --------------------------
+// The node-api server stored its session via express-session + session-file-store
+// (./sessions/<sid>.json, cookie "connect.sid" signed with a fixed secret). On the
+// first request after an upgrade, adopt it so users aren't logged out. Transitional.
+const LEGACY_SECRET = 'NetFoundryZiti';
+const LEGACY_COOKIE = 'connect.sid';
+const LEGACY_STORE_DIR = path.join(__dirname, 'sessions');
+
+function unsignLegacy(raw) {
+    if (!raw || raw.slice(0, 2) !== 's:') return null;
+    const body = raw.slice(2);
+    const dot = body.lastIndexOf('.');
+    if (dot < 0) return null;
+    const sid = body.slice(0, dot), sig = body.slice(dot + 1);
+    const expected = crypto.createHmac('sha256', LEGACY_SECRET).update(sid).digest('base64').replace(/=+$/, '');
+    try {
+        if (sig.length === expected.length && crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return sid;
+    } catch (e) { /* mismatch */ }
+    return null;
+}
+
+async function migrateLegacySession(req, res) {
+    const cookies = parseCookies(req);
+    if (cookies[SID_COOKIE]) return;
+    const sid = unsignLegacy(cookies[LEGACY_COOKIE]);
+    if (!sid || /[^A-Za-z0-9_-]/.test(sid)) return; // uid-safe charset only (no path traversal)
+    let data;
+    try { data = JSON.parse(fs.readFileSync(path.join(LEGACY_STORE_DIR, sid + '.json'), 'utf8')); }
+    catch (e) { return; }
+    const base = trimTrailingSlash(data.baseUrl || (data.serviceUrl || '').replace(/\/edge\/.*/, ''));
+    const ctrl = controllers.find(function(c) { return c.url === base; }) || defaultController;
+
+    // Re-auth from the stored IdP token when present (fresh auto-refreshing session,
+    // survives an expired ziti token); else adopt the stored ziti token as legacy.
+    let fields = null;
+    if (data.extJwtToken) {
+        try {
+            const oidc = await oidcExtJwtLogin(ctrl.url, data.extJwtToken);
+            if (oidc && oidc.accessToken) {
+                fields = { token: oidc.accessToken, kind: 'oidc', controllerId: ctrl.id,
+                    refreshToken: oidc.refreshToken, oidcBase: oidc.oidcBase, clientId: oidc.clientId,
+                    accessExpMs: jwtExpMs(oidc.accessToken) || (Date.now() + 1800000) };
+            }
+        } catch (e) { /* fall through to the stored token */ }
+    }
+    if (!fields) {
+        if (!data.user) return;
+        fields = { token: data.user, kind: 'legacy', controllerId: ctrl.id };
+    }
+
+    const newSid = crypto.randomUUID();
+    const csrf = crypto.randomUUID();
+    sessions.set(newSid, Object.assign({ csrf: csrf, createdAt: Date.now(), lastSeen: Date.now() }, fields));
+    persistSessions();
+    try { fs.unlinkSync(path.join(LEGACY_STORE_DIR, sid + '.json')); } catch (e) { /* best-effort */ }
+    res.setHeader('Set-Cookie', [setCookie(SID_COOKIE, newSid, true), setCookie(CSRF_COOKIE, csrf, false), clearCookie(LEGACY_COOKIE, true)]);
+    req.headers.cookie = (req.headers.cookie ? req.headers.cookie + '; ' : '') + SID_COOKIE + '=' + newSid; // so the current request is already authed
+}
+
+// Controller list for the login picker; each url is the same-origin /c/<id> path.
+app.get('/zac-session/controllers', function(req, res) {
+    res.json({
+        controllers: controllers.map(function(c) {
+            return { id: c.id, name: c.name, url: '/c/' + c.id, default: !!c.default };
+        }),
     });
 });
 
-// Rebuild the controller service URL from the CONFIGURED (allowlisted) controller base - never the
-// raw request/session value - so anything requested from it targets a trusted host. The prefix is
-// resolved server-side from the controller's /version response, so it isn't user-tainted either.
-// Returns "" when the controller isn't allowlisted. Addresses CodeQL js/request-forgery.
-function GetTrustedServiceUrl(request) {
-	var base = GetClientControllerBase(request);
-	if (!base) return "";
-	return base + (request.session.apiPrefix || "");
+{
+    const jsonParser = express.json();
+
+    app.use(function(req, res, next) {
+        migrateLegacySession(req, res).then(function() { next(); }, function() { next(); });
+    });
+
+    // ext-jwt -> controller OIDC exchange (falls back to legacy /authenticate if the
+    // controller has no OIDC); password -> legacy /authenticate. No token is returned.
+    app.post('/zac-session/login', jsonParser, async function(req, res) {
+        const body = req.body || {};
+        const type = body.type || 'password';
+        const ctrl = controllersById[body.controllerId] || defaultController;
+        try {
+            if (type === 'ext-jwt') {
+                const oidc = await oidcExtJwtLogin(ctrl.url, body.token);
+                if (oidc && oidc.accessToken) {
+                    createSession(res, {
+                        token: oidc.accessToken, kind: 'oidc', controllerId: ctrl.id,
+                        refreshToken: oidc.refreshToken, oidcBase: oidc.oidcBase, clientId: oidc.clientId,
+                        accessExpMs: jwtExpMs(oidc.accessToken) || (Date.now() + 1800000),
+                    });
+                    res.json({ success: true });
+                    return;
+                }
+                if (oidc && oidc.error) { res.status(401).json({ error: 'OIDC login failed: ' + oidc.error }); return; }
+                // oidc === null -> no OIDC; fall through to legacy ext-jwt.
+            }
+            const method = type === 'ext-jwt' ? 'ext-jwt' : 'password';
+            const authBody = type === 'ext-jwt' ? {} : { username: body.username, password: body.password };
+            const bearer = type === 'ext-jwt' ? body.token : undefined;
+            authenticateUpstream(ctrl.url, method, authBody, bearer, function(err, status, parsed) {
+                if (err) { res.status(502).json({ error: 'Controller not reachable: ' + err.message }); return; }
+                const token = parsed && parsed.data && parsed.data.token;
+                if (!token) {
+                    const msg = (parsed && parsed.error && (parsed.error.message || parsed.error.code)) || 'Invalid login';
+                    res.status(status && status >= 400 ? status : 401).json({ error: msg });
+                    return;
+                }
+                createSession(res, { token: token, kind: 'legacy', controllerId: ctrl.id });
+                res.json({ success: true });
+            });
+        } catch (e) {
+            res.status(502).json({ error: 'Login failed: ' + e.message });
+        }
+    });
+
+    app.post('/zac-session/logout', function(req, res) {
+        const s = getSession(req);
+        if (s && !csrfOk(req, s)) { res.status(403).json({ error: 'CSRF validation failed' }); return; }
+        if (s) {
+            if (s.kind === 'oidc' && s.refreshToken) { oidcRevoke(s).catch(function() {}); }
+            sessions.delete(s.sid);
+            persistSessions();
+        }
+        res.setHeader('Set-Cookie', [clearCookie(SID_COOKIE, true), clearCookie(CSRF_COOKIE, false)]);
+        res.json({ success: true });
+    });
+
+    app.get('/zac-session/status', function(req, res) {
+        const s = getSession(req);
+        res.json({ authenticated: !!s, mode: 'proxy-session', controller: s ? s.controllerId : null });
+    });
+
+    // Resolve the session for proxied API requests, refresh a near-expiry OIDC token,
+    // and enforce CSRF on mutations. Token injection happens in proxyReq (below).
+    app.use(async function(req, res, next) {
+        if (!isApiPath(req.path)) return next();
+        const sid = parseCookies(req)[SID_COOKIE];
+        const s = sid ? sessions.get(sid) : null;
+        if (s) {
+            s.lastSeen = Date.now();
+            if (s.kind === 'oidc' && s.refreshToken && s.accessExpMs && Date.now() > s.accessExpMs - 60000) {
+                try { await oidcRefresh(s); } catch (e) { /* a 401 will route to login */ }
+            }
+        }
+        req.zacSession = s ? Object.assign({ sid: sid }, s) : null;
+        req.zacCtrlId = controllerIdForPath(req.path); // capture before pathRewrite strips the prefix
+        const method = req.method.toUpperCase();
+        const safe = method === 'GET' || method === 'HEAD' || method === 'OPTIONS';
+        if (!safe && s && !csrfOk(req, s)) { res.status(403).json({ error: 'CSRF validation failed' }); return; }
+        next();
+    });
 }
 
-function Authenticate(request) {
-	return new Promise(function(resolve, reject) {
-		if (!baseUrl||baseUrl.trim().length==0&&request.session.baseUrl) baseUrl = request.session.baseUrl;
-		if (!serviceUrl||serviceUrl.trim().length==0&&request.session.serviceUrl) serviceUrl = request.session.serviceUrl;
-		// ext-jwt (IdP/OIDC) login: exchange the browser-supplied IdP token for a ziti session via
-		// the controller's ext-jwt authenticator. Otherwise fall back to username/password. See #915.
-		var extJwtToken = request.body.token;
-		var trustedServiceUrl = GetTrustedServiceUrl(request);
-		if (!trustedServiceUrl) { resolve({error: errors.invalidServer}); return; }
-		var authUrl = trustedServiceUrl + (extJwtToken ? "/authenticate?method=ext-jwt" : "/authenticate?method=password");
-		var options = extJwtToken
-			? {json: {}, rejectUnauthorized: rejectUnauthorized, headers: {authorization: "Bearer "+extJwtToken}}
-			: {json: {username: request.body.username, password: request.body.password}, rejectUnauthorized: rejectUnauthorized};
-		log("Connecting to: "+authUrl);
-		external.post(authUrl, options, function(err, res, body) {
-			if (err) {
-				log(err);
-				var error = "Server Not Accessible";
-				if (err.code!="ECONNREFUSED") resolve( {error: err.code} );
-				resolve( {error: error} );
-			} else {
-				if (body.error) resolve( {error: body.error.message} );
-				else {
-					if (body.data&&body.data.token) {
-						request.session.user = body.data.token;
-						request.session.authorization = 100;
-						// Keep the IdP token (valid well beyond the ziti session) so an expired ziti
-						// session can be renewed without a fresh IdP round-trip. See ReAuthenticate / #915.
-						request.session.extJwtToken = extJwtToken || null;
-						resolve( {success: "Logged In"} );
-					} else resolve( {error: "Invalid Account"} );
-				}
-			}
-		});
-	});
+// Deprecated legacy /api/* compatibility layer (on by default; set ZAC_LEGACY_API=false to disable).
+if (`${process.env.ZAC_LEGACY_API}`.toLowerCase() !== 'false') {
+    mountLegacyApi(app, {
+        controllers, controllersById, defaultController, getSession, createSession,
+        authenticateUpstream, httpRequest, clearCookie, SID_COOKIE, sessions,
+        persistSessions, looksLikeJwt, MGMT_PREFIX, trimTrailingSlash, normUrl,
+    });
 }
 
-// Renew an expired ziti session from the stored ext-jwt (IdP) token. Returns true if a fresh
-// session token was obtained. Only ext-jwt sessions are renewable this way. See #915.
-function ReAuthenticate(request) {
-	return new Promise(function(resolve) {
-		var token = request.session.extJwtToken;
-		// Trusted, allowlisted base (see GetTrustedServiceUrl) rather than the raw session value.
-		var url = GetTrustedServiceUrl(request);
-		if (!token || !url) { resolve(false); return; }
-		external.post(url+"/authenticate?method=ext-jwt",
-			{json: {}, rejectUnauthorized: rejectUnauthorized, headers: {authorization: "Bearer "+token}},
-			function(err, res, body) {
-				if (!err && body && body.data && body.data.token) {
-					request.session.user = body.data.token;
-					resolve(true);
-				} else resolve(false);
-			});
-	});
+// ---- Reverse proxy (before static, so API paths never hit the SPA) --------
+app.use(createProxyMiddleware({
+    target: defaultController.url,
+    changeOrigin: true,
+    secure,
+    ws: true,
+    pathFilter: isApiPath,
+    router: function(req) { return controllerForPath((req.url || '').split('?')[0]).url; },
+    pathRewrite: function(p) { return stripControllerPrefix(p); },
+    on: {
+        proxyReq(proxyReq, req) {
+            // Inject the server-held token, but only for the controller this session authenticated against.
+            if (req.zacSession && req.zacSession.controllerId === req.zacCtrlId) {
+                const t = req.zacSession.token;
+                if (looksLikeJwt(t)) proxyReq.setHeader('Authorization', 'Bearer ' + t);
+                else proxyReq.setHeader('zt-session', t);
+            }
+        },
+        error(err, req, res) {
+            console.error('Proxy error for ' + req.method + ' ' + req.url + ': ' + err.message);
+            if (res && !res.headersSent && typeof res.writeHead === 'function') {
+                res.writeHead(502, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Controller not reachable: ' + err.message }));
+            }
+        },
+    },
+}));
+
+// ---- Static SPA -----------------------------------------------------------
+const distDir = path.join(__dirname, 'dist', 'app-ziti-console');
+const indexPath = path.join(distDir, 'index.html');
+
+// Inject the runtime signal the SPA reads at bootstrap (server-side session transport).
+let indexHtml = null;
+try {
+    indexHtml = fs.readFileSync(indexPath, 'utf8');
+    const meta = '<meta name="zac-auth-mode" content="proxy-session">';
+    indexHtml = indexHtml.indexOf('</head>') > -1
+        ? indexHtml.replace('</head>', '    ' + meta + '\n</head>')
+        : meta + indexHtml;
+} catch (e) {
+    console.error('Could not read index.html (' + indexPath + '): ' + e.message);
 }
 
-/**
- * Return the server path to the services
- * 
- * @returns The path to the services
- */
-function GetPath() {
-	return new Promise(function(resolve, reject) {
-		external.get(baseUrl+"/edge/management/v1/version", {rejectUnauthorized: rejectUnauthorized}, function(err, res, body) {
-			try {
-				var data = JSON.parse(body);
-				resolve(data.data.apiVersions["edge-management"].v1.path);
-			} catch (e) {
-				log("Invalid Json Result on Version: "+e);
-				reject("Invalid Management Api<br/><span style='font-size:12px; font-weight: normal;'>Please confirm the provided Edge Controller host:port is accurate.</span>");
-			}
-		});
-	});
-}
+app.use(express.static(distDir, { index: false }));
 
-/**
- * Returned the version of the edge-controller server
- */
-app.post('/api/version', function(request, response) {
-	log("Checking Version: "+baseUrl+"/version");
-	if (baseUrl) {
-		external.get(baseUrl+"/version", {rejectUnauthorized: rejectUnauthorized}, function(err, res, body) {
-			if (err) log(err);
-			else {
-				try {
-					var data = JSON.parse(body);
-					log("Version: "+body);
-					GetPath().then((fullPath) => {
-						if (data&&data.data) response.json( {data: data.data, serviceUrl: fullPath, zac: zacVersion, requireAuth: onlyDeleteSelfController, baseUrl: baseUrl} );
-						else response.json({});
-					});
-				} catch (e) {
-					log("Invalid Json Result on Version: "+e);
-					response.json({});
-				}
-			}
-		});
-	} else response.json({zac: zacVersion});
+// SPA fallback (Express 5 no longer accepts the bare '*' path).
+app.get(/.*/, function(req, res) {
+    if (indexHtml != null) res.type('html').send(indexHtml);
+    else res.sendFile(indexPath);
 });
 
-/**
- * Reset the current users password
- */
-app.post("/api/reset", function(request, response) {
-	if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
-	else {
-		if (request.body.newpassword!=request.body.confirm) response.json({error: "Password does not match confirmation"});
-		else {
-			log("Connecting to: "+serviceUrl+"/current-identity/authenticators?filter=method=\"updb\"");
-			external.get(serviceUrl+"/current-identity/authenticators?filter=method=\"updb\"", {rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user }}, function(err, res, body) {
-				if (err) {
-					log(err);
-					var error = "Server Not Accessible";
-					if (err.code!="ECONNREFUSED") response.json( {error: err.code} );
-					response.json( {error: error} );
-				} else {
-					var data = JSON.parse(body);
-					if (data.error) {
-						log(JSON.stringify(data.error));
-						response.json( {error: data.error.message} );
-					} else {
-						if (data.data.length>0) {
-							var id = data.data[0].id;
-							var params = {
-								currentPassword: request.body.password,
-								password: request.body.newpassword,
-								username: data.data[0].username
-							}
-							log("Connecting to: "+serviceUrl+"/current-identity/authenticators/"+id);
-							external.put(serviceUrl+"/current-identity/authenticators/"+id, {json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user }}, function(err, res, body) {
-								if (err) {
-									log(err);
-									var error = "Server Not Accessible";
-									if (err.code!="ECONNREFUSED") response.json( {error: err.code} );
-									response.json( {error: error} );
-								} else {
-									if (body.error) {
-										log(JSON.stringify(body.error));
-										response.json( {error: body.error.message} );
-									} else response.json( {success: "Password Updated"} );
-								}
-							});
-						} else {
-							response.json({ error: "Unknown User" });
-						}
-					}
-				}
-			});
-		}
-	}
-});
+// ---- Listen ----------------------------------------------------------------
+const portTLS = process.env.PORTTLS || 8443;
+const bindIP = process.env.BIND_IP || undefined;
 
+loadSessions();
+refreshIdpOrigins();
+setInterval(refreshIdpOrigins, 5 * 60 * 1000).unref();
 
-
-/**------------- Server Settings Section -------------**/
-
-
-
-/**
- * Tests whether the service url exists in the system to prevent hitting unknown server sources
- * 
- * @param {The Url to check if it exists in the configuration} url 
- */
-function IsServerDefined(url) {
-	for (var i=0; i<settings.edgeControllers.length; i++) {
-		if (trimTrailingSlash(settings.edgeControllers[i].url)==trimTrailingSlash(url)) return true;
-	}
-	return false;
-}
-
-/**
- * Get Language File
- */
-app.post("/api/language", (request, response) => {
-	var locale = request.body.locale;
-	if (fs.existsSync(__assets + '/languages/'+locale+'.json')) {
-		response.sendFile(path.resolve(__dirname+__assets + '/languages/'+locale+'.json'));
-	} else {
-		response.sendFile(path.resolve(__dirname+__assets + '/languages/en-us.json'));
-	}
-});
-
-/**
- * Returns the current system settings
- */
-app.post("/api/settings", function(rewwquest, response) {
-	var toReturn = settings;
-	delete toReturn.mail;
-	delete toReturn.to;
-	delete toReturn.from;
-	delete toReturn.location;
-	delete toReturn.update;
-	delete toReturn.rejectUnauthorized;
-	delete toReturn.port;
-	delete toReturn.portTLS;
-	response.json(toReturn);
-});
-
-/**
- * Save controller information to the settings file if the server exists
- * Limit 100 requests per minute
- */
-app.post("/api/controllerSave", rateLimiter(60000, 100), function(request, response) {
-	const name = request.body.name.trim().replace(/[^a-zA-Z0-9 \-]/g, '');
-	let url = request.body.url.trim();
-	url = url.split('#').join('').split('?').join('');
-	if (url.endsWith('/')) url = url.substr(0, url.length-1);
-	if (url.length==0) errors[errors.length] = "url";
-	var errors = [];
-	if (name.length==0) errors[errors.length] = "name";
-	if (errors.length>0) {
-		response.json({ errors: errors });
-	} else {
-		log("Updating Edge Controllers Setting: "+request.body);
-		var found = false;
-		for (var i=0; i<settings.edgeControllers.length; i++) {
-			if (settings.edgeControllers[i].url==url) {
-				found = true;
-				settings.edgeControllers[i].name = name;
-				break;
-			}
-		}
-		if (!found) {
-			log("Controller not found in pre-defined list. Ignoring..: "+request.body);
-		}
-		fs.writeFileSync(__dirname+settingsPath+'/settings.json', JSON.stringify(settings));
-		response.json({edgeControllers: settings.edgeControllers});
-	}
-});
-
-/**
- * Remove the server definition (fabric or edge controller) from the settings
- * based on the passed in url parameter
- */
-app.delete("/api/server", function(request, response) {
-	var user = request.session.user;
-	if (hasAccess(user)) {
-		var url = request.body.url;
-		var edges = [];
-		var fabrics = [];
-		log(url+" "+baseUrl);
-		if (baseUrl==url || !onlyDeleteSelfController) {
-			for (var i=0; i<settings.edgeControllers.length; i++) {
-				log(settings.edgeControllers[i].url);
-				if (settings.edgeControllers[i].url!=url) {
-					edges[edges.length] = settings.edgeControllers[i];
-				}
-			}
-			settings.edgeControllers = edges;
-			// fs.writeFileSync(__dirname+settingsPath+'/settings.json', JSON.stringify(settings));
-
-			response.json(settings);
-		} else response.json({error: "You must be logged into the controller to remove it"});
-	}
-});
-
-/**
- * Set the current controller to use
- */
-app.post("/api/controller", function(request, response) {
-	var urlToSet = trimTrailingSlash(request.body.url);
-	if (!IsServerDefined(urlToSet)) response.json({error: errors.invalidServer });
-	else serviceUrl = urlToSet;
-});
-
-
-
-/**------------- Server One Off Functions -------------**/
-
-/**
- * Remove MFA from an identity
- */
-app.delete("/api/mfa", function(request, response) {
-	var user = request.session.user;
-	if (hasAccess(user)) {
-		var id = request.body.id;
-		///Authenticate(request).then((result) => {
-			external.delete(serviceUrl+"/identities/"+id.trim()+"/mfa", {rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-				if (err) {
-					log("Error: "+JSON.stringify(body.err));
-					response.json({error: err});
-				} else {
-					log("Success: "+JSON.stringify(body.data));
-					response.json({success: "MFA Removed"});
-				}
-			});
-		//});
-	}
-});
-
-/**
- * Reset the identity bound authenticators enrollment status
- */
-app.post("/api/resetEnroll", function(request, response) {
-	var user = request.session.user;
-	if (hasAccess(user)) {
-		var id = request.body.id;
-		var date = moment(request.body.date).utc().toISOString();
-		var url = serviceUrl+"/authenticators/"+id.trim()+"/re-enroll";
-		var params = { expiresAt: date };
-		log("Calling "+url);
-		log(JSON.stringify(params));
-		external.post(url, { json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-			if (body.error) HandleError(response, body.error);
-			else {
-				log("Success: "+JSON.stringify(body));
-				response.json({success: "Enrollment Reset"});
-			}
-		});
-	}
-});
-
-/**
- * Reissue the identity enrollment token
- */
-app.post("/api/reissueEnroll", function(request, response) {
-	var user = request.session.user;
-	if (hasAccess(user)) {
-		var id = request.body.id;
-		var date = moment(request.body.date).utc().toISOString();
-		var url = serviceUrl+ `/enrollments/${id}/refresh`;
-		var params = { expiresAt: date };
-		log("Calling "+url);
-		log(JSON.stringify(params));
-		external.post(url, { json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-			if (body.error) HandleError(response, body.error);
-			else {
-				log("Success: "+JSON.stringify(body));
-				response.json({success: "Enrollment Reissued"});
-			}
-		});
-	}
-});
-
-/**------------- Server Search Section -------------**/
-
-
-/**
- * Staight call for uncommon calls to the edge controller
- */
-app.post("/api/call", function(request, response) {
-	log("Calling: "+serviceUrl+"/"+request.body.url);
-	//Authenticate(request).then((results) => {
-		external.get(serviceUrl+"/"+request.body.url, {json: {}, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-			if (err) {
-				log("Error: "+JSON.stringify(err));
-				response.json({ error: err });
-			} else {
-				if (body.error) HandleError(response, body.error);
-				else if (body.data) {
-					response.json( body );
-				} else {
-					body.data = [];
-					response.json( body );
-				}
-			}
-		});
-	//});
-});
-
-/**
- * Get the data from the edge controller based on the type of object and the 
- * defined search parameters
- */
-app.post("/api/data", function(request, response) {
-	var type = request.body.type;
-	var paging = request.body.paging;
-	if (request.body.useClient) {
-		GetClientItems(type, paging, request, response);
-	} else {
-		GetItems(type, paging, request, response);
-	}
-});
-
-/**
- * Call a service if expired, try to reauthenticate and try again.
- * 
- * @param {The url of the service to call} url 
- * @param {The Json object to send} json 
- * @param {The Server Request Object} request 
- * @param {True if this is the first callattempt} isFirst 
- * @returns 
- */
-function DoCall(url, json, request, isFirst=true) {
-	return new Promise(function(resolve, reject) {
-		log("Calling: "+url+" "+isFirst+" "+request.session.user);
-		external.get(url, {json: json, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-			if (err) {
-				log("Server Error: "+JSON.stringify(err));
-				resolve({ error: err });
-			} else {
-				if (body.error) {
-					if (isFirst && res && res.statusCode == 401) {
-						log("Session expired - attempting renewal");
-						// Renew the session from the stored ext-jwt token, then retry once. If renewal
-						// isn't possible (password session, or IdP token also expired), return the
-						// original error so the UI prompts for login. See #915.
-						ReAuthenticate(request).then((renewed) => {
-							if (renewed) {
-								DoCall(url, json, request, false).then((results) => {
-									resolve(results);
-								});
-							} else resolve(body);
-						});
-					} else resolve(body);
-				} else if (body.data) {
-					log("Items Returned: "+body.data.length);
-					resolve(body);
-				} else {
-					log("No Items");
-					if (typeof body === 'string' || body instanceof String) {
-						let toReturn = {
-							error: body,
-							data: []
-						}
-						resolve(toReturn);
-					} else {
-						body.data = [];
-						resolve(body);
-					}
-				}
-			}
-		});
-	});
-}
-
-/**
- * Get the data from the edge controller
- * 
- * @param {The type of object to search for (identity, router, gateway, etc)} type 
- * @param {Paging request parameters (see edge controller API docs)} paging 
- * @param {The server request object} request 
- * @param {The server response object} response 
- */
-function GetItems(type, paging, request, response, cli, serviceCall) {
-	if (request.body.url) {
-		GetSubs(request.body.url.split("./").join(""), request.body.type, "", "", request, response);
-	} else {
-		var urlFilter = BuildUrlFilter(paging);
-		if (serviceUrl==null||serviceUrl.trim().length==0) response.json({error:"loggedout"});
-		else {
-			DoCall(serviceUrl+"/"+type+urlFilter, {}, request, true).then((results) => {
-				if (results.error) HandleError(response, results.error);
-				else response.json(results);
-			});
-		}
-	}
-}
-
-// Build the edge API query string from paging params. Shared by GetItems and GetClientItems.
-function BuildUrlFilter(paging) {
-	var urlFilter = "";
-	var toSearchOn = "name";
-	var noSearch = false;
-	if (paging && paging.sort!=null) {
-		if (paging.searchOn) toSearchOn = paging.searchOn;
-		if (paging.noSearch) noSearch = true;
-		if (!paging.filter) paging.filter = "";
-		if (!paging.rawFilter) paging.filter = paging.filter.split('#').join('');
-		if (noSearch) {
-			if (paging.page!=-1) urlFilter = "?limit="+paging.total+"&offset="+((paging.page-1)*paging.total);
-		} else {
-			if (paging.rawFilter) {
-				// rawFilter is a complete filter expression (syntax, not a value) - do not encode it
-				urlFilter = "?filter=" + paging.filter.trim();
-				if (paging.total) {
-					urlFilter += "&limit="+paging.total;
-				}
-				if (paging.page) {
-					urlFilter += "&offset="+((paging.page-1)*paging.total);
-				}
-				if (paging.sort) {
-					urlFilter += "&sort="+encodeURIComponent(paging.sort)+" "+encodeURIComponent(paging.order);
-				}
-			} else if (paging.page!=-1) urlFilter = "?filter=("+encodeURIComponent(toSearchOn)+" contains \""+encodeURIComponent(paging.filter)+"\")&limit="+paging.total+"&offset="+((paging.page-1)*paging.total)+"&sort="+encodeURIComponent(paging.sort)+" "+encodeURIComponent(paging.order);
-			if (paging.params) {
-				for (var key in paging.params) {
-					urlFilter += ((urlFilter.length==0)?"?":"&")+encodeURIComponent(key)+"="+encodeURIComponent(paging.params[key]);
-				}
-			}
-		}
-	}
-	return urlFilter;
-}
-
-// Entity types the unauthenticated client endpoint may fetch pre-login.
-var CLIENT_ALLOWED_TYPES = ["external-jwt-signers"];
-
-// Add the given signers' IdP origins to the CSP allowlist (add-only).
-function mergeIdpOrigins(signers) {
-	var set = new Set(idpConnectOrigins);
-	(signers || []).forEach(function(signer) {
-		var o = originOf(signer.externalAuthUrl);
-		if (o) set.add(o);
-	});
-	idpConnectOrigins = Array.from(set);
-}
-
-// Minimal sanitized query for the client fetch: numeric limit/offset only, constant sort.
-function ClientPagingQuery(paging) {
-	var limit = parseInt((paging && paging.total) || 100, 10);
-	if (!(limit > 0)) limit = 100;
-	var page = parseInt((paging && paging.page) || 1, 10);
-	if (!(page > 0)) page = 1;
-	return "?limit=" + limit + "&offset=" + ((page - 1) * limit) + "&sort=name%20asc";
-}
-
-// Pre-login fetch (external-jwt-signers) from the public client API. The URL uses only trusted
-// values - configured controller, allowlisted type, numeric paging - so no user input. #915/#129
-function GetClientItems(type, paging, request, response) {
-	var typeIdx = CLIENT_ALLOWED_TYPES.indexOf(type);
-	if (typeIdx === -1) {
-		response.json({data: [], error: "unsupported type"});
-		return;
-	}
-	var safeType = CLIENT_ALLOWED_TYPES[typeIdx]; // from our allowlist, never the request value
-	var controllerBase = GetClientControllerBase(request);
-	if (controllerBase==null||controllerBase.trim().length==0) {
-		response.json({data: []});
-		return;
-	}
-	var clientUrl = controllerBase+"/edge/client/v1/"+safeType+ClientPagingQuery(paging);
-	log("Calling (client): "+clientUrl);
-	external.get(clientUrl, {json: {}, rejectUnauthorized: rejectUnauthorized}, function(err, res, body) {
-		if (err) {
-			log("Server Error (client): "+JSON.stringify(err));
-			response.json({data: [], error: err});
-		} else if (body && body.data) {
-			// keep the CSP IdP allowlist current from the signers we just fetched
-			if (safeType === "external-jwt-signers") mergeIdpOrigins(body.data);
-			response.json(body);
-		} else {
-			response.json({data: []});
-		}
-	});
-}
-
-// Resolve the client-API controller base; a browser controllerUrl is honored only if it matches
-// a configured controller (SSRF guard), else fall back to session/global.
-function GetClientControllerBase(request) {
-	// Resolve a candidate, then always return the matching CONFIGURED url - never the request or
-	// session value - so the request target is fully trusted.
-	var requested = request.body.controllerUrl || request.session.baseUrl || baseUrl;
-	if (!requested) return "";
-	requested = trimTrailingSlash(requested);
-	var match = "";
-	if (settings.edgeControllers) {
-		settings.edgeControllers.forEach(function(controller) {
-			if (trimTrailingSlash(controller.url) === requested) match = trimTrailingSlash(controller.url);
-		});
-	}
-	return match;
-}
-
-/**
- * Get all of the sub objects associated with a parent objects, like all of the services defined in an AppWAN
- */
-app.post("/api/dataSubs", function(request, response) {
-	var id = request.body.id;
-	var type = request.body.type;
-	if (request.body.url) {
-		var url = request.body.url.href.split("./").join("");
-		DoCall(serviceUrl+"/"+url+"?limit=99999999&offset=0&sort=name ASC", {}, request, true).then((results) => {
-			if (results.error) HandleError(response, results.error);
-			else response.json({
-				id: id,
-				type: type,
-				data: results.data
-			});
-		});
-	} else response.json( {error: "Invalid Sub Data Url"});
-});
-
-/**
- * Get the data directly from a provided link from the json _links returned from
- * the edge controller parent data call.
- */
-app.post("/api/subdata", function(request, response) {
-	var url = request.body.url.split("./").join("");
-	var id = request.body.id;
-	var type = request.body.type;
-	var parentType = request.body.name;
-	GetSubs(url, type, id, parentType, request, response);
-});
-
-function GetSubs(url, type, id, parentType, request, response) {
-	log("Calling: "+serviceUrl+"/"+url);
-	//Authenticate(request).then((results) => {
-		external.get(serviceUrl+"/"+url, {json: {}, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-			if (err) response.json({ error: err });
-			else {
-				log("Returned: "+JSON.stringify(body));
-				response.json({ 
-					id: id,
-					parent: parentType,
-					type: type,
-					data: body.data
-				});
-			}
-		});
-	//});
-}
-
-app.post("/api/jwt", function(request, response) {
-	var id = request.body.id;
-	var type = request.body.type;
-	//Authenticate(request).then((results) => {
-		var url = serviceUrl+"/"+type+"/"+id+"/jwt";
-		log("Calling: "+url);
-		external.get(url, {json: {}, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-			response.json({id: id, jwt: body});
-		});
-	//});
-});
-
-app.post("/api/network-jwts", function(request, response) {
-	var id = request.body.id;
-	var type = request.body.type;
-	//Authenticate(request).then((results) => {
-	var url = serviceUrl+"/network-jwts";
-	log("Calling: "+url);
-	external.get(url, {json: {}, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-		response.json({jwt: body.data[0]?.token});
-	});
-	//});
-});
-
-/**------------- Data Save Section -------------**/
-
-function HandleError(response, error) {
-	log(error);
-	if (error.cause&&error.causeMessage&&error.causeMessage.length>0) response.json({ error: error.causeMessage, errorObj: error });
-	else if (error.cause&&error.cause.message&&error.cause.message.length>0) response.json({ error: error.cause.message, errorObj: error });
-	else if (error.cause&&error.cause.reason&&error.cause.reason.length>0) response.json({ error: error.cause.reason, errorObj: error });
-	else if (error.message&&error.message.length>0) response.json({ error: error.message, errorObj: error });
-	else response.json({ error: error, errorObj: error });
-}
-
-/**
- * Quick create a simple service and return what occurred
- */
-app.post("/api/service", async function(request, response) {
-	if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
-	else {
-		var name = request.body.name;
-		var protocol = request.body.protocol;
-		var host = request.body.host;
-		var port = Number(request.body.port);
-		var encrypt = request.body.encrypt;
-		var zitiHost = request.body.zitiHost;
-		var zitiPort = Number(request.body.zitiPort);
-		var hosted = request.body.hosted;
-		var access = request.body.access;
-
-		var user = request.session.user;
-
-		var rootName = name.trim().replace(/[^a-z0-9 ]/gi, '').split(' ').join('-');
-		var clientName = rootName+"-Client";
-		var serverName = rootName+"-Server";
-		var dialPolicyName = rootName+"-DialPolicy";
-		var bindPolicyName = rootName+"-BindPolicy";
-
-		var serverConfig = {
-			hostname: host,
-			port: port,
-			protocol: protocol
-		};
-		var clientConfig = {
-			hostname: zitiHost,
-			port: zitiPort
-		};
-
-		var clientConfigId = await GetConfigId(request, response, serviceUrl, user, "ziti-tunneler-client.v1");
-		var serverConfigId = await GetConfigId(request, response, serviceUrl, user, "ziti-tunneler-server.v1");
-		
-		var serverData = await CreateConfig(request, response, user, serviceUrl, serverConfigId, serverName, serverConfig);
-		var clientData = await CreateConfig(request, response, user, serviceUrl, clientConfigId, clientName, clientConfig);
-		var serverId = serverData.id;
-		var clientId = clientData.id;
-
-		var serviceData = await CreateService(request, response, serviceUrl, user, name, encrypt, serverId, clientId);		
-		var serviceId = serviceData.id;
-		
-		var bindData = await CreateServerPolicy(request, response, serviceUrl, user, bindPolicyName, "@"+serviceId, hosted);
-		var dialData = await CreateClientPolicy(request, response, serviceUrl, user, dialPolicyName, "@"+serviceId, access);
-		
-		var bindId = bindData.id;
-		var dialId = dialData.id;
-
-		var toReturn = {
-			data: [],
-			cli: [],
-			services: []
-		};
-	
-		var logs = [];
-		logs.push({name: serverName, id: serverId, type: "Config"});
-		logs.push({name: clientName, id: clientId, type: "Config"});
-		logs.push({name: name, id: serviceId, type: "Service"});
-		logs.push({name: bindPolicyName, id: bindId, type: "Policy"});
-		logs.push({name: dialPolicyName, id: dialId, type: "Policy"});
-		toReturn.data = logs;
-		toReturn.cli.push(serverData.cli);
-		toReturn.cli.push(clientData.cli);
-		toReturn.cli.push(serviceData.cli);
-		toReturn.cli.push(bindData.cli);
-		toReturn.cli.push(dialData.cli);
-
-		toReturn.services.push(serverData.service);
-		toReturn.services.push(clientData.service);
-		toReturn.services.push(serviceData.service);
-		toReturn.services.push(bindData.service);
-		toReturn.services.push(dialData.service);
-		response.json(toReturn);
-	}
-});
-
-async function CreateClientPolicy(request, respone, url, user, name, serviceId, access) {
-	return new Promise(function(resolve, reject) {
-		if (hasAccess(user)) {
-			//Authenticate(request).then((results) => {
-				if (hasAccess(user)) {
-					var params = {
-						name: name,
-						type: "Dial",
-						semantic: "AnyOf",
-						serviceRoles: [serviceId],
-						identityRoles: access
-					};
-					log("Saving As: POST "+JSON.stringify(params));
-					external(url+"/service-policies", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-						log(JSON.stringify(body));
-						let cli = "ziti edge create service-policy '"+name+"' Dial --service-roles '"+serviceId+"' --identity-roles '"+access.toString()+"'";
-						let serviceCall = {
-							url: url+"/service-policies",
-							params: params
-						};
-						var item = {
-							id: "",
-							cli: cli,
-							service: serviceCall
-						}
-						if (body.data) item.id = body.data.id;
-						resolve(item);
-					});
-				}
-			//});
-		}
-	});
-}
-
-async function CreateServerPolicy(request, respone, url, user, name, serviceId, hosted) {
-	return new Promise(function(resolve, reject) {
-		if (hasAccess(user)) {
-			//Authenticate(request).then((results) => {
-				if (hasAccess(user)) {
-					var params = {
-						name: name,
-						type: "Bind",
-						semantic: "AnyOf",
-						serviceRoles: [serviceId],
-						identityRoles: hosted
-					};
-					log("Saving As: POST "+JSON.stringify(params));
-					external(url+"/service-policies", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-						log(JSON.stringify(body));
-						let cli = "ziti edge create service-policy '"+name+"' Bind --semantic AnyOf --service-roles '"+serviceId+"' --identity-roles '"+hosted.toString()+"'";
-						let serviceCall = {
-							url: url+"/service-policies",
-							params: params
-						};
-						var item = {
-							id: "",
-							cli: cli,
-							service: serviceCall
-						}
-						if (body.data) item.id = body.data.id;
-						resolve(item);
-					});
-				}
-			//});
-		}
-	});
-}
-
-async function CreateService(request, respone, url, user, name, encrypt, serverId, clientId) {
-	return new Promise(function(resolve, reject) {
-		//Authenticate(request).then((results) => {
-			if (hasAccess(user)) {
-				var params = {
-					name: name,
-					configs: [serverId, clientId],
-					encryptionRequired: encrypt
-				};
-				log("Saving As: POST "+JSON.stringify(params));
-				external(url+"/services", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-					log(JSON.stringify(body));
-					let cli = "ziti edge create service '"+name+"' --configs '"+serverId+","+clientId+"'";
-					let serviceCall = {
-						url: url+"/services",
-						params: params
-					};
-					var item = {
-						id: "",
-						cli: cli,
-						service: serviceCall
-					}
-					if (body.data) item.id = body.data.id;
-					resolve(item);
-				});
-			}
-		//});
-	});
-}
-
-async function GetConfigId(request, response, url, user, type) {
-	return new Promise(function(resolve, reject) {
-		//Authenticate(request).then((results) => {
-			if (hasAccess(user)) {
-				DoCall(url+"/config-types?filter=(name = \""+type+"\")&limit=1", {}, request, true).then((results) => {
-					resolve(results.data[0].id);
-				});
-			}
-		//});
-	});
-}
-
-/**
- * 
- * Create a new config given a config type and variables necaassary, iterate an index and append if the name already exists
- * 
- * @param {The Server Request object} request 
- * @param {The Server Response object} response 
- * @param {The user creating the config} user 
- * @param {The url to the edge controller} url 
- * @param {The config identifier} configId 
- * @param {The name to create} name 
- * @param {The data associated with the config} data 
- * @param {The index of attempts that the call is on} index 
- * @returns The new id, cli command, and service vall info
- */
-async function CreateConfig(request, response, user, url, configId, name, data, index) {
-	return new Promise(function(resolve, reject) {
-		if (!index) index = 0;
-		//Authenticate(request).then((results) => {
-			if (hasAccess(user)) {
-				var params = {
-					name: name+((index>0)?"-"+index:""),
-					configTypeId: configId,
-					data: data
-				};
-				log("Saving As: POST "+JSON.stringify(params));
-				external(url+"/configs", {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-					log(JSON.stringify(body));
-					index++;
-					if (body.error) resolve(CreateConfig(request, response, user, url, configId, name, data, index));
-					else if (body.data) {
-						let cli = "ziti edge create config '"+params.name+"' '"+configId+"' '"+JSON.stringify(data).split('"').join('\\"')+"'";
-						let serviceCall = {
-							url: url+"/configs",
-							params: params
-						};
-						var item = {
-							id: "",
-							cli: cli,
-							service: serviceCall
-						}
-						if (body.data) item.id = body.data.id;
-						resolve(item);						
-					} else resolve(CreateConfig(request, response, user, url, configId, name, data, index));
-				});
-			}
-		//});
-	});
-}
-
-/**
- * Quick create a simple identity and return the new identity
- */
-app.post("/api/identity", function(request, response) {
-	if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
-	else {
-		log("Simple Identity Creation");
-		var name = request.body.name;
-		var user = request.session.user;
-		var url = serviceUrl+"/identities";
-		var params = {
-			enrollment: {
-				ott: true
-			},
-			isAdmin: false,
-			name: name,
-			type: "Device"
-		}
-		if (request.body.roles) params.roleAttributes = request.body.roles
-		//Authenticate(request).then((results) => {
-			if (hasAccess(user)) {
-				log("Saving As: POST "+JSON.stringify(params));
-				external(url, {method: "POST", json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-					log(JSON.stringify(body));
-					if (body.error) HandleError(response, body.error);
-					else if (body.data) {
-						var id = body.data.id;
-						DoCall(serviceUrl+"/identities/"+id, {}, request, true).then((results) => {
-							if (results.error) HandleError(response, results.error);
-							else {
-								results.cli = [];
-								results.services = [];
-								
-								let cli = "ziti edge create identity device \'"+name+"\'";
-								if (request.body.roles) cli += " -a \'"+request.body.roles.toString()+"\'";
-								results.cli.push(cli);
-
-								let serviceCall = {
-									url: url,
-									params: params
-								};
-								results.services.push(serviceCall);
-
-								response.json(results);
-							}
-						});
-					} else response.json( {error: "Unable to save data"} );
-				});
-			}
-		//});
-	}
-});
-
-
-function RedefineObject(obj) {
-	for (let prop in obj) {
-		if (Array.isArray(obj[prop]) && obj[prop].length==0) {
-			delete obj[prop];
-		} else {
-			if (typeof obj[prop] === "string" && obj[prop].trim().length==0) {
-				delete obj[prop];
-			} else {
-				if (typeof obj[prop] === "object") {
-					obj[prop] = RedefineObject(obj[prop]);
-					if (Object.keys(obj[prop]).length==0) {
-						delete obj[prop];
-					}
-				}
-			}
-		}
-	}
-	return obj;
-}
-
-/**
- * Save the object to the edge controller based on the provided type and passed in JSON 
- * parameters. If it exists, do an update, if not do a create operation.
- */
-app.post("/api/dataSave", function(request, response) {
-	if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
-	else {
-		var saveParams = request.body.save;
-		var additional = request.body.additional;
-		var removal = request.body.removal;
-		var type = request.body.type;
-		var paging = request.body.paging;
-		var method = "POST";
-		var id = request.body.id;
-		var url = serviceUrl+"/"+type;
-		var user = request.session.user;
-		var chained = false;
-		if (request.body.chained) chained = request.body.chained;
-		//Authenticate(request).then((results) => {
-			if (hasAccess(user)) {
-				if (id&&id.trim().length>0) {
-					method = "PATCH";
-					url += "/"+id.trim();
-					if (removal) {
-						var objects = Object.entries(removal);
-						if (objects.length>0) {
-							for (var i=0; i<objects.length; i++) {
-								var params = {};
-								params.ids = objects[i][1];
-								log("Delete:"+serviceUrl+"/"+type+"/"+id.trim()+"/"+objects[i][0]);
-								log(JSON.stringify(params));
-								external.delete(serviceUrl+"/"+type+"/"+id.trim()+"/"+objects[i][0], {json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {});
-							}
-						}
-					}
-				}
-				log("Calling: "+url);
-				saveParams.data = RedefineObject(saveParams.data);
-				log("Saving As: "+method+" "+JSON.stringify(saveParams));
-				console.log("Session: "+request.session.user);
-				external(url, {method: method, json: saveParams, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-					if (err) HandleError(response, err);
-					else {
-						log(JSON.stringify(body));
-						if (body.error) HandleError(response, body.error);
-						else if (body.data) {
-							if (additional) {
-								var objects = Object.entries(additional);
-								var index = 0;
-								if (objects.length>0) {
-									if (method=="POST") id = body.data.id;
-									for (var i=0; i<objects.length; i++) {
-										log("Body: "+JSON.stringify(body.data));
-										log("Url: "+serviceUrl+"/"+type+"/"+id+"/"+objects[i][0]);
-										log("Objects: "+JSON.stringify({ ids: objects[i][1] }));
-										external.put(serviceUrl+"/"+type+"/"+id+"/"+objects[i][0], {json: { ids: objects[i][1] }, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": user } }, function(err, res, body) {
-											index++;
-											if (index==objects.length) {
-												if (chained) response.json(body.data);
-												else GetItems(type, paging, request, response);
-											}
-										});
-									}
-								} else {
-									if (chained) response.json(body.data);
-									else GetItems(type, paging, request, response);
-								}
-							} else {
-								if (chained) response.json(body.data);
-								else GetItems(type, paging, request, response);
-							}
-						} else response.json( {error: "Unable to save data"} );
-					}	
-				});
-			}
-		//});
-	}
-});
-
-/**
- * Save the data associated to one object to the parent object
- */
-app.post("/api/subSave", function(request, response) {
-	if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
-	else {
-		var id = request.body.id;
-		var type = request.body.type;
-		var doing = request.body.doing;
-		var parentType = request.body.parentType;
-		var fullType = parentType+"/"+id+"/"+type;
-		var url = serviceUrl+"/"+fullType;
-		var saveParams = request.body.save;
-		var user = request.session.user;
-		//Authenticate(request).then((results) => {
-			if (hasAccess(user)) {
-				log(url);
-				log("Sub Saving As: "+doing+" "+JSON.stringify(saveParams));
-				external(url, {method: doing, json: saveParams, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user } }, function(err, res, body) {
-					if (err) {
-						log(err);
-						response.json({ error: err });
-					} else {
-						log(JSON.stringify(body));
-						GetItems(fullType, null, request, response);
-					}
-				});
-			} else response.json({error:"loggedout"});
-		//});
-	}
-});
-
-app.post("/api/verify", function(request, response) {
-	if (serviceUrl==null||serviceUrl.length==0) response.json({error:"loggedout"});
-	else {
-		var id = request.body.id;
-		var cert = request.body.cert;
-		var url = serviceUrl+"/cas/"+id+"/verify";
-		var user = request.session.user;
-		if (hasAccess(user)) {
-			external(url, {method: "POST", body: cert, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user, "Content-Type": "text/plain" } }, function(err, res, body) {
-				var result = JSON.parse(body);
-				if (err) {
-					log(err);
-					response.json({ error: err });
-				} else {
-					if (result.error) response.json( {error: result.error.message} );
-					else {
-						log(JSON.stringify(body));
-						response.json({ success: "Certificate Verified"});
-					}
-				}
-			});
-		} else response.json({error:"loggedout"});
-
-	}
-});
-
-/*
- * Schema Dereference Tool
- */ 
-/**------------- Data Deletion Section -------------**/
-
-
-
-
-/**
- * Delete the specified list of objects from edge controller, and return the remaining 
- * list while retaining the last search filter properties.
- */
-app.post("/api/delete", function(request, response) {
-	var ids = request.body.ids;
-	var type = request.body.type;
-	var paging = request.body.paging;
-	var user = request.session.user;
-
-	log("Deleting: "+type+" "+ids.join(','));
-	DoDelete(type, ids, user, request, 0).then((results) => {
-		GetItems(type, paging, request, response);
-	}).catch((error) => {
-		log("Error: "+JSON.stringify(error));
-		HandleError(response, error);
-	});
-
-	/*
-	var promises = [];
-
-	ids.forEach(function(id) {
-		promises.push(ProcessDelete(type, id, user, request));
-	});
-	
-	Promise.all(promises).catch((error) => { 
-		log("Catch: "+JSON.stringify(error));
-		response.json({error: error.causeMessage});
-	}).then(function(e) {
-		GetItems(type, paging, request, response);
-	});
-	*/
-});
-
-function DoDelete(type, ids, user, request, index) {
-	return new Promise(function(resolve, reject) {
-		if (index>=ids.length) resolve(true);
-		else {
-			var id = ids[index];
-			index++;
-			ProcessDelete(type, id, user, request, true, index).then((result) => {
-				resolve(DoDelete(type, ids, user, request, index));
-			}).catch((error) => {
-				log("Reject: "+JSON.stringify(error));
-				reject(error);
-			});
-		}
-	});
-}
-
-/**
- * Create the promise required to delete a specific object from the edge controller
- * 
- * @param {The type of object being deleted} type 
- * @param {The id of the object to delete} id 
- * @param {The specified user token deleting the object} user 
- */
-function ProcessDelete(type, id, user, request, isFirst=true) {
-	return new Promise(function(resolve, reject) {
-		log("Delete: "+serviceUrl+"/"+type+"/"+id)
-		external.delete(serviceUrl+"/"+type+"/"+id, {json: {}, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": user } }, function(err, res, body) {
-			if (err) {
-				log("Err: "+err);
-				reject(err);
-			} else {
-				if (body) {
-					log(JSON.stringify(body));
-					if (body.error) {
-						if (isFirst) {
-							log("Re-authenticate User");
-							//Authenticate(request).then((results) => {
-								ProcessDelete(type, id, user, request, false).then((results) => {
-									resolve(results);
-								}).catch((error) => {
-									log("Reject After Auth: "+JSON.stringify(error));
-									reject(error);
-								});
-							//});
-						} else reject(body.error);
-					} else resolve(body.data);
-				} else {
-					log("Reject: No Controller");
-					reject({ message: "Controller Unavailable" });
-				}
-			}
-		});
-	});
-}
-
-
-
-app.post("/api/execute", function(request, response) {
-	//Authenticate(request).then((results) => {
-		var template = GetTemplate(request.body.id);
-		if (template) {
-			var name = request.body.name.trim();
-			var idNames = [];
-			for (var i=0; i<template.profiles.length; i++) idNames.push(name+"-"+template.profiles[i]);
-			CreateProfile(template, name, 0, request).then((result) => {
-				var promises = [];
-				for (var i=0; i<idNames.length; i++) promises.push(GetIdentity(idNames[i], request));
-				Promise.all(promises).then((identities) => {
-					var promises = [];
-					var ids = [];
-					for (var i=0; i<identities.length; i++) ids.push(identities[i].id);
-
-					if (template.services.length>0) {
-						var param = {
-							name: name+"-Policy",
-							type: "Dial",
-							serviceRoles: [],
-							identityRoles: [],
-							postureCheckRoles: [],
-							semantic: "AnyOf",
-							tags: {}
-						};
-	
-						for (var i=0; i<identities.length; i++) param.identityRoles.push("@"+identities[i].id);
-						for (var i=0; i<template.services.length; i++) param.serviceRoles.push(template.services[i].id);
-
-						promises.push(DoPost(serviceUrl+"/service-policies", param, request));
-					}
-
-					if (template.policies.length>0) {
-						for (var i=0; i<template.policies.length; i++) promises.push(AppendServicePolicy(template.policies[i].id, ids, request));
-					}
-
-					Promise.all(promises).then((results) => {
-						response.json({data: identities});
-					});
-				});
-			});
-		} else response.json({ error: "Template Not Found" });
-	//});
-});
-
-function DoPatch(url, params, request) {
-	return new Promise(function(resolve, reject) {
-		external.put(url, { json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user }}, (err, results, body) => {
-			resolve(body);
-		});
-	});
-}
-
-function DoPost(url, params, request) {
-	return new Promise(function(resolve, reject) {
-		external.post(url, { json: params, rejectUnauthorized: rejectUnauthorized, headers: { "zt-session": request.session.user }}, (err, results, body) => {
-			resolve(body);
-		});
-	});
-}
-
-function AppendServicePolicy(id, ids, request) {
-	return new Promise(function(resolve, reject) {
-		DoCall(serviceUrl+"/service-policies?filter=(id=\""+id.substr(1)+"\")&limit=1&offset=0&sort=createdAt desc", {}, request, true).then((result) => {
-			if (result.data!=null&&result.data.length>0) {
-				var policy = result.data[0];
-				var patchPolicy = {
-					name: policy.name,
-					serviceRoles: policy.serviceRoles,
-					identityRoles: policy.identityRoles,
-					postureCheckRoles: policy.postureCheckRoles,
-					semantic: policy.semantic,
-					tags: policy.tags,
-					type: policy.type
-				};
-				for (var i=0; i<ids.length; i++) patchPolicy.identityRoles.push("@"+ids[i]);
-				DoPatch(serviceUrl+"/service-policies/"+id.substr(1), patchPolicy, request).then((results) => {
-					resolve(true);
-				});
-			} else resolve(null);
-		});
-	});
-}
-
-function GetIdentity(name, request) {
-	return new Promise(function(resolve, reject) {
-		DoCall(serviceUrl+"/identities?filter=(name=\""+name+"\")&limit=1&offset=0&sort=createdAt desc", {}, request, true).then((results) => {
-			if (results.data!=null&&results.data.length>0) resolve(results.data[0]);
-			else resolve(null);
-		});
-	});
-}
-
-function CreateProfile(template, name, index, request) {
-	return new Promise(function(resolve, reject) {
-		if (index<template.profiles.length) {
-			var profile = template.profiles[index];
-			index++;
-			var identity = {
-				name: name+"-"+profile,
-				type: "Device",
-				isAdmin: false,
-				enrollment: { 
-					"ott": true
-				}
-			};
-			if (template.roles != null && template.roles.length>0) identity.roleAttributes = template.roles;
-			DoPost(serviceUrl+"/identities", identity, request).then((result) => {
-				resolve(CreateProfile(template, name, index, request));
-
-			});
-			
-		} else resolve(true);
-	});
-}
-
-
-/**------------- Fabric Series Data Funcations -------------**/
-
-
-/**
- * Get the averages from the series data in the system influx DB
- */
-app.post("/api/average", function(request, response) {
-	var core = request.body.core;
-	var item = request.body.item;
-	var readwrite = request.body.readwrite;
-	var type = request.body.type;
-	var id = request.body.id;
-	var source = core;
-	if (item.trim().length>0) source +="."+item;
-	if (readwrite.trim().length>0) source +="."+readwrite;
-	source +="."+type;
-	var url = new URL(request.body.url);
-	domain = url.hostname;
-	
-	const influx = new Influx.InfluxDB({
-		host: domain,
-		port: 8086,
-		database: 'ziti'
-	});
-
-	var query = "select MEAN(mean) from \""+source+"\" WHERE source='"+id+"'";
-	log(query);
-	influx.query(query).then(result => {
-		var avg = 0;
-		if (result.length>0) avg = result[0].mean;
-		response.json({ id: id, source: source+".average", data: avg });
-	}).catch(error => {
-		log(error);
-		response.json({ error: error });
-	});
-});
-
-
-
-/**
- * Get the mean value from the series data in the system influx DB
- */
-app.post("/api/series", function(request, response) {
-	var core = request.body.core;
-	var item = request.body.item;
-	var readwrite = request.body.readwrite;
-	var type = request.body.type;
-	var id = request.body.id;
-	var source = core;
-	if (item.trim().length>0) source +="."+item;
-	if (readwrite.trim().length>0) source +="."+readwrite;
-	source +="."+type;
-	var url = new URL(request.body.url);
-	domain = url.hostname;
-	
-	const influx = new Influx.InfluxDB({
-		host: domain,
-		port: 8086,
-		database: 'ziti'
-	});
-
-	var query = "select MEAN(mean) from \""+source+"\" WHERE source='"+id+"' AND time > now() - 6d GROUP BY time(1d)";
-	log(query);
-	influx.query(query).then(result => {
-		for (var i=0; i<result.length; i++) {
-			log(moment(result[i].time).fromNow()+" "+result[i].mean);
-		}
-		response.json({ source: source, data: result });
-	}).catch(error => {
-		log(error);
-		response.json({ error: error });
-	});
-});
-
-
-
-
-/**------------- System Application Funcations -------------**/
-
-
-
-
-/**
- * If debugging is turned on show the log on the console.
- * @param {The text of the message} message 
- */
-function log(message) {
-	if (isDebugging) console.log(message);
-}
-
-
-/**------------- Serve the Express Application -------------**/
-
-
-
-/**
- * Serve the current app on the defined port
- * 
- * NOTE: if running Zitified, the 'port' is ignored. Instead, we
- * 		 we will be listening on the Ziti service name specified 
- * 		 by the ZITI_SERVICE_NAME env var.
- */
-StartServer(port);
 let maxAttempts = 100;
-var server;
-app.use((err, request, response, next) => {
-	if (err) {
-		if (err.toString().indexOf("Error: EPERM: operation not permitted, rename")==0) {
-			// Ignoring chatty session-file warnings
-		} else console.log(err);
-		next();
-	} else {  
-		next();
-	} 
-});
+StartServer(port);
+StartTlsServer();
 
-function StartServer(startupPort) {
-	if (bindIP=="" || bindIP==null) {
-		if (zitified) {
-			server = app.listen(undefined, function() {
-				console.log("Ziti Admin Console is now listening for incoming Ziti Connections");
-			});
-		} else {
-			server = app.listen(startupPort, function() {
-				console.log("Ziti Admin Console is now listening on port "+startupPort);
-			}).on('error', function(err) {
-				if (err.code=="EADDRINUSE") {
-					maxAttempts--;
-					console.log("Port "+startupPort+" In Use, Attempting new port "+(startupPort+1));
-					startupPort++;
-					if (maxAttempts>0) StartServer(startupPort);
-				} else {
-					console.log("All Ports in use "+port+" to "+startupPort);
-				}
-			});
-		}
-	} else {
-		if (zitified) {
-			server = app.listen(undefined, bindIP, function() {
-				console.log("Ziti Admin Console is now listening for incoming Ziti Connections");
-			});
-		} else {
-			server = app.listen(startupPort, bindIP, function() {
-				console.log("Ziti Admin Console is now listening on port "+startupPort);
-			}).on('error', function(err) {
-				if (err.code=="EADDRINUSE") {
-					maxAttempts--;
-					console.log("Port "+startupPort+" In Use, Attempting new port "+(startupPort+1));
-					startupPort++;
-					if (maxAttempts>0) StartServer(startupPort);
-				} else {
-					console.log("All Ports in use "+port+" to "+startupPort);
-				}
-			});
-		}
-	}
-
-	/**
-	 * If certificates are defined, setup an https redirection service
-	 */
-	if (fs.existsSync("./server.key")&&fs.existsSync("./server.chain.pem")) {
-		log("Initializing TLS");
-		try {
-			const options = {
-				key: fs.readFileSync("./server.key"),
-				cert: fs.readFileSync("./server.chain.pem")
-			};
-			console.log("TLS initialized on port: " + portTLS);
-			if (bindIP=="" || bindIP==null) {
-				tlsServer = https.createServer(options, app);
-				tlsServer.listen(portTLS);
-			} else {
-				tlsServer = https.createServer(options, app);
-				tlsServer.listen(portTLS, bindIP);
-			}
-		} catch(err) {
-			log("ERROR: Could not initialize TLS!");
-			throw err;
-		}
-	}
-
-	var signals = {
-		'SIGHUP': 1,
-		'SIGINT': 2,
-		'SIGTERM': 15
-	};
-	
-	const shutdown = (signal, value) => {
-		console.log("shutdown!");
-		server.close(() => {
-			console.log(`server stopped by ${signal} with value ${value}`);
-			if (tlsServer) {
-				tlsServer.close(() => {
-					process.exit(128 + value);
-				});
-			} else {
-				process.exit(128 + value);
-			}
-		});
-	};
-	
-	Object.keys(signals).forEach((signal) => {
-		process.on(signal, () => {
-			console.log(`process received a ${signal} signal`);
-			shutdown(signal, signals[signal]);
-		});
-	});
+function logBanner(where) {
+    console.log('Ziti Admin Console (reverse-proxy) ' + where + ' (verify upstream TLS: ' + secure + ')');
+    console.log('  -> controllers (' + controllers.length + '):');
+    controllers.forEach(function(c) {
+        console.log('       [' + c.id + '] ' + c.url + (c.default ? '  (default)' : '') + '  ->  /c/' + c.id);
+    });
+    console.log('  -> serving edge bundle from:   ' + distDir);
+    console.log('  -> token held server-side (cookieSecure=' + cookieSecure + ')');
 }
 
-process.on('SIGINT', () => {
-	console.log(`process received a SIGINT signal`);
-	process.exit();
-});
+// Ziti service listener when zitified (no TCP port); else TCP with port-bump retry.
+function StartServer(startupPort) {
+    if (zitified) {
+        app.listen(undefined, bindIP, function() {
+            logBanner('listening for incoming Ziti connections on service "' + zitiServiceName + '"');
+        });
+        return;
+    }
+    app.listen(startupPort, bindIP, function() {
+        logBanner('listening on port ' + startupPort);
+    }).on('error', function(err) {
+        if (err.code == 'EADDRINUSE') {
+            maxAttempts--;
+            console.log('Port ' + startupPort + ' in use, attempting ' + (startupPort + 1));
+            startupPort++;
+            if (maxAttempts > 0) StartServer(startupPort);
+        } else {
+            console.log('All ports in use ' + port + ' to ' + startupPort);
+        }
+    });
+}
+
+// HTTPS listener when a key + cert chain are present (zitified provides its own transport).
+function StartTlsServer() {
+    if (zitified) return;
+    if (!fs.existsSync(tlsKeyPath) || !fs.existsSync(tlsCertPath)) {
+        console.log('  -> TLS not configured (no key/cert at ' + tlsKeyPath + '); HTTP only.');
+        return;
+    }
+    try {
+        const options = {
+            key: fs.readFileSync(tlsKeyPath),
+            cert: fs.readFileSync(tlsCertPath),
+        };
+        https.createServer(options, app).listen(portTLS, bindIP, function() {
+            console.log('  -> TLS (HTTPS) listening on port ' + portTLS);
+        });
+    } catch (err) {
+        console.error('ERROR: could not initialize TLS: ' + err.message);
+        throw err;
+    }
+}
