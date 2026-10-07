@@ -62,6 +62,7 @@ export class ProxySessionLoginService extends LoginServiceClass {
                 {headers: {'content-type': 'application/json'}}
             )).then(async (body: any) => {
                 if (body?.success) {
+                    this.clearIdpTokens();
                     await this.settingsService.refreshSessionStatus();
                     this.settingsService.set(this.settingsService.settings);
                     return [true];
@@ -103,6 +104,17 @@ export class ProxySessionLoginService extends LoginServiceClass {
     private finishLogout() {
         this.settingsService.hasProxySession = false;
         localStorage.removeItem('ziti.settings');
+        this.clearIdpTokens();
         window.location.href = window.location.origin + '/login';
+    }
+
+    // angular-oauth2-oidc leaves IdP tokens in sessionStorage; the server holds the real one, so drop them.
+    private clearIdpTokens() {
+        try {
+            ['access_token', 'id_token', 'refresh_token', 'expires_at', 'access_token_stored_at',
+             'id_token_stored_at', 'id_token_claims_obj', 'id_token_expires_at', 'nonce',
+             'PKCE_verifier', 'granted_scopes', 'session_state', 'id_token_valid']
+                .forEach((k) => sessionStorage.removeItem(k));
+        } catch (e) { /* storage unavailable */ }
     }
 }

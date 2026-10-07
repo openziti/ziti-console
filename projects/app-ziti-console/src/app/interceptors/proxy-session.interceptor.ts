@@ -56,7 +56,20 @@ export class ProxySessionInterceptor implements HttpInterceptor {
 
     private isApiRequest(req: HttpRequest<any>): boolean {
         const u = req.url || '';
-        return /\/(edge|fabric)\//.test(u) || u.indexOf('/zac-session') === 0;
+        // Same-origin only: never attach our credentials/CSRF to a third-party URL.
+        let path: string;
+        if (/^https?:\/\//i.test(u)) {
+            try {
+                const parsed = new URL(u);
+                if (parsed.origin !== window.location.origin) return false;
+                path = parsed.pathname;
+            } catch (e) {
+                return false;
+            }
+        } else {
+            path = u.startsWith('/') ? u : '/' + u;
+        }
+        return /\/(edge|fabric)\//.test(path) || path.indexOf('/zac-session') === 0;
     }
 
     private isAuthRoute(): boolean {

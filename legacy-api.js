@@ -54,7 +54,7 @@ function errorBody(err) {
 export function mountLegacyApi(app, deps) {
     const { controllers, controllersById, defaultController, getSession, createSession,
         authenticateUpstream, httpRequest, clearCookie, SID_COOKIE, sessions,
-        persistSessions, looksLikeJwt, MGMT_PREFIX, trimTrailingSlash, normUrl } = deps;
+        persistSessions, looksLikeJwt, MGMT_PREFIX, trimTrailingSlash, normUrl, csrfOk } = deps;
 
     const json = express.json();
 
@@ -66,6 +66,19 @@ export function mountLegacyApi(app, deps) {
         res.setHeader('X-ZAC-Deprecated', 'The /api/* interface is deprecated; use /edge/management/v1 directly.');
         next();
     });
+
+    // CSRF on writes (on by default; ZAC_LEGACY_API_CSRF=false disables for old consumers).
+    // login/version/settings exempt; SameSite=Strict is the baseline regardless.
+    if (`${process.env.ZAC_LEGACY_API_CSRF}`.toLowerCase() !== 'false') {
+        app.use('/api', function(req, res, next) {
+            const method = req.method.toUpperCase();
+            const safe = method === 'GET' || method === 'HEAD' || method === 'OPTIONS';
+            if (safe || /\/(login|version|settings)$/.test(req.path)) return next();
+            const s = getSession(req);
+            if (s && !csrfOk(req, s)) { res.status(403).json({ error: 'CSRF validation failed' }); return; }
+            next();
+        });
+    }
 
     function authHeaders(s) {
         return looksLikeJwt(s.token) ? { Authorization: 'Bearer ' + s.token } : { 'zt-session': s.token };

@@ -20,6 +20,7 @@ COPY --from=zac-builder /usr/src/app/dist ./dist
 COPY --from=zac-builder /usr/src/app/node_modules ./node_modules
 COPY ./package*.json ./
 COPY ./server.js ./
+COPY ./legacy-api.js ./
 COPY ./server-edge.js ./
 COPY ./run-zac.sh ./
 
