@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OpenZiti Config Builder</title>
+  <!-- Relative base: the bundle works from any folder it is copied to (docs site static dir, a CDN path, file server) -->
+  <base href="./">
+  <link rel="shortcut icon" href="./assets/icons/favicon.ico">
+  <script>
+    // the builder's animations follow the same switch as ZAC
+    document.documentElement.style.setProperty("--transition", localStorage.getItem("Transitions") === "off" ? "0s" : "0.5s");
+  </script>
+</head>
+<body class="ziti-admin-console">
+<app-root></app-root>
+</body>
+</html>

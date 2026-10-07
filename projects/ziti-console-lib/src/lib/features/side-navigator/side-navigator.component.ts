@@ -22,7 +22,9 @@ export class SideNavigatorComponent implements OnInit, OnDestroy {
   navExpanded = true;
   navHidden = false;
   hideMenuNavBar = false;
-  betaFeaturesEnabled = false;
+  get betaFeaturesEnabled(): boolean {
+    return localStorage.getItem('betaFeatures') === 'on';
+  }
   isHAEnabled = false;
 
   private routerSubscription?: Subscription;

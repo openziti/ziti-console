@@ -26,7 +26,8 @@
     "vanilla-jsoneditor": "^1.1.2",
     "angularx-qrcode": "^20.0.0",
     "angular-csv-ext": "^1.0.5",
-    "file-saver": "^2.0.5"
+    "file-saver": "^2.0.5",
+    "yaml": "^2.9.1"
   },
   "private": false,
   "dependencies": {

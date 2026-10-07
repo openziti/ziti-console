@@ -144,6 +144,24 @@ From the project root:
 1. Access the console at http://localhost:1408
 1. Configure the server with the URL of the controller's edge-management API, e.g. https://localhost:1280
 
+### Config builder (beta)
+
+An offline editor for controller and router YAML configs. It ships two ways from the same library page.
+
+* **Inside ZAC.** Run ZAC (`npm run dev:concurrent`, http://localhost:1408), then turn on Beta Features in Settings
+  (`localStorage.betaFeatures = 'on'`). "Config Builder" appears in the nav.
+* **Standalone** (`projects/app-config-builder`, embedded in the doc site).
+
+    ```bash
+    npm run build:config-builder
+    npx http-server dist/config-builder -p 4200
+    ```
+
+    Open http://localhost:4200. `node ./scripts/package-config-builder.mjs [--build]` zips `dist/config-builder` for a
+    release. The `releases.yml` job `build-and-publish-config-builder` runs it for releases named `config-builder-v*`.
+
+For the doc site, unzip the bundle into `static/tools/config-builder-app/` in ziti-doc.
+
 ## Developing with Angular
 
 There are two elements to the Angular app.

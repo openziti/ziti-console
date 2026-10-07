@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../out-tsc/app-config-builder",
+    "types": [],
+    "esModuleInterop": true,
+    "resolveJsonModule": true
+  },
+  "files": [
+    "src/main.ts"
+  ],
+  "include": [
+    "**/*.d.ts"
+  ]
+}
