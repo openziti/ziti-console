@@ -30,6 +30,7 @@
  *   ZAC_COOKIE_SECURE     force the session cookie Secure flag (default: tracks TLS)
  *   ZAC_SESSION_FILE / ZAC_SESSION_SECRET   session store path / encryption key
  *   ZAC_CSP_CONNECT_SRC   extra CSP connect/frame-src origins
+ *   ZAC_CORS_ORIGINS      comma-separated cross-origin allowlist (default: none)
  *   ZAC_OIDC_REDIRECT_URI   redirect URI for the server-side OIDC exchange
  *   ZAC_LEGACY_API        "false" disables the deprecated /api/* layer (on by default; see legacy-api.js)
  *   ALLOW_HTTP            "true" skips cors/helmet (security headers handled elsewhere)
@@ -46,6 +47,7 @@ import https from 'https';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createProxyMiddleware } from 'http-proxy-middleware';
+import rateLimit from 'express-rate-limit';
 import { mountLegacyApi } from './legacy-api.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -165,10 +167,22 @@ function isApiPath(pathname) {
 }
 
 // ---- Middleware -----------------------------------------------------------
+// Same-origin app, so cross-origin access is denied by default. ZAC_CORS_ORIGINS
+// (comma-separated) opts specific origins in; never a wildcard.
+const corsAllowlist = (process.env.ZAC_CORS_ORIGINS || '')
+    .split(',').map(function(s) { return s.trim(); }).filter(Boolean);
 var corsOptions = {
-    origin: '*',
+    origin: corsAllowlist,
     optionsSuccessStatus: 200,
 };
+
+// Rate-limit the auth/session endpoints (brute-force protection).
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 300,
+    standardHeaders: true,
+    legacyHeaders: false,
+});
 
 // connect/frame-src allow the configured IdP origins (from external-jwt-signers +
 // ZAC_CSP_CONNECT_SRC) so browser OIDC isn't CSP-blocked; no wildcard.
@@ -587,6 +601,8 @@ async function migrateLegacySession(req, res) {
     req.headers.cookie = (req.headers.cookie ? req.headers.cookie + '; ' : '') + SID_COOKIE + '=' + newSid; // so the current request is already authed
 }
 
+app.use('/zac-session', authLimiter);
+
 // Controller list for the login picker; each url is the same-origin /c/<id> path.
 app.get('/zac-session/controllers', function(req, res) {
     res.json({
@@ -736,10 +752,11 @@ try {
 
 app.use(express.static(distDir, { index: false }));
 
-// SPA fallback (Express 5 no longer accepts the bare '*' path).
+// SPA fallback (Express 5 no longer accepts the bare '*' path). Serves the index
+// read into memory at startup; no per-request disk access.
 app.get(/.*/, function(req, res) {
     if (indexHtml != null) res.type('html').send(indexHtml);
-    else res.sendFile(indexPath);
+    else res.status(500).send('Console bundle not found');
 });
 
 // ---- Listen ----------------------------------------------------------------

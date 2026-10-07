@@ -20,6 +20,7 @@
  */
 
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -59,7 +60,8 @@ export function mountLegacyApi(app, deps) {
 
     console.log('  -> DEPRECATED legacy /api/* compatibility layer ENABLED (will be removed)');
 
-    // Flag every legacy response so consumers notice the deprecation.
+    // Rate-limit and flag every legacy response so consumers notice the deprecation.
+    app.use('/api', rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false }));
     app.use('/api', function(req, res, next) {
         res.setHeader('X-ZAC-Deprecated', 'The /api/* interface is deprecated; use /edge/management/v1 directly.');
         next();
