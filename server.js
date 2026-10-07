@@ -173,10 +173,22 @@ const cookieSecure = process.env.ZAC_COOKIE_SECURE === 'true'
 
 // Paths forwarded to the controller (optionally behind a /c/<id> prefix); everything
 // else is the static SPA.
-const API_PATH_RE = /^\/(edge|fabric|oidc|\.well-known)(\/|$)/;
+// Only /edge and /fabric are proxied; the controller's OIDC/.well-known HTML is never served on ZAC's origin.
+const API_PATH_RE = /^\/(edge|fabric)(\/|$)/;
 function isApiPath(pathname) {
     const p = stripControllerPrefix(pathname);
     return p === '/version' || API_PATH_RE.test(p);
+}
+
+// Public GETs the login page needs before a session exists; nothing else reaches the controller unauthenticated.
+const PRE_AUTH_GET = [
+    /^\/version$/,
+    /^\/edge\/(management|client)\/v1\/version$/,
+    /^\/edge\/client\/v1\/external-jwt-signers(\/.*)?$/,
+];
+function isPreAuthPath(pathname) {
+    const p = stripControllerPrefix(pathname);
+    return PRE_AUTH_GET.some(function(re) { return re.test(p); });
 }
 
 // ---- Middleware -----------------------------------------------------------
@@ -215,7 +227,7 @@ function buildHelmetOptions() {
                 frameSrc: ["'self'"].concat(idp),
                 frameAncestors: ["'self'"],
                 mediaSrc: ["'self'", 'data:', 'blob:', 'https:'],
-                connectSrc: ["'self'"].concat(idp),
+                connectSrc: ["'self'", 'ws:', 'wss:'].concat(idp),
             },
         },
         frameguard: { action: 'SAMEORIGIN' },
@@ -374,6 +386,22 @@ function csrfOk(req, s) {
     catch (e) { return false; }
 }
 
+// Reject cross-site state changes; non-browser callers (no Sec-Fetch-Site/Origin) are allowed.
+function sameSiteRequest(req) {
+    const sfs = req.headers['sec-fetch-site'];
+    if (sfs) return sfs === 'same-origin' || sfs === 'same-site' || sfs === 'none';
+    const origin = req.headers['origin'];
+    if (!origin) return true;
+    try { return new URL(origin).host === req.headers['host']; } catch (e) { return false; }
+}
+
+function clientIp(req) {
+    return (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || (req.socket && req.socket.remoteAddress) || '-';
+}
+function authLog(req, msg) {
+    console.log('auth: ' + msg + ' from ' + clientIp(req));
+}
+
 // A JWT session token is sent as a Bearer; a legacy opaque token as zt-session.
 function looksLikeJwt(t) {
     return typeof t === 'string' && t.split('.').length === 3;
@@ -483,9 +511,14 @@ async function oidcExtJwtLogin(ctrlUrl, idpToken) {
     if (!idpToken) return { error: 'missing IdP token' };
     const disc = await oidcDiscover(ctrlUrl);
     if (!disc.available) return null;
-    const oidcBase = ctrlUrl + disc.oidcPath;
-    let ctrlOrigin = null;
-    try { ctrlOrigin = new URL(ctrlUrl).origin; } catch (e) { return { error: 'bad controller url' }; }
+    let ctrlOrigin = null, oidcBase = null;
+    try {
+        ctrlOrigin = new URL(ctrlUrl).origin;
+        // Resolve the /version-supplied path against the controller; reject off-origin (don't leak the IdP token).
+        const oidcUrl = new URL(disc.oidcPath, ctrlUrl);
+        if (oidcUrl.origin !== ctrlOrigin) return { error: 'OIDC path escaped the controller origin' };
+        oidcBase = trimTrailingSlash(oidcUrl.href);
+    } catch (e) { return { error: 'bad controller url or OIDC path' }; }
     const verifier = randomUrlSafe(32);
     const challenge = pkceChallenge(verifier);
     const state = randomUrlSafe(16);
@@ -584,6 +617,8 @@ function unsignLegacy(raw) {
 async function migrateLegacySession(req, res) {
     const cookies = parseCookies(req);
     if (cookies[SID_COOKIE]) return;
+    // connect.sid's signing key was public; only adopt a planted cookie on a same-site request.
+    if (!sameSiteRequest(req)) return;
     const sid = unsignLegacy(cookies[LEGACY_COOKIE]);
     if (!sid || /[^A-Za-z0-9_-]/.test(sid)) return; // uid-safe charset only (no path traversal)
     let data;
@@ -620,6 +655,7 @@ async function migrateLegacySession(req, res) {
 }
 
 app.use('/zac-session', authLimiter);
+app.use('/zac-session', function(req, res, next) { res.setHeader('Cache-Control', 'no-store'); next(); });
 
 // Controller list for the login picker; each url is the same-origin /c/<id> path.
 app.get('/zac-session/controllers', function(req, res) {
@@ -640,6 +676,7 @@ app.get('/zac-session/controllers', function(req, res) {
     // ext-jwt -> controller OIDC exchange (falls back to legacy /authenticate if the
     // controller has no OIDC); password -> legacy /authenticate. No token is returned.
     app.post('/zac-session/login', jsonParser, async function(req, res) {
+        if (!sameSiteRequest(req)) { res.status(403).json({ error: 'cross-site request rejected' }); return; }
         const body = req.body || {};
         const type = body.type || 'password';
         const ctrl = controllersById[body.controllerId] || defaultController;
@@ -654,10 +691,11 @@ app.get('/zac-session/controllers', function(req, res) {
                         refreshToken: oidc.refreshToken, oidcBase: oidc.oidcBase, clientId: oidc.clientId,
                         accessExpMs: jwtExpMs(oidc.accessToken) || (Date.now() + 1800000),
                     });
+                    authLog(req, 'login ok (oidc) for ' + ctrl.id);
                     res.json({ success: true });
                     return;
                 }
-                if (oidc && oidc.error) { res.status(401).json({ error: 'OIDC login failed: ' + oidc.error }); return; }
+                if (oidc && oidc.error) { authLog(req, 'login failed (oidc) for ' + ctrl.id); res.status(401).json({ error: 'OIDC login failed: ' + oidc.error }); return; }
                 // oidc === null -> no OIDC; fall through to legacy ext-jwt.
             }
             const method = type === 'ext-jwt' ? 'ext-jwt' : 'password';
@@ -668,10 +706,12 @@ app.get('/zac-session/controllers', function(req, res) {
                 const token = parsed && parsed.data && parsed.data.token;
                 if (!token) {
                     const msg = (parsed && parsed.error && (parsed.error.message || parsed.error.code)) || 'Invalid login';
+                    authLog(req, 'login failed (' + method + ') for ' + ctrl.id);
                     res.status(status && status >= 400 ? status : 401).json({ error: msg });
                     return;
                 }
                 createSession(res, { token: token, kind: 'legacy', controllerId: ctrl.id });
+                authLog(req, 'login ok (' + method + ') for ' + ctrl.id);
                 res.json({ success: true });
             });
         } catch (e) {
@@ -680,12 +720,14 @@ app.get('/zac-session/controllers', function(req, res) {
     });
 
     app.post('/zac-session/logout', function(req, res) {
+        if (!sameSiteRequest(req)) { res.status(403).json({ error: 'cross-site request rejected' }); return; }
         const s = getSession(req);
         if (s && !csrfOk(req, s)) { res.status(403).json({ error: 'CSRF validation failed' }); return; }
         if (s) {
             if (s.kind === 'oidc' && s.refreshToken) { oidcRevoke(s).catch(function() {}); }
             sessions.delete(s.sid);
             persistSessions();
+            authLog(req, 'logout (' + s.controllerId + ')');
         }
         res.setHeader('Set-Cookie', [clearCookie(SID_COOKIE, true), clearCookie(CSRF_COOKIE, false)]);
         res.json({ success: true });
@@ -713,7 +755,16 @@ app.get('/zac-session/controllers', function(req, res) {
         req.zacCtrlId = controllerIdForPath(req.path); // capture before pathRewrite strips the prefix
         const method = req.method.toUpperCase();
         const safe = method === 'GET' || method === 'HEAD' || method === 'OPTIONS';
-        if (!safe && s && !csrfOk(req, s)) { res.status(403).json({ error: 'CSRF validation failed' }); return; }
+
+        // No token for this controller = unauthenticated: only pre-auth allowlist GETs may reach it.
+        const authed = s && s.controllerId === req.zacCtrlId;
+        if (!authed) {
+            if (safe && isPreAuthPath(req.path)) return next();
+            res.status(401).json({ error: 'authentication required' });
+            return;
+        }
+
+        if (!safe && (!sameSiteRequest(req) || !csrfOk(req, s))) { res.status(403).json({ error: 'CSRF validation failed' }); return; }
         next();
     });
 }
@@ -733,6 +784,7 @@ app.use(createProxyMiddleware({
     changeOrigin: true,
     secure,
     ws: true,
+    xfwd: true,
     pathFilter: isApiPath,
     router: function(req) { return controllerForPath((req.url || '').split('?')[0]).url; },
     pathRewrite: function(p) { return stripControllerPrefix(p); },
@@ -755,12 +807,18 @@ app.use(createProxyMiddleware({
             }
         },
         proxyRes(proxyRes, req) {
+            // Don't let the controller set cookies or relax CORS on ZAC's origin.
+            delete proxyRes.headers['set-cookie'];
+            ['access-control-allow-origin', 'access-control-allow-credentials', 'access-control-allow-methods',
+             'access-control-allow-headers', 'access-control-expose-headers'].forEach(function(h) { delete proxyRes.headers[h]; });
+            // Per-user API data: keep it out of shared caches.
+            proxyRes.headers['cache-control'] = 'no-store';
+            proxyRes.headers['vary'] = proxyRes.headers['vary'] ? proxyRes.headers['vary'] + ', Cookie' : 'Cookie';
             // Upstream 401 = dead token: drop the session + clear cookies so the SPA stops looping to /login.
             if (proxyRes.statusCode === 401 && req.zacSession) {
                 sessions.delete(req.zacSession.sid);
                 persistSessions();
-                const existing = proxyRes.headers['set-cookie'] || [];
-                proxyRes.headers['set-cookie'] = existing.concat([clearCookie(SID_COOKIE, true), clearCookie(CSRF_COOKIE, false)]);
+                proxyRes.headers['set-cookie'] = [clearCookie(SID_COOKIE, true), clearCookie(CSRF_COOKIE, false)];
             }
         },
         error(err, req, res) {
