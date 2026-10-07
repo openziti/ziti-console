@@ -511,21 +511,35 @@ export function validate(c: ControllerConfig): ValidationIssue[] {
 
 // ---- YAML emitter ----------------------------------------------------------------------------
 
-const PLAIN_UNSAFE = /^[\s\-?:,\[\]{}#&*!|>'"%@`]|[:#]\s|:$|\s$|^$|[\x00-\x1f\x7f]/;
-const RESERVED = /^(true|false|null|yes|no|on|off|~|[-+]?(\d[\d_]*)(\.\d+)?([eE][-+]?\d+)?|0x[0-9a-f]+)$/i;
+// Includes the Unicode line breaks (NEL, LS, PS) and the BOM, which YAML treats specially.
+const PLAIN_UNSAFE = /^[\s\-?:,\[\]{}#&*!|>'"%@`]|:\s|\s#|:$|\s$|^$|[\x00-\x1f\x7f-\x9f\u2028\u2029\ufeff]/;
+const RESERVED = new RegExp('^(true|false|null|yes|no|on|off|y|n|~|=|<<'
+    + '|[-+]?\\.(inf|nan)'
+    + '|[-+]?(\\d[\\d_]*)(\\.\\d*)?([eE][-+]?\\d+)?'
+    + '|0x[0-9a-f_]+|0o[0-7_]+|0b[01_]+'
+    + '|[-+]?\\d[\\d_]*(:[0-5]?\\d)+(\\.\\d*)?'
+    + '|\\d{4}-\\d\\d?-\\d\\d?.*)$', 'i');
+
+/** Quote a string when a YAML parser could read it as anything other than the same plain string. */
+function text(s: string): string {
+    if (PLAIN_UNSAFE.test(s) || RESERVED.test(s)) {
+        return JSON.stringify(s).replace(/[\x7f-\x9f\u2028\u2029\ufeff]/g,
+            c => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0'));
+    }
+    return s;
+}
 
 function scalar(v: any): string {
     if (v === null) {
         return 'null';
     }
+    if (typeof v === 'number' && !isFinite(v)) {
+        return JSON.stringify(String(v));
+    }
     if (typeof v === 'number' || typeof v === 'boolean') {
         return String(v);
     }
-    const s = String(v);
-    if (PLAIN_UNSAFE.test(s) || RESERVED.test(s)) {
-        return JSON.stringify(s);
-    }
-    return s;
+    return text(String(v));
 }
 
 function dump(value: any, indent: number, lines: string[]): void {
@@ -544,11 +558,12 @@ function dump(value: any, indent: number, lines: string[]): void {
         });
         return;
     }
-    Object.keys(value).forEach(key => {
-        const v = value[key];
+    Object.keys(value).forEach(rawKey => {
+        const v = value[rawKey];
         if (v === undefined) {
             return;
         }
+        const key = text(rawKey);
         if (Array.isArray(v)) {
             if (!v.length) {
                 lines.push(`${pad}${key}: []`);
@@ -784,7 +799,10 @@ function prune(full: any, minimal: any, raw: any): any {
 function merge(base: any, over: any): any {
     const out: any = {...base};
     Object.keys(over).forEach(k => {
-        out[k] = isObj(over[k]) && isObj(base?.[k]) ? merge(base[k], over[k]) : over[k];
+        if (k === '__proto__') {
+            return;
+        }
+        out[k] =isObj(over[k]) && isObj(base?.[k]) ? merge(base[k], over[k]) : over[k];
     });
     return out;
 }

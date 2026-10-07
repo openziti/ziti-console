@@ -682,7 +682,8 @@ export class ConfigBuilderComponent implements OnInit {
     }
 
     private escape(s: string): string {
-        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
     /** Tiny YAML colorizer. Input is escaped first, so the resulting markup is safe to bind. */
