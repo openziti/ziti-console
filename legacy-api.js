@@ -52,9 +52,8 @@ function errorBody(err) {
 
 // deps are the shared session/proxy helpers from server.js (destructured below).
 export function mountLegacyApi(app, deps) {
-    const { controllers, controllersById, defaultController, getSession, createSession,
-        authenticateUpstream, httpRequest, clearCookie, SID_COOKIE, sessions,
-        persistSessions, looksLikeJwt, MGMT_PREFIX, trimTrailingSlash, normUrl, csrfOk } = deps;
+    const { controllers, controllersById, defaultController, getSession, createSession, destroySession,
+        authenticateUpstream, httpRequest, looksLikeJwt, MGMT_PREFIX, trimTrailingSlash, normUrl } = deps;
 
     const json = express.json();
 
@@ -66,19 +65,6 @@ export function mountLegacyApi(app, deps) {
         res.setHeader('X-ZAC-Deprecated', 'The /api/* interface is deprecated; use /edge/management/v1 directly.');
         next();
     });
-
-    // CSRF on writes (on by default; ZAC_LEGACY_API_CSRF=false disables for old consumers).
-    // login/version/settings exempt; SameSite=Strict is the baseline regardless.
-    if (`${process.env.ZAC_LEGACY_API_CSRF}`.toLowerCase() !== 'false') {
-        app.use('/api', function(req, res, next) {
-            const method = req.method.toUpperCase();
-            const safe = method === 'GET' || method === 'HEAD' || method === 'OPTIONS';
-            if (safe || /\/(login|version|settings)$/.test(req.path)) return next();
-            const s = getSession(req);
-            if (s && !csrfOk(req, s)) { res.status(403).json({ error: 'CSRF validation failed' }); return; }
-            next();
-        });
-    }
 
     function authHeaders(s) {
         return looksLikeJwt(s.token) ? { Authorization: 'Bearer ' + s.token } : { 'zt-session': s.token };
@@ -146,15 +132,13 @@ export function mountLegacyApi(app, deps) {
             if (err) { res.json({ error: err.code || 'Server Not Accessible' }); return; }
             const token = parsed && parsed.data && parsed.data.token;
             if (!token) { res.json({ error: (parsed && parsed.error && parsed.error.message) || 'Invalid Account' }); return; }
-            createSession(res, { token: token, kind: 'legacy', controllerId: ctrl.id });
+            createSession(req, res, { token: token, kind: 'legacy', controllerId: ctrl.id });
             res.json({ success: 'Logged In' });
         });
     });
 
     app.post('/api/logout', function(req, res) {
-        const s = getSession(req);
-        if (s) { sessions.delete(s.sid); persistSessions(); }
-        res.setHeader('Set-Cookie', [clearCookie(SID_COOKIE, true)]);
+        destroySession(req, res);
         res.send({ success: true, message: 'Logout Successful' });
     });
 
@@ -198,27 +182,29 @@ export function mountLegacyApi(app, deps) {
 
     app.post('/api/subdata', json, async function(req, res) {
         const s = requireSession(req, res); if (!s) return;
+        const b = req.body || {};
         try {
-            const r = await edge(s, 'GET', String(req.body.url).split('./').join(''));
-            res.json({ id: req.body.id, parent: req.body.name, type: req.body.type, data: r.body && r.body.data });
+            const r = await edge(s, 'GET', String(b.url).split('./').join(''));
+            res.json({ id: b.id, parent: b.name, type: b.type, data: r.body && r.body.data });
         } catch (e) { res.json(errorBody(e)); }
     });
 
     app.post('/api/dataSubs', json, async function(req, res) {
         const s = requireSession(req, res); if (!s) return;
-        if (!req.body.url) { res.json({ error: 'Invalid Sub Data Url' }); return; }
+        const b = req.body || {};
+        if (!b.url) { res.json({ error: 'Invalid Sub Data Url' }); return; }
         try {
-            const url = String(req.body.url.href).split('./').join('');
+            const url = String(typeof b.url === 'string' ? b.url : b.url.href).split('./').join('');
             const r = await edge(s, 'GET', url + '?limit=99999999&offset=0&sort=name ASC');
             if (r.body && r.body.error) res.json(errorBody(r.body.error));
-            else res.json({ id: req.body.id, type: req.body.type, data: r.body && r.body.data });
+            else res.json({ id: b.id, type: b.type, data: r.body && r.body.data });
         } catch (e) { res.json(errorBody(e)); }
     });
 
     app.post('/api/call', json, async function(req, res) {
         const s = requireSession(req, res); if (!s) return;
         try {
-            const r = await edge(s, 'GET', String(req.body.url));
+            const r = await edge(s, 'GET', String((req.body || {}).url));
             if (r.body && r.body.error) res.json(errorBody(r.body.error));
             else res.json(r.body && r.body.data ? r.body : { data: [] });
         } catch (e) { res.json(errorBody(e)); }
@@ -298,9 +284,10 @@ export function mountLegacyApi(app, deps) {
 
     app.post('/api/resetEnroll', json, async function(req, res) {
         const s = requireSession(req, res); if (!s) return;
+        const b = req.body || {};
         try {
-            const r = await edge(s, 'POST', 'authenticators/' + String(req.body.id).trim() + '/re-enroll',
-                { expiresAt: new Date(req.body.date).toISOString() });
+            const r = await edge(s, 'POST', 'authenticators/' + String(b.id).trim() + '/re-enroll',
+                { expiresAt: new Date(b.date).toISOString() });
             if (r.body && r.body.error) res.json(errorBody(r.body.error));
             else res.json({ success: 'Enrollment Reset' });
         } catch (e) { res.json(errorBody(e)); }
@@ -308,9 +295,10 @@ export function mountLegacyApi(app, deps) {
 
     app.post('/api/reissueEnroll', json, async function(req, res) {
         const s = requireSession(req, res); if (!s) return;
+        const b = req.body || {};
         try {
-            const r = await edge(s, 'POST', 'enrollments/' + req.body.id + '/refresh',
-                { expiresAt: new Date(req.body.date).toISOString() });
+            const r = await edge(s, 'POST', 'enrollments/' + b.id + '/refresh',
+                { expiresAt: new Date(b.date).toISOString() });
             if (r.body && r.body.error) res.json(errorBody(r.body.error));
             else res.json({ success: 'Enrollment Reissued' });
         } catch (e) { res.json(errorBody(e)); }
@@ -319,7 +307,7 @@ export function mountLegacyApi(app, deps) {
     app.delete('/api/mfa', json, async function(req, res) {
         const s = requireSession(req, res); if (!s) return;
         try {
-            const r = await edge(s, 'DELETE', 'identities/' + String(req.body.id).trim() + '/mfa');
+            const r = await edge(s, 'DELETE', 'identities/' + String((req.body || {}).id).trim() + '/mfa');
             if (r.body && r.body.error) res.json(errorBody(r.body.error));
             else res.json({ success: 'MFA Removed' });
         } catch (e) { res.json(errorBody(e)); }
@@ -331,5 +319,10 @@ export function mountLegacyApi(app, deps) {
             edgeControllers: controllers.map(function(c) { return { name: c.name, url: c.url, default: !!c.default }; }),
             editable: false,
         });
+    });
+
+    // Endpoints the node-api server had but this layer does not carry: answer in JSON, not the SPA.
+    app.use('/api', function(req, res) {
+        res.status(404).json({ error: 'Not supported by the legacy /api compatibility layer: ' + req.method + ' ' + req.path });
     });
 }

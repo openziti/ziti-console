@@ -26,14 +26,18 @@
  *   PORT / PORTTLS        HTTP / HTTPS listen ports (default 1408 / 8443)
  *   BIND_IP               interface to bind (default: all)
  *   ZAC_SERVER_KEY / ZAC_SERVER_CERT_CHAIN   TLS key/cert; their presence enables HTTPS
- *   ZAC_REJECT_UNAUTHORIZED   "true" to verify the controller's TLS cert (default off)
- *   ZAC_COOKIE_SECURE     force the session cookie Secure flag (default: tracks TLS)
+ *   SETTINGS              dir holding the node-api server's settings.json (default: the bundled "location")
+ *   ZAC_REJECT_UNAUTHORIZED   "true"/"false" to verify the controller's TLS cert (default: settings.json
+ *                         rejectUnauthorized, else off)
+ *   ZAC_COOKIE_SECURE     "true"/"false" forces the Secure flag and __Host- prefix (default: per request)
+ *   ZAC_TRUST_PROXY       express 'trust proxy' (hop count, "true", or addresses) behind an ingress
  *   ZAC_SESSION_FILE / ZAC_SESSION_SECRET   session store path / encryption key
+ *   ZAC_SESSION_MAX_IDLE_MS   idle limit for a session (default 24h)
+ *   ZAC_LEGACY_SESSION_DIR    node-api session-file-store dir to migrate from (default ./sessions)
  *   ZAC_CSP_CONNECT_SRC   extra CSP connect/frame-src origins
  *   ZAC_CORS_ORIGINS      comma-separated cross-origin allowlist (default: none)
  *   ZAC_OIDC_REDIRECT_URI   redirect URI for the server-side OIDC exchange
  *   ZAC_LEGACY_API        "false" disables the deprecated /api/* layer (on by default; see legacy-api.js)
- *   ZAC_LEGACY_API_CSRF   "false" disables double-submit CSRF on legacy /api/* writes (on by default)
  *   ALLOW_HTTP            "true" skips cors/helmet (security headers handled elsewhere)
  *   ZITI_IDENTITY_FILE / ZITI_SERVICE_NAME   serve over a Ziti service instead of TCP
  */
@@ -67,7 +71,7 @@ const zitified = !!(zitiIdentityFile && zitiServiceName && ziti);
 if (zitified) await ziti.init(zitiIdentityFile).catch(() => process.exit(1));
 
 const app = zitified ? ziti.express(express, zitiServiceName) : express();
-const port = process.env.PORT || 1408;
+const port = parseInt(process.env.PORT, 10) || 1408;
 
 // ---- Resolve the upstream controller(s) -----------------------------------
 function trimTrailingSlash(u) {
@@ -91,17 +95,23 @@ function slugFor(url, used) {
     return s;
 }
 
+function readJsonFile(p) {
+    try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch (e) { return null; }
+}
+
+// The node-api server persisted settings to SETTINGS, else to the "location" named in the
+// bundled settings.json (default ../ziti). Read the same places so upgraders keep their config.
+function settingsCandidates() {
+    const bundled = readJsonFile(path.join(__dirname, 'dist', 'ziti-console-lib', 'assets', 'data', 'settings.json'));
+    const dir = process.env.SETTINGS || (bundled && bundled.location) || '../ziti';
+    return [path.join(path.resolve(__dirname, dir.replace(/^\/+/, '')), 'settings.json'),
+        path.join(__dirname, 'assets', 'data', 'settings.json')];
+}
+const settingsFiles = settingsCandidates().map(readJsonFile).filter(function(d) { return d && typeof d === 'object'; });
+
 function loadSettingsControllers() {
-    const candidates = [];
-    if (process.env.SETTINGS) candidates.push(path.join(__dirname, process.env.SETTINGS, 'settings.json'));
-    candidates.push(path.join(__dirname, 'assets', 'data', 'settings.json'));
-    for (const p of candidates) {
-        try {
-            const d = JSON.parse(fs.readFileSync(p, 'utf8'));
-            if (Array.isArray(d.edgeControllers) && d.edgeControllers.length) return d.edgeControllers;
-        } catch (e) { /* try next */ }
-    }
-    return [];
+    const d = settingsFiles.find(function(s) { return Array.isArray(s.edgeControllers) && s.edgeControllers.length; });
+    return d ? d.edgeControllers : [];
 }
 
 // Sources, in order: settings.json, ZAC_CONTROLLER_URLS, ZITI_CTRL_* convenience, ZAC_CONTROLLER_URL.
@@ -132,7 +142,8 @@ if (controllers.length === 0) {
     process.exit(1);
 }
 const defaultController = controllers.find(c => c.default) || controllers[0];
-const controllersById = {};
+// Keyed by request-path segments, so no prototype (/c/__proto__ must not resolve).
+const controllersById = Object.create(null);
 controllers.forEach(c => { controllersById[c.id] = c; });
 
 // Resolve the target controller from a /c/<id>/ prefix (default otherwise), and
@@ -149,32 +160,29 @@ function stripControllerPrefix(p) {
     return p.replace(/^\/c\/[^/]+/, '') || '/';
 }
 
-function settingValue(key) {
-    const candidates = [];
-    if (process.env.SETTINGS) candidates.push(path.join(__dirname, process.env.SETTINGS, 'settings.json'));
-    candidates.push(path.join(__dirname, 'assets', 'data', 'settings.json'));
-    for (const p of candidates) {
-        try { const d = JSON.parse(fs.readFileSync(p, 'utf8')); if (d && key in d) return d[key]; } catch (e) { /* try next */ }
-    }
-    return undefined;
-}
+// Controllers are commonly self-signed; don't verify upstream TLS unless opted in, either
+// here or through the node-api server's settings.json "rejectUnauthorized".
+const settingsRejectUnauthorized = settingsFiles.some(function(s) {
+    return s.rejectUnauthorized === true || s.rejectUnauthorized === 'true';
+});
+const secure = process.env.ZAC_REJECT_UNAUTHORIZED === 'true'
+    || (process.env.ZAC_REJECT_UNAUTHORIZED !== 'false' && settingsRejectUnauthorized);
 
-// env wins; else honor settings.json rejectUnauthorized (the node-api opt-in). Default off: self-signed controllers.
-const secure = process.env.ZAC_REJECT_UNAUTHORIZED !== undefined
-    ? process.env.ZAC_REJECT_UNAUTHORIZED === 'true'
-    : settingValue('rejectUnauthorized') === true;
-
-// Resolved up here so the session cookie's Secure flag can track whether we serve HTTPS.
 const tlsKeyPath = process.env.ZAC_SERVER_KEY || path.join(__dirname, 'server.key');
 const tlsCertPath = process.env.ZAC_SERVER_CERT_CHAIN || path.join(__dirname, 'server.chain.pem');
-const tlsConfigured = fs.existsSync(tlsKeyPath) && fs.existsSync(tlsCertPath);
-const cookieSecure = process.env.ZAC_COOKIE_SECURE === 'true'
-    || (process.env.ZAC_COOKIE_SECURE !== 'false' && tlsConfigured);
+
+// ZAC_TRUST_PROXY: hop count, "true", or an address list, as express's 'trust proxy'. Set it
+// behind an ingress so req.ip (rate limits) and req.secure (cookie flags) see the real client.
+const trustProxy = process.env.ZAC_TRUST_PROXY;
+if (trustProxy) {
+    app.set('trust proxy', /^\d+$/.test(trustProxy) ? parseInt(trustProxy, 10)
+        : trustProxy === 'true' ? true : trustProxy.split(',').map(function(s) { return s.trim(); }));
+}
 
 // Paths forwarded to the controller (optionally behind a /c/<id> prefix); everything
-// else is the static SPA.
-// Only /edge and /fabric are proxied; the controller's OIDC/.well-known HTML is never served on ZAC's origin.
-const API_PATH_RE = /^\/(edge|fabric)(\/|$)/;
+// else is the static SPA. /oidc stays off: the server runs the OIDC exchange itself, and
+// proxying the controller's login pages would put them on this origin.
+const API_PATH_RE = /^\/(edge|fabric|\.well-known)(\/|$)/;
 function isApiPath(pathname) {
     const p = stripControllerPrefix(pathname);
     return p === '/version' || API_PATH_RE.test(p);
@@ -201,7 +209,8 @@ var corsOptions = {
     optionsSuccessStatus: 200,
 };
 
-// Rate-limit the auth/session endpoints (brute-force protection).
+// Rate-limit the credential endpoints (brute-force protection). Keyed on req.ip, so set
+// ZAC_TRUST_PROXY behind an ingress or every user shares one bucket.
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 300,
@@ -227,7 +236,7 @@ function buildHelmetOptions() {
                 frameSrc: ["'self'"].concat(idp),
                 frameAncestors: ["'self'"],
                 mediaSrc: ["'self'", 'data:', 'blob:', 'https:'],
-                connectSrc: ["'self'", 'ws:', 'wss:'].concat(idp),
+                connectSrc: ["'self'"].concat(idp),
             },
         },
         frameguard: { action: 'SAMEORIGIN' },
@@ -242,6 +251,28 @@ if (`${process.env.ALLOW_HTTP}`.toLowerCase() !== 'true') {
 } else {
     console.log('ALLOW_HTTP set - skipping cors/helmet');
 }
+
+// Reject cross-site state-changing requests (CSRF, including login CSRF). Browsers send
+// Sec-Fetch-Site (or at least Origin) on these; non-browser clients send neither and pass.
+function isCrossSite(req) {
+    const origin = req.headers.origin;
+    if (origin && corsAllowlist.indexOf(origin) > -1) return false;
+    const site = req.headers['sec-fetch-site'];
+    if (site) return site !== 'same-origin' && site !== 'none';
+    if (!origin) return false;
+    let originHost;
+    try { originHost = new URL(origin).host; } catch (e) { return true; }
+    const fwdHost = app.get('trust proxy') && req.headers['x-forwarded-host'];
+    const host = String(fwdHost || req.headers.host || '').split(',')[0].trim();
+    return originHost !== host;
+}
+
+app.use(function(req, res, next) {
+    const method = req.method.toUpperCase();
+    if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') return next();
+    if (isCrossSite(req)) { res.status(403).json({ error: 'Cross-site request rejected' }); return; }
+    next();
+});
 
 function originOf(u) {
     try { return new URL(u).origin; } catch (e) { return null; }
@@ -271,17 +302,21 @@ async function refreshIdpOrigins() {
 
 // ---- Server-side session layer --------------------------------------------
 // Token held here (never in the browser), keyed by an opaque httpOnly cookie.
+// Over HTTPS the cookies take the __Host- prefix, which a sibling subdomain or a plain-HTTP
+// MITM cannot set, so they cannot plant a session (fixation) on this origin.
 const SID_COOKIE = 'zac.sid';
 const CSRF_COOKIE = 'zac.csrf';
+const SECURE_PREFIX = '__Host-';
 const MGMT_PREFIX = '/edge/management/v1';
-// sid -> { token, csrf, kind:'legacy'|'oidc', createdAt, lastSeen, refreshToken?, oidcBase?, clientId?, accessExpMs? }
+// sid -> { token, csrf, kind:'legacy'|'oidc', createdAt, lastSeen, mfaPending?, suspect?,
+//          refreshToken?, oidcBase?, clientId?, accessExpMs? }
 const sessions = new Map();
 
 // Persisted (AES-256-GCM, 0600) so a restart/upgrade doesn't log everyone out.
 // Single-process; a multi-replica deployment needs a shared store.
 const SESSION_FILE = process.env.ZAC_SESSION_FILE || path.join(__dirname, 'sessions', 'zac-proxy-sessions.json');
 const SESSION_KEY_FILE = SESSION_FILE + '.key';
-const SESSION_MAX_IDLE_MS = 24 * 3600 * 1000;
+const SESSION_MAX_IDLE_MS = parseInt(process.env.ZAC_SESSION_MAX_IDLE_MS, 10) || 24 * 3600 * 1000;
 
 // Prefer ZAC_SESSION_SECRET (keep it off the session volume); else a generated 0600 key file.
 function sessionKey() {
@@ -340,43 +375,92 @@ function persistSessions() {
     process.on(sig, function() { flushSessions(); process.exit(0); });
 });
 
+// Expired sessions are dropped at lookup and by a periodic sweep, so a stolen sid or a
+// self-refreshing OIDC session does not outlive SESSION_MAX_IDLE_MS of inactivity.
+function sweepSessions() {
+    const now = Date.now();
+    let changed = false;
+    sessions.forEach(function(s, sid) {
+        if (!s.lastSeen || now - s.lastSeen >= SESSION_MAX_IDLE_MS) { sessions.delete(sid); changed = true; }
+    });
+    if (changed) persistSessions();
+}
+setInterval(sweepSessions, Math.min(SESSION_MAX_IDLE_MS, 60 * 1000)).unref();
+
 function parseCookies(req) {
     const out = {};
     const header = req.headers.cookie;
     if (!header) return out;
     header.split(';').forEach(function(pair) {
         const idx = pair.indexOf('=');
-        if (idx > -1) out[pair.slice(0, idx).trim()] = decodeURIComponent(pair.slice(idx + 1).trim());
+        if (idx < 0) return;
+        const raw = pair.slice(idx + 1).trim();
+        let value = raw;
+        try { value = decodeURIComponent(raw); } catch (e) { /* malformed escape: keep it raw */ }
+        out[pair.slice(0, idx).trim()] = value;
     });
     return out;
 }
 
-function setCookie(name, value, httpOnly) {
-    let c = name + '=' + encodeURIComponent(value) + '; Path=/; SameSite=Strict';
+// Secure follows the request (an HTTP listener can run beside the HTTPS one), unless
+// ZAC_COOKIE_SECURE forces it either way.
+function isSecureRequest(req) {
+    if (process.env.ZAC_COOKIE_SECURE === 'true') return true;
+    if (process.env.ZAC_COOKIE_SECURE === 'false') return false;
+    return !!(req && req.secure);
+}
+function cookieName(req, name) {
+    return isSecureRequest(req) ? SECURE_PREFIX + name : name;
+}
+
+function setCookie(req, name, value, httpOnly) {
+    let c = cookieName(req, name) + '=' + encodeURIComponent(value) + '; Path=/; SameSite=Strict';
     if (httpOnly) c += '; HttpOnly';
-    if (cookieSecure) c += '; Secure';
+    if (isSecureRequest(req)) c += '; Secure';
     return c;
 }
 
-function clearCookie(name, httpOnly) {
-    let c = name + '=; Path=/; Max-Age=0; SameSite=Strict';
+function clearCookie(req, name, httpOnly) {
+    let c = cookieName(req, name) + '=; Path=/; Max-Age=0; SameSite=Strict';
     if (httpOnly) c += '; HttpOnly';
-    if (cookieSecure) c += '; Secure';
+    if (isSecureRequest(req)) c += '; Secure';
     return c;
 }
 
-function sessionExpired(s) {
-    return !s || (s.lastSeen && Date.now() - s.lastSeen > SESSION_MAX_IDLE_MS);
+function sidOf(req) {
+    return parseCookies(req)[cookieName(req, SID_COOKIE)] || null;
 }
 
-function getSession(req) {
-    const sid = parseCookies(req)[SID_COOKIE];
+// Any live session for this request, including one still waiting on MFA.
+function lookupSession(req) {
+    const sid = sidOf(req);
     if (!sid) return null;
     const s = sessions.get(sid);
     if (!s) return null;
-    if (sessionExpired(s)) { sessions.delete(sid); persistSessions(); return null; }
+    if (!s.lastSeen || Date.now() - s.lastSeen >= SESSION_MAX_IDLE_MS) {
+        sessions.delete(sid);
+        persistSessions();
+        return null;
+    }
     s.lastSeen = Date.now();
     return Object.assign({ sid: sid }, s);
+}
+
+// A fully authenticated session (MFA done).
+function getSession(req) {
+    const s = lookupSession(req);
+    return s && !s.mfaPending ? s : null;
+}
+
+// End this request's session: revoke an OIDC grant, forget it, and clear both cookies.
+function destroySession(req, res) {
+    const s = lookupSession(req);
+    if (s) {
+        if (s.kind === 'oidc' && s.refreshToken) { oidcRevoke(s).catch(function() {}); }
+        sessions.delete(s.sid);
+        persistSessions();
+    }
+    res.append('Set-Cookie', [clearCookie(req, SID_COOKIE, true), clearCookie(req, CSRF_COOKIE, false)]);
 }
 
 function csrfOk(req, s) {
@@ -386,13 +470,9 @@ function csrfOk(req, s) {
     catch (e) { return false; }
 }
 
-// Reject cross-site state changes; non-browser callers (no Sec-Fetch-Site/Origin) are allowed.
-function sameSiteRequest(req) {
-    const sfs = req.headers['sec-fetch-site'];
-    if (sfs) return sfs === 'same-origin' || sfs === 'same-site' || sfs === 'none';
-    const origin = req.headers['origin'];
-    if (!origin) return true;
-    try { return new URL(origin).host === req.headers['host']; } catch (e) { return false; }
+// A JWT session token is sent as a Bearer; a legacy opaque token as zt-session.
+function looksLikeJwt(t) {
+    return typeof t === 'string' && t.split('.').length === 3;
 }
 
 function clientIp(req) {
@@ -400,11 +480,6 @@ function clientIp(req) {
 }
 function authLog(req, msg) {
     console.log('auth: ' + msg + ' from ' + clientIp(req));
-}
-
-// A JWT session token is sent as a Bearer; a legacy opaque token as zt-session.
-function looksLikeJwt(t) {
-    return typeof t === 'string' && t.split('.').length === 3;
 }
 
 function authenticateUpstream(ctrlUrl, method, body, bearer, cb) {
@@ -429,12 +504,18 @@ function authenticateUpstream(ctrlUrl, method, body, bearer, cb) {
     r.end(payload);
 }
 
-function createSession(res, fields) {
+// A login replaces whatever session the request carried, so an old sid stops working.
+function createSession(req, res, fields) {
+    const prev = lookupSession(req);
+    if (prev) {
+        if (prev.kind === 'oidc' && prev.refreshToken) { oidcRevoke(prev).catch(function() {}); }
+        sessions.delete(prev.sid);
+    }
     const sid = crypto.randomUUID();
     const csrf = crypto.randomUUID();
     sessions.set(sid, Object.assign({ csrf: csrf, createdAt: Date.now(), lastSeen: Date.now() }, fields));
     persistSessions();
-    res.setHeader('Set-Cookie', [setCookie(SID_COOKIE, sid, true), setCookie(CSRF_COOKIE, csrf, false)]);
+    res.append('Set-Cookie', [setCookie(req, SID_COOKIE, sid, true), setCookie(req, CSRF_COOKIE, csrf, false)]);
 }
 
 // ---- Controller-native OIDC (server-side token custody) -------------------
@@ -489,7 +570,9 @@ async function oidcDiscover(ctrlUrl) {
         const d = (JSON.parse(r.body) || {}).data || {};
         const caps = d.capabilities || [];
         const path = d.apiVersions && d.apiVersions['edge-oidc'] && d.apiVersions['edge-oidc'].v1 && d.apiVersions['edge-oidc'].v1.path;
-        return { available: Array.isArray(caps) && caps.indexOf('OIDC_AUTH') > -1, oidcPath: path || '/oidc' };
+        // A plain absolute path only: '@host/' or '//host' would move the IdP token off the controller.
+        const safePath = typeof path === 'string' && /^\/[A-Za-z0-9._~\/-]*$/.test(path) && path.indexOf('//') < 0;
+        return { available: Array.isArray(caps) && caps.indexOf('OIDC_AUTH') > -1, oidcPath: safePath ? path : '/oidc' };
     } catch (e) { return { available: false, oidcPath: '/oidc' }; }
 }
 
@@ -511,14 +594,11 @@ async function oidcExtJwtLogin(ctrlUrl, idpToken) {
     if (!idpToken) return { error: 'missing IdP token' };
     const disc = await oidcDiscover(ctrlUrl);
     if (!disc.available) return null;
-    let ctrlOrigin = null, oidcBase = null;
-    try {
-        ctrlOrigin = new URL(ctrlUrl).origin;
-        // Resolve the /version-supplied path against the controller; reject off-origin (don't leak the IdP token).
-        const oidcUrl = new URL(disc.oidcPath, ctrlUrl);
-        if (oidcUrl.origin !== ctrlOrigin) return { error: 'OIDC path escaped the controller origin' };
-        oidcBase = trimTrailingSlash(oidcUrl.href);
-    } catch (e) { return { error: 'bad controller url or OIDC path' }; }
+    const oidcBase = ctrlUrl + disc.oidcPath;
+    let ctrlOrigin = null;
+    try { ctrlOrigin = new URL(ctrlUrl).origin; } catch (e) { return { error: 'bad controller url' }; }
+    try { if (new URL(oidcBase).origin !== ctrlOrigin) return { error: 'OIDC endpoint is not on the controller' }; }
+    catch (e) { return { error: 'bad OIDC endpoint' }; }
     const verifier = randomUrlSafe(32);
     const challenge = pkceChallenge(verifier);
     const state = randomUrlSafe(16);
@@ -586,6 +666,38 @@ async function oidcRefresh(s) {
     persistSessions();
 }
 
+// One refresh per session at a time: with refresh-token rotation, a second concurrent
+// refresh with the same token fails and can revoke the whole grant.
+const refreshing = new Map();
+function refreshOnce(sid, s) {
+    let p = refreshing.get(sid);
+    if (!p) {
+        p = oidcRefresh(s).finally(function() { refreshing.delete(sid); });
+        refreshing.set(sid, p);
+    }
+    return p;
+}
+
+function tokenHeaders(token) {
+    return looksLikeJwt(token) ? { Authorization: 'Bearer ' + token } : { 'zt-session': token };
+}
+
+// Is this session's token still accepted upstream? A network failure counts as yes,
+// so a controller blip does not log anyone out.
+async function probeSession(s) {
+    const ctrl = controllersById[s.controllerId] || defaultController;
+    try {
+        const r = await httpRequest(ctrl.url + MGMT_PREFIX + '/current-api-session', { headers: tokenHeaders(s.token) });
+        return r.status !== 401;
+    } catch (e) { return true; }
+}
+
+// Best-effort logout of an upstream API session that ZAC will not keep.
+function endUpstreamSession(ctrlUrl, token) {
+    return httpRequest(ctrlUrl + MGMT_PREFIX + '/current-api-session', { method: 'DELETE', headers: tokenHeaders(token) })
+        .catch(function() {});
+}
+
 function oidcRevoke(s) {
     return httpRequest(s.oidcBase + '/oauth/revoke', {
         method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -597,9 +709,12 @@ function oidcRevoke(s) {
 // The node-api server stored its session via express-session + session-file-store
 // (./sessions/<sid>.json, cookie "connect.sid" signed with a fixed secret). On the
 // first request after an upgrade, adopt it so users aren't logged out. Transitional.
+// The signing secret is public, so a planted connect.sid can name any file still on disk.
+// Only recent files for a configured controller are adopted, which narrows that to sessions
+// a user could have resumed on the old server anyway.
 const LEGACY_SECRET = 'NetFoundryZiti';
 const LEGACY_COOKIE = 'connect.sid';
-const LEGACY_STORE_DIR = path.join(__dirname, 'sessions');
+const LEGACY_STORE_DIR = process.env.ZAC_LEGACY_SESSION_DIR || path.join(__dirname, 'sessions');
 
 function unsignLegacy(raw) {
     if (!raw || raw.slice(0, 2) !== 's:') return null;
@@ -614,18 +729,46 @@ function unsignLegacy(raw) {
     return null;
 }
 
+// Concurrent first-load requests share one adoption per legacy sid. The result stays for a
+// few seconds, so a request that arrives just after the adoption still gets the new session.
+const migrating = new Map();
+const MIGRATION_GRACE_MS = 10 * 1000;
+
 async function migrateLegacySession(req, res) {
     const cookies = parseCookies(req);
-    if (cookies[SID_COOKIE]) return;
-    // connect.sid's signing key was public; only adopt a planted cookie on a same-site request.
-    if (!sameSiteRequest(req)) return;
+    if (cookies[cookieName(req, SID_COOKIE)]) return;
     const sid = unsignLegacy(cookies[LEGACY_COOKIE]);
     if (!sid || /[^A-Za-z0-9_-]/.test(sid)) return; // uid-safe charset only (no path traversal)
+    let p = migrating.get(sid);
+    if (!p) {
+        p = adoptLegacySession(sid).finally(function() {
+            setTimeout(function() { migrating.delete(sid); }, MIGRATION_GRACE_MS).unref();
+        });
+        migrating.set(sid, p);
+    }
+    const adopted = await p;
+    if (!adopted) return;
+    res.append('Set-Cookie', [setCookie(req, SID_COOKIE, adopted.sid, true), setCookie(req, CSRF_COOKIE, adopted.csrf, false),
+        LEGACY_COOKIE + '=; Path=/; Max-Age=0; HttpOnly']);
+    // so the current request is already authed
+    req.headers.cookie = (req.headers.cookie ? req.headers.cookie + '; ' : '') + cookieName(req, SID_COOKIE) + '=' + adopted.sid;
+}
+
+// Returns {sid, csrf} of the new session, or null when the legacy file is unusable.
+async function adoptLegacySession(sid) {
+    const file = path.join(LEGACY_STORE_DIR, sid + '.json');
     let data;
-    try { data = JSON.parse(fs.readFileSync(path.join(LEGACY_STORE_DIR, sid + '.json'), 'utf8')); }
-    catch (e) { return; }
+    try {
+        if (Date.now() - fs.statSync(file).mtimeMs >= SESSION_MAX_IDLE_MS) {
+            try { fs.unlinkSync(file); } catch (e) { /* best-effort */ }
+            return null;
+        }
+        data = JSON.parse(fs.readFileSync(file, 'utf8'));
+    } catch (e) { return null; }
     const base = trimTrailingSlash(data.baseUrl || (data.serviceUrl || '').replace(/\/edge\/.*/, ''));
-    const ctrl = controllers.find(function(c) { return c.url === base; }) || defaultController;
+    // Never replay a stored token to a controller it was not issued by.
+    const ctrl = controllers.find(function(c) { return c.url === base; });
+    if (!ctrl) return null;
 
     // Re-auth from the stored IdP token when present (fresh auto-refreshing session,
     // survives an expired ziti token); else adopt the stored ziti token as legacy.
@@ -640,8 +783,9 @@ async function migrateLegacySession(req, res) {
             }
         } catch (e) { /* fall through to the stored token */ }
     }
+    try { fs.unlinkSync(file); } catch (e) { /* best-effort */ }
     if (!fields) {
-        if (!data.user) return;
+        if (!data.user) return null;
         fields = { token: data.user, kind: 'legacy', controllerId: ctrl.id };
     }
 
@@ -649,13 +793,11 @@ async function migrateLegacySession(req, res) {
     const csrf = crypto.randomUUID();
     sessions.set(newSid, Object.assign({ csrf: csrf, createdAt: Date.now(), lastSeen: Date.now() }, fields));
     persistSessions();
-    try { fs.unlinkSync(path.join(LEGACY_STORE_DIR, sid + '.json')); } catch (e) { /* best-effort */ }
-    res.setHeader('Set-Cookie', [setCookie(SID_COOKIE, newSid, true), setCookie(CSRF_COOKIE, csrf, false), clearCookie(LEGACY_COOKIE, true)]);
-    req.headers.cookie = (req.headers.cookie ? req.headers.cookie + '; ' : '') + SID_COOKIE + '=' + newSid; // so the current request is already authed
+    return { sid: newSid, csrf: csrf };
 }
 
-app.use('/zac-session', authLimiter);
-app.use('/zac-session', function(req, res, next) { res.setHeader('Cache-Control', 'no-store'); next(); });
+app.use('/zac-session/login', authLimiter);
+app.use('/zac-session/mfa', authLimiter);
 
 // Controller list for the login picker; each url is the same-origin /c/<id> path.
 app.get('/zac-session/controllers', function(req, res) {
@@ -675,18 +817,23 @@ app.get('/zac-session/controllers', function(req, res) {
 
     // ext-jwt -> controller OIDC exchange (falls back to legacy /authenticate if the
     // controller has no OIDC); password -> legacy /authenticate. No token is returned.
+    // test:true (the JWT-signer "test authentication" page) checks the credential and keeps
+    // no session, so the admin's own session survives.
     app.post('/zac-session/login', jsonParser, async function(req, res) {
-        if (!sameSiteRequest(req)) { res.status(403).json({ error: 'cross-site request rejected' }); return; }
         const body = req.body || {};
         const type = body.type || 'password';
+        const isTest = body.test === true;
         const ctrl = controllersById[body.controllerId] || defaultController;
-        const priorSid = parseCookies(req)[SID_COOKIE]; // drop any prior session on re-login
-        if (priorSid) { sessions.delete(priorSid); persistSessions(); }
         try {
             if (type === 'ext-jwt') {
                 const oidc = await oidcExtJwtLogin(ctrl.url, body.token);
                 if (oidc && oidc.accessToken) {
-                    createSession(res, {
+                    if (isTest) {
+                        if (oidc.refreshToken) oidcRevoke(oidc).catch(function() {});
+                        res.json({ success: true, test: true });
+                        return;
+                    }
+                    createSession(req, res, {
                         token: oidc.accessToken, kind: 'oidc', controllerId: ctrl.id,
                         refreshToken: oidc.refreshToken, oidcBase: oidc.oidcBase, clientId: oidc.clientId,
                         accessExpMs: jwtExpMs(oidc.accessToken) || (Date.now() + 1800000),
@@ -702,7 +849,11 @@ app.get('/zac-session/controllers', function(req, res) {
             const authBody = type === 'ext-jwt' ? {} : { username: body.username, password: body.password };
             const bearer = type === 'ext-jwt' ? body.token : undefined;
             authenticateUpstream(ctrl.url, method, authBody, bearer, function(err, status, parsed) {
-                if (err) { res.status(502).json({ error: 'Controller not reachable: ' + err.message }); return; }
+                if (err) {
+                    console.error('Login to ' + ctrl.url + ' failed: ' + err.message);
+                    res.status(502).json({ error: 'Controller not reachable' });
+                    return;
+                }
                 const token = parsed && parsed.data && parsed.data.token;
                 if (!token) {
                     const msg = (parsed && parsed.error && (parsed.error.message || parsed.error.code)) || 'Invalid login';
@@ -710,52 +861,96 @@ app.get('/zac-session/controllers', function(req, res) {
                     res.status(status && status >= 400 ? status : 401).json({ error: msg });
                     return;
                 }
-                createSession(res, { token: token, kind: 'legacy', controllerId: ctrl.id });
+                if (isTest) {
+                    endUpstreamSession(ctrl.url, token);
+                    res.json({ success: true, test: true });
+                    return;
+                }
+                // Outstanding auth queries (TOTP) leave the token partially authenticated:
+                // hold it, but treat the session as logged out until /zac-session/mfa clears them.
+                const authQueries = parsed.data.authQueries;
+                if (Array.isArray(authQueries) && authQueries.length) {
+                    createSession(req, res, { token: token, kind: 'legacy', controllerId: ctrl.id, mfaPending: true });
+                    res.json({ success: false, mfaRequired: true, authQueries: authQueries });
+                    return;
+                }
+                createSession(req, res, { token: token, kind: 'legacy', controllerId: ctrl.id });
                 authLog(req, 'login ok (' + method + ') for ' + ctrl.id);
                 res.json({ success: true });
             });
         } catch (e) {
-            res.status(502).json({ error: 'Login failed: ' + e.message });
+            console.error('Login failed: ' + e.message);
+            res.status(502).json({ error: 'Login failed' });
         }
     });
 
-    app.post('/zac-session/logout', function(req, res) {
-        if (!sameSiteRequest(req)) { res.status(403).json({ error: 'cross-site request rejected' }); return; }
-        const s = getSession(req);
-        if (s && !csrfOk(req, s)) { res.status(403).json({ error: 'CSRF validation failed' }); return; }
-        if (s) {
-            if (s.kind === 'oidc' && s.refreshToken) { oidcRevoke(s).catch(function() {}); }
-            sessions.delete(s.sid);
-            persistSessions();
-            authLog(req, 'logout (' + s.controllerId + ')');
+    // Second factor for a session that login left waiting on MFA.
+    app.post('/zac-session/mfa', jsonParser, async function(req, res) {
+        const s = lookupSession(req);
+        if (!s || !s.mfaPending) { res.status(400).json({ error: 'No MFA authentication is pending' }); return; }
+        if (!csrfOk(req, s)) { res.status(403).json({ error: 'CSRF validation failed' }); return; }
+        const code = String((req.body || {}).code || '').trim();
+        if (!code) { res.status(400).json({ error: 'Missing code', invalidCode: true }); return; }
+        const ctrl = controllersById[s.controllerId] || defaultController;
+        let r;
+        try {
+            r = await httpRequest(ctrl.url + MGMT_PREFIX + '/authenticate/mfa', {
+                method: 'POST',
+                headers: Object.assign({ 'Content-Type': 'application/json' }, tokenHeaders(s.token)),
+                body: JSON.stringify({ code: code }),
+            });
+        } catch (e) {
+            console.error('MFA to ' + ctrl.url + ' failed: ' + e.message);
+            res.status(502).json({ error: 'Controller not reachable' });
+            return;
         }
-        res.setHeader('Set-Cookie', [clearCookie(SID_COOKIE, true), clearCookie(CSRF_COOKIE, false)]);
+        if (r.status < 200 || r.status >= 300) { res.status(401).json({ error: 'Invalid code', invalidCode: true }); return; }
+        const live = sessions.get(s.sid);
+        if (live) { delete live.mfaPending; persistSessions(); }
         res.json({ success: true });
     });
 
-    app.get('/zac-session/status', function(req, res) {
-        const s = getSession(req);
-        res.json({ authenticated: !!s, mode: 'proxy-session', controller: s ? s.controllerId : null });
+    app.post('/zac-session/logout', function(req, res) {
+        const s = lookupSession(req);
+        if (s && !csrfOk(req, s)) { res.status(403).json({ error: 'CSRF validation failed' }); return; }
+        destroySession(req, res);
+        if (s) authLog(req, 'logout (' + s.controllerId + ')');
+        res.json({ success: true });
+    });
+
+    // A session whose token drew an upstream 401 is re-checked here, so an expired
+    // token reports logged-out instead of sending the SPA back to the dashboard.
+    app.get('/zac-session/status', async function(req, res) {
+        const pending = lookupSession(req);
+        let s = pending && !pending.mfaPending ? pending : null;
+        if (s && s.suspect) {
+            if (await probeSession(s)) {
+                const live = sessions.get(s.sid);
+                if (live) delete live.suspect;
+            } else {
+                sessions.delete(s.sid);
+                persistSessions();
+                s = null;
+            }
+        }
+        res.json({ authenticated: !!s, mfaPending: !!(pending && pending.mfaPending),
+            mode: 'proxy-session', controller: s ? s.controllerId : null });
     });
 
     // Resolve the session for proxied API requests, refresh a near-expiry OIDC token,
     // and enforce CSRF on mutations. Token injection happens in proxyReq (below).
     app.use(async function(req, res, next) {
         if (!isApiPath(req.path)) return next();
-        const sid = parseCookies(req)[SID_COOKIE];
-        let s = sid ? sessions.get(sid) : null;
-        if (s && sessionExpired(s)) { sessions.delete(sid); persistSessions(); s = null; }
-        if (s) {
-            s.lastSeen = Date.now();
-            if (s.kind === 'oidc' && s.refreshToken && s.accessExpMs && Date.now() > s.accessExpMs - 60000) {
-                try { await oidcRefresh(s); } catch (e) { /* a 401 will route to login */ }
-            }
+        const found = getSession(req);
+        const sid = found ? found.sid : null;
+        const s = sid ? sessions.get(sid) : null;
+        if (s && s.kind === 'oidc' && s.refreshToken && s.accessExpMs && Date.now() > s.accessExpMs - 60000) {
+            try { await refreshOnce(sid, s); } catch (e) { /* the upstream 401 marks it suspect */ }
         }
         req.zacSession = s ? Object.assign({ sid: sid }, s) : null;
         req.zacCtrlId = controllerIdForPath(req.path); // capture before pathRewrite strips the prefix
         const method = req.method.toUpperCase();
         const safe = method === 'GET' || method === 'HEAD' || method === 'OPTIONS';
-
         // No token for this controller = unauthenticated: only pre-auth allowlist GETs may reach it.
         const authed = s && s.controllerId === req.zacCtrlId;
         if (!authed) {
@@ -763,8 +958,7 @@ app.get('/zac-session/controllers', function(req, res) {
             res.status(401).json({ error: 'authentication required' });
             return;
         }
-
-        if (!safe && (!sameSiteRequest(req) || !csrfOk(req, s))) { res.status(403).json({ error: 'CSRF validation failed' }); return; }
+        if (!safe && !csrfOk(req, s)) { res.status(403).json({ error: 'CSRF validation failed' }); return; }
         next();
     });
 }
@@ -772,60 +966,59 @@ app.get('/zac-session/controllers', function(req, res) {
 // Deprecated legacy /api/* compatibility layer (on by default; set ZAC_LEGACY_API=false to disable).
 if (`${process.env.ZAC_LEGACY_API}`.toLowerCase() !== 'false') {
     mountLegacyApi(app, {
-        controllers, controllersById, defaultController, getSession, createSession,
-        authenticateUpstream, httpRequest, clearCookie, SID_COOKIE, sessions,
-        persistSessions, looksLikeJwt, MGMT_PREFIX, trimTrailingSlash, normUrl, csrfOk,
+        controllers, controllersById, defaultController, getSession, createSession, destroySession,
+        authenticateUpstream, httpRequest, looksLikeJwt, MGMT_PREFIX, trimTrailingSlash, normUrl,
     });
 }
+
+// Upstream headers that would override this origin's own CORS, CSP and framing policy,
+// or plant cookies on it.
+const STRIPPED_UPSTREAM_HEADERS = /^(set-cookie|access-control-.*|content-security-policy.*|x-frame-options)$/i;
 
 // ---- Reverse proxy (before static, so API paths never hit the SPA) --------
 app.use(createProxyMiddleware({
     target: defaultController.url,
     changeOrigin: true,
     secure,
-    ws: true,
-    xfwd: true,
+    xfwd: true, // the controller's logs see the real client
+    // No websocket upgrades: they bypass the express chain (no session token, CSRF or CORS).
+    ws: false,
     pathFilter: isApiPath,
     router: function(req) { return controllerForPath((req.url || '').split('?')[0]).url; },
     pathRewrite: function(p) { return stripControllerPrefix(p); },
     on: {
         proxyReq(proxyReq, req) {
-            // Never leak ZAC's own session cookies to the controller.
-            const cookie = req.headers['cookie'];
-            if (cookie) {
-                const kept = cookie.split(';').map(function(c) { return c.trim(); }).filter(function(c) {
-                    const n = c.split('=')[0].trim();
-                    return n !== SID_COOKIE && n !== CSRF_COOKIE && n !== LEGACY_COOKIE;
-                }).join('; ');
-                if (kept) proxyReq.setHeader('cookie', kept); else proxyReq.removeHeader('cookie');
-            }
+            // The browser's cookies (the ZAC session itself) never go upstream.
+            proxyReq.removeHeader('cookie');
             // Inject the server-held token, but only for the controller this session authenticated against.
             if (req.zacSession && req.zacSession.controllerId === req.zacCtrlId) {
+                req.zacTokenSent = true;
                 const t = req.zacSession.token;
                 if (looksLikeJwt(t)) proxyReq.setHeader('Authorization', 'Bearer ' + t);
                 else proxyReq.setHeader('zt-session', t);
             }
         },
+        // Runs before http-proxy copies proxyRes.headers onto the response.
         proxyRes(proxyRes, req) {
-            // Don't let the controller set cookies or relax CORS on ZAC's origin.
-            delete proxyRes.headers['set-cookie'];
-            ['access-control-allow-origin', 'access-control-allow-credentials', 'access-control-allow-methods',
-             'access-control-allow-headers', 'access-control-expose-headers'].forEach(function(h) { delete proxyRes.headers[h]; });
-            // Per-user API data: keep it out of shared caches.
+            Object.keys(proxyRes.headers).forEach(function(h) {
+                if (STRIPPED_UPSTREAM_HEADERS.test(h)) delete proxyRes.headers[h];
+            });
             proxyRes.headers['cache-control'] = 'no-store';
             proxyRes.headers['vary'] = proxyRes.headers['vary'] ? proxyRes.headers['vary'] + ', Cookie' : 'Cookie';
-            // Upstream 401 = dead token: drop the session + clear cookies so the SPA stops looping to /login.
-            if (proxyRes.statusCode === 401 && req.zacSession) {
-                sessions.delete(req.zacSession.sid);
-                persistSessions();
-                proxyRes.headers['set-cookie'] = [clearCookie(SID_COOKIE, true), clearCookie(CSRF_COOKIE, false)];
+            // Anything but JSON (an HTML error page, say) must not run script on this origin.
+            if (!/^application\/([a-z.+-]*\+)?json/i.test(proxyRes.headers['content-type'] || '')) {
+                proxyRes.headers['content-security-policy'] = "default-src 'none'; sandbox";
+            }
+            if (proxyRes.statusCode === 401 && req.zacTokenSent) {
+                const live = sessions.get(req.zacSession.sid);
+                if (live) live.suspect = true;
             }
         },
         error(err, req, res) {
             console.error('Proxy error for ' + req.method + ' ' + req.url + ': ' + err.message);
             if (res && !res.headersSent && typeof res.writeHead === 'function') {
                 res.writeHead(502, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Controller not reachable: ' + err.message }));
+                res.end(JSON.stringify({ error: 'Controller not reachable' }));
             }
         },
     },
@@ -857,18 +1050,12 @@ app.get(/.*/, function(req, res) {
 });
 
 // ---- Listen ----------------------------------------------------------------
-const portTLS = process.env.PORTTLS || 8443;
+const portTLS = parseInt(process.env.PORTTLS, 10) || 8443;
 const bindIP = process.env.BIND_IP || undefined;
 
 loadSessions();
 refreshIdpOrigins();
 setInterval(refreshIdpOrigins, 5 * 60 * 1000).unref();
-
-setInterval(function() { // sweep idle sessions
-    let changed = false;
-    sessions.forEach(function(s, sid) { if (sessionExpired(s)) { sessions.delete(sid); changed = true; } });
-    if (changed) persistSessions();
-}, 10 * 60 * 1000).unref();
 
 let maxAttempts = 100;
 StartServer(port);
@@ -881,7 +1068,7 @@ function logBanner(where) {
         console.log('       [' + c.id + '] ' + c.url + (c.default ? '  (default)' : '') + '  ->  /c/' + c.id);
     });
     console.log('  -> serving edge bundle from:   ' + distDir);
-    console.log('  -> token held server-side (cookieSecure=' + cookieSecure + ')');
+    console.log('  -> token held server-side (cookie Secure: ' + (process.env.ZAC_COOKIE_SECURE || 'per request') + ')');
 }
 
 // Ziti service listener when zitified (no TCP port); else TCP with port-bump retry.

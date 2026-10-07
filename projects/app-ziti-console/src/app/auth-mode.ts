@@ -35,14 +35,28 @@ export function getAuthMode(): ZacAuthMode {
 
 /** Name of the readable (non-httpOnly) CSRF cookie the proxy sets at login. */
 export const CSRF_COOKIE_NAME = 'zac.csrf';
+/** Over HTTPS the proxy prefixes its cookies with __Host-. */
+export const SECURE_CSRF_COOKIE_NAME = '__Host-' + CSRF_COOKIE_NAME;
+
+function readCookie(cookieName: string): string | null {
+    const name = cookieName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return match ? decodeURIComponent(match[1]) : null;
+}
 
 /** Read the CSRF token the proxy issued, to echo back as the X-ZAC-CSRF header. */
 export function readCsrfToken(): string | null {
     try {
-        const name = CSRF_COOKIE_NAME.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
-        return match ? decodeURIComponent(match[1]) : null;
+        return readCookie(SECURE_CSRF_COOKIE_NAME) ?? readCookie(CSRF_COOKIE_NAME);
     } catch (e) {
         return null;
     }
+}
+
+/**
+ * Absolute URL of a proxy path ('zac-session/status', 'c/<id>'), resolved against <base href>
+ * so it still reaches the proxy when an ingress mounts ZAC under a path prefix.
+ */
+export function proxyUrl(path: string): string {
+    return new URL(path.replace(/^\/+/, ''), document.baseURI).href;
 }

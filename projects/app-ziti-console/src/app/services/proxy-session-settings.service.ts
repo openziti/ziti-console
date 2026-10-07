@@ -19,6 +19,10 @@ import {HttpBackend} from '@angular/common/http';
 import {SettingsService, GrowlerService} from 'ziti-console-lib';
 import {catchError, firstValueFrom, of} from 'rxjs';
 import {isEmpty} from 'lodash';
+import {proxyUrl} from '../auth-mode';
+
+/** settings.session.id while the proxy holds a session; a marker, not a credential. */
+export const PROXY_SESSION_ID = 'proxy-session';
 
 /**
  * Settings service for proxy-session mode. The session lives server-side (httpOnly
@@ -36,8 +40,16 @@ export class ProxySessionSettingsService extends SettingsService {
         super(httpBackend, growlerService);
     }
 
+    /** The proxy holds a session that still waits on a TOTP code. */
+    mfaPending = false;
+    private statusRequest: Promise<boolean> | null = null;
+
     override init() {
         this.get();
+        // A session or per-controller tokens left in localStorage by direct mode would
+        // read as logged-in to the lib; the proxy's status is the only truth here.
+        delete this.settings.session;
+        this.settings.controllerSessions = {};
         return this.loadControllers()
             .then(() => this.refreshSessionStatus())
             .then(() => undefined);
@@ -47,21 +59,20 @@ export class ProxySessionSettingsService extends SettingsService {
     // /c/<id> path that routes to that upstream. Populate edgeControllers (drives
     // the login picker) and pick the default.
     loadControllers(): Promise<void> {
-        const origin = window.location.origin;
         return firstValueFrom(
-            this.httpClient.get('/zac-session/controllers').pipe(catchError(() => of({controllers: []})))
+            this.httpClient.get(proxyUrl('zac-session/controllers')).pipe(catchError(() => of({controllers: []})))
         ).then((r: any) => {
             const list = (r?.controllers || []);
             if (list.length) {
-                this.settings.edgeControllers = list.map((c: any) => ({name: c.name, url: origin + c.url, default: !!c.default}));
+                this.settings.edgeControllers = list.map((c: any) => ({name: c.name, url: proxyUrl(c.url), default: !!c.default}));
                 const def = list.find((c: any) => c.default) || list[0];
                 const current = this.settings.selectedEdgeController;
                 if (isEmpty(current) || !this.settings.edgeControllers.some((c: any) => c.url === current)) {
-                    this.settings.selectedEdgeController = origin + def.url;
+                    this.settings.selectedEdgeController = proxyUrl(def.url);
                 }
             } else {
                 // Fallback: single same-origin controller (shouldn't happen - proxy requires one).
-                this.settings.selectedEdgeController = origin;
+                this.settings.selectedEdgeController = proxyUrl('');
             }
             this.initApiVersions(this.settings.selectedEdgeController);
             this.set(this.settings);
@@ -76,13 +87,47 @@ export class ProxySessionSettingsService extends SettingsService {
     override hasValidJwtToken(): boolean { return false; }
     override setJwtToken(_token: string): void { /* no-op */ }
 
-    /** Ask the proxy whether we currently hold a valid server session. */
+    /**
+     * Ask the proxy whether we currently hold a valid server session. Concurrent callers
+     * (a burst of 401s, say) share one request.
+     */
     refreshSessionStatus(): Promise<boolean> {
-        return firstValueFrom(
-            this.httpClient.get('/zac-session/status').pipe(catchError(() => of({authenticated: false})))
-        ).then((r: any) => {
-            this.hasProxySession = !!r?.authenticated;
-            return this.hasProxySession;
-        });
+        if (!this.statusRequest) {
+            this.statusRequest = firstValueFrom(
+                this.httpClient.get(proxyUrl('zac-session/status')).pipe(catchError(() => of({authenticated: false})))
+            ).then((r: any) => {
+                this.applyStatus(r);
+                return this.hasProxySession;
+            }).finally(() => {
+                this.statusRequest = null;
+            });
+        }
+        return this.statusRequest;
+    }
+
+    // The lib gates list pages and permissions on settings.session.id, so a logged-in proxy
+    // session carries a marker id (never a token). The selected controller follows the
+    // session, because the proxy only injects the token for the controller it logged in to.
+    private applyStatus(r: any) {
+        this.hasProxySession = !!r?.authenticated;
+        this.mfaPending = !!r?.mfaPending;
+        const settings = {...this.settings};
+        if (this.hasProxySession) {
+            if (r?.controller) {
+                const pinned = proxyUrl('c/' + r.controller);
+                if (settings.edgeControllers?.some((c: any) => c.url === pinned)) {
+                    settings.selectedEdgeController = pinned;
+                }
+            }
+            settings.session = {id: PROXY_SESSION_ID, controllerDomain: settings.selectedEdgeController, authorization: 100};
+        } else {
+            delete settings.session;
+        }
+        if (settings.session?.id !== this.settings.session?.id
+            || settings.selectedEdgeController !== this.settings.selectedEdgeController) {
+            this.set(settings);
+        } else {
+            this.settings = settings;
+        }
     }
 }

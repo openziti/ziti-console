@@ -31,7 +31,8 @@ if [[ "${ZITI_CTRL_NAME}" == "" ]]; then
   ZITI_CTRL_NAME="docker-based-controller"
 fi
   echo "emitting settings.json"
-  cat > /usr/src/app/assets/data/settings.json <<HERE
+  mkdir -p /usr/src/app/assets/data
+  cat >/usr/src/app/assets/data/settings.json <<HERE
 {
     "edgeControllers":[{
         "name":"${ZITI_CTRL_NAME}",
@@ -65,6 +66,14 @@ else
   echo ZITI_CTRL_EDGE_ADVERTISED_ADDRESS set but ZITI_CTRL_EDGE_ADVERTISED_PORT not set. cannot create default server
 fi
 fi
+
+case "$1" in
+  ""|edge-api|no-legacy) ;;
+  classic|node-api)
+    echo "WARNING: the '$1' mode was removed; starting the ZAC reverse-proxy server instead" >&2 ;;
+  *)
+    echo "WARNING: unknown argument '$1' ignored; starting the ZAC reverse-proxy server" >&2 ;;
+esac
 
 if [[ "$1" == "edge-api" ]]; then
   echo "Running ZAC as a static server (browser connects directly to the controller)"

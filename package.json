@@ -21,6 +21,7 @@
     "watch:lib": "ng build ziti-console-lib --watch",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:server": "node --test --test-concurrency=1 \"test/server/*.test.mjs\"",
     "docker:build": "cross-conf-env docker image build . -t $npm_package_config_imageRepo:$npm_package_version",
     "docker-branch:build": "cross-conf-env docker image build . -t $npm_package_config_imageRepo:$npm_package_version-$BITBUCKET_BRANCH-$BITBUCKET_BUILD_NUMBER",
     "postdocker:build": "npm run docker:tag",

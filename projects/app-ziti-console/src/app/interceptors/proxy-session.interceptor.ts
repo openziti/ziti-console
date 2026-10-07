@@ -14,20 +14,26 @@
     limitations under the License.
 */
 
-import {Injectable} from '@angular/core';
+import {Inject, Injectable} from '@angular/core';
 import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
 import {catchError, Observable, throwError} from 'rxjs';
 import {Router} from '@angular/router';
+import {SETTINGS_SERVICE} from 'ziti-console-lib';
 import {readCsrfToken} from '../auth-mode';
+import {ProxySessionSettingsService} from '../services/proxy-session-settings.service';
 
 /**
  * Interceptor for proxy-session mode. Attaches no token (the proxy injects it
  * server-side); rides the httpOnly session cookie and echoes the CSRF cookie as
- * X-ZAC-CSRF on mutations. A 401 on an API call routes to /login.
+ * X-ZAC-CSRF on mutations. A 401 on an API call routes to /login once the proxy
+ * confirms the session is gone; a 401 that is only a permission error keeps the user in.
  */
 @Injectable()
 export class ProxySessionInterceptor implements HttpInterceptor {
-    constructor(private router: Router) {}
+    constructor(
+        private router: Router,
+        @Inject(SETTINGS_SERVICE) private settingsService: ProxySessionSettingsService
+    ) {}
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         const method = req.method.toUpperCase();
@@ -46,30 +52,28 @@ export class ProxySessionInterceptor implements HttpInterceptor {
 
         return next.handle(request).pipe(
             catchError((err: HttpErrorResponse) => {
-                if (err?.status === 401 && this.isApiRequest(req) && !this.isAuthRoute()) {
-                    this.router.navigate(['/login']);
+                if (err?.status === 401 && apiRequest && !this.isAuthRoute()) {
+                    // The settings service bypasses interceptors, so this check cannot loop.
+                    this.settingsService.refreshSessionStatus().then((authenticated) => {
+                        if (!authenticated) this.router.navigate(['/login']);
+                    });
                 }
                 return throwError(() => err);
             })
         );
     }
 
+    // Same-origin only: the CSRF token must never ride along to another host, even one
+    // whose path happens to contain /edge/.
     private isApiRequest(req: HttpRequest<any>): boolean {
-        const u = req.url || '';
-        // Same-origin only: never attach our credentials/CSRF to a third-party URL.
-        let path: string;
-        if (/^https?:\/\//i.test(u)) {
-            try {
-                const parsed = new URL(u);
-                if (parsed.origin !== window.location.origin) return false;
-                path = parsed.pathname;
-            } catch (e) {
-                return false;
-            }
-        } else {
-            path = u.startsWith('/') ? u : '/' + u;
+        let u: URL;
+        try {
+            u = new URL(req.url || '', window.location.href);
+        } catch (e) {
+            return false;
         }
-        return /\/(edge|fabric)\//.test(path) || path.indexOf('/zac-session') === 0;
+        if (u.origin !== window.location.origin) return false;
+        return /\/(edge|fabric)\//.test(u.pathname) || /\/zac-session(\/|$)/.test(u.pathname);
     }
 
     private isAuthRoute(): boolean {
