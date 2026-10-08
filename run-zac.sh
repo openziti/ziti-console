@@ -67,6 +67,10 @@ else
 fi
 fi
 
+# In a container ZAC runs behind an ingress/load balancer, so trust one proxy hop by default
+# (makes rate limits and the audit log use the real client IP). Override if there are more hops.
+export ZAC_TRUST_PROXY="${ZAC_TRUST_PROXY:-1}"
+
 case "$1" in
   ""|edge-api|no-legacy) ;;
   classic|node-api)

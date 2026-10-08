@@ -132,6 +132,9 @@ export function mountLegacyApi(app, deps) {
             if (err) { res.json({ error: err.code || 'Server Not Accessible' }); return; }
             const token = parsed && parsed.data && parsed.data.token;
             if (!token) { res.json({ error: (parsed && parsed.error && parsed.error.message) || 'Invalid Account' }); return; }
+            // The deprecated /api layer can't drive multi-factor, so don't hand back a half-authenticated session.
+            const authQueries = parsed.data && parsed.data.authQueries;
+            if (Array.isArray(authQueries) && authQueries.length) { res.json({ error: 'Multi-factor authentication is required; use the console login' }); return; }
             createSession(req, res, { token: token, kind: 'legacy', controllerId: ctrl.id });
             res.json({ success: 'Logged In' });
         });

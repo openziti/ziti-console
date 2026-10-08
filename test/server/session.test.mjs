@@ -214,6 +214,42 @@ describe('session layer and proxy (password login)', function() {
         assert.deepEqual([st.body.authenticated, st.body.mfaPending], [true, false]);
     });
 
+    it('ends the controller session on logout', async function() {
+        const { jar } = await login(zac);
+        const before = ctrl.deletedSessions.length;
+        const r = await request(zac.base, 'POST', '/zac-session/logout', { jar: jar, headers: { 'x-zac-csrf': jar.csrf() } });
+        assert.equal(r.status, 200);
+        await new Promise(function(res) { setTimeout(res, 100); }); // upstream logout is fire-and-forget
+        assert.ok(ctrl.deletedSessions.length > before, 'logout deletes the upstream session');
+    });
+
+    it('ends the previous controller session when a new login replaces it', async function() {
+        const { jar } = await login(zac);
+        const before = ctrl.deletedSessions.length;
+        const r = await request(zac.base, 'POST', '/zac-session/login',
+            { jar: jar, json: { type: 'password', username: 'admin', password: 'pw' } });
+        assert.equal(r.body.success, true);
+        await new Promise(function(res) { setTimeout(res, 100); });
+        assert.ok(ctrl.deletedSessions.length > before, 'prior upstream session is ended on re-login');
+    });
+
+    it('destroys an MFA-pending session after 5 wrong codes', async function() {
+        const { jar } = await login(zac, 'mfa', 'pw');
+        let last;
+        for (let i = 0; i < 5; i++) {
+            last = await request(zac.base, 'POST', '/zac-session/mfa',
+                { jar: jar, json: { code: '000000' }, headers: { 'x-zac-csrf': jar.csrf() } });
+        }
+        assert.equal(last.status, 401);
+        assert.equal(last.body.locked, true);
+        const st = await request(zac.base, 'GET', '/zac-session/status', { jar: jar });
+        assert.deepEqual([st.body.authenticated, st.body.mfaPending], [false, false]);
+        // the session is gone, so even the correct code no longer resumes it
+        const after = await request(zac.base, 'POST', '/zac-session/mfa',
+            { jar: jar, json: { code: '123456' }, headers: { 'x-zac-csrf': jar.csrf() } });
+        assert.equal(after.status, 400);
+    });
+
     it('answers /zac-session/mfa with 400 when nothing is pending', async function() {
         const { jar } = await login(zac);
         const r = await request(zac.base, 'POST', '/zac-session/mfa',

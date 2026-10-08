@@ -125,6 +125,13 @@ describe('legacy /api layer', function() {
         assert.equal(r.body.error, 'Invalid Edge Controller');
     });
 
+    it('refuses login when the controller requires multi-factor (no half-authenticated session)', async function() {
+        const jar = cookieJar();
+        const r = await request(zac.base, 'POST', '/api/login', { jar: jar, json: { url: ctrl.url, username: 'mfa', password: 'pw' } });
+        assert.match(r.body.error, /multi-factor/i);
+        assert.equal(jar.get('zac.sid'), undefined, 'no session cookie is set');
+    });
+
     it('accepts dataSubs url as a string or a link object', async function() {
         const jar = await apiLogin();
         const a = await request(zac.base, 'POST', '/api/dataSubs', { jar: jar, json: { id: '1', type: 't', url: './identities/1/services' } });

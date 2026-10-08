@@ -178,6 +178,17 @@ if (trustProxy) {
     app.set('trust proxy', /^\d+$/.test(trustProxy) ? parseInt(trustProxy, 10)
         : trustProxy === 'true' ? true : trustProxy.split(',').map(function(s) { return s.trim(); }));
 }
+// Warn once if requests arrive forwarded but trust proxy is off: rate limits and the audit log
+// would then see the proxy's IP for everyone, so one busy user can use up the limit for all.
+let warnedForwarded = false;
+app.use(function(req, res, next) {
+    if (!warnedForwarded && !app.get('trust proxy') && req.headers['x-forwarded-for']) {
+        warnedForwarded = true;
+        console.warn('WARNING: requests carry X-Forwarded-For but ZAC_TRUST_PROXY is not set. ' +
+            'Set it (e.g. ZAC_TRUST_PROXY=1) so rate limits and the audit log use the real client IP.');
+    }
+    next();
+});
 
 // Paths forwarded to the controller (optionally behind a /c/<id> prefix); everything
 // else is the static SPA. /oidc stays off: the server runs the OIDC exchange itself, and
@@ -201,7 +212,9 @@ function isPreAuthPath(pathname) {
 
 // ---- Middleware -----------------------------------------------------------
 // Same-origin app, so cross-origin access is denied by default. ZAC_CORS_ORIGINS
-// (comma-separated) opts specific origins in; never a wildcard.
+// (comma-separated) opts specific origins in; never a wildcard. Note: an allowlisted
+// origin still can't make an authenticated call - the session cookie is SameSite=Strict
+// and credentialed CORS isn't enabled - so this only helps unauthenticated cross-origin reads.
 const corsAllowlist = (process.env.ZAC_CORS_ORIGINS || '')
     .split(',').map(function(s) { return s.trim(); }).filter(Boolean);
 var corsOptions = {
@@ -230,6 +243,8 @@ function buildHelmetOptions() {
         contentSecurityPolicy: {
             directives: {
                 styleSrc: ["'self'", "'unsafe-inline'"],
+                // The bundled Angular build needs inline/eval scripts; this is the main residual
+                // XSS exposure, so keep the other defenses (stripped upstream HTML, no served controller pages) tight.
                 scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
                 scriptSrcAttr: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
                 imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
@@ -453,10 +468,17 @@ function getSession(req) {
 }
 
 // End this request's session: revoke an OIDC grant, forget it, and clear both cookies.
+// End the session on the controller too, so its token stops working once ZAC drops it.
+function endSessionUpstream(s) {
+    if (!s) return;
+    if (s.kind === 'oidc') { if (s.refreshToken) oidcRevoke(s).catch(function() {}); return; }
+    if (s.token) { endUpstreamSession((controllersById[s.controllerId] || defaultController).url, s.token); }
+}
+
 function destroySession(req, res) {
     const s = lookupSession(req);
     if (s) {
-        if (s.kind === 'oidc' && s.refreshToken) { oidcRevoke(s).catch(function() {}); }
+        endSessionUpstream(s);
         sessions.delete(s.sid);
         persistSessions();
     }
@@ -476,7 +498,9 @@ function looksLikeJwt(t) {
 }
 
 function clientIp(req) {
-    return (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || (req.socket && req.socket.remoteAddress) || '-';
+    // req.ip honors 'trust proxy': the real client when a proxy is configured, else the direct
+    // socket address. Don't read X-Forwarded-For directly - that is spoofable when untrusted.
+    return req.ip || (req.socket && req.socket.remoteAddress) || '-';
 }
 function authLog(req, msg) {
     console.log('auth: ' + msg + ' from ' + clientIp(req));
@@ -508,7 +532,7 @@ function authenticateUpstream(ctrlUrl, method, body, bearer, cb) {
 function createSession(req, res, fields) {
     const prev = lookupSession(req);
     if (prev) {
-        if (prev.kind === 'oidc' && prev.refreshToken) { oidcRevoke(prev).catch(function() {}); }
+        endSessionUpstream(prev);
         sessions.delete(prev.sid);
     }
     const sid = crypto.randomUUID();
@@ -846,6 +870,8 @@ app.get('/zac-session/controllers', function(req, res) {
             const authBody = type === 'ext-jwt' ? {} : { username: body.username, password: body.password };
             const bearer = type === 'ext-jwt' ? body.token : undefined;
             authenticateUpstream(ctrl.url, method, authBody, bearer, function(err, status, parsed) {
+              // This callback runs after the outer try returns, so catch here or a throw crashes the process.
+              try {
                 if (err) {
                     console.error('Login to ' + ctrl.url + ' failed: ' + err.message);
                     res.status(502).json({ error: 'Controller not reachable' });
@@ -874,6 +900,10 @@ app.get('/zac-session/controllers', function(req, res) {
                 createSession(req, res, { token: token, kind: 'legacy', controllerId: ctrl.id });
                 authLog(req, 'login ok (' + method + ') for ' + ctrl.id);
                 res.json({ success: true });
+              } catch (e) {
+                console.error('Login handler error: ' + e.message);
+                if (!res.headersSent) res.status(500).json({ error: 'Login failed' });
+              }
             });
         } catch (e) {
             console.error('Login failed: ' + e.message);
@@ -901,9 +931,26 @@ app.get('/zac-session/controllers', function(req, res) {
             res.status(502).json({ error: 'Controller not reachable' });
             return;
         }
-        if (r.status < 200 || r.status >= 300) { res.status(401).json({ error: 'Invalid code', invalidCode: true }); return; }
+        if (r.status < 200 || r.status >= 300) {
+            // Cap wrong codes per session so a known password can't be paired with unlimited guessing.
+            const live = sessions.get(s.sid);
+            if (live) {
+                live.mfaAttempts = (live.mfaAttempts || 0) + 1;
+                if (live.mfaAttempts >= 5) {
+                    endSessionUpstream(live);
+                    sessions.delete(s.sid);
+                    persistSessions();
+                    res.setHeader('Set-Cookie', [clearCookie(req, SID_COOKIE, true), clearCookie(req, CSRF_COOKIE, false)]);
+                    res.status(401).json({ error: 'Too many incorrect codes; please sign in again', invalidCode: true, locked: true });
+                    return;
+                }
+                persistSessions();
+            }
+            res.status(401).json({ error: 'Invalid code', invalidCode: true });
+            return;
+        }
         const live = sessions.get(s.sid);
-        if (live) { delete live.mfaPending; persistSessions(); }
+        if (live) { delete live.mfaPending; delete live.mfaAttempts; persistSessions(); }
         res.json({ success: true });
     });
 
@@ -1066,6 +1113,10 @@ function logBanner(where) {
     });
     console.log('  -> serving edge bundle from:   ' + distDir);
     console.log('  -> token held server-side (cookie Secure: ' + (process.env.ZAC_COOKIE_SECURE || 'per request') + ')');
+    if (!secure) {
+        console.warn('  -> WARNING: not verifying the controller TLS certificate. ZAC forwards passwords ' +
+            'and admin tokens over this connection; set ZAC_REJECT_UNAUTHORIZED=true in production.');
+    }
 }
 
 // Ziti service listener when zitified (no TCP port); else TCP with port-bump retry.
