@@ -796,9 +796,6 @@ async function adoptLegacySession(sid) {
     return { sid: newSid, csrf: csrf };
 }
 
-app.use('/zac-session/login', authLimiter);
-app.use('/zac-session/mfa', authLimiter);
-
 // Controller list for the login picker; each url is the same-origin /c/<id> path.
 app.get('/zac-session/controllers', function(req, res) {
     res.json({
@@ -819,7 +816,7 @@ app.get('/zac-session/controllers', function(req, res) {
     // controller has no OIDC); password -> legacy /authenticate. No token is returned.
     // test:true (the JWT-signer "test authentication" page) checks the credential and keeps
     // no session, so the admin's own session survives.
-    app.post('/zac-session/login', jsonParser, async function(req, res) {
+    app.post('/zac-session/login', authLimiter, jsonParser, async function(req, res) {
         const body = req.body || {};
         const type = body.type || 'password';
         const isTest = body.test === true;
@@ -885,7 +882,7 @@ app.get('/zac-session/controllers', function(req, res) {
     });
 
     // Second factor for a session that login left waiting on MFA.
-    app.post('/zac-session/mfa', jsonParser, async function(req, res) {
+    app.post('/zac-session/mfa', authLimiter, jsonParser, async function(req, res) {
         const s = lookupSession(req);
         if (!s || !s.mfaPending) { res.status(400).json({ error: 'No MFA authentication is pending' }); return; }
         if (!csrfOk(req, s)) { res.status(403).json({ error: 'CSRF validation failed' }); return; }
@@ -910,7 +907,7 @@ app.get('/zac-session/controllers', function(req, res) {
         res.json({ success: true });
     });
 
-    app.post('/zac-session/logout', function(req, res) {
+    app.post('/zac-session/logout', authLimiter, function(req, res) {
         const s = lookupSession(req);
         if (s && !csrfOk(req, s)) { res.status(403).json({ error: 'CSRF validation failed' }); return; }
         destroySession(req, res);
