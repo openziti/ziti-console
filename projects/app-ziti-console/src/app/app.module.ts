@@ -71,6 +71,13 @@ import {NodeSettingsService} from "./services/node-settings.service";
 import {NoopHttpInterceptor} from "./interceptors/noop-http.interceptor";
 import {NodeApiInterceptor} from "./interceptors/node-api.interceptor";
 import { DEFAULT_APP_CONFIG_PROP } from 'projects/ziti-console-lib/src/lib/default-app-config';
+import {getAuthMode} from "./auth-mode";
+import {ProxySessionLoginService} from "./login/proxy-session-login.service";
+import {ProxySessionSettingsService} from "./services/proxy-session-settings.service";
+import {ProxySessionInterceptor} from "./interceptors/proxy-session.interceptor";
+
+// 'direct' unless the server injected <meta name="zac-auth-mode" content="proxy-session">.
+const authMode = getAuthMode();
 
 let loginService, zitiDataService, settingsService, wrapperService, apiInterceptor;
 if (environment.nodeIntegration) {
@@ -78,7 +85,15 @@ if (environment.nodeIntegration) {
     zitiDataService = NodeDataService;
     settingsService = NodeSettingsService;
     apiInterceptor = NodeApiInterceptor;
-}else {
+} else if (authMode === 'proxy-session') {
+    // Reverse-proxy holds the token server-side (httpOnly cookie). Same edge data
+    // service (talks same-origin -> proxy forwards), but login/settings/interceptor
+    // carry no browser token.
+    loginService = ProxySessionLoginService;
+    zitiDataService = ZitiControllerDataService;
+    settingsService = ProxySessionSettingsService;
+    apiInterceptor = ProxySessionInterceptor;
+} else {
     loginService = ControllerLoginService;
     zitiDataService = ZitiControllerDataService;
     settingsService = SettingsService;
@@ -97,7 +112,8 @@ export function initializeApp(settingsService: any, injector: Injector) {
             // deployment authenticates server-side (no browser-held refresh token), so starting it
             // here only lets a stale authMode:'oidc' localStorage session log the user out of a valid
             // node session. Only run it for the controller-served (non-node) build. See #915.
-            if (!environment.nodeIntegration) {
+            // proxy-session mode likewise holds tokens server-side, so skip it there too.
+            if (!environment.nodeIntegration && authMode !== 'proxy-session') {
                 injector.get(SessionRefreshService).start();
             }
         });

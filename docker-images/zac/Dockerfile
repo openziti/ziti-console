@@ -8,7 +8,9 @@ COPY package*.json ./
 COPY version.js ./
 COPY . .
 RUN npm install --omit=optional
-RUN ng build ziti-console-node
+# Build the edge bundle (dist/app-ziti-console) - the build that talks directly
+# to the edge management API; this is what the reverse-proxy server.js serves.
+RUN ng build ziti-console-lib && ng build ziti-console --base-href ./ && node ./scripts/rewrite-bundle-css.mjs
 
 
 FROM node:20-bookworm-slim
@@ -18,6 +20,8 @@ COPY --from=zac-builder /usr/src/app/dist ./dist
 COPY --from=zac-builder /usr/src/app/node_modules ./node_modules
 COPY ./package*.json ./
 COPY ./server.js ./
+COPY ./legacy-api.js ./
+COPY ./server-edge.js ./
 COPY ./run-zac.sh ./
 
 # The in-container path for the key file to use for TLS.
@@ -33,5 +37,7 @@ ENV PORTTLS=
 EXPOSE 1408
 EXPOSE 8443
 
+# Default: run the reverse-proxy server (run-zac.sh with no mode arg).
+# Pass "edge-api" to instead run the static server (browser connects directly).
 ENTRYPOINT ["/usr/src/app/run-zac.sh"]
-CMD ["node-api"]
+CMD []

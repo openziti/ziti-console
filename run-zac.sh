@@ -31,7 +31,8 @@ if [[ "${ZITI_CTRL_NAME}" == "" ]]; then
   ZITI_CTRL_NAME="docker-based-controller"
 fi
   echo "emitting settings.json"
-  cat > /usr/src/app/assets/data/settings.json <<HERE
+  mkdir -p /usr/src/app/assets/data
+  cat >/usr/src/app/assets/data/settings.json <<HERE
 {
     "edgeControllers":[{
         "name":"${ZITI_CTRL_NAME}",
@@ -66,16 +67,25 @@ else
 fi
 fi
 
-if [[ "$1" == "classic" ]]; then
-  echo "Running Classic ZAC Application"
-  exec node /usr/src/app/server.js classic
-elif [[ "$1" == "edge-api" ]]; then
-  echo "Running ZAC server with Edge API integration"
+# In a container ZAC runs behind an ingress/load balancer, so trust one proxy hop by default
+# (makes rate limits and the audit log use the real client IP). Override if there are more hops.
+export ZAC_TRUST_PROXY="${ZAC_TRUST_PROXY:-1}"
+
+case "$1" in
+  ""|edge-api|no-legacy) ;;
+  classic|node-api)
+    echo "WARNING: the '$1' mode was removed; starting the ZAC reverse-proxy server instead" >&2 ;;
+  *)
+    echo "WARNING: unknown argument '$1' ignored; starting the ZAC reverse-proxy server" >&2 ;;
+esac
+
+if [[ "$1" == "edge-api" ]]; then
+  echo "Running ZAC as a static server (browser connects directly to the controller)"
   exec node /usr/src/app/server-edge.js
-elif (( $#)); then
-  echo "Running: server.js $*"
-  exec node /usr/src/app/server.js $*
+elif [[ "$1" == "no-legacy" ]]; then
+  echo "Running ZAC reverse-proxy server WITHOUT the deprecated /api/* compatibility layer"
+  ZAC_LEGACY_API=false exec node /usr/src/app/server.js
 else
-  echo "Running ZAC Server with Node API Integration"
-  exec node /usr/src/app/server.js node-api
+  echo "Running ZAC reverse-proxy server (includes the deprecated /api/* compatibility layer)"
+  exec node /usr/src/app/server.js
 fi
