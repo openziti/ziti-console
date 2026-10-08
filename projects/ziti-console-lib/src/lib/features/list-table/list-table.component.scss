@@ -9,12 +9,12 @@
 %lt-toolbar-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.4375rem;
+  gap: var(--lt-control-gap);
   height: var(--lt-toolbar-height);
-  padding: 0 0.75rem;
+  padding: 0 var(--lt-control-padding-x);
   font-family: var(--lt-font);
-  font-size: 0.8125rem;
-  font-weight: 600;
+  font-size: var(--lt-control-font-size);
+  font-weight: var(--lt-control-font-weight);
   color: var(--lt-cell-text);
   background: var(--lt-control-bg);
   border: var(--inputBorderWidth) solid var(--lt-control-border, var(--lt-border));
@@ -559,11 +559,6 @@
     border-color: var(--lt-border);
     color: var(--lt-cell-text);
   }
-}
-
-// auto-refresh toggle (label + icon); accent border/text when on via %lt-toolbar-btn
-.lt-autorefresh-btn {
-  @extend %lt-toolbar-btn;
 }
 
 .lt-columns {

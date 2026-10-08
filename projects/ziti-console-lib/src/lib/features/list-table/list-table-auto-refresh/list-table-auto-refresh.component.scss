@@ -1,0 +1,113 @@
+:host {
+  display: inline-flex;
+}
+
+.lt-ar {
+  position: relative;
+  display: inline-flex;
+}
+
+.lt-ar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lt-control-gap);
+  height: var(--lt-toolbar-height);
+  padding: 0 var(--lt-control-padding-x);
+  font-family: var(--lt-font);
+  font-size: var(--lt-control-font-size);
+  font-weight: var(--lt-control-font-weight);
+  color: var(--lt-cell-text);
+  background: var(--lt-control-bg);
+  border: var(--inputBorderWidth) solid var(--lt-control-border, var(--lt-border));
+  border-radius: var(--lt-radius);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+
+  svg {
+    display: block;
+  }
+
+  &:hover,
+  &.is-on {
+    border-color: var(--lt-link);
+    color: var(--lt-link);
+  }
+
+  // square the bottom edge when open so the menu connects to it
+  &.is-open {
+    border-color: var(--lt-link);
+    color: var(--lt-link);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+
+.lt-ar-value {
+  font-weight: 700;
+}
+
+.lt-ar-chevron {
+  opacity: 0.7;
+}
+
+// menu connects under the button: no top border, rounded bottom only
+.lt-ar-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1000;
+  min-width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0.25rem 0;
+  background: var(--lt-control-bg);
+  border: 1px solid var(--lt-link);
+  border-top: none;
+  border-bottom-left-radius: var(--lt-radius);
+  border-bottom-right-radius: var(--lt-radius);
+  box-shadow: var(--shadowLarge);
+  animation: lt-ar-in 0.12s ease-out;
+}
+
+@keyframes lt-ar-in {
+  from { opacity: 0; transform: translateY(-0.125rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.lt-ar-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  justify-content: flex-end;
+  min-height: 2rem;
+  padding: 0 0.75rem 0 0.625rem;
+  font-family: var(--lt-font);
+  font-size: var(--lt-control-font-size);
+  color: var(--lt-cell-text);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: right;
+  transition: background 0.1s, color 0.1s;
+
+  &:hover {
+    background: var(--lt-row-hover);
+  }
+
+  &.is-selected {
+    color: var(--lt-link);
+    font-weight: var(--lt-control-font-weight);
+  }
+}
+
+.lt-ar-tick {
+  display: inline-flex;
+  justify-content: center;
+  width: 0.625rem;
+  color: var(--lt-link);
+
+  svg {
+    display: block;
+  }
+}

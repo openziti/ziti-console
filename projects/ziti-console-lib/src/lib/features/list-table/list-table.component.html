@@ -77,17 +77,7 @@
         >
           <ng-container [ngTemplateOutlet]="refreshIcon"></ng-container>
         </button>
-        <button
-          type="button"
-          class="lt-autorefresh-btn"
-          [class.is-on]="autoRefresh"
-          (click)="toggleAutoRefresh()"
-          [attr.aria-pressed]="autoRefresh"
-          id="AutoRefreshButton"
-        >
-          <ng-container [ngTemplateOutlet]="refreshIcon"></ng-container>
-          <span>Auto-refresh: {{ autoRefresh ? 'On' : 'Off' }}</span>
-        </button>
+        <lib-list-table-auto-refresh [loading]="filtering" (refresh)="refresh()"></lib-list-table-auto-refresh>
         <div class="lt-columns">
           <button
             type="button"
@@ -117,7 +107,7 @@
                 <span class="lt-chooser-subtitle">Customize order and visibility</span>
               </div>
               <ul class="lt-chooser-list" cdkDropList cdkDropListLockAxis="y" (cdkDropListDropped)="chooserReorder($event)">
-                @for (col of allColumns; track col.key) {
+                @for (col of chooserColumns; track col.key) {
                   <li class="lt-chooser-row" cdkDrag cdkDragLockAxis="y" [cdkDragDisabled]="col.reorderable === false">
                     <button
                       type="button"

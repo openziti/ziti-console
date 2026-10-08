@@ -198,9 +198,6 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         if (this.overflowRaf) {
             cancelAnimationFrame(this.overflowRaf);
         }
-        if (this.autoRefreshTimer) {
-            clearInterval(this.autoRefreshTimer);
-        }
     }
 
     get showTable(): boolean {
@@ -538,7 +535,7 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     /** Count of columns the user has hidden beyond the defaults (drives the badge).
      *  Columns hidden by default don't count, so a fresh/default load shows no badge. */
     get hiddenColumnCount(): number {
-        return this.allColumns.filter((c) => c.hidden && !this.isDefaultHidden(c)).length;
+        return this.allColumns.filter((c) => c.hidden && !c.excludeFromChooser && !this.isDefaultHidden(c)).length;
     }
 
     /** True when visibility + order match the originally declared columns. */
@@ -583,11 +580,23 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         this.svc.saveState(this.allColumns);
     }
 
+    /** Columns shown in the Columns menu. */
+    get chooserColumns(): ListColumn[] {
+        return this.allColumns.filter((c) => !c.excludeFromChooser);
+    }
+
     chooserReorder(event: CdkDragDrop<ListColumn[]>): void {
         if (event.previousIndex === event.currentIndex) {
             return;
         }
-        moveItemInArray(this.allColumns, event.previousIndex, event.currentIndex);
+        // menu lists a subset, so map the drag indices back onto allColumns
+        const list = this.chooserColumns;
+        const from = this.allColumns.indexOf(list[event.previousIndex]);
+        const to = this.allColumns.indexOf(list[event.currentIndex]);
+        if (from < 0 || to < 0) {
+            return;
+        }
+        moveItemInArray(this.allColumns, from, to);
         this.updateVisible();
         this.svc.saveState(this.allColumns);
     }
@@ -843,21 +852,6 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
             return;
         }
         this.tableFilterService.changePage(this.currentPageNum);
-    }
-
-    // ---- auto-refresh (the skin toolbar toggle) ----
-    autoRefresh = false;
-    readonly autoRefreshIntervalMs = 30000;
-    private autoRefreshTimer?: ReturnType<typeof setInterval>;
-
-    toggleAutoRefresh(): void {
-        this.autoRefresh = !this.autoRefresh;
-        if (this.autoRefresh) {
-            this.autoRefreshTimer = setInterval(() => this.ngZone.run(() => this.refresh()), this.autoRefreshIntervalMs);
-        } else if (this.autoRefreshTimer) {
-            clearInterval(this.autoRefreshTimer);
-            this.autoRefreshTimer = undefined;
-        }
     }
 
     // ---- row action icons ----

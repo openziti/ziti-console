@@ -72,6 +72,11 @@ body {
   --lt-toolbar-height: 2.5rem;
   --lt-control-bg: var(--background);
   --lt-font: 'Open Sans', sans-serif;
+  /* shared toolbar-control metrics (buttons, menus) so spacing/type stay consistent */
+  --lt-control-gap: 0.4375rem;
+  --lt-control-padding-x: 0.75rem;
+  --lt-control-font-size: 0.8125rem;
+  --lt-control-font-weight: 600;
   --redShadow: rgba(255, 13, 73, 0.3);
   --redText: #9c0027;
   --shadow: 0rem 0rem 0.5rem 0.125rem rgba(0,0,0,0.08);
