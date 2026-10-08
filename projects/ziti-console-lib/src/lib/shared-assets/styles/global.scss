@@ -1032,6 +1032,20 @@ lib-form-field-container {
   }
 }
 
+// Reserve room for the copy icon so it clears the input's right edge.
+.form-row:has(> .icon-copy.copy-text) {
+  --copy-icon-width: 1.25rem; // matches .icon-copy.copy-text width
+  --copy-icon-inset: 0.75rem; // gap between the icon and the input's right edge
+
+  .form-field-input {
+    padding-right: calc(var(--copy-icon-width) + var(--copy-icon-inset));
+  }
+
+  > .icon-copy.copy-text {
+    right: var(--copy-icon-inset);
+  }
+}
+
 a {
   &.delete-button,
   &.download-button {
