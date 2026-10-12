@@ -1,3 +1,15 @@
+# app-ziti-console-v4.6.0
+# ziti-console-lib-v1.6.0
+## Feature/Improvements
+* [PR #965](https://github.com/openziti/ziti-console/pull/965) - Config builder UI for controller and router configs
+* [Issue #966](https://github.com/openziti/ziti-console/issues/966) - Replace the Node server intermediary API with a pass-through proxy server
+* [Issue #962](https://github.com/openziti/ziti-console/issues/962) - New list-table features: column-menu control and auto-refresh intervals
+
+## Bug Fixes
+* [Issue #959](https://github.com/openziti/ziti-console/issues/959) - Fix the help panel close button cut off by the header bar
+* [Issue #968](https://github.com/openziti/ziti-console/issues/968) - Switch the dashboard map to a free keyless tile provider
+
+
 # app-ziti-console-v4.5.5
 # ziti-console-lib-v1.5.5
 ## Feature/Improvements
