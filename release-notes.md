@@ -1,13 +1,13 @@
 # app-ziti-console-v4.6.0
 # ziti-console-lib-v1.6.0
 ## Feature/Improvements
-* [PR #965](https://github.com/openziti/ziti-console/pull/965) - Add a standalone config builder for editing controller and router configs in the browser, integrated into ZAC behind the "Beta Features" toggle
-* [Issue #966](https://github.com/openziti/ziti-console/issues/966) - Replace the Node server's intermediary API with a pass-through reverse proxy to the controller, adding controller-session cleanup on logout and re-login, rate limiting on the auth endpoints, and a server test suite (the legacy /api compatibility layer stays enabled by default and can be turned off with ZAC_LEGACY_API=false)
-* [Issue #962](https://github.com/openziti/ziti-console/issues/962) - Add a column-menu control and auto-refresh intervals to the beta list-table
+* [PR #965](https://github.com/openziti/ziti-console/pull/965) - Config builder UI for controller and router configs
+* [Issue #966](https://github.com/openziti/ziti-console/issues/966) - Replace the Node server intermediary API with a pass-through proxy server
+* [Issue #962](https://github.com/openziti/ziti-console/issues/962) - New list-table features: column-menu control and auto-refresh intervals
 
 ## Bug Fixes
-* [Issue #959](https://github.com/openziti/ziti-console/issues/959) - Fix help panel and API-call copy-icon clipping at their container edges
-* [Issue #968](https://github.com/openziti/ziti-console/issues/968) - Switch the dashboard map from OpenStreetMap tiles, which now return 403, to Esri's keyless topographic tiles
+* [Issue #959](https://github.com/openziti/ziti-console/issues/959) - Fix the help panel close button cut off by the header bar
+* [Issue #968](https://github.com/openziti/ziti-console/issues/968) - Switch the dashboard map to a free keyless tile provider
 
 
 # app-ziti-console-v4.5.5
