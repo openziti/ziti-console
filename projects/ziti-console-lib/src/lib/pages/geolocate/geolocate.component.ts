@@ -319,9 +319,9 @@ export class GeolocateComponent implements OnInit, OnDestroy {
         attributionControl: false
       });
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        subdomains: ['a', 'b', 'c'],
+      // Esri's keyless topographic tiles; OpenStreetMap's public tiles return 403. See issue #968.
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; <a href="https://www.esri.com/">Esri</a>',
         maxZoom: 19,
         minZoom: 2,
         crossOrigin: true,
