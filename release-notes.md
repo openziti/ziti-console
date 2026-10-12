@@ -1,3 +1,15 @@
+# app-ziti-console-v4.6.0
+# ziti-console-lib-v1.6.0
+## Feature/Improvements
+* [PR #965](https://github.com/openziti/ziti-console/pull/965) - Add a standalone config builder for editing controller and router configs in the browser, integrated into ZAC behind the "Beta Features" toggle
+* [Issue #966](https://github.com/openziti/ziti-console/issues/966) - Replace the Node server's intermediary API with a pass-through reverse proxy to the controller, adding controller-session cleanup on logout and re-login, rate limiting on the auth endpoints, and a server test suite (the legacy /api compatibility layer stays enabled by default and can be turned off with ZAC_LEGACY_API=false)
+* [Issue #962](https://github.com/openziti/ziti-console/issues/962) - Add a column-menu control and auto-refresh intervals to the beta list-table
+
+## Bug Fixes
+* [Issue #959](https://github.com/openziti/ziti-console/issues/959) - Fix help panel and API-call copy-icon clipping at their container edges
+* [Issue #968](https://github.com/openziti/ziti-console/issues/968) - Switch the dashboard map from OpenStreetMap tiles, which now return 403, to Esri's keyless topographic tiles
+
+
 # app-ziti-console-v4.5.5
 # ziti-console-lib-v1.5.5
 ## Feature/Improvements
