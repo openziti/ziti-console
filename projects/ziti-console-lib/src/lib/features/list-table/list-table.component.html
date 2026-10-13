@@ -209,11 +209,12 @@
           </tr>
         </thead>
         <tbody>
-          @for (row of rowData; track trackRow($index, row); let i = $index) {
+          @for (row of flatRows; track trackRow($index, row); let i = $index) {
             <tr
               class="lt-row"
               [class.lt-row-odd]="i % 2 === 1"
               [class.lt-row-selected]="row.selected"
+              [class.lt-row-expanded]="row.__treeExpanded"
               [class.row-invalid]="row.invalid"
               [class.row-copied]="row.copied"
             >
@@ -225,11 +226,36 @@
               @for (col of visibleColumns; track trackCol($index, col)) {
                 <td
                   class="lt-cell"
+                  [class.lt-tree-cell]="isTreeCell(col)"
                   [ngClass]="cellClass(col)"
                   (click)="onCellClick(col, row, i)"
                   (mouseenter)="onCellHover(col, row, i, $event)"
                   (mouseleave)="onCellLeave()"
                 >
+                  @if (isTreeCell(col)) {
+                    <span class="lt-tree-lead" [style.margin-left.rem]="(row.__treeLevel || 0) * treeIndentRem">
+                      @if (canExpand(row)) {
+                        <button
+                          type="button"
+                          class="lt-tree-toggle"
+                          [class.is-expanded]="row.__treeExpanded"
+                          (click)="$event.stopPropagation(); toggleNode(row)"
+                          [attr.aria-expanded]="!!row.__treeExpanded"
+                          [attr.aria-label]="row.__treeExpanded ? 'Collapse row' : 'Expand row'"
+                        >
+                          @if (row.__treeLoading) {
+                            <span class="lt-tree-spinner" aria-hidden="true"></span>
+                          } @else {
+                            <svg class="lt-tree-chevron" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+                              <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M6 4l4 4-4 4"/>
+                            </svg>
+                          }
+                        </button>
+                      } @else {
+                        <span class="lt-tree-spacer" aria-hidden="true"></span>
+                      }
+                    </span>
+                  }
                   @switch (renderMode(col)) {
                     @case ('component') {
                       <ng-container *ngComponentOutlet="col.cell; inputs: cellInputs(col, row, i)"></ng-container>

@@ -66,9 +66,25 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         }
     }
 
-    @Input() rowData: any[] = [];
+    @Input() set rowData(value: any[]) {
+        this._rowData = value || [];
+        this.rebuildFlatRows();
+    }
+    get rowData(): any[] {
+        return this._rowData;
+    }
+    private _rowData: any[] = [];
+
     @Input() isLoading = false;
-    @Input() options: {noSelect?: boolean; noMenu?: boolean; pager?: 'pages' | 'cursor'} = {noSelect: false, noMenu: false};
+    @Input() options: {noSelect?: boolean; noMenu?: boolean; pager?: 'pages' | 'cursor'; tree?: boolean} = {noSelect: false, noMenu: false};
+
+    /** Tree mode: fetch a row's children the first time it is expanded. Return the
+     *  child rows (any shape the columns render). A row with `leaf: true`, or one that
+     *  resolves to an empty array, shows no expand control. */
+    @Input() loadChildren?: (row: any) => Promise<any[]> | any[];
+
+    /** Emitted when a row is expanded or collapsed in tree mode. */
+    @Output() nodeToggled = new EventEmitter<{row: any; expanded: boolean}>();
     @Input() hasNext = false;
     @Input() hasPrev = false;
     @Input() startCount: any = '-';
@@ -110,6 +126,13 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
 
     // ---- selection ----
     allToggled = false;
+
+    // ---- tree rows (flat render list + per-level indent) ----
+    /** Rows actually rendered: in tree mode this is the roots plus the expanded
+     *  descendants in order; otherwise it is `rowData` unchanged. */
+    flatRows: any[] = [];
+    /** Left indent added per depth level, in rem. */
+    readonly treeIndentRem = 1.25;
 
     // ---- column chooser (skinned show/hide + reorder panel) ----
     showColumnChooser = false;
@@ -155,6 +178,9 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         // set directly (no emit) to avoid forcing a second fetch when a host pre-seeded it
         this.tableFilterService.pageSize = this.svc.restorePageSize(this.initialPageSize);
         this.buildColumns();
+        // all inputs are bound by now, so settle the render list against the final
+        // tree flag (the rowData setter may have run before `options` arrived)
+        this.rebuildFlatRows();
         this.updateEntityTypeLabel();
         this.subscription.add(
             this.tableFilterService.filtersChanged.subscribe((filters) => {
@@ -466,22 +492,113 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     // ---------------------------------------------------------------- selection
     toggleItem = (item: any): void => {
         item.selected = !item.selected;
-        this.allToggled = !_.isEmpty(this.rowData) && _.every(this.rowData, {selected: true});
+        this.allToggled = !_.isEmpty(this.flatRows) && _.every(this.flatRows, {selected: true});
         this.actionRequested.emit({action: 'toggleItem', item});
     };
 
     /** Some rows selected but the header select-all isn't fully on (indeterminate). */
     get someSelected(): boolean {
-        return !this.allToggled && _.some(this.rowData, {selected: true});
+        return !this.allToggled && _.some(this.flatRows, {selected: true});
     }
 
     toggleAll(): void {
         const newState = !this.allToggled;
         this.allToggled = newState;
-        _.forEach(this.rowData, (row) => {
+        _.forEach(this.flatRows, (row) => {
             row.selected = newState;
         });
         this.actionRequested.emit({action: 'toggleAll'});
+    }
+
+    // ---------------------------------------------------------------- tree rows
+    get isTreeMode(): boolean {
+        return !!this.options?.tree;
+    }
+
+    /** Key of the column that carries the expand control (the flagged one, else the
+     *  first visible column). */
+    get treeColumnKey(): string | undefined {
+        const flagged = this.visibleColumns.find((c) => c.treeColumn);
+        return (flagged || this.visibleColumns[0])?.key;
+    }
+
+    isTreeCell(col: ListColumn): boolean {
+        return this.isTreeMode && col.key === this.treeColumnKey;
+    }
+
+    /** A row can be expanded unless it is a leaf, has no loaded children, and has no
+     *  loader left to try. */
+    canExpand(row: any): boolean {
+        if (!this.isTreeMode || row?.leaf === true) {
+            return false;
+        }
+        if (Array.isArray(row?.children) && row.children.length) {
+            return true;
+        }
+        return !!this.loadChildren && row?.__treeLoaded !== true;
+    }
+
+    toggleNode(row: any): void {
+        if (!this.isTreeMode || row?.__treeLoading) {
+            return;
+        }
+        if (row.__treeExpanded) {
+            row.__treeExpanded = false;
+            this.rebuildFlatRows();
+            this.nodeToggled.emit({row, expanded: false});
+            return;
+        }
+        const hasChildren = Array.isArray(row.children) && row.children.length > 0;
+        if (this.loadChildren && row.__treeLoaded !== true && !hasChildren) {
+            row.__treeLoading = true;
+            this.rebuildFlatRows(); // surface the spinner while children load
+            Promise.resolve(this.loadChildren(row)).then(
+                (children) => this.onChildrenLoaded(row, children),
+                () => this.onChildrenLoaded(row, [], true)
+            );
+            return;
+        }
+        row.__treeExpanded = true;
+        this.rebuildFlatRows();
+        this.nodeToggled.emit({row, expanded: true});
+    }
+
+    private onChildrenLoaded(row: any, children: any[], failed = false): void {
+        row.__treeLoading = false;
+        if (failed) {
+            // leave it collapsed so the user can try again
+            this.rebuildFlatRows();
+            return;
+        }
+        row.children = Array.isArray(children) ? children : [];
+        row.__treeLoaded = true;
+        if (!row.children.length) {
+            row.leaf = true; // nothing under it, so stop offering the control
+        }
+        row.__treeExpanded = true;
+        this.rebuildFlatRows();
+        this.nodeToggled.emit({row, expanded: true});
+    }
+
+    /** Flatten the tree into the ordered render list, tagging each row with its depth.
+     *  Outside tree mode the render list is `rowData` as-is. */
+    private rebuildFlatRows(): void {
+        if (!this.isTreeMode) {
+            this.flatRows = this._rowData;
+            return;
+        }
+        const out: any[] = [];
+        const walk = (rows: any[], level: number): void => {
+            for (const row of rows || []) {
+                row.__treeLevel = level;
+                out.push(row);
+                if (row.__treeExpanded && Array.isArray(row.children) && row.children.length) {
+                    walk(row.children, level + 1);
+                }
+            }
+        };
+        walk(this._rowData, 0);
+        this.flatRows = out;
     }
 
     // ---------------------------------------------------------------- sort

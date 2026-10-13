@@ -342,6 +342,75 @@
   position: relative;
 }
 
+// ---------------------------------------------------------------- tree rows
+// the tree column keeps the toggle and the cell content on one line; indentation
+// per depth level is applied inline on .lt-tree-lead (see the template)
+.lt-tree-cell {
+  white-space: nowrap;
+}
+
+.lt-tree-lead {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin-right: 0.25rem;
+}
+
+.lt-tree-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  color: var(--lt-icon);
+  background: transparent;
+  border: none;
+  border-radius: var(--lt-radius);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+
+  &:hover {
+    color: var(--lt-link);
+    background: var(--lt-row-hover);
+  }
+}
+
+.lt-tree-chevron {
+  display: block;
+  transition: transform 0.15s ease;
+}
+
+.lt-tree-toggle.is-expanded .lt-tree-chevron {
+  transform: rotate(90deg);
+}
+
+// keeps leaf rows aligned with rows that have a toggle
+.lt-tree-spacer {
+  display: inline-block;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.lt-tree-spinner {
+  display: inline-block;
+  width: 0.875rem;
+  height: 0.875rem;
+  border: 2px solid var(--lt-border);
+  border-top-color: var(--lt-link);
+  border-radius: 50%;
+  animation: lt-tree-spin 0.6s linear infinite;
+}
+
+@keyframes lt-tree-spin {
+  to { transform: rotate(360deg); }
+}
+
+// expanded parent reads a touch heavier, matching the reference design
+.lt-row-expanded > .lt-tree-cell .lt-cell-text {
+  font-weight: 600;
+}
+
 // ---------------------------------------------------------------- toolbar + column chooser
 .lt-toolbar {
   display: flex;
