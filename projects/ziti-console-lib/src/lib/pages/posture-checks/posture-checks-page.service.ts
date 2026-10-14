@@ -29,6 +29,8 @@ import {CsvDownloadService} from "../../services/csv-download.service";
 import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/extensions-noop.service";
 import {Service} from "../../models/service";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
+import {ListColumn} from "../../features/list-table/list-column";
+import {NameCellComponent} from "../../features/list-table/name-cell/name-cell.component";
 import {Router} from "@angular/router";
 
 @Injectable({
@@ -42,8 +44,13 @@ export class PostureChecksPageService extends ListPageServiceClass {
     modalType = '';
 
     override menuItems = [
-        {name: 'Edit', action: 'update'},
-        {name: 'Delete', action: 'delete'},
+        {name: 'Edit', action: 'update', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M11.2 2.6 13.4 4.8 6 12.2l-2.8.6.6-2.8z"/></svg>'},
+        {name: 'Delete', action: 'delete', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M3.4 4.6h9.2M6.4 4.6V3.2h3.2v1.4M4.6 4.6 5 13h6l.4-8.4"/></svg>'},
+    ]
+
+    override tableHeaderActions = [
+        {name: 'Download All', action: 'download-all', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
+        {name: 'Download Selected', action: 'download-selected', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
     ]
 
     constructor(
@@ -51,10 +58,37 @@ export class PostureChecksPageService extends ListPageServiceClass {
         @Inject(SETTINGS_SERVICE) settings: SettingsService,
         filterService: DataTableFilterService,
         csvDownloadService: CsvDownloadService,
-        @Inject(SHAREDZ_EXTENSION) extService: ExtensionService,
+        @Inject(SHAREDZ_EXTENSION) private extService: ExtensionService,
         protected override router: Router
     ) {
         super(settings, filterService, csvDownloadService, extService, router);
+    }
+
+    private detailsRenderer = (row) => {
+        const data = row?.data || '';
+        let details = '';
+        if (data.typeId=="DOMAIN") {
+            details = data.domains.join(',');
+        } else if (data.typeId=="MAC") {
+            for (let i=0; i < data.macAddresses.length; i++) {
+                try {
+                    details += data.macAddresses[i].match( /.{1,2}/g).join(':').toUpperCase();
+                } catch(e) {
+                    details = '';
+                }
+            }
+        } else if (data.typeId=="OS") {
+            for (let i=0; i < data.operatingSystems.length; i++) {
+                const os = data.operatingSystems[i];
+                const versionData = os.versions?.length > 0 ? " ("+os.versions.join(',')+") " : ' ()';
+                details += os.type + versionData;
+            }
+        } else if (data.typeId=="PROCESS") {
+            details = data.process.path;
+        } else {
+            details = "Requires MFA";
+        }
+        return details;
     }
 
     initTableColumns(): any {
@@ -75,33 +109,6 @@ export class PostureChecksPageService extends ListPageServiceClass {
         const createdAtHeaderComponentParams = {
             filterType: 'DATETIME',
         };
-
-        const detailsRenderer = (row) => {
-            const data = row?.data || '';
-            let details = '';
-            if (data.typeId=="DOMAIN") {
-                details = data.domains.join(',');
-            } else if (data.typeId=="MAC") {
-                for (let i=0; i < data.macAddresses.length; i++) {
-                    try {
-                        details += data.macAddresses[i].match( /.{1,2}/g).join(':').toUpperCase();
-                    } catch(e) {
-                        details = '';
-                    }
-                }
-            } else if (data.typeId=="OS") {
-                for (let i=0; i < data.operatingSystems.length; i++) {
-                    const os = data.operatingSystems[i];
-                    const versionData = os.versions?.length > 0 ? " ("+os.versions.join(',')+") " : ' ()';
-                    details += os.type + versionData;
-                }
-            } else if (data.typeId=="PROCESS") {
-                details = data.process.path;
-            } else {
-                details = "Requires MFA";
-            }
-            return details;
-        }
 
         return [
             {
@@ -148,7 +155,7 @@ export class PostureChecksPageService extends ListPageServiceClass {
                 field: 'details',
                 headerName: 'Details',
                 headerComponent: TableColumnDefaultComponent,
-                cellRenderer: detailsRenderer,
+                cellRenderer: this.detailsRenderer,
                 cellRendererParams: { pathRoot: this.basePath },
                 onCellClicked: (data) => {
                     if (this.hasSelectedText()) {
@@ -177,8 +184,103 @@ export class PostureChecksPageService extends ListPageServiceClass {
         ];
     }
 
-    getData(filters?: FilterObj[], sort?: any) {
+    // Declarative ListColumn set for the new `lib-list-table` (Beta Features on).
+    initListTableColumns(): ListColumn[] {
+        this.initMenuActions();
+        const escapeHtml = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const openForm = (ctx) => {
+            if (this.hasSelectedText()) {
+                return;
+            }
+            this.openEditForm(ctx.row?.id);
+        };
+        let tableColumns: ListColumn[] = [
+            {
+                key: 'name',
+                field: 'name',
+                label: 'Name',
+                filterType: 'TEXTINPUT',
+                cell: NameCellComponent,
+                cellInputs: (ctx) => ({
+                    row: ctx.row,
+                    cellValue: ctx.value,
+                    cellConfig: {pathRoot: this.basePath, showIdentityIcons: false},
+                }),
+                onCellClick: openForm,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                sortable: true,
+                onSort: this.sort.bind(this),
+                width: 300,
+            },
+            {
+                key: 'typeId',
+                field: 'typeId',
+                label: 'Type',
+                filterType: 'SELECT',
+                filterPlaceholder: 'Any type',
+                filterOptions: [
+                    {label: 'Show All', value: ''},
+                    {label: 'Domain', value: 'DOMAIN'},
+                    {label: 'MAC', value: 'MAC'},
+                    {label: 'MFA', value: 'MFA'},
+                    {label: 'OS', value: 'OS'},
+                    {label: 'Process', value: 'PROCESS'},
+                    {label: 'Process Multi', value: 'MULTI_PROCESS'},
+                ],
+                onCellClick: openForm,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                width: 140,
+            },
+            {
+                key: 'details',
+                field: 'details',
+                label: 'Details',
+                cellHtml: (row) => escapeHtml(this.detailsRenderer(row)),
+                onCellClick: openForm,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+            },
+            {
+                key: 'createdAt',
+                field: 'createdAt',
+                label: 'Created At',
+                valueFormatter: this.createdAtFormatter,
+                filterType: 'DATETIME',
+                filterPlaceholder: 'Any time',
+                onCellClick: openForm,
+                resizable: true,
+                sortable: true,
+                onSort: this.sort.bind(this),
+                cellClass: 'nf-cell-vert-align',
+                width: this.remToPx(10),
+            },
+            {
+                key: 'id',
+                field: 'id',
+                label: 'ID',
+                filterType: 'TEXTINPUT',
+                onCellClick: openForm,
+                resizable: true,
+                sortable: true,
+                onSort: this.sort.bind(this),
+                cellClass: 'nf-cell-vert-align',
+                hidden: true,
+            },
+        ];
+        if (this.extService?.processListTableColumns) {
+            tableColumns = this.extService.processListTableColumns(tableColumns);
+        }
+        return tableColumns;
+    }
+
+    getData(filters?: FilterObj[], sort?: any, page?: any, pageSize?: number) {
         // we can customize filters or sorting here before moving on...
+        this.paging.page = page || this.paging.page;
+        if (pageSize) {
+            this.paging.total = pageSize;
+        }
         return super.getTableData('posture-checks', this.paging, filters, sort)
             .then((results: any) => {
                 return this.processData(results);

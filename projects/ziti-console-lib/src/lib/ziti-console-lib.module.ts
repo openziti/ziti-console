@@ -119,12 +119,15 @@ import { CreationSummaryDialogComponent } from './features/creation-summary-dial
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ConfigEditorComponent } from './features/config-editor/config-editor.component';
 import { EdgeRouterPoliciesPageComponent } from './pages/edge-router-policies/edge-router-policies-page.component';
+import { EdgeRouterPoliciesListPageComponent } from './pages/edge-router-policies/edge-router-policies-list-page.component';
 import { ServicePoliciesPageComponent } from './pages/service-policies/service-policies-page.component';
+import { ServicePoliciesListPageComponent } from './pages/service-policies/service-policies-list-page.component';
 import { ServicePolicyFormComponent } from './features/projectable-forms/service-policy/service-policy-form.component';
 import { EdgeRouterPolicyFormComponent } from './features/projectable-forms/edge-router-policy/edge-router-policy-form.component';
 import { MultiActionButtonComponent } from './features/multi-action-button/multi-action-button.component';
 import { TableCellNameComponent } from './features/data-table/cells/table-cell-name/table-cell-name.component';
 import { ServiceEdgeRouterPoliciesPageComponent } from './pages/service-edge-router-policies/service-edge-router-policies-page.component';
+import { ServiceEdgeRouterPoliciesListPageComponent } from './pages/service-edge-router-policies/service-edge-router-policies-list-page.component';
 import { ServiceEdgeRouterPolicyFormComponent } from './features/projectable-forms/service-edge-router-policy/service-edge-router-policy-form.component';
 import {TerminatorsPageComponent} from "./pages/terminators/terminators-page.component";
 import {ConfigurationFormComponent} from "./features/projectable-forms/configuration/configuration-form.component";
@@ -142,6 +145,7 @@ import {LoginDialogComponent} from "./features/login/login-dialog.component";
 import {ConfigTypesPageComponent} from "./pages/config-types/config-types-page.component";
 import {ConfigTypeFormComponent} from "./features/projectable-forms/config-type/config-type-form.component";
 import {PostureChecksPageComponent} from "./pages/posture-checks/posture-checks-page.component";
+import { PostureChecksListPageComponent } from './pages/posture-checks/posture-checks-list-page.component';
 import {PostureCheckFormComponent} from "./features/projectable-forms/posture-check/posture-check-form.component";
 import {SessionsPageComponent} from "./pages/sessions/sessions-page.component";
 import {SessionFormComponent} from "./features/projectable-forms/session/session-form.component";
@@ -260,12 +264,15 @@ export function playerFactory() {
         CreationSummaryDialogComponent,
         ConfigEditorComponent,
         ServicePoliciesPageComponent,
+        ServicePoliciesListPageComponent,
         ServicePolicyFormComponent,
         EdgeRouterPoliciesPageComponent,
+        EdgeRouterPoliciesListPageComponent,
         EdgeRouterPolicyFormComponent,
         MultiActionButtonComponent,
         TableCellNameComponent,
         ServiceEdgeRouterPoliciesPageComponent,
+        ServiceEdgeRouterPoliciesListPageComponent,
         ServiceEdgeRouterPolicyFormComponent,
         TerminatorsPageComponent,
         ConfigurationFormComponent,
@@ -279,6 +286,7 @@ export function playerFactory() {
         VerifyCertificateComponent,
         LoginDialogComponent,
         PostureChecksPageComponent,
+        PostureChecksListPageComponent,
         PostureCheckFormComponent,
         SessionsPageComponent,
         SessionFormComponent,
@@ -347,8 +355,10 @@ export function playerFactory() {
         FormFieldToggleComponent,
         ServiceFormComponent,
         ServicePoliciesPageComponent,
+        ServicePoliciesListPageComponent,
         ServicePolicyFormComponent,
         EdgeRouterPoliciesPageComponent,
+        EdgeRouterPoliciesListPageComponent,
         TerminatorsPageComponent,
         TerminatorFormComponent,
         JwtSignersPageComponent,
@@ -357,6 +367,7 @@ export function playerFactory() {
         AuthPolicyFormComponent,
         LoginDialogComponent,
         PostureChecksPageComponent,
+        PostureChecksListPageComponent,
         PostureCheckFormComponent,
         SessionsPageComponent,
         SessionFormComponent,
