@@ -30,7 +30,7 @@
         <span class="fc-clear" (click)="clear($event)" title="Clear" aria-label="Clear filter">&times;</span>
       } @else {
         <span class="fc-caret" aria-hidden="true">
-          <svg viewBox="0 0 10 6" width="9" height="6"><path fill="currentColor" d="M0 0h10L5 6z"/></svg>
+          <svg viewBox="0 0 10 6" width="9" height="6"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M1 1.5 5 5 9 1.5"/></svg>
         </span>
       }
     </button>
@@ -56,6 +56,12 @@
               autocomplete="off"
             />
           </div>
+          @if (isAttributeMode) {
+            <div class="fc-semantic" role="group" aria-label="Match" (click)="$event.stopPropagation()">
+              <button type="button" class="fc-semantic-opt" [class.active]="attrSemantic === 'AnyOf'" (click)="setSemantic('AnyOf')">Any of</button>
+              <button type="button" class="fc-semantic-opt" [class.active]="attrSemantic === 'AllOf'" (click)="setSemantic('AllOf')">All of</button>
+            </div>
+          }
           @if (!filteredOptions.length) {
             <div class="fc-empty">{{ options.length ? 'No matches' : (isAttributeMode ? 'No attributes available' : 'No options available') }}</div>
           }

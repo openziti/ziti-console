@@ -72,6 +72,7 @@ import {OsInfoTooltipComponent} from "./features/list-table/os-info-tooltip/os-i
 import {SdkInfoTooltipComponent} from "./features/list-table/sdk-info-tooltip/sdk-info-tooltip.component";
 import {BooleanCellComponent} from "./features/list-table/boolean-cell/boolean-cell.component";
 import {TokenCellComponent} from "./features/list-table/token-cell/token-cell.component";
+import {AttributeCellComponent} from "./features/list-table/attribute-cell/attribute-cell.component";
 import {AgGridModule} from "ag-grid-angular";
 import {IdentitiesPageComponent} from "./pages/identities/identities-page.component";
 import {IdentitiesListPageComponent} from "./pages/identities/identities-list-page.component";
@@ -221,6 +222,7 @@ export function playerFactory() {
         SdkInfoTooltipComponent,
         BooleanCellComponent,
         TokenCellComponent,
+        AttributeCellComponent,
         TableCellSelectComponent,
         TableColumnSelectComponent,
         TableCellMenuComponent,

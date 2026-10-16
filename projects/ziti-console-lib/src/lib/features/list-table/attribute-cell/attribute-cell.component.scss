@@ -1,0 +1,72 @@
+// base chip look (fill, border, radius, spacing) comes from .lt-cell .lt-chip in
+// global.scss; this adds the hover controls that overlay the right of each chip.
+:host {
+  display: inline;
+}
+
+.lt-chip {
+  position: relative;
+  --lt-chip-cover: color-mix(in srgb, var(--lt-link) 16%, var(--lt-row-bg, #fff));
+
+  &.lt-chip-at {
+    --lt-chip-cover: color-mix(in srgb, var(--secondary) 18%, var(--lt-row-bg, #fff));
+  }
+}
+
+.lt-chip-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.1875rem;
+  padding-left: 0.875rem;
+  padding-right: 0.3125rem;
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+  // fade the label out under the icons so they stay legible over the chip
+  background: linear-gradient(to right, transparent, var(--lt-chip-cover) 38%);
+}
+
+.lt-chip:hover .lt-chip-actions,
+.lt-chip:focus-within .lt-chip-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+// each control reads as a small outlined button that sits clearly on the chip; the
+// accent border separates it (no drop shadow, which read heavy under other skins)
+.lt-chip-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  color: var(--lt-link);
+  background: var(--lt-control-bg);
+  border: 1px solid color-mix(in srgb, var(--lt-link) 40%, transparent);
+  border-radius: 0.3125rem;
+  cursor: pointer;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
+
+  svg {
+    display: block;
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  &:hover {
+    color: var(--lt-control-bg);
+    background: var(--lt-link);
+    border-color: var(--lt-link);
+  }
+
+  &.is-done {
+    color: var(--lt-positive, #3a9a52);
+    border-color: color-mix(in srgb, var(--lt-positive, #3a9a52) 45%, transparent);
+  }
+}

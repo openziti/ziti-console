@@ -26,7 +26,7 @@ interface TokenAction {
 }
 
 /**
- * Enrollment-token cell for the identities list. Shows a status chip (Available /
+ * Enrollment-token cell for the identities list. Shows a status chip (Token /
  * Expired / —) that doubles as a dropdown of enrollment actions (Download JWT, Show
  * QR, Re-issue). Actions are emitted via the cell context's `emitAction`, so they run
  * through the same page handlers as the row ⋯ menu.
@@ -55,7 +55,15 @@ export class TokenCellComponent {
     }
 
     get statusLabel(): string {
-        return this.status === 'expired' ? 'Expired' : 'Available';
+        return this.status === 'expired' ? 'Expired' : 'Token';
+    }
+
+    /** A cert-enrolled identity with no pending token can have its enrollment
+     *  re-issued. Reset enrollment acts on the cert authenticator, so this is gated
+     *  on cert specifically: password (updb) and external-IdP/JWT-signer identities
+     *  have no cert to reset and are left as the empty state. */
+    get canReissue(): boolean {
+        return this.status === 'none' && !!this.row?.authenticators?.cert?.id;
     }
 
     get actions(): TokenAction[] {

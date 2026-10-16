@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-import {Component, EventEmitter, Input, OnDestroy, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild} from '@angular/core';
 
 export interface RefreshInterval {
     label: string;
@@ -53,7 +53,17 @@ export class ListTableAutoRefreshComponent implements OnDestroy {
     @Output() secondsChange = new EventEmitter<number>();
 
     open = false;
+    /** Menu geometry, all measured when the menu opens: left offset so labels line up
+     *  under the button's value, width so the right edge lands on the button's right
+     *  edge, and right padding so the check centers under the chevron. */
+    menuLeft = 0;
+    menuWidth = 0;
+    menuPadRight = 0;
     private timer?: ReturnType<typeof setInterval>;
+
+    @ViewChild('arEl') arEl?: ElementRef<HTMLElement>;
+    @ViewChild('valueEl') valueEl?: ElementRef<HTMLElement>;
+    @ViewChild('chevronEl') chevronEl?: ElementRef<HTMLElement>;
 
     get enabled(): boolean {
         return this._seconds > 0;
@@ -69,7 +79,38 @@ export class ListTableAutoRefreshComponent implements OnDestroy {
 
     toggleMenu(event: MouseEvent): void {
         event.stopPropagation();
-        this.open = !this.open;
+        if (this.open) {
+            this.open = false;
+            return;
+        }
+        this.alignMenuToValue();
+        this.open = true;
+    }
+
+    /** Position + size the menu so its labels sit directly under the button's value,
+     *  its right edge lands on the button's right edge (one shared border), and the
+     *  right-aligned check centers under the chevron. */
+    private alignMenuToValue(): void {
+        const el = this.arEl?.nativeElement;
+        const btn = el?.querySelector('.lt-ar-btn') as HTMLElement | null;
+        const value = this.valueEl?.nativeElement?.getBoundingClientRect();
+        const chevron = this.chevronEl?.nativeElement?.getBoundingClientRect();
+        const container = el?.getBoundingClientRect();
+        if (!btn || !value || !chevron || !container) {
+            return;
+        }
+        const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+        // left padding we back out of the value position so labels sit under it
+        const itemPadLeft = 0.875 * rem;
+        // half the check's box, so we can land its center rather than its edge
+        const tickHalf = 0.375 * rem;
+        const borderWidth = parseFloat(getComputedStyle(btn).borderRightWidth) || 1;
+        this.menuLeft = Math.max(0, value.left - container.left - itemPadLeft);
+        this.menuWidth = container.width - this.menuLeft;
+        // the check is right-aligned, so its right padding is the gap from the menu's
+        // right edge to the chevron center, less the border and half the check box
+        const chevronCenter = (chevron.left + chevron.right) / 2;
+        this.menuPadRight = Math.max(0, container.right - chevronCenter - borderWidth - tickHalf);
     }
 
     closeMenu(): void {

@@ -17,7 +17,7 @@
   font-weight: var(--lt-control-font-weight);
   color: var(--lt-cell-text);
   background: var(--lt-control-bg);
-  border: var(--inputBorderWidth) solid var(--lt-control-border, var(--lt-border));
+  border: var(--lt-control-border-width) solid var(--lt-control-border, var(--lt-border));
   border-radius: var(--lt-radius);
   cursor: pointer;
   white-space: nowrap;
@@ -30,6 +30,12 @@
   &.is-on {
     border-color: var(--lt-link);
     color: var(--lt-link);
+  }
+
+  // a selected control (columns hidden, overflow filters active) carries a faint
+  // tint, matching the filter pills and the reference tables
+  &.is-on {
+    background: color-mix(in srgb, var(--lt-link) 8%, var(--lt-control-bg));
   }
 }
 
@@ -95,9 +101,16 @@
   th {
     position: relative;
     box-sizing: border-box;
-    height: 2.75rem;
-    padding: 0 0.3125rem 0 0.625rem;
+    height: 2.6rem;
+    // left pad matches .lt-cell so a column's label and its cell text share an edge
+    padding: 0 0.3125rem 0 1.25rem;
     text-align: left;
+
+    // the tree column's text sits past the expand chevron, so its header clears
+    // the same gutter (tree-cell pad 0.625rem + chevron lead 2.125rem)
+    &.lt-th-tree {
+      padding-left: 2.75rem;
+    }
     vertical-align: middle;
     background-color: var(--lt-header-bg);
     border-bottom: 1px solid var(--lt-header-underline);
@@ -105,10 +118,8 @@
     user-select: none;
   }
 
-  // hairline column separators between data headers (the skin)
-  th.lt-th {
-    border-right: 1px solid var(--lt-border);
-  }
+  // column separators are drawn by the always-visible resize grip (.lt-resize),
+  // not a solid full-height border, so the boundary and the grab target are one mark
 
   .lt-select-cell,
   .lt-menu-cell {
@@ -123,40 +134,41 @@
   right: 0;
   top: 50%;
   transform: translateY(-50%);
-  width: 0.625rem;
-  height: 0.875rem;
+  width: 0.75rem;
+  // taller grab target than the visible mark, so the handle is easier to catch
+  height: 2.25rem;
   cursor: col-resize;
 
-  // hidden by default — the persistent column separator is the header's border-right;
-  // the grab handle only reveals on header hover so boundaries don't look doubled
+  // two short vertical lines, always visible, that double as the column separator;
+  // kept at the smaller mark height and centered so only the hitbox grew
   &::before,
   &::after {
     content: '';
     position: absolute;
-    top: 0;
-    height: 100%;
+    top: 50%;
+    height: 1.25rem;
+    transform: translateY(-50%);
     width: 1px;
-    background: transparent;
+    // a touch darker than the hairline border so the separators read clearly;
+    // blends the border with the icon tone to stay in the theme's family
+    background: color-mix(in srgb, var(--lt-border) 50%, var(--lt-icon));
     transition: background 0.15s;
   }
 
   &::before {
-    right: 0.25rem;
+    right: 0.3125rem;
   }
 
   &::after {
     right: 0.125rem;
   }
 
+  // intensify the grip on hover so it reads as a grab target (pulls toward the
+  // text color: darker in light mode, brighter in dark)
   &:hover::before,
   &:hover::after {
-    background: var(--lt-icon);
+    background: color-mix(in srgb, var(--lt-icon) 72%, var(--lt-cell-text));
   }
-}
-
-.lt-head th:hover .lt-resize::before,
-.lt-head th:hover .lt-resize::after {
-  background: var(--lt-border);
 }
 
 // header select-all — matches the low-profile row checkbox (skinned)
@@ -343,41 +355,56 @@
 }
 
 // ---------------------------------------------------------------- tree rows
-// the tree column keeps the toggle and the cell content on one line; indentation
-// per depth level is applied inline on .lt-tree-lead (see the template)
+// the tree column lays the toggle and the cell content in one centered row;
+// indentation per depth level is applied inline on .lt-tree-lead (see template)
 .lt-tree-cell {
-  white-space: nowrap;
+  // stays a real table cell so border-collapse lines its bottom border up with the
+  // neighbouring cells; the flex layout lives on the inner wrapper. (display:flex
+  // here broke the cell out of the table and painted its border 1px off.)
+  padding-left: 0.625rem;
+}
+
+.lt-tree-cell-inner {
+  display: flex;
+  align-items: center;
 }
 
 .lt-tree-lead {
   display: inline-flex;
   align-items: center;
-  vertical-align: middle;
-  margin-right: 0.25rem;
+  flex: 0 0 auto;
+  margin-right: 0.375rem;
 }
 
+// round, roomy hit target so the chevron is easy to click and the loading ring
+// can wrap it
 .lt-tree-toggle {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.75rem;
+  height: 1.75rem;
   padding: 0;
   color: var(--lt-icon);
   background: transparent;
   border: none;
-  border-radius: var(--lt-radius);
+  border-radius: 50%;
   cursor: pointer;
   transition: color 0.15s, background 0.15s;
 
+  // distinct circular highlight that still reads on an already-hovered row
   &:hover {
     color: var(--lt-link);
-    background: var(--lt-row-hover);
+    background: color-mix(in srgb, var(--lt-link) 18%, transparent);
   }
 }
 
 .lt-tree-chevron {
   display: block;
+  // about 15% larger than the svg's base 12px, button hitbox stays 1.75rem
+  width: 13.8px;
+  height: 13.8px;
   transition: transform 0.15s ease;
 }
 
@@ -388,18 +415,27 @@
 // keeps leaf rows aligned with rows that have a toggle
 .lt-tree-spacer {
   display: inline-block;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.75rem;
+  height: 1.75rem;
 }
 
+// a ring that spins around the hit target while children load; the chevron stays
+// visible in the center
 .lt-tree-spinner {
-  display: inline-block;
-  width: 0.875rem;
-  height: 0.875rem;
-  border: 2px solid var(--lt-border);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  // sit a hair outside the 1.75rem hit target so the ring wraps its edge and the
+  // round hover background does not bleed past it
+  box-sizing: border-box;
+  width: 1.875rem;
+  height: 1.875rem;
+  margin: -0.9375rem 0 0 -0.9375rem;
+  border: 2px solid color-mix(in srgb, var(--lt-link) 25%, transparent);
   border-top-color: var(--lt-link);
   border-radius: 50%;
   animation: lt-tree-spin 0.6s linear infinite;
+  pointer-events: none;
 }
 
 @keyframes lt-tree-spin {
@@ -411,13 +447,167 @@
   font-weight: 600;
 }
 
+// --- nested rows render as one floating card inset from the table edges ---
+// each nested row is its own <tr>, so the card is assembled from horizontal
+// strips: every strip draws the left and right edge, the sub-header strip draws
+// the top and rounds the top corners, and the last child strip draws the bottom
+// and rounds the bottom. The cell itself stays transparent and supplies the inset
+// (a base gutter plus the per-depth indent) so the card floats off both edges.
+.lt-tree-subhead-row > td,
+.lt-tree-child-row > td {
+  padding: 0 1rem 0 calc(4rem + var(--lt-tree-indent, 0rem));
+  background: transparent;
+  // the generic row divider would run full width behind the card; the card edges
+  // draw their own borders instead
+  border-bottom: none;
+}
+
+// the inset band behind the card reads a touch darker than the card surface, so
+// the card looks seated in a well; the row carries it (the cell stays transparent)
+.lt-tree-subhead-row,
+.lt-tree-child-row,
+.lt-tree-child-row:hover {
+  background-color: var(--lt-tree-well, color-mix(in srgb, var(--lt-border) 22%, var(--lt-row-bg)));
+}
+
+// equal gap above and below the whole card
+.lt-tree-subhead-row > td {
+  padding-top: 1rem;
+}
+.lt-tree-child-row.lt-tree-last-child > td {
+  padding-bottom: 1rem;
+}
+
+// the card body: one strip of the shared card
+.lt-tree-grid {
+  display: grid;
+  align-items: center;
+  column-gap: 0.5rem;
+  min-height: var(--lt-row-height);
+  padding-left: 0.625rem;
+  padding-right: 0.625rem;
+  background: var(--lt-row-bg);
+  border-left: 1px solid var(--lt-tree-card-border, color-mix(in srgb, var(--lt-border) 70%, var(--lt-icon)));
+  border-right: 1px solid var(--lt-tree-card-border, color-mix(in srgb, var(--lt-border) 70%, var(--lt-icon)));
+}
+
+// subtle hover lift on the card body only; the well behind it stays put (set above)
+.lt-tree-child-row:hover .lt-tree-grid {
+  background: var(--lt-row-hover);
+}
+
+// sub-header strip: top of the card, carrying the per-expansion column labels
+.lt-tree-subhead-row .lt-tree-grid {
+  min-height: 2rem;
+  background: var(--lt-header-bg);
+  border-top: 1px solid var(--lt-tree-card-border, color-mix(in srgb, var(--lt-border) 70%, var(--lt-icon)));
+  border-top-left-radius: var(--lt-radius, 8px);
+  border-top-right-radius: var(--lt-radius, 8px);
+}
+
+// last child strip: bottom of the card, carrying the drop shadow for the lift
+.lt-tree-child-row.lt-tree-last-child .lt-tree-grid {
+  border-bottom: 1px solid var(--lt-tree-card-border, color-mix(in srgb, var(--lt-border) 70%, var(--lt-icon)));
+  border-bottom-left-radius: var(--lt-radius, 8px);
+  border-bottom-right-radius: var(--lt-radius, 8px);
+  box-shadow: 0 2px 4px color-mix(in srgb, #000 10%, transparent);
+}
+
+// lighter divider between child rows inside the card
+.lt-tree-child-row:not(.lt-tree-last-child) .lt-tree-grid {
+  border-bottom: 1px solid color-mix(in srgb, var(--lt-border) 55%, transparent);
+}
+
+.lt-tree-subhead-cell {
+  position: relative;
+  padding: 0 0.3125rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--lt-header-text);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.lt-tree-cellbox {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 0 0.3125rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  .lt-cell-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+// ---------------------------------------------------------------- flat tree skin
+// nested rows sit inline with the table instead of as floating cards: same per-level
+// columns and sub-headers, but no card border/well/radius/shadow, just hairline
+// dividers and a flat header strip. Indentation is kept from the card layout.
+:host(.lt-tree-flat) {
+  .lt-tree-subhead-row,
+  .lt-tree-child-row,
+  .lt-tree-child-row:hover {
+    background-color: transparent;
+  }
+
+  // strips run the full table width; the per-level indent moves to the first
+  // column's content (set below) so the strip itself stays edge to edge
+  .lt-tree-subhead-row > td,
+  .lt-tree-child-row > td {
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  // indent only the first column so the grey strip spans the whole width; the
+  // inline value lines each level up with its parent row's name text.
+  .lt-tree-grid > .lt-tree-subhead-cell:first-child,
+  .lt-tree-grid > .lt-tree-cellbox:first-child {
+    padding-left: var(--lt-tree-first-indent, 5.875rem);
+  }
+
+  // strip every card edge; rows blend into the table surface
+  .lt-tree-grid {
+    background: transparent;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+  }
+
+  // sub-header reads as a plain full-strip header. No top border: the row above
+  // already draws a divider, so a top border here would double it to 2px.
+  .lt-tree-subhead-row .lt-tree-grid {
+    background: var(--lt-header-bg);
+    border: none;
+    border-bottom: 1px solid var(--lt-border);
+    border-radius: 0;
+  }
+
+  // one hairline divider under each row, no shadow or rounded bottom
+  .lt-tree-child-row .lt-tree-grid,
+  .lt-tree-child-row.lt-tree-last-child .lt-tree-grid {
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    box-shadow: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--lt-border) 55%, transparent);
+  }
+}
+
 // ---------------------------------------------------------------- toolbar + column chooser
 .lt-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  margin: var(--lt-toolbar-margin-y, 0) 0;
+  margin: var(--lt-toolbar-margin-top, 0.75rem) 0 var(--lt-toolbar-margin-bottom, 0);
   padding: 0 0 var(--lt-toolbar-pad-bottom, 0.625rem);
   min-height: var(--lt-toolbar-height);
   // sit above the (sticky) table header so the Columns dropdown is never covered
@@ -428,7 +618,7 @@
 .lt-toolbar-left {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--lt-control-row-gap);
   flex: 1 1 auto;
   min-width: 0;
   // one line: filters condense into "More" rather than wrapping
@@ -441,7 +631,7 @@
   display: flex;
   align-items: center;
   flex-wrap: nowrap;
-  gap: 0.5rem;
+  gap: var(--lt-control-row-gap);
   flex: 0 1 auto;
   min-width: 0;
 }
@@ -450,7 +640,7 @@
   display: flex;
   align-items: center;
   flex-wrap: nowrap;
-  gap: 0.5rem;
+  gap: var(--lt-control-row-gap);
   min-width: 0;
   flex: 0 1 auto;
   overflow: hidden;
@@ -521,7 +711,7 @@
 .lt-toolbar-right {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--lt-control-row-gap);
   flex: 0 0 auto;
 }
 
@@ -558,7 +748,7 @@
   font-size: 0.8125rem;
   color: var(--lt-cell-text);
   background: var(--lt-control-bg);
-  border: var(--inputBorderWidth) solid var(--lt-control-border, var(--lt-border));
+  border: var(--lt-control-border-width) solid var(--lt-control-border, var(--lt-border));
   border-radius: var(--lt-radius);
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
@@ -598,7 +788,7 @@
   height: var(--lt-toolbar-height);
   color: var(--lt-icon);
   background: var(--lt-control-bg);
-  border: var(--inputBorderWidth) solid var(--lt-control-border, var(--lt-border));
+  border: var(--lt-control-border-width) solid var(--lt-control-border, var(--lt-border));
   border-radius: var(--lt-radius);
   cursor: pointer;
   font-size: 0.9375rem;
@@ -687,13 +877,135 @@
   color: var(--groupText);
 }
 
-.lt-chooser-list {
+// flat/nested row-layout switch, shown only for tree tables
+.lt-chooser-view {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--lt-border);
+}
+
+.lt-chooser-view-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--lt-cell-text);
+}
+
+.lt-chooser-view-toggle {
+  display: flex;
+  gap: 0.1875rem;
+  padding: 0.1875rem;
+  background: color-mix(in srgb, var(--lt-border) 30%, var(--lt-control-bg));
+  border: 1px solid var(--lt-border);
+  border-radius: var(--lt-radius);
+}
+
+.lt-chooser-view-opt {
+  padding: 0.25rem 0.625rem;
+  font-family: var(--lt-font);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--lt-cell-text);
+  background: transparent;
+  border: none;
+  border-radius: calc(var(--lt-radius) - 0.0625rem);
+  cursor: pointer;
+
+  &:hover:not(.active) {
+    color: var(--lt-link);
+  }
+
+  &.active {
+    color: var(--lt-link);
+    background: var(--lt-control-bg);
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--lt-cell-text) 14%, transparent);
+  }
+}
+
+// one scroll area shared by the parent column list and the nested-column tree
+.lt-chooser-scroll {
   flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.lt-chooser-list {
   list-style: none;
   margin: 0;
   padding: 0.375rem 0.5rem;
-  min-height: 0;
-  overflow-y: auto;
+}
+
+// nested (per-depth) child columns, shown as an expandable tree that mirrors the table
+.lt-chooser-nested {
+  padding: 0 0.5rem 0.375rem;
+  border-top: 1px solid var(--lt-border);
+}
+
+.lt-chooser-group {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0.375rem 0.25rem;
+  font-family: var(--lt-font);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--lt-cell-text);
+  background: transparent;
+  border: none;
+  border-radius: var(--lt-radius);
+  cursor: pointer;
+  text-align: left;
+
+  &:hover {
+    background: var(--lt-row-hover);
+  }
+}
+
+.lt-chooser-group-sub {
+  padding-left: 1.25rem;
+  font-weight: 500;
+}
+
+.lt-chooser-group-label {
+  flex: 0 0 auto;
+}
+
+.lt-chooser-chevron {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.875rem;
+  color: var(--lt-icon);
+  transition: transform 0.15s ease;
+
+  svg {
+    display: block;
+  }
+
+  &.open {
+    transform: rotate(90deg);
+  }
+}
+
+.lt-chooser-group-hint {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  color: var(--groupText);
+}
+
+.lt-chooser-sublist {
+  padding-left: 1.75rem;
 }
 
 .lt-chooser-row {
@@ -874,7 +1186,7 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M3 4.5 6 7.5 9 4.5'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.5rem center;
-  border: var(--inputBorderWidth) solid var(--lt-control-border, var(--lt-border));
+  border: var(--lt-control-border-width) solid var(--lt-control-border, var(--lt-border));
   border-radius: var(--lt-radius);
   appearance: none;
   -webkit-appearance: none;
@@ -898,7 +1210,7 @@
   font-weight: 600;
   color: var(--lt-cell-text);
   background: var(--lt-control-bg);
-  border: var(--inputBorderWidth) solid var(--lt-control-border, var(--lt-border));
+  border: var(--lt-control-border-width) solid var(--lt-control-border, var(--lt-border));
   border-radius: var(--lt-radius);
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s, background 0.15s;

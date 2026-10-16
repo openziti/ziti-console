@@ -9,6 +9,9 @@ body {
     --stroke: #2A2B31;
     --black: #FFF;
     --shaded: #1D2024;
+    /* pull the list-table header fully to the border/stroke slate so it matches the
+       raised surfaces used elsewhere in dark mode (filter bar, hover) */
+    --lt-header-mix: 100%;
     --formBackground: #1D2024;
     --background: #18191D;
     --mainBackground: var(--navigation);
@@ -38,6 +41,19 @@ body {
     --jse-main-border: var(--inputBorder);
     --jse-delimiter-color: var(--tableText);
     --jse-key-color: var(--tableText);
+    /* page-header resource icon: lift off the dark brand navy so the glyph reads */
+    --lt-header-icon: #7e97ff;
+}
+
+/* list-table accents: the light-mode brand blue and the dark status/type text
+   shades are too dark to read on the dark surface, so lift the text tokens to
+   lighter tints of the same hues. Fills stay subtle; only the labels/links change. */
+.lt-skin {
+    --lt-link: #7e97ff;
+    --lt-icon-active: #7e97ff;
+    --lt-info-text: #9bb0ff;
+    --lt-positive-text: #5fd98a;
+    --lt-warning-text: #f0b45e;
 }
 
 .filters .navigate {

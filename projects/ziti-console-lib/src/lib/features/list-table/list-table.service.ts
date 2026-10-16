@@ -49,6 +49,28 @@ export class ListTableService {
         return `lt_${this.tableId}_page_size`;
     }
 
+    private treeVariantKey(): string {
+        return `lt_${this.tableId}_tree_variant`;
+    }
+
+    /** Returns the saved tree layout ('card' | 'flat'), or `fallback` if none. */
+    restoreTreeVariant(fallback: 'card' | 'flat'): 'card' | 'flat' {
+        try {
+            const raw = localStorage.getItem(this.treeVariantKey());
+            return raw === 'card' || raw === 'flat' ? raw : fallback;
+        } catch {
+            return fallback;
+        }
+    }
+
+    saveTreeVariant(variant: 'card' | 'flat'): void {
+        try {
+            localStorage.setItem(this.treeVariantKey(), variant);
+        } catch {
+            // ignore
+        }
+    }
+
     private static pageSizeKeyFor(tableId: string): string {
         return `lt_${tableId}_page_size`;
     }
@@ -143,6 +165,82 @@ export class ListTableService {
         }
     }
 
+    // ---- nested (per-depth) child columns: same contract as above, keyed by level ----
+    private childStateKey(): string {
+        return `lt_${this.tableId}_child_state`;
+    }
+
+    private childWidthsKey(): string {
+        return `lt_${this.tableId}_child_widths`;
+    }
+
+    /** Applies persisted order/visibility/width for one nested depth to its columns. */
+    applyPersistedChildState(level: number, columns: ListColumn[]): ListColumn[] {
+        let cols: ListColumn[] = columns.map((c) => ({...c}));
+        try {
+            const raw = localStorage.getItem(this.childWidthsKey());
+            const widths = (raw ? JSON.parse(raw) : {})?.[level] || {};
+            cols.forEach((c) => {
+                if (widths[c.key] != null) {
+                    c.width = widths[c.key];
+                }
+            });
+        } catch {
+            // ignore
+        }
+        try {
+            const raw = localStorage.getItem(this.childStateKey());
+            const state: any[] = (raw ? JSON.parse(raw) : {})?.[level] || [];
+            if (state.length) {
+                const ordered: ListColumn[] = [];
+                state.forEach((s) => {
+                    const found = cols.find((c) => c.key === s.colId);
+                    if (found && !ordered.includes(found)) {
+                        if (s.hide != null) {
+                            found.hidden = s.hide;
+                        }
+                        if (s.width != null) {
+                            found.width = s.width;
+                        }
+                        ordered.push(found);
+                    }
+                });
+                cols.forEach((c) => {
+                    if (!ordered.includes(c)) {
+                        ordered.push(c);
+                    }
+                });
+                cols = ordered;
+            }
+        } catch {
+            // ignore
+        }
+        return cols;
+    }
+
+    saveChildState(level: number, columns: ListColumn[]): void {
+        try {
+            const raw = localStorage.getItem(this.childStateKey());
+            const byLevel = raw ? JSON.parse(raw) : {};
+            byLevel[level] = columns.map((c) => ({colId: c.key, hide: !!c.hidden, width: c.width}));
+            localStorage.setItem(this.childStateKey(), JSON.stringify(byLevel));
+        } catch {
+            // ignore
+        }
+    }
+
+    saveChildWidth(level: number, colId: string, width: number, columns: ListColumn[]): void {
+        try {
+            const raw = localStorage.getItem(this.childWidthsKey());
+            const byLevel = raw ? JSON.parse(raw) : {};
+            byLevel[level] = {...(byLevel[level] || {}), [colId]: width};
+            localStorage.setItem(this.childWidthsKey(), JSON.stringify(byLevel));
+        } catch {
+            // ignore
+        }
+        this.saveChildState(level, columns);
+    }
+
     /** Persists a single column's width, then rewrites the ordered state. */
     saveWidth(colId: string, width: number, columns: ListColumn[]): void {
         try {
@@ -162,6 +260,9 @@ export class ListTableService {
             localStorage.removeItem(this.stateKey());
             localStorage.removeItem(this.widthsKey());
             localStorage.removeItem(this.pageSizeKey());
+            localStorage.removeItem(this.treeVariantKey());
+            localStorage.removeItem(this.childStateKey());
+            localStorage.removeItem(this.childWidthsKey());
         } catch {
             // ignore
         }

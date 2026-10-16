@@ -53,6 +53,12 @@ export class ListTableHeaderComponent {
     @Output() actionClicked = new EventEmitter<string>();
     @Output() tabClicked = new EventEmitter<any>();
 
+    /** Only show the tab strip when there is more than one visible tab; a lone tab
+     *  is just a redundant label, so the strip is hidden. */
+    get showTabs(): boolean {
+        return (this.tabs || []).filter((t) => !t?.hidden).length > 1;
+    }
+
     clickAction(value: string) {
         this.actionClicked.emit(value);
     }
