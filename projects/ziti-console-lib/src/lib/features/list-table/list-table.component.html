@@ -58,6 +58,8 @@
             }
           </div>
         }
+        <!-- Consumer-supplied toolbar controls (e.g. page-specific filters), rendered inline beside search. -->
+        <ng-content select="[toolbar-filters]"></ng-content>
       </div>
       <div class="lt-toolbar-right">
         <ng-template #refreshIcon>
@@ -106,6 +108,16 @@
                 <span class="lt-chooser-title">Columns</span>
                 <span class="lt-chooser-subtitle">Customize order and visibility</span>
               </div>
+              @if (canSwitchTreeVariant && showTreeVariantToggle) {
+                <div class="lt-chooser-view" role="group" aria-label="Expanded row layout">
+                  <span class="lt-chooser-view-label">Expanded rows</span>
+                  <div class="lt-chooser-view-toggle">
+                    <button type="button" class="lt-chooser-view-opt" [class.active]="treeVariant === 'flat'" (click)="setTreeVariant('flat')">Flat</button>
+                    <button type="button" class="lt-chooser-view-opt" [class.active]="treeVariant === 'card'" (click)="setTreeVariant('card')">Nested</button>
+                  </div>
+                </div>
+              }
+              <div class="lt-chooser-scroll">
               <ul class="lt-chooser-list" cdkDropList cdkDropListLockAxis="y" (cdkDropListDropped)="chooserReorder($event)">
                 @for (col of chooserColumns; track col.key) {
                   <li class="lt-chooser-row" cdkDrag cdkDragLockAxis="y" [cdkDragDisabled]="col.reorderable === false">
@@ -113,16 +125,20 @@
                       type="button"
                       class="lt-chooser-toggle"
                       [class.checked]="!col.hidden"
-                      [disabled]="col.hideable === false"
+                      [disabled]="col.hideable === false || isLastVisibleColumn(col)"
+                      [attr.title]="isLastVisibleColumn(col) ? 'At least one column must stay visible' : null"
                       (click)="toggleColumnVisible(col)"
                       [attr.aria-pressed]="!col.hidden"
                     >
                       <span class="lt-chooser-box" aria-hidden="true">
-                        @if (!col.hidden) {
-                          <svg viewBox="0 0 12 12" width="10" height="10">
-                            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M2 6.3 4.6 9 10 3"/>
-                          </svg>
-                        }
+                        <!-- always rendered: the check is white, so it stays invisible
+                             until the box turns blue when checked. Keeping it in the DOM
+                             means clicking to hide a column never detaches the click
+                             target, which would otherwise make the click-outside handler
+                             think the click was outside and close the menu. -->
+                        <svg viewBox="0 0 12 12" width="10" height="10">
+                          <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M2 6.3 4.6 9 10 3"/>
+                        </svg>
                       </span>
                       <span class="lt-chooser-text">{{ col.label }}</span>
                       @if (isDefaultHidden(col)) {
@@ -141,6 +157,71 @@
                   </li>
                 }
               </ul>
+              @if (canSwitchTreeVariant && childLevels.length) {
+                <div class="lt-chooser-nested">
+                  <button
+                    type="button"
+                    class="lt-chooser-group"
+                    (click)="toggleNestedGroup('__root')"
+                    [attr.aria-expanded]="isNestedGroupOpen('__root')"
+                  >
+                    <span class="lt-chooser-chevron" [class.open]="isNestedGroupOpen('__root')" aria-hidden="true">
+                      <svg viewBox="0 0 16 16" width="11" height="11"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M6 4l4 4-4 4"/></svg>
+                    </span>
+                    <span class="lt-chooser-group-label">Nested rows</span>
+                  </button>
+                  @if (isNestedGroupOpen('__root')) {
+                    @for (level of childLevels; track level) {
+                      <button
+                        type="button"
+                        class="lt-chooser-group lt-chooser-group-sub"
+                        (click)="toggleNestedGroup('lvl' + level)"
+                        [attr.aria-expanded]="isNestedGroupOpen('lvl' + level)"
+                      >
+                        <span class="lt-chooser-chevron" [class.open]="isNestedGroupOpen('lvl' + level)" aria-hidden="true">
+                          <svg viewBox="0 0 16 16" width="11" height="11"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M6 4l4 4-4 4"/></svg>
+                        </span>
+                        <span class="lt-chooser-group-label">Level {{ level }}</span>
+                        <span class="lt-chooser-group-hint">{{ childLevelLabel(level) }}</span>
+                      </button>
+                      @if (isNestedGroupOpen('lvl' + level)) {
+                        <ul class="lt-chooser-list lt-chooser-sublist" cdkDropList cdkDropListLockAxis="y" (cdkDropListDropped)="childChooserReorder(level, $event)">
+                          @for (col of allColumnsForLevel(level); track col.key) {
+                            <li class="lt-chooser-row" cdkDrag cdkDragLockAxis="y" [cdkDragDisabled]="col.reorderable === false">
+                              <button
+                                type="button"
+                                class="lt-chooser-toggle"
+                                [class.checked]="!col.hidden"
+                                [disabled]="col.hideable === false || isLastVisibleChildColumn(level, col)"
+                                [attr.title]="isLastVisibleChildColumn(level, col) ? 'At least one column must stay visible' : null"
+                                (click)="toggleChildColumnVisible(level, col)"
+                                [attr.aria-pressed]="!col.hidden"
+                              >
+                                <span class="lt-chooser-box" aria-hidden="true">
+                                  <svg viewBox="0 0 12 12" width="10" height="10">
+                                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M2 6.3 4.6 9 10 3"/>
+                                  </svg>
+                                </span>
+                                <span class="lt-chooser-text">{{ col.label }}</span>
+                              </button>
+                              @if (col.reorderable !== false) {
+                                <span class="lt-chooser-handle" cdkDragHandle aria-label="Drag to reorder" title="Drag to reorder">
+                                  <svg viewBox="0 0 10 16" width="10" height="15" fill="currentColor" aria-hidden="true">
+                                    <circle cx="3" cy="3" r="1.25"/><circle cx="7" cy="3" r="1.25"/>
+                                    <circle cx="3" cy="8" r="1.25"/><circle cx="7" cy="8" r="1.25"/>
+                                    <circle cx="3" cy="13" r="1.25"/><circle cx="7" cy="13" r="1.25"/>
+                                  </svg>
+                                </span>
+                              }
+                            </li>
+                          }
+                        </ul>
+                      }
+                    }
+                  }
+                </div>
+              }
+              </div>
               <div class="lt-chooser-footer">
                 <button
                   type="button"
@@ -159,6 +240,46 @@
     </div>
 
     <div class="lt-scroll" id="ItemTable">
+      <!-- expand/collapse control, reused by root rows and nested child rows -->
+      <ng-template #treeToggle let-row="row">
+        @if (canExpand(row)) {
+          <button
+            type="button"
+            class="lt-tree-toggle"
+            [class.is-expanded]="row.__treeExpanded"
+            [class.is-loading]="row.__treeLoading"
+            (click)="$event.stopPropagation(); toggleNode(row)"
+            [attr.aria-expanded]="!!row.__treeExpanded"
+            [attr.aria-busy]="!!row.__treeLoading"
+            [attr.aria-label]="row.__treeExpanded ? 'Collapse row' : 'Expand row'"
+          >
+            <svg class="lt-tree-chevron" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+              <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M6 4l4 4-4 4"/>
+            </svg>
+            @if (row.__treeLoading) {
+              <span class="lt-tree-spinner" aria-hidden="true"></span>
+            }
+          </button>
+        } @else {
+          <span class="lt-tree-spacer" aria-hidden="true"></span>
+        }
+      </ng-template>
+
+      <!-- a single cell's content, reused across the fixed grid and the nested grid -->
+      <ng-template #cellBody let-col="col" let-row="row" let-i="i">
+        @switch (renderMode(col)) {
+          @case ('component') {
+            <ng-container *ngComponentOutlet="col.cell; inputs: cellInputs(col, row, i)"></ng-container>
+          }
+          @case ('html') {
+            <span class="lt-cell-html" [innerHTML]="cellHtml(col, row, i)"></span>
+          }
+          @default {
+            <span class="lt-cell-text">{{ cellText(col, row, i) }}</span>
+          }
+        }
+      </ng-template>
+
       <table class="lt-table">
         <colgroup>
           @if (!options.noSelect) { <col class="lt-col-select" /> }
@@ -185,6 +306,7 @@
                 cdkDrag
                 [cdkDragDisabled]="col.reorderable === false"
                 class="lt-th"
+                [class.lt-th-tree]="isTreeCell(col)"
                 [ngClass]="col.cellClass"
                 id="Header_{{ col.key }}"
               >
@@ -209,54 +331,119 @@
           </tr>
         </thead>
         <tbody>
-          @for (row of rowData; track trackRow($index, row); let i = $index) {
-            <tr
-              class="lt-row"
-              [class.lt-row-odd]="i % 2 === 1"
-              [class.lt-row-selected]="row.selected"
-              [class.row-invalid]="row.invalid"
-              [class.row-copied]="row.copied"
-            >
-              @if (!options.noSelect) {
-                <td class="lt-select-cell">
-                  <lib-select-cell [row]="row" [toggleItem]="toggleItem"></lib-select-cell>
-                </td>
+          @for (row of flatRows; track trackRow($index, row); let i = $index) {
+            @if (isTreeMode && row.__treeLevel > 0 && hasChildColumns) {
+              <!-- nested rows with their own per-level columns, laid out in a grid
+                   that spans the full table width (so they need not match the parent) -->
+              @if (row.__treeFirstChild) {
+                <tr class="lt-tree-subhead-row">
+                  <td
+                    [attr.colspan]="treeSpanCount"
+                    [style.--lt-tree-indent.rem]="treeIndentFor(row.__treeLevel)"
+                    [style.--lt-tree-first-indent.rem]="treeFlatFirstIndentRem(row.__treeLevel)"
+                    [style.background-image]="treeAncestorRails(row.__treeLevel)"
+                  >
+                    <div
+                      class="lt-tree-grid"
+                      [style.grid-template-columns]="gridTemplate(row.__treeLevel)"
+                    >
+                      @for (col of columnsForLevel(row.__treeLevel); track col.key; let last = $last) {
+                        <span class="lt-tree-subhead-cell" [ngClass]="cellClass(col)">
+                          {{ col.label }}
+                          @if (!last && col.resizable !== false) {
+                            <span class="lt-resize lt-tree-resize" (pointerdown)="startChildResize(col, row.__treeLevel, $event)"></span>
+                          }
+                        </span>
+                      }
+                    </div>
+                  </td>
+                </tr>
               }
-              @for (col of visibleColumns; track trackCol($index, col)) {
+              <tr
+                class="lt-row lt-tree-child-row"
+                [class.lt-tree-last-child]="row.__treeLastChild"
+                [class.lt-row-selected]="row.selected"
+                [class.lt-row-expanded]="row.__treeExpanded"
+              >
                 <td
-                  class="lt-cell"
-                  [ngClass]="cellClass(col)"
-                  (click)="onCellClick(col, row, i)"
-                  (mouseenter)="onCellHover(col, row, i, $event)"
-                  (mouseleave)="onCellLeave()"
+                  [attr.colspan]="treeSpanCount"
+                  [style.--lt-tree-indent.rem]="treeIndentFor(row.__treeLevel)"
+                  [style.--lt-tree-first-indent.rem]="treeFlatFirstIndentRem(row.__treeLevel)"
+                  [style.background-image]="treeAncestorRails(row.__treeLevel)"
                 >
-                  @switch (renderMode(col)) {
-                    @case ('component') {
-                      <ng-container *ngComponentOutlet="col.cell; inputs: cellInputs(col, row, i)"></ng-container>
+                  <div
+                    class="lt-tree-grid"
+                    [style.grid-template-columns]="gridTemplate(row.__treeLevel)"
+                  >
+                    @for (col of columnsForLevel(row.__treeLevel); track col.key) {
+                      <div
+                        class="lt-tree-cellbox"
+                        [ngClass]="cellClass(col)"
+                        (click)="onCellClick(col, row, i)"
+                        (mouseenter)="onCellHover(col, row, i, $event)"
+                        (mouseleave)="onCellLeave()"
+                      >
+                        @if (isTreeColumn(col, row.__treeLevel) && showTreeLead(row)) {
+                          <span class="lt-tree-lead">
+                            <ng-container *ngTemplateOutlet="treeToggle; context: {row: row}"></ng-container>
+                          </span>
+                        }
+                        <ng-container *ngTemplateOutlet="cellBody; context: {col: col, row: row, i: i}"></ng-container>
+                      </div>
                     }
-                    @case ('html') {
-                      <span class="lt-cell-html" [innerHTML]="cellHtml(col, row, i)"></span>
-                    }
-                    @default {
-                      <span class="lt-cell-text">{{ cellText(col, row, i) }}</span>
-                    }
-                  }
+                  </div>
                 </td>
-              }
-              @if (!options.noMenu) {
-                <td class="lt-menu-cell">
-                  @if (row.actionList?.length) {
-                    <button
-                      type="button"
-                      class="lt-row-menu-trigger"
-                      (click)="$event.stopPropagation(); openActionMenu($event, row)"
-                      attr.id="RowMenu_{{ row.id }}"
-                      aria-label="Row actions"
-                    >&#8942;</button>
-                  }
-                </td>
-              }
-            </tr>
+              </tr>
+            } @else {
+              <tr
+                class="lt-row"
+                [class.lt-row-odd]="i % 2 === 1"
+                [class.lt-row-selected]="row.selected"
+                [class.lt-row-expanded]="row.__treeExpanded"
+                [class.row-invalid]="row.invalid"
+                [class.row-copied]="row.copied"
+              >
+                @if (!options.noSelect) {
+                  <td class="lt-select-cell">
+                    <lib-select-cell [row]="row" [toggleItem]="toggleItem"></lib-select-cell>
+                  </td>
+                }
+                @for (col of visibleColumns; track trackCol($index, col)) {
+                  <td
+                    class="lt-cell"
+                    [class.lt-tree-cell]="isTreeCell(col)"
+                    [ngClass]="cellClass(col)"
+                    (click)="onCellClick(col, row, i)"
+                    (mouseenter)="onCellHover(col, row, i, $event)"
+                    (mouseleave)="onCellLeave()"
+                  >
+                    @if (isTreeCell(col)) {
+                      <span class="lt-tree-cell-inner">
+                        <span class="lt-tree-lead" [style.margin-left.rem]="(row.__treeLevel || 0) * treeIndentRem">
+                          <ng-container *ngTemplateOutlet="treeToggle; context: {row: row}"></ng-container>
+                        </span>
+                        <ng-container *ngTemplateOutlet="cellBody; context: {col: col, row: row, i: i}"></ng-container>
+                      </span>
+                    } @else {
+                      <ng-container *ngTemplateOutlet="cellBody; context: {col: col, row: row, i: i}"></ng-container>
+                    }
+                  </td>
+                }
+                @if (!options.noMenu) {
+                  <td class="lt-menu-cell">
+                    @if (row.actionList?.length) {
+                      <button
+                        type="button"
+                        class="lt-row-menu-trigger"
+                        (click)="$event.stopPropagation(); openActionMenu($event, row)"
+                        attr.id="RowMenu_{{ row.id }}"
+                        aria-label="Row actions"
+                      >&#8942;</button>
+                    }
+                  </td>
+                }
+              </tr>
+            }
           }
         </tbody>
       </table>

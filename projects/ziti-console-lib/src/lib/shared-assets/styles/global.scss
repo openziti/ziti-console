@@ -69,14 +69,18 @@ body {
   --lt-icon-active: var(--primary);
   --lt-row-height: 3.125rem;
   --lt-radius: var(--inputBorderRadius);
-  --lt-toolbar-height: 2.5rem;
+  --lt-toolbar-height: 2.3rem;
   --lt-control-bg: var(--background);
   --lt-font: 'Open Sans', sans-serif;
   /* shared toolbar-control metrics (buttons, menus) so spacing/type stay consistent */
   --lt-control-gap: 0.4375rem;
-  --lt-control-padding-x: 0.75rem;
+  --lt-control-padding-x: 0.625rem;
   --lt-control-font-size: 0.8125rem;
-  --lt-control-font-weight: 600;
+  --lt-control-font-weight: 500;
+  /* one hairline border for every toolbar/footer control so they read as a set */
+  --lt-control-border-width: 1px;
+  /* one gap between toolbar controls so the filter row and the right cluster match */
+  --lt-control-row-gap: 0.4375rem;
   --redShadow: rgba(255, 13, 73, 0.3);
   --redText: #9c0027;
   --shadow: 0rem 0rem 0.5rem 0.125rem rgba(0,0,0,0.08);
@@ -2310,8 +2314,16 @@ a {
 // matches the app and follows its theming; the legacy page (.ag-cell) is untouched.
 .lt-skin {
   --lt-bg: var(--background);
-  --lt-header-bg: var(--shaded);
-  --lt-header-text: var(--groupText);
+  // shade the header off the row surface using the theme's own cool neutral (the
+  // border color), so it stays in the same family as the rest of the table instead of
+  // a flat grey. The theme's --shaded can equal the background (no contrast), so this
+  // derives its own band. --lt-header-mix sets how far to pull toward the border: the
+  // light default is a gentle step; dark themes raise it (see dark.css) so the header
+  // lands on the same raised-surface slate the rest of dark mode uses.
+  --lt-header-bg: color-mix(in srgb, var(--lt-border) var(--lt-header-mix, 42%), var(--lt-row-bg));
+  // the muted group color is too faint on the shaded header band, so pull it toward the
+  // theme text color: darker in light mode, lighter in dark, keeping the cool hue
+  --lt-header-text: color-mix(in srgb, var(--groupText, #78859f) 70%, var(--text));
   --lt-header-underline: var(--stroke);
   --lt-row-bg: var(--background);
   --lt-row-alt-bg: transparent;
@@ -2321,10 +2333,23 @@ a {
   --lt-link: var(--primary);
   --lt-icon: var(--icon);
   --lt-icon-active: var(--primary);
+  // status/type accent palette (text + fill base). Defaults are the light-mode
+  // shades; dark.css lifts the text tokens so these pills stay legible on the dark
+  // surface.
+  --lt-info-text: #1e40af;
+  --lt-info: #2563eb;
+  --lt-positive-text: #166534;
+  --lt-positive: #16a34a;
+  --lt-warning-text: #92400e;
+  --lt-warning: var(--highlighted);
   --lt-border: var(--stroke);
   --lt-control-bg: var(--background);
-  --lt-radius: 0.375rem;
+  --lt-radius: 0.3rem;
   --lt-row-height: 3.375rem;
+  // nested tree card: the well it floats on, and a border strong enough to read
+  // against that well (the base --lt-border is too light to show there)
+  --lt-tree-well: color-mix(in srgb, var(--lt-border) 22%, var(--lt-row-bg));
+  --lt-tree-card-border: color-mix(in srgb, var(--lt-border) 70%, var(--lt-icon));
 
   // extra skin knobs; defaults match the values above so ZAC is unchanged
   --lt-control-border: var(--lt-border);
@@ -2334,7 +2359,10 @@ a {
   --lt-name-weight: 700;
   --lt-name-size: 0.8125rem;
   --lt-name-hover: var(--lt-link);
-  --lt-toolbar-margin-y: 0;
+  // more room above the controls (separating them from the page header), less below
+  // (tightening them to the table)
+  --lt-toolbar-margin-top: 1rem;
+  --lt-toolbar-margin-bottom: 0;
   --lt-toolbar-pad-bottom: 0.625rem;
   --lt-container-reserve: 5.625rem;
 }
@@ -2344,6 +2372,15 @@ a {
 .lt-skin-page {
   background: var(--formBackground);
   --inputBorderRadius: 0.375rem;
+}
+
+// roomier gutters on the skinned list pages so the content breathes away from the
+// panel edges instead of hugging them (base page gutter is 1.25rem)
+.ziti-page-container.lt-skin-page {
+  padding-top: 1.5rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-bottom: 1.25rem;
 }
 
 .lt-skin .lt-scroll {
@@ -2386,13 +2423,16 @@ a {
 .lt-cell .lt-chip {
   display: inline-flex;
   align-items: center;
+  min-height: 1.75rem;
+  box-sizing: border-box;
   margin-right: 0.25rem;
-  padding: 0.125rem 0.5rem;
-  font-size: 0.75rem;
+  padding: 0.15625rem 0.625rem;
+  font-size: 0.8125rem;
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1.2;
   color: var(--lt-link);
   background: color-mix(in srgb, var(--lt-link) 12%, transparent);
+  border: none;
   border-radius: 0.25rem;
   vertical-align: middle;
 }
@@ -2402,39 +2442,54 @@ a {
   background: color-mix(in srgb, var(--secondary) 14%, transparent);
 }
 
+// --- table pill standard ---------------------------------------------------
+// The shared look for status-style pills in list tables (Type, Status, Is Admin,
+// Token, Roles): weight 500, pill radius, a shared min-height so pills with and
+// without an icon match, and all contents sized together. The status-style pills
+// (Type, Status, Is Admin, Token) use the compact size - font-size 0.73125rem,
+// min-height 1.575rem; the Roles attribute chips run one step larger (0.8125rem /
+// 1.75rem). The strength comes from contrast, not a heavy fill: a light 14% tint
+// background paired with a dark, saturated label color, and a clearly defined 1px
+// border (accent at 42% mixed into the page background). Each variant keeps its
+// own accent; only the color changes.
+
 // Online/Offline status pill (Status column): online gets a green checkmark
 // (like the Is Admin badge), offline a muted dot. Both icons are drawn via
 // ::before because inline <svg> is stripped from [innerHTML] cellHtml output.
 .lt-cell .lt-status {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.1875rem 0.5rem 0.1875rem 0.4375rem;
-  font-size: 0.75rem;
-  font-weight: 600;
+  gap: 0.3375rem;
+  min-height: 1.575rem;
+  box-sizing: border-box;
+  padding: 0.140625rem 0.5625rem 0.140625rem 0.421875rem;
+  font-size: 0.73125rem;
+  font-weight: 500;
   line-height: 1.2;
+  border: 1px solid transparent;
   border-radius: 999px;
 
+  // shared icon slot so the offline dot and the online check badge take the same
+  // width and the labels line up across rows
   &::before {
     content: '';
     flex: 0 0 auto;
+    width: 0.84375rem;
+    height: 0.84375rem;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
   }
 }
 
+// filled green disc with a white check (badge style), not a bare checkmark
 .lt-cell .lt-status-online::before {
-  width: 0.8125rem;
-  height: 0.8125rem;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath fill='none' stroke='%2316a34a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M2.5 7.6 5.7 10.8 11.5 3.6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%2316a34a'/%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M4.8 8.2 7 10.4 11.2 5.6'/%3E%3C/svg%3E");
 }
 
+// small dot centered in the shared icon slot (keeps the theme color via currentColor)
 .lt-cell .lt-status-offline::before {
-  width: 0.4375rem;
-  height: 0.4375rem;
-  border-radius: 50%;
-  background: currentColor;
+  background: radial-gradient(circle at center, currentColor 0 0.225rem, transparent 0.243rem);
 }
 
 // Color-coded Type pill: Default = blue, Router = green, each with a small icon.
@@ -2443,45 +2498,54 @@ a {
 .lt-type-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.1875rem 0.5rem 0.1875rem 0.4375rem;
-  font-size: 0.75rem;
-  font-weight: 600;
+  gap: 0.45rem;
+  min-height: 1.575rem;
+  box-sizing: border-box;
+  padding: 0.140625rem 0.5625rem 0.140625rem 0.421875rem;
+  font-size: 0.73125rem;
+  font-weight: 500;
   line-height: 1.2;
+  // faint accent-tinted outline, matching the page header icon container (.lth-icon)
+  border: 1px solid transparent;
   border-radius: 999px;
 
+  // the icon is the same resource glyph the side nav uses (icomoon font), kept large
+  // so the detailed glyph stays legible at pill size; it inherits the pill text color
   &::before {
-    content: '';
     flex: 0 0 auto;
-    width: 0.8125rem;
-    height: 0.8125rem;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
+    font-family: 'icomoon';
+    font-size: 1.18125rem;
+    line-height: 1;
+    speak: none;
   }
 }
 
 .lt-type-default {
-  color: #1d4ed8;
-  background: color-mix(in srgb, #2563eb 12%, transparent);
+  color: var(--lt-info-text);
+  background: color-mix(in srgb, var(--lt-info) 14%, transparent);
+  border-color: color-mix(in srgb, var(--lt-info) 42%, var(--background));
 
+  // identities resource icon
   &::before {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cg fill='none' stroke='%232563eb' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2.5' y='3' width='11' height='7' rx='1'/%3E%3Cpath d='M6 12.5h4M8 10v2.5'/%3E%3C/g%3E%3C/svg%3E");
+    content: '\e92e';
   }
 }
 
 .lt-type-router {
-  color: #15803d;
-  background: color-mix(in srgb, #16a34a 12%, transparent);
+  color: var(--lt-positive-text);
+  background: color-mix(in srgb, var(--lt-positive) 14%, transparent);
+  border-color: color-mix(in srgb, var(--lt-positive) 42%, var(--background));
 
+  // routers resource icon
   &::before {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cg fill='none' stroke='%2316a34a' stroke-width='1.3'%3E%3Cpath d='M8 5.4 4.5 11M8 5.4 11.5 11'/%3E%3C/g%3E%3Cg fill='%2316a34a'%3E%3Ccircle cx='8' cy='4' r='1.7'/%3E%3Ccircle cx='4' cy='12' r='1.7'/%3E%3Ccircle cx='12' cy='12' r='1.7'/%3E%3C/g%3E%3C/svg%3E");
+    content: '\e95d';
   }
 }
 
 .lt-type-other {
   color: var(--lt-cell-text);
   background: color-mix(in srgb, var(--lt-border) 45%, transparent);
+  border-color: color-mix(in srgb, var(--lt-border) 55%, var(--background));
 
   &::before {
     display: none;
@@ -2489,13 +2553,17 @@ a {
 }
 
 .lt-cell .lt-status-online {
-  color: #15803d;
-  background: color-mix(in srgb, #16a34a 12%, transparent);
+  color: var(--lt-positive-text);
+  background: color-mix(in srgb, var(--lt-positive) 14%, transparent);
+  border-color: color-mix(in srgb, var(--lt-positive) 42%, var(--background));
 }
 
 .lt-cell .lt-status-offline {
-  color: var(--groupText);
-  background: color-mix(in srgb, var(--groupText) 14%, transparent);
+  // darken the muted group color toward the theme text (darker in light, lighter
+  // in dark) so the label contrasts strongly with its own fill
+  color: color-mix(in srgb, var(--groupText) 55%, var(--text));
+  background: color-mix(in srgb, var(--groupText) 16%, transparent);
+  border-color: color-mix(in srgb, var(--groupText) 42%, var(--background));
 }
 
 .cert {

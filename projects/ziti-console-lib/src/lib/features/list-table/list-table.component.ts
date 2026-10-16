@@ -20,6 +20,7 @@ import {
     Component,
     ElementRef,
     EventEmitter,
+    HostBinding,
     Input,
     NgZone,
     OnDestroy,
@@ -66,9 +67,56 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         }
     }
 
-    @Input() rowData: any[] = [];
+    @Input() set rowData(value: any[]) {
+        this._rowData = value || [];
+        this.rebuildFlatRows();
+    }
+    get rowData(): any[] {
+        return this._rowData;
+    }
+    private _rowData: any[] = [];
+
     @Input() isLoading = false;
-    @Input() options: {noSelect?: boolean; noMenu?: boolean; pager?: 'pages' | 'cursor'} = {noSelect: false, noMenu: false};
+    // fitColumns: keep the table within its visible width when resizing - a column can only grow until
+    // the other columns reach their set or minimum width, then the drag stops, so nothing is pushed
+    // off screen into the horizontal scroll. Off by default (columns can grow past the view and scroll).
+    @Input() options: {noSelect?: boolean; noMenu?: boolean; pager?: 'pages' | 'cursor'; tree?: boolean; fitColumns?: boolean} = {noSelect: false, noMenu: false};
+
+    /** Tree mode: fetch a row's children the first time it is expanded. Return the
+     *  child rows (any shape the columns render). A row with `leaf: true`, or one that
+     *  resolves to an empty array, shows no expand control. */
+    @Input() loadChildren?: (row: any) => Promise<any[]> | any[];
+
+    /** Tree mode: columns per depth level (index = level; level 0 uses `columns`).
+     *  Nested rows render in their own grid with a per-level sub-header, so children
+     *  need not match the parent. Unset renders children with the parent's columns.
+     *  The bound value is the default; users can show/hide/reorder/resize child columns
+     *  per depth from the Columns menu, persisted per table. */
+    @Input() set childColumnsByLevel(v: ListColumn[][] | undefined) {
+        this._declaredChildColumnsByLevel = v;
+        this.buildChildColumns();
+    }
+    get childColumnsByLevel(): ListColumn[][] | undefined {
+        return this._childColumnsByLevel;
+    }
+    private _declaredChildColumnsByLevel?: ListColumn[][];
+    private _childColumnsByLevel?: ListColumn[][];
+
+    /** Rebuilds the effective per-level child columns from the declared defaults with
+     *  any persisted order/visibility/width applied. */
+    private buildChildColumns(): void {
+        const declared = this._declaredChildColumnsByLevel;
+        if (!declared) {
+            this._childColumnsByLevel = undefined;
+            return;
+        }
+        this._childColumnsByLevel = declared.map((set, level) =>
+            set && set.length ? this.svc.applyPersistedChildState(level, set) : (set ? [...set] : set)
+        );
+    }
+
+    /** Emitted when a row is expanded or collapsed in tree mode. */
+    @Output() nodeToggled = new EventEmitter<{row: any; expanded: boolean}>();
     @Input() hasNext = false;
     @Input() hasPrev = false;
     @Input() startCount: any = '-';
@@ -111,6 +159,56 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     // ---- selection ----
     allToggled = false;
 
+    // ---- tree rows (flat render list + per-level indent) ----
+    /** Rows actually rendered: in tree mode this is the roots plus the expanded
+     *  descendants in order; otherwise it is `rowData` unchanged. */
+    flatRows: any[] = [];
+    /** Tree look: 'card' floats each nested level as a bordered card; 'flat' renders
+     *  nested rows inline with the table, sub-headers as plain strips, no card chrome.
+     *  The bound value is the default; the user can switch it from the Columns menu and
+     *  the choice is remembered per table. */
+    @Input() set treeVariant(v: 'card' | 'flat') {
+        this._declaredTreeVariant = v;
+        this._treeVariant = v;
+    }
+    get treeVariant(): 'card' | 'flat' {
+        return this._treeVariant;
+    }
+    private _treeVariant: 'card' | 'flat' = 'card';
+    private _declaredTreeVariant: 'card' | 'flat' = 'card';
+    /** Show the flat/nested row-layout switch in the Columns menu. Hidden for now;
+     *  the variant still comes from the `treeVariant` input. */
+    @Input() showTreeVariantToggle = false;
+    /** Flat variant only: draw a running guide rail down the left of each nested level. */
+    @Input() treeRail = false;
+    @HostBinding('class.lt-tree-flat') get isFlatTree(): boolean {
+        return this.isTreeMode && this.treeVariant === 'flat';
+    }
+
+    /** Show the flat/nested switch only when the table actually renders nested rows. */
+    get canSwitchTreeVariant(): boolean {
+        return this.isTreeMode && this.hasChildColumns;
+    }
+
+    setTreeVariant(variant: 'card' | 'flat'): void {
+        if (this._treeVariant === variant) {
+            return;
+        }
+        this._treeVariant = variant;
+        this.svc.saveTreeVariant(variant);
+    }
+    /** Left indent added per depth level, in rem. */
+    readonly treeIndentRem = 1.25;
+    // nudges cards past the first nested level right so their edge lands on the
+    // parent chevron (a nested chevron sits one grid-padding deeper than the root's)
+    readonly treeDeepAlignRem = 0.625;
+    // flat first-column indent: base clears the select gutter, then one chevron-width
+    // per level so each sub-header lines up under its parent row's name
+    readonly treeFlatBaseRem = 3.75;
+    readonly treeFlatStepRem = 2.125;
+    // nested card's left inset before per-depth indent; mirrors the 4rem td padding in scss
+    readonly treeCardBaseRem = 4;
+
     // ---- column chooser (skinned show/hide + reorder panel) ----
     showColumnChooser = false;
 
@@ -133,7 +231,20 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     private readonly MORE_BTN_W = 92; // px reserved for the "More" trigger when overflowing
 
     // ---- resize ----
-    private resizing?: {col: ListColumn; startX: number; startWidth: number};
+    // `level` is set when resizing a nested child column, so its width persists under
+    // that depth's own state rather than the parent table's
+    private resizing?: {
+        col: ListColumn;
+        startX: number;
+        startWidth: number;
+        persist: boolean;
+        level?: number;
+        // fitColumns: the one column that absorbs the opposite change so the table width stays constant.
+        sink?: ListColumn;
+        sinkStart?: number;
+        minDelta?: number;
+        maxDelta?: number;
+    };
     private readonly onPointerMove = (e: PointerEvent) => this.handleResizeMove(e);
     private readonly onPointerUp = () => this.handleResizeEnd();
 
@@ -154,7 +265,12 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         this._initialized = true;
         // set directly (no emit) to avoid forcing a second fetch when a host pre-seeded it
         this.tableFilterService.pageSize = this.svc.restorePageSize(this.initialPageSize);
+        this._treeVariant = this.svc.restoreTreeVariant(this._declaredTreeVariant);
+        this.buildChildColumns();
         this.buildColumns();
+        // all inputs are bound by now, so settle the render list against the final
+        // tree flag (the rowData setter may have run before `options` arrived)
+        this.rebuildFlatRows();
         this.updateEntityTypeLabel();
         this.subscription.add(
             this.tableFilterService.filtersChanged.subscribe((filters) => {
@@ -466,22 +582,244 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     // ---------------------------------------------------------------- selection
     toggleItem = (item: any): void => {
         item.selected = !item.selected;
-        this.allToggled = !_.isEmpty(this.rowData) && _.every(this.rowData, {selected: true});
+        this.allToggled = !_.isEmpty(this.flatRows) && _.every(this.flatRows, {selected: true});
         this.actionRequested.emit({action: 'toggleItem', item});
     };
 
     /** Some rows selected but the header select-all isn't fully on (indeterminate). */
     get someSelected(): boolean {
-        return !this.allToggled && _.some(this.rowData, {selected: true});
+        return !this.allToggled && _.some(this.flatRows, {selected: true});
     }
 
     toggleAll(): void {
         const newState = !this.allToggled;
         this.allToggled = newState;
-        _.forEach(this.rowData, (row) => {
+        _.forEach(this.flatRows, (row) => {
             row.selected = newState;
         });
         this.actionRequested.emit({action: 'toggleAll'});
+    }
+
+    // ---------------------------------------------------------------- tree rows
+    get isTreeMode(): boolean {
+        return !!this.options?.tree;
+    }
+
+    /** True when per-level child columns are configured (children render in their own
+     *  grid with a sub-header rather than the parent's columns). */
+    get hasChildColumns(): boolean {
+        return !!(this.childColumnsByLevel && this.childColumnsByLevel.length);
+    }
+
+    /** Columns used at a given depth: level 0 is the main (visible) columns; deeper
+     *  levels use `childColumnsByLevel`, falling back to the deepest set defined. */
+    columnsForLevel(level: number): ListColumn[] {
+        if (level <= 0 || !this.hasChildColumns) {
+            return this.visibleColumns;
+        }
+        const sets = this.childColumnsByLevel!;
+        const set = sets[level] ?? sets[sets.length - 1];
+        return (set ?? this.visibleColumns).filter((c) => !c.hidden);
+    }
+
+    /** Child columns the chooser lists at a depth: all declared ones (including hidden),
+     *  minus structural columns like the select checkbox or row-actions gutter. */
+    allColumnsForLevel(level: number): ListColumn[] {
+        return (this._childColumnsByLevel?.[level] ?? []).filter((c) => !c.excludeFromChooser);
+    }
+
+    /** Depths that offer configurable columns (skips the level-0 placeholder and any
+     *  level that only holds structural columns), one chooser group per level. */
+    get childLevels(): number[] {
+        const sets = this._childColumnsByLevel;
+        if (!sets) {
+            return [];
+        }
+        const levels: number[] = [];
+        sets.forEach((_set, level) => {
+            if (level > 0 && this.allColumnsForLevel(level).length) {
+                levels.push(level);
+            }
+        });
+        return levels;
+    }
+
+    /** Short hint shown next to a nested level in the chooser: its first few
+     *  configurable column labels, then "+N" so levels with many properties stay on
+     *  one line (structural columns like select/actions are left out, matching the list). */
+    childLevelLabel(level: number): string {
+        const labels = this.allColumnsForLevel(level)
+            .map((c) => c.label)
+            .filter(Boolean) as string[];
+        const max = 3;
+        if (labels.length <= max) {
+            return labels.join(' / ');
+        }
+        return labels.slice(0, max).join(' / ') + ' +' + (labels.length - max);
+    }
+
+    /** Key of the column that carries the expand control at a depth (the flagged one,
+     *  else the first column of that level). */
+    treeColumnKeyForLevel(level: number): string | undefined {
+        const cols = this.columnsForLevel(level);
+        return (cols.find((c) => c.treeColumn) || cols[0])?.key;
+    }
+
+    isTreeColumn(col: ListColumn, level: number): boolean {
+        return this.isTreeMode && col.key === this.treeColumnKeyForLevel(level);
+    }
+
+    /** Tree cell test for the fixed (level 0) grid. */
+    isTreeCell(col: ListColumn): boolean {
+        return this.isTreeColumn(col, 0);
+    }
+
+    /** Columns a full-width nested row spans: the data columns plus the select and
+     *  menu gutters, matching the header's cell count. */
+    get treeSpanCount(): number {
+        return this.visibleColumns.length + (this.options?.noSelect ? 0 : 1) + (this.options?.noMenu ? 0 : 1);
+    }
+
+    /** Per-level indent (rem). The card variant adds a half-step past the first level
+     *  so the card edge centers on the parent chevron; the flat variant steps evenly. */
+    treeIndentFor(level: number): number {
+        const align = this.treeVariant === 'card' && level >= 2 ? this.treeDeepAlignRem : 0;
+        return level * this.treeIndentRem + align;
+    }
+
+    /** Flat variant: left pad (rem) of a nested row's first column (sub-header + data),
+     *  one chevron-width per level so it lines up under the parent row's name. */
+    treeFlatFirstIndentRem(level: number): number {
+        return this.treeFlatBaseRem + level * this.treeFlatStepRem;
+    }
+
+    /** Flat variant: drop the chevron slot when nothing in the row's group can
+     *  expand, so a leaf-only level's values sit under their column header instead
+     *  of being pushed over by an empty slot. The card variant keeps the slot so its
+     *  nested card edges stay aligned. */
+    showTreeLead(row: any): boolean {
+        return !(this.isFlatTree && row?.__treeSiblingsCanExpand === false);
+    }
+
+    /** Left inset (rem) of a nested card at a given depth, matching the td padding. */
+    private treeCardLeftRem(level: number): number {
+        return this.treeCardBaseRem + this.treeIndentFor(level);
+    }
+
+    /** Vertical guide lines redrawing each ancestor card's left edge at this row's
+     *  position, so a card's left border stays continuous where a nested card is
+     *  inserted between its rows. Returns a stack of 1px background gradients, or null
+     *  when there is no ancestor to redraw (roots and the first nested level). */
+    treeAncestorRails(level: number): string | null {
+        if (!this.isTreeMode || level < 2) {
+            return null;
+        }
+        const flat = this.treeVariant === 'flat';
+        // card mode always redraws ancestor card borders; flat mode draws the rail
+        // only when the optional running rail is turned on
+        if (flat && !this.treeRail) {
+            return null;
+        }
+        const color = flat
+            ? 'var(--lt-tree-rail, color-mix(in srgb, var(--lt-border) 55%, var(--lt-icon)))'
+            : 'var(--lt-tree-card-border, color-mix(in srgb, var(--lt-border) 70%, var(--lt-icon)))';
+        const rails: string[] = [];
+        for (let k = 1; k < level; k++) {
+            const x = this.treeCardLeftRem(k);
+            rails.push(`linear-gradient(90deg, transparent ${x}rem, ${color} ${x}rem, ${color} calc(${x}rem + 1px), transparent calc(${x}rem + 1px))`);
+        }
+        return rails.join(', ');
+    }
+
+    /** CSS grid-template-columns for a level's columns: fixed px where a width is set,
+     *  otherwise an even flexible share. */
+    gridTemplate(level: number): string {
+        return this.columnsForLevel(level)
+            .map((c) => (c.width != null ? `${c.width}px` : 'minmax(0, 1fr)'))
+            .join(' ');
+    }
+
+    /** A row can be expanded unless it is a leaf, has no loaded children, and has no
+     *  loader left to try. */
+    canExpand(row: any): boolean {
+        if (!this.isTreeMode || row?.leaf === true) {
+            return false;
+        }
+        if (Array.isArray(row?.children) && row.children.length) {
+            return true;
+        }
+        return !!this.loadChildren && row?.__treeLoaded !== true;
+    }
+
+    toggleNode(row: any): void {
+        if (!this.isTreeMode || row?.__treeLoading) {
+            return;
+        }
+        if (row.__treeExpanded) {
+            row.__treeExpanded = false;
+            this.rebuildFlatRows();
+            this.nodeToggled.emit({row, expanded: false});
+            return;
+        }
+        const hasChildren = Array.isArray(row.children) && row.children.length > 0;
+        if (this.loadChildren && row.__treeLoaded !== true && !hasChildren) {
+            row.__treeLoading = true;
+            this.rebuildFlatRows(); // surface the spinner while children load
+            Promise.resolve(this.loadChildren(row)).then(
+                (children) => this.onChildrenLoaded(row, children),
+                () => this.onChildrenLoaded(row, [], true)
+            );
+            return;
+        }
+        row.__treeExpanded = true;
+        this.rebuildFlatRows();
+        this.nodeToggled.emit({row, expanded: true});
+    }
+
+    private onChildrenLoaded(row: any, children: any[], failed = false): void {
+        row.__treeLoading = false;
+        if (failed) {
+            // leave it collapsed so the user can try again
+            this.rebuildFlatRows();
+            return;
+        }
+        row.children = Array.isArray(children) ? children : [];
+        row.__treeLoaded = true;
+        if (!row.children.length) {
+            row.leaf = true; // nothing under it, so stop offering the control
+        }
+        row.__treeExpanded = true;
+        this.rebuildFlatRows();
+        this.nodeToggled.emit({row, expanded: true});
+    }
+
+    /** Flatten the tree into the ordered render list, tagging each row with its depth.
+     *  Outside tree mode the render list is `rowData` as-is. */
+    private rebuildFlatRows(): void {
+        if (!this.isTreeMode) {
+            this.flatRows = this._rowData;
+            return;
+        }
+        const out: any[] = [];
+        const walk = (rows: any[], level: number): void => {
+            const list = rows || [];
+            // when no sibling can expand, the level needs no chevron slot
+            const siblingsCanExpand = list.some((r) => this.canExpand(r));
+            list.forEach((row, idx) => {
+                row.__treeLevel = level;
+                row.__treeSiblingsCanExpand = siblingsCanExpand;
+                // first child of a group drives the per-expansion sub-header;
+                // first and last mark the top and bottom of the nested card
+                row.__treeFirstChild = level > 0 && idx === 0;
+                row.__treeLastChild = level > 0 && idx === list.length - 1;
+                out.push(row);
+                if (row.__treeExpanded && Array.isArray(row.children) && row.children.length) {
+                    walk(row.children, level + 1);
+                }
+            });
+        };
+        walk(this._rowData, 0);
+        this.flatRows = out;
     }
 
     // ---------------------------------------------------------------- sort
@@ -526,7 +864,11 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
 
     resetTableColumns(): void {
         this.svc.reset();
+        this._treeVariant = this._declaredTreeVariant;
         this.allColumns = this._initialColumns.map((c) => ({...c}));
+        this._childColumnsByLevel = this._declaredChildColumnsByLevel?.map((set) =>
+            set ? set.map((c) => ({...c})) : set
+        );
         this.updateVisible();
         this.closeActionMenu();
     }
@@ -538,14 +880,46 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         return this.allColumns.filter((c) => c.hidden && !c.excludeFromChooser && !this.isDefaultHidden(c)).length;
     }
 
-    /** True when visibility + order match the originally declared columns. */
+    /** True when visibility, order, and width all match the originally declared
+     *  columns. Width is included so resizing a column alone still enables the
+     *  reset button; a column with no declared width uses null on both sides so
+     *  it only counts as changed once the user drags it to a concrete width. */
     get columnsAtDefault(): boolean {
+        if (this.canSwitchTreeVariant && this._treeVariant !== this._declaredTreeVariant) {
+            return false;
+        }
         if (this.allColumns.length !== this._initialColumns.length) {
             return false;
         }
-        return this.allColumns.every((c, i) => {
+        const parentAtDefault = this.allColumns.every((c, i) => {
             const init = this._initialColumns[i];
-            return init && init.key === c.key && !!init.hidden === !!c.hidden;
+            return init
+                && init.key === c.key
+                && !!init.hidden === !!c.hidden
+                && (init.width ?? null) === (c.width ?? null);
+        });
+        return parentAtDefault && this.childColumnsAtDefault;
+    }
+
+    /** True when every nested level's columns match their declared order/visibility/width. */
+    private get childColumnsAtDefault(): boolean {
+        const declared = this._declaredChildColumnsByLevel;
+        const current = this._childColumnsByLevel;
+        if (!declared || !current) {
+            return true;
+        }
+        return declared.every((set, level) => {
+            const cur = current[level] ?? [];
+            if (!set || set.length !== cur.length) {
+                return set ? set.length === cur.length : true;
+            }
+            return set.every((d, i) => {
+                const c = cur[i];
+                return c
+                    && d.key === c.key
+                    && !!d.hidden === !!c.hidden
+                    && (d.width ?? null) === (c.width ?? null);
+            });
         });
     }
 
@@ -575,9 +949,19 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         if (!target) {
             return;
         }
+        // never let the user hide the last remaining column
+        if (!target.hidden && this.isLastVisibleColumn(target)) {
+            return;
+        }
         target.hidden = !target.hidden;
         this.updateVisible();
         this.svc.saveState(this.allColumns);
+    }
+
+    /** True when this is the only visible column, so its toggle is disabled to keep at
+     *  least one column on screen. */
+    isLastVisibleColumn(col: ListColumn): boolean {
+        return !col.hidden && this.chooserColumns.filter((c) => !c.hidden).length <= 1;
     }
 
     /** Columns shown in the Columns menu. */
@@ -601,6 +985,54 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         this.svc.saveState(this.allColumns);
     }
 
+    // ---- nested-column chooser: one expandable group per depth level ----
+    private nestedChooserOpen = new Set<string>();
+
+    isNestedGroupOpen(id: string): boolean {
+        return this.nestedChooserOpen.has(id);
+    }
+
+    toggleNestedGroup(id: string): void {
+        if (this.nestedChooserOpen.has(id)) {
+            this.nestedChooserOpen.delete(id);
+        } else {
+            this.nestedChooserOpen.add(id);
+        }
+    }
+
+    toggleChildColumnVisible(level: number, col: ListColumn): void {
+        if (col.hideable === false) {
+            return;
+        }
+        const set = this._childColumnsByLevel?.[level];
+        const target = set?.find((c) => c.key === col.key);
+        if (!target) {
+            return;
+        }
+        // keep at least one column visible at this depth
+        if (!target.hidden && this.isLastVisibleChildColumn(level, target)) {
+            return;
+        }
+        target.hidden = !target.hidden;
+        this.svc.saveChildState(level, set!);
+    }
+
+    isLastVisibleChildColumn(level: number, col: ListColumn): boolean {
+        return !col.hidden && this.allColumnsForLevel(level).filter((c) => !c.hidden).length <= 1;
+    }
+
+    childChooserReorder(level: number, event: CdkDragDrop<ListColumn[]>): void {
+        if (event.previousIndex === event.currentIndex) {
+            return;
+        }
+        const set = this._childColumnsByLevel?.[level];
+        if (!set) {
+            return;
+        }
+        moveItemInArray(set, event.previousIndex, event.currentIndex);
+        this.svc.saveChildState(level, set);
+    }
+
     // ---------------------------------------------------------------- resize
     startResize(col: ListColumn, event: PointerEvent): void {
         if (col.resizable === false) {
@@ -610,7 +1042,26 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         event.stopPropagation();
         const th = (event.target as HTMLElement)?.closest('th') as HTMLElement;
         const startWidth = col.width ?? th?.offsetWidth ?? 150;
-        this.resizing = {col, startX: event.clientX, startWidth};
+        this.resizing = {col, startX: event.clientX, startWidth, persist: true};
+        this.setupFitCompensation(col, startWidth, this.visibleColumns, (key) => this.measuredHeaderWidth(key));
+        document.addEventListener('pointermove', this.onPointerMove);
+        document.addEventListener('pointerup', this.onPointerUp);
+    }
+
+    /** Resize a nested row's column. Measures the sub-header cell's current rendered
+     *  width so a flexible (1fr) column converts to a concrete width before dragging;
+     *  the grid reflows live because its template reads each column's width. */
+    startChildResize(col: ListColumn, level: number, event: PointerEvent): void {
+        if (col.resizable === false) {
+            return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        const cell = (event.target as HTMLElement)?.closest('.lt-tree-subhead-cell') as HTMLElement;
+        const startWidth = col.width ?? Math.round(cell?.getBoundingClientRect().width ?? 150);
+        const grid = cell?.closest('.lt-tree-grid') as HTMLElement | null;
+        this.resizing = {col, startX: event.clientX, startWidth, persist: true, level};
+        this.setupFitCompensation(col, startWidth, this.columnsForLevel(level), (key) => this.measuredCellWidth(grid, level, key));
         document.addEventListener('pointermove', this.onPointerMove);
         document.addEventListener('pointerup', this.onPointerUp);
     }
@@ -619,14 +1070,82 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         if (!this.resizing) {
             return;
         }
-        const delta = event.clientX - this.resizing.startX;
-        const min = this.resizing.col.minWidth ?? 40;
-        this.resizing.col.width = Math.max(min, Math.round(this.resizing.startWidth + delta));
+        const r = this.resizing;
+        const delta = event.clientX - r.startX;
+        if (r.sink && r.sinkStart != null) {
+            // fitColumns: the column grows and the sink shrinks by the same amount, so the table stays
+            // the same width and no other column (notably the tree column) shifts. The drag stops once
+            // the column or the sink reaches its minimum.
+            const d = Math.min(r.maxDelta ?? delta, Math.max(r.minDelta ?? delta, delta));
+            r.col.width = Math.round(r.startWidth + d);
+            r.sink.width = Math.round(r.sinkStart - d);
+        } else {
+            const min = r.col.minWidth ?? 40;
+            r.col.width = Math.max(min, Math.round(r.startWidth + delta));
+        }
+    }
+
+    /** fitColumns: pick the sink column and the range the drag may travel, so the column and the sink
+     *  trade width while every other column stays fixed. No-op (plain resize) when fitColumns is off. */
+    private setupFitCompensation(col: ListColumn, startWidth: number, columns: ListColumn[], measure: (key: string) => number): void {
+        if (!this.options?.fitColumns || !this.resizing) {
+            return;
+        }
+        const sink = this.pickSink(col, columns);
+        if (!sink) {
+            return;
+        }
+        const FLOOR = 60;
+        const sinkStart = sink.width ?? measure(sink.key);
+        // Freeze any other flexible column to its rendered width so only the column and the sink move
+        // (otherwise the browser would still redistribute slack among the flexible columns).
+        columns.forEach((c) => {
+            if (c.key !== col.key && c.key !== sink.key && c.width == null) {
+                c.width = measure(c.key);
+            }
+        });
+        this.resizing.sink = sink;
+        this.resizing.sinkStart = sinkStart;
+        this.resizing.maxDelta = Math.max(0, sinkStart - (sink.minWidth ?? FLOOR)); // grow until the sink hits its min
+        this.resizing.minDelta = Math.min(0, (col.minWidth ?? 40) - startWidth); // shrink until the column hits its min
+    }
+
+    /** The column that absorbs a resize: a flexible column first (it is meant to take up slack), else
+     *  the nearest resizable column that is not the tree column, so indentation never shifts. */
+    private pickSink(col: ListColumn, columns: ListColumn[]): ListColumn | undefined {
+        const usable = columns.filter((c) => c.key !== col.key && c.resizable !== false && !c.treeColumn);
+        const flex = usable.find((c) => c.width == null);
+        if (flex) {
+            return flex;
+        }
+        const idx = columns.findIndex((c) => c.key === col.key);
+        return usable.find((c) => columns.indexOf(c) > idx) ?? usable[usable.length - 1];
+    }
+
+    private measuredHeaderWidth(key: string): number {
+        const host = this.el?.nativeElement as HTMLElement | undefined;
+        const th = host?.querySelector(`[id="Header_${key}"]`) as HTMLElement | null;
+        return th ? Math.round(th.getBoundingClientRect().width) : 0;
+    }
+
+    private measuredCellWidth(grid: HTMLElement | null, level: number, key: string): number {
+        const idx = this.columnsForLevel(level).findIndex((c) => c.key === key);
+        const cells = grid?.querySelectorAll('.lt-tree-subhead-cell');
+        const cell = cells ? (cells[idx] as HTMLElement | undefined) : undefined;
+        return cell ? Math.round(cell.getBoundingClientRect().width) : 0;
     }
 
     private handleResizeEnd(): void {
-        if (this.resizing) {
-            this.svc.saveWidth(this.resizing.col.key, this.resizing.col.width!, this.allColumns);
+        const r = this.resizing;
+        if (r?.persist) {
+            if (r.level != null) {
+                const set = this._childColumnsByLevel?.[r.level];
+                if (set) {
+                    this.svc.saveChildWidth(r.level, r.col.key, r.col.width!, set);
+                }
+            } else {
+                this.svc.saveWidth(r.col.key, r.col.width!, this.allColumns);
+            }
         }
         this.resizing = undefined;
         this.detachResizeListeners();

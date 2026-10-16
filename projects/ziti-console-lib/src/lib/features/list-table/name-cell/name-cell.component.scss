@@ -3,6 +3,12 @@
   flex-direction: row;
   align-items: center;
   gap: 0.3125rem;
+
+  // the name renders as <strong> (browser-default heavy bold); keep it semibold so
+  // the primary column reads lighter, matching the reference tables
+  strong {
+    font-weight: 600;
+  }
 }
 
 .cell-name-container {

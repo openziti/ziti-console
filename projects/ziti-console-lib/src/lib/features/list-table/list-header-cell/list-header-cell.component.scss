@@ -11,6 +11,7 @@
   height: 100%;
   cursor: default;
   gap: 0.25rem;
+  position: relative;
 
   &.nf-can-sort {
     cursor: pointer;
@@ -73,10 +74,17 @@
   }
 }
 
-// hide + filter affordances reveal on header hover (parity with the old table)
+// hide + filter affordances reveal on header hover (parity with the old table).
+// taken out of the flow so the label starts at the cell's text edge rather than
+// being pushed right by a control that is invisible until hover; they sit in the
+// left padding gutter the header shares with the body cells.
 .lt-col-hide-button,
 .lt-col-filter-button {
   opacity: 0;
+  position: absolute;
+  left: -1.125rem;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .lt-header-container:hover .lt-col-hide-button,

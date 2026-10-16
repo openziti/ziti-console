@@ -108,6 +108,9 @@ export interface ListColumn<T = any> {
     hideable?: boolean;
     /** Leave the column out of the Columns menu (it still renders in the table). */
     excludeFromChooser?: boolean;
+    /** In tree mode, the column that holds the expand/collapse control and per-level
+     *  indentation. When no column sets this, the first visible column is used. */
+    treeColumn?: boolean;
     /** Defaults to true. When false the column cannot be drag-reordered. */
     reorderable?: boolean;
     /** Initial visibility (was ag-grid `hide`). */
