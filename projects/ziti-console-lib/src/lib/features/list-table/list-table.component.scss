@@ -448,7 +448,7 @@
 }
 
 // --- nested rows render as one floating card inset from the table edges ---
-// each nested row is its own <tr>, so the card is assembled from horizontal
+// each nested row is its own <tr>, so the card is assembled from horizontal strips:
 // each strip draws its own card edges (sub-header the top, last child the bottom); the
 // cell stays transparent and supplies the inset so the card floats off both edges.
 .lt-tree-subhead-row > td,

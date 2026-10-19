@@ -212,9 +212,9 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     // nudges cards past the first nested level right so their edge lands on the
     // parent chevron (a nested chevron sits one grid-padding deeper than the root's)
     readonly treeDeepAlignRem = 0.625;
-    // flat first-column indent so each sub-header lines up under its parent row's name;
-    // the base lands on the name, which sits inside the tree cell's 0.625rem padding
-    readonly treeFlatBaseRem = 3.125;
+    // flat first-column indent: base clears the select gutter, then one chevron-width
+    // per level so each sub-header lines up under its parent row's name
+    readonly treeFlatBaseRem = 3.75;
     readonly treeFlatStepRem = 2.125;
     // nested card's left inset before per-depth indent; mirrors the 4rem td padding in scss
     readonly treeCardBaseRem = 4;

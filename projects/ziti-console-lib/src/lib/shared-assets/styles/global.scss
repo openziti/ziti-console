@@ -55,22 +55,22 @@ body {
      (--primary, --background, --stroke, ...). Consuming apps reskin the table by
      overriding these (or the underlying tokens) in their own global styles. */
   --lt-bg: transparent;
-  --lt-header-bg: var(--background);
-  --lt-header-text: var(--groupText);
-  --lt-header-underline: var(--stroke);
+  --lt-header-bg: var(--background, #f6f7fb);
+  --lt-header-text: var(--groupText, #78859f);
+  --lt-header-underline: var(--stroke, #d4d9e2);
   --lt-row-bg: transparent;
   --lt-row-alt-bg: transparent; /* no zebra — rows read via the hairline divider + hover */
   --lt-row-hover: var(--tableRowHover, rgba(0, 39, 171, 0.06));
   --lt-row-selected: color-mix(in srgb, var(--primary) 8%, transparent);
-  --lt-cell-text: var(--text);
-  --lt-link: var(--primary);
-  --lt-border: var(--stroke);
-  --lt-icon: var(--icon);
-  --lt-icon-active: var(--primary);
+  --lt-cell-text: var(--text, #000);
+  --lt-link: var(--primary, #0027ab);
+  --lt-border: var(--stroke, #d4d9e2);
+  --lt-icon: var(--icon, #658292);
+  --lt-icon-active: var(--primary, #0027ab);
   --lt-row-height: 3.125rem;
-  --lt-radius: var(--inputBorderRadius);
+  --lt-radius: var(--inputBorderRadius, 0.375rem);
   --lt-toolbar-height: 2.3rem;
-  --lt-control-bg: var(--background);
+  --lt-control-bg: var(--background, #f6f7fb);
   --lt-font: 'Open Sans', sans-serif;
   /* shared toolbar-control metrics (buttons, menus) so spacing/type stay consistent */
   --lt-control-gap: 0.4375rem;
@@ -2313,7 +2313,7 @@ a {
 // --lt-* defaults for that table's subtree only, drawing from ZAC's own tokens so it
 // matches the app and follows its theming; the legacy page (.ag-cell) is untouched.
 .lt-skin {
-  --lt-bg: var(--background);
+  --lt-bg: var(--background, #f6f7fb);
   // shade the header off the row surface using the theme's own cool neutral (the
   // border color), so it stays in the same family as the rest of the table instead of
   // a flat grey. The theme's --shaded can equal the background (no contrast), so this
@@ -2324,15 +2324,15 @@ a {
   // the muted group color is too faint on the shaded header band, so pull it toward the
   // theme text color: darker in light mode, lighter in dark, keeping the cool hue
   --lt-header-text: color-mix(in srgb, var(--groupText, #78859f) 70%, var(--text));
-  --lt-header-underline: var(--stroke);
-  --lt-row-bg: var(--background);
+  --lt-header-underline: var(--stroke, #d4d9e2);
+  --lt-row-bg: var(--background, #f6f7fb);
   --lt-row-alt-bg: transparent;
-  --lt-row-hover: var(--shaded);
+  --lt-row-hover: var(--shaded, #f6f7fb);
   --lt-row-selected: color-mix(in srgb, var(--primary) 8%, transparent);
-  --lt-cell-text: var(--text);
-  --lt-link: var(--primary);
-  --lt-icon: var(--icon);
-  --lt-icon-active: var(--primary);
+  --lt-cell-text: var(--text, #000);
+  --lt-link: var(--primary, #0027ab);
+  --lt-icon: var(--icon, #658292);
+  --lt-icon-active: var(--primary, #0027ab);
   // status/type accent palette (text + fill base). Defaults are the light-mode
   // shades; dark.css lifts the text tokens so these pills stay legible on the dark
   // surface.
@@ -2341,9 +2341,9 @@ a {
   --lt-positive-text: #166534;
   --lt-positive: #16a34a;
   --lt-warning-text: #92400e;
-  --lt-warning: var(--highlighted);
-  --lt-border: var(--stroke);
-  --lt-control-bg: var(--background);
+  --lt-warning: var(--highlighted, #f5a93d);
+  --lt-border: var(--stroke, #d4d9e2);
+  --lt-control-bg: var(--background, #f6f7fb);
   --lt-radius: 0.3rem;
   --lt-row-height: 3.375rem;
   // nested tree card: the well it floats on, and a border strong enough to read
@@ -2355,7 +2355,7 @@ a {
   --lt-control-border: var(--lt-border);
   --lt-header-sorted-text: var(--lt-icon-active);
   --lt-header-sorted-weight: 700;
-  --lt-name-text: var(--tableText);
+  --lt-name-text: var(--tableText, #22222a);
   --lt-name-weight: 700;
   --lt-name-size: 0.8125rem;
   --lt-name-hover: var(--lt-link);

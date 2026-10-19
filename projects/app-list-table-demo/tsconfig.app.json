@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../out-tsc/app-list-table-demo",
+    "types": [],
+    "esModuleInterop": true,
+    "resolveJsonModule": true
+  },
+  "files": [
+    "src/main.ts"
+  ],
+  "include": [
+    "**/*.d.ts"
+  ]
+}
