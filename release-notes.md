@@ -1,3 +1,10 @@
+# app-ziti-console-v4.7.0
+# ziti-console-lib-v1.7.0
+## Feature/Improvements
+* [PR #974](https://github.com/openziti/ziti-console/pull/974) - Add Service Policies and Service Edge Router Policies list pages using the new list-table component
+* [PR #971](https://github.com/openziti/ziti-console/pull/971) - Support expandable tree rows in the list-table, with a standalone tree demo and skin hardening
+
+
 # app-ziti-console-v4.6.0
 # ziti-console-lib-v1.6.0
 ## Feature/Improvements
