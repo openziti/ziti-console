@@ -19,6 +19,8 @@
     "build-lib": "node ./scripts/check-route-segments.mjs && ng build ziti-console-lib && ng build ziti-console --base-href ./ && node ./scripts/rewrite-bundle-css.mjs",
     "build-lib:once": "ng build ziti-console-lib",
     "build:config-builder": "ng build ziti-console-lib && ng build config-builder && node ./scripts/rewrite-bundle-css.mjs config-builder",
+    "build:list-table-demo": "ng build ziti-console-lib && ng build app-list-table-demo --configuration production && node ./scripts/rewrite-bundle-css.mjs app-list-table-demo",
+    "list-table-demo": "npm run build-lib:once && ng serve app-list-table-demo --port 4455",
     "watch:lib": "ng build ziti-console-lib --watch",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
