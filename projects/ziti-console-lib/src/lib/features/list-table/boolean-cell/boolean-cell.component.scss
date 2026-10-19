@@ -5,22 +5,29 @@
 
 // soft green "yes" pill with a checkmark (the skin style); nothing renders
 // when false. Muted green so it reads as a status, not a bright alert.
+// table pill standard (see .lt-type-badge / .lt-status in global.scss): light
+// weight + faint accent border mixed into the page background
 .bool-true {
   display: inline-flex;
   align-items: center;
-  gap: 0.3125rem;
-  padding: 0.1875rem 0.5rem 0.1875rem 0.4375rem;
+  gap: 0.3375rem;
+  min-height: 1.575rem;
+  box-sizing: border-box;
+  padding: 0.140625rem 0.5625rem 0.140625rem 0.421875rem;
   font-family: var(--lt-font);
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.73125rem;
+  font-weight: 500;
   line-height: 1.2;
-  color: #15803d;
-  background: color-mix(in srgb, #16a34a 12%, transparent);
+  color: var(--lt-positive-text, #166534);
+  background: color-mix(in srgb, var(--lt-positive, #16a34a) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--lt-positive, #16a34a) 42%, var(--background));
   border-radius: 999px;
 }
 
 .bool-check {
   flex: 0 0 auto;
   display: block;
-  color: #16a34a;
+  width: 0.75rem;
+  height: 0.75rem;
+  color: var(--lt-positive, #16a34a);
 }

@@ -1,0 +1,31 @@
+/* The library's global styles lock body scroll for the full app shell. This standalone demo
+   has no shell, so let the page scroll normally. */
+html,
+body.ziti-admin-console {
+  height: auto;
+  min-height: 100%;
+  overflow: auto;
+}
+
+.demo-tabs {
+  display: flex;
+  gap: 0.375rem;
+  margin: 0 0 1.25rem;
+
+  button {
+    padding: 0.4rem 0.9rem;
+    font: inherit;
+    cursor: pointer;
+    // the demo wrapper carries .lt-skin, so these resolve from the library tokens
+    color: var(--lt-cell-text);
+    background: var(--lt-control-bg);
+    border: 1px solid var(--lt-border);
+    border-radius: var(--lt-radius);
+
+    &.active {
+      color: #fff;
+      background: var(--lt-link);
+      border-color: var(--lt-link);
+    }
+  }
+}

@@ -395,6 +395,99 @@
         }
       }
     },
+    "app-list-table-demo": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "projects/app-list-table-demo",
+      "sourceRoot": "projects/app-list-table-demo/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/app-list-table-demo",
+            "index": "projects/app-list-table-demo/src/index.html",
+            "main": "projects/app-list-table-demo/src/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "projects/app-list-table-demo/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "./node_modules/ziti-console-lib/assets/",
+                "output": "/assets"
+              }
+            ],
+            "styles": [
+              "projects/ziti-console-lib/src/lib/shared-assets/styles/global.scss",
+              "projects/ziti-console-lib/src/lib/shared-assets/styles/icons.scss",
+              "projects/app-list-table-demo/src/styles.scss"
+            ],
+            "scripts": [],
+            "preserveSymlinks": true,
+            "allowedCommonJsDependencies": [
+              "file-saver",
+              "jquery",
+              "lottie-web",
+              "moment/moment",
+              "lodash",
+              "ajv",
+              "ajv-formats",
+              "semver",
+              "@stoplight/json-ref-resolver",
+              "angular-csv-ext/dist/Angular-csv",
+              "leaflet"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "6mb",
+                  "maximumError": "30mb"
+                }
+              ],
+              "outputHashing": "all",
+              "aot": true,
+              "optimization": true,
+              "sourceMap": false,
+              "extractLicenses": true,
+              "buildOptimizer": true
+            },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "outputHashing": "none",
+              "sourceMap": true,
+              "namedChunks": false,
+              "aot": true
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "app-list-table-demo:build:production"
+            },
+            "development": {
+              "buildTarget": "app-list-table-demo:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    },
     "ziti-console-lib": {
       "projectType": "library",
       "root": "projects/ziti-console-lib",

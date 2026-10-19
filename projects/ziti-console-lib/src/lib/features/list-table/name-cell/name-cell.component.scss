@@ -3,6 +3,12 @@
   flex-direction: row;
   align-items: center;
   gap: 0.3125rem;
+
+  // the name renders as <strong> (browser-default heavy bold); keep it semibold so
+  // the primary column reads lighter, matching the reference tables
+  strong {
+    font-weight: 600;
+  }
 }
 
 .cell-name-container {
@@ -31,15 +37,15 @@
 }
 
 .cell-name-prefix-icon {
-  color: var(--highlighted);
+  color: var(--lt-warning, #f5a93d);
   font-size: 1rem;
 }
 
 .circle {
   &.online {
-    background-color: var(--green);
+    background-color: var(--lt-positive, #16a34a);
   }
   &.unknown {
-    background-color: var(--highlighted);
+    background-color: var(--lt-warning, #f5a93d);
   }
 }

@@ -46,6 +46,7 @@ import {OsInfoTooltipComponent} from "../../features/list-table/os-info-tooltip/
 import {SdkInfoTooltipComponent} from "../../features/list-table/sdk-info-tooltip/sdk-info-tooltip.component";
 import {BooleanCellComponent} from "../../features/list-table/boolean-cell/boolean-cell.component";
 import {TokenCellComponent} from "../../features/list-table/token-cell/token-cell.component";
+import {AttributeCellComponent} from "../../features/list-table/attribute-cell/attribute-cell.component";
 
 @Injectable({
     providedIn: 'root'
@@ -434,28 +435,6 @@ export class IdentitiesPageService extends ListPageServiceClass {
             return `<span class="lt-type-badge ${cls}">${t}</span>`;
         };
 
-        // Light skinned role chips (the legacy rolesRenderer paints
-        // heavy dark overlap chips; this stays scoped to the beta page).
-        const rolesChipRenderer = (row) => {
-            const colId = row?.column?.colId;
-            const attrs = row?.data?.[colId + 'Display'] || row?.data?.[colId] || [];
-            if (!attrs?.length) {
-                return '';
-            }
-            return attrs.map((attr) => {
-                const raw = String(attr?.name ?? attr ?? '').trim();
-                if (!raw) {
-                    return '';
-                }
-                // named attributes (@) use the secondary color; role attributes (#)
-                // the primary color, matching the tag selector's distinction
-                const isNamed = raw.charAt(0) === '@';
-                const label = isNamed ? raw : (raw.charAt(0) === '#' ? raw : '#' + raw);
-                const cls = isNamed ? 'lt-chip lt-chip-at' : 'lt-chip';
-                return `<span class="${cls}">${label}</span>`;
-            }).join('');
-        };
-
         let tableColumns: ListColumn[] = [
             {
                 key: 'name',
@@ -498,7 +477,12 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 label: 'Roles',
                 filterType: 'ATTRIBUTE',
                 headerParams: identityRolesHeaderComponentParams,
-                cellHtml: rolesChipRenderer,
+                cell: AttributeCellComponent,
+                cellInputs: (ctx) => ({
+                    attributes: ctx.row?.roleAttributesDisplay ?? ctx.row?.roleAttributes,
+                    field: ctx.colId,
+                    filterLabel: 'Roles',
+                }),
                 onCellClick: (ctx) => {
                     if (this.hasSelectedText()) {
                         return;
@@ -583,7 +567,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
             {
                 key: 'token',
                 field: 'token',
-                label: 'Token',
+                label: 'Enrollment',
                 cell: TokenCellComponent,
                 cellInputs: (ctx) => ({row: ctx.row, emitAction: ctx.emitAction}),
                 resizable: true,

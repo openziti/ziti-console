@@ -17,7 +17,7 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {ListColumn, ListSortDir} from '../list-column';
 
-/** Header cell for {@link ListTableComponent}: label, 3-state sort (asc/desc), and hide. */
+/** Header cell for {@link ListTableComponent}: label and 3-state sort (asc/desc). */
 @Component({
     selector: 'lib-list-header-cell',
     templateUrl: './list-header-cell.component.html',
@@ -29,7 +29,6 @@ export class ListHeaderCellComponent {
     @Input() sortDir: ListSortDir;
 
     @Output() sortChanged = new EventEmitter<{colId: string; dir: ListSortDir}>();
-    @Output() hideColumn = new EventEmitter<ListColumn>();
 
     get enableSorting(): boolean {
         return !!(this.column?.sortable || this.column?.enableSorting);
@@ -43,10 +42,5 @@ export class ListHeaderCellComponent {
         this.sortDir = dir;
         this.column.onSort?.(this.column.key, dir);
         this.sortChanged.emit({colId: this.column.key, dir});
-    }
-
-    hide(event: MouseEvent): void {
-        event.stopPropagation();
-        this.hideColumn.emit(this.column);
     }
 }

@@ -10,7 +10,7 @@
   >
     <span class="token-chip-label">{{ statusLabel }}</span>
     <svg class="token-caret" viewBox="0 0 10 6" width="9" height="6" aria-hidden="true">
-      <path fill="currentColor" d="M0 0h10L5 6z"/>
+      <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M1 1.5 5 5 9 1.5"/>
     </svg>
   </button>
 
@@ -24,6 +24,22 @@
       }
     </div>
   }
+} @else if (canReissue) {
+  <button
+    type="button"
+    class="token-chip reissue"
+    (click)="runAction('reset-enrollment', $event)"
+    aria-label="Reissue enrollment"
+  >
+    <svg class="token-reissue-icon" viewBox="0 0 16 16" aria-hidden="true"
+         fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12.5 5A5 5 0 0 0 3.5 6.5"/>
+      <path d="M3.5 11A5 5 0 0 0 12.5 9.5"/>
+      <path d="M12.5 2.5V5H10"/>
+      <path d="M3.5 13.5V11H6"/>
+    </svg>
+    <span class="token-chip-label">Reissue</span>
+  </button>
 } @else {
   <span class="token-empty">&#8212;</span>
 }

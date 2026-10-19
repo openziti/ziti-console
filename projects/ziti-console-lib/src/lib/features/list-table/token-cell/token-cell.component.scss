@@ -3,23 +3,29 @@
   align-items: center;
 }
 
+// table pill standard (see .lt-type-badge / .lt-status in global.scss): light
+// weight + pill radius + faint accent border mixed into the page background
 .token-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.3125rem;
-  height: 1.5rem;
-  padding: 0 0.5rem;
+  gap: 0.3375rem;
+  min-height: 1.575rem;
+  box-sizing: border-box;
+  padding: 0.140625rem 0.5625rem;
   font-family: var(--lt-font);
-  font-size: 0.75rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 0.75rem;
+  font-size: 0.73125rem;
+  font-weight: 500;
+  line-height: 1.2;
+  border: 1px solid transparent;
+  border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
   transition: filter 0.15s;
 
   .token-caret {
     display: block;
+    width: 0.5625rem;
+    height: auto;
     opacity: 0.75;
   }
 
@@ -30,13 +36,27 @@
 
   &.available {
     color: var(--lt-link);
-    background: color-mix(in srgb, var(--lt-link) 12%, var(--lt-control-bg));
+    background: color-mix(in srgb, var(--lt-link) 14%, var(--lt-control-bg));
+    border-color: color-mix(in srgb, var(--lt-link) 42%, var(--background));
   }
 
-  &.expired {
-    color: color-mix(in srgb, var(--highlighted) 62%, #000);
-    background: color-mix(in srgb, var(--highlighted) 26%, var(--lt-control-bg));
+  &.expired,
+  &.reissue {
+    // deep rust label (not a darkened amber) so it contrasts strongly with the
+    // light amber fill, matching the other pills' label strength; dark mode lifts
+    // the text token so it stays legible on the dark fill
+    color: var(--lt-warning-text, #92400e);
+    background: color-mix(in srgb, var(--lt-warning, #f5a93d) 20%, var(--lt-control-bg));
+    border-color: color-mix(in srgb, var(--lt-warning, #f5a93d) 55%, var(--background));
   }
+}
+
+// reissue is a direct-action button (no dropdown): a refresh icon before the label
+.token-reissue-icon {
+  flex: 0 0 auto;
+  display: block;
+  width: 0.75rem;
+  height: 0.75rem;
 }
 
 .token-empty {

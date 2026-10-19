@@ -11,6 +11,7 @@
   height: 100%;
   cursor: default;
   gap: 0.25rem;
+  position: relative;
 
   &.nf-can-sort {
     cursor: pointer;
@@ -54,39 +55,6 @@
   &.show-input-filter {
     width: 100%;
   }
-}
-
-.lt-header-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--lt-icon);
-  cursor: pointer;
-  transition: opacity 0.2s, color 0.2s;
-
-  svg {
-    display: block;
-  }
-
-  &:hover {
-    color: var(--lt-icon-active);
-  }
-}
-
-// hide + filter affordances reveal on header hover (parity with the old table)
-.lt-col-hide-button,
-.lt-col-filter-button {
-  opacity: 0;
-}
-
-.lt-header-container:hover .lt-col-hide-button,
-.lt-header-container:hover .lt-col-filter-button {
-  opacity: 1;
-}
-
-.lt-col-filter-button.nf-filter-applied {
-  opacity: 1;
-  color: var(--lt-icon-active);
 }
 
 // dual up/down caret: faint on sortable columns, active direction emphasized.

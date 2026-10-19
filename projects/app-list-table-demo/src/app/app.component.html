@@ -1,0 +1,44 @@
+<div class="lt-skin-page lt-skin" style="padding: 2rem; max-width: 1100px; margin: 0 auto;">
+  <h2 style="margin: 0 0 0.25rem;">lib-list-table &mdash; tree demo</h2>
+  <p style="margin: 0 0 1.25rem; color: var(--groupText, #6b7280);">
+    Static sample data. Expand a gateway to see its sensors. gateway-02 loads lazily (spinner);
+    gateway-03's load fails (retry). Nested rows are selectable &mdash; selected: {{ selectedCount }}.
+  </p>
+
+  <div class="demo-tabs">
+    <button type="button" [class.active]="activeTab === 'flat'" (click)="activeTab = 'flat'">Flat</button>
+    <button type="button" [class.active]="activeTab === 'card'" (click)="activeTab = 'card'">Contained (card)</button>
+  </div>
+
+  @if (activeTab === 'flat') {
+    <p style="margin: 0 0 1rem; color: var(--groupText, #6b7280);">
+      Nested rows sit inline with the table; the first column tucks under the parent row's name.
+    </p>
+    <lib-list-table
+      class="lt-skin"
+      tableId="list-table-demo-flat"
+      [columns]="columns"
+      [rowData]="rows"
+      [options]="{ tree: true, selectChildren: true }"
+      [childColumnsByLevel]="childColumnsByLevel"
+      [loadChildren]="loadChildren"
+      (selectionChanged)="onSelectionChanged($event)"
+      treeVariant="flat">
+    </lib-list-table>
+  } @else {
+    <p style="margin: 0 0 1rem; color: var(--groupText, #6b7280);">
+      Each nested level floats as a bordered card, inset from the table edges.
+    </p>
+    <lib-list-table
+      class="lt-skin"
+      tableId="list-table-demo-card"
+      [columns]="columns"
+      [rowData]="rowsCard"
+      [options]="{ tree: true, selectChildren: true }"
+      [childColumnsByLevel]="childColumnsByLevel"
+      [loadChildren]="loadChildren"
+      (selectionChanged)="onSelectionChanged($event)"
+      treeVariant="card">
+    </lib-list-table>
+  }
+</div>

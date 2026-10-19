@@ -63,6 +63,8 @@ export class ListFilterCellComponent implements OnInit, OnDestroy {
     selectedValues: string[] = [];
     /** In-dropdown search text for the multi-select attribute combo. */
     attrSearch = '';
+    /** Match any selected attribute (or) vs every one (and); attribute filters only. */
+    attrSemantic: 'AnyOf' | 'AllOf' = 'AnyOf';
 
     open = false;
     menuLeft = 0;
@@ -295,9 +297,19 @@ export class ListFilterCellComponent implements OnInit, OnDestroy {
             value: [...this.selectedValues],
             label: this.selectedValues.map((v) => this.labelForValue(v)).join(', '),
             type: this.isAttributeMode ? 'ATTRIBUTE' : 'MULTISELECT',
-            semantic: 'AnyOf',
+            semantic: this.isAttributeMode ? this.attrSemantic : 'AnyOf',
         };
         this.filterService.updateFilter(filter);
+    }
+
+    setSemantic(semantic: 'AnyOf' | 'AllOf'): void {
+        if (this.attrSemantic === semantic) {
+            return;
+        }
+        this.attrSemantic = semantic;
+        if (this.selectedValues.length) {
+            this.emitMulti();
+        }
     }
 
     // ------------------------------------------------------------------ date range
@@ -369,6 +381,7 @@ export class ListFilterCellComponent implements OnInit, OnDestroy {
         this.textValue = '';
         this.dateRangeStart = null;
         this.dateRangeEnd = null;
+        this.attrSemantic = 'AnyOf';
         this.removeThis();
     }
 
@@ -396,6 +409,9 @@ export class ListFilterCellComponent implements OnInit, OnDestroy {
             this.textValue = match.value ?? '';
         } else if (this.mode === 'multi') {
             this.selectedValues = _.isArray(match.value) ? [...match.value] : [match.value];
+            if (this.isAttributeMode) {
+                this.attrSemantic = (match as any).semantic === 'AllOf' ? 'AllOf' : 'AnyOf';
+            }
         } else if (this.mode === 'daterange') {
             // keep the locally chosen preset label; match.value is the raw [start,end] range
         } else {

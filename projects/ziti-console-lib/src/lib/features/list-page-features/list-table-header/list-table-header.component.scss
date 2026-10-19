@@ -6,8 +6,9 @@
 .lth {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  padding-bottom: 0.5rem;
+  // roomier separation between the title block, the tabs, and the toolbar below
+  gap: 0.875rem;
+  padding-bottom: 0.625rem;
 }
 
 .lth-main {
@@ -25,9 +26,11 @@
   width: 2.75rem;
   height: 2.75rem;
   border-radius: 0.75rem;
-  color: var(--primary);
-  background: color-mix(in srgb, var(--primary) 12%, var(--background));
-  border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--background));
+  // dark mode lifts --lt-header-icon to a lighter blue so the glyph and tile read
+  // against the dark surface; light mode falls back to the brand primary unchanged
+  color: var(--lt-header-icon, var(--primary));
+  background: color-mix(in srgb, var(--lt-header-icon, var(--primary)) 12%, var(--background));
+  border: 1px solid color-mix(in srgb, var(--lt-header-icon, var(--primary)) 22%, var(--background));
 
   svg,
   img {
@@ -45,7 +48,7 @@
   line-height: 1;
 
   &:before {
-    color: var(--primary);
+    color: var(--lt-header-icon, var(--primary));
   }
 }
 
