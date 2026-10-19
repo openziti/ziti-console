@@ -314,7 +314,6 @@
                   [column]="col"
                   [sortDir]="col.sortDir"
                   (sortChanged)="onHeaderSort($event)"
-                  (hideColumn)="hideColumn($event)"
                 ></lib-list-header-cell>
                 @if (col.resizable !== false) {
                   <span class="lt-resize" (pointerdown)="startResize(col, $event)"></span>
@@ -341,6 +340,7 @@
                     [attr.colspan]="treeSpanCount"
                     [style.--lt-tree-indent.rem]="treeIndentFor(row.__treeLevel)"
                     [style.--lt-tree-first-indent.rem]="treeFlatFirstIndentRem(row.__treeLevel)"
+                    [style.--lt-tree-lead-offset]="treeLeadOffset(row.__treeLevel)"
                     [style.background-image]="treeAncestorRails(row.__treeLevel)"
                   >
                     <div
@@ -348,7 +348,7 @@
                       [style.grid-template-columns]="gridTemplate(row.__treeLevel)"
                     >
                       @for (col of columnsForLevel(row.__treeLevel); track col.key; let last = $last) {
-                        <span class="lt-tree-subhead-cell" [ngClass]="cellClass(col)">
+                        <span class="lt-tree-subhead-cell" [class.lt-tree-indent-col]="isTreeColumn(col, row.__treeLevel)" [ngClass]="cellClass(col)">
                           {{ col.label }}
                           @if (!last && col.resizable !== false) {
                             <span class="lt-resize lt-tree-resize" (pointerdown)="startChildResize(col, row.__treeLevel, $event)"></span>
@@ -369,6 +369,7 @@
                   [attr.colspan]="treeSpanCount"
                   [style.--lt-tree-indent.rem]="treeIndentFor(row.__treeLevel)"
                   [style.--lt-tree-first-indent.rem]="treeFlatFirstIndentRem(row.__treeLevel)"
+                  [style.--lt-tree-lead-offset]="treeLeadOffset(row.__treeLevel)"
                   [style.background-image]="treeAncestorRails(row.__treeLevel)"
                 >
                   <div
@@ -378,6 +379,7 @@
                     @for (col of columnsForLevel(row.__treeLevel); track col.key) {
                       <div
                         class="lt-tree-cellbox"
+                        [class.lt-tree-indent-col]="isTreeColumn(col, row.__treeLevel)"
                         [ngClass]="cellClass(col)"
                         (click)="onCellClick(col, row, i)"
                         (mouseenter)="onCellHover(col, row, i, $event)"

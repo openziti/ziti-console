@@ -449,10 +449,8 @@
 
 // --- nested rows render as one floating card inset from the table edges ---
 // each nested row is its own <tr>, so the card is assembled from horizontal
-// strips: every strip draws the left and right edge, the sub-header strip draws
-// the top and rounds the top corners, and the last child strip draws the bottom
-// and rounds the bottom. The cell itself stays transparent and supplies the inset
-// (a base gutter plus the per-depth indent) so the card floats off both edges.
+// each strip draws its own card edges (sub-header the top, last child the bottom); the
+// cell stays transparent and supplies the inset so the card floats off both edges.
 .lt-tree-subhead-row > td,
 .lt-tree-child-row > td {
   padding: 0 1rem 0 calc(4rem + var(--lt-tree-indent, 0rem));
@@ -482,7 +480,8 @@
 .lt-tree-grid {
   display: grid;
   align-items: center;
-  column-gap: 0.5rem;
+  --lt-tree-col-gap: 0.5rem;
+  column-gap: var(--lt-tree-col-gap);
   min-height: var(--lt-row-height);
   padding-left: 0.625rem;
   padding-right: 0.625rem;
@@ -566,11 +565,11 @@
     padding-left: 0;
     padding-right: 0;
   }
-  // indent only the first column so the grey strip spans the whole width; the
-  // inline value lines each level up with its parent row's name text.
-  .lt-tree-grid > .lt-tree-subhead-cell:first-child,
-  .lt-tree-grid > .lt-tree-cellbox:first-child {
-    padding-left: var(--lt-tree-first-indent, 5.875rem);
+  // indent only the tree column so the grey strip spans the whole width; the lead
+  // offset pulls the indent back by any structural columns ahead of it so it lines
+  // up with the parent row's name text whether or not a select column leads the grid.
+  .lt-tree-grid > .lt-tree-indent-col {
+    padding-left: calc(var(--lt-tree-first-indent, 5.875rem) - var(--lt-tree-lead-offset, 0px));
   }
 
   // strip every card edge; rows blend into the table surface

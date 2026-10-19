@@ -84,7 +84,9 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
 
     /** Tree mode: fetch a row's children the first time it is expanded. Return the
      *  child rows (any shape the columns render). A row with `leaf: true`, or one that
-     *  resolves to an empty array, shows no expand control. */
+     *  resolves to an empty array, shows no expand control.
+     *  Note: tree runtime state (`children`, `leaf`, `__tree*`) is written onto the row
+     *  objects, so a host that reuses a row in a save call should strip it first. */
     @Input() loadChildren?: (row: any) => Promise<any[]> | any[];
 
     /** Tree mode: columns per depth level (index = level; level 0 uses `columns`).
@@ -102,20 +104,30 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     private _declaredChildColumnsByLevel?: ListColumn[][];
     private _childColumnsByLevel?: ListColumn[][];
 
+    // Cached per level; a width change mutates the same column objects, so no rebuild is needed.
+    private _childLevelCache = new Map<number, ListColumn[]>();
+    private _childColsVersion = 0;
+    private _childLevelCacheVersion = -1;
+
+    private invalidateColumnCache(): void {
+        this._childColsVersion++;
+    }
+
     /** Rebuilds the effective per-level child columns from the declared defaults with
      *  any persisted order/visibility/width applied. */
     private buildChildColumns(): void {
         const declared = this._declaredChildColumnsByLevel;
         if (!declared) {
             this._childColumnsByLevel = undefined;
+            this.invalidateColumnCache();
             return;
         }
         this._childColumnsByLevel = declared.map((set, level) =>
             set && set.length ? this.svc.applyPersistedChildState(level, set) : (set ? [...set] : set)
         );
+        this.invalidateColumnCache();
     }
 
-    /** Emitted when a row is expanded or collapsed in tree mode. */
     @Output() nodeToggled = new EventEmitter<{row: any; expanded: boolean}>();
     @Input() hasNext = false;
     @Input() hasPrev = false;
@@ -159,7 +171,6 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     // ---- selection ----
     allToggled = false;
 
-    // ---- tree rows (flat render list + per-level indent) ----
     /** Rows actually rendered: in tree mode this is the roots plus the expanded
      *  descendants in order; otherwise it is `rowData` unchanged. */
     flatRows: any[] = [];
@@ -197,14 +208,13 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         this._treeVariant = variant;
         this.svc.saveTreeVariant(variant);
     }
-    /** Left indent added per depth level, in rem. */
     readonly treeIndentRem = 1.25;
     // nudges cards past the first nested level right so their edge lands on the
     // parent chevron (a nested chevron sits one grid-padding deeper than the root's)
     readonly treeDeepAlignRem = 0.625;
-    // flat first-column indent: base clears the select gutter, then one chevron-width
-    // per level so each sub-header lines up under its parent row's name
-    readonly treeFlatBaseRem = 3.75;
+    // flat first-column indent so each sub-header lines up under its parent row's name;
+    // the base lands on the name, which sits inside the tree cell's 0.625rem padding
+    readonly treeFlatBaseRem = 3.125;
     readonly treeFlatStepRem = 2.125;
     // nested card's left inset before per-depth indent; mirrors the 4rem td padding in scss
     readonly treeCardBaseRem = 4;
@@ -491,9 +501,10 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         this.hiddenColumns = this.allColumns
             .filter((c) => c.hidden)
             .map((c) => ({...c, headerName: c.label}));
+        this.invalidateColumnCache();
     }
 
-    trackRow = (index: number, row: any) => row?.id ?? row?.name ?? index;
+    trackRow = (index: number, row: any) => row?.__treeRowKey ?? row?.id ?? row?.name ?? index;
     trackCol = (index: number, col: ListColumn) => col.key;
 
     colWidth(col: ListColumn): string | null {
@@ -617,9 +628,19 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         if (level <= 0 || !this.hasChildColumns) {
             return this.visibleColumns;
         }
+        if (this._childLevelCacheVersion !== this._childColsVersion) {
+            this._childLevelCache.clear();
+            this._childLevelCacheVersion = this._childColsVersion;
+        }
+        const cached = this._childLevelCache.get(level);
+        if (cached) {
+            return cached;
+        }
         const sets = this.childColumnsByLevel!;
         const set = sets[level] ?? sets[sets.length - 1];
-        return (set ?? this.visibleColumns).filter((c) => !c.hidden);
+        const cols = (set ?? this.visibleColumns).filter((c) => !c.hidden);
+        this._childLevelCache.set(level, cols);
+        return cols;
     }
 
     /** Child columns the chooser lists at a depth: all declared ones (including hidden),
@@ -644,9 +665,7 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         return levels;
     }
 
-    /** Short hint shown next to a nested level in the chooser: its first few
-     *  configurable column labels, then "+N" so levels with many properties stay on
-     *  one line (structural columns like select/actions are left out, matching the list). */
+    /** Chooser hint for a nested level: its first few column labels, then "+N". */
     childLevelLabel(level: number): string {
         const labels = this.allColumnsForLevel(level)
             .map((c) => c.label)
@@ -658,18 +677,36 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         return labels.slice(0, max).join(' / ') + ' +' + (labels.length - max);
     }
 
-    /** Key of the column that carries the expand control at a depth (the flagged one,
-     *  else the first column of that level). */
+    /** Key of the column that carries the expand control at a depth: the flagged one,
+     *  else the first real data column (skipping a leading structural column such as a
+     *  select checkbox the host put at the start). */
     treeColumnKeyForLevel(level: number): string | undefined {
         const cols = this.columnsForLevel(level);
-        return (cols.find((c) => c.treeColumn) || cols[0])?.key;
+        return (cols.find((c) => c.treeColumn) || cols.find((c) => !c.excludeFromChooser) || cols[0])?.key;
+    }
+
+    /** Width of the columns before the tree column, used to pull the flat first-column
+     *  indent back by whatever structural columns (like a select checkbox) sit ahead of
+     *  it, so its content still lands under the parent row's name. */
+    treeLeadOffset(level: number): string {
+        const cols = this.columnsForLevel(level);
+        const treeKey = this.treeColumnKeyForLevel(level);
+        let px = 0;
+        let count = 0;
+        for (const c of cols) {
+            if (c.key === treeKey) {
+                break;
+            }
+            px += c.width ?? 0;
+            count++;
+        }
+        return count ? `calc(${px}px + ${count} * var(--lt-tree-col-gap, 0.5rem))` : '0px';
     }
 
     isTreeColumn(col: ListColumn, level: number): boolean {
         return this.isTreeMode && col.key === this.treeColumnKeyForLevel(level);
     }
 
-    /** Tree cell test for the fixed (level 0) grid. */
     isTreeCell(col: ListColumn): boolean {
         return this.isTreeColumn(col, 0);
     }
@@ -680,8 +717,7 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         return this.visibleColumns.length + (this.options?.noSelect ? 0 : 1) + (this.options?.noMenu ? 0 : 1);
     }
 
-    /** Per-level indent (rem). The card variant adds a half-step past the first level
-     *  so the card edge centers on the parent chevron; the flat variant steps evenly. */
+    /** Per-level indent (rem); the card variant nudges levels past the first so the edge meets the parent chevron. */
     treeIndentFor(level: number): number {
         const align = this.treeVariant === 'card' && level >= 2 ? this.treeDeepAlignRem : 0;
         return level * this.treeIndentRem + align;
@@ -693,10 +729,7 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         return this.treeFlatBaseRem + level * this.treeFlatStepRem;
     }
 
-    /** Flat variant: drop the chevron slot when nothing in the row's group can
-     *  expand, so a leaf-only level's values sit under their column header instead
-     *  of being pushed over by an empty slot. The card variant keeps the slot so its
-     *  nested card edges stay aligned. */
+    /** Flat variant: drop the chevron slot for a leaf-only level so values sit under their header. */
     showTreeLead(row: any): boolean {
         return !(this.isFlatTree && row?.__treeSiblingsCanExpand === false);
     }
@@ -706,11 +739,24 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         return this.treeCardBaseRem + this.treeIndentFor(level);
     }
 
+    private _railCache = new Map<string, string | null>();
+
     /** Vertical guide lines redrawing each ancestor card's left edge at this row's
      *  position, so a card's left border stays continuous where a nested card is
      *  inserted between its rows. Returns a stack of 1px background gradients, or null
      *  when there is no ancestor to redraw (roots and the first nested level). */
     treeAncestorRails(level: number): string | null {
+        const key = `${level}|${this._treeVariant}|${this.treeRail}|${this.isTreeMode}`;
+        const cached = this._railCache.get(key);
+        if (cached !== undefined) {
+            return cached;
+        }
+        const rails = this.computeAncestorRails(level);
+        this._railCache.set(key, rails);
+        return rails;
+    }
+
+    private computeAncestorRails(level: number): string | null {
         if (!this.isTreeMode || level < 2) {
             return null;
         }
@@ -731,8 +777,6 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         return rails.join(', ');
     }
 
-    /** CSS grid-template-columns for a level's columns: fixed px where a width is set,
-     *  otherwise an even flexible share. */
     gridTemplate(level: number): string {
         return this.columnsForLevel(level)
             .map((c) => (c.width != null ? `${c.width}px` : 'minmax(0, 1fr)'))
@@ -801,7 +845,7 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
             return;
         }
         const out: any[] = [];
-        const walk = (rows: any[], level: number): void => {
+        const walk = (rows: any[], level: number, parentKey: string): void => {
             const list = rows || [];
             // when no sibling can expand, the level needs no chevron slot
             const siblingsCanExpand = list.some((r) => this.canExpand(r));
@@ -812,13 +856,16 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
                 // first and last mark the top and bottom of the nested card
                 row.__treeFirstChild = level > 0 && idx === 0;
                 row.__treeLastChild = level > 0 && idx === list.length - 1;
+                // branch-unique track key: the same entity can appear under two parents
+                // in a flat tree, so fold the parent path in to keep @for keys distinct
+                row.__treeRowKey = parentKey + '/' + (row?.id ?? row?.name ?? idx);
                 out.push(row);
                 if (row.__treeExpanded && Array.isArray(row.children) && row.children.length) {
-                    walk(row.children, level + 1);
+                    walk(row.children, level + 1, row.__treeRowKey);
                 }
             });
         };
-        walk(this._rowData, 0);
+        walk(this._rowData, 0, '');
         this.flatRows = out;
     }
 
@@ -829,17 +876,7 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         });
     }
 
-    // ---------------------------------------------------------------- hide / show / reorder
-    hideColumn(col: ListColumn): void {
-        const target = this.allColumns.find((c) => c.key === col.key);
-        if (!target) {
-            return;
-        }
-        target.hidden = true;
-        this.updateVisible();
-        this.svc.saveState(this.allColumns);
-    }
-
+    // ---------------------------------------------------------------- show / reorder
     showColumn(event: {column: any; visible: boolean}): void {
         const target = this.allColumns.find((c) => c.key === event.column?.key);
         if (!target) {
@@ -949,7 +986,6 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         if (!target) {
             return;
         }
-        // never let the user hide the last remaining column
         if (!target.hidden && this.isLastVisibleColumn(target)) {
             return;
         }
@@ -1009,11 +1045,11 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         if (!target) {
             return;
         }
-        // keep at least one column visible at this depth
         if (!target.hidden && this.isLastVisibleChildColumn(level, target)) {
             return;
         }
         target.hidden = !target.hidden;
+        this.invalidateColumnCache();
         this.svc.saveChildState(level, set!);
     }
 
@@ -1030,6 +1066,7 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
             return;
         }
         moveItemInArray(set, event.previousIndex, event.currentIndex);
+        this.invalidateColumnCache();
         this.svc.saveChildState(level, set);
     }
 
@@ -1096,12 +1133,17 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
             return;
         }
         const FLOOR = 60;
-        const sinkStart = sink.width ?? measure(sink.key);
+        // measure() returns 0 when the element isn't found; fall back so a width of 0
+        // never gets frozen in (and later persisted) for the sink or a flex column
+        const sinkStart = sink.width ?? (measure(sink.key) || startWidth);
         // Freeze any other flexible column to its rendered width so only the column and the sink move
         // (otherwise the browser would still redistribute slack among the flexible columns).
         columns.forEach((c) => {
             if (c.key !== col.key && c.key !== sink.key && c.width == null) {
-                c.width = measure(c.key);
+                const w = measure(c.key);
+                if (w > 0) {
+                    c.width = w;
+                }
             }
         });
         this.resizing.sink = sink;
