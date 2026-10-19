@@ -46,8 +46,8 @@
     // light amber fill, matching the other pills' label strength; dark mode lifts
     // the text token so it stays legible on the dark fill
     color: var(--lt-warning-text, #92400e);
-    background: color-mix(in srgb, var(--highlighted) 20%, var(--lt-control-bg));
-    border-color: color-mix(in srgb, var(--highlighted) 55%, var(--background));
+    background: color-mix(in srgb, var(--lt-warning, #f5a93d) 20%, var(--lt-control-bg));
+    border-color: color-mix(in srgb, var(--lt-warning, #f5a93d) 55%, var(--background));
   }
 }
 

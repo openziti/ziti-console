@@ -2340,6 +2340,7 @@ a {
   --lt-info: #2563eb;
   --lt-positive-text: #166534;
   --lt-positive: #16a34a;
+  --lt-negative: #dc2626;
   --lt-warning-text: #92400e;
   --lt-warning: var(--highlighted, #f5a93d);
   --lt-border: var(--stroke, #d4d9e2);
@@ -2350,9 +2351,17 @@ a {
   // against that well (the base --lt-border is too light to show there)
   --lt-tree-well: color-mix(in srgb, var(--lt-border) 22%, var(--lt-row-bg));
   --lt-tree-card-border: color-mix(in srgb, var(--lt-border) 70%, var(--lt-icon));
+  // vertical rail drawn beside nested rows in the flat variant (lighter than the card border)
+  --lt-tree-rail: color-mix(in srgb, var(--lt-border) 55%, var(--lt-icon));
+  // drop shadow under the nested card's last row (the lift)
+  --lt-tree-card-shadow: 0 2px 4px color-mix(in srgb, #000 10%, transparent);
+  // left inset of a nested card before its per-depth indent; must match treeCardBaseRem in the component
+  --lt-card-inset: 4rem;
 
   // extra skin knobs; defaults match the values above so ZAC is unchanged
   --lt-control-border: var(--lt-border);
+  // the control-border shorthand, as one token so the many inputs/menus share it
+  --lt-control-border-full: var(--lt-control-border-width) solid var(--lt-control-border, var(--lt-border));
   --lt-header-sorted-text: var(--lt-icon-active);
   --lt-header-sorted-weight: 700;
   --lt-name-text: var(--tableText, #22222a);

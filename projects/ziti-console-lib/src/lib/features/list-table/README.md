@@ -139,10 +139,11 @@ owns the variant through the input.
 | `columns` | `ListColumn[]` | Level-0 column definitions. |
 | `rowData` | `any[]` | Rows to render (tree roots in tree mode). |
 | `isLoading` | `boolean` | Shows the loading state. |
-| `options` | `{ noSelect?, noMenu?, pager?, tree?, fitColumns? }` | Structural options. `tree` enables nested rows; `fitColumns` trades width between a column and a sink on resize. |
+| `options` | `{ noSelect?, noMenu?, pager?, tree?, selectChildren?, fitColumns? }` | Structural options. `tree` enables nested rows; `selectChildren` lets nested rows be selected (opt-in); `fitColumns` trades width between a column and a sink on resize. |
 | `loadChildren` | `(row) => any[] \| Promise<any[]>` | Lazy child loader (tree mode). |
 | `childColumnsByLevel` | `ListColumn[][]` | Columns per depth (index = level). |
 | `treeVariant` | `'card' \| 'flat'` | Nested-row layout. |
+| `treeRail` | `boolean` | Draw a vertical rail beside nested rows in the flat variant. |
 | `showTreeVariantToggle` | `boolean` | Show the card/flat switch in the Columns menu. |
 | `menuItems` / `headerActions` | `any[]` | Row `...` menu items and header actions. |
 | `startCount` / `endCount` / `totalCount` / `hasNext` / `hasPrev` | - | Pager display. |
@@ -155,6 +156,7 @@ owns the variant through the input.
 |---|---|---|
 | `actionRequested` | `{ action, item? }` | A row action, header action, selection toggle, or pager action occurs. |
 | `nodeToggled` | `{ row, expanded }` | A tree row is expanded or collapsed. |
+| `selectionChanged` | `any[]` | The set of selected rows changes (includes nested rows when `selectChildren` is on). |
 | `tableReady` | the table instance | After the table initializes. |
 
 ## ListColumn reference (common fields)
@@ -173,3 +175,19 @@ owns the variant through the input.
 | `treeColumn` | Tree mode: the column that holds the expand control and indentation. |
 
 See `list-column.ts` for the full interface.
+
+## Theming
+
+Everything is styled through `--lt-*` CSS custom properties defined under `.lt-skin` in
+`shared-assets/styles/global.scss`. A host reskins the table by redefining any of them on its own
+`.lt-skin` scope; each has a safe fallback, so overriding is optional. The tree-specific tokens:
+
+| Token | Controls |
+|---|---|
+| `--lt-tree-card-border` | Border around a nested card (the `card` variant). |
+| `--lt-tree-well` | Background the nested card floats on. |
+| `--lt-tree-rail` | Vertical rail drawn beside nested rows (the `flat` variant with `treeRail`). |
+| `--lt-tree-col-gap` | Column gap inside a nested row. |
+| `--lt-tree-first-indent` | Indent of the first nested column under the parent name. |
+
+See `global.scss` for the full token list (colors, spacing, row height, radius).

@@ -1,4 +1,4 @@
-@for (chip of chips; track chip.label) {
+@for (chip of chips; track chip.raw) {
   <span class="lt-chip" [class.lt-chip-at]="chip.isNamed">
     <span class="lt-chip-label">{{ chip.label }}</span>
     <span class="lt-chip-actions" (click)="$event.stopPropagation()">

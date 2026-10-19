@@ -16,7 +16,7 @@
 
 import {Injectable} from '@angular/core';
 import {Subject} from 'rxjs';
-import {ListColumn} from './list-column';
+import {ListColumn, TreeVariant} from './list-column';
 
 /**
  * Per-instance state + localStorage persistence for {@link ListTableComponent}.
@@ -54,7 +54,7 @@ export class ListTableService {
     }
 
     /** Returns the saved tree layout ('card' | 'flat'), or `fallback` if none. */
-    restoreTreeVariant(fallback: 'card' | 'flat'): 'card' | 'flat' {
+    restoreTreeVariant(fallback: TreeVariant): TreeVariant {
         try {
             const raw = localStorage.getItem(this.treeVariantKey());
             return raw === 'card' || raw === 'flat' ? raw : fallback;
@@ -63,7 +63,7 @@ export class ListTableService {
         }
     }
 
-    saveTreeVariant(variant: 'card' | 'flat'): void {
+    saveTreeVariant(variant: TreeVariant): void {
         try {
             localStorage.setItem(this.treeVariantKey(), variant);
         } catch {
@@ -103,63 +103,64 @@ export class ListTableService {
      * and order applied. Columns not present in the saved state keep their declared
      * position (appended after the saved ones).
      */
-    applyPersistedState(columns: ListColumn[]): ListColumn[] {
+    /** Parses a stored JSON value, or null when missing/unavailable/malformed. */
+    private readJson(key: string): any {
+        try {
+            const raw = localStorage.getItem(key);
+            return raw ? JSON.parse(raw) : null;
+        } catch {
+            return null;
+        }
+    }
+
+    /** Applies a widths map then a persisted order/visibility list onto a fresh copy of
+     *  `columns`. Shared by the top-level and per-depth restore paths. */
+    private mergePersistedColumns(columns: ListColumn[], widths: any, state: any[]): ListColumn[] {
         let cols: ListColumn[] = columns.map((c) => ({...c}));
-
-        // widths
-        try {
-            const raw = localStorage.getItem(this.widthsKey());
-            if (raw) {
-                const widths = JSON.parse(raw) || {};
-                cols.forEach((c) => {
-                    if (widths[c.key] != null) {
-                        c.width = widths[c.key];
-                    }
-                });
+        cols.forEach((c) => {
+            if (widths[c.key] != null) {
+                c.width = widths[c.key];
             }
-        } catch {
-            // ignore malformed / unavailable storage
-        }
-
-        // order + visibility
-        try {
-            const raw = localStorage.getItem(this.stateKey());
-            if (raw) {
-                const state: any[] = JSON.parse(raw) || [];
-                const ordered: ListColumn[] = [];
-                state.forEach((s) => {
-                    const found = cols.find((c) => c.key === s.colId);
-                    if (found && !ordered.includes(found)) {
-                        if (s.hide != null) {
-                            found.hidden = s.hide;
-                        }
-                        if (s.width != null) {
-                            found.width = s.width;
-                        }
-                        ordered.push(found);
+        });
+        if (state.length) {
+            const ordered: ListColumn[] = [];
+            state.forEach((s) => {
+                const found = cols.find((c) => c.key === s.colId);
+                if (found && !ordered.includes(found)) {
+                    if (s.hide != null) {
+                        found.hidden = s.hide;
                     }
-                });
-                cols.forEach((c) => {
-                    if (!ordered.includes(c)) {
-                        ordered.push(c);
+                    if (s.width != null) {
+                        found.width = s.width;
                     }
-                });
-                if (ordered.length) {
-                    cols = ordered;
+                    ordered.push(found);
                 }
-            }
-        } catch {
-            // ignore malformed / unavailable storage
+            });
+            cols.forEach((c) => {
+                if (!ordered.includes(c)) {
+                    ordered.push(c);
+                }
+            });
+            cols = ordered;
         }
-
         return cols;
+    }
+
+    /** Order + visibility + width entries for one set of columns. */
+    private columnStateEntries(columns: ListColumn[]): any[] {
+        return columns.map((c) => ({colId: c.key, hide: !!c.hidden, width: c.width}));
+    }
+
+    applyPersistedState(columns: ListColumn[]): ListColumn[] {
+        const widths = this.readJson(this.widthsKey()) || {};
+        const state = this.readJson(this.stateKey()) || [];
+        return this.mergePersistedColumns(columns, widths, state);
     }
 
     /** Persists the current order + visibility (and widths embedded in each entry). */
     saveState(columns: ListColumn[]): void {
-        const state = columns.map((c) => ({colId: c.key, hide: !!c.hidden, width: c.width}));
         try {
-            localStorage.setItem(this.stateKey(), JSON.stringify(state));
+            localStorage.setItem(this.stateKey(), JSON.stringify(this.columnStateEntries(columns)));
         } catch {
             // ignore
         }
@@ -176,53 +177,15 @@ export class ListTableService {
 
     /** Applies persisted order/visibility/width for one nested depth to its columns. */
     applyPersistedChildState(level: number, columns: ListColumn[]): ListColumn[] {
-        let cols: ListColumn[] = columns.map((c) => ({...c}));
-        try {
-            const raw = localStorage.getItem(this.childWidthsKey());
-            const widths = (raw ? JSON.parse(raw) : {})?.[level] || {};
-            cols.forEach((c) => {
-                if (widths[c.key] != null) {
-                    c.width = widths[c.key];
-                }
-            });
-        } catch {
-            // ignore
-        }
-        try {
-            const raw = localStorage.getItem(this.childStateKey());
-            const state: any[] = (raw ? JSON.parse(raw) : {})?.[level] || [];
-            if (state.length) {
-                const ordered: ListColumn[] = [];
-                state.forEach((s) => {
-                    const found = cols.find((c) => c.key === s.colId);
-                    if (found && !ordered.includes(found)) {
-                        if (s.hide != null) {
-                            found.hidden = s.hide;
-                        }
-                        if (s.width != null) {
-                            found.width = s.width;
-                        }
-                        ordered.push(found);
-                    }
-                });
-                cols.forEach((c) => {
-                    if (!ordered.includes(c)) {
-                        ordered.push(c);
-                    }
-                });
-                cols = ordered;
-            }
-        } catch {
-            // ignore
-        }
-        return cols;
+        const widths = (this.readJson(this.childWidthsKey()) || {})[level] || {};
+        const state = (this.readJson(this.childStateKey()) || {})[level] || [];
+        return this.mergePersistedColumns(columns, widths, state);
     }
 
     saveChildState(level: number, columns: ListColumn[]): void {
         try {
-            const raw = localStorage.getItem(this.childStateKey());
-            const byLevel = raw ? JSON.parse(raw) : {};
-            byLevel[level] = columns.map((c) => ({colId: c.key, hide: !!c.hidden, width: c.width}));
+            const byLevel = this.readJson(this.childStateKey()) || {};
+            byLevel[level] = this.columnStateEntries(columns);
             localStorage.setItem(this.childStateKey(), JSON.stringify(byLevel));
         } catch {
             // ignore
@@ -231,8 +194,7 @@ export class ListTableService {
 
     saveChildWidth(level: number, colId: string, width: number, columns: ListColumn[]): void {
         try {
-            const raw = localStorage.getItem(this.childWidthsKey());
-            const byLevel = raw ? JSON.parse(raw) : {};
+            const byLevel = this.readJson(this.childWidthsKey()) || {};
             byLevel[level] = {...(byLevel[level] || {}), [colId]: width};
             localStorage.setItem(this.childWidthsKey(), JSON.stringify(byLevel));
         } catch {

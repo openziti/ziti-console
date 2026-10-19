@@ -16,15 +16,16 @@ body.ziti-admin-console {
     padding: 0.4rem 0.9rem;
     font: inherit;
     cursor: pointer;
-    color: var(--lt-text, #1f2328);
-    background: var(--lt-control-bg, #fff);
-    border: 1px solid var(--lt-border, #d8dee4);
-    border-radius: var(--lt-radius, 8px);
+    // the demo wrapper carries .lt-skin, so these resolve from the library tokens
+    color: var(--lt-cell-text);
+    background: var(--lt-control-bg);
+    border: 1px solid var(--lt-border);
+    border-radius: var(--lt-radius);
 
     &.active {
       color: #fff;
-      background: var(--lt-link, #2563eb);
-      border-color: var(--lt-link, #2563eb);
+      background: var(--lt-link);
+      border-color: var(--lt-link);
     }
   }
 }

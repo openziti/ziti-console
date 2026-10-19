@@ -17,7 +17,7 @@
   font-weight: var(--lt-control-font-weight);
   color: var(--lt-cell-text);
   background: var(--lt-control-bg);
-  border: var(--lt-control-border-width) solid var(--lt-control-border, var(--lt-border));
+  border: var(--lt-control-border-full);
   border-radius: var(--lt-radius);
   cursor: pointer;
   white-space: nowrap;
@@ -412,6 +412,11 @@
   transform: rotate(90deg);
 }
 
+// a failed lazy load tints the chevron so it reads as an error the user can retry
+.lt-tree-toggle.is-error .lt-tree-chevron {
+  color: var(--lt-negative, #dc2626);
+}
+
 // keeps leaf rows aligned with rows that have a toggle
 .lt-tree-spacer {
   display: inline-block;
@@ -434,12 +439,9 @@
   border: 2px solid color-mix(in srgb, var(--lt-link) 25%, transparent);
   border-top-color: var(--lt-link);
   border-radius: 50%;
-  animation: lt-tree-spin 0.6s linear infinite;
+  // reuses the global `loading` spin keyframe (shipped with the skin)
+  animation: loading 0.6s linear infinite;
   pointer-events: none;
-}
-
-@keyframes lt-tree-spin {
-  to { transform: rotate(360deg); }
 }
 
 // expanded parent reads a touch heavier, matching the reference design
@@ -453,7 +455,7 @@
 // cell stays transparent and supplies the inset so the card floats off both edges.
 .lt-tree-subhead-row > td,
 .lt-tree-child-row > td {
-  padding: 0 1rem 0 calc(4rem + var(--lt-tree-indent, 0rem));
+  padding: 0 1rem 0 calc(var(--lt-card-inset, 4rem) + var(--lt-tree-indent, 0rem));
   background: transparent;
   // the generic row divider would run full width behind the card; the card edges
   // draw their own borders instead
@@ -509,7 +511,7 @@
   border-bottom: 1px solid var(--lt-tree-card-border, color-mix(in srgb, var(--lt-border) 70%, var(--lt-icon)));
   border-bottom-left-radius: var(--lt-radius, 8px);
   border-bottom-right-radius: var(--lt-radius, 8px);
-  box-shadow: 0 2px 4px color-mix(in srgb, #000 10%, transparent);
+  box-shadow: var(--lt-tree-card-shadow, 0 2px 4px color-mix(in srgb, #000 10%, transparent));
 }
 
 // lighter divider between child rows inside the card
@@ -543,6 +545,15 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+}
+
+// leading checkbox column injected into nested rows when selectChildren is on
+.lt-tree-grid > .lt-tree-select-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  overflow: visible;
 }
 
 // ---------------------------------------------------------------- flat tree skin
@@ -747,7 +758,7 @@
   font-size: 0.8125rem;
   color: var(--lt-cell-text);
   background: var(--lt-control-bg);
-  border: var(--lt-control-border-width) solid var(--lt-control-border, var(--lt-border));
+  border: var(--lt-control-border-full);
   border-radius: var(--lt-radius);
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
@@ -787,7 +798,7 @@
   height: var(--lt-toolbar-height);
   color: var(--lt-icon);
   background: var(--lt-control-bg);
-  border: var(--lt-control-border-width) solid var(--lt-control-border, var(--lt-border));
+  border: var(--lt-control-border-full);
   border-radius: var(--lt-radius);
   cursor: pointer;
   font-size: 0.9375rem;
@@ -1015,6 +1026,19 @@
   padding: 0.5rem 0.5rem;
   border-radius: var(--lt-radius);
   background: var(--lt-control-bg);
+  // the whole row is draggable, so it reads as grabbable; the checkbox/label button
+  // below keeps its own pointer cursor, and CDK's move threshold still lets a plain
+  // click toggle visibility
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  // a column pinned against reorder (cdkDragDisabled) is not grabbable
+  &.cdk-drag-disabled {
+    cursor: default;
+  }
 
   &:hover {
     background: var(--lt-row-hover);
@@ -1185,7 +1209,7 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M3 4.5 6 7.5 9 4.5'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.5rem center;
-  border: var(--lt-control-border-width) solid var(--lt-control-border, var(--lt-border));
+  border: var(--lt-control-border-full);
   border-radius: var(--lt-radius);
   appearance: none;
   -webkit-appearance: none;
@@ -1209,7 +1233,7 @@
   font-weight: 600;
   color: var(--lt-cell-text);
   background: var(--lt-control-bg);
-  border: var(--lt-control-border-width) solid var(--lt-control-border, var(--lt-border));
+  border: var(--lt-control-border-full);
   border-radius: var(--lt-radius);
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s, background 0.15s;

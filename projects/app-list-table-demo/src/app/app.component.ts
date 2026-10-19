@@ -57,17 +57,34 @@ export class AppComponent {
                 {sensor: 'motion-a1', type: 'Motion', reading: 'Idle', status: 'Online', leaf: true},
             ],
         },
-        {
-            gateway: 'gateway-02', site: 'Building B', firmware: 'v2.4.0', sensors: 2,
-            children: [
-                {sensor: 'co2-b1', type: 'Air Quality', reading: '612 ppm', status: 'Online', leaf: true},
-                {sensor: 'temp-b1', type: 'Temperature', reading: '23.1 C', status: 'Degraded', leaf: true},
-            ],
-        },
-        {gateway: 'gateway-03', site: 'Warehouse', firmware: 'v2.3.8', sensors: 4, leaf: true},
+        // no inline children: expanding gateway-02 calls loadChildren (shows the spinner)
+        {gateway: 'gateway-02', site: 'Building B', firmware: 'v2.4.0', sensors: 2},
+        // gateway-03's load rejects, so the toggle shows the failed-load / retry affordance
+        {gateway: 'gateway-03', site: 'Warehouse', firmware: 'v2.3.8', sensors: 4},
         {gateway: 'gateway-04', site: 'Rooftop', firmware: 'v2.4.1', sensors: 6, leaf: true},
     ];
 
     // each table writes tree state onto its own row objects, so the card variant gets a separate copy
     rowsCard: any[] = JSON.parse(JSON.stringify(this.rows));
+
+    selectedCount = 0;
+
+    /** Lazy child loader: resolves after a short delay, or rejects for gateway-03 so the
+     *  failed-load / retry affordance is demonstrable. */
+    loadChildren = (row: any): Promise<any[]> => new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (row.gateway === 'gateway-03') {
+                reject(new Error('sensor service unreachable'));
+                return;
+            }
+            resolve([
+                {sensor: row.gateway + '-temp', type: 'Temperature', reading: '20.2 C', status: 'Online', leaf: true},
+                {sensor: row.gateway + '-door', type: 'Contact', reading: 'Closed', status: 'Online', leaf: true},
+            ]);
+        }, 900);
+    });
+
+    onSelectionChanged(rows: any[]): void {
+        this.selectedCount = rows.length;
+    }
 }

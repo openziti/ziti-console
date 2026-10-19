@@ -120,40 +120,9 @@
               <div class="lt-chooser-scroll">
               <ul class="lt-chooser-list" cdkDropList cdkDropListLockAxis="y" (cdkDropListDropped)="chooserReorder($event)">
                 @for (col of chooserColumns; track col.key) {
-                  <li class="lt-chooser-row" cdkDrag cdkDragLockAxis="y" [cdkDragDisabled]="col.reorderable === false">
-                    <button
-                      type="button"
-                      class="lt-chooser-toggle"
-                      [class.checked]="!col.hidden"
-                      [disabled]="col.hideable === false || isLastVisibleColumn(col)"
-                      [attr.title]="isLastVisibleColumn(col) ? 'At least one column must stay visible' : null"
-                      (click)="toggleColumnVisible(col)"
-                      [attr.aria-pressed]="!col.hidden"
-                    >
-                      <span class="lt-chooser-box" aria-hidden="true">
-                        <!-- always rendered: the check is white, so it stays invisible
-                             until the box turns blue when checked. Keeping it in the DOM
-                             means clicking to hide a column never detaches the click
-                             target, which would otherwise make the click-outside handler
-                             think the click was outside and close the menu. -->
-                        <svg viewBox="0 0 12 12" width="10" height="10">
-                          <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M2 6.3 4.6 9 10 3"/>
-                        </svg>
-                      </span>
-                      <span class="lt-chooser-text">{{ col.label }}</span>
-                      @if (isDefaultHidden(col)) {
-                        <span class="lt-chooser-default-tag">hidden by default</span>
-                      }
-                    </button>
-                    @if (col.reorderable !== false) {
-                      <span class="lt-chooser-handle" cdkDragHandle aria-label="Drag to reorder" title="Drag to reorder">
-                        <svg viewBox="0 0 10 16" width="10" height="15" fill="currentColor" aria-hidden="true">
-                          <circle cx="3" cy="3" r="1.25"/><circle cx="7" cy="3" r="1.25"/>
-                          <circle cx="3" cy="8" r="1.25"/><circle cx="7" cy="8" r="1.25"/>
-                          <circle cx="3" cy="13" r="1.25"/><circle cx="7" cy="13" r="1.25"/>
-                        </svg>
-                      </span>
-                    }
+                  <li class="lt-chooser-row" cdkDrag cdkDragLockAxis="y" [cdkDragDisabled]="col.reorderable === false"
+                      (cdkDragStarted)="onChooserDragStarted()" (cdkDragEnded)="onChooserDragEnded()">
+                    <ng-container *ngTemplateOutlet="chooserRowBody; context: { col: col }"></ng-container>
                   </li>
                 }
               </ul>
@@ -185,34 +154,11 @@
                         <span class="lt-chooser-group-hint">{{ childLevelLabel(level) }}</span>
                       </button>
                       @if (isNestedGroupOpen('lvl' + level)) {
-                        <ul class="lt-chooser-list lt-chooser-sublist" cdkDropList cdkDropListLockAxis="y" (cdkDropListDropped)="childChooserReorder(level, $event)">
+                        <ul class="lt-chooser-list lt-chooser-sublist" cdkDropList cdkDropListLockAxis="y" (cdkDropListDropped)="chooserReorder($event, level)">
                           @for (col of allColumnsForLevel(level); track col.key) {
-                            <li class="lt-chooser-row" cdkDrag cdkDragLockAxis="y" [cdkDragDisabled]="col.reorderable === false">
-                              <button
-                                type="button"
-                                class="lt-chooser-toggle"
-                                [class.checked]="!col.hidden"
-                                [disabled]="col.hideable === false || isLastVisibleChildColumn(level, col)"
-                                [attr.title]="isLastVisibleChildColumn(level, col) ? 'At least one column must stay visible' : null"
-                                (click)="toggleChildColumnVisible(level, col)"
-                                [attr.aria-pressed]="!col.hidden"
-                              >
-                                <span class="lt-chooser-box" aria-hidden="true">
-                                  <svg viewBox="0 0 12 12" width="10" height="10">
-                                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M2 6.3 4.6 9 10 3"/>
-                                  </svg>
-                                </span>
-                                <span class="lt-chooser-text">{{ col.label }}</span>
-                              </button>
-                              @if (col.reorderable !== false) {
-                                <span class="lt-chooser-handle" cdkDragHandle aria-label="Drag to reorder" title="Drag to reorder">
-                                  <svg viewBox="0 0 10 16" width="10" height="15" fill="currentColor" aria-hidden="true">
-                                    <circle cx="3" cy="3" r="1.25"/><circle cx="7" cy="3" r="1.25"/>
-                                    <circle cx="3" cy="8" r="1.25"/><circle cx="7" cy="8" r="1.25"/>
-                                    <circle cx="3" cy="13" r="1.25"/><circle cx="7" cy="13" r="1.25"/>
-                                  </svg>
-                                </span>
-                              }
+                            <li class="lt-chooser-row" cdkDrag cdkDragLockAxis="y" [cdkDragDisabled]="col.reorderable === false"
+                                (cdkDragStarted)="onChooserDragStarted()" (cdkDragEnded)="onChooserDragEnded()">
+                              <ng-container *ngTemplateOutlet="chooserRowBody; context: { col: col, level: level }"></ng-container>
                             </li>
                           }
                         </ul>
@@ -239,6 +185,46 @@
       </div>
     </div>
 
+    <!-- inner content of a Columns-chooser row, shared by the top-level and nested lists.
+         The <li cdkDrag> wrapper stays inline in each list (above) so cdkDropList's content
+         query still registers it as a draggable; only the body is shared here.
+         `level` undefined targets the top-level columns, a number targets that nested depth. -->
+    <ng-template #chooserRowBody let-col="col" let-level="level">
+      <button
+        type="button"
+        class="lt-chooser-toggle"
+        [class.checked]="!col.hidden"
+        [disabled]="col.hideable === false || isLastVisibleColumn(col, level)"
+        [attr.title]="isLastVisibleColumn(col, level) ? 'At least one column must stay visible' : null"
+        (click)="toggleColumnVisible(col, level)"
+        [attr.aria-pressed]="!col.hidden"
+      >
+        <span class="lt-chooser-box" aria-hidden="true">
+          <!-- always rendered: the check is white, so it stays invisible until the box
+               turns blue when checked. Keeping it in the DOM means clicking to hide a
+               column never detaches the click target, which would otherwise make the
+               click-outside handler think the click was outside and close the menu. -->
+          <svg viewBox="0 0 12 12" width="10" height="10">
+            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M2 6.3 4.6 9 10 3"/>
+          </svg>
+        </span>
+        <span class="lt-chooser-text">{{ col.label }}</span>
+        @if (level == null && isDefaultHidden(col)) {
+          <span class="lt-chooser-default-tag">hidden by default</span>
+        }
+      </button>
+      @if (col.reorderable !== false) {
+        <!-- the whole row is the drag target (cdkDrag on the <li>); this is just the grip affordance -->
+        <span class="lt-chooser-handle" aria-hidden="true">
+          <svg viewBox="0 0 10 16" width="10" height="15" fill="currentColor">
+            <circle cx="3" cy="3" r="1.25"/><circle cx="7" cy="3" r="1.25"/>
+            <circle cx="3" cy="8" r="1.25"/><circle cx="7" cy="8" r="1.25"/>
+            <circle cx="3" cy="13" r="1.25"/><circle cx="7" cy="13" r="1.25"/>
+          </svg>
+        </span>
+      }
+    </ng-template>
+
     <div class="lt-scroll" id="ItemTable">
       <!-- expand/collapse control, reused by root rows and nested child rows -->
       <ng-template #treeToggle let-row="row">
@@ -248,9 +234,11 @@
             class="lt-tree-toggle"
             [class.is-expanded]="row.__treeExpanded"
             [class.is-loading]="row.__treeLoading"
+            [class.is-error]="row.__treeLoadError"
             (click)="$event.stopPropagation(); toggleNode(row)"
             [attr.aria-expanded]="!!row.__treeExpanded"
             [attr.aria-busy]="!!row.__treeLoading"
+            [attr.title]="row.__treeLoadError ? 'Could not load children - click to retry' : null"
             [attr.aria-label]="row.__treeExpanded ? 'Collapse row' : 'Expand row'"
           >
             <svg class="lt-tree-chevron" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
@@ -347,6 +335,9 @@
                       class="lt-tree-grid"
                       [style.grid-template-columns]="gridTemplate(row.__treeLevel)"
                     >
+                      @if (childSelectEnabled) {
+                        <span class="lt-tree-subhead-cell lt-tree-select-cell"></span>
+                      }
                       @for (col of columnsForLevel(row.__treeLevel); track col.key; let last = $last) {
                         <span class="lt-tree-subhead-cell" [class.lt-tree-indent-col]="isTreeColumn(col, row.__treeLevel)" [ngClass]="cellClass(col)">
                           {{ col.label }}
@@ -376,6 +367,11 @@
                     class="lt-tree-grid"
                     [style.grid-template-columns]="gridTemplate(row.__treeLevel)"
                   >
+                    @if (childSelectEnabled) {
+                      <div class="lt-tree-cellbox lt-tree-select-cell">
+                        <lib-select-cell [row]="row" [toggleItem]="toggleItem"></lib-select-cell>
+                      </div>
+                    }
                     @for (col of columnsForLevel(row.__treeLevel); track col.key) {
                       <div
                         class="lt-tree-cellbox"

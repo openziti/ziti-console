@@ -35,7 +35,7 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 
 import {DataTableFilterService, FilterObj} from '../data-table/data-table-filter.service';
-import {ListColumn, ListCellContext, ListLegacyCellShim, ListSortDir} from './list-column';
+import {ListColumn, ListCellContext, ListLegacyCellShim, ListSortDir, ListTableOptions, TreeVariant} from './list-column';
 import {ListTableService} from './list-table.service';
 import {ListMenuItem} from './list-menu/list-menu.component';
 
@@ -80,7 +80,19 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     // fitColumns: keep the table within its visible width when resizing - a column can only grow until
     // the other columns reach their set or minimum width, then the drag stops, so nothing is pushed
     // off screen into the horizontal scroll. Off by default (columns can grow past the view and scroll).
-    @Input() options: {noSelect?: boolean; noMenu?: boolean; pager?: 'pages' | 'cursor'; tree?: boolean; fitColumns?: boolean} = {noSelect: false, noMenu: false};
+    @Input() set options(value: ListTableOptions) {
+        const wasTree = !!this._options?.tree;
+        this._options = value || {};
+        // rebuild the render list if tree mode was flipped after init, otherwise flatRows
+        // keeps the pre-toggle shape
+        if (this._initialized && !!this._options.tree !== wasTree) {
+            this.rebuildFlatRows();
+        }
+    }
+    get options(): ListTableOptions {
+        return this._options;
+    }
+    private _options: ListTableOptions = {noSelect: false, noMenu: false};
 
     /** Tree mode: fetch a row's children the first time it is expanded. Return the
      *  child rows (any shape the columns render). A row with `leaf: true`, or one that
@@ -108,9 +120,22 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     private _childLevelCache = new Map<number, ListColumn[]>();
     private _childColsVersion = 0;
     private _childLevelCacheVersion = -1;
+    // per-level derived values, recomputed only when the column set changes, so the
+    // template's per-cell/per-row calls stay cheap on every change-detection pass
+    private _treeKeyCache = new Map<number, string | undefined>();
+    private _leadOffsetCache = new Map<string, string>();
+    private _treeMemoVersion = -1;
 
     private invalidateColumnCache(): void {
         this._childColsVersion++;
+    }
+
+    private syncTreeMemo(): void {
+        if (this._treeMemoVersion !== this._childColsVersion) {
+            this._treeKeyCache.clear();
+            this._leadOffsetCache.clear();
+            this._treeMemoVersion = this._childColsVersion;
+        }
     }
 
     /** Rebuilds the effective per-level child columns from the declared defaults with
@@ -147,6 +172,8 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
 
     @Output() actionRequested = new EventEmitter<{action: string; item?: any}>();
     @Output() tableReady = new EventEmitter<any>();
+    /** Full set of selected rows (all depths) whenever the selection changes. */
+    @Output() selectionChanged = new EventEmitter<any[]>();
 
     @ViewChild('contextMenu') contextMenu?: ElementRef;
     @ViewChild('filterZone') filterZone?: ElementRef<HTMLElement>;
@@ -178,15 +205,15 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
      *  nested rows inline with the table, sub-headers as plain strips, no card chrome.
      *  The bound value is the default; the user can switch it from the Columns menu and
      *  the choice is remembered per table. */
-    @Input() set treeVariant(v: 'card' | 'flat') {
+    @Input() set treeVariant(v: TreeVariant) {
         this._declaredTreeVariant = v;
         this._treeVariant = v;
     }
-    get treeVariant(): 'card' | 'flat' {
+    get treeVariant(): TreeVariant {
         return this._treeVariant;
     }
-    private _treeVariant: 'card' | 'flat' = 'card';
-    private _declaredTreeVariant: 'card' | 'flat' = 'card';
+    private _treeVariant: TreeVariant = 'card';
+    private _declaredTreeVariant: TreeVariant = 'card';
     /** Show the flat/nested row-layout switch in the Columns menu. Hidden for now;
      *  the variant still comes from the `treeVariant` input. */
     @Input() showTreeVariantToggle = false;
@@ -201,7 +228,7 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         return this.isTreeMode && this.hasChildColumns;
     }
 
-    setTreeVariant(variant: 'card' | 'flat'): void {
+    setTreeVariant(variant: TreeVariant): void {
         if (this._treeVariant === variant) {
             return;
         }
@@ -216,8 +243,10 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     // per level so each sub-header lines up under its parent row's name
     readonly treeFlatBaseRem = 3.75;
     readonly treeFlatStepRem = 2.125;
-    // nested card's left inset before per-depth indent; mirrors the 4rem td padding in scss
+    // nested card's left inset before per-depth indent; must match the --lt-card-inset token
     readonly treeCardBaseRem = 4;
+    // width of the leading checkbox column injected into nested grids when selectChildren is on
+    readonly treeSelectColRem = 2.25;
 
     // ---- column chooser (skinned show/hide + reorder panel) ----
     showColumnChooser = false;
@@ -254,6 +283,8 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         sinkStart?: number;
         minDelta?: number;
         maxDelta?: number;
+        // flex columns frozen to px only for the duration of the drag; restored after
+        frozen?: ListColumn[];
     };
     private readonly onPointerMove = (e: PointerEvent) => this.handleResizeMove(e);
     private readonly onPointerUp = () => this.handleResizeEnd();
@@ -262,6 +293,11 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     private _initialColumns: ListColumn[] = [];
     private _initialized = false;
     private subscription = new Subscription();
+    // expansion + lazily-loaded children keyed by __treeRowKey, so a rowData refresh
+    // (auto-refresh, paging, filter) keeps the tree open instead of collapsing it
+    private _expandedKeys = new Set<string>();
+    private _childrenCache = new Map<string, any[]>();
+    private _destroyed = false;
 
     constructor(
         public svc: ListTableService,
@@ -318,6 +354,7 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     }
 
     ngOnDestroy(): void {
+        this._destroyed = true;
         this.subscription.unsubscribe();
         this.detachResizeListeners();
         this.filterRO?.disconnect();
@@ -591,24 +628,61 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     }
 
     // ---------------------------------------------------------------- selection
+    /** True when nested rows get checkboxes and join the selection (opt-in). */
+    get childSelectEnabled(): boolean {
+        return !!this.options?.selectChildren && !this.options?.noSelect;
+    }
+
+    /** Rows the checkboxes and select-all act on: top-level only, unless selectChildren
+     *  is set. Keeps select-all from marking nested rows a host that reads rowData never sees. */
+    private get selectableRows(): any[] {
+        if (!this.isTreeMode || this.childSelectEnabled) {
+            return this.flatRows;
+        }
+        return this.flatRows.filter((r) => (r.__treeLevel ?? 0) === 0);
+    }
+
     toggleItem = (item: any): void => {
         item.selected = !item.selected;
-        this.allToggled = !_.isEmpty(this.flatRows) && _.every(this.flatRows, {selected: true});
+        this.syncSelectAll();
         this.actionRequested.emit({action: 'toggleItem', item});
+        this.emitSelection();
     };
 
     /** Some rows selected but the header select-all isn't fully on (indeterminate). */
     get someSelected(): boolean {
-        return !this.allToggled && _.some(this.flatRows, {selected: true});
+        return !this.allToggled && this.selectableRows.some((r) => r.selected);
     }
 
     toggleAll(): void {
         const newState = !this.allToggled;
         this.allToggled = newState;
-        _.forEach(this.flatRows, (row) => {
-            row.selected = newState;
-        });
+        this.selectableRows.forEach((row) => (row.selected = newState));
         this.actionRequested.emit({action: 'toggleAll'});
+        this.emitSelection();
+    }
+
+    private syncSelectAll(): void {
+        const rows = this.selectableRows;
+        this.allToggled = rows.length > 0 && rows.every((r) => r.selected);
+    }
+
+    /** Emit every selected row across all depths. Walks the full data, not just the rendered
+     *  rows, so a collapsed parent's selected children are still reported. */
+    private emitSelection(): void {
+        const out: any[] = [];
+        const walk = (rows: any[]) => {
+            (rows || []).forEach((r) => {
+                if (r.selected) {
+                    out.push(r);
+                }
+                if (Array.isArray(r.children)) {
+                    walk(r.children);
+                }
+            });
+        };
+        walk(this._rowData);
+        this.selectionChanged.emit(out);
     }
 
     // ---------------------------------------------------------------- tree rows
@@ -677,18 +751,31 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         return labels.slice(0, max).join(' / ') + ' +' + (labels.length - max);
     }
 
-    /** Key of the column that carries the expand control at a depth: the flagged one,
-     *  else the first real data column (skipping a leading structural column such as a
-     *  select checkbox the host put at the start). */
-    treeColumnKeyForLevel(level: number): string | undefined {
-        const cols = this.columnsForLevel(level);
+    /** Key of the column that carries the expand control + indentation for a column set:
+     *  the flagged one, else the first real data column (skipping a leading structural
+     *  column such as a select checkbox the host put at the start). */
+    private treeColumnKeyFor(cols: ListColumn[]): string | undefined {
         return (cols.find((c) => c.treeColumn) || cols.find((c) => !c.excludeFromChooser) || cols[0])?.key;
+    }
+
+    treeColumnKeyForLevel(level: number): string | undefined {
+        this.syncTreeMemo();
+        if (!this._treeKeyCache.has(level)) {
+            this._treeKeyCache.set(level, this.treeColumnKeyFor(this.columnsForLevel(level)));
+        }
+        return this._treeKeyCache.get(level);
     }
 
     /** Width of the columns before the tree column, used to pull the flat first-column
      *  indent back by whatever structural columns (like a select checkbox) sit ahead of
      *  it, so its content still lands under the parent row's name. */
     treeLeadOffset(level: number): string {
+        this.syncTreeMemo();
+        const cacheKey = `${level}|${this.childSelectEnabled}`;
+        const hit = this._leadOffsetCache.get(cacheKey);
+        if (hit !== undefined) {
+            return hit;
+        }
         const cols = this.columnsForLevel(level);
         const treeKey = this.treeColumnKeyForLevel(level);
         let px = 0;
@@ -700,7 +787,13 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
             px += c.width ?? 0;
             count++;
         }
-        return count ? `calc(${px}px + ${count} * var(--lt-tree-col-gap, 0.5rem))` : '0px';
+        const gap = 'var(--lt-tree-col-gap, 0.5rem)';
+        // the injected select column (when on) sits before every data column
+        const selRem = this.childSelectEnabled ? this.treeSelectColRem : 0;
+        const gaps = count + (this.childSelectEnabled ? 1 : 0);
+        const result = (!gaps && !selRem && !px) ? '0px' : `calc(${selRem}rem + ${px}px + ${gaps} * ${gap})`;
+        this._leadOffsetCache.set(cacheKey, result);
+        return result;
     }
 
     isTreeColumn(col: ListColumn, level: number): boolean {
@@ -778,9 +871,16 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     }
 
     gridTemplate(level: number): string {
-        return this.columnsForLevel(level)
-            .map((c) => (c.width != null ? `${c.width}px` : 'minmax(0, 1fr)'))
-            .join(' ');
+        const tracks = this.columnsForLevel(level)
+            .map((c) => (c.width != null ? `${c.width}px` : 'minmax(0, 1fr)'));
+        if (this.childSelectEnabled) {
+            tracks.unshift(`${this.treeSelectColRem}rem`);
+        }
+        return tracks.join(' ');
+    }
+
+    private hasChildren(row: any): boolean {
+        return Array.isArray(row?.children) && row.children.length > 0;
     }
 
     /** A row can be expanded unless it is a leaf, has no loaded children, and has no
@@ -789,7 +889,11 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         if (!this.isTreeMode || row?.leaf === true) {
             return false;
         }
-        if (Array.isArray(row?.children) && row.children.length) {
+        if (this.hasChildren(row)) {
+            return true;
+        }
+        const key = row?.__treeRowKey;
+        if (key && this._childrenCache.has(key)) {
             return true;
         }
         return !!this.loadChildren && row?.__treeLoaded !== true;
@@ -799,40 +903,49 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         if (!this.isTreeMode || row?.__treeLoading) {
             return;
         }
-        if (row.__treeExpanded) {
-            row.__treeExpanded = false;
+        const key = row.__treeRowKey;
+        if (this._expandedKeys.has(key)) {
+            this._expandedKeys.delete(key);
             this.rebuildFlatRows();
             this.nodeToggled.emit({row, expanded: false});
             return;
         }
-        const hasChildren = Array.isArray(row.children) && row.children.length > 0;
-        if (this.loadChildren && row.__treeLoaded !== true && !hasChildren) {
+        if (this.loadChildren && !this.hasChildren(row) && !this._childrenCache.has(key)) {
             row.__treeLoading = true;
+            row.__treeLoadError = false; // clear any previous failure on retry
             this.rebuildFlatRows(); // surface the spinner while children load
-            Promise.resolve(this.loadChildren(row)).then(
+            // run the loader inside the executor so a synchronous throw rejects the
+            // promise instead of escaping and leaving __treeLoading stuck on forever
+            new Promise<any[]>((resolve) => resolve(this.loadChildren!(row))).then(
                 (children) => this.onChildrenLoaded(row, children),
                 () => this.onChildrenLoaded(row, [], true)
             );
             return;
         }
-        row.__treeExpanded = true;
+        this._expandedKeys.add(key);
         this.rebuildFlatRows();
         this.nodeToggled.emit({row, expanded: true});
     }
 
     private onChildrenLoaded(row: any, children: any[], failed = false): void {
+        if (this._destroyed) {
+            return;
+        }
         row.__treeLoading = false;
         if (failed) {
-            // leave it collapsed so the user can try again
+            // flag the failure so the toggle shows a retry affordance, and leave it collapsed
+            row.__treeLoadError = true;
             this.rebuildFlatRows();
             return;
         }
-        row.children = Array.isArray(children) ? children : [];
+        const list = Array.isArray(children) ? children : [];
+        this._childrenCache.set(row.__treeRowKey, list);
+        row.children = list;
         row.__treeLoaded = true;
-        if (!row.children.length) {
+        if (!list.length) {
             row.leaf = true; // nothing under it, so stop offering the control
         }
-        row.__treeExpanded = true;
+        this._expandedKeys.add(row.__treeRowKey);
         this.rebuildFlatRows();
         this.nodeToggled.emit({row, expanded: true});
     }
@@ -859,8 +972,15 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
                 // branch-unique track key: the same entity can appear under two parents
                 // in a flat tree, so fold the parent path in to keep @for keys distinct
                 row.__treeRowKey = parentKey + '/' + (row?.id ?? row?.name ?? idx);
+                // a rowData refresh replaces the row object; re-attach children we loaded
+                // earlier so an expanded lazy node stays populated instead of emptying out
+                if (!this.hasChildren(row) && this._childrenCache.has(row.__treeRowKey)) {
+                    row.children = this._childrenCache.get(row.__treeRowKey)!;
+                    row.__treeLoaded = true;
+                }
+                row.__treeExpanded = this._expandedKeys.has(row.__treeRowKey);
                 out.push(row);
-                if (row.__treeExpanded && Array.isArray(row.children) && row.children.length) {
+                if (row.__treeExpanded && this.hasChildren(row)) {
                     walk(row.children, level + 1, row.__treeRowKey);
                 }
             });
@@ -978,47 +1098,81 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         this.showColumnChooser = false;
     }
 
-    toggleColumnVisible(col: ListColumn): void {
-        if (col.hideable === false) {
+    // The whole chooser row is draggable, and the label sits inside the visibility
+    // toggle button, so a reorder drag ends with a click on that button. This guard
+    // swallows that one click so dragging a row never also hides its column.
+    private _chooserDragged = false;
+
+    onChooserDragStarted(): void {
+        this._chooserDragged = true;
+    }
+
+    onChooserDragEnded(): void {
+        // clear after the post-drag click has been handled (and skipped) below
+        setTimeout(() => (this._chooserDragged = false));
+    }
+
+    /** Toggle a column's visibility. `level` undefined targets the top-level columns;
+     *  a number targets that nested depth's columns. */
+    toggleColumnVisible(col: ListColumn, level?: number): void {
+        if (this._chooserDragged || col.hideable === false) {
             return;
         }
-        const target = this.allColumns.find((c) => c.key === col.key);
+        const set = level == null ? this.allColumns : this._childColumnsByLevel?.[level];
+        const target = set?.find((c) => c.key === col.key);
         if (!target) {
             return;
         }
-        if (!target.hidden && this.isLastVisibleColumn(target)) {
+        if (!target.hidden && this.isLastVisibleColumn(target, level)) {
             return;
         }
         target.hidden = !target.hidden;
-        this.updateVisible();
-        this.svc.saveState(this.allColumns);
+        this.afterColumnChange(level, set);
     }
 
-    /** True when this is the only visible column, so its toggle is disabled to keep at
-     *  least one column on screen. */
-    isLastVisibleColumn(col: ListColumn): boolean {
-        return !col.hidden && this.chooserColumns.filter((c) => !c.hidden).length <= 1;
+    /** True when this is the only visible column at its level, so its toggle is disabled
+     *  to keep at least one column on screen. */
+    isLastVisibleColumn(col: ListColumn, level?: number): boolean {
+        const list = level == null ? this.chooserColumns : this.allColumnsForLevel(level);
+        return !col.hidden && list.filter((c) => !c.hidden).length <= 1;
     }
 
-    /** Columns shown in the Columns menu. */
+    /** Columns shown in the top-level Columns menu. */
     get chooserColumns(): ListColumn[] {
         return this.allColumns.filter((c) => !c.excludeFromChooser);
     }
 
-    chooserReorder(event: CdkDragDrop<ListColumn[]>): void {
+    /** Reorder columns from a chooser drag. `level` undefined targets the top-level
+     *  columns; a number targets that nested depth's columns. */
+    chooserReorder(event: CdkDragDrop<ListColumn[]>, level?: number): void {
         if (event.previousIndex === event.currentIndex) {
             return;
         }
-        // menu lists a subset, so map the drag indices back onto allColumns
-        const list = this.chooserColumns;
-        const from = this.allColumns.indexOf(list[event.previousIndex]);
-        const to = this.allColumns.indexOf(list[event.currentIndex]);
+        // the menu lists a chooser subset, so map the drag indices back onto the full set
+        const full = level == null ? this.allColumns : this._childColumnsByLevel?.[level];
+        const list = level == null ? this.chooserColumns : this.allColumnsForLevel(level);
+        if (!full) {
+            return;
+        }
+        const from = full.indexOf(list[event.previousIndex]);
+        const to = full.indexOf(list[event.currentIndex]);
         if (from < 0 || to < 0) {
             return;
         }
-        moveItemInArray(this.allColumns, from, to);
-        this.updateVisible();
-        this.svc.saveState(this.allColumns);
+        moveItemInArray(full, from, to);
+        this.afterColumnChange(level, full);
+    }
+
+    /** Refresh and persist after a column visibility/order change, routing to the
+     *  top-level or nested-level persistence as appropriate. */
+    private afterColumnChange(level: number | undefined, set: ListColumn[]): void {
+        if (level == null) {
+            this.updateVisible();
+            this.svc.saveState(this.allColumns);
+        } else {
+            this.invalidateColumnCache();
+            this.svc.saveChildState(level, set);
+        }
     }
 
     // ---- nested-column chooser: one expandable group per depth level ----
@@ -1034,40 +1188,6 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         } else {
             this.nestedChooserOpen.add(id);
         }
-    }
-
-    toggleChildColumnVisible(level: number, col: ListColumn): void {
-        if (col.hideable === false) {
-            return;
-        }
-        const set = this._childColumnsByLevel?.[level];
-        const target = set?.find((c) => c.key === col.key);
-        if (!target) {
-            return;
-        }
-        if (!target.hidden && this.isLastVisibleChildColumn(level, target)) {
-            return;
-        }
-        target.hidden = !target.hidden;
-        this.invalidateColumnCache();
-        this.svc.saveChildState(level, set!);
-    }
-
-    isLastVisibleChildColumn(level: number, col: ListColumn): boolean {
-        return !col.hidden && this.allColumnsForLevel(level).filter((c) => !c.hidden).length <= 1;
-    }
-
-    childChooserReorder(level: number, event: CdkDragDrop<ListColumn[]>): void {
-        if (event.previousIndex === event.currentIndex) {
-            return;
-        }
-        const set = this._childColumnsByLevel?.[level];
-        if (!set) {
-            return;
-        }
-        moveItemInArray(set, event.previousIndex, event.currentIndex);
-        this.invalidateColumnCache();
-        this.svc.saveChildState(level, set);
     }
 
     // ---------------------------------------------------------------- resize
@@ -1137,17 +1257,21 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         // never gets frozen in (and later persisted) for the sink or a flex column
         const sinkStart = sink.width ?? (measure(sink.key) || startWidth);
         // Freeze any other flexible column to its rendered width so only the column and the sink move
-        // (otherwise the browser would still redistribute slack among the flexible columns).
+        // (otherwise the browser would still redistribute slack among the flexible columns). These are
+        // restored to flexible when the drag ends, so one resize doesn't pin the whole table to px.
+        const frozen: ListColumn[] = [];
         columns.forEach((c) => {
             if (c.key !== col.key && c.key !== sink.key && c.width == null) {
                 const w = measure(c.key);
                 if (w > 0) {
                     c.width = w;
+                    frozen.push(c);
                 }
             }
         });
         this.resizing.sink = sink;
         this.resizing.sinkStart = sinkStart;
+        this.resizing.frozen = frozen;
         this.resizing.maxDelta = Math.max(0, sinkStart - (sink.minWidth ?? FLOOR)); // grow until the sink hits its min
         this.resizing.minDelta = Math.min(0, (col.minWidth ?? 40) - startWidth); // shrink until the column hits its min
     }
@@ -1155,7 +1279,10 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     /** The column that absorbs a resize: a flexible column first (it is meant to take up slack), else
      *  the nearest resizable column that is not the tree column, so indentation never shifts. */
     private pickSink(col: ListColumn, columns: ListColumn[]): ListColumn | undefined {
-        const usable = columns.filter((c) => c.key !== col.key && c.resizable !== false && !c.treeColumn);
+        // never pick the tree column (explicit or implicit) as the sink, or resizing
+        // would move the expand chevrons
+        const treeKey = this.treeColumnKeyFor(columns);
+        const usable = columns.filter((c) => c.key !== col.key && c.resizable !== false && c.key !== treeKey);
         const flex = usable.find((c) => c.width == null);
         if (flex) {
             return flex;
@@ -1179,6 +1306,9 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
 
     private handleResizeEnd(): void {
         const r = this.resizing;
+        // columns frozen only to steady the drag go back to flexible, so the table keeps
+        // filling the viewport and their temporary px widths are not persisted by saveState
+        r?.frozen?.forEach((c) => (c.width = undefined));
         if (r?.persist) {
             if (r.level != null) {
                 const set = this._childColumnsByLevel?.[r.level];

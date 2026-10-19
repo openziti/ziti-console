@@ -6,10 +6,10 @@
 
 .lt-chip {
   position: relative;
-  --lt-chip-cover: color-mix(in srgb, var(--lt-link) 16%, var(--lt-row-bg, #fff));
+  --lt-chip-cover: color-mix(in srgb, var(--lt-link) 16%, var(--lt-row-bg, #f6f7fb));
 
   &.lt-chip-at {
-    --lt-chip-cover: color-mix(in srgb, var(--secondary) 18%, var(--lt-row-bg, #fff));
+    --lt-chip-cover: color-mix(in srgb, var(--secondary) 18%, var(--lt-row-bg, #f6f7fb));
   }
 }
 
@@ -66,7 +66,7 @@
   }
 
   &.is-done {
-    color: var(--lt-positive, #3a9a52);
-    border-color: color-mix(in srgb, var(--lt-positive, #3a9a52) 45%, transparent);
+    color: var(--lt-positive, #16a34a);
+    border-color: color-mix(in srgb, var(--lt-positive, #16a34a) 45%, transparent);
   }
 }

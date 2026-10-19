@@ -126,3 +126,17 @@ export interface ListCell<T = any> {
     row?: T;
     value?: any;
 }
+
+/** Nested-row layout: 'card' floats each level as a bordered card, 'flat' renders inline. */
+export type TreeVariant = 'card' | 'flat';
+
+/** Structural options for {@link ListTableComponent}. */
+export interface ListTableOptions {
+    noSelect?: boolean;
+    noMenu?: boolean;
+    pager?: 'pages' | 'cursor';
+    tree?: boolean;
+    /** Tree mode: render checkboxes on nested rows and include them in the selection. */
+    selectChildren?: boolean;
+    fitColumns?: boolean;
+}

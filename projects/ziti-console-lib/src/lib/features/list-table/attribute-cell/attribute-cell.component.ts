@@ -19,7 +19,8 @@ import {DataTableFilterService, FilterObj} from '../../data-table/data-table-fil
 
 interface AttrChip {
     label: string;   // display form, e.g. "#sales" or "@device-01"
-    bare: string;    // the name without the leading # or @
+    raw: string;     // the source value, prefix intact (what the filter matches on)
+    bare: string;    // the name without the leading # or @ (what copy puts on the clipboard)
     isNamed: boolean;
     copied?: boolean;
 }
@@ -61,7 +62,7 @@ export class AttributeCellComponent {
                 const isNamed = first === '@';
                 const bare = first === '#' || first === '@' ? raw.slice(1) : raw;
                 const label = isNamed || first === '#' ? raw : '#' + raw;
-                chips.push({label, bare, isNamed});
+                chips.push({label, raw, bare, isNamed});
             }
             return chips;
         }, []);
@@ -87,10 +88,12 @@ export class AttributeCellComponent {
         const values: string[] = Array.isArray(existing?.value)
             ? [...existing.value]
             : (existing?.value ? [existing.value] : []);
-        if (values.includes(chip.bare)) {
+        // filter on the source value (prefix intact) so a named @entity does not match a
+        // role of the same bare name, and so it stacks with the header dropdown's values
+        if (values.includes(chip.raw)) {
             return;
         }
-        values.push(chip.bare);
+        values.push(chip.raw);
         // keep whatever all-of/any-of the filter already uses so adding a chip does
         // not quietly change the match mode
         const semantic = (existing as any)?.semantic === 'AllOf' ? 'AllOf' : 'AnyOf';
