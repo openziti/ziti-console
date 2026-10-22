@@ -30,6 +30,9 @@ import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/ext
 import {APISession} from "../../models/api-session";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 import {Router} from "@angular/router";
+import {ListColumn} from "../../features/list-table/list-column";
+import {NameCellComponent} from "../../features/list-table/name-cell/name-cell.component";
+import {BooleanCellComponent} from "../../features/list-table/boolean-cell/boolean-cell.component";
 
 @Injectable({
     providedIn: 'root'
@@ -53,8 +56,13 @@ export class ApiSessionsPageService extends ListPageServiceClass {
     modalType = '';
 
     override menuItems = [
-        {name: 'Edit', action: 'update'},
-        {name: 'Delete', action: 'delete'},
+        {name: 'Edit', action: 'update', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M11.2 2.6 13.4 4.8 6 12.2l-2.8.6.6-2.8z"/></svg>'},
+        {name: 'Delete', action: 'delete', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M3.4 4.6h9.2M6.4 4.6V3.2h3.2v1.4M4.6 4.6 5 13h6l.4-8.4"/></svg>'},
+    ]
+
+    override tableHeaderActions = [
+        {name: 'Download All', action: 'download-all', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
+        {name: 'Download Selected', action: 'download-selected', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
     ]
 
     constructor(
@@ -196,6 +204,125 @@ export class ApiSessionsPageService extends ListPageServiceClass {
         ];
     }
 
+    // Declarative ListColumn set for the new `lib-list-table` (Beta Features on).
+    initListTableColumns(): ListColumn[] {
+        const openForm = (ctx) => {
+            if (this.hasSelectedText()) {
+                return;
+            }
+            this.openEditForm(ctx.row?.id);
+        };
+        const openIdentity = (ctx) => {
+            if (this.hasSelectedText()) {
+                return;
+            }
+            this.openIdentityForm(ctx.row?.identityId);
+        };
+        const identityCell = (ctx) => ({
+            row: ctx.row,
+            cellValue: ctx.value,
+            cellConfig: {pathRoot: 'identities', itemProp: 'identity.id'},
+        });
+        return [
+            {
+                key: 'id',
+                field: 'id',
+                label: 'ID',
+                filterType: 'TEXTINPUT',
+                cell: NameCellComponent,
+                cellInputs: (ctx) => ({
+                    row: ctx.row,
+                    cellValue: ctx.value,
+                    cellConfig: {pathRoot: this.basePath},
+                }),
+                onCellClick: openForm,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                width: this.remToPx(10),
+            },
+            {
+                key: 'identity.name',
+                field: 'identity.name',
+                label: 'Identity Name',
+                filterType: 'TEXTINPUT',
+                cell: NameCellComponent,
+                cellInputs: identityCell,
+                onCellClick: openIdentity,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                sortable: false,
+            },
+            {
+                key: 'identity',
+                field: 'identity.id',
+                filterField: 'identity',
+                label: 'Identity ID',
+                filterType: 'TEXTINPUT',
+                cell: NameCellComponent,
+                cellInputs: identityCell,
+                onCellClick: openIdentity,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                sortable: true,
+                onSort: this.sort.bind(this),
+            },
+            {
+                key: 'ipAddress',
+                field: 'ipAddress',
+                label: 'IP Address',
+                filterType: 'TEXTINPUT',
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                width: this.remToPx(10),
+            },
+            {
+                key: 'isMfaRequired',
+                field: 'isMfaRequired',
+                label: 'MFA Required',
+                cell: BooleanCellComponent,
+                cellInputs: (ctx) => ({value: ctx.value, trueLabel: 'Required'}),
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                width: this.remToPx(10),
+                hidden: true,
+            },
+            {
+                key: 'isMfaComplete',
+                field: 'isMfaComplete',
+                label: 'MFA Complete',
+                cell: BooleanCellComponent,
+                cellInputs: (ctx) => ({value: ctx.value, trueLabel: 'Complete'}),
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                width: this.remToPx(10),
+                hidden: true,
+            },
+            {
+                key: 'lastActivity',
+                field: 'lastActivity',
+                label: 'Last Activity',
+                valueFormatter: this.createdAtFormatter,
+                filterType: 'DATETIME',
+                filterPlaceholder: 'Any time',
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                width: this.remToPx(10),
+            },
+            {
+                key: 'createdAt',
+                field: 'createdAt',
+                label: 'Created At',
+                valueFormatter: this.createdAtFormatter,
+                filterType: 'DATETIME',
+                filterPlaceholder: 'Any time',
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                width: this.remToPx(10),
+                hidden: true,
+            },
+        ];
+    }
+
     public openIdentityForm(itemId = '', basePath?) {
         if (isEmpty(itemId)) {
             itemId = 'create';
@@ -204,7 +331,11 @@ export class ApiSessionsPageService extends ListPageServiceClass {
         this.router?.navigateByUrl(`identities/${itemId}`);
     }
 
-    getData(filters?: FilterObj[], sort?: any) {
+    getData(filters?: FilterObj[], sort?: any, page?: any, pageSize?: number) {
+        this.paging.page = page || this.paging.page;
+        if (pageSize) {
+            this.paging.total = pageSize;
+        }
         if (sort.sortBy === 'name') {
             sort.sortBy = 'id';
         }

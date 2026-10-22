@@ -46,6 +46,7 @@ import {
 import {SideNavbarComponent} from './features/sidebars/side-navbar/side-navbar.component';
 import {PasswordInputComponent} from './features/dynamic-widgets/password/password-input.component';
 import {ConfigurationsPageComponent} from './pages/configurations/configurations-page.component';
+import { ConfigurationsListPageComponent } from './pages/configurations/configurations-list-page.component';
 import {ListPageHeaderComponent} from './features/list-page-features/list-page-header/list-page-header.component';
 import {ListTableHeaderComponent} from './features/list-page-features/list-table-header/list-table-header.component';
 import {MatDialogModule} from "@angular/material/dialog";
@@ -78,6 +79,7 @@ import {IdentitiesPageComponent} from "./pages/identities/identities-page.compon
 import {IdentitiesListPageComponent} from "./pages/identities/identities-list-page.component";
 import {EdgeRoutersPageComponent} from "./pages/edge-routers/edge-routers-page.component";
 import {TransitRoutersPageComponent} from "./pages/transit-routers/transit-routers-page.component";
+import { TransitRoutersListPageComponent } from './pages/transit-routers/transit-routers-list-page.component';
 import {ServicesPageComponent} from "./pages/services/services-page.component";
 import {ZITI_NAVIGATOR} from "./ziti-console.constants";
 import { GrowlerComponent } from './features/messaging/growler.component';
@@ -131,12 +133,16 @@ import { ServiceEdgeRouterPoliciesPageComponent } from './pages/service-edge-rou
 import { ServiceEdgeRouterPoliciesListPageComponent } from './pages/service-edge-router-policies/service-edge-router-policies-list-page.component';
 import { ServiceEdgeRouterPolicyFormComponent } from './features/projectable-forms/service-edge-router-policy/service-edge-router-policy-form.component';
 import {TerminatorsPageComponent} from "./pages/terminators/terminators-page.component";
+import { TerminatorsListPageComponent } from './pages/terminators/terminators-list-page.component';
 import {ConfigurationFormComponent} from "./features/projectable-forms/configuration/configuration-form.component";
 import {JwtSignersPageComponent} from "./pages/jwt-signers/jwt-signers-page.component";
+import { JwtSignersListPageComponent } from './pages/jwt-signers/jwt-signers-list-page.component';
 import {JwtSignerFormComponent} from "./features/projectable-forms/jwt-signer/jwt-signer-form.component";
 import {AuthPoliciesPageComponent} from "./pages/auth-policies/auth-policies-page.component";
+import { AuthPoliciesListPageComponent } from './pages/auth-policies/auth-policies-list-page.component';
 import {AuthPolicyFormComponent} from "./features/projectable-forms/auth-policy/auth-policy-form.component";
 import {CertificateAuthoritiesPageComponent} from "./pages/certificate-authorities/certificate-authorities-page.component";
+import { CertificateAuthoritiesListPageComponent } from './pages/certificate-authorities/certificate-authorities-list-page.component';
 import {PreviewSelectionsComponent} from "./features/preview-selections/preview-selections.component";
 import {CertificateAuthorityFormComponent} from "./features/projectable-forms/certificate-authority/certificate-authority-form.component";
 import {
@@ -144,13 +150,16 @@ import {
 } from "./features/projectable-forms/certificate-authority/verify-certificate/verify-certificate.component";
 import {LoginDialogComponent} from "./features/login/login-dialog.component";
 import {ConfigTypesPageComponent} from "./pages/config-types/config-types-page.component";
+import { ConfigTypesListPageComponent } from './pages/config-types/config-types-list-page.component';
 import {ConfigTypeFormComponent} from "./features/projectable-forms/config-type/config-type-form.component";
 import {PostureChecksPageComponent} from "./pages/posture-checks/posture-checks-page.component";
 import { PostureChecksListPageComponent } from './pages/posture-checks/posture-checks-list-page.component';
 import {PostureCheckFormComponent} from "./features/projectable-forms/posture-check/posture-check-form.component";
 import {SessionsPageComponent} from "./pages/sessions/sessions-page.component";
+import { SessionsListPageComponent } from './pages/sessions/sessions-list-page.component';
 import {SessionFormComponent} from "./features/projectable-forms/session/session-form.component";
 import {APISessionsPageComponent} from "./pages/api-sessions/api-sessions-page.component";
+import { APISessionsListPageComponent } from './pages/api-sessions/api-sessions-list-page.component';
 import {APISessionFormComponent} from "./features/projectable-forms/api-session/api-session-form.component";
 import {CallbackComponent} from "./pages/callback/callback.component";
 import {ProgressMeterComponent} from "./features/progress-meter/progress-meter.component";
@@ -204,7 +213,9 @@ export function playerFactory() {
         PasswordInputComponent,
         TerminatorFormComponent,
         ConfigurationsPageComponent,
+        ConfigurationsListPageComponent,
         ConfigTypesPageComponent,
+        ConfigTypesListPageComponent,
         ConfigTypeFormComponent,
         ListPageHeaderComponent,
         ListTableHeaderComponent,
@@ -214,6 +225,7 @@ export function playerFactory() {
         IdentitiesListPageComponent,
         EdgeRoutersPageComponent,
         TransitRoutersPageComponent,
+        TransitRoutersListPageComponent,
         DataTableComponent,
         ListTableComponent,
         ListMenuComponent,
@@ -277,13 +289,17 @@ export function playerFactory() {
         ServiceEdgeRouterPoliciesListPageComponent,
         ServiceEdgeRouterPolicyFormComponent,
         TerminatorsPageComponent,
+        TerminatorsListPageComponent,
         ConfigurationFormComponent,
         JwtSignersPageComponent,
+        JwtSignersListPageComponent,
         JwtSignerFormComponent,
         AuthPoliciesPageComponent,
+        AuthPoliciesListPageComponent,
         AuthPolicyFormComponent,
         PreviewSelectionsComponent,
         CertificateAuthoritiesPageComponent,
+        CertificateAuthoritiesListPageComponent,
         CertificateAuthorityFormComponent,
         VerifyCertificateComponent,
         LoginDialogComponent,
@@ -291,8 +307,10 @@ export function playerFactory() {
         PostureChecksListPageComponent,
         PostureCheckFormComponent,
         SessionsPageComponent,
+        SessionsListPageComponent,
         SessionFormComponent,
         APISessionsPageComponent,
+        APISessionsListPageComponent,
         APISessionFormComponent,
         CallbackComponent,
         ProgressMeterComponent,
@@ -338,8 +356,10 @@ export function playerFactory() {
         CheckboxListInputComponent,
         ProtocolAddressPortInputComponent,
         ConfigurationsPageComponent,
+        ConfigurationsListPageComponent,
         ConfigurationFormComponent,
         ConfigTypesPageComponent,
+        ConfigTypesListPageComponent,
         ConfigTypeFormComponent,
         EdgeRouterFormComponent,
         TransitRouterFormComponent,
@@ -347,6 +367,7 @@ export function playerFactory() {
         IdentitiesListPageComponent,
         EdgeRoutersPageComponent,
         TransitRoutersPageComponent,
+        TransitRoutersListPageComponent,
         ServicesPageComponent,
         ZacRoutingModule,
         SideModalComponent,
@@ -362,18 +383,23 @@ export function playerFactory() {
         EdgeRouterPoliciesPageComponent,
         EdgeRouterPoliciesListPageComponent,
         TerminatorsPageComponent,
+        TerminatorsListPageComponent,
         TerminatorFormComponent,
         JwtSignersPageComponent,
+        JwtSignersListPageComponent,
         JwtSignerFormComponent,
         AuthPoliciesPageComponent,
+        AuthPoliciesListPageComponent,
         AuthPolicyFormComponent,
         LoginDialogComponent,
         PostureChecksPageComponent,
         PostureChecksListPageComponent,
         PostureCheckFormComponent,
         SessionsPageComponent,
+        SessionsListPageComponent,
         SessionFormComponent,
         APISessionsPageComponent,
+        APISessionsListPageComponent,
         APISessionFormComponent,
         CallbackComponent,
         FormHeaderComponent,

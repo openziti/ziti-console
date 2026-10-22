@@ -30,6 +30,8 @@ import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/ext
 import {Service} from "../../models/service";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 import {Router} from "@angular/router";
+import {ListColumn} from "../../features/list-table/list-column";
+import {NameCellComponent} from "../../features/list-table/name-cell/name-cell.component";
 
 @Injectable({
     providedIn: 'root'
@@ -43,8 +45,13 @@ export class ConfigurationsPageService extends ListPageServiceClass {
     modalType = '';
 
     override menuItems = [
-        {name: 'Edit', action: 'update'},
-        {name: 'Delete', action: 'delete'},
+        {name: 'Edit', action: 'update', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M11.2 2.6 13.4 4.8 6 12.2l-2.8.6.6-2.8z"/></svg>'},
+        {name: 'Delete', action: 'delete', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M3.4 4.6h9.2M6.4 4.6V3.2h3.2v1.4M4.6 4.6 5 13h6l.4-8.4"/></svg>'},
+    ]
+
+    override tableHeaderActions = [
+        {name: 'Download All', action: 'download-all', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
+        {name: 'Download Selected', action: 'download-selected', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
     ]
 
     constructor(
@@ -153,8 +160,79 @@ export class ConfigurationsPageService extends ListPageServiceClass {
             });
     }
 
-    getData(filters?: FilterObj[], sort?: any) {
+    // Declarative ListColumn set for the new `lib-list-table` (Beta Features on).
+    initListTableColumns(): ListColumn[] {
+        const openForm = (ctx) => {
+            if (this.hasSelectedText()) {
+                return;
+            }
+            this.openEditForm(ctx.row?.id);
+        };
+        return [
+            {
+                key: 'name',
+                field: 'name',
+                label: 'Name',
+                filterType: 'TEXTINPUT',
+                cell: NameCellComponent,
+                cellInputs: (ctx) => ({
+                    row: ctx.row,
+                    cellValue: ctx.value,
+                    cellConfig: {pathRoot: this.basePath},
+                }),
+                onCellClick: openForm,
+                resizable: true,
+                sortable: true,
+                onSort: this.sort.bind(this),
+                cellClass: 'nf-cell-vert-align',
+            },
+            {
+                key: 'type',
+                field: 'type',
+                label: 'Type',
+                filterType: 'SELECT',
+                filterPlaceholder: 'Any type',
+                filterOptions: this.typeHeaderComponentParams.filterOptions,
+                getFilterOptions: () => this.typeHeaderComponentParams.filterOptions,
+                valueFormatter: (row) => row?.data?.configType?.name ?? '',
+                resizable: true,
+                sortable: true,
+                onSort: this.sort.bind(this),
+                cellClass: 'nf-cell-vert-align',
+            },
+            {
+                key: 'createdAt',
+                field: 'createdAt',
+                label: 'Created At',
+                valueFormatter: this.createdAtFormatter,
+                filterType: 'DATETIME',
+                filterPlaceholder: 'Any time',
+                onCellClick: openForm,
+                resizable: true,
+                sortable: false,
+                cellClass: 'nf-cell-vert-align',
+            },
+            {
+                key: 'id',
+                field: 'id',
+                label: 'ID',
+                filterType: 'TEXTINPUT',
+                onCellClick: openForm,
+                resizable: true,
+                sortable: true,
+                onSort: this.sort.bind(this),
+                cellClass: 'nf-cell-vert-align',
+                hidden: true,
+            },
+        ];
+    }
+
+    getData(filters?: FilterObj[], sort?: any, page?: any, pageSize?: number) {
         // we can customize filters or sorting here before moving on...
+        this.paging.page = page || this.paging.page;
+        if (pageSize) {
+            this.paging.total = pageSize;
+        }
         return super.getTableData('configs', this.paging, filters, sort)
             .then((results: any) => {
                 return this.processData(results);
