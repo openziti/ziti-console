@@ -30,6 +30,9 @@ import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/ext
 import {Session} from "../../models/session";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 import {Router} from "@angular/router";
+import {ListColumn} from "../../features/list-table/list-column";
+import {NameCellComponent} from "../../features/list-table/name-cell/name-cell.component";
+import {BooleanCellComponent} from "../../features/list-table/boolean-cell/boolean-cell.component";
 
 @Injectable({
     providedIn: 'root'
@@ -53,8 +56,13 @@ export class SessionsPageService extends ListPageServiceClass {
     modalType = '';
 
     override menuItems = [
-        {name: 'View', action: 'update'},
-        {name: 'Delete', action: 'delete'},
+        {name: 'View', action: 'update', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M1.5 8s2.3-4.5 6.5-4.5S14.5 8 14.5 8s-2.3 4.5-6.5 4.5S1.5 8 1.5 8zM8 6.2a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 0 0 0-3.6z"/></svg>'},
+        {name: 'Delete', action: 'delete', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M3.4 4.6h9.2M6.4 4.6V3.2h3.2v1.4M4.6 4.6 5 13h6l.4-8.4"/></svg>'},
+    ]
+
+    override tableHeaderActions = [
+        {name: 'Download All', action: 'download-all', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
+        {name: 'Download Selected', action: 'download-selected', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
     ]
 
     constructor(
@@ -195,7 +203,122 @@ export class SessionsPageService extends ListPageServiceClass {
         ];
     }
 
-    getData(filters?: FilterObj[], sort?: any) {
+    // Declarative ListColumn set for the new `lib-list-table` (Beta Features on).
+    initListTableColumns(): ListColumn[] {
+        const edgeRoutersFormatter = (row) => {
+            return (row?.data?.edgeRouters || []).map((router) => router.name).join(',');
+        };
+        const typeFilterOptions = [
+            {label: 'All', value: '', columnId: 'type'},
+            {label: 'Bind', value: 'Bind', columnId: 'type'},
+            {label: 'Dial', value: 'Dial', columnId: 'type'},
+        ];
+        const openForm = (ctx) => {
+            if (this.hasSelectedText()) {
+                return;
+            }
+            this.openEditForm(ctx.row?.id);
+        };
+        return [
+            {
+                key: 'id',
+                field: 'id',
+                label: 'ID',
+                filterType: 'TEXTINPUT',
+                cell: NameCellComponent,
+                cellInputs: (ctx) => ({
+                    row: ctx.row,
+                    cellValue: ctx.value,
+                    cellConfig: {pathRoot: this.basePath},
+                }),
+                onCellClick: openForm,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                sortable: true,
+                onSort: this.sort.bind(this),
+            },
+            {
+                key: 'service.name',
+                field: 'service.name',
+                label: 'Service Name',
+                cell: NameCellComponent,
+                cellInputs: (ctx) => ({
+                    row: ctx.row,
+                    cellValue: ctx.value,
+                    cellConfig: {pathRoot: 'services/advanced', itemProp: 'service.id'},
+                }),
+                onCellClick: openForm,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                sortable: false,
+            },
+            {
+                key: 'service',
+                field: 'service.id',
+                filterField: 'service',
+                label: 'Service ID',
+                filterType: 'TEXTINPUT',
+                cell: NameCellComponent,
+                cellInputs: (ctx) => ({
+                    row: ctx.row,
+                    cellValue: ctx.value,
+                    cellConfig: {pathRoot: 'services/advanced', itemProp: 'service.id'},
+                }),
+                onCellClick: openForm,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                sortable: true,
+                onSort: this.sort.bind(this),
+            },
+            {
+                key: 'edgeRouters',
+                field: 'edgeRouters',
+                label: 'Edge Routers',
+                valueFormatter: edgeRoutersFormatter,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                width: this.remToPx(10),
+            },
+            {
+                key: 'type',
+                field: 'type',
+                label: 'Type',
+                filterType: 'SELECT',
+                filterPlaceholder: 'Any type',
+                filterOptions: typeFilterOptions,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                width: this.remToPx(10),
+            },
+            {
+                key: 'isSystem',
+                field: 'isSystem',
+                label: 'Is System',
+                cell: BooleanCellComponent,
+                cellInputs: (ctx) => ({value: ctx.value, trueLabel: 'System'}),
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                width: this.remToPx(10),
+            },
+            {
+                key: 'createdAt',
+                field: 'createdAt',
+                label: 'Created At',
+                valueFormatter: this.createdAtFormatter,
+                filterType: 'DATETIME',
+                filterPlaceholder: 'Any time',
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                width: this.remToPx(10),
+            },
+        ];
+    }
+
+    getData(filters?: FilterObj[], sort?: any, page?: any, pageSize?: number) {
+        this.paging.page = page || this.paging.page;
+        if (pageSize) {
+            this.paging.total = pageSize;
+        }
         if (sort.sortBy === 'name') {
             sort.sortBy = 'id';
         }

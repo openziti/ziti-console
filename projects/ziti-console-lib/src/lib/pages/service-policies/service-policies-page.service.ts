@@ -38,6 +38,7 @@ import {TableCellNameComponent} from "../../features/data-table/cells/table-cell
 import {SERVICE_POLICY_EXTENSION_SERVICE} from "../../features/projectable-forms/service-policy/service-policy-form.service";
 import {ListColumn} from "../../features/list-table/list-column";
 import {NameCellComponent} from "../../features/list-table/name-cell/name-cell.component";
+import {AttributeCellComponent} from "../../features/list-table/attribute-cell/attribute-cell.component";
 
 @Injectable({
     providedIn: 'root'
@@ -436,20 +437,6 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
             },
             getNamedAttributesMap: () => this.postureNamedAttributesMap,
         };
-        // @ marks a named attribute, # a role attribute (matches the tag selector)
-        const rolesChipRenderer = (row) => {
-            const colId = row?.column?.colId;
-            const attrs = row?.data?.[colId + 'Display'] || row?.data?.[colId] || [];
-            return attrs.map((attr) => {
-                const raw = String(attr?.name ?? attr ?? '').trim();
-                if (!raw) {
-                    return '';
-                }
-                const isNamed = raw.charAt(0) === '@';
-                const label = isNamed || raw.charAt(0) === '#' ? raw : '#' + raw;
-                return `<span class="${isNamed ? 'lt-chip lt-chip-at' : 'lt-chip'}">${label}</span>`;
-            }).join('');
-        };
         const semanticFilterOptions = [
             {label: 'Show All', value: ''},
             {label: 'Any Of', value: 'AnyOf'},
@@ -490,7 +477,12 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
                 label: 'Service Attributes',
                 filterType: 'ATTRIBUTE',
                 headerParams: serviceRolesHeaderComponentParams,
-                cellHtml: rolesChipRenderer,
+                cell: AttributeCellComponent,
+                cellInputs: (ctx) => ({
+                    attributes: ctx.row?.[ctx.colId + 'Display'] ?? ctx.row?.[ctx.colId],
+                    field: ctx.colId,
+                    filterLabel: 'Service Attributes',
+                }),
                 onCellClick: openForm,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align',
@@ -502,7 +494,12 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
                 label: 'Identity Attributes',
                 filterType: 'ATTRIBUTE',
                 headerParams: identityRolesHeaderComponentParams,
-                cellHtml: rolesChipRenderer,
+                cell: AttributeCellComponent,
+                cellInputs: (ctx) => ({
+                    attributes: ctx.row?.[ctx.colId + 'Display'] ?? ctx.row?.[ctx.colId],
+                    field: ctx.colId,
+                    filterLabel: 'Identity Attributes',
+                }),
                 onCellClick: openForm,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align',
@@ -514,7 +511,12 @@ export class ServicePoliciesPageService extends ListPageServiceClass {
                 label: 'Posture Check Attributes',
                 filterType: 'ATTRIBUTE',
                 headerParams: postureRolesHeaderComponentParams,
-                cellHtml: rolesChipRenderer,
+                cell: AttributeCellComponent,
+                cellInputs: (ctx) => ({
+                    attributes: ctx.row?.[ctx.colId + 'Display'] ?? ctx.row?.[ctx.colId],
+                    field: ctx.colId,
+                    filterLabel: 'Posture Check Attributes',
+                }),
                 onCellClick: openForm,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align',
