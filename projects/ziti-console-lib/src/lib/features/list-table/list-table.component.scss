@@ -625,6 +625,11 @@
   z-index: 30;
 }
 
+.lt-ctl-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 .lt-toolbar-left {
   display: flex;
   align-items: center;

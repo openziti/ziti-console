@@ -2,7 +2,7 @@
   <div
     #toggleButton
     (click)="toggle(item)"
-    [ngClass]="{ selected: item.selected, disabled: disableToggle }"
+    [ngClass]="{ selected: item.selected, indeterminate: item.indeterminate && !item.selected, disabled: disableToggle }"
     attr.name="RowSelect0_{{ item.name }}"
     class="row-toggle tSelect"
     id="RowSelect0_{{ item.id }}"

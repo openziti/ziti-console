@@ -130,6 +130,26 @@ export interface ListCell<T = any> {
 /** Nested-row layout: 'card' floats each level as a bordered card, 'flat' renders inline. */
 export type TreeVariant = 'card' | 'flat';
 
+/** Per-control toolbar config. A control shows and is interactive by default; set
+ *  `show: false` to remove it, or `disabled: true` to keep it visible but greyed out. */
+export interface ToolbarControlOptions {
+    show?: boolean;
+    disabled?: boolean;
+}
+
+/** Show/hide and enable/disable each control around the table: the bar above it
+ *  (search, filters, refresh, auto-refresh, columns) and the footer below it
+ *  (rows-per-page, pagination). */
+export interface ListTableToolbarOptions {
+    search?: ToolbarControlOptions;
+    filters?: ToolbarControlOptions;
+    refresh?: ToolbarControlOptions;
+    autoRefresh?: ToolbarControlOptions;
+    columns?: ToolbarControlOptions;
+    pageSize?: ToolbarControlOptions;
+    pagination?: ToolbarControlOptions;
+}
+
 /** Structural options for {@link ListTableComponent}. */
 export interface ListTableOptions {
     noSelect?: boolean;
@@ -139,4 +159,5 @@ export interface ListTableOptions {
     /** Tree mode: render checkboxes on nested rows and include them in the selection. */
     selectChildren?: boolean;
     fitColumns?: boolean;
+    toolbar?: ListTableToolbarOptions;
 }
