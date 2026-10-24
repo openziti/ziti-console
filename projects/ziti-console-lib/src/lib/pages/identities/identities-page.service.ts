@@ -586,6 +586,23 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 width: 100,
             },
             {
+                key: 'externalId',
+                field: 'externalId',
+                label: 'External Id',
+                filterType: 'TEXTINPUT',
+                cellClass: 'nf-cell-vert-align',
+                resizable: true,
+                sortable: true,
+                onSort: this.sort.bind(this),
+                onCellClick: (ctx) => {
+                    if (this.hasSelectedText()) {
+                        return;
+                    }
+                    this.openEditForm(ctx.row?.id);
+                },
+                hidden: true,
+            },
+            {
                 key: 'id',
                 field: 'id',
                 label: 'ID',
