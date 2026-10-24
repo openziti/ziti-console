@@ -35,7 +35,7 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 
 import {DataTableFilterService, FilterObj} from '../data-table/data-table-filter.service';
-import {ListColumn, ListCellContext, ListLegacyCellShim, ListSortDir, ListTableOptions, TreeVariant} from './list-column';
+import {ListColumn, ListCellContext, ListLegacyCellShim, ListSortDir, ListTableOptions, ListTableToolbarOptions, TreeVariant} from './list-column';
 import {ListTableService} from './list-table.service';
 import {ListMenuItem} from './list-menu/list-menu.component';
 
@@ -83,6 +83,7 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     @Input() set options(value: ListTableOptions) {
         const wasTree = !!this._options?.tree;
         this._options = value || {};
+        this.toolbarControls = this.normalizeToolbar(this._options.toolbar);
         // rebuild the render list if tree mode was flipped after init, otherwise flatRows
         // keeps the pre-toggle shape
         if (this._initialized && !!this._options.tree !== wasTree) {
@@ -93,6 +94,26 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         return this._options;
     }
     private _options: ListTableOptions = {noSelect: false, noMenu: false};
+
+    /** Resolved show/disabled state for each toolbar control, read by the template.
+     *  Every control shows and is enabled unless the host's `options.toolbar` says otherwise. */
+    toolbarControls = this.normalizeToolbar(undefined);
+
+    private normalizeToolbar(toolbar: ListTableToolbarOptions | undefined) {
+        const resolve = (c?: {show?: boolean; disabled?: boolean}) => ({
+            show: c?.show !== false,
+            disabled: !!c?.disabled,
+        });
+        return {
+            search: resolve(toolbar?.search),
+            filters: resolve(toolbar?.filters),
+            refresh: resolve(toolbar?.refresh),
+            autoRefresh: resolve(toolbar?.autoRefresh),
+            columns: resolve(toolbar?.columns),
+            pageSize: resolve(toolbar?.pageSize),
+            pagination: resolve(toolbar?.pagination),
+        };
+    }
 
     /** Tree mode: fetch a row's children the first time it is expanded. Return the
      *  child rows (any shape the columns render). A row with `leaf: true`, or one that
