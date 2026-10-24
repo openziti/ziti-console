@@ -2,6 +2,7 @@
 # ziti-console-lib-v1.7.1
 ## Feature/Improvements
 * [Issue #962](https://github.com/openziti/ziti-console/issues/962) - Export AttributeCellComponent from the public API so consumers can render the attribute chip cell
+* [Issue #981](https://github.com/openziti/ziti-console/issues/981) - Add External Id as an optional column on the Identities list page
 
 ## Bug Fixes
 * [Issue #961](https://github.com/openziti/ziti-console/issues/961) - Fix the auth policy delete action in the row menu doing nothing
