@@ -1,3 +1,12 @@
+# app-ziti-console-v4.7.1
+# ziti-console-lib-v1.7.1
+## Feature/Improvements
+* [Issue #962](https://github.com/openziti/ziti-console/issues/962) - Export AttributeCellComponent from the public API so consumers can render the attribute chip cell
+
+## Bug Fixes
+* [Issue #961](https://github.com/openziti/ziti-console/issues/961) - Fix the auth policy delete action in the row menu doing nothing
+
+
 # app-ziti-console-v4.7.0
 # ziti-console-lib-v1.7.0
 ## Feature/Improvements
