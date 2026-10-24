@@ -174,6 +174,10 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     @Output() tableReady = new EventEmitter<any>();
     /** Full set of selected rows (all depths) whenever the selection changes. */
     @Output() selectionChanged = new EventEmitter<any[]>();
+    /** The row the pointer is over, or null when it leaves. Emitted once per row (at the
+     *  row level, not per cell) so consumers can react to the whole hovered row, for
+     *  example to highlight that row's path in a connected diagram. */
+    @Output() rowHover = new EventEmitter<any | null>();
 
     @ViewChild('contextMenu') contextMenu?: ElementRef;
     @ViewChild('filterZone') filterZone?: ElementRef<HTMLElement>;
@@ -625,6 +629,26 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
 
     onCellLeave(): void {
         this.hoverTooltip = null;
+    }
+
+    // ---------------------------------------------------------------- row hover
+    /** The row currently under the pointer, so we only emit when it actually changes. */
+    private hoveredRow: any = null;
+
+    onRowHover(row: any): void {
+        if (this.hoveredRow === row) {
+            return;
+        }
+        this.hoveredRow = row;
+        this.rowHover.emit(row);
+    }
+
+    onRowLeave(row: any): void {
+        if (this.hoveredRow !== row) {
+            return;
+        }
+        this.hoveredRow = null;
+        this.rowHover.emit(null);
     }
 
     // ---------------------------------------------------------------- selection

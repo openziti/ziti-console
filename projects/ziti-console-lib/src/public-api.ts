@@ -76,6 +76,7 @@ export * from './lib/features/list-table/os-info-tooltip/os-info-tooltip.compone
 export * from './lib/features/list-table/sdk-info-tooltip/sdk-info-tooltip.component';
 export * from './lib/features/list-table/boolean-cell/boolean-cell.component';
 export * from './lib/features/list-table/token-cell/token-cell.component';
+export * from './lib/features/list-table/attribute-cell/attribute-cell.component';
 export * from './lib/features/card-list/card-list.component';
 export * from './lib/features/preview-list/preview-list.component';
 export * from './lib/features/login/login-dialog.component';

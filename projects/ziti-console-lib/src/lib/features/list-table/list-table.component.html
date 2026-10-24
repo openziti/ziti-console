@@ -355,6 +355,8 @@
                 [class.lt-tree-last-child]="row.__treeLastChild"
                 [class.lt-row-selected]="row.selected"
                 [class.lt-row-expanded]="row.__treeExpanded"
+                (mouseenter)="onRowHover(row)"
+                (mouseleave)="onRowLeave(row)"
               >
                 <td
                   [attr.colspan]="treeSpanCount"
@@ -400,6 +402,8 @@
                 [class.lt-row-expanded]="row.__treeExpanded"
                 [class.row-invalid]="row.invalid"
                 [class.row-copied]="row.copied"
+                (mouseenter)="onRowHover(row)"
+                (mouseleave)="onRowLeave(row)"
               >
                 @if (!options.noSelect) {
                   <td class="lt-select-cell">
