@@ -92,7 +92,7 @@ export class AuthPoliciesPageComponent extends ListPageComponent implements OnIn
                 break;
             case 'update':
                 this.svc.checkDefaultAuthPolicy(event.item).then((result) => {
-                    if (!result) {
+                    if (!result?.confirmed) {
                         return;
                     }
                     this.svc.openEditForm(event.item?.id);
@@ -103,7 +103,7 @@ export class AuthPoliciesPageComponent extends ListPageComponent implements OnIn
                 break;
             case 'delete':
                 this.svc.checkDefaultAuthPolicy(event.item).then((result) => {
-                    if (!result) {
+                    if (!result?.confirmed) {
                         return;
                     }
                     this.deleteItem(event.item)
