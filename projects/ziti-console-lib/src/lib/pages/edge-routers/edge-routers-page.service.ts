@@ -24,6 +24,12 @@ import {ExtensionService} from "../../features/extendable/extensions-noop.servic
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {Router} from "@angular/router";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
+import {ListColumn} from "../../features/list-table/list-column";
+import {NameCellComponent} from "../../features/list-table/name-cell/name-cell.component";
+import {BooleanCellComponent} from "../../features/list-table/boolean-cell/boolean-cell.component";
+import {TokenCellComponent} from "../../features/list-table/token-cell/token-cell.component";
+import {AttributeCellComponent} from "../../features/list-table/attribute-cell/attribute-cell.component";
+import {OsInfoTooltipComponent} from "../../features/list-table/os-info-tooltip/os-info-tooltip.component";
 
 @Injectable({
     providedIn: 'root'
@@ -60,17 +66,21 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
         os: '',
         createdAt: '',
     };
+    edgeRouterRoleAttributes: any[] = [];
+    selectedEdgeRouterRoleAttributes: any[] = [];
 
+    // `icon` (SVG markup) is rendered before the label in the new list-table's row kebab
+    // (3-dot) menu. The legacy ag-grid menu ignores it.
     override menuItems = [
-        {name: 'Edit', action: 'update'},
-        {name: 'Download JWT', action: 'download-enrollment'},
-        {name: 'Reset Enrollment', action: 'reset-enrollment'},
-        {name: 'Re-Enroll', action: 're-enroll'},
-        {name: 'Delete', action: 'delete'},
+        {name: 'Edit', action: 'update', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M11.2 2.6 13.4 4.8 6 12.2l-2.8.6.6-2.8z"/></svg>'},
+        {name: 'Download JWT', action: 'download-enrollment', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
+        {name: 'Reset Enrollment', action: 'reset-enrollment', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" d="M3.2 8a4.8 4.8 0 1 0 1.3-3.3"/><path fill="currentColor" d="M2.8 2.8l-.3 2.9 2.8-.4z"/></svg>'},
+        {name: 'Re-Enroll', action: 're-enroll', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" d="M12.8 8a4.8 4.8 0 1 1-1.3-3.3"/><path fill="currentColor" d="M13.2 2.8l.3 2.9-2.8-.4z"/></svg>'},
+        {name: 'Delete', action: 'delete', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M3.4 4.6h9.2M6.4 4.6V3.2h3.2v1.4M4.6 4.6 5 13h6l.4-8.4"/></svg>'},
     ]
 
     override tableHeaderActions = [
-        {name: 'Download All', action: 'download-all'},
+        {name: 'Download All', action: 'download-all', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
     ]
 
     resourceType = 'edge-routers';
@@ -86,6 +96,14 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
         protected override router: Router
     ) {
         super(settings, filterService, csvDownloadService, extService, router);
+        // drop the attribute column's selected roles when its filter is cleared, so the
+        // header dropdown and the applied-filter tag stay in sync (see identities page)
+        this.filterService.filtersChanged.subscribe(filters => {
+            const hasRoleFilter = (filters || []).some((filter) => filter.columnId === 'roleAttributes');
+            if (!hasRoleFilter) {
+                this.selectedEdgeRouterRoleAttributes = [];
+            }
+        });
     }
 
     validate = (formData): Promise<CallbackResults> => {
@@ -307,9 +325,223 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
         return tableColumns;
     }
 
-    getData(filters?: FilterObj[], sort?: any, page?: any): Promise<any> {
+    // Declarative ListColumn set for the new `lib-list-table` (Beta Features on).
+    initListTableColumns(): ListColumn[] {
+        this.initMenuActions();
+        const edgeRouterRolesHeaderComponentParams = {
+            filterType: 'ATTRIBUTE',
+            enableSorting: true,
+            appendAttributeHash: false,
+            getRoleAttributes: () => this.edgeRouterRoleAttributes,
+            getNamedAttributes: () => [],
+            getSelectedRoleAttributes: () => this.selectedEdgeRouterRoleAttributes,
+            getSelectedNamedAttributes: () => [],
+            setSelectedRoleAttributes: (attributes) => {
+                this.selectedEdgeRouterRoleAttributes = attributes;
+            },
+            setSelectedNamedAttributes: (attributes) => {
+                // no-op
+            },
+            getNamedAttributesMap: () => ({}),
+        };
+
+        // O/S icon drawn via CSS from the class name; detail moves to the hover popover.
+        const osRenderer = (row) => {
+            const os = (row?.data?.versionInfo?.os || '').toLowerCase();
+            const ver = (row?.data?.versionInfo?.osVersion || '').toLowerCase();
+            let cls = 'other';
+            if (ver.includes('windows') || os.includes('windows') || os.includes('mingw')) cls = 'windows';
+            else if (os.includes('darwin')) cls = 'apple';
+            else if (os.includes('linux')) cls = 'linux';
+            else if (os.includes('android')) cls = 'android';
+            return `<span class="os ${cls}"></span>`;
+        };
+
+        const enrollmentTokenFormatter = (row) => {
+            const token = row?.data?.enrollmentToken;
+            if (!token) {
+                return '';
+            }
+            return moment(row?.data?.enrollmentExpiresAt).isBefore() ? 'Enrollment Expired' : token;
+        };
+
+        const advertiseFormatter = (row) => {
+            const protocols = row?.data?.supportedProtocols;
+            if (!protocols) {
+                return '';
+            }
+            return Object.values(protocols).filter(Boolean).join(' | ');
+        };
+
+        const openForm = (ctx) => {
+            if (this.hasSelectedText()) {
+                return;
+            }
+            this.openEditForm(ctx.row?.id);
+        };
+
+        let tableColumns: ListColumn[] = [
+            {
+                key: 'name',
+                field: 'name',
+                label: 'Name',
+                filterType: 'TEXTINPUT',
+                cell: NameCellComponent,
+                cellInputs: (ctx) => ({
+                    row: ctx.row,
+                    cellValue: ctx.value,
+                    cellConfig: {pathRoot: this.basePath, showRouterIcons: true},
+                }),
+                onCellClick: openForm,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                sortable: true,
+                onSort: this.sort.bind(this),
+                sortDir: 'asc',
+                width: 300,
+            },
+            {
+                key: 'os',
+                field: 'os',
+                label: 'O/S',
+                width: 100,
+                cellHtml: osRenderer,
+                tooltip: OsInfoTooltipComponent,
+                tooltipInputs: (ctx) => ({row: ctx.row}),
+                resizable: true,
+                cellClass: 'nf-cell-vert-align lt-cell-center',
+            },
+            {
+                key: 'roleAttributes',
+                field: 'roleAttributes',
+                label: 'Roles',
+                filterType: 'ATTRIBUTE',
+                headerParams: edgeRouterRolesHeaderComponentParams,
+                cell: AttributeCellComponent,
+                cellInputs: (ctx) => ({
+                    attributes: ctx.row?.roleAttributesDisplay ?? ctx.row?.roleAttributes,
+                    field: ctx.colId,
+                    filterLabel: 'Roles',
+                }),
+                onCellClick: openForm,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                sortable: false,
+            },
+            {
+                key: 'verified',
+                field: 'isVerified',
+                label: 'Verified',
+                cell: BooleanCellComponent,
+                cellInputs: (ctx) => ({value: ctx.value, trueLabel: 'Verified'}),
+                width: 100,
+                sortable: true,
+                onSort: this.sort.bind(this),
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+            },
+            {
+                key: 'online',
+                field: 'isOnline',
+                label: 'Online',
+                cell: BooleanCellComponent,
+                cellInputs: (ctx) => ({value: ctx.value, trueLabel: 'Online'}),
+                width: 100,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+            },
+            {
+                key: 'createdAt',
+                field: 'createdAt',
+                label: 'Created At',
+                valueFormatter: this.createdAtFormatter,
+                filterType: 'DATETIME',
+                filterPlaceholder: 'Any time',
+                resizable: true,
+                sortable: true,
+                onSort: this.sort.bind(this),
+                cellClass: 'nf-cell-vert-align',
+            },
+            {
+                key: 'enrollmentToken',
+                field: 'enrollmentToken',
+                label: 'Token',
+                valueFormatter: enrollmentTokenFormatter,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                hidden: true,
+            },
+            {
+                key: 'jwt',
+                field: 'enrollmentJwt',
+                label: 'JWT',
+                cell: TokenCellComponent,
+                // Routers enroll via JWT/re-enroll, not QR codes or re-issue (those are
+                // identity-only), so give the cell router-appropriate actions.
+                cellInputs: (ctx) => ({
+                    row: ctx.row,
+                    emitAction: ctx.emitAction,
+                    availableActions: [
+                        {label: 'Download JWT', action: 'download-enrollment', icon: 'icon-download-jwt'},
+                    ],
+                    expiredActions: [
+                        {label: 'Re-Enroll', action: 're-enroll', icon: 'icon-refresh'},
+                    ],
+                }),
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+            },
+            {
+                key: 'hostname',
+                field: 'hostname',
+                label: 'Host Name',
+                filterType: 'TEXTINPUT',
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                hidden: true,
+            },
+            {
+                key: 'version',
+                field: 'versionInfo.version',
+                label: 'Router Version',
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                hidden: true,
+            },
+            {
+                key: 'supportedProtocols',
+                field: 'supportedProtocols',
+                label: 'Advertise Address',
+                valueFormatter: advertiseFormatter,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                hidden: true,
+            },
+            {
+                key: 'id',
+                field: 'id',
+                label: 'ID',
+                filterType: 'TEXTINPUT',
+                onCellClick: openForm,
+                resizable: true,
+                sortable: true,
+                onSort: this.sort.bind(this),
+                cellClass: 'nf-cell-vert-align',
+                hidden: true,
+            },
+        ];
+        if (this.extService?.processListTableColumns) {
+            tableColumns = this.extService.processListTableColumns(tableColumns);
+        }
+        return tableColumns;
+    }
+
+    getData(filters?: FilterObj[], sort?: any, page?: any, pageSize?: number): Promise<any> {
         // we can customize filters or sorting here before moving on...
         this.paging.page = page || this.paging.page;
+        if (pageSize) {
+            this.paging.total = pageSize;
+        }
         return super.getTableData('edge-routers', this.paging, filters, sort)
             .then((results: any) => {
                 return this.processData(results);
@@ -340,7 +572,10 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
     }
 
     public getEdgeRouterRoleAttributes() {
-        return this.zitiService.get('edge-router-role-attributes', {}, []);
+        return this.zitiService.get('edge-router-role-attributes', {}, []).then((result: any) => {
+            this.edgeRouterRoleAttributes = result.data;
+            return result;
+        });
     }
 
 

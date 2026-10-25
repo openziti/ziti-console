@@ -77,8 +77,10 @@ import {AgGridModule} from "ag-grid-angular";
 import {IdentitiesPageComponent} from "./pages/identities/identities-page.component";
 import {IdentitiesListPageComponent} from "./pages/identities/identities-list-page.component";
 import {EdgeRoutersPageComponent} from "./pages/edge-routers/edge-routers-page.component";
+import {EdgeRoutersListPageComponent} from "./pages/edge-routers/edge-routers-list-page.component";
 import {TransitRoutersPageComponent} from "./pages/transit-routers/transit-routers-page.component";
 import {ServicesPageComponent} from "./pages/services/services-page.component";
+import {ServicesListPageComponent} from "./pages/services/services-list-page.component";
 import {ZITI_NAVIGATOR} from "./ziti-console.constants";
 import { GrowlerComponent } from './features/messaging/growler.component';
 import { ConfirmComponent } from './features/confirm/confirm.component';
@@ -213,6 +215,7 @@ export function playerFactory() {
         IdentitiesPageComponent,
         IdentitiesListPageComponent,
         EdgeRoutersPageComponent,
+        EdgeRoutersListPageComponent,
         TransitRoutersPageComponent,
         DataTableComponent,
         ListTableComponent,
@@ -257,6 +260,7 @@ export function playerFactory() {
         NetworkVisualizerComponent,
         CustomTagsComponent,
         ServicesPageComponent,
+        ServicesListPageComponent,
         ServiceFormComponent,
         PortRangesComponent,
         ForwardingConfigComponent,
@@ -346,8 +350,10 @@ export function playerFactory() {
         IdentitiesPageComponent,
         IdentitiesListPageComponent,
         EdgeRoutersPageComponent,
+        EdgeRoutersListPageComponent,
         TransitRoutersPageComponent,
         ServicesPageComponent,
+        ServicesListPageComponent,
         ZacRoutingModule,
         SideModalComponent,
         IdentityFormComponent,

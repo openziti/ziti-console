@@ -4,17 +4,21 @@
     type="button"
     class="token-chip {{ status }}"
     [class.is-open]="open"
-    (click)="toggleMenu($event)"
-    aria-haspopup="menu"
-    [attr.aria-expanded]="open"
+    (click)="onChipClick($event)"
+    [attr.aria-haspopup]="hasMenu ? 'menu' : null"
+    [attr.aria-expanded]="hasMenu ? open : null"
+    [attr.aria-label]="hasMenu ? null : actions[0]?.label"
+    [attr.title]="hasMenu ? null : actions[0]?.label"
   >
     <span class="token-chip-label">{{ statusLabel }}</span>
-    <svg class="token-caret" viewBox="0 0 10 6" width="9" height="6" aria-hidden="true">
-      <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M1 1.5 5 5 9 1.5"/>
-    </svg>
+    @if (hasMenu) {
+      <svg class="token-caret" viewBox="0 0 10 6" width="9" height="6" aria-hidden="true">
+        <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M1 1.5 5 5 9 1.5"/>
+      </svg>
+    }
   </button>
 
-  @if (open) {
+  @if (hasMenu && open) {
     <div class="token-menu" [ngStyle]="{ left: menuLeft + 'px', top: menuTop + 'px' }" (clickOutside)="closeMenu()">
       @for (a of actions; track a.action) {
         <button type="button" class="token-menu-item" (click)="runAction(a.action, $event)">
