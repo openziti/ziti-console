@@ -15,6 +15,7 @@
 */
 
 import {Component, ElementRef, Input, ViewChild} from '@angular/core';
+import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import moment from 'moment';
 
 type TokenStatus = 'available' | 'expired' | 'none';
@@ -22,7 +23,9 @@ type TokenStatus = 'available' | 'expired' | 'none';
 interface TokenAction {
     label: string;
     action: string;
-    icon: string;
+    icon?: string;
+    /** Inline SVG markup rendered instead of `icon`, for a glyph not in the icon font. */
+    iconSvg?: string;
 }
 
 /**
@@ -60,6 +63,24 @@ export class TokenCellComponent {
     open = false;
     menuLeft = 0;
     menuTop = 0;
+
+    private iconSvgCache = new Map<string, SafeHtml>();
+
+    constructor(private sanitizer: DomSanitizer) {}
+
+    /** Trust developer-authored inline SVG for an action icon, memoized so the same
+     *  markup yields the same SafeHtml and the binding does not re-render each cycle. */
+    safeIcon(svg?: string): SafeHtml | null {
+        if (!svg) {
+            return null;
+        }
+        let safe = this.iconSvgCache.get(svg);
+        if (!safe) {
+            safe = this.sanitizer.bypassSecurityTrustHtml(svg);
+            this.iconSvgCache.set(svg, safe);
+        }
+        return safe;
+    }
 
     get status(): TokenStatus {
         if (!this.hasEnrolmentToken) {

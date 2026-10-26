@@ -4,12 +4,20 @@
     type="button"
     class="token-chip {{ status }}"
     [class.is-open]="open"
+    [class.is-action]="!hasMenu"
     (click)="onChipClick($event)"
     [attr.aria-haspopup]="hasMenu ? 'menu' : null"
     [attr.aria-expanded]="hasMenu ? open : null"
     [attr.aria-label]="hasMenu ? null : actions[0]?.label"
     [attr.title]="hasMenu ? null : actions[0]?.label"
   >
+    @if (!hasMenu && actions[0]; as action) {
+      @if (action.iconSvg) {
+        <span class="token-chip-icon" [innerHTML]="safeIcon(action.iconSvg)" aria-hidden="true"></span>
+      } @else if (action.icon) {
+        <span class="token-chip-icon {{ action.icon }}" aria-hidden="true"></span>
+      }
+    }
     <span class="token-chip-label">{{ statusLabel }}</span>
     @if (hasMenu) {
       <svg class="token-caret" viewBox="0 0 10 6" width="9" height="6" aria-hidden="true">
