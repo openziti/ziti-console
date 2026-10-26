@@ -2,22 +2,25 @@
   <div class="lt-container">
     <div class="lt-toolbar">
       <div class="lt-toolbar-left">
-        <div class="lt-search">
-          <svg class="lt-search-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-            <circle cx="7" cy="7" r="4.3" fill="none" stroke="currentColor" stroke-width="1.5"/>
-            <line x1="10.4" y1="10.4" x2="14.6" y2="14.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-          <input
-            class="lt-search-input"
-            id="SearchFilter"
-            type="text"
-            [placeholder]="'Search ' + (entityTypeLabel || 'items')"
-            [(ngModel)]="searchString"
-            (keyup)="onSearchInput()"
-          />
-        </div>
-        @if (filterableColumns.length) {
-          <div class="lt-filter-zone" #filterZone>
+        @if (toolbarControls.search.show) {
+          <div class="lt-search" [class.lt-ctl-disabled]="toolbarControls.search.disabled">
+            <svg class="lt-search-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+              <circle cx="7" cy="7" r="4.3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="10.4" y1="10.4" x2="14.6" y2="14.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input
+              class="lt-search-input"
+              id="SearchFilter"
+              type="text"
+              [placeholder]="'Search ' + (entityTypeLabel || 'items')"
+              [(ngModel)]="searchString"
+              [disabled]="toolbarControls.search.disabled"
+              (keyup)="onSearchInput()"
+            />
+          </div>
+        }
+        @if (toolbarControls.filters.show && filterableColumns.length) {
+          <div class="lt-filter-zone" [class.lt-ctl-disabled]="toolbarControls.filters.disabled" #filterZone>
             <div class="lt-filters" #filtersRow>
               @for (col of visibleFilterColumns; track col.key) {
                 <span class="lt-filter-item" [attr.data-filter-key]="col.key">
@@ -68,18 +71,25 @@
             <path fill="currentColor" d="M13.9 2.1l.5 3.2-3.2-.5z"/>
           </svg>
         </ng-template>
-        <button
-          type="button"
-          class="lt-refresh-btn"
-          (click)="refresh()"
-          [disabled]="filtering"
-          aria-label="Refresh"
-          title="Refresh"
-          id="RefreshTableButton"
-        >
-          <ng-container [ngTemplateOutlet]="refreshIcon"></ng-container>
-        </button>
-        <lib-list-table-auto-refresh [loading]="filtering" (refresh)="refresh()"></lib-list-table-auto-refresh>
+        @if (toolbarControls.refresh.show) {
+          <button
+            type="button"
+            class="lt-refresh-btn"
+            (click)="refresh()"
+            [disabled]="filtering || toolbarControls.refresh.disabled"
+            aria-label="Refresh"
+            title="Refresh"
+            id="RefreshTableButton"
+          >
+            <ng-container [ngTemplateOutlet]="refreshIcon"></ng-container>
+          </button>
+        }
+        @if (toolbarControls.autoRefresh.show) {
+          <span class="lt-autorefresh-wrap" [class.lt-ctl-disabled]="toolbarControls.autoRefresh.disabled">
+            <lib-list-table-auto-refresh [loading]="filtering" (refresh)="refresh()"></lib-list-table-auto-refresh>
+          </span>
+        }
+        @if (toolbarControls.columns.show) {
         <div class="lt-columns">
           <button
             type="button"
@@ -87,6 +97,7 @@
             [class.is-on]="hiddenColumnCount > 0"
             [class.is-open]="showColumnChooser"
             (click)="toggleColumnChooser($event)"
+            [disabled]="toolbarControls.columns.disabled"
             aria-haspopup="true"
             [attr.aria-expanded]="showColumnChooser"
             id="ColumnChooserButton"
@@ -182,6 +193,7 @@
             </div>
           }
         </div>
+        }
       </div>
     </div>
 
@@ -355,6 +367,8 @@
                 [class.lt-tree-last-child]="row.__treeLastChild"
                 [class.lt-row-selected]="row.selected"
                 [class.lt-row-expanded]="row.__treeExpanded"
+                (mouseenter)="onRowHover(row)"
+                (mouseleave)="onRowLeave(row)"
               >
                 <td
                   [attr.colspan]="treeSpanCount"
@@ -400,6 +414,8 @@
                 [class.lt-row-expanded]="row.__treeExpanded"
                 [class.row-invalid]="row.invalid"
                 [class.row-copied]="row.copied"
+                (mouseenter)="onRowHover(row)"
+                (mouseleave)="onRowLeave(row)"
               >
                 @if (!options.noSelect) {
                   <td class="lt-select-cell">
@@ -456,38 +472,42 @@
         of <span id="Total">{{ totalCount }}</span>
       </div>
       <div class="lt-footer-controls">
-        <div class="lt-rpp">
-          <span class="lt-rpp-label">Rows per page</span>
-          <select
-            class="lt-rpp-select"
-            [disabled]="filtering"
-            [value]="pageSize"
-            (change)="onPageSizeChange(+$any($event.target).value)"
-            aria-label="Rows per page"
-          >
-            @for (opt of pageSizeOptions; track opt) {
-              <option [value]="opt">{{ opt }}</option>
-            }
-          </select>
-        </div>
-        <div class="lt-pager">
-          <button type="button" class="lt-page-btn icon-prev" [disabled]="prevDisabled" (click)="prevPage()" aria-label="Previous page"></button>
-          @if (!cursorPager) {
-            @for (p of pageWindow; track $index) {
-              @if (p === 0) {
-                <span class="lt-page-gap">&#8230;</span>
-              } @else {
-                <button
-                  type="button"
-                  class="lt-page-num"
-                  [class.is-current]="p === currentPageNum"
-                  (click)="goToPage(p)"
-                >{{ p }}</button>
+        @if (toolbarControls.pageSize.show) {
+          <div class="lt-rpp" [class.lt-ctl-disabled]="toolbarControls.pageSize.disabled">
+            <span class="lt-rpp-label">Rows per page</span>
+            <select
+              class="lt-rpp-select"
+              [disabled]="filtering || toolbarControls.pageSize.disabled"
+              [value]="pageSize"
+              (change)="onPageSizeChange(+$any($event.target).value)"
+              aria-label="Rows per page"
+            >
+              @for (opt of pageSizeOptions; track opt) {
+                <option [value]="opt">{{ opt }}</option>
+              }
+            </select>
+          </div>
+        }
+        @if (toolbarControls.pagination.show) {
+          <div class="lt-pager" [class.lt-ctl-disabled]="toolbarControls.pagination.disabled">
+            <button type="button" class="lt-page-btn icon-prev" [disabled]="prevDisabled" (click)="prevPage()" aria-label="Previous page"></button>
+            @if (!cursorPager) {
+              @for (p of pageWindow; track $index) {
+                @if (p === 0) {
+                  <span class="lt-page-gap">&#8230;</span>
+                } @else {
+                  <button
+                    type="button"
+                    class="lt-page-num"
+                    [class.is-current]="p === currentPageNum"
+                    (click)="goToPage(p)"
+                  >{{ p }}</button>
+                }
               }
             }
-          }
-          <button type="button" class="lt-page-btn icon-next" [disabled]="nextDisabled" (click)="nextPage()" aria-label="Next page"></button>
-        </div>
+            <button type="button" class="lt-page-btn icon-next" [disabled]="nextDisabled" (click)="nextPage()" aria-label="Next page"></button>
+          </div>
+        }
       </div>
     </div>
 

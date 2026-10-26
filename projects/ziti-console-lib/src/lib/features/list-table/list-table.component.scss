@@ -625,6 +625,11 @@
   z-index: 30;
 }
 
+.lt-ctl-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 .lt-toolbar-left {
   display: flex;
   align-items: center;
@@ -850,7 +855,7 @@
   // right and open leftward into the page (was left:0 -> ran off-screen)
   right: 0;
   z-index: 1000;
-  width: 15rem;
+  width: 18rem;
   // grow to fit all columns; only cap (and scroll the list) near the viewport edge
   max-height: calc(100vh - 9rem);
   display: flex;
