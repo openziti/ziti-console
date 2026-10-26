@@ -1,13 +1,4 @@
 <div class="ziti-page-container ziti-configs-container lt-skin-page">
-  @if (_networkJwt) {
-    <a
-      class="network-jwt-link save-button"
-      href="data:application/ziti-jwt;charset=utf-8,{{networkJwt}}"
-      download="{{networkJwtFilename}}.jwt"
-      >
-      Download Network JWT
-    </a>
-  }
   <lib-list-table-header
     [title]="title"
     subtitle="Trust external identity providers by their JWT signers"
@@ -19,7 +10,16 @@
     [blockDelete]="headerBlockDelete"
     (actionClicked)="headerActionClicked($event)"
   >
-    <span header-icon class="icon-key" aria-hidden="true"></span>
+    <span header-icon class="icon-ManageAPIAccounts" aria-hidden="true"></span>
+    @if (_networkJwt) {
+      <a
+        header-action
+        class="lth-secondary"
+        id="DownloadNetworkJwt"
+        href="data:application/ziti-jwt;charset=utf-8,{{networkJwt}}"
+        download="{{networkJwtFilename}}.jwt"
+        >Download Network JWT</a>
+    }
   </lib-list-table-header>
   <ng-content select="[slot=list-page-subheader]"></ng-content>
   <lib-list-table class="lt-skin" [tableId]="tableId" [initialPageSize]="initialPageSize"
