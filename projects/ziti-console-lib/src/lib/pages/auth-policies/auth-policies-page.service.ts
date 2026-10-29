@@ -33,6 +33,9 @@ import {Router} from "@angular/router";
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {firstValueFrom} from "rxjs";
 import {MatDialog} from "@angular/material/dialog";
+import {ListColumn} from "../../features/list-table/list-column";
+import {NameCellComponent} from "../../features/list-table/name-cell/name-cell.component";
+import {BooleanCellComponent} from "../../features/list-table/boolean-cell/boolean-cell.component";
 
 @Injectable({
     providedIn: 'root'
@@ -46,8 +49,13 @@ export class AuthPoliciesPageService extends ListPageServiceClass {
     modalType = '';
 
     override menuItems = [
-        {name: 'Edit', action: 'update'},
-        {name: 'Delete', action: 'delete'},
+        {name: 'Edit', action: 'update', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M11.2 2.6 13.4 4.8 6 12.2l-2.8.6.6-2.8z"/></svg>'},
+        {name: 'Delete', action: 'delete', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M3.4 4.6h9.2M6.4 4.6V3.2h3.2v1.4M4.6 4.6 5 13h6l.4-8.4"/></svg>'},
+    ]
+
+    override tableHeaderActions = [
+        {name: 'Download All', action: 'download-all', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
+        {name: 'Download Selected', action: 'download-selected', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
     ]
 
     constructor(
@@ -183,8 +191,91 @@ export class AuthPoliciesPageService extends ListPageServiceClass {
         return firstValueFrom(this.dialogRef.afterClosed());
     }
 
-    getData(filters?: FilterObj[], sort?: any) {
+    // Declarative ListColumn set for the new `lib-list-table` (Beta Features on).
+    initListTableColumns(): ListColumn[] {
+        this.initMenuActions();
+        const allowedFilterOptions = [
+            { label: 'All', value: '' },
+            { label: 'Allowed', value: true },
+            { label: 'Not Allowed', value: false },
+        ];
+        const allowedColumn = (key: string, label: string): ListColumn => ({
+            key,
+            field: key,
+            label,
+            filterType: 'SELECT',
+            filterOptions: allowedFilterOptions,
+            cell: BooleanCellComponent,
+            cellInputs: (ctx) => ({value: ctx.value, trueLabel: 'Allowed'}),
+            resizable: true,
+            sortable: true,
+            onSort: this.sort.bind(this),
+            cellClass: 'nf-cell-vert-align',
+        });
+        const tableColumns: ListColumn[] = [
+            {
+                key: 'name',
+                field: 'name',
+                label: 'Name',
+                filterType: 'TEXTINPUT',
+                cell: NameCellComponent,
+                cellInputs: (ctx) => ({
+                    row: ctx.row,
+                    cellValue: ctx.value,
+                    cellConfig: {
+                        pathRoot: this.basePath,
+                        showIdentityIcons: false,
+                        cellNamePreCheck: (data) => this.checkDefaultAuthPolicy(data),
+                    },
+                }),
+                onCellClick: (ctx) => {
+                    if (this.hasSelectedText()) {
+                        return;
+                    }
+                    this.checkDefaultAuthPolicy(ctx.row).then((result: any) => {
+                        if (!result?.confirmed) {
+                            return;
+                        }
+                        this.openEditForm(ctx.row?.id);
+                    });
+                },
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                sortable: true,
+                onSort: this.sort.bind(this),
+            },
+            allowedColumn('primary.cert.allowed', 'Cert'),
+            allowedColumn('primary.extJwt.allowed', 'External JWT'),
+            allowedColumn('primary.updb.allowed', 'UPDB'),
+            {
+                key: 'createdAt',
+                field: 'createdAt',
+                label: 'Created At',
+                valueFormatter: this.createdAtFormatter,
+                filterType: 'DATETIME',
+                filterPlaceholder: 'Any time',
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+            },
+            {
+                key: 'id',
+                field: 'id',
+                label: 'ID',
+                filterType: 'TEXTINPUT',
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                hidden: true,
+            },
+        ];
+        return tableColumns;
+    }
+
+    getData(filters?: FilterObj[], sort?: any, page?: any, pageSize?: number) {
         // we can customize filters or sorting here before moving on...
+        this.paging.page = page || this.paging.page;
+        if (pageSize) {
+            this.paging.total = pageSize;
+        }
         return super.getTableData(this.resourceType, this.paging, filters, sort)
             .then((results: any) => {
                 return this.processData(results);

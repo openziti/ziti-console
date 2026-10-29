@@ -1,0 +1,36 @@
+<div class="ziti-page-container ziti-auth-policies-container lt-skin-page">
+  <lib-list-table-header
+    [title]="title"
+    subtitle="Control how identities are allowed to authenticate"
+    createLabel="Create Auth Policy"
+    infoText="Auth policies define which primary and secondary authentication methods identities may use."
+    [tabs]="tabs"
+    [showAdd]="!itemsSelected"
+    [blockCreate]="headerBlockCreate"
+    [blockDelete]="headerBlockDelete"
+    (actionClicked)="headerActionClicked($event)"
+  >
+    <span header-icon class="icon-lock" aria-hidden="true"></span>
+  </lib-list-table-header>
+  <ng-content select="[slot=list-page-subheader]"></ng-content>
+  <lib-list-table class="lt-skin" [tableId]="tableId" [initialPageSize]="initialPageSize"
+    [noItemsReadonly]="headerBlockCreate"
+    [accessDenied]="headerBlockRead"
+    [rowData]="rowData"
+    [isLoading]="isLoading"
+    [columns]="columnDefs"
+    (actionRequested)="tableAction($event)"
+    [startCount]="startCount"
+    [endCount]="endCount"
+    [totalCount]="totalCount"
+    [filterApplied]="filterApplied"
+    [menuItems]="svc.menuItems"
+    [headerActions]="svc.tableHeaderActions"
+    [noItemsImage]="'No_Clients'"
+    (tableReady)="tableReady($event)"
+    >
+  </lib-list-table>
+</div>
+@if (isLoading) {
+  <lib-loading-indicator [isLoading]="isLoading"></lib-loading-indicator>
+}

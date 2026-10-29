@@ -119,6 +119,31 @@
   gap: 0.5rem;
 }
 
+// extra secondary action projected beside Create (e.g. Download Network JWT); the content belongs to the page, so ::ng-deep.
+// color, decoration and weight are !important because cloud-ziti restyles every <a> with !important.
+:host ::ng-deep .lth-actions .lth-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  height: 2.5rem;
+  padding: 0 1rem;
+  font-family: var(--lt-font, 'Open Sans', sans-serif);
+  font-size: 0.8125rem;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  color: var(--primary) !important;
+  background: transparent;
+  border: 1px solid var(--primary);
+  border-radius: var(--inputBorderRadius, 0.5rem);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: none !important;
+    color: var(--primary) !important;
+    background: color-mix(in srgb, var(--primary) 8%, transparent);
+  }
+}
+
 .lth-create {
   display: inline-flex;
   align-items: center;

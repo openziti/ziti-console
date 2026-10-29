@@ -365,7 +365,7 @@
               <tr
                 class="lt-row lt-tree-child-row"
                 [class.lt-tree-last-child]="row.__treeLastChild"
-                [class.lt-row-selected]="row.selected"
+                [class.lt-row-selected]="row.selected || row.open"
                 [class.lt-row-expanded]="row.__treeExpanded"
                 (mouseenter)="onRowHover(row)"
                 (mouseleave)="onRowLeave(row)"
@@ -410,7 +410,7 @@
               <tr
                 class="lt-row"
                 [class.lt-row-odd]="i % 2 === 1"
-                [class.lt-row-selected]="row.selected"
+                [class.lt-row-selected]="row.selected || row.open"
                 [class.lt-row-expanded]="row.__treeExpanded"
                 [class.row-invalid]="row.invalid"
                 [class.row-copied]="row.copied"

@@ -30,6 +30,8 @@ import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/ext
 import {Service} from "../../models/service";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 import {Router} from "@angular/router";
+import {ListColumn} from "../../features/list-table/list-column";
+import {NameCellComponent} from "../../features/list-table/name-cell/name-cell.component";
 
 @Injectable({
     providedIn: 'root'
@@ -53,8 +55,8 @@ export class TerminatorsPageService extends ListPageServiceClass {
     modalType = '';
 
     override menuItems = [
-        {name: 'Edit', action: 'update'},
-        {name: 'Delete', action: 'delete'},
+        {name: 'Edit', action: 'update', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M11.2 2.6 13.4 4.8 6 12.2l-2.8.6.6-2.8z"/></svg>'},
+        {name: 'Delete', action: 'delete', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M3.4 4.6h9.2M6.4 4.6V3.2h3.2v1.4M4.6 4.6 5 13h6l.4-8.4"/></svg>'},
     ]
 
     constructor(
@@ -201,7 +203,70 @@ export class TerminatorsPageService extends ListPageServiceClass {
         ];
     }
 
-    getData(filters?: FilterObj[], sort?: any) {
+    // Declarative ListColumn set for the new `lib-list-table` (Beta Features on).
+    initListTableColumns(): ListColumn[] {
+        this.initMenuActions();
+        const openForm = (ctx) => {
+            if (this.hasSelectedText()) {
+                return;
+            }
+            this.openEditForm(ctx.row?.id);
+        };
+        const nameColumn = (key: string, field: string, label: string, sortable: boolean, filterField?: string): ListColumn => ({
+            key,
+            field,
+            label,
+            filterType: 'TEXTINPUT',
+            ...(filterField ? {filterField} : {}),
+            cell: NameCellComponent,
+            cellInputs: (ctx) => ({
+                row: ctx.row,
+                cellValue: ctx.value,
+                cellConfig: {pathRoot: this.basePath, showIdentityIcons: false},
+            }),
+            onCellClick: openForm,
+            resizable: true,
+            cellClass: 'nf-cell-vert-align',
+            sortable,
+            ...(sortable ? {onSort: this.sort.bind(this)} : {}),
+        });
+        const tableColumns: ListColumn[] = [
+            nameColumn('address', 'address', 'Address', true),
+            nameColumn('router.name', 'router.name', 'Router Name', false),
+            nameColumn('router', 'router.id', 'Router ID', true),
+            nameColumn('service.name', 'service.name', 'Service Name', false),
+            nameColumn('service', 'service.id', 'Service ID', true),
+            {
+                key: 'createdAt',
+                field: 'createdAt',
+                label: 'Created At',
+                valueFormatter: this.createdAtFormatter,
+                filterType: 'DATETIME',
+                filterPlaceholder: 'Any time',
+                onCellClick: openForm,
+                resizable: true,
+                sortable: true,
+                onSort: this.sort.bind(this),
+                cellClass: 'nf-cell-vert-align',
+            },
+            {
+                key: 'id',
+                field: 'id',
+                label: 'ID',
+                filterType: 'TEXTINPUT',
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                hidden: true,
+            },
+        ];
+        return tableColumns;
+    }
+
+    getData(filters?: FilterObj[], sort?: any, page?: any, pageSize?: number) {
+        this.paging.page = page || this.paging.page;
+        if (pageSize) {
+            this.paging.total = pageSize;
+        }
         if (sort.sortBy === 'name') {
             sort.sortBy = 'address';
         }

@@ -37,6 +37,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 import {ListColumn} from "../../features/list-table/list-column";
 import {NameCellComponent} from "../../features/list-table/name-cell/name-cell.component";
+import {AttributeCellComponent} from "../../features/list-table/attribute-cell/attribute-cell.component";
 
 @Injectable({
     providedIn: 'root'
@@ -338,20 +339,6 @@ export class ServiceEdgeRouterPoliciesPageService extends ListPageServiceClass {
             },
             getNamedAttributesMap: () => this.routerNamedAttributesMap,
         };
-        // @ marks a named attribute, # a role attribute (matches the tag selector)
-        const rolesChipRenderer = (row) => {
-            const colId = row?.column?.colId;
-            const attrs = row?.data?.[colId + 'Display'] || row?.data?.[colId] || [];
-            return attrs.map((attr) => {
-                const raw = String(attr?.name ?? attr ?? '').trim();
-                if (!raw) {
-                    return '';
-                }
-                const isNamed = raw.charAt(0) === '@';
-                const label = isNamed || raw.charAt(0) === '#' ? raw : '#' + raw;
-                return `<span class="${isNamed ? 'lt-chip lt-chip-at' : 'lt-chip'}">${label}</span>`;
-            }).join('');
-        };
         const semanticFilterOptions = [
             {label: 'Show All', value: ''},
             {label: 'Any Of', value: 'AnyOf'},
@@ -391,7 +378,12 @@ export class ServiceEdgeRouterPoliciesPageService extends ListPageServiceClass {
                 label: 'Service Attributes',
                 filterType: 'ATTRIBUTE',
                 headerParams: serviceRolesHeaderComponentParams,
-                cellHtml: rolesChipRenderer,
+                cell: AttributeCellComponent,
+                cellInputs: (ctx) => ({
+                    attributes: ctx.row?.[ctx.colId + 'Display'] ?? ctx.row?.[ctx.colId],
+                    field: ctx.colId,
+                    filterLabel: 'Service Attributes',
+                }),
                 onCellClick: openForm,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align',
@@ -403,7 +395,12 @@ export class ServiceEdgeRouterPoliciesPageService extends ListPageServiceClass {
                 label: 'Router Attributes',
                 filterType: 'ATTRIBUTE',
                 headerParams: routerRolesHeaderComponentParams,
-                cellHtml: rolesChipRenderer,
+                cell: AttributeCellComponent,
+                cellInputs: (ctx) => ({
+                    attributes: ctx.row?.[ctx.colId + 'Display'] ?? ctx.row?.[ctx.colId],
+                    field: ctx.colId,
+                    filterLabel: 'Router Attributes',
+                }),
                 onCellClick: openForm,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align',

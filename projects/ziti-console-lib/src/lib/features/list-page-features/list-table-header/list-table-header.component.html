@@ -17,6 +17,7 @@
       }
     </div>
     <div class="lth-actions">
+      <ng-content select="[header-action]"></ng-content>
       @if (showAdd && !blockCreate) {
         <button type="button" class="lth-create" (click)="clickAction('add')" data-action="add" id="CreateButton">
           <span class="lth-create-plus" aria-hidden="true">+</span>

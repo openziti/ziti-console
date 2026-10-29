@@ -1,0 +1,35 @@
+<div class="ziti-page-container ziti-sessions-container lt-skin-page">
+  <lib-list-table-header
+    [title]="title"
+    subtitle="View active sessions"
+    infoText="Sessions represent a service dial or bind by an identity."
+    [tabs]="tabs"
+    [showAdd]="false"
+    [blockCreate]="headerBlockCreate"
+    [blockDelete]="headerBlockDelete || !itemsSelected"
+    (actionClicked)="headerActionClicked($event)"
+  >
+    <span header-icon class="icon-time" aria-hidden="true"></span>
+  </lib-list-table-header>
+  <ng-content select="[slot=list-page-subheader]"></ng-content>
+  <lib-list-table class="lt-skin" [tableId]="tableId" [initialPageSize]="initialPageSize"
+    [noItemsReadonly]="headerBlockCreate"
+    [accessDenied]="headerBlockRead"
+    [rowData]="rowData"
+    [isLoading]="isLoading"
+    [columns]="columnDefs"
+    (actionRequested)="tableAction($event)"
+    [startCount]="startCount"
+    [endCount]="endCount"
+    [totalCount]="totalCount"
+    [filterApplied]="filterApplied"
+    [menuItems]="svc.menuItems"
+    [headerActions]="svc.tableHeaderActions"
+    [noItemsImage]="'No_Clients'"
+    (tableReady)="tableReady($event)"
+    >
+  </lib-list-table>
+</div>
+@if (isLoading) {
+  <lib-loading-indicator [isLoading]="isLoading"></lib-loading-indicator>
+}

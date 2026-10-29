@@ -1,0 +1,45 @@
+<div class="ziti-page-container ziti-configs-container lt-skin-page">
+  <lib-list-table-header
+    [title]="title"
+    subtitle="Trust external identity providers by their JWT signers"
+    createLabel="Create JWT Signer"
+    infoText="External JWT signers let identities authenticate with tokens from an external provider."
+    [tabs]="tabs"
+    [showAdd]="!itemsSelected"
+    [blockCreate]="headerBlockCreate"
+    [blockDelete]="headerBlockDelete"
+    (actionClicked)="headerActionClicked($event)"
+  >
+    <span header-icon class="icon-ManageAPIAccounts" aria-hidden="true"></span>
+    @if (_networkJwt) {
+      <a
+        header-action
+        class="lth-secondary"
+        id="DownloadNetworkJwt"
+        href="data:application/ziti-jwt;charset=utf-8,{{networkJwt}}"
+        download="{{networkJwtFilename}}.jwt"
+        >Download Network JWT</a>
+    }
+  </lib-list-table-header>
+  <ng-content select="[slot=list-page-subheader]"></ng-content>
+  <lib-list-table class="lt-skin" [tableId]="tableId" [initialPageSize]="initialPageSize"
+    [noItemsReadonly]="headerBlockCreate"
+    [accessDenied]="headerBlockRead"
+    [rowData]="rowData"
+    [isLoading]="isLoading"
+    [columns]="columnDefs"
+    (actionRequested)="tableAction($event)"
+    [startCount]="startCount"
+    [endCount]="endCount"
+    [totalCount]="totalCount"
+    [filterApplied]="filterApplied"
+    [menuItems]="svc.menuItems"
+    [headerActions]="svc.tableHeaderActions"
+    [noItemsImage]="'No_Clients'"
+    (tableReady)="tableReady($event)"
+    >
+  </lib-list-table>
+</div>
+@if (isLoading) {
+  <lib-loading-indicator [isLoading]="isLoading"></lib-loading-indicator>
+}
