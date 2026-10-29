@@ -51,6 +51,24 @@
   }
 }
 
+// instant-action variant (single action, no dropdown): a squared button carrying the
+// action's icon, so a one-tap action reads as a button rather than a dropdown pill
+.token-chip.is-action {
+  border-radius: var(--lt-radius);
+}
+
+// a leading action icon on the instant-action chip. An inline-SVG icon (iconSvg) is
+// injected, so it carries its own fill/size attributes; this just positions it.
+.token-chip-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.875rem;
+  font-size: 0.875rem;
+  color: currentColor;
+}
+
 // reissue is a direct-action button (no dropdown): a refresh icon before the label
 .token-reissue-icon {
   flex: 0 0 auto;

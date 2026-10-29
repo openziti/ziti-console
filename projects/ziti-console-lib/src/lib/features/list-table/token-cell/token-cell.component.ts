@@ -15,6 +15,7 @@
 */
 
 import {Component, ElementRef, Input, ViewChild} from '@angular/core';
+import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import moment from 'moment';
 
 type TokenStatus = 'available' | 'expired' | 'none';
@@ -22,14 +23,18 @@ type TokenStatus = 'available' | 'expired' | 'none';
 interface TokenAction {
     label: string;
     action: string;
-    icon: string;
+    icon?: string;
+    /** Inline SVG markup rendered instead of `icon`, for a glyph not in the icon font. */
+    iconSvg?: string;
 }
 
 /**
- * Enrollment-token cell for the identities list. Shows a status chip (Token /
- * Expired / —) that doubles as a dropdown of enrollment actions (Download JWT, Show
- * QR, Re-issue). Actions are emitted via the cell context's `emitAction`, so they run
- * through the same page handlers as the row ⋯ menu.
+ * Enrollment-token cell for list-table pages. Shows a status chip (Token / Expired /
+ * —) that doubles as a dropdown of enrollment actions. The actions default to the
+ * identity set (Download JWT, Show QR, Re-issue) but each page passes its own via
+ * `availableActions`/`expiredActions` (edge routers, for example, drop QR/re-issue).
+ * Actions are emitted via the cell context's `emitAction`, so they run through the
+ * same page handlers as the row ⋯ menu.
  */
 @Component({
     selector: 'lib-token-cell',
@@ -41,11 +46,41 @@ export class TokenCellComponent {
     @Input() row: any;
     @Input() emitAction?: (action: string, item?: any) => void;
 
+    /** Dropdown actions per token state. Default to the identity enrollment actions;
+     *  other pages (e.g. edge routers) pass their own, since Show QR code and Re-issue
+     *  enrollment are identity-only concepts. */
+    @Input() availableActions: TokenAction[] = [
+        {label: 'Download JWT', action: 'download-enrollment', icon: 'icon-download-jwt'},
+        {label: 'Show QR code', action: 'qr-code', icon: 'icon-qr'},
+        {label: 'Re-issue enrollment', action: 'reissue-enrollment', icon: 'icon-refresh'},
+    ];
+    @Input() expiredActions: TokenAction[] = [
+        {label: 'Re-issue enrollment', action: 'reissue-enrollment', icon: 'icon-refresh'},
+    ];
+
     @ViewChild('trigger') trigger?: ElementRef<HTMLElement>;
 
     open = false;
     menuLeft = 0;
     menuTop = 0;
+
+    private iconSvgCache = new Map<string, SafeHtml>();
+
+    constructor(private sanitizer: DomSanitizer) {}
+
+    /** Trust developer-authored inline SVG for an action icon, memoized so the same
+     *  markup yields the same SafeHtml and the binding does not re-render each cycle. */
+    safeIcon(svg?: string): SafeHtml | null {
+        if (!svg) {
+            return null;
+        }
+        let safe = this.iconSvgCache.get(svg);
+        if (!safe) {
+            safe = this.sanitizer.bypassSecurityTrustHtml(svg);
+            this.iconSvgCache.set(svg, safe);
+        }
+        return safe;
+    }
 
     get status(): TokenStatus {
         if (!this.hasEnrolmentToken) {
@@ -68,16 +103,31 @@ export class TokenCellComponent {
 
     get actions(): TokenAction[] {
         if (this.status === 'available') {
-            return [
-                {label: 'Download JWT', action: 'download-enrollment', icon: 'icon-download-jwt'},
-                {label: 'Show QR code', action: 'qr-code', icon: 'icon-qr'},
-                {label: 'Re-issue enrollment', action: 'reissue-enrollment', icon: 'icon-refresh'},
-            ];
+            return this.availableActions;
         }
         if (this.status === 'expired') {
-            return [{label: 'Re-issue enrollment', action: 'reissue-enrollment', icon: 'icon-refresh'}];
+            return this.expiredActions;
         }
         return [];
+    }
+
+    /** A dropdown only earns its caret when there is a choice to make; a lone action
+     *  (e.g. edge routers only ever "Download JWT") runs straight off the chip. */
+    get hasMenu(): boolean {
+        return this.actions.length > 1;
+    }
+
+    onChipClick(event: MouseEvent): void {
+        if (!this.hasMenu) {
+            const only = this.actions[0];
+            if (only) {
+                this.runAction(only.action, event);
+            } else {
+                event.stopPropagation();
+            }
+            return;
+        }
+        this.toggleMenu(event);
     }
 
     toggleMenu(event: MouseEvent): void {

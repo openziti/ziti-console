@@ -37,6 +37,9 @@ import {Router} from "@angular/router";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 import {ServicePolicyFormService} from "../../features/projectable-forms/service-policy/service-policy-form.service";
 import {SERVICE_EXTENSION_SERVICE} from "../../features/projectable-forms/service/service-form.service";
+import {ListColumn} from "../../features/list-table/list-column";
+import {NameCellComponent} from "../../features/list-table/name-cell/name-cell.component";
+import {AttributeCellComponent} from "../../features/list-table/attribute-cell/attribute-cell.component";
 
 @Injectable({
     providedIn: 'root'
@@ -63,14 +66,16 @@ export class ServicesPageService extends ListPageServiceClass {
     };
     roleAttributes: any[] = [];
     selectedRoleAttributes: any[] = [];
+    // `icon` (SVG markup) is rendered before the label in the new list-table's row kebab
+    // (3-dot) menu. The legacy ag-grid menu ignores it.
     override menuItems = [
-        {name: 'Edit', action: 'update'},
-        {name: 'Delete', action: 'delete'},
+        {name: 'Edit', action: 'update', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M11.2 2.6 13.4 4.8 6 12.2l-2.8.6.6-2.8z"/></svg>'},
+        {name: 'Delete', action: 'delete', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M3.4 4.6h9.2M6.4 4.6V3.2h3.2v1.4M4.6 4.6 5 13h6l.4-8.4"/></svg>'},
     ]
 
     override tableHeaderActions = [
-        {name: 'Download All', action: 'download-all'},
-        {name: 'Download Selected', action: 'download-selected'},
+        {name: 'Download All', action: 'download-all', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
+        {name: 'Download Selected', action: 'download-selected', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
     ]
 
     resourceType = 'services';
@@ -88,6 +93,14 @@ export class ServicesPageService extends ListPageServiceClass {
         private servicePolicyService: ServicePolicyFormService
     ) {
         super(settings, filterService, csvDownloadService, extensionService, router);
+        // drop the attribute column's selected roles when its filter is cleared, so the
+        // header dropdown and the applied-filter tag stay in sync (see identities page)
+        this.filterService.filtersChanged.subscribe(filters => {
+            const hasRoleFilter = (filters || []).some((filter) => filter.columnId === 'roleAttributes');
+            if (!hasRoleFilter) {
+                this.selectedRoleAttributes = [];
+            }
+        });
     }
 
     validate = (formData): Promise<CallbackResults> => {
@@ -194,9 +207,105 @@ export class ServicesPageService extends ListPageServiceClass {
         ];
     }
 
-    getData(filters?: FilterObj[], sort?: any, page?: any): Promise<any> {
+    // Declarative ListColumn set for the new `lib-list-table` (Beta Features on).
+    initListTableColumns(): ListColumn[] {
+        this.initMenuActions();
+        const serviceRolesHeaderComponentParams = {
+            filterType: 'ATTRIBUTE',
+            enableSorting: true,
+            appendAttributeHash: false,
+            getRoleAttributes: () => this.roleAttributes,
+            getNamedAttributes: () => [],
+            getSelectedRoleAttributes: () => this.selectedRoleAttributes,
+            getSelectedNamedAttributes: () => [],
+            setSelectedRoleAttributes: (attributes) => {
+                this.selectedRoleAttributes = attributes;
+            },
+            setSelectedNamedAttributes: (attributes) => {
+                // no-op
+            },
+            getNamedAttributesMap: () => ({}),
+        };
+        // Service edit is a full-page form (/services/advanced/:id), not a side modal.
+        const openForm = (ctx) => {
+            if (this.hasSelectedText()) {
+                return;
+            }
+            this.openAdvanced(ctx.row?.id);
+        };
+        return [
+            {
+                key: 'name',
+                field: 'name',
+                label: 'Name',
+                filterType: 'TEXTINPUT',
+                cell: NameCellComponent,
+                cellInputs: (ctx) => ({
+                    row: ctx.row,
+                    cellValue: ctx.value,
+                    // Service edit lives at /services/advanced/:id, but the base class resets
+                    // basePath to the route segment ('services') on nav, so hardcode the root.
+                    cellConfig: {pathRoot: '/services/advanced', showIdentityIcons: false},
+                }),
+                onCellClick: openForm,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                sortable: true,
+                onSort: this.sort.bind(this),
+                sortDir: 'asc',
+                width: 300,
+            },
+            {
+                key: 'roleAttributes',
+                field: 'roleAttributes',
+                label: 'Roles',
+                filterType: 'ATTRIBUTE',
+                headerParams: serviceRolesHeaderComponentParams,
+                cell: AttributeCellComponent,
+                cellInputs: (ctx) => ({
+                    attributes: ctx.row?.roleAttributesDisplay ?? ctx.row?.roleAttributes,
+                    field: ctx.colId,
+                    filterLabel: 'Roles',
+                }),
+                onCellClick: openForm,
+                resizable: true,
+                cellClass: 'nf-cell-vert-align',
+                sortable: false,
+            },
+            {
+                key: 'createdAt',
+                field: 'createdAt',
+                label: 'Created At',
+                valueFormatter: this.createdAtFormatter,
+                filterType: 'DATETIME',
+                filterPlaceholder: 'Any time',
+                onCellClick: openForm,
+                resizable: true,
+                sortable: true,
+                onSort: this.sort.bind(this),
+                cellClass: 'nf-cell-vert-align',
+            },
+            {
+                key: 'id',
+                field: 'id',
+                label: 'ID',
+                filterType: 'TEXTINPUT',
+                onCellClick: openForm,
+                resizable: true,
+                sortable: true,
+                onSort: this.sort.bind(this),
+                cellClass: 'nf-cell-vert-align',
+                hidden: true,
+            },
+        ];
+    }
+
+    getData(filters?: FilterObj[], sort?: any, page?: any, pageSize?: number): Promise<any> {
         // we can customize filters or sorting here before moving on...
         this.paging.page = page || this.paging.page;
+        if (pageSize) {
+            this.paging.total = pageSize;
+        }
         return super.getTableData('services', this.paging, filters, sort)
             .then((results: any) => {
                 return this.processData(results);

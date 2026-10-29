@@ -1,0 +1,248 @@
+/*
+    Copyright NetFoundry Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
+
+import {Component, Inject, OnInit, OnDestroy} from '@angular/core';
+import {ServicesPageService} from "./services-page.service";
+import {DataTableFilterService} from "../../features/data-table/data-table-filter.service";
+import {TabNameService} from "../../services/tab-name.service";
+import {ConsoleEventsService} from "../../services/console-events.service";
+import {ListPageComponent} from "../../shared/list-page-component.class";
+import {MatDialog} from "@angular/material/dialog";
+import {ConfirmComponent} from "../../features/confirm/confirm.component";
+import {PreviewSelectionsComponent} from "../../features/preview-selections/preview-selections.component";
+import {GrowlerModel} from "../../features/messaging/growler.model";
+import {GrowlerService} from "../../features/messaging/growler.service";
+import semver from 'semver';
+import {isEmpty} from "lodash";
+import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service";
+import {SERVICE_EXTENSION_SERVICE} from "../../features/projectable-forms/service/service-form.service";
+import {ExtensionService} from "../../features/extendable/extensions-noop.service";
+
+// Services page on `lib-list-table`, selected by the route when Beta Features is on.
+@Component({
+    selector: 'lib-services-list',
+    templateUrl: './services-list-page.component.html',
+    styleUrls: ['./services-page.component.scss'],
+    standalone: false
+})
+export class ServicesListPageComponent extends ListPageComponent implements OnInit, OnDestroy {
+
+    title = 'Services';
+    tabs: { url: string, label: string }[];
+    isLoading = false;
+    formDataChanged = false;
+    confirmData: any = {};
+    protected override readonly tableId = 'services';
+    protected override readonly initialPageSize = 50;
+
+    constructor(
+        public override svc: ServicesPageService,
+        filterService: DataTableFilterService,
+        dialogForm: MatDialog,
+        private tabNames: TabNameService,
+        consoleEvents: ConsoleEventsService,
+        private growlerService: GrowlerService,
+        @Inject(SETTINGS_SERVICE) private settingsService: SettingsService,
+        @Inject(SERVICE_EXTENSION_SERVICE) protected override extensionService: ExtensionService,
+    ) {
+        super(filterService, svc, consoleEvents, dialogForm, extensionService);
+    }
+
+    protected override loadTableColumns(): any[] {
+        return this.svc.initListTableColumns();
+    }
+
+    override ngOnInit() {
+        this.tabs = this.tabNames.getTabs('services');
+        this.svc.refreshData = this.refreshData;
+        this.svc.getServiceRoleAttributes();
+        super.ngOnInit();
+    }
+
+    headerActionClicked(action: string) {
+        switch (action) {
+            case 'add':
+                this.svc.openSelection();
+                break;
+            case 'edit':
+                this.svc.openAdvanced();
+                break;
+            case 'delete':
+                const selectedItems = this.rowData.filter((row) => {
+                    return row.selected;
+                });
+                const label = selectedItems.length > 1 ? 'services' : 'service';
+                this.openBulkDelete(selectedItems, label);
+                break;
+            default:
+        }
+    }
+
+    tableAction(event: any) {
+        this.trackMenuAction(event?.action, event?.item);
+        const extensionActionFound = this.handleExtensionActions(event);
+        if (extensionActionFound) {
+            return;
+        }
+        switch (event?.action) {
+            case 'toggleAll':
+            case 'toggleItem':
+                this.itemToggled(event.item);
+                break;
+            case 'update':
+                this.svc.openAdvanced(event.item.id);
+                break;
+            case 'create':
+                this.svc.openSelection();
+                break;
+            case 'delete':
+                this.deleteItem(event.item);
+                break;
+            case 'download-all':
+                this.downloadAllItems();
+                break;
+            case 'download-selected':
+                this.svc.downloadItems(this.selectedItems);
+                break;
+            default:
+                break;
+        }
+    }
+
+    trackMenuAction(action: string, item: any) {
+        this.extensionService?.consoleActionTriggered?.emit({
+            action,
+            page: 'service',
+            item,
+            type: 'menu-action'
+        });
+    }
+
+    deleteItem(item: any) {
+        this.openBulkDelete([item], 'service');
+    }
+
+    closeModal(event?) {
+        this.svc.serviceType = '';
+        this.svc.sideModalOpen = false;
+        if (event?.refresh) {
+            this.refreshData();
+        }
+    }
+
+    dataChanged(event) {
+        this.formDataChanged = event;
+    }
+
+    override openBulkDelete(selectedItems: any[], entityTypeLabel = 'item(s)') {
+        const selectedIds = selectedItems.map((row) => {
+            return row.id;
+        });
+        const selectedNames = selectedItems.map((item) => {
+            return item.name;
+        });
+        const countLabel = selectedItems.length > 1 ? selectedItems.length : '';
+        this.selectedItems = selectedItems;
+        const showSecondaryConfirm = !isEmpty(this.settingsService?.zitiSemver) && semver.gte(this.settingsService?.zitiSemver, '1.1.8');
+        this.confirmData = {
+            appendId: 'DeleteServices',
+            title: 'Delete Services',
+            message: `Are you sure you would like to delete the following ${countLabel} ${entityTypeLabel}?`,
+            bulletList: selectedNames,
+            showSecondaryConfirm: showSecondaryConfirm,
+            secondaryConfirmLabel: 'Delete all orphaned associated configs and service policies?',
+            secondaryConfirmed: false,
+            secondaryInfoLabel: `Choosing this option will also delete any associated configs and/or service policies that ONLY make reference to these selected services`,
+            confirmLabel: 'Yes',
+            cancelLabel: 'Oops, no get me out of here',
+            secondaryActionLabel: 'Preview Deletions',
+            confirmLabelAlt: 'Delete All',
+            imageUrl: 'assets/svgs/Confirm_Trash.svg',
+            secondaryAction: this.openPreviewSelections.bind(this),
+            showCancelLink: true,
+        };
+        this.dialogRef = this.dialogForm.open(ConfirmComponent, {
+            data: this.confirmData,
+            autoFocus: false,
+        });
+        this.dialogRef.afterClosed().subscribe((result) => {
+            if (result?.confirmed) {
+                if (this.confirmData.secondaryConfirmed) {
+                    this.svc.getAllServicesAndOrphans(this.selectedItems).then((result) => {
+                        this.svc.removeAllServicesAndOrphans(result.selectedItems).then(() => {
+                            const growlerData = new GrowlerModel(
+                                'success',
+                                'Success',
+                                `Services Deleted`,
+                                `Successfully deleted selected services and entities`,
+                            );
+                            this.growlerService.show(growlerData);
+                            this.refreshData(this.svc.currentSort);
+                        }).catch(() => {
+                            const growlerData = new GrowlerModel(
+                                'error',
+                                'Error',
+                                `Failed to delete services`,
+                                `An error occured when deleting the selected services, configs, and service policies`,
+                            );
+                            this.growlerService.show(growlerData);
+                        });
+                    }).catch(() => {
+                        const growlerData = new GrowlerModel(
+                            'error',
+                            'Error',
+                            `Failed to get service associations`,
+                            `Unable to retrieve orphaned configs and service policies`,
+                        );
+                        this.growlerService.show(growlerData);
+                        return {selectedItems: undefined, allItem: undefined, success: true};
+                    });
+                } else {
+                    this.svc.removeItems(selectedIds).then(() => {
+                        this.refreshData(this.svc.currentSort);
+                    });
+                }
+            }
+        });
+    }
+
+    openPreviewSelections() {
+        const data = {
+            selectedItems: this.selectedItems,
+            itemsToDelete: this.selectedItems,
+            deleteConfirmed: this.confirmData.secondaryConfirmed
+        };
+        const dialogRef = this.dialogForm.open(PreviewSelectionsComponent, {
+            data: data,
+            autoFocus: false,
+        });
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result?.confirmed) {
+                this.svc.removeAllServicesAndOrphans(data.itemsToDelete).then(() => {
+                    const growlerData = new GrowlerModel(
+                        'success',
+                        'Success',
+                        `Services Deleted`,
+                        `Successfully deleted selected services and entities`,
+                    );
+                    this.growlerService.show(growlerData);
+                    this.refreshData(this.svc.currentSort);
+                });
+                this.dialogRef.close();
+            }
+        });
+    }
+}

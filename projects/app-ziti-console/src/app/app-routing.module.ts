@@ -26,7 +26,9 @@ import {
   IdentitiesListPageComponent,
   DeactivateGuardService,
   EdgeRoutersPageComponent,
+  EdgeRoutersListPageComponent,
   ServicesPageComponent,
+  ServicesListPageComponent,
   ServicePoliciesListPageComponent,
   ServicePoliciesPageComponent,
   NetworkVisualizerComponent,
@@ -170,6 +172,13 @@ const routes: Routes = [
   },
   {
     path: 'services',
+    component: ServicesListPageComponent,
+    canMatch: [betaFeaturesMatch],
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'services',
     component: ServicesPageComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
@@ -204,6 +213,13 @@ const routes: Routes = [
     component: ServiceFormComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     canDeactivate: [DeactivateGuardService],
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'routers',
+    component: EdgeRoutersListPageComponent,
+    canMatch: [betaFeaturesMatch],
+    canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
   },
   {
