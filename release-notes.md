@@ -1,3 +1,11 @@
+# app-ziti-console-v4.7.2
+# ziti-console-lib-v1.7.2
+## Feature/Improvements
+* [Issue #978](https://github.com/openziti/ziti-console/issues/978) - Add Services and Edge Routers list pages built on the new list-table component
+* [Issue #978](https://github.com/openziti/ziti-console/issues/978) - Add an "All" list page built on the new list-table component
+* [Issue #988](https://github.com/openziti/ziti-console/issues/988) - Show a tooltip on hover explaining the disabled link listener toggle
+
+
 # app-ziti-console-v4.7.1
 # ziti-console-lib-v1.7.1
 ## Feature/Improvements
