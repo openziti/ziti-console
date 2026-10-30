@@ -74,6 +74,7 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         if (this._rowData.length > 0) {
             this.hasLoadedOnce = true;
         }
+        this.updateSkeleton();
         this.rebuildFlatRows();
     }
     get rowData(): any[] {
@@ -84,6 +85,7 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     @Input() set isLoading(value: boolean) {
         this._isLoading = value;
         this.updateRefreshBar();
+        this.updateSkeleton();
     }
     get isLoading(): boolean {
         return this._isLoading;
@@ -97,10 +99,37 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
      *  refresh bar over the existing rows instead of the full-page skeleton again. */
     hasLoadedOnce = false;
 
-    /** First load with nothing on screen yet: show skeleton placeholder rows. Shown
-     *  immediately (no debounce) - a blank first load should give feedback at once. */
+    /** The logical "first load with nothing on screen yet" state. The skeleton renders
+     *  off showSkeleton (below), which debounces this so a very fast first load goes
+     *  straight to rows without a skeleton flash. */
     get isInitialLoad(): boolean {
         return this._isLoading && !this.hasLoadedOnce;
+    }
+
+    /** Whether the skeleton placeholder is visible. Debounced from isInitialLoad with the
+     *  same show-delay as the refresh bar: a first load shorter than REFRESH_SHOW_DELAY
+     *  never shows it. Unlike the bar there is no minimum-visible hold, so real rows
+     *  replace the skeleton the moment they arrive. */
+    showSkeleton = false;
+    private skeletonShowTimer: any;
+
+    private updateSkeleton(): void {
+        if (this.isInitialLoad) {
+            // arm the show-delay once; a fast first load that finishes before it fires
+            // never shows the skeleton - the rows just appear
+            if (!this.showSkeleton && !this.skeletonShowTimer) {
+                this.skeletonShowTimer = setTimeout(() => {
+                    this.skeletonShowTimer = undefined;
+                    this.showSkeleton = true;
+                }, this.REFRESH_SHOW_DELAY);
+            }
+        } else {
+            // first load ended (rows arrived) or this is not a first load: cancel a
+            // pending skeleton and hide it now so real rows show at once
+            clearTimeout(this.skeletonShowTimer);
+            this.skeletonShowTimer = undefined;
+            this.showSkeleton = false;
+        }
     }
 
     /** Whether the thin top refresh bar is visible. Debounced from isLoading via
@@ -477,6 +506,7 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         }
         clearTimeout(this.refreshShowTimer);
         clearTimeout(this.refreshHideTimer);
+        clearTimeout(this.skeletonShowTimer);
     }
 
     get showTable(): boolean {

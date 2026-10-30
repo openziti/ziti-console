@@ -338,7 +338,7 @@
           </tr>
         </thead>
         <tbody>
-          @if (isInitialLoad) {
+          @if (showSkeleton) {
             <!-- first load, no data yet: placeholder rows matching the real column layout.
                  aria-hidden so screen readers get the region's aria-busy, not fake rows. -->
             @for (sk of skeletonRows; track sk; let r = $index) {
