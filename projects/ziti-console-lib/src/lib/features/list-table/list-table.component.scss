@@ -71,16 +71,6 @@
   min-height: 0;
   overflow: auto;
   background-color: var(--lt-bg);
-
-  .no-rows-message {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: var(--lt-cell-text);
-    font-size: 0.875rem;
-    pointer-events: none;
-  }
 }
 
 .lt-table {
@@ -97,7 +87,9 @@
 // Tints derive from the table border token so they adapt to light/dark skins.
 .lt-skeleton-row {
   td {
-    height: 2.9rem;
+    // match the real row height so there's no jump when rows replace the skeleton,
+    // including when a consumer overrides the row-height token
+    height: var(--lt-row-height, 2.9rem);
   }
   // soften the pulse down the list so it reads as one wave, not 8 blinking rows
   @for $i from 1 through 8 {

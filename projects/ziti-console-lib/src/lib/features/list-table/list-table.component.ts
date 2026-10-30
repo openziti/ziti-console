@@ -269,9 +269,12 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     @Input() filterApplied = false;
     @Input() menuItems: any[] = [];
     @Input() headerActions: any[] = [];
+    /** @deprecated kept for the old lib-no-items bindings; the new empty state uses line glyphs, not images. */
     @Input() noItemsImage = 'nodata';
     @Input() showNoItemsAdd = true;
     @Input() noItemsReadonly = false;
+    /** Primary create label shown on the first-use empty state (else the per-entity default). */
+    @Input() createLabel = '';
     @Input() accessDenied = false;
     @Input() entityTypeName = '';
     @Input() filterName = 'name';
@@ -1553,6 +1556,13 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         this.actionRequested.emit({action: 'create'});
     }
 
+    /** Clear the search box and every active filter, which drives the host to refetch
+     *  unfiltered (used by the "no results" empty state's Clear filters action). */
+    clearTableFilters(): void {
+        this.searchString = '';
+        this.tableFilterService.clearAllFilters();
+    }
+
     // ---------------------------------------------------------------- toolbar search + pagination
     onSearchInput(): void {
         this.inputChangedDebounced();
@@ -1617,6 +1627,11 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
 
     /** Default rows-per-page when nothing is remembered (the persisted choice wins). */
     @Input() initialPageSize = 50;
+
+    /** Auto-refresh interval in seconds a page starts the table at (0 = off). This is the
+     *  hook for a page to default the control on; left at 0, the table behaves as before
+     *  (off until the user picks an interval). The user's in-session choice is not persisted. */
+    @Input() autoRefreshSeconds = 0;
 
     get pageSize(): number {
         return this.tableFilterService.pageSize;

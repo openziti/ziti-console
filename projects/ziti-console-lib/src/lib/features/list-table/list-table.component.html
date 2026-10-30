@@ -86,7 +86,7 @@
         }
         @if (toolbarControls.autoRefresh.show) {
           <span class="lt-autorefresh-wrap" [class.lt-ctl-disabled]="toolbarControls.autoRefresh.disabled">
-            <lib-list-table-auto-refresh [loading]="filtering" (refresh)="refresh()"></lib-list-table-auto-refresh>
+            <lib-list-table-auto-refresh [seconds]="autoRefreshSeconds" [loading]="filtering" (refresh)="refresh()"></lib-list-table-auto-refresh>
           </span>
         }
         @if (toolbarControls.columns.show) {
@@ -493,7 +493,12 @@
         </tbody>
       </table>
       @if (!isLoading && filterApplied && (!rowData || rowData.length === 0)) {
-        <div class="no-rows-message">No Rows To Show</div>
+        <lib-list-empty
+          variant="no-results"
+          [entityKey]="tableId"
+          [entityLabel]="entityTypeLabel"
+          (clearFilters)="clearTableFilters()"
+        ></lib-list-empty>
       }
     </div>
 
@@ -565,16 +570,17 @@
     ></lib-list-menu>
   </div>
 } @else {
-  <lib-no-items
-    (clickEmit)="openCreate()"
-    [image]="noItemsImage"
-    [isEmpty]="!rowData || rowData.length === 0"
-    [isLoading]="isLoading"
-    [typeName]="entityTypeLabel"
+  <lib-list-empty
+    [variant]="accessDenied ? 'access-denied' : 'empty'"
+    [entityKey]="tableId"
+    [entityLabel]="entityTypeLabel"
+    [createLabel]="createLabel"
     [hasAdd]="showNoItemsAdd"
     [readonly]="noItemsReadonly"
-    [accessDenied]="accessDenied"
-  ></lib-no-items>
+    (create)="openCreate()"
+  >
+    <ng-content select="[empty-state]" ngProjectAs="[empty-state]"></ng-content>
+  </lib-list-empty>
 }
 
 @if (hoverTooltip) {

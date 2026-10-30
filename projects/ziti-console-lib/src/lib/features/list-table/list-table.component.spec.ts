@@ -32,6 +32,7 @@ class FilterServiceStub {
     updateFilter = jasmine.createSpy('updateFilter');
     changePage = jasmine.createSpy('changePage');
     changePageSize = jasmine.createSpy('changePageSize');
+    clearAllFilters = jasmine.createSpy('clearAllFilters');
 }
 
 describe('ListTableComponent', () => {
@@ -319,6 +320,29 @@ describe('ListTableComponent', () => {
             expect(filterStub.changePage).not.toHaveBeenCalled();
             component.goToPage(4);
             expect(filterStub.changePage).toHaveBeenCalledWith(4);
+        });
+    });
+
+    describe('clear filters', () => {
+        it('clears the search box and drops every active filter (not the no-op clearFilters)', () => {
+            init({columns: cols(), tableId: 'services'});
+            component.searchString = 'abc';
+            component.clearTableFilters();
+            expect(component.searchString).toBe('');
+            expect(filterStub.clearAllFilters).toHaveBeenCalled();
+        });
+    });
+
+    describe('auto-refresh page hook', () => {
+        it('defaults to off (0) so pages are unchanged unless they opt in', () => {
+            init({columns: cols(), tableId: 'services'});
+            expect(component.autoRefreshSeconds).toBe(0);
+        });
+
+        it('lets a page set the starting interval', () => {
+            component.autoRefreshSeconds = 30;
+            init({columns: cols(), tableId: 'services'});
+            expect(component.autoRefreshSeconds).toBe(30);
         });
     });
 });

@@ -64,6 +64,7 @@ import {HiddenColumnsBarComponent} from "./features/data-table/table-hidden-colu
 import {FilterBarComponent} from "./features/data-table/table-filter-bar/filter-bar.component";
 import {ListTableComponent} from "./features/list-table/list-table.component";
 import {ListMenuComponent} from "./features/list-table/list-menu/list-menu.component";
+import {ListEmptyComponent} from "./features/list-table/list-empty/list-empty.component";
 import {ListTableAutoRefreshComponent} from "./features/list-table/list-table-auto-refresh/list-table-auto-refresh.component";
 import {NameCellComponent} from "./features/list-table/name-cell/name-cell.component";
 import {SelectCellComponent} from "./features/list-table/select-cell/select-cell.component";
@@ -232,6 +233,7 @@ export function playerFactory() {
         DataTableComponent,
         ListTableComponent,
         ListMenuComponent,
+        ListEmptyComponent,
         ListTableAutoRefreshComponent,
         NameCellComponent,
         SelectCellComponent,
