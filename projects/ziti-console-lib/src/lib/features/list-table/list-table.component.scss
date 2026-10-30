@@ -92,6 +92,129 @@
   color: var(--lt-cell-text);
 }
 
+// ---------------------------------------------------------------- loading states
+// Initial load: skeleton placeholder rows laid out on the real column grid.
+// Tints derive from the table border token so they adapt to light/dark skins.
+.lt-skeleton-row {
+  td {
+    height: 2.9rem;
+  }
+  // soften the pulse down the list so it reads as one wave, not 8 blinking rows
+  @for $i from 1 through 8 {
+    &:nth-child(#{$i}) .lt-sk {
+      animation-delay: #{($i - 1) * 0.08}s;
+    }
+  }
+}
+
+.lt-sk {
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: 0.375rem;
+  background: color-mix(in srgb, var(--lt-border) 60%, transparent);
+  animation: lt-skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+.lt-sk-bar {
+  height: 0.7rem;
+  // width is set per cell inline (skeletonBarWidth) for a natural spread
+}
+
+.lt-sk-dot {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+
+.lt-sk-check {
+  display: block;
+  width: 1rem;
+  height: 1rem;
+  margin: 0 auto;
+  border-radius: 0.25rem;
+}
+
+@keyframes lt-skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+// Reload: thin indeterminate bar pinned under the toolbar, above the table body.
+// Prefer the app's --primary accent; fall back to the table's own link token (and a
+// hard default) so the bar is still visible under a theme that doesn't define --primary.
+.lt-refresh-bar {
+  --lt-progress: var(--primary, var(--lt-link, #0027ab));
+  position: relative;
+  flex: 0 0 auto;
+  height: 2px;
+  // overlap the table's top edge instead of pushing it down: the bar occupies 2px but
+  // the negative margin pulls the table back up, so showing/hiding it causes no layout shift
+  // (and leaves no permanent gap when hidden). z-index clears the scroll area's own stack.
+  margin-bottom: -2px;
+  z-index: 4;
+  width: 100%;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--lt-progress) 20%, transparent);
+}
+
+.lt-refresh-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 40%;
+  background: var(--lt-progress);
+  border-radius: 1px;
+  animation: lt-refresh-indeterminate 1.1s ease-in-out infinite;
+}
+
+@keyframes lt-refresh-indeterminate {
+  0% {
+    left: -40%;
+    width: 40%;
+  }
+  50% {
+    width: 55%;
+  }
+  100% {
+    left: 100%;
+    width: 40%;
+  }
+}
+
+// keep the existing rows readable but clearly "busy" during a reload
+.lt-is-refreshing tbody {
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lt-sk {
+    animation: none;
+  }
+  // no sliding bar; a static fill that gently pulses opacity instead
+  .lt-refresh-bar-fill {
+    left: 0;
+    width: 100%;
+    animation: lt-refresh-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes lt-refresh-pulse {
+    0%,
+    100% {
+      opacity: 0.45;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+}
+
 // ---------------------------------------------------------------- header
 .lt-head {
   position: sticky;
