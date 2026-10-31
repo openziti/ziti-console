@@ -88,7 +88,6 @@ import { GrowlerComponent } from './features/messaging/growler.component';
 import { ConfirmComponent } from './features/confirm/confirm.component';
 import {onAppInit} from "./app.initializer";
 import {ClickOutsideModule} from "ng-click-outside";
-import {NgJsonEditorModule} from "ang-jsoneditor";
 import { LottieComponent, provideLottieOptions } from "ngx-lottie";
 import { NoItemsComponent } from './features/no-items/no-items.component';
 import { SideModalComponent } from './features/side-modal/side-modal.component';
@@ -446,7 +445,6 @@ export function playerFactory() {
         AgGridModule,
         QRCodeComponent,
         ClickOutsideModule,
-        NgJsonEditorModule,
         MatTooltipModule,
         MatAutocompleteModule,
         LottieComponent,
