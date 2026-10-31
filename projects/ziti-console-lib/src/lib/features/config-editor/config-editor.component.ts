@@ -1,5 +1,4 @@
 import {Component, ComponentRef, EventEmitter, Input, OnInit, Output, ViewChild, ViewContainerRef, AfterViewInit} from '@angular/core';
-import {JsonEditorComponent, JsonEditorOptions} from "ang-jsoneditor";
 import {debounce, defer, isBoolean, isEmpty, isNil, isNumber, keys} from "lodash";
 import {SchemaService} from "../../services/schema.service";
 import Ajv from 'ajv';
@@ -77,7 +76,6 @@ export class ConfigEditorComponent implements OnInit, AfterViewInit {
   formDataChangedDebounced: any = debounce(this.formDataChanged.bind(this), 350);
   jsonDataChangedDebounced: any = debounce(this.jsonDataChanged.bind(this), 350);
   @ViewChild("dynamicform", {read: ViewContainerRef}) dynamicForm!: ViewContainerRef;
-  @ViewChild(JsonEditorComponent, {static: false}) editor!: JsonEditorComponent;
   constructor(private schemaSvc: SchemaService, private growlerService: GrowlerService) {
   }
 
