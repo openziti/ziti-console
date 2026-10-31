@@ -18,10 +18,14 @@ import {Component, ElementRef, Input, OnDestroy, OnInit, ViewChild} from '@angul
 import _ from 'lodash';
 import moment from 'moment';
 import {Subscription} from 'rxjs';
-import {MatDateRangePicker} from '@angular/material/datepicker';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {MatDatepickerModule, MatDateRangePicker} from '@angular/material/datepicker';
+import {MatNativeDateModule} from '@angular/material/core';
 import {DataTableFilterService, FilterObj} from '../../data-table/data-table-filter.service';
 import {ListColumn} from '../list-column';
 import {ListTableService} from '../list-table.service';
+import {ClickOutsideDirective} from '../click-outside.directive';
 
 type FilterMode = 'text' | 'single' | 'multi' | 'daterange';
 
@@ -50,7 +54,14 @@ const DATE_PRESETS: FilterOption[] = [
     selector: 'lib-list-filter-cell',
     templateUrl: './list-filter-cell.component.html',
     styleUrls: ['./list-filter-cell.component.scss'],
-    standalone: false,
+    standalone: true,
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        ClickOutsideDirective,
+    ],
 })
 export class ListFilterCellComponent implements OnInit, OnDestroy {
     @Input() column!: ListColumn;

@@ -15,6 +15,8 @@
 */
 
 import {Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ClickOutsideDirective} from '../click-outside.directive';
 
 export interface RefreshInterval {
     label: string;
@@ -26,7 +28,8 @@ export interface RefreshInterval {
     selector: 'lib-list-table-auto-refresh',
     templateUrl: './list-table-auto-refresh.component.html',
     styleUrls: ['./list-table-auto-refresh.component.scss'],
-    standalone: false,
+    standalone: true,
+    imports: [CommonModule, ClickOutsideDirective],
 })
 export class ListTableAutoRefreshComponent implements OnDestroy {
     /** Current interval in seconds; 0 means off. */
