@@ -1,5 +1,7 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
 import {SafeHtml} from '@angular/platform-browser';
+import {ClickOutsideDirective} from '../click-outside.directive';
 
 /**
  * A single row in a {@link ListMenuComponent}.
@@ -35,7 +37,8 @@ export interface ListMenuItem {
     selector: 'lib-list-menu',
     templateUrl: './list-menu.component.html',
     styleUrls: ['./list-menu.component.scss'],
-    standalone: false,
+    standalone: true,
+    imports: [CommonModule, ClickOutsideDirective],
 })
 export class ListMenuComponent {
     /** Whether the menu is rendered. */

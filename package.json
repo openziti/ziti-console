@@ -114,7 +114,6 @@
     "lodash": "^4.17.21",
     "lottie-web": "^5.13.0",
     "moment": "^2.29.4",
-    "ng-click-outside": "^9.0.1",
     "ngx-logger": "^5.0.12",
     "ngx-lottie": "^20.0.0",
     "nodemailer": "^6.9.1",

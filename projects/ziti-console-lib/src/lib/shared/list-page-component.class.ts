@@ -15,8 +15,8 @@
 */
 
 import {DataTableFilterService} from "../features/data-table/data-table-filter.service";
-import type {ListTableComponent} from "../features/list-table/list-table.component";
-import {ListTableService} from "../features/list-table/list-table.service";
+import type {ListTableComponent} from "@openziti/ziti-console-lib/table-core";
+import {ListTableService} from "@openziti/ziti-console-lib/table-core";
 import {ListPageServiceClass} from "./list-page-service.class";
 import {inject, Injectable} from "@angular/core";
 import {ManagementPermissionsService} from "../services/management-permissions.service";

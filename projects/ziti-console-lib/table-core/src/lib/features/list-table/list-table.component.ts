@@ -31,13 +31,21 @@ import {
 } from '@angular/core';
 import _ from 'lodash';
 import {Subscription} from 'rxjs';
-import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {CdkDragDrop, DragDropModule, moveItemInArray} from '@angular/cdk/drag-drop';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 
 import {DataTableFilterService, FilterObj} from '../data-table/data-table-filter.service';
 import {ListColumn, ListCellContext, ListLegacyCellShim, ListSortDir, ListTableOptions, ListTableToolbarOptions, TreeVariant} from './list-column';
 import {ListTableService} from './list-table.service';
-import {ListMenuItem} from './list-menu/list-menu.component';
+import {ListMenuComponent, ListMenuItem} from './list-menu/list-menu.component';
+import {ClickOutsideDirective} from './click-outside.directive';
+import {ListFilterCellComponent} from './list-filter-cell/list-filter-cell.component';
+import {ListHeaderCellComponent} from './list-header-cell/list-header-cell.component';
+import {ListTableAutoRefreshComponent} from './list-table-auto-refresh/list-table-auto-refresh.component';
+import {SelectCellComponent} from './select-cell/select-cell.component';
+import {NoItemsComponent} from '../no-items/no-items.component';
 
 /**
  * Custom, token-skinnable list table. Columns are declared with {@link ListColumn};
@@ -47,7 +55,19 @@ import {ListMenuItem} from './list-menu/list-menu.component';
     selector: 'lib-list-table',
     templateUrl: './list-table.component.html',
     styleUrls: ['./list-table.component.scss'],
-    standalone: false,
+    standalone: true,
+    imports: [
+        CommonModule,
+        FormsModule,
+        DragDropModule,
+        ClickOutsideDirective,
+        ListFilterCellComponent,
+        ListHeaderCellComponent,
+        ListMenuComponent,
+        ListTableAutoRefreshComponent,
+        SelectCellComponent,
+        NoItemsComponent,
+    ],
     providers: [ListTableService],
 })
 export class ListTableComponent implements OnInit, AfterViewInit, AfterViewChecked, OnDestroy {

@@ -23,6 +23,7 @@ import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from "@a
 import {LoginComponent} from './login/login.component';
 import {FormsModule} from "@angular/forms";
 import { OAuthModule } from 'angular-oauth2-oidc';
+import { provideLottieOptions } from 'ngx-lottie';
 import {environment} from "./environments/environment";
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
@@ -140,6 +141,9 @@ export function initializeApp(settingsService: any, injector: Injector) {
             deps: [SETTINGS_SERVICE, Injector],
             multi: true
         },
+        // The app owns the lottie player: the library renders lottie (loading indicator) but no
+        // longer imports lottie-web itself, so a consumer that does not use lottie need not install it.
+        provideLottieOptions({ player: () => import('lottie-web') }),
         { provide: ZITI_DOMAIN_CONTROLLER, useClass: SimpleZitiDomainControllerService },
         { provide: ZITI_URLS, useValue: URLS },
         { provide: ZITI_NAVIGATOR, useValue: ZITI_CONSOLE_NAVIGATOR },

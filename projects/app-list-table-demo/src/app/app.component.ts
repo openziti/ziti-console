@@ -15,16 +15,19 @@
 */
 
 import {Component} from '@angular/core';
-import {ListColumn} from 'ziti-console-lib';
+import {ListColumn, ListTableComponent} from 'ziti-console-lib/table-core';
 
 /**
- * Root of the standalone list-table demo. Renders `lib-list-table` in tree mode against static
- * sample data, with no controller session, router or services of its own.
+ * Root of the standalone list-table demo. Imports only the standalone `ListTableComponent`
+ * from the package (not the library NgModule), which is what lets a consumer pull in the table
+ * without the module's heavy peer graph (ag-grid, primeng, lottie, etc.). Renders the table in
+ * tree mode against static sample data, with no controller session or services of its own.
  */
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
-    standalone: false,
+    standalone: true,
+    imports: [ListTableComponent],
 })
 export class AppComponent {
     activeTab: 'flat' | 'card' = 'flat';

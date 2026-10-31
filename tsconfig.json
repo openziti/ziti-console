@@ -32,6 +32,12 @@
       "ziti-console-lib": [
         "dist/ziti-console-lib"
       ],
+      "@openziti/ziti-console-lib/table-core": [
+        "dist/ziti-console-lib/table-core"
+      ],
+      "ziti-console-lib/table-core": [
+        "dist/ziti-console-lib/table-core"
+      ],
       "app-ziti-console": [
         "dist/app-ziti-console"
       ]

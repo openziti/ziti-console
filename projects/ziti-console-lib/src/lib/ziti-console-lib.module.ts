@@ -62,13 +62,19 @@ import {TableColumnDefaultComponent} from "./features/data-table/column-headers/
 import {TableColumnFilterComponent} from "./features/data-table/column-headers/table-column-filter/table-column-filter.component";
 import {HiddenColumnsBarComponent} from "./features/data-table/table-hidden-columns-bar/hidden-columns-bar.component";
 import {FilterBarComponent} from "./features/data-table/table-filter-bar/filter-bar.component";
-import {ListTableComponent} from "./features/list-table/list-table.component";
-import {ListMenuComponent} from "./features/list-table/list-menu/list-menu.component";
-import {ListTableAutoRefreshComponent} from "./features/list-table/list-table-auto-refresh/list-table-auto-refresh.component";
+// The standalone list-table and its cells live in the `table-core` secondary entry point. They
+// are imported here (not declared) so components still declared in this module can use them.
+import {
+    ListTableComponent,
+    ListMenuComponent,
+    ListTableAutoRefreshComponent,
+    SelectCellComponent,
+    ListHeaderCellComponent,
+    ListFilterCellComponent,
+    NoItemsComponent,
+    ClickOutsideDirective,
+} from "@openziti/ziti-console-lib/table-core";
 import {NameCellComponent} from "./features/list-table/name-cell/name-cell.component";
-import {SelectCellComponent} from "./features/list-table/select-cell/select-cell.component";
-import {ListHeaderCellComponent} from "./features/list-table/list-header-cell/list-header-cell.component";
-import {ListFilterCellComponent} from "./features/list-table/list-filter-cell/list-filter-cell.component";
 import {OsInfoTooltipComponent} from "./features/list-table/os-info-tooltip/os-info-tooltip.component";
 import {SdkInfoTooltipComponent} from "./features/list-table/sdk-info-tooltip/sdk-info-tooltip.component";
 import {BooleanCellComponent} from "./features/list-table/boolean-cell/boolean-cell.component";
@@ -87,10 +93,8 @@ import {ZITI_NAVIGATOR} from "./ziti-console.constants";
 import { GrowlerComponent } from './features/messaging/growler.component';
 import { ConfirmComponent } from './features/confirm/confirm.component';
 import {onAppInit} from "./app.initializer";
-import {ClickOutsideModule} from "ng-click-outside";
 import {NgJsonEditorModule} from "ang-jsoneditor";
-import { LottieComponent, provideLottieOptions } from "ngx-lottie";
-import { NoItemsComponent } from './features/no-items/no-items.component';
+import { LottieComponent } from "ngx-lottie";
 import { SideModalComponent } from './features/side-modal/side-modal.component';
 import { IdentityFormComponent } from "./features/projectable-forms/identity/identity-form.component";
 import { FormHeaderComponent } from './features/projectable-forms/form-header/form-header.component';
@@ -195,9 +199,6 @@ import {
     FilterSelectTriggerTemplateDirective
 } from './features/filter-select/filter-select-templates.directive';
 
-export function playerFactory() {
-    return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
-}
 
 @NgModule({ declarations: [
         SafePipe,
@@ -230,13 +231,7 @@ export function playerFactory() {
         TransitRoutersPageComponent,
         TransitRoutersListPageComponent,
         DataTableComponent,
-        ListTableComponent,
-        ListMenuComponent,
-        ListTableAutoRefreshComponent,
         NameCellComponent,
-        SelectCellComponent,
-        ListHeaderCellComponent,
-        ListFilterCellComponent,
         OsInfoTooltipComponent,
         SdkInfoTooltipComponent,
         BooleanCellComponent,
@@ -253,7 +248,6 @@ export function playerFactory() {
         TransitRouterFormComponent,
         HiddenColumnsBarComponent,
         ConfirmComponent,
-        NoItemsComponent,
         SideModalComponent,
         FormHeaderComponent,
         FormFieldContainerComponent,
@@ -445,17 +439,24 @@ export function playerFactory() {
         DragDropModule,
         AgGridModule,
         QRCodeComponent,
-        ClickOutsideModule,
+        ClickOutsideDirective,
         NgJsonEditorModule,
         MatTooltipModule,
         MatAutocompleteModule,
         LottieComponent,
-        DateTimePickerComponent], providers: [
+        DateTimePickerComponent,
+        // Standalone list-table components (declared standalone so outside consumers can
+        // import them without this module). Imported here so other components still
+        // declared in this module can use them in their templates.
+        ListTableComponent,
+        ListMenuComponent,
+        ListTableAutoRefreshComponent,
+        SelectCellComponent,
+        ListHeaderCellComponent,
+        ListFilterCellComponent,
+        NoItemsComponent], providers: [
         { provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService },
         { provide: ZITI_NAVIGATOR, useValue: {} },
-        provideLottieOptions({
-            player: playerFactory
-          }),
         provideAppInitializer(() => {
             const initializerFn = (onAppInit)(inject(Injector));
         return initializerFn();
