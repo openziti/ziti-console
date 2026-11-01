@@ -25,8 +25,6 @@ export type EmptyGlyph = 'generic' | 'service' | 'identity' | 'router' | 'policy
 interface EmptyCopy {
     noun: string;
     glyph: EmptyGlyph;
-    title: string;
-    message: string;
     cta: string;
 }
 
@@ -48,6 +46,9 @@ export class ListEmptyComponent {
     @Input() entityKey = '';
     /** Human label used to derive a noun when the key has no tailored copy. */
     @Input() entityLabel = '';
+    /** What this list belongs to, e.g. 'network'. Set: "This network has no services";
+     *  blank: "There are no services", for lists not tied to a network. */
+    @Input() scope = '';
 
     /** Overrides for the generated content; unset falls back to the per-entity defaults. */
     @Input() title?: string;
@@ -59,6 +60,8 @@ export class ListEmptyComponent {
     /** Whether the create action is offered (false hides it, e.g. read-only tables). */
     @Input() hasAdd = true;
     @Input() readonly = false;
+    /** Draw the soft card. On for the full-page state; off inside the table, so a card isn't nested in the grid. */
+    @Input() framed = true;
 
     @Output() create = new EventEmitter<void>();
     @Output() clearFilters = new EventEmitter<void>();
@@ -67,76 +70,20 @@ export class ListEmptyComponent {
     // ---- per-entity default copy (first-use "empty" variant) ---------------------
     // Keyed by tableId. Anything not listed falls back to a generic noun-based template.
     private static readonly COPY: Record<string, EmptyCopy> = {
-        services: {
-            noun: 'services', glyph: 'service', cta: 'Create service',
-            title: 'No services yet',
-            message: 'Services define what your identities can reach on the network. Create your first one to get started.',
-        },
-        identities: {
-            noun: 'identities', glyph: 'identity', cta: 'Create identity',
-            title: 'No identities yet',
-            message: 'Identities are the people, devices, and servers on your network. Add one to begin.',
-        },
-        'edge-routers': {
-            noun: 'edge routers', glyph: 'router', cta: 'Create edge router',
-            title: 'No edge routers yet',
-            message: 'Edge routers carry traffic across your network fabric. Register your first router to start routing.',
-        },
-        'service-policies': {
-            noun: 'service policies', glyph: 'policy', cta: 'Create service policy',
-            title: 'No service policies yet',
-            message: 'Service policies decide which identities can dial or host each service. Create one to connect them.',
-        },
-        'edge-router-policies': {
-            noun: 'edge router policies', glyph: 'policy', cta: 'Create edge router policy',
-            title: 'No edge router policies yet',
-            message: 'Edge router policies control which identities use which edge routers. Create one to get started.',
-        },
-        'service-edge-router-policies': {
-            noun: 'service edge router policies', glyph: 'policy', cta: 'Create policy',
-            title: 'No service edge router policies yet',
-            message: 'These policies pair services with the edge routers that can carry them. Create one to get started.',
-        },
-        'posture-checks': {
-            noun: 'posture checks', glyph: 'policy', cta: 'Create posture check',
-            title: 'No posture checks yet',
-            message: 'Posture checks require identities to meet conditions before they connect. Create your first check.',
-        },
-        configurations: {
-            noun: 'configs', glyph: 'service', cta: 'Create config',
-            title: 'No configs yet',
-            message: 'Configs describe how a service is reached. Create one to use it in your services.',
-        },
-        'config-types': {
-            noun: 'config types', glyph: 'service', cta: 'Create config type',
-            title: 'No config types yet',
-            message: 'Config types describe the shape of a config. Create one to define your own.',
-        },
-        'auth-policies': {
-            noun: 'auth policies', glyph: 'policy', cta: 'Create auth policy',
-            title: 'No auth policies yet',
-            message: 'Auth policies set how identities are allowed to authenticate. Create one to get started.',
-        },
-        'certificate-authorities': {
-            noun: 'certificate authorities', glyph: 'policy', cta: 'Create authority',
-            title: 'No certificate authorities yet',
-            message: 'Certificate authorities verify the certs your identities present. Add one to begin.',
-        },
-        'ext-jwt-signers': {
-            noun: 'external JWT signers', glyph: 'policy', cta: 'Create signer',
-            title: 'No external JWT signers yet',
-            message: 'External JWT signers let an outside provider vouch for your identities. Add one to begin.',
-        },
-        terminators: {
-            noun: 'terminators', glyph: 'router', cta: 'Create terminator',
-            title: 'No terminators yet',
-            message: 'Terminators are where a service is hosted on the fabric. They usually appear as identities bind a service.',
-        },
-        'transit-routers': {
-            noun: 'transit routers', glyph: 'router', cta: 'Create transit router',
-            title: 'No transit routers yet',
-            message: 'Transit routers move traffic between edge routers inside the fabric. Register one to extend it.',
-        },
+        services: { noun: 'services', glyph: 'service', cta: 'Create service' },
+        identities: { noun: 'identities', glyph: 'identity', cta: 'Create identity' },
+        'edge-routers': { noun: 'edge routers', glyph: 'router', cta: 'Create edge router' },
+        'service-policies': { noun: 'service policies', glyph: 'policy', cta: 'Create service policy' },
+        'edge-router-policies': { noun: 'edge router policies', glyph: 'policy', cta: 'Create edge router policy' },
+        'service-edge-router-policies': { noun: 'service edge router policies', glyph: 'policy', cta: 'Create policy' },
+        'posture-checks': { noun: 'posture checks', glyph: 'policy', cta: 'Create posture check' },
+        configurations: { noun: 'configs', glyph: 'service', cta: 'Create config' },
+        'config-types': { noun: 'config types', glyph: 'service', cta: 'Create config type' },
+        'auth-policies': { noun: 'auth policies', glyph: 'policy', cta: 'Create auth policy' },
+        'certificate-authorities': { noun: 'certificate authorities', glyph: 'policy', cta: 'Create authority' },
+        'ext-jwt-signers': { noun: 'external JWT signers', glyph: 'policy', cta: 'Create signer' },
+        terminators: { noun: 'terminators', glyph: 'router', cta: 'Create terminator' },
+        'transit-routers': { noun: 'transit routers', glyph: 'router', cta: 'Create transit router' },
     };
 
     // ---- resolved content --------------------------------------------------------
@@ -150,8 +97,6 @@ export class ListEmptyComponent {
             noun,
             glyph: 'service',
             cta: this.createLabel || 'Create',
-            title: `No ${noun} yet`,
-            message: `There are no ${noun} to show yet.`,
         };
     }
 
@@ -167,8 +112,7 @@ export class ListEmptyComponent {
             case 'error':
                 return 'alert';
             default:
-                // one generic icon for the no-data state on every page for now; the
-                // per-entity glyphs in COPY are kept for when we turn them back on
+                // one generic icon for the no-data state on every page
                 return 'generic';
         }
     }
@@ -200,7 +144,10 @@ export class ListEmptyComponent {
             case 'error':
                 return `Couldn’t load ${this.noun}`;
             default:
-                return this.copy.title;
+                // first-use empty: name what the list belongs to when we know it
+                return this.scope
+                    ? `This ${this.scope} has no ${this.noun}`
+                    : `There are no ${this.noun}`;
         }
     }
 
@@ -216,7 +163,8 @@ export class ListEmptyComponent {
             case 'error':
                 return 'Something interrupted the request. Check the connection to the controller, then try again.';
             default:
-                return this.copy.message;
+                // first-use empty state keeps just the headline, no explanatory subtext
+                return '';
         }
     }
 

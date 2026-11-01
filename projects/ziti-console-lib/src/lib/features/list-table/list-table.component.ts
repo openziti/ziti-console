@@ -304,6 +304,9 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     @Input() noItemsReadonly = false;
     /** Primary create label shown on the first-use empty state (else the per-entity default). */
     @Input() createLabel = '';
+    /** What these rows belong to, used in the empty headline ("This network has no services").
+     *  Defaults to 'network' since the Ziti pages are network-scoped; set '' for a list that is not. */
+    @Input() emptyScope = 'network';
     @Input() accessDenied = false;
     @Input() entityTypeName = '';
     @Input() filterName = 'name';
@@ -510,7 +513,9 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     }
 
     get showTable(): boolean {
-        return this.isLoading || this.filterApplied || this.rowData?.length > 0;
+        // always keep the table chrome (toolbar, headers, footer); the body shows a
+        // skeleton while loading and an in-table empty state when there are no rows
+        return true;
     }
 
     /** Columns surfaced as inline filter controls in the toolbar. Text filters are

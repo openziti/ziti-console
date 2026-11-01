@@ -73,6 +73,19 @@
   background-color: var(--lt-bg);
 }
 
+// with no rows, let the scroll area fill the container and hand the leftover height
+// to the empty state so it centers in the body rather than sitting under the header
+.lt-scroll.lt-is-empty {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+
+  lib-list-empty {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+}
+
 .lt-table {
   width: 100%;
   border-collapse: collapse;

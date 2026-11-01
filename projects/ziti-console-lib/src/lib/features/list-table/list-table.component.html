@@ -245,7 +245,7 @@
       }
     </ng-template>
 
-    <div class="lt-scroll" id="ItemTable" [class.lt-is-refreshing]="showRefreshBar" [attr.aria-busy]="isLoading ? 'true' : null">
+    <div class="lt-scroll" id="ItemTable" [class.lt-is-refreshing]="showRefreshBar" [class.lt-is-empty]="!isLoading && !rowData?.length" [attr.aria-busy]="isLoading ? 'true' : null">
       <!-- expand/collapse control, reused by root rows and nested child rows -->
       <ng-template #treeToggle let-row="row">
         @if (canExpand(row)) {
@@ -492,13 +492,21 @@
           }
         </tbody>
       </table>
-      @if (!isLoading && filterApplied && (!rowData || rowData.length === 0)) {
+      @if (!isLoading && (!rowData || rowData.length === 0)) {
         <lib-list-empty
-          variant="no-results"
+          [variant]="filterApplied ? 'no-results' : 'empty'"
           [entityKey]="tableId"
           [entityLabel]="entityTypeLabel"
+          [scope]="emptyScope"
+          [createLabel]="createLabel"
+          [hasAdd]="showNoItemsAdd"
+          [readonly]="noItemsReadonly"
+          [framed]="false"
+          (create)="openCreate()"
           (clearFilters)="clearTableFilters()"
-        ></lib-list-empty>
+        >
+          <ng-content select="[empty-state]" ngProjectAs="[empty-state]"></ng-content>
+        </lib-list-empty>
       }
     </div>
 
@@ -570,17 +578,13 @@
     ></lib-list-menu>
   </div>
 } @else {
+  <!-- access denied: a full-page wall (no table chrome to show without permission) -->
   <lib-list-empty
-    [variant]="accessDenied ? 'access-denied' : 'empty'"
+    variant="access-denied"
     [entityKey]="tableId"
     [entityLabel]="entityTypeLabel"
-    [createLabel]="createLabel"
-    [hasAdd]="showNoItemsAdd"
-    [readonly]="noItemsReadonly"
-    (create)="openCreate()"
-  >
-    <ng-content select="[empty-state]" ngProjectAs="[empty-state]"></ng-content>
-  </lib-list-empty>
+    [scope]="emptyScope"
+  ></lib-list-empty>
 }
 
 @if (hoverTooltip) {
