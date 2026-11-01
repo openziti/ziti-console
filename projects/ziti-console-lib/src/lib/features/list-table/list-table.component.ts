@@ -69,6 +69,12 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
 
     @Input() set rowData(value: any[]) {
         this._rowData = value || [];
+        // once real rows have arrived, later loads are "refresh" (keep rows + top bar)
+        // rather than "initial" (skeleton). Never flips back on a later empty result.
+        if (this._rowData.length > 0) {
+            this.hasLoadedOnce = true;
+        }
+        this.updateSkeleton();
         this.rebuildFlatRows();
     }
     get rowData(): any[] {
@@ -76,7 +82,116 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     }
     private _rowData: any[] = [];
 
-    @Input() isLoading = false;
+    @Input() set isLoading(value: boolean) {
+        this._isLoading = value;
+        this.updateRefreshBar();
+        this.updateSkeleton();
+    }
+    get isLoading(): boolean {
+        return this._isLoading;
+    }
+    private _isLoading = false;
+
+    /** Placeholder rows drawn during the first load, before any data has arrived. */
+    @Input() skeletonRowCount = 8;
+
+    /** True once the table has shown real rows at least once, so a later load shows the
+     *  refresh bar over the existing rows instead of the full-page skeleton again. */
+    hasLoadedOnce = false;
+
+    /** The logical "first load with nothing on screen yet" state. The skeleton renders
+     *  off showSkeleton (below), which debounces this so a very fast first load goes
+     *  straight to rows without a skeleton flash. */
+    get isInitialLoad(): boolean {
+        return this._isLoading && !this.hasLoadedOnce;
+    }
+
+    /** Whether the skeleton placeholder is visible. Debounced from isInitialLoad with the
+     *  same show-delay as the refresh bar: a first load shorter than REFRESH_SHOW_DELAY
+     *  never shows it. Unlike the bar there is no minimum-visible hold, so real rows
+     *  replace the skeleton the moment they arrive. */
+    showSkeleton = false;
+    private skeletonShowTimer: any;
+
+    private updateSkeleton(): void {
+        if (this.isInitialLoad) {
+            // arm the show-delay once; a fast first load that finishes before it fires
+            // never shows the skeleton - the rows just appear
+            if (!this.showSkeleton && !this.skeletonShowTimer) {
+                this.skeletonShowTimer = setTimeout(() => {
+                    this.skeletonShowTimer = undefined;
+                    this.showSkeleton = true;
+                }, this.REFRESH_SHOW_DELAY);
+            }
+        } else {
+            // first load ended (rows arrived) or this is not a first load: cancel a
+            // pending skeleton and hide it now so real rows show at once
+            clearTimeout(this.skeletonShowTimer);
+            this.skeletonShowTimer = undefined;
+            this.showSkeleton = false;
+        }
+    }
+
+    /** Whether the thin top refresh bar is visible. Debounced from isLoading via
+     *  updateRefreshBar rather than read straight off it. */
+    showRefreshBar = false;
+
+    // The refresh bar is debounced so quick reloads (including fast auto-refresh polls)
+    // don't flash it: it only appears once a reload has run past REFRESH_SHOW_DELAY, and
+    // once shown it stays at least REFRESH_MIN_VISIBLE so it never blinks in and out.
+    private readonly REFRESH_SHOW_DELAY = 150;
+    private readonly REFRESH_MIN_VISIBLE = 450;
+    private refreshShowTimer: any;
+    private refreshHideTimer: any;
+    private refreshShownAt = 0;
+
+    private updateRefreshBar(): void {
+        // the skeleton covers the first load; the bar is only for reloads with rows present
+        const refreshing = this._isLoading && this.hasLoadedOnce;
+        if (refreshing) {
+            // a reload is running: cancel any pending hide and arm the show timer once
+            clearTimeout(this.refreshHideTimer);
+            this.refreshHideTimer = undefined;
+            if (!this.showRefreshBar && !this.refreshShowTimer) {
+                this.refreshShowTimer = setTimeout(() => {
+                    this.refreshShowTimer = undefined;
+                    this.showRefreshBar = true;
+                    this.refreshShownAt = Date.now();
+                }, this.REFRESH_SHOW_DELAY);
+            }
+        } else {
+            // reload ended (or it was the first load): drop a not-yet-shown bar at once,
+            // but let a visible one finish its minimum time on screen so it doesn't blink
+            if (this.refreshShowTimer) {
+                clearTimeout(this.refreshShowTimer);
+                this.refreshShowTimer = undefined;
+            }
+            if (this.showRefreshBar && !this.refreshHideTimer) {
+                const remaining = Math.max(0, this.REFRESH_MIN_VISIBLE - (Date.now() - this.refreshShownAt));
+                this.refreshHideTimer = setTimeout(() => {
+                    this.refreshHideTimer = undefined;
+                    this.showRefreshBar = false;
+                }, remaining);
+            }
+        }
+    }
+
+    /** Row indexes for the skeleton loop (at least one). */
+    get skeletonRows(): number[] {
+        const n = Math.max(1, this.skeletonRowCount || 0);
+        return Array.from({length: n}, (_v, i) => i);
+    }
+
+    // A small spread of bar widths so skeleton cells don't read as an identical grid.
+    // Deterministic (no randomness) so the widths don't flicker across change detection.
+    private readonly SK_WIDTHS = [70, 52, 84, 46, 64, 58, 76, 48];
+
+    /** Skeleton bar width (as a %) for a given column/row, varied but stable. */
+    skeletonBarWidth(colIndex: number, rowIndex: number): number {
+        const base = this.SK_WIDTHS[colIndex % this.SK_WIDTHS.length];
+        const jitter = ((rowIndex * 7 + colIndex * 3) % 5) * 4 - 8; // -8..+8
+        return Math.max(30, Math.min(92, base + jitter));
+    }
     // fitColumns: keep the table within its visible width when resizing - a column can only grow until
     // the other columns reach their set or minimum width, then the drag stops, so nothing is pushed
     // off screen into the horizontal scroll. Off by default (columns can grow past the view and scroll).
@@ -183,9 +298,15 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     @Input() filterApplied = false;
     @Input() menuItems: any[] = [];
     @Input() headerActions: any[] = [];
+    /** @deprecated kept for the old lib-no-items bindings; the new empty state uses line glyphs, not images. */
     @Input() noItemsImage = 'nodata';
     @Input() showNoItemsAdd = true;
     @Input() noItemsReadonly = false;
+    /** Primary create label shown on the first-use empty state (else the per-entity default). */
+    @Input() createLabel = '';
+    /** What these rows belong to, used in the empty headline ("This network has no services").
+     *  Defaults to 'network' since the Ziti pages are network-scoped; set '' for a list that is not. */
+    @Input() emptyScope = 'network';
     @Input() accessDenied = false;
     @Input() entityTypeName = '';
     @Input() filterName = 'name';
@@ -386,10 +507,15 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         if (this.overflowRaf) {
             cancelAnimationFrame(this.overflowRaf);
         }
+        clearTimeout(this.refreshShowTimer);
+        clearTimeout(this.refreshHideTimer);
+        clearTimeout(this.skeletonShowTimer);
     }
 
     get showTable(): boolean {
-        return this.isLoading || this.filterApplied || this.rowData?.length > 0;
+        // always keep the table chrome (toolbar, headers, footer); the body shows a
+        // skeleton while loading and an in-table empty state when there are no rows
+        return true;
     }
 
     /** Columns surfaced as inline filter controls in the toolbar. Text filters are
@@ -1465,6 +1591,13 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         this.actionRequested.emit({action: 'create'});
     }
 
+    /** Clear the search box and every active filter, which drives the host to refetch
+     *  unfiltered (used by the "no results" empty state's Clear filters action). */
+    clearTableFilters(): void {
+        this.searchString = '';
+        this.tableFilterService.clearAllFilters();
+    }
+
     // ---------------------------------------------------------------- toolbar search + pagination
     onSearchInput(): void {
         this.inputChangedDebounced();
@@ -1529,6 +1662,11 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
 
     /** Default rows-per-page when nothing is remembered (the persisted choice wins). */
     @Input() initialPageSize = 50;
+
+    /** Auto-refresh interval in seconds a page starts the table at (0 = off). This is the
+     *  hook for a page to default the control on; left at 0, the table behaves as before
+     *  (off until the user picks an interval). The user's in-session choice is not persisted. */
+    @Input() autoRefreshSeconds = 0;
 
     get pageSize(): number {
         return this.tableFilterService.pageSize;
