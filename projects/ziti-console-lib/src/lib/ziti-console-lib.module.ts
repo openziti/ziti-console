@@ -93,7 +93,6 @@ import {ZITI_NAVIGATOR} from "./ziti-console.constants";
 import { GrowlerComponent } from './features/messaging/growler.component';
 import { ConfirmComponent } from './features/confirm/confirm.component';
 import {onAppInit} from "./app.initializer";
-import {NgJsonEditorModule} from "ang-jsoneditor";
 import { LottieComponent } from "ngx-lottie";
 import { SideModalComponent } from './features/side-modal/side-modal.component';
 import { IdentityFormComponent } from "./features/projectable-forms/identity/identity-form.component";
@@ -440,7 +439,6 @@ import {
         AgGridModule,
         QRCodeComponent,
         ClickOutsideDirective,
-        NgJsonEditorModule,
         MatTooltipModule,
         MatAutocompleteModule,
         LottieComponent,

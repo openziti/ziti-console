@@ -35,4 +35,5 @@ export * from './lib/features/list-table/select-cell/select-cell.component';
 export * from './lib/features/list-table/list-header-cell/list-header-cell.component';
 export * from './lib/features/list-table/list-filter-cell/list-filter-cell.component';
 export * from './lib/features/list-table/list-table-auto-refresh/list-table-auto-refresh.component';
+export * from './lib/features/list-table/list-empty/list-empty.component';
 export * from './lib/features/no-items/no-items.component';

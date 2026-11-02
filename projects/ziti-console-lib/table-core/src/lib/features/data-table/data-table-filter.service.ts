@@ -97,6 +97,19 @@ export class DataTableFilterService {
         this.filtersChanged.next(this.filters);
     }
 
+    /**
+     * Remove every active filter (the toolbar/empty-state "clear filters" action).
+     * clearFilters() above re-reads the URL and so is really a load-time sync; this one
+     * passes the active filters to updateUrlParameters so they are dropped from the URL
+     * and storage instead of being restored, then emits the now-empty list.
+     */
+    clearAllFilters() {
+        const toRemove = Object.values(this.getUrlFiltersMap());
+        this.filters = [];
+        this.updateUrlParameters(toRemove);
+        this.filtersChanged.next(this.filters);
+    }
+
     storeFilters() {
         localStorage.setItem('search_filters', JSON.stringify(this.filters));
     }
