@@ -23,7 +23,7 @@
     "lottie-web": "^5.13.0",
     "ngx-lottie": "^20.0.0",
     "primeng": "^20.0.0",
-    "vanilla-jsoneditor": "^1.1.2",
+    "vanilla-jsoneditor": "^3.13.0",
     "angularx-qrcode": "^20.0.0",
     "angular-csv-ext": "^1.0.5",
     "file-saver": "^2.0.5",
