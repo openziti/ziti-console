@@ -1,6 +1,12 @@
-import {platformBrowserDynamic} from '@angular/platform-browser-dynamic';
+import {bootstrapApplication} from '@angular/platform-browser';
+import {provideAnimations} from '@angular/platform-browser/animations';
+import {provideRouter} from '@angular/router';
 
-import {AppModule} from './app/app.module';
+import {AppComponent} from './app/app.component';
 
-platformBrowserDynamic().bootstrapModule(AppModule)
-  .catch(err => console.error(err));
+// Standalone bootstrap: the only providers the table needs are animations (Material datepicker /
+// tooltip) and a Router (its DataTableFilterService reflects filters into the URL). No library
+// NgModule and none of its heavy peers are referenced, so the bundler drops them.
+bootstrapApplication(AppComponent, {
+    providers: [provideAnimations(), provideRouter([])],
+}).catch(err => console.error(err));

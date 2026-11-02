@@ -15,6 +15,7 @@
 */
 
 import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
 import {ListColumn, ListSortDir} from '../list-column';
 
 /** Header cell for {@link ListTableComponent}: label and 3-state sort (asc/desc). */
@@ -22,7 +23,8 @@ import {ListColumn, ListSortDir} from '../list-column';
     selector: 'lib-list-header-cell',
     templateUrl: './list-header-cell.component.html',
     styleUrls: ['./list-header-cell.component.scss'],
-    standalone: false,
+    standalone: true,
+    imports: [CommonModule],
 })
 export class ListHeaderCellComponent {
     @Input() column!: ListColumn;

@@ -1,177 +1,22 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject} from "rxjs";
-import {forEach, isEmpty} from "lodash";
-import { HttpParams } from "@angular/common/http";
-import {ActivatedRoute, Router} from "@angular/router";
-import {Location} from "@angular/common";
+/*
+    Copyright NetFoundry Inc.
 
-export type FilterObj = {
-    filterName: string;
-    columnId: string;
-    value: any;
-    label: string;
-    type?: string;
-    hidden?: boolean;
-    verb?: string
-}
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-@Injectable({
-    providedIn: 'root'
-})
-export class DataTableFilterService {
+    https://www.apache.org/licenses/LICENSE-2.0
 
-    filters: FilterObj[] = [];
-    currentPage = 1;
-    /** Rows requested per page. Defaults to the legacy page size; the list-table's
-     *  rows-per-page control changes it via {@link changePageSize}. */
-    pageSize = 50;
-    filtersChanged = new BehaviorSubject<FilterObj[]>(this.filters);
-    public filtering = new BehaviorSubject<boolean>(false);
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
 
-    pageChanged = new BehaviorSubject<any>(this.currentPage);
-    pageSizeChanged = new BehaviorSubject<number>(this.pageSize);
-
-    currentQueryParams = [];
-
-    // filter params live under this prefix so unrelated params (e.g. ?tab=) aren't treated as filters
-    private static readonly URL_FILTER_PREFIX = 'f.';
-
-    constructor(private location: Location, private router: Router, private activatedRoute: ActivatedRoute) {
-    }
-
-    updateFilter(filterObj: FilterObj) {
-        if(isEmpty(filterObj.value) && (isNaN(filterObj.value) || filterObj.value === '')) this.removeFilter(filterObj);
-        else {
-            let isFound = false;
-            for (let idx = 0; idx < this.filters.length; idx++) {
-                if (this.filters[idx].columnId === filterObj.columnId) {
-                    this.filters[idx] = filterObj;
-                    isFound = true;
-                    break;
-                }
-            }
-            if (!isFound) {
-                this.filters.push(filterObj);
-            }
-        }
-        this.updateUrlParameters();
-        this.filtersChanged.next(this.filters);
-    }
-
-    removeFilter(filterObj: FilterObj) {
-        for (let idx = 0; idx < this.filters.length; idx++) {
-            if (this.filters[idx].columnId === filterObj.columnId) {
-                this.filters.splice(idx, 1);
-                break;
-            }
-        }
-        this.updateUrlParameters([filterObj]);
-        this.filtersChanged.next(this.filters);
-    }
-
-    getFilterString(key: string) {
-        let value = '';
-        for (let idx = 0; idx < this.filters.length; idx++) {
-            if (this.filters[idx].columnId === key) {
-                value = this.filters[idx].value;
-                break;
-            }
-        }
-        return value;
-    }
-
-    changePage(page: any) {
-        this.currentPage = page;
-        this.pageChanged.next(page);
-    }
-
-    changePageSize(size: number) {
-        this.pageSize = size;
-        this.currentPage = 1;
-        this.pageSizeChanged.next(size);
-    }
-
-    clearFilters() {
-        this.filters = [];
-        this.updateUrlParameters();
-        this.filtersChanged.next(this.filters);
-    }
-
-    storeFilters() {
-        localStorage.setItem('search_filters', JSON.stringify(this.filters));
-    }
-
-    getStoredFilters() {
-        const storageItem = localStorage.getItem('search_filters');
-        const filters = storageItem ? JSON.parse(storageItem) : [];
-        return filters;
-    }
-
-    updateUrlParameters(filtersToRemove: any[] = []) {
-        const prefix = DataTableFilterService.URL_FILTER_PREFIX;
-        const urlFiltersMap = this.getUrlFiltersMap();
-        this.filters.forEach(filter => {
-            urlFiltersMap[filter.columnId] = filter;
-        });
-        const currentParamString = window.location.href.split("?")[1] || '';
-        let params: HttpParams = new HttpParams({ fromString: currentParamString });
-        params.keys()
-            .filter((key) => key.startsWith(prefix))
-            .forEach((key) => {
-                params = params.delete(key);
-            });
-        const newFilters = [];
-        forEach(urlFiltersMap, (value, key) => {
-            const filterRemoved = filtersToRemove.some((removed) => {
-                return removed.columnId === key;
-            })
-            if (!filterRemoved) {
-                params = params.append(prefix + key, value.value);
-                newFilters.push(value);
-            }
-        });
-        this.filters = newFilters;
-        const path = this.router.url.split("?")[0];
-        this.location.replaceState(path, params.toString());
-        this.storeFilters();
-    }
-
-    getUrlFiltersMap(): any {
-        const prefix = DataTableFilterService.URL_FILTER_PREFIX;
-        const paramString = window.location.href.split("?")[1];
-        const params: HttpParams = new HttpParams({ fromString: paramString });
-        const storedFilters = this.getStoredFilters();
-        const appliedFiltersMap = {};
-
-        params.keys().forEach((rawKey) => {
-            if (!rawKey.startsWith(prefix)) {
-                return;
-            }
-            const key = rawKey.slice(prefix.length);
-            const storedFilter = storedFilters.find((filter) => {
-                return filter.columnId === key;
-            });
-            if (storedFilter) {
-                appliedFiltersMap[key] = storedFilter;
-            } else {
-                let val: any = params.get(rawKey);
-                let type = 'TEXTINPUT'
-                let label = val;
-                if (val?.split(',')?.length > 1) {
-                    val = val?.split(',');
-                    label = val[0];
-                    type = 'ATTRIBUTE'
-                }
-                appliedFiltersMap[key] = {
-                    columnId: key,
-                    value: val,
-                    label: decodeURIComponent(label),
-                    filterName: key,
-                    type: type
-                };
-            }
-        });
-        return appliedFiltersMap;
-    }
-
-}
+// DataTableFilterService now lives in the `table-core` secondary entry point (it is shared by both
+// the list-table and the legacy data-table). This re-export keeps the many in-library importers
+// working through their existing relative path. The service stays a single `providedIn: 'root'`
+// class defined once in table-core, so its singleton identity is preserved.
+export { DataTableFilterService } from '@openziti/ziti-console-lib/table-core';
+export type { FilterObj } from '@openziti/ziti-console-lib/table-core';

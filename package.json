@@ -112,7 +112,6 @@
     "lodash": "^4.17.21",
     "lottie-web": "^5.13.0",
     "moment": "^2.29.4",
-    "ng-click-outside": "^9.0.1",
     "ngx-logger": "^5.0.12",
     "ngx-lottie": "^20.0.0",
     "primeicons": "^7.0.0",

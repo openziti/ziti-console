@@ -15,19 +15,85 @@
 */
 
 import {Component} from '@angular/core';
-import {ListColumn} from 'ziti-console-lib';
+import {ListColumn, ListTableComponent} from 'ziti-console-lib/table-core';
+
+type EmptyMode = 'empty' | 'no-results' | 'access-denied' | 'custom';
 
 /**
- * Root of the standalone list-table demo. Renders `lib-list-table` in tree mode against static
- * sample data, with no controller session, router or services of its own.
+ * Root of the standalone list-table demo. Imports only the standalone `ListTableComponent`
+ * from the package (not the library NgModule), which is what lets a consumer pull in the table
+ * without the module's heavy peer graph (ag-grid, primeng, lottie, etc.). Renders the table in
+ * tree mode against static sample data, with no controller session or services of its own.
  */
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
-    standalone: false,
+    standalone: true,
+    imports: [ListTableComponent],
 })
 export class AppComponent {
-    activeTab: 'flat' | 'card' = 'flat';
+    activeTab: 'flat' | 'card' | 'loading' | 'empty' = 'flat';
+
+    // ---- empty-states demo ----
+    emptyRows: any[] = [];
+    emptyEntity = 'services';
+    emptyMode: EmptyMode = 'empty';
+    emptyEntities = [
+        {key: 'services', label: 'Services'},
+        {key: 'identities', label: 'Identities'},
+        {key: 'edge-routers', label: 'Edge Routers'},
+        {key: 'service-policies', label: 'Service Policies'},
+    ];
+    emptyModes: {key: EmptyMode; label: string}[] = [
+        {key: 'empty', label: 'Empty'},
+        {key: 'no-results', label: 'No results'},
+        {key: 'access-denied', label: 'Access denied'},
+        {key: 'custom', label: 'Custom (projected)'},
+    ];
+
+    onEmptyAction(event: any): void {
+        console.log('[demo] empty-state action', event);
+    }
+
+    // ---- loading-states demo (skeleton on first load, top bar on refresh) ----
+    loadColumns: ListColumn[] = [
+        {key: 'gateway', label: 'Gateway'},
+        {key: 'site', label: 'Site'},
+        {key: 'firmware', label: 'Firmware'},
+        {key: 'sensors', label: 'Sensors', width: 120},
+    ];
+    loadRows: any[] = [];
+    loading = false;
+
+    /** First load with no rows yet -> skeleton placeholder rows. */
+    simulateInitialLoad(): void {
+        this.loadRows = [];
+        this.loading = true;
+    }
+
+    /** Data arrives -> real rows, loading clears. */
+    finishLoad(): void {
+        this.loadRows = this.rows.map((r) => ({...r}));
+        this.loading = false;
+    }
+
+    /** Slow reload (1.5s): long enough to clear the show-delay, so the bar appears. */
+    simulateSlowRefresh(): void {
+        if (!this.loadRows.length) {
+            this.finishLoad();
+        }
+        this.loading = true;
+        setTimeout(() => (this.loading = false), 1500);
+    }
+
+    /** Fast reload (80ms): under the show-delay, so the debounced bar should never appear. */
+    simulateQuickRefresh(): void {
+        if (!this.loadRows.length) {
+            this.finishLoad();
+        }
+        this.loading = true;
+        setTimeout(() => (this.loading = false), 80);
+    }
 
     // Level-0 columns describe a gateway; the nested level (below) describes its sensors, so
     // the demo shows a tree whose child columns differ from the parent's.

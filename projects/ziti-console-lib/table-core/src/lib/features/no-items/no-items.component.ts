@@ -1,10 +1,12 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
 
 @Component({
     selector: 'lib-no-items',
     templateUrl: './no-items.component.html',
     styleUrls: ['./no-items.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [CommonModule]
 })
 
 export class NoItemsComponent implements OnChanges {

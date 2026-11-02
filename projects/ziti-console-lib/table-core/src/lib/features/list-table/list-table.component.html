@@ -86,7 +86,7 @@
         }
         @if (toolbarControls.autoRefresh.show) {
           <span class="lt-autorefresh-wrap" [class.lt-ctl-disabled]="toolbarControls.autoRefresh.disabled">
-            <lib-list-table-auto-refresh [loading]="filtering" (refresh)="refresh()"></lib-list-table-auto-refresh>
+            <lib-list-table-auto-refresh [seconds]="autoRefreshSeconds" [loading]="filtering" (refresh)="refresh()"></lib-list-table-auto-refresh>
           </span>
         }
         @if (toolbarControls.columns.show) {
@@ -197,6 +197,14 @@
       </div>
     </div>
 
+    <!-- reload with rows already on screen: a thin indeterminate bar under the toolbar,
+         rows stay visible (dimmed) and usable. role=progressbar (indeterminate). -->
+    @if (showRefreshBar) {
+      <div class="lt-refresh-bar" role="progressbar" aria-label="Refreshing" aria-busy="true">
+        <span class="lt-refresh-bar-fill"></span>
+      </div>
+    }
+
     <!-- inner content of a Columns-chooser row, shared by the top-level and nested lists.
          The <li cdkDrag> wrapper stays inline in each list (above) so cdkDropList's content
          query still registers it as a draggable; only the body is shared here.
@@ -237,7 +245,7 @@
       }
     </ng-template>
 
-    <div class="lt-scroll" id="ItemTable">
+    <div class="lt-scroll" id="ItemTable" [class.lt-is-refreshing]="showRefreshBar" [class.lt-is-empty]="!isLoading && !rowData?.length" [attr.aria-busy]="isLoading ? 'true' : null">
       <!-- expand/collapse control, reused by root rows and nested child rows -->
       <ng-template #treeToggle let-row="row">
         @if (canExpand(row)) {
@@ -330,6 +338,28 @@
           </tr>
         </thead>
         <tbody>
+          @if (showSkeleton) {
+            <!-- first load, no data yet: placeholder rows matching the real column layout.
+                 aria-hidden so screen readers get the region's aria-busy, not fake rows. -->
+            @for (sk of skeletonRows; track sk; let r = $index) {
+              <tr class="lt-row lt-skeleton-row" aria-hidden="true">
+                @if (!options.noSelect) {
+                  <td class="lt-select-cell"><span class="lt-sk lt-sk-check"></span></td>
+                }
+                @for (col of visibleColumns; track trackCol($index, col); let c = $index) {
+                  <td class="lt-cell" [class.lt-tree-cell]="isTreeCell(col)">
+                    @if (isTreeCell(col)) {
+                      <span class="lt-sk lt-sk-dot"></span>
+                    }
+                    <span class="lt-sk lt-sk-bar" [style.width.%]="skeletonBarWidth(c, r)"></span>
+                  </td>
+                }
+                @if (!options.noMenu) {
+                  <td class="lt-menu-cell"></td>
+                }
+              </tr>
+            }
+          } @else {
           @for (row of flatRows; track trackRow($index, row); let i = $index) {
             @if (isTreeMode && row.__treeLevel > 0 && hasChildColumns) {
               <!-- nested rows with their own per-level columns, laid out in a grid
@@ -459,10 +489,24 @@
               </tr>
             }
           }
+          }
         </tbody>
       </table>
-      @if (!isLoading && filterApplied && (!rowData || rowData.length === 0)) {
-        <div class="no-rows-message">No Rows To Show</div>
+      @if (!isLoading && (!rowData || rowData.length === 0)) {
+        <lib-list-empty
+          [variant]="filterApplied ? 'no-results' : 'empty'"
+          [entityKey]="tableId"
+          [entityLabel]="entityTypeLabel"
+          [scope]="emptyScope"
+          [createLabel]="createLabel"
+          [hasAdd]="showNoItemsAdd"
+          [readonly]="noItemsReadonly"
+          [framed]="false"
+          (create)="openCreate()"
+          (clearFilters)="clearTableFilters()"
+        >
+          <ng-content select="[empty-state]" ngProjectAs="[empty-state]"></ng-content>
+        </lib-list-empty>
       }
     </div>
 
@@ -534,16 +578,13 @@
     ></lib-list-menu>
   </div>
 } @else {
-  <lib-no-items
-    (clickEmit)="openCreate()"
-    [image]="noItemsImage"
-    [isEmpty]="!rowData || rowData.length === 0"
-    [isLoading]="isLoading"
-    [typeName]="entityTypeLabel"
-    [hasAdd]="showNoItemsAdd"
-    [readonly]="noItemsReadonly"
-    [accessDenied]="accessDenied"
-  ></lib-no-items>
+  <!-- access denied: a full-page wall (no table chrome to show without permission) -->
+  <lib-list-empty
+    variant="access-denied"
+    [entityKey]="tableId"
+    [entityLabel]="entityTypeLabel"
+    [scope]="emptyScope"
+  ></lib-list-empty>
 }
 
 @if (hoverTooltip) {

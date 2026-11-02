@@ -13,12 +13,17 @@ touching the component.
 
 ## Setup
 
-The component is declared in `OpenZitiConsoleLibModule` (it is not standalone). Import that module
-in your feature module and use the `lib-list-table` selector.
+`ListTableComponent` is standalone. Import it (and the `ListColumn` type) from the lean
+`@openziti/ziti-console-lib/table-core` entry point, which pulls in only the table and its own
+dependencies rather than the full library module:
 
 ```ts
-import { ListColumn } from '@openziti/ziti-console-lib';
+import { ListTableComponent, ListColumn } from '@openziti/ziti-console-lib/table-core';
 ```
+
+Add `ListTableComponent` to your standalone component's `imports` (or an NgModule's `imports`) and
+use the `lib-list-table` selector. Importing from the package root `@openziti/ziti-console-lib` also
+works but pulls in the full library.
 
 ## Basic (flat) table
 

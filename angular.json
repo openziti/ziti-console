@@ -516,6 +516,10 @@
             "polyfills": [
               "zone.js",
               "zone.js/testing"
+            ],
+            "include": [
+              "**/*.spec.ts",
+              "../table-core/**/*.spec.ts"
             ]
           }
         }

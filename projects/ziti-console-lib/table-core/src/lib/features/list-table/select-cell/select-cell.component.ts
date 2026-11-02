@@ -1,4 +1,6 @@
 import {Component, Input} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {MatTooltipModule} from '@angular/material/tooltip';
 import _ from 'lodash';
 
 /**
@@ -9,7 +11,8 @@ import _ from 'lodash';
     selector: 'lib-select-cell',
     templateUrl: './select-cell.component.html',
     styleUrls: ['./select-cell.component.scss'],
-    standalone: false,
+    standalone: true,
+    imports: [CommonModule, MatTooltipModule],
 })
 export class SelectCellComponent {
     item: any = {
