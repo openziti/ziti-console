@@ -74,6 +74,7 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         if (this._rowData.length > 0) {
             this.hasLoadedOnce = true;
         }
+        this.updateSkeleton();
         this.rebuildFlatRows();
     }
     get rowData(): any[] {
@@ -84,6 +85,7 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     @Input() set isLoading(value: boolean) {
         this._isLoading = value;
         this.updateRefreshBar();
+        this.updateSkeleton();
     }
     get isLoading(): boolean {
         return this._isLoading;
@@ -97,10 +99,37 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
      *  refresh bar over the existing rows instead of the full-page skeleton again. */
     hasLoadedOnce = false;
 
-    /** First load with nothing on screen yet: show skeleton placeholder rows. Shown
-     *  immediately (no debounce) - a blank first load should give feedback at once. */
+    /** The logical "first load with nothing on screen yet" state. The skeleton renders
+     *  off showSkeleton (below), which debounces this so a very fast first load goes
+     *  straight to rows without a skeleton flash. */
     get isInitialLoad(): boolean {
         return this._isLoading && !this.hasLoadedOnce;
+    }
+
+    /** Whether the skeleton placeholder is visible. Debounced from isInitialLoad with the
+     *  same show-delay as the refresh bar: a first load shorter than REFRESH_SHOW_DELAY
+     *  never shows it. Unlike the bar there is no minimum-visible hold, so real rows
+     *  replace the skeleton the moment they arrive. */
+    showSkeleton = false;
+    private skeletonShowTimer: any;
+
+    private updateSkeleton(): void {
+        if (this.isInitialLoad) {
+            // arm the show-delay once; a fast first load that finishes before it fires
+            // never shows the skeleton - the rows just appear
+            if (!this.showSkeleton && !this.skeletonShowTimer) {
+                this.skeletonShowTimer = setTimeout(() => {
+                    this.skeletonShowTimer = undefined;
+                    this.showSkeleton = true;
+                }, this.REFRESH_SHOW_DELAY);
+            }
+        } else {
+            // first load ended (rows arrived) or this is not a first load: cancel a
+            // pending skeleton and hide it now so real rows show at once
+            clearTimeout(this.skeletonShowTimer);
+            this.skeletonShowTimer = undefined;
+            this.showSkeleton = false;
+        }
     }
 
     /** Whether the thin top refresh bar is visible. Debounced from isLoading via
@@ -269,9 +298,15 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     @Input() filterApplied = false;
     @Input() menuItems: any[] = [];
     @Input() headerActions: any[] = [];
+    /** @deprecated kept for the old lib-no-items bindings; the new empty state uses line glyphs, not images. */
     @Input() noItemsImage = 'nodata';
     @Input() showNoItemsAdd = true;
     @Input() noItemsReadonly = false;
+    /** Primary create label shown on the first-use empty state (else the per-entity default). */
+    @Input() createLabel = '';
+    /** What these rows belong to, used in the empty headline ("This network has no services").
+     *  Defaults to 'network' since the Ziti pages are network-scoped; set '' for a list that is not. */
+    @Input() emptyScope = 'network';
     @Input() accessDenied = false;
     @Input() entityTypeName = '';
     @Input() filterName = 'name';
@@ -474,10 +509,13 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         }
         clearTimeout(this.refreshShowTimer);
         clearTimeout(this.refreshHideTimer);
+        clearTimeout(this.skeletonShowTimer);
     }
 
     get showTable(): boolean {
-        return this.isLoading || this.filterApplied || this.rowData?.length > 0;
+        // always keep the table chrome (toolbar, headers, footer); the body shows a
+        // skeleton while loading and an in-table empty state when there are no rows
+        return true;
     }
 
     /** Columns surfaced as inline filter controls in the toolbar. Text filters are
@@ -1553,6 +1591,13 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         this.actionRequested.emit({action: 'create'});
     }
 
+    /** Clear the search box and every active filter, which drives the host to refetch
+     *  unfiltered (used by the "no results" empty state's Clear filters action). */
+    clearTableFilters(): void {
+        this.searchString = '';
+        this.tableFilterService.clearAllFilters();
+    }
+
     // ---------------------------------------------------------------- toolbar search + pagination
     onSearchInput(): void {
         this.inputChangedDebounced();
@@ -1617,6 +1662,11 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
 
     /** Default rows-per-page when nothing is remembered (the persisted choice wins). */
     @Input() initialPageSize = 50;
+
+    /** Auto-refresh interval in seconds a page starts the table at (0 = off). This is the
+     *  hook for a page to default the control on; left at 0, the table behaves as before
+     *  (off until the user picks an interval). The user's in-session choice is not persisted. */
+    @Input() autoRefreshSeconds = 0;
 
     get pageSize(): number {
         return this.tableFilterService.pageSize;

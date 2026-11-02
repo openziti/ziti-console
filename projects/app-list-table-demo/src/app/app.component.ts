@@ -17,6 +17,8 @@
 import {Component} from '@angular/core';
 import {ListColumn} from 'ziti-console-lib';
 
+type EmptyMode = 'empty' | 'no-results' | 'access-denied' | 'custom';
+
 /**
  * Root of the standalone list-table demo. Renders `lib-list-table` in tree mode against static
  * sample data, with no controller session, router or services of its own.
@@ -27,7 +29,28 @@ import {ListColumn} from 'ziti-console-lib';
     standalone: false,
 })
 export class AppComponent {
-    activeTab: 'flat' | 'card' | 'loading' = 'flat';
+    activeTab: 'flat' | 'card' | 'loading' | 'empty' = 'flat';
+
+    // ---- empty-states demo ----
+    emptyRows: any[] = [];
+    emptyEntity = 'services';
+    emptyMode: EmptyMode = 'empty';
+    emptyEntities = [
+        {key: 'services', label: 'Services'},
+        {key: 'identities', label: 'Identities'},
+        {key: 'edge-routers', label: 'Edge Routers'},
+        {key: 'service-policies', label: 'Service Policies'},
+    ];
+    emptyModes: {key: EmptyMode; label: string}[] = [
+        {key: 'empty', label: 'Empty'},
+        {key: 'no-results', label: 'No results'},
+        {key: 'access-denied', label: 'Access denied'},
+        {key: 'custom', label: 'Custom (projected)'},
+    ];
+
+    onEmptyAction(event: any): void {
+        console.log('[demo] empty-state action', event);
+    }
 
     // ---- loading-states demo (skeleton on first load, top bar on refresh) ----
     loadColumns: ListColumn[] = [

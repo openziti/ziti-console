@@ -86,7 +86,7 @@
         }
         @if (toolbarControls.autoRefresh.show) {
           <span class="lt-autorefresh-wrap" [class.lt-ctl-disabled]="toolbarControls.autoRefresh.disabled">
-            <lib-list-table-auto-refresh [loading]="filtering" (refresh)="refresh()"></lib-list-table-auto-refresh>
+            <lib-list-table-auto-refresh [seconds]="autoRefreshSeconds" [loading]="filtering" (refresh)="refresh()"></lib-list-table-auto-refresh>
           </span>
         }
         @if (toolbarControls.columns.show) {
@@ -245,7 +245,7 @@
       }
     </ng-template>
 
-    <div class="lt-scroll" id="ItemTable" [class.lt-is-refreshing]="showRefreshBar" [attr.aria-busy]="isLoading ? 'true' : null">
+    <div class="lt-scroll" id="ItemTable" [class.lt-is-refreshing]="showRefreshBar" [class.lt-is-empty]="!isLoading && !rowData?.length" [attr.aria-busy]="isLoading ? 'true' : null">
       <!-- expand/collapse control, reused by root rows and nested child rows -->
       <ng-template #treeToggle let-row="row">
         @if (canExpand(row)) {
@@ -338,7 +338,7 @@
           </tr>
         </thead>
         <tbody>
-          @if (isInitialLoad) {
+          @if (showSkeleton) {
             <!-- first load, no data yet: placeholder rows matching the real column layout.
                  aria-hidden so screen readers get the region's aria-busy, not fake rows. -->
             @for (sk of skeletonRows; track sk; let r = $index) {
@@ -492,8 +492,21 @@
           }
         </tbody>
       </table>
-      @if (!isLoading && filterApplied && (!rowData || rowData.length === 0)) {
-        <div class="no-rows-message">No Rows To Show</div>
+      @if (!isLoading && (!rowData || rowData.length === 0)) {
+        <lib-list-empty
+          [variant]="filterApplied ? 'no-results' : 'empty'"
+          [entityKey]="tableId"
+          [entityLabel]="entityTypeLabel"
+          [scope]="emptyScope"
+          [createLabel]="createLabel"
+          [hasAdd]="showNoItemsAdd"
+          [readonly]="noItemsReadonly"
+          [framed]="false"
+          (create)="openCreate()"
+          (clearFilters)="clearTableFilters()"
+        >
+          <ng-content select="[empty-state]" ngProjectAs="[empty-state]"></ng-content>
+        </lib-list-empty>
       }
     </div>
 
@@ -565,16 +578,13 @@
     ></lib-list-menu>
   </div>
 } @else {
-  <lib-no-items
-    (clickEmit)="openCreate()"
-    [image]="noItemsImage"
-    [isEmpty]="!rowData || rowData.length === 0"
-    [isLoading]="isLoading"
-    [typeName]="entityTypeLabel"
-    [hasAdd]="showNoItemsAdd"
-    [readonly]="noItemsReadonly"
-    [accessDenied]="accessDenied"
-  ></lib-no-items>
+  <!-- access denied: a full-page wall (no table chrome to show without permission) -->
+  <lib-list-empty
+    variant="access-denied"
+    [entityKey]="tableId"
+    [entityLabel]="entityTypeLabel"
+    [scope]="emptyScope"
+  ></lib-list-empty>
 }
 
 @if (hoverTooltip) {

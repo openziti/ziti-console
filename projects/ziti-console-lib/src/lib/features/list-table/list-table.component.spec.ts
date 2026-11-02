@@ -32,6 +32,7 @@ class FilterServiceStub {
     updateFilter = jasmine.createSpy('updateFilter');
     changePage = jasmine.createSpy('changePage');
     changePageSize = jasmine.createSpy('changePageSize');
+    clearAllFilters = jasmine.createSpy('clearAllFilters');
 }
 
 describe('ListTableComponent', () => {
@@ -108,6 +109,32 @@ describe('ListTableComponent', () => {
             component.isLoading = true; // a reload, not a first load
             expect(component.isInitialLoad).toBeFalse();
         });
+    });
+
+    describe('skeleton show-delay', () => {
+        it('never shows the skeleton for a first load shorter than the show-delay', fakeAsync(() => {
+            component.isLoading = true;
+            tick(80);
+            expect(component.showSkeleton).toBeFalse();
+            component.rowData = [{id: 1}]; // rows arrive before the delay fires
+            component.isLoading = false;
+            tick(300);
+            expect(component.showSkeleton).toBeFalse();
+        }));
+
+        it('shows the skeleton once a first load runs past the show-delay', fakeAsync(() => {
+            component.isLoading = true;
+            tick(160);
+            expect(component.showSkeleton).toBeTrue();
+        }));
+
+        it('hides the skeleton the moment rows arrive, with no minimum hold', fakeAsync(() => {
+            component.isLoading = true;
+            tick(160);
+            expect(component.showSkeleton).toBeTrue();
+            component.rowData = [{id: 1}];
+            expect(component.showSkeleton).toBeFalse();
+        }));
     });
 
     describe('refresh bar debounce', () => {
@@ -319,6 +346,29 @@ describe('ListTableComponent', () => {
             expect(filterStub.changePage).not.toHaveBeenCalled();
             component.goToPage(4);
             expect(filterStub.changePage).toHaveBeenCalledWith(4);
+        });
+    });
+
+    describe('clear filters', () => {
+        it('clears the search box and drops every active filter (not the no-op clearFilters)', () => {
+            init({columns: cols(), tableId: 'services'});
+            component.searchString = 'abc';
+            component.clearTableFilters();
+            expect(component.searchString).toBe('');
+            expect(filterStub.clearAllFilters).toHaveBeenCalled();
+        });
+    });
+
+    describe('auto-refresh page hook', () => {
+        it('defaults to off (0) so pages are unchanged unless they opt in', () => {
+            init({columns: cols(), tableId: 'services'});
+            expect(component.autoRefreshSeconds).toBe(0);
+        });
+
+        it('lets a page set the starting interval', () => {
+            component.autoRefreshSeconds = 30;
+            init({columns: cols(), tableId: 'services'});
+            expect(component.autoRefreshSeconds).toBe(30);
         });
     });
 });

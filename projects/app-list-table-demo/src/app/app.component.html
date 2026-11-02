@@ -9,11 +9,13 @@
     <button type="button" [class.active]="activeTab === 'flat'" (click)="activeTab = 'flat'">Flat</button>
     <button type="button" [class.active]="activeTab === 'card'" (click)="activeTab = 'card'">Contained (card)</button>
     <button type="button" [class.active]="activeTab === 'loading'" (click)="activeTab = 'loading'">Loading states</button>
+    <button type="button" [class.active]="activeTab === 'empty'" (click)="activeTab = 'empty'">Empty states</button>
   </div>
 
   @if (activeTab === 'flat') {
     <p style="margin: 0 0 1rem; color: var(--groupText, #6b7280);">
       Nested rows sit inline with the table; the first column tucks under the parent row's name.
+      This page opts the auto-refresh control on at 30s via [autoRefreshSeconds]; real pages leave it off.
     </p>
     <lib-list-table
       class="lt-skin"
@@ -23,6 +25,7 @@
       [options]="{ tree: true, selectChildren: true }"
       [childColumnsByLevel]="childColumnsByLevel"
       [loadChildren]="loadChildren"
+      [autoRefreshSeconds]="30"
       (selectionChanged)="onSelectionChanged($event)"
       treeVariant="flat">
     </lib-list-table>
@@ -41,7 +44,7 @@
       (selectionChanged)="onSelectionChanged($event)"
       treeVariant="card">
     </lib-list-table>
-  } @else {
+  } @else if (activeTab === 'loading') {
     <p style="margin: 0 0 1rem; color: var(--groupText, #6b7280);">
       Initial load shows skeleton rows on the real column grid. Reloads keep the rows and show a
       thin indeterminate bar - debounced, so a quick reload (80ms) never flashes it, while a slow
@@ -60,6 +63,40 @@
       [rowData]="loadRows"
       [isLoading]="loading"
       [skeletonRowCount]="8">
+    </lib-list-table>
+  } @else {
+    <p style="margin: 0 0 1rem; color: var(--groupText, #6b7280);">
+      The table's empty placeholder: per-entity copy and glyph, four variants, and a projected
+      slot for a fully custom state. Switch entity and state to preview each.
+    </p>
+    <div class="demo-tabs" style="margin-bottom: 0.5rem;">
+      @for (e of emptyEntities; track e.key) {
+        <button type="button" [class.active]="emptyEntity === e.key" (click)="emptyEntity = e.key">{{ e.label }}</button>
+      }
+    </div>
+    <div class="demo-tabs" style="margin-bottom: 1rem;">
+      @for (m of emptyModes; track m.key) {
+        <button type="button" [class.active]="emptyMode === m.key" (click)="emptyMode = m.key">{{ m.label }}</button>
+      }
+    </div>
+    <lib-list-table
+      class="lt-skin"
+      [tableId]="emptyEntity"
+      [columns]="loadColumns"
+      [rowData]="emptyRows"
+      [isLoading]="false"
+      [filterApplied]="emptyMode === 'no-results'"
+      [accessDenied]="emptyMode === 'access-denied'"
+      (actionRequested)="onEmptyAction($event)">
+      @if (emptyMode === 'custom') {
+        <div empty-state style="padding: 3rem 1.5rem; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
+          <strong style="font-size: 1.0625rem;">Set up your first network</strong>
+          <span style="color: var(--groupText, #6b7280); max-width: 40ch;">
+            A page can project any content here when the built-in variants aren't enough.
+          </span>
+          <button type="button" (click)="onEmptyAction({ action: 'create' })">Start setup</button>
+        </div>
+      }
     </lib-list-table>
   }
 </div>
