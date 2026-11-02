@@ -27,7 +27,47 @@ import {ListColumn} from 'ziti-console-lib';
     standalone: false,
 })
 export class AppComponent {
-    activeTab: 'flat' | 'card' = 'flat';
+    activeTab: 'flat' | 'card' | 'loading' = 'flat';
+
+    // ---- loading-states demo (skeleton on first load, top bar on refresh) ----
+    loadColumns: ListColumn[] = [
+        {key: 'gateway', label: 'Gateway'},
+        {key: 'site', label: 'Site'},
+        {key: 'firmware', label: 'Firmware'},
+        {key: 'sensors', label: 'Sensors', width: 120},
+    ];
+    loadRows: any[] = [];
+    loading = false;
+
+    /** First load with no rows yet -> skeleton placeholder rows. */
+    simulateInitialLoad(): void {
+        this.loadRows = [];
+        this.loading = true;
+    }
+
+    /** Data arrives -> real rows, loading clears. */
+    finishLoad(): void {
+        this.loadRows = this.rows.map((r) => ({...r}));
+        this.loading = false;
+    }
+
+    /** Slow reload (1.5s): long enough to clear the show-delay, so the bar appears. */
+    simulateSlowRefresh(): void {
+        if (!this.loadRows.length) {
+            this.finishLoad();
+        }
+        this.loading = true;
+        setTimeout(() => (this.loading = false), 1500);
+    }
+
+    /** Fast reload (80ms): under the show-delay, so the debounced bar should never appear. */
+    simulateQuickRefresh(): void {
+        if (!this.loadRows.length) {
+            this.finishLoad();
+        }
+        this.loading = true;
+        setTimeout(() => (this.loading = false), 80);
+    }
 
     // Level-0 columns describe a gateway; the nested level (below) describes its sensors, so
     // the demo shows a tree whose child columns differ from the parent's.
