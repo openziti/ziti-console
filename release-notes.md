@@ -1,3 +1,13 @@
+# app-ziti-console-v4.8.0
+# ziti-console-lib-v1.8.0
+## Feature/Improvements
+* [Issue #996](https://github.com/openziti/ziti-console/issues/996) - Make the list-table component independently consumable from @openziti/ziti-console-lib
+* [Issue #990](https://github.com/openziti/ziti-console/issues/990) - Add skeleton placeholders and built-in loading indicators to the list-table component
+* [Issue #992](https://github.com/openziti/ziti-console/issues/992) - Update the "No items" placeholder for the new list-table component
+* [Issue #1001](https://github.com/openziti/ziti-console/issues/1001) - Update the project dependency tree and add Dependabot update configuration
+* [Issue #994](https://github.com/openziti/ziti-console/issues/994) - Remove unused project dependencies
+
+
 # app-ziti-console-v4.7.2
 # ziti-console-lib-v1.7.2
 ## Feature/Improvements
