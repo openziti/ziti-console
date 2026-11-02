@@ -69,17 +69,12 @@ export * from './lib/services/session-refresh.service';
 export * from './lib/features/projectable-forms/configuration/configuration.service';
 export * from './lib/features/projectable-forms/configuration/configuration-form.component';
 export * from './lib/features/extendable/extendable.component';
-export * from './lib/features/data-table/data-table-filter.service';
-export * from './lib/features/list-table/list-column';
-export * from './lib/features/list-table/list-table.service';
-export * from './lib/features/list-table/list-table.component';
-export * from './lib/features/list-table/list-table-auto-refresh/list-table-auto-refresh.component';
+// The standalone list-table, its cells, DataTableFilterService and the column/row types are
+// published from the `table-core` secondary entry point; re-export them here so the package root
+// keeps the same surface for existing consumers.
+export * from '@openziti/ziti-console-lib/table-core';
 export * from './lib/features/list-page-features/list-table-header/list-table-header.component';
-export * from './lib/features/list-table/list-menu/list-menu.component';
 export * from './lib/features/list-table/name-cell/name-cell.component';
-export * from './lib/features/list-table/select-cell/select-cell.component';
-export * from './lib/features/list-table/list-header-cell/list-header-cell.component';
-export * from './lib/features/list-table/list-filter-cell/list-filter-cell.component';
 export * from './lib/features/list-table/os-info-tooltip/os-info-tooltip.component';
 export * from './lib/features/list-table/sdk-info-tooltip/sdk-info-tooltip.component';
 export * from './lib/features/list-table/boolean-cell/boolean-cell.component';

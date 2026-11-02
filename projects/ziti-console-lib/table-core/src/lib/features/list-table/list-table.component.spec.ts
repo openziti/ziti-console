@@ -55,7 +55,7 @@ describe('ListTableComponent', () => {
         }
         filterStub = new FilterServiceStub();
         TestBed.configureTestingModule({
-            declarations: [ListTableComponent],
+            imports: [ListTableComponent],
             providers: [{provide: DataTableFilterService, useValue: filterStub}],
             // the template hosts many lib-* children/directives; we never render it
             // (no detectChanges), and this keeps createComponent from choking regardless
@@ -369,6 +369,34 @@ describe('ListTableComponent', () => {
             component.autoRefreshSeconds = 30;
             init({columns: cols(), tableId: 'services'});
             expect(component.autoRefreshSeconds).toBe(30);
+        });
+    });
+
+    describe('row hover', () => {
+        it('emits the row on hover and null on leave, and does not re-emit the same row', () => {
+            init({columns: cols(), rowData: [{name: 'a'}, {name: 'b'}]});
+            const seen: any[] = [];
+            component.rowHover.subscribe((v) => seen.push(v));
+            const row = component.rowData[0];
+
+            component.onRowHover(row);
+            component.onRowHover(row); // same row -> no second emit
+            component.onRowLeave(row);
+
+            expect(seen).toEqual([row, null]);
+        });
+    });
+
+    describe('sort', () => {
+        it('sets the sort direction on the target column and clears the others', () => {
+            init({columns: cols()});
+            component.onHeaderSort({colId: 'name', dir: 'asc'});
+            expect(component.allColumns.find((c) => c.key === 'name')!.sortDir).toBe('asc');
+            expect(component.allColumns.find((c) => c.key === 'os')!.sortDir).toBeUndefined();
+
+            component.onHeaderSort({colId: 'os', dir: 'desc'});
+            expect(component.allColumns.find((c) => c.key === 'name')!.sortDir).toBeUndefined();
+            expect(component.allColumns.find((c) => c.key === 'os')!.sortDir).toBe('desc');
         });
     });
 });

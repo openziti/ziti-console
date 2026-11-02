@@ -15,6 +15,7 @@
 */
 
 import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
 
 /** Which situation the table is in when it has nothing to show. */
 export type EmptyVariant = 'empty' | 'no-results' | 'access-denied' | 'error';
@@ -38,7 +39,8 @@ interface EmptyCopy {
     selector: 'lib-list-empty',
     templateUrl: './list-empty.component.html',
     styleUrls: ['./list-empty.component.scss'],
-    standalone: false,
+    standalone: true,
+    imports: [CommonModule],
 })
 export class ListEmptyComponent {
     @Input() variant: EmptyVariant = 'empty';
