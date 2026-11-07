@@ -1,0 +1,35 @@
+name: Verify Clean Install and Build
+
+# Validates that a clean install from the committed lockfile stays consistent
+# (npm ci fails on any package.json / package-lock.json drift) and that the
+# library and app build. Guards the dependency manifests the way the rest of CI,
+# which uses a lenient "npm install", does not.
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Clean install and build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v4
+
+      - name: Set Up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Clean install (fails on lockfile or manifest drift)
+        run: npm ci
+
+      - name: Build library and app
+        run: npm run build
