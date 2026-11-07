@@ -11,6 +11,11 @@ on:
       - main
   workflow_dispatch:
 
+# This workflow only checks out the code and builds it, so the token needs
+# read-only access to repository contents and nothing else.
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
