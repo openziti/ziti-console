@@ -1,0 +1,39 @@
+<span class="lt-hover-value">
+  <span class="lt-hover-line">
+    @if (html) {
+      <span class="lt-hover-text lt-hover-html" [innerHTML]="safe(html)"></span>
+    } @else if (!text) {
+      <span class="lt-hover-text lt-hover-text--muted">&#8212;</span>
+    } @else {
+      <span class="lt-hover-text" [title]="text">{{ text }}</span>
+    }
+  </span>
+  @if (subtext) {
+    <span class="lt-hover-sub" [title]="subtext">{{ subtext }}</span>
+  }
+</span>
+
+@if (buttons.length) {
+  <span class="lt-hover-actions">
+    @for (button of buttons; track button.action) {
+      <button
+        type="button"
+        class="lt-hover-action"
+        [class.lt-hover-action--danger]="!!button.danger"
+        [id]="buttonId(button)"
+        [disabled]="isBusy(button) || isDisabled(button)"
+        [title]="titleOf(button)"
+        [attr.aria-label]="button.ariaLabel || button.label"
+        (click)="run(button.action); $event.stopPropagation()"
+      >
+        @if (isBusy(button)) {
+          <span class="lt-hover-spinner" aria-hidden="true"></span>
+        } @else if (button.iconSvg) {
+          <span class="lt-hover-icon" [innerHTML]="safe(button.iconSvg)" aria-hidden="true"></span>
+        } @else if (button.icon) {
+          <span class="lt-hover-icon {{ button.icon }}" aria-hidden="true"></span>
+        }
+      </button>
+    }
+  </span>
+}

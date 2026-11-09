@@ -32,6 +32,8 @@ export * from './lib/features/list-table/click-outside.directive';
 export * from './lib/features/list-table/list-table.component';
 export * from './lib/features/list-table/list-menu/list-menu.component';
 export * from './lib/features/list-table/select-cell/select-cell.component';
+export * from './lib/features/list-table/hover-actions-cell/hover-actions-cell.component';
+export * from './lib/features/list-table/list-actions';
 export * from './lib/features/list-table/list-header-cell/list-header-cell.component';
 export * from './lib/features/list-table/list-filter-cell/list-filter-cell.component';
 export * from './lib/features/list-table/list-table-auto-refresh/list-table-auto-refresh.component';

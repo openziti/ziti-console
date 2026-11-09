@@ -41,7 +41,7 @@ import {Router} from "@angular/router";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {ListColumn} from "../../features/list-table/list-column";
-import {NameCellComponent} from "../../features/list-table/name-cell/name-cell.component";
+import {HoverActionsCellComponent, listActionButtons, ListActionButtonSpec} from "@openziti/ziti-console-lib/table-core";
 import {OsInfoTooltipComponent} from "../../features/list-table/os-info-tooltip/os-info-tooltip.component";
 import {SdkInfoTooltipComponent} from "../../features/list-table/sdk-info-tooltip/sdk-info-tooltip.component";
 import {BooleanCellComponent} from "../../features/list-table/boolean-cell/boolean-cell.component";
@@ -95,6 +95,14 @@ export class IdentitiesPageService extends ListPageServiceClass {
         {name: 'Reset MFA', action: 'reset-mfa', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" d="M8 2.3 12.8 4v3.8c0 3-2.1 4.9-4.8 5.9-2.7-1-4.8-2.9-4.8-5.9V4z"/></svg>'},
         {name: 'Override', action: 'override', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" d="M2.8 5h10.4M2.8 11h10.4"/><circle cx="6" cy="5" r="1.7" fill="currentColor"/><circle cx="10" cy="11" r="1.7" fill="currentColor"/></svg>'},
         {name: 'Delete', action: 'delete', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M3.4 4.6h9.2M6.4 4.6V3.2h3.2v1.4M4.6 4.6 5 13h6l.4-8.4"/></svg>'},
+    ];
+
+    /** The row actions shown as icons on the Name cell (each row still shows only the ones its `actionList`
+     *  allows). The rest of the menu stays in the row's menu. Delete reads as danger. */
+    private readonly nameActionButtons: ListActionButtonSpec[] = [
+        this.nameActionIcon('update'),
+        this.nameActionIcon('download-enrollment'),
+        this.nameActionIcon('delete', true),
     ];
 
     override tableHeaderActions = [
@@ -360,6 +368,12 @@ export class IdentitiesPageService extends ListPageServiceClass {
         return tableColumns;
     }
 
+    /** Builds an icon button for a Name-cell action, reusing that action's row-menu glyph so the two always match. */
+    private nameActionIcon(action: string, danger = false): ListActionButtonSpec {
+        const item = this.menuItems.find((menuItem: any) => menuItem.action === action);
+        return {action, iconSvg: item?.icon, danger};
+    }
+
     /**
      * Column set for the new `lib-list-table` (the "beta" Identities page). Mirrors
      * {@link initTableColumns} but emits the declarative `ListColumn` shape instead of
@@ -441,13 +455,14 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 field: 'name',
                 label: 'Name',
                 filterType: 'TEXTINPUT',
-                cell: NameCellComponent,
+                // The name doubles as the row's action host: Edit, Download JWT and Delete show as
+                // icons at its right end on hover, and the row's menu keeps the full set.
+                cell: HoverActionsCellComponent,
                 cellInputs: (ctx) => ({
-                    row: ctx.row,
-                    cellValue: ctx.value,
-                    // status now lives in its own Status column (skinned), so the
-                    // name cell no longer carries the connection dots
-                    cellConfig: {pathRoot: this.basePath, showIdentityIcons: false},
+                    text: ctx.row?.name || ctx.row?.id,
+                    cellId: `IdentityActions_${ctx.row?.id}`,
+                    run: (action: string) => ctx.emitAction(action, ctx.row),
+                    buttons: listActionButtons(this.menuItems, this.nameActionButtons, ctx.row),
                 }),
                 onCellClick: (ctx) => {
                     if (this.hasSelectedText()) {
