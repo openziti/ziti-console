@@ -23,7 +23,9 @@ import {ExtensionService, SHAREDZ_EXTENSION} from "../../features/extendable/ext
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {Router} from "@angular/router";
 import {ListColumn} from "../../features/list-table/list-column";
-import {NameCellComponent} from "../../features/list-table/name-cell/name-cell.component";
+import {HoverActionsCellComponent, ListActionButton, listActionButtons, menuActionIcons} from "@openziti/ziti-console-lib/table-core";
+import {enrollmentTokenStatus} from "../../features/list-table/enrollment-status";
+import {routerStatusDots} from "../../features/list-table/router-status";
 import {BooleanCellComponent} from "../../features/list-table/boolean-cell/boolean-cell.component";
 import {TokenCellComponent} from "../../features/list-table/token-cell/token-cell.component";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
@@ -65,6 +67,17 @@ export class TransitRoutersPageService extends ListPageServiceClass {
         {name: 'Re-Enroll', action: 're-enroll', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M13 8a5 5 0 1 1-1.5-3.6M13 2.6v2.8h-2.8"/></svg>'},
         {name: 'Delete', action: 'delete', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M3.4 4.6h9.2M6.4 4.6V3.2h3.2v1.4M4.6 4.6 5 13h6l.4-8.4"/></svg>'},
     ]
+
+    /** Primary-cell action icons; the enrollment icon flips to Re-Enroll once the token expires. */
+    private routerNameButtons(row: any): ListActionButton[] {
+        const enroll = enrollmentTokenStatus(row) === 'expired' ? 're-enroll' : 'download-enrollment';
+        const specs = menuActionIcons(this.menuItems, [
+            {action: 'update'},
+            {action: enroll},
+            {action: 'delete', danger: true},
+        ]);
+        return listActionButtons(this.menuItems, specs, row);
+    }
 
     override tableHeaderActions = [
         {name: 'Download All', action: 'download-all', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
@@ -211,11 +224,13 @@ export class TransitRoutersPageService extends ListPageServiceClass {
                 field: 'name',
                 label: 'Name',
                 filterType: 'TEXTINPUT',
-                cell: NameCellComponent,
+                cell: HoverActionsCellComponent,
                 cellInputs: (ctx) => ({
-                    row: ctx.row,
-                    cellValue: ctx.value,
-                    cellConfig: {pathRoot: this.basePath, showRouterIcons: true},
+                    text: ctx.row?.name || ctx.row?.id,
+                    statusHtml: routerStatusDots(ctx.row),
+                    cellId: `TransitRouterActions_${ctx.row?.id}`,
+                    run: (action: string) => ctx.emitAction(action, ctx.row),
+                    buttons: this.routerNameButtons(ctx.row),
                 }),
                 onCellClick: openForm,
                 resizable: true,

@@ -22,6 +22,14 @@
   min-width: 0;
 }
 
+/* Leading status dots, such as a router's verified/online state. Kept out of the flow that the ellipsis cuts. */
+.lt-hover-status {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 0.25rem;
+}
+
 .lt-hover-text {
   display: block;
   flex: 0 1 auto;

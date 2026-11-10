@@ -70,6 +70,8 @@ export class HoverActionsCellComponent {
     @Input() text = '';
     /** Markup in place of `text`, for a cell that draws flags or extra lines. The page escapes the values in it. */
     @Input() html = '';
+    /** Markup shown just before the text, such as status dots, kept out of the ellipsis. The page escapes the values in it. */
+    @Input() statusHtml = '';
     /** A second line under the text, such as an id. It is cut by an ellipsis too. */
     @Input() subtext = '';
     /** The buttons the row shows, already filtered to the row's state by `listActionButtons`. */

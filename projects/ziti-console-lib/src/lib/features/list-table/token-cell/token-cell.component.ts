@@ -16,9 +16,8 @@
 
 import {Component, ElementRef, Input, ViewChild} from '@angular/core';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
-import moment from 'moment';
 
-type TokenStatus = 'available' | 'expired' | 'none';
+import {enrollmentTokenStatus, TokenStatus} from '../enrollment-status';
 
 interface TokenAction {
     label: string;
@@ -83,10 +82,7 @@ export class TokenCellComponent {
     }
 
     get status(): TokenStatus {
-        if (!this.hasEnrolmentToken) {
-            return 'none';
-        }
-        return this.tokenExpired ? 'expired' : 'available';
+        return enrollmentTokenStatus(this.row);
     }
 
     get statusLabel(): string {
@@ -152,22 +148,5 @@ export class TokenCellComponent {
         event.stopPropagation();
         this.open = false;
         this.emitAction?.(action, this.row);
-    }
-
-    private get hasEnrolmentToken(): boolean {
-        const token =
-            this.row?.enrollment?.ott?.jwt ||
-            this.row?.enrollment?.ottca?.jwt ||
-            this.row?.enrollment?.updb?.jwt;
-        return !!(this.row?.enrollmentToken || token);
-    }
-
-    private get tokenExpired(): boolean {
-        const expiration =
-            this.row?.enrollmentExpiresAt ||
-            this.row?.enrollment?.ott?.expiresAt ||
-            this.row?.enrollment?.ottca?.expiresAt ||
-            this.row?.enrollment?.updb?.expiresAt;
-        return expiration ? moment(expiration).isBefore() : false;
     }
 }

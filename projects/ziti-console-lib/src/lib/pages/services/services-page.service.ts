@@ -38,7 +38,7 @@ import {TableCellNameComponent} from "../../features/data-table/cells/table-cell
 import {ServicePolicyFormService} from "../../features/projectable-forms/service-policy/service-policy-form.service";
 import {SERVICE_EXTENSION_SERVICE} from "../../features/projectable-forms/service/service-form.service";
 import {ListColumn} from "../../features/list-table/list-column";
-import {NameCellComponent} from "../../features/list-table/name-cell/name-cell.component";
+import {HoverActionsCellComponent, listActionButtons, menuActionIcons} from "@openziti/ziti-console-lib/table-core";
 import {AttributeCellComponent} from "../../features/list-table/attribute-cell/attribute-cell.component";
 
 @Injectable({
@@ -72,6 +72,12 @@ export class ServicesPageService extends ListPageServiceClass {
         {name: 'Edit', action: 'update', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M11.2 2.6 13.4 4.8 6 12.2l-2.8.6.6-2.8z"/></svg>'},
         {name: 'Delete', action: 'delete', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M3.4 4.6h9.2M6.4 4.6V3.2h3.2v1.4M4.6 4.6 5 13h6l.4-8.4"/></svg>'},
     ]
+
+    /** Primary-cell action icons, filtered per row by actionList; the menu keeps the full set. */
+    private readonly nameActionButtons = menuActionIcons(this.menuItems, [
+        {action: 'update'},
+        {action: 'delete', danger: true},
+    ]);
 
     override tableHeaderActions = [
         {name: 'Download All', action: 'download-all', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
@@ -239,13 +245,12 @@ export class ServicesPageService extends ListPageServiceClass {
                 field: 'name',
                 label: 'Name',
                 filterType: 'TEXTINPUT',
-                cell: NameCellComponent,
+                cell: HoverActionsCellComponent,
                 cellInputs: (ctx) => ({
-                    row: ctx.row,
-                    cellValue: ctx.value,
-                    // Service edit lives at /services/advanced/:id, but the base class resets
-                    // basePath to the route segment ('services') on nav, so hardcode the root.
-                    cellConfig: {pathRoot: '/services/advanced', showIdentityIcons: false},
+                    text: ctx.row?.name || ctx.row?.id,
+                    cellId: `ServiceActions_${ctx.row?.id}`,
+                    run: (action: string) => ctx.emitAction(action, ctx.row),
+                    buttons: listActionButtons(this.menuItems, this.nameActionButtons, ctx.row),
                 }),
                 onCellClick: openForm,
                 resizable: true,

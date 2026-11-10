@@ -58,6 +58,14 @@ describe('HoverActionsCellComponent', () => {
             expect(text.textContent?.trim()).toBe('—');
         });
 
+        it('renders leading status markup before the text, kept out of the ellipsis', () => {
+            render({statusHtml: '<span class="circle true"></span>', text: 'er-01', buttons: []});
+            const status = host.querySelector('.lt-hover-status') as HTMLElement;
+            expect(status).toBeTruthy();
+            expect(status.querySelector('.circle.true')).toBeTruthy();
+            expect((host.querySelector('.lt-hover-text') as HTMLElement).textContent?.trim()).toBe('er-01');
+        });
+
         it('renders html in place of the text, and a second subtext line', () => {
             render({html: '<b class="flag">LIVE</b>', subtext: 'det-1', buttons: []});
             expect(host.querySelector('.lt-hover-html .flag')?.textContent).toBe('LIVE');

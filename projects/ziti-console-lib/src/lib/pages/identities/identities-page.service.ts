@@ -41,7 +41,8 @@ import {Router} from "@angular/router";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {ListColumn} from "../../features/list-table/list-column";
-import {HoverActionsCellComponent, listActionButtons, ListActionButtonSpec} from "@openziti/ziti-console-lib/table-core";
+import {HoverActionsCellComponent, ListActionButton, listActionButtons, menuActionIcons} from "@openziti/ziti-console-lib/table-core";
+import {enrollmentTokenStatus} from "../../features/list-table/enrollment-status";
 import {OsInfoTooltipComponent} from "../../features/list-table/os-info-tooltip/os-info-tooltip.component";
 import {SdkInfoTooltipComponent} from "../../features/list-table/sdk-info-tooltip/sdk-info-tooltip.component";
 import {BooleanCellComponent} from "../../features/list-table/boolean-cell/boolean-cell.component";
@@ -97,13 +98,17 @@ export class IdentitiesPageService extends ListPageServiceClass {
         {name: 'Delete', action: 'delete', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M3.4 4.6h9.2M6.4 4.6V3.2h3.2v1.4M4.6 4.6 5 13h6l.4-8.4"/></svg>'},
     ];
 
-    /** The row actions shown as icons on the Name cell (each row still shows only the ones its `actionList`
-     *  allows). The rest of the menu stays in the row's menu. Delete reads as danger. */
-    private readonly nameActionButtons: ListActionButtonSpec[] = [
-        this.nameActionIcon('update'),
-        this.nameActionIcon('download-enrollment'),
-        this.nameActionIcon('delete', true),
-    ];
+    /** Name-cell action icons for an identity row; the enrollment icon follows the row's token, Download
+     *  JWT while it is valid and Reissue Enrollment once it has expired. Delete reads as danger. */
+    private identityNameButtons(row: any): ListActionButton[] {
+        const enroll = enrollmentTokenStatus(row) === 'expired' ? 'reissue-enrollment' : 'download-enrollment';
+        const specs = menuActionIcons(this.menuItems, [
+            {action: 'update'},
+            {action: enroll},
+            {action: 'delete', danger: true},
+        ]);
+        return listActionButtons(this.menuItems, specs, row);
+    }
 
     override tableHeaderActions = [
         {name: 'Download All', action: 'download-all', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
@@ -368,12 +373,6 @@ export class IdentitiesPageService extends ListPageServiceClass {
         return tableColumns;
     }
 
-    /** Builds an icon button for a Name-cell action, reusing that action's row-menu glyph so the two always match. */
-    private nameActionIcon(action: string, danger = false): ListActionButtonSpec {
-        const item = this.menuItems.find((menuItem: any) => menuItem.action === action);
-        return {action, iconSvg: item?.icon, danger};
-    }
-
     /**
      * Column set for the new `lib-list-table` (the "beta" Identities page). Mirrors
      * {@link initTableColumns} but emits the declarative `ListColumn` shape instead of
@@ -455,14 +454,12 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 field: 'name',
                 label: 'Name',
                 filterType: 'TEXTINPUT',
-                // The name doubles as the row's action host: Edit, Download JWT and Delete show as
-                // icons at its right end on hover, and the row's menu keeps the full set.
                 cell: HoverActionsCellComponent,
                 cellInputs: (ctx) => ({
                     text: ctx.row?.name || ctx.row?.id,
                     cellId: `IdentityActions_${ctx.row?.id}`,
                     run: (action: string) => ctx.emitAction(action, ctx.row),
-                    buttons: listActionButtons(this.menuItems, this.nameActionButtons, ctx.row),
+                    buttons: this.identityNameButtons(ctx.row),
                 }),
                 onCellClick: (ctx) => {
                     if (this.hasSelectedText()) {

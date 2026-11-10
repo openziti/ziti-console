@@ -16,7 +16,7 @@
 
 import {ListCellContext, ListColumn} from './list-column';
 import {HoverActionsCellComponent, ListActionButtonSpec} from './hover-actions-cell/hover-actions-cell.component';
-import {enforceMinColumnWidths, isMenuItemHidden, listActionButtons, withHoverActions} from './list-actions';
+import {enforceMinColumnWidths, isMenuItemHidden, listActionButtons, menuActionIcons, withHoverActions} from './list-actions';
 
 interface Row {
     id: string;
@@ -89,6 +89,24 @@ describe('list-actions helpers', () => {
             expect(result.length).toBe(1);
             expect(result[0].label).toBe('Delete');
             expect(result[0].disabled?.()).toBe(true);
+        });
+    });
+
+    describe('menuActionIcons', () => {
+        const menuItems = [
+            {name: 'Edit', action: 'edit', icon: '<svg id="pen"></svg>'},
+            {name: 'Delete', action: 'delete', icon: '<svg id="trash"></svg>'},
+        ];
+
+        it('reuses each menu item glyph and carries the danger flag, in spec order', () => {
+            expect(menuActionIcons(menuItems, [{action: 'delete', danger: true}, {action: 'edit'}])).toEqual([
+                {action: 'delete', iconSvg: '<svg id="trash"></svg>', danger: true},
+                {action: 'edit', iconSvg: '<svg id="pen"></svg>', danger: undefined},
+            ]);
+        });
+
+        it('leaves the glyph undefined when no menu item matches the action', () => {
+            expect(menuActionIcons(menuItems, [{action: 'ghost'}])).toEqual([{action: 'ghost', iconSvg: undefined, danger: undefined}]);
         });
     });
 

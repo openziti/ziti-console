@@ -1,5 +1,8 @@
 <span class="lt-hover-value">
   <span class="lt-hover-line">
+    @if (statusHtml) {
+      <span class="lt-hover-status" [innerHTML]="safe(statusHtml)"></span>
+    }
     @if (html) {
       <span class="lt-hover-text lt-hover-html" [innerHTML]="safe(html)"></span>
     } @else if (!text) {

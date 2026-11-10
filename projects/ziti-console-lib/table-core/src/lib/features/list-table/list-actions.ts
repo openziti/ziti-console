@@ -74,6 +74,27 @@ export function listActionButtons<T>(
     return result;
 }
 
+/** One Name-cell action icon: the row action to run, and whether it reads as destructive. */
+export interface MenuActionIcon {
+    action: string;
+    danger?: boolean;
+}
+
+/**
+ * Builds icon specs for `specs` from the page's row-menu items, so each icon reuses that action's menu
+ * glyph. `specs` lists the actions to surface, in order; {@link listActionButtons} still filters per row.
+ */
+export function menuActionIcons(
+    menuItems: ReadonlyArray<{action: string; icon?: string}>,
+    specs: ReadonlyArray<MenuActionIcon>
+): ListActionButtonSpec[] {
+    return specs.map(({action, danger}) => ({
+        action,
+        iconSvg: menuItems.find((item) => item.action === action)?.icon,
+        danger,
+    }));
+}
+
 /** How a page fills a column with hover actions. `text` is what the cell shows, such as the row's name. */
 export interface ListHoverActionsConfig<T> {
     /** The row menu the buttons follow. A button shows only where its menu item would. */
