@@ -1,3 +1,13 @@
+# app-ziti-console-v4.8.1
+# ziti-console-lib-v1.8.1
+## Feature/Improvements
+* [Issue #962](https://github.com/openziti/ziti-console/issues/962) - Add detail panels, controlled selection, and custom headers to the list-table component
+* [Issue #1011](https://github.com/openziti/ziti-console/issues/1011) - Add hover row actions for the new list tables
+## Bug Fixes
+* [Issue #1015](https://github.com/openziti/ziti-console/issues/1015) - Fix selection logic and tooltip handling in the select cell component
+* [PR #1004](https://github.com/openziti/ziti-console/pull/1004) - Fix config builder help popover hidden behind the sidebar
+
+
 # app-ziti-console-v4.8.0
 # ziti-console-lib-v1.8.0
 ## Feature/Improvements
