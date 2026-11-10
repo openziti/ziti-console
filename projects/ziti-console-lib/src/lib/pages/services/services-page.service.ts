@@ -38,7 +38,7 @@ import {TableCellNameComponent} from "../../features/data-table/cells/table-cell
 import {ServicePolicyFormService} from "../../features/projectable-forms/service-policy/service-policy-form.service";
 import {SERVICE_EXTENSION_SERVICE} from "../../features/projectable-forms/service/service-form.service";
 import {ListColumn} from "../../features/list-table/list-column";
-import {HoverActionsCellComponent, listActionButtons, menuActionIcons} from "@openziti/ziti-console-lib/table-core";
+import {hoverActionsCell, menuActionIcons} from "@openziti/ziti-console-lib/table-core";
 import {AttributeCellComponent} from "../../features/list-table/attribute-cell/attribute-cell.component";
 
 @Injectable({
@@ -245,12 +245,12 @@ export class ServicesPageService extends ListPageServiceClass {
                 field: 'name',
                 label: 'Name',
                 filterType: 'TEXTINPUT',
-                cell: HoverActionsCellComponent,
-                cellInputs: (ctx) => ({
-                    text: ctx.row?.name || ctx.row?.id,
-                    cellId: `ServiceActions_${ctx.row?.id}`,
-                    run: (action: string) => ctx.emitAction(action, ctx.row),
-                    buttons: listActionButtons(this.menuItems, this.nameActionButtons, ctx.row),
+                ...hoverActionsCell({
+                    menuItems: this.menuItems,
+                    text: (row) => row?.name || row?.id,
+                    href: (row) => `./${this.basePath}/${row?.id}`,
+                    cellId: (row) => `ServiceActions_${row?.id}`,
+                    buttons: () => this.nameActionButtons,
                 }),
                 onCellClick: openForm,
                 resizable: true,

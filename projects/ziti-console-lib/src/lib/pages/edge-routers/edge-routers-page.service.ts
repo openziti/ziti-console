@@ -25,7 +25,7 @@ import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {Router} from "@angular/router";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 import {ListColumn} from "../../features/list-table/list-column";
-import {HoverActionsCellComponent, ListActionButton, listActionButtons, menuActionIcons} from "@openziti/ziti-console-lib/table-core";
+import {hoverActionsCell, ListActionButtonSpec, menuActionIcons} from "@openziti/ziti-console-lib/table-core";
 import {enrollmentTokenStatus} from "../../features/list-table/enrollment-status";
 import {routerStatusDots} from "../../features/list-table/router-status";
 import {BooleanCellComponent} from "../../features/list-table/boolean-cell/boolean-cell.component";
@@ -81,15 +81,14 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
         {name: 'Delete', action: 'delete', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M3.4 4.6h9.2M6.4 4.6V3.2h3.2v1.4M4.6 4.6 5 13h6l.4-8.4"/></svg>'},
     ]
 
-    /** Primary-cell action icons; the enrollment icon flips to Re-Enroll once the token expires. */
-    private routerNameButtons(row: any): ListActionButton[] {
+    /** Primary-cell action icon specs; the enrollment icon flips to Re-Enroll once the token expires. */
+    private routerNameSpecs(row: any): ListActionButtonSpec[] {
         const enroll = enrollmentTokenStatus(row) === 'expired' ? 're-enroll' : 'download-enrollment';
-        const specs = menuActionIcons(this.menuItems, [
+        return menuActionIcons(this.menuItems, [
             {action: 'update'},
             {action: enroll},
             {action: 'delete', danger: true},
         ]);
-        return listActionButtons(this.menuItems, specs, row);
     }
 
     override tableHeaderActions = [
@@ -403,13 +402,13 @@ export class EdgeRoutersPageService extends ListPageServiceClass {
                 field: 'name',
                 label: 'Name',
                 filterType: 'TEXTINPUT',
-                cell: HoverActionsCellComponent,
-                cellInputs: (ctx) => ({
-                    text: ctx.row?.name || ctx.row?.id,
-                    statusHtml: routerStatusDots(ctx.row),
-                    cellId: `EdgeRouterActions_${ctx.row?.id}`,
-                    run: (action: string) => ctx.emitAction(action, ctx.row),
-                    buttons: this.routerNameButtons(ctx.row),
+                ...hoverActionsCell({
+                    menuItems: this.menuItems,
+                    text: (row) => row?.name || row?.id,
+                    href: (row) => `./${this.basePath}/${row?.id}`,
+                    statusHtml: (row) => routerStatusDots(row),
+                    cellId: (row) => `EdgeRouterActions_${row?.id}`,
+                    buttons: (row) => this.routerNameSpecs(row),
                 }),
                 onCellClick: openForm,
                 resizable: true,

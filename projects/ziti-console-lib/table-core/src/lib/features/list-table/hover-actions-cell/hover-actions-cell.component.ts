@@ -55,7 +55,7 @@ export interface ListActionButton extends ListActionButtonSpec {
  * they join the flow and the text ends in an ellipsis before them. On a screen with no hover, or with `reserve`
  * set, they keep their own space after the text at all times.
  *
- * A column opts into this cell through `withHoverActions`, which also drops the row's menu entries into the
+ * A column opts into this cell through `hoverActionsCell`, which also drops the row's menu entries into the
  * buttons by the same rules the row menu uses, so a page can retire its Actions column.
  */
 @Component({
@@ -74,11 +74,14 @@ export class HoverActionsCellComponent {
     @Input() statusHtml = '';
     /** A second line under the text, such as an id. It is cut by an ellipsis too. */
     @Input() subtext = '';
+    /** The detail-route URL for the text. When set, the text is a link: focusable, opens in a new tab on a
+     *  middle or modified click. A plain click still navigates through the column's `onCellClick`. */
+    @Input() href = '';
     /** The buttons the row shows, already filtered to the row's state by `listActionButtons`. */
     @Input() buttons: ListActionButton[] = [];
     /** The prefix of each button's default id, for specs and e2e selectors. */
     @Input() cellId = '';
-    /** Runs an action. `withHoverActions` wires this to the page's `run` callback, or to the table's `emitAction`. */
+    /** Runs an action. `hoverActionsCell` wires this to the page's `run` callback, or to the table's `emitAction`. */
     @Input() run: (action: string) => void = () => undefined;
     /** Keeps the icons' space after the text at all times, for a value whose end must never be covered. */
     @HostBinding('class.lt-hover--reserve') @Input() reserve = false;
@@ -122,5 +125,15 @@ export class HoverActionsCellComponent {
 
     buttonId(button: ListActionButton): string {
         return button.id || `${this.cellId}_${button.action}`;
+    }
+
+    /** Lets a middle or modified click open the href in a new tab; stops a plain click from following it, so the
+     *  column's `onCellClick` does the in-app navigation instead. */
+    onLinkClick(event: MouseEvent): void {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+            event.stopPropagation();
+            return;
+        }
+        event.preventDefault();
     }
 }

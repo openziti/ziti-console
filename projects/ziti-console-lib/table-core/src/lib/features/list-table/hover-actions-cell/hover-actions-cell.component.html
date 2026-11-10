@@ -7,6 +7,8 @@
       <span class="lt-hover-text lt-hover-html" [innerHTML]="safe(html)"></span>
     } @else if (!text) {
       <span class="lt-hover-text lt-hover-text--muted">&#8212;</span>
+    } @else if (href) {
+      <a class="lt-hover-text lt-hover-link" [href]="href" [title]="text" (click)="onLinkClick($event)">{{ text }}</a>
     } @else {
       <span class="lt-hover-text" [title]="text">{{ text }}</span>
     }

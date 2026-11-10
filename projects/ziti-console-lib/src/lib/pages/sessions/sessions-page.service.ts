@@ -32,7 +32,7 @@ import {TableCellNameComponent} from "../../features/data-table/cells/table-cell
 import {Router} from "@angular/router";
 import {ListColumn} from "../../features/list-table/list-column";
 import {NameCellComponent} from "../../features/list-table/name-cell/name-cell.component";
-import {HoverActionsCellComponent, listActionButtons, menuActionIcons} from "@openziti/ziti-console-lib/table-core";
+import {hoverActionsCell, menuActionIcons} from "@openziti/ziti-console-lib/table-core";
 import {BooleanCellComponent} from "../../features/list-table/boolean-cell/boolean-cell.component";
 
 @Injectable({
@@ -232,12 +232,12 @@ export class SessionsPageService extends ListPageServiceClass {
                 field: 'id',
                 label: 'ID',
                 filterType: 'TEXTINPUT',
-                cell: HoverActionsCellComponent,
-                cellInputs: (ctx) => ({
-                    text: ctx.row?.id,
-                    cellId: `SessionActions_${ctx.row?.id}`,
-                    run: (action: string) => ctx.emitAction(action, ctx.row),
-                    buttons: listActionButtons(this.menuItems, this.nameActionButtons, ctx.row),
+                ...hoverActionsCell({
+                    menuItems: this.menuItems,
+                    text: (row) => row?.id,
+                    href: (row) => `./${this.basePath}/${row?.id}`,
+                    cellId: (row) => `SessionActions_${row?.id}`,
+                    buttons: () => this.nameActionButtons,
                 }),
                 onCellClick: openForm,
                 resizable: true,

@@ -14,9 +14,9 @@
     limitations under the License.
 */
 
-import {ListCellContext, ListColumn} from './list-column';
+import {ListCellContext} from './list-column';
 import {HoverActionsCellComponent, ListActionButtonSpec} from './hover-actions-cell/hover-actions-cell.component';
-import {enforceMinColumnWidths, isMenuItemHidden, listActionButtons, menuActionIcons, withHoverActions} from './list-actions';
+import {hoverActionsCell, isMenuItemHidden, listActionButtons, menuActionIcons} from './list-actions';
 
 interface Row {
     id: string;
@@ -110,8 +110,7 @@ describe('list-actions helpers', () => {
         });
     });
 
-    describe('withHoverActions', () => {
-        const base: ListColumn<Row> = {key: 'name', label: 'Name', sortable: true};
+    describe('hoverActionsCell', () => {
         const config = {
             menuItems: [
                 {name: 'Edit', action: 'edit'},
@@ -126,91 +125,51 @@ describe('list-actions helpers', () => {
             cellId: (row: Row) => `EdgeActions_${row.id}`,
         };
 
-        it('keeps the original column and swaps in the hover cell', () => {
-            const column = withHoverActions(base, config);
-            expect(column.key).toBe('name');
-            expect(column.label).toBe('Name');
-            expect(column.sortable).toBe(true);
-            expect(column.cell).toBe(HoverActionsCellComponent);
+        it('supplies the hover cell and its cell inputs to spread into a column', () => {
+            const cell = hoverActionsCell(config);
+            expect(cell.cell).toBe(HoverActionsCellComponent);
+            expect(typeof cell.cellInputs).toBe('function');
         });
 
         it('maps the row to the cell inputs, with buttons filtered by the menu rules', () => {
-            const column = withHoverActions(base, config);
             const row: Row = {id: 'a', name: 'edge-01', actionList: ['edit']};
-            const inputs: any = column.cellInputs!(context(row));
+            const inputs: any = hoverActionsCell(config).cellInputs!(context(row));
             expect(inputs.text).toBe('edge-01');
             expect(inputs.subtext).toBe('a');
             expect(inputs.cellId).toBe('EdgeActions_a');
             expect(inputs.buttons.map((b: any) => b.action)).toEqual(['edit']);
         });
 
+        it('passes leading status markup through, kept apart from the text', () => {
+            const cell = hoverActionsCell({...config, statusHtml: (row: Row) => `<span class="dot ${row.id}"></span>`});
+            const inputs: any = cell.cellInputs!(context({id: 'a', name: 'edge-01'}));
+            expect(inputs.statusHtml).toBe('<span class="dot a"></span>');
+        });
+
+        it('passes the per-row link href through so the name can be a link', () => {
+            const cell = hoverActionsCell({...config, href: (row: Row) => `/edge-routers/${row.id}`});
+            const inputs: any = cell.cellInputs!(context({id: 'a', name: 'edge-01'}));
+            expect(inputs.href).toBe('/edge-routers/a');
+        });
+
         it('defaults an action to the table emitAction, with the row', () => {
-            const column = withHoverActions(base, config);
             const ctx = context({id: 'a', name: 'edge-01', actionList: ['edit', 'delete']});
-            (column.cellInputs!(ctx) as any).run('delete');
+            (hoverActionsCell(config).cellInputs!(ctx) as any).run('delete');
             expect(ctx.emitAction).toHaveBeenCalledWith('delete', ctx.row);
         });
 
         it('routes an action through a `run` override instead, with the row', () => {
             const run = jasmine.createSpy('run');
-            const column = withHoverActions(base, {...config, run});
             const ctx = context({id: 'a', name: 'edge-01', actionList: ['edit']});
-            (column.cellInputs!(ctx) as any).run('edit');
+            (hoverActionsCell({...config, run}).cellInputs!(ctx) as any).run('edit');
             expect(run).toHaveBeenCalledWith('edit', ctx.row);
             expect(ctx.emitAction).not.toHaveBeenCalled();
         });
 
-        it('passes empty strings when html and subtext are not configured, and the reserve flag through', () => {
-            const column = withHoverActions(base, {...config, subtext: undefined, reserve: true});
-            const inputs: any = column.cellInputs!(context({id: 'a', name: 'edge-01'}));
-            expect([inputs.html, inputs.subtext, inputs.reserve]).toEqual(['', '', true]);
-        });
-    });
-
-    describe('enforceMinColumnWidths', () => {
-        const widthsKey = 'lt_t1_column_widths';
-        const stateKey = 'lt_t1_table_state';
-        const columns: ListColumn[] = [
-            {key: 'name', label: 'Name', minWidth: 250},
-            {key: 'status', label: 'Status', minWidth: 220},
-            {key: 'created', label: 'Created'},
-        ];
-
-        beforeEach(() => localStorage.clear());
-        afterEach(() => localStorage.clear());
-
-        it('raises a saved width below its column minimum, in the widths map', () => {
-            localStorage.setItem(widthsKey, JSON.stringify({name: 200, status: 220, created: 100}));
-            enforceMinColumnWidths('t1', columns);
-            expect(JSON.parse(localStorage.getItem(widthsKey)!)).toEqual({name: 250, status: 220, created: 100});
-        });
-
-        it('raises a saved width below its minimum, in the table-state entries', () => {
-            localStorage.setItem(
-                stateKey,
-                JSON.stringify([
-                    {colId: 'name', width: 180},
-                    {colId: 'status', width: 300},
-                    {colId: 'created', width: 100},
-                ])
-            );
-            enforceMinColumnWidths('t1', columns);
-            expect(JSON.parse(localStorage.getItem(stateKey)!)).toEqual([
-                {colId: 'name', width: 250},
-                {colId: 'status', width: 300},
-                {colId: 'created', width: 100},
-            ]);
-        });
-
-        it('does nothing when no column carries a minimum', () => {
-            localStorage.setItem(widthsKey, JSON.stringify({name: 10}));
-            enforceMinColumnWidths('t1', [{key: 'name', label: 'Name'}]);
-            expect(JSON.parse(localStorage.getItem(widthsKey)!)).toEqual({name: 10});
-        });
-
-        it('does not throw on missing or malformed storage', () => {
-            localStorage.setItem(widthsKey, 'not json');
-            expect(() => enforceMinColumnWidths('t1', columns)).not.toThrow();
+        it('passes empty strings when href, status, html and subtext are not configured, and the reserve flag through', () => {
+            const cell = hoverActionsCell({...config, subtext: undefined, reserve: true});
+            const inputs: any = cell.cellInputs!(context({id: 'a', name: 'edge-01'}));
+            expect([inputs.href, inputs.statusHtml, inputs.html, inputs.subtext, inputs.reserve]).toEqual(['', '', '', '', true]);
         });
     });
 });

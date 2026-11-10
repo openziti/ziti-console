@@ -66,6 +66,33 @@ describe('HoverActionsCellComponent', () => {
             expect((host.querySelector('.lt-hover-text') as HTMLElement).textContent?.trim()).toBe('er-01');
         });
 
+        it('renders the text as a link with the href when one is given, keeping the text and its title', () => {
+            render({href: '/identities/a1', text: 'id-01', buttons: []});
+            const link = host.querySelector('a.lt-hover-link') as HTMLAnchorElement;
+            expect(link).toBeTruthy();
+            expect(link.getAttribute('href')).toBe('/identities/a1');
+            expect(link.textContent?.trim()).toBe('id-01');
+            expect(link.getAttribute('title')).toBe('id-01');
+        });
+
+        it('stops a plain click from following the link, so the cell click navigates in-app instead', () => {
+            render({href: '/identities/a1', text: 'id-01', buttons: []});
+            const link = host.querySelector('a.lt-hover-link') as HTMLAnchorElement;
+            const event = new MouseEvent('click', {bubbles: true, cancelable: true, button: 0});
+            link.dispatchEvent(event);
+            expect(event.defaultPrevented).toBe(true);
+        });
+
+        it('lets a modified click through, so the browser opens the link in a new tab', () => {
+            render({href: '/identities/a1', text: 'id-01', buttons: []});
+            const link = host.querySelector('a.lt-hover-link') as HTMLAnchorElement;
+            const event = new MouseEvent('click', {bubbles: true, cancelable: true, button: 0, metaKey: true});
+            spyOn(event, 'stopPropagation');
+            link.dispatchEvent(event);
+            expect(event.defaultPrevented).toBe(false);
+            expect(event.stopPropagation).toHaveBeenCalled();
+        });
+
         it('renders html in place of the text, and a second subtext line', () => {
             render({html: '<b class="flag">LIVE</b>', subtext: 'det-1', buttons: []});
             expect(host.querySelector('.lt-hover-html .flag')?.textContent).toBe('LIVE');

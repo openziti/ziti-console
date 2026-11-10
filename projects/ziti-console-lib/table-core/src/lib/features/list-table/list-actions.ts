@@ -96,7 +96,7 @@ export function menuActionIcons(
 }
 
 /** How a page fills a column with hover actions. `text` is what the cell shows, such as the row's name. */
-export interface ListHoverActionsConfig<T> {
+export interface HoverActionsCellConfig<T> {
     /** The row menu the buttons follow. A button shows only where its menu item would. */
     menuItems: ReadonlyArray<ListActionMenuItem<T>>;
     /** The action buttons a row may show, before the menu rules filter them. Per row, so a button can follow the row's state. */
@@ -107,6 +107,10 @@ export interface ListHoverActionsConfig<T> {
     cellId: (row: T) => string;
     /** Runs an action for a row. When omitted, the action goes through the table's `emitAction`, like the row menu. */
     run?: (action: string, row: T) => void;
+    /** The detail-route URL for the text, so the name is a link. Omit to leave it plain text. */
+    href?: (row: T) => string;
+    /** Markup just before the text, such as status dots, kept out of the ellipsis. The page escapes the values in it. */
+    statusHtml?: (row: T) => string;
     /** Markup in place of the text, such as a status with flags. The page escapes the values in it. */
     html?: (row: T) => string;
     /** A second line under the text, such as an id. */
@@ -116,17 +120,17 @@ export interface ListHoverActionsConfig<T> {
 }
 
 /**
- * Returns `column` drawn as a text cut with an ellipsis, with the row's quick actions as icons over its right
- * end on hover. The buttons follow the row-menu rules of {@link listActionButtons}, so a list that moves its
- * actions here can drop its Actions column and turn off the row menu (`noMenu`). An action runs through the
- * config's `run`, or, by default, through the table's `emitAction` so the page's existing action handler fires.
+ * The `cell` and `cellInputs` for a column that shows its row actions as hover icons. Spread it into the column:
+ * `{ key: 'name', ..., ...hoverActionsCell({menuItems, text, cellId, buttons}), onCellClick, ... }`. The buttons
+ * follow the same row-menu rules as {@link listActionButtons}.
  */
-export function withHoverActions<T>(column: ListColumn<T>, config: ListHoverActionsConfig<T>): ListColumn<T> {
+export function hoverActionsCell<T>(config: HoverActionsCellConfig<T>): Pick<ListColumn<T>, 'cell' | 'cellInputs'> {
     return {
-        ...column,
         cell: HoverActionsCellComponent,
         cellInputs: (ctx: ListCellContext<T>) => ({
             text: config.text(ctx.row),
+            href: config.href?.(ctx.row) ?? '',
+            statusHtml: config.statusHtml?.(ctx.row) ?? '',
             subtext: config.subtext?.(ctx.row) ?? '',
             html: config.html?.(ctx.row) ?? '',
             reserve: config.reserve ?? false,
@@ -135,44 +139,4 @@ export function withHoverActions<T>(column: ListColumn<T>, config: ListHoverActi
             run: (action: string) => (config.run ? config.run(action, ctx.row) : ctx.emitAction(action, ctx.row)),
         }),
     };
-}
-
-/**
- * Raises each saved column width below its column's `minWidth` up to that minimum. The table restores a saved
- * width over the column's own and reads `minWidth` only as a drag floor, so an older, narrower saved width would
- * otherwise win and crush a column that hover actions just widened. The storage keys are the ones the table's
- * ListTableService writes.
- */
-export function enforceMinColumnWidths(tableId: string, columns: ReadonlyArray<ListColumn<any>>): void {
-    const mins = new Map(
-        columns.filter((column) => column.minWidth != null).map((column) => [column.key, column.minWidth as number])
-    );
-    if (!mins.size) {
-        return;
-    }
-    const raise = (key: string, width: unknown): unknown => {
-        const min = mins.get(key);
-        return typeof width === 'number' && min != null && width < min ? min : width;
-    };
-    rewriteStored(`lt_${tableId}_column_widths`, (widths) => {
-        if (widths && typeof widths === 'object' && !Array.isArray(widths)) {
-            Object.keys(widths).forEach((key) => (widths[key] = raise(key, widths[key])));
-        }
-        return widths;
-    });
-    rewriteStored(`lt_${tableId}_table_state`, (state) =>
-        Array.isArray(state) ? state.map((entry) => (entry?.width == null ? entry : {...entry, width: raise(entry.colId, entry.width)})) : state
-    );
-}
-
-/** Rewrites one stored JSON value. Storage can be missing, full or hold bad JSON, and none of that may break a page. */
-function rewriteStored(key: string, rewrite: (value: any) => any): void {
-    try {
-        const raw = localStorage.getItem(key);
-        if (raw) {
-            localStorage.setItem(key, JSON.stringify(rewrite(JSON.parse(raw))));
-        }
-    } catch {
-        // Nothing to fix, or nowhere to write it.
-    }
 }

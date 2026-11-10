@@ -41,7 +41,7 @@ import {Router} from "@angular/router";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {ListColumn} from "../../features/list-table/list-column";
-import {HoverActionsCellComponent, ListActionButton, listActionButtons, menuActionIcons} from "@openziti/ziti-console-lib/table-core";
+import {hoverActionsCell, ListActionButtonSpec, menuActionIcons} from "@openziti/ziti-console-lib/table-core";
 import {enrollmentTokenStatus} from "../../features/list-table/enrollment-status";
 import {OsInfoTooltipComponent} from "../../features/list-table/os-info-tooltip/os-info-tooltip.component";
 import {SdkInfoTooltipComponent} from "../../features/list-table/sdk-info-tooltip/sdk-info-tooltip.component";
@@ -98,16 +98,15 @@ export class IdentitiesPageService extends ListPageServiceClass {
         {name: 'Delete', action: 'delete', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M3.4 4.6h9.2M6.4 4.6V3.2h3.2v1.4M4.6 4.6 5 13h6l.4-8.4"/></svg>'},
     ];
 
-    /** Name-cell action icons for an identity row; the enrollment icon follows the row's token, Download
+    /** Name-cell action icon specs for an identity row; the enrollment icon follows the row's token, Download
      *  JWT while it is valid and Reissue Enrollment once it has expired. Delete reads as danger. */
-    private identityNameButtons(row: any): ListActionButton[] {
+    private identityNameSpecs(row: any): ListActionButtonSpec[] {
         const enroll = enrollmentTokenStatus(row) === 'expired' ? 'reissue-enrollment' : 'download-enrollment';
-        const specs = menuActionIcons(this.menuItems, [
+        return menuActionIcons(this.menuItems, [
             {action: 'update'},
             {action: enroll},
             {action: 'delete', danger: true},
         ]);
-        return listActionButtons(this.menuItems, specs, row);
     }
 
     override tableHeaderActions = [
@@ -454,12 +453,12 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 field: 'name',
                 label: 'Name',
                 filterType: 'TEXTINPUT',
-                cell: HoverActionsCellComponent,
-                cellInputs: (ctx) => ({
-                    text: ctx.row?.name || ctx.row?.id,
-                    cellId: `IdentityActions_${ctx.row?.id}`,
-                    run: (action: string) => ctx.emitAction(action, ctx.row),
-                    buttons: this.identityNameButtons(ctx.row),
+                ...hoverActionsCell({
+                    menuItems: this.menuItems,
+                    text: (row) => row?.name || row?.id,
+                    href: (row) => `./${this.basePath}/${row?.id}`,
+                    cellId: (row) => `IdentityActions_${row?.id}`,
+                    buttons: (row) => this.identityNameSpecs(row),
                 }),
                 onCellClick: (ctx) => {
                     if (this.hasSelectedText()) {

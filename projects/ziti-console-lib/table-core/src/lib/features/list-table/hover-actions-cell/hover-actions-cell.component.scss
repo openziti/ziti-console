@@ -43,6 +43,22 @@
   color: var(--placeholder, #9ca3af);
 }
 
+/* The name as a link: keeps the cell's text colour, underlines on hover, and takes keyboard focus. */
+.lt-hover-link {
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.lt-hover-link:hover {
+  text-decoration: underline;
+}
+
+.lt-hover-link:focus-visible {
+  outline: 2px solid var(--lt-link, var(--primary, #0027ab));
+  outline-offset: 1px;
+}
+
 .lt-hover-sub {
   color: var(--subText, #78859f);
   font-size: 0.75rem;

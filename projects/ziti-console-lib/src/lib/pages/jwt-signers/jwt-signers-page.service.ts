@@ -31,7 +31,7 @@ import {Service} from "../../models/service";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 import {Router} from "@angular/router";
 import {ListColumn} from "../../features/list-table/list-column";
-import {HoverActionsCellComponent, listActionButtons, menuActionIcons} from "@openziti/ziti-console-lib/table-core";
+import {hoverActionsCell, menuActionIcons} from "@openziti/ziti-console-lib/table-core";
 import {BooleanCellComponent} from "../../features/list-table/boolean-cell/boolean-cell.component";
 
 @Injectable({
@@ -176,12 +176,12 @@ export class JwtSignersPageService extends ListPageServiceClass {
                 field: 'name',
                 label: 'Name',
                 filterType: 'TEXTINPUT',
-                cell: HoverActionsCellComponent,
-                cellInputs: (ctx) => ({
-                    text: ctx.row?.name || ctx.row?.id,
-                    cellId: `JwtSignerActions_${ctx.row?.id}`,
-                    run: (action: string) => ctx.emitAction(action, ctx.row),
-                    buttons: listActionButtons(this.menuItems, this.nameActionButtons, ctx.row),
+                ...hoverActionsCell({
+                    menuItems: this.menuItems,
+                    text: (row) => row?.name || row?.id,
+                    href: (row) => `./${this.basePath}/${row?.id}`,
+                    cellId: (row) => `JwtSignerActions_${row?.id}`,
+                    buttons: () => this.nameActionButtons,
                 }),
                 onCellClick: openForm,
                 resizable: true,
