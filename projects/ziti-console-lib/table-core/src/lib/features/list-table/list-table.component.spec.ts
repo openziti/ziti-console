@@ -465,13 +465,23 @@ describe('ListTableComponent', () => {
             expect(component.hasOpenDetails(s1)).toBeTrue();
         });
 
-        it('treats an unavailable panel as not open', () => {
+        it('treats an unavailable panel as not open, and isDetailOpen agrees', () => {
             const opts = {detailPanels: [{key: 'apps', component: AppsPanel as any, available: (r: any) => r.id !== 1}]};
             init({columns: cols(), options: opts, rowData: [{id: 1}, {id: 2}]});
             component.toggleDetail(component.rowData[0], 'apps'); // id 1 -> unavailable
             expect(component.hasOpenDetails(component.rowData[0])).toBeFalse();
+            expect(component.isDetailOpen(component.rowData[0], 'apps')).toBeFalse(); // cell state matches render
             component.toggleDetail(component.rowData[1], 'apps'); // id 2 -> available
             expect(component.hasOpenDetails(component.rowData[1])).toBeTrue();
+            expect(component.isDetailOpen(component.rowData[1], 'apps')).toBeTrue();
+        });
+
+        it('keeps a panel open when its row pages out and back (server-fed pages)', () => {
+            init({columns: cols(), options: twoPanels(), rowData: [{id: 1}, {id: 2}]});
+            component.toggleDetail(component.rowData[0], 'apps');
+            component.rowData = [{id: 3}, {id: 4}]; // page 2: row 1 is not on this page
+            component.rowData = [{id: 1}, {id: 2}]; // back to page 1
+            expect(component.isDetailOpen(component.rowData[0], 'apps')).toBeTrue();
         });
 
         it('builds panel inputs from the parent row context', () => {
@@ -520,6 +530,49 @@ describe('ListTableComponent', () => {
             component.toggleAll();
             expect(component.allToggled).toBeTrue();
             expect(component.rowData.every((r) => r.selected)).toBeTrue();
+        });
+
+        it('keeps an in-table toggle across a refresh even if the host does not echo it back', () => {
+            init({columns: cols(), rowData: [{id: 1}, {id: 2}]});
+            component.selection = []; // controlled, nothing selected yet
+            component.toggleItem(component.flatRows[0]); // user ticks row 1 directly in the table
+            expect(component.rowData[0].selected).toBeTrue();
+            // a refresh arrives while the host's selection array is still [] (not round-tripped)
+            component.rowData = [{id: 1}, {id: 2}];
+            expect(component.rowData[0].selected).toBeTrue(); // the tick is not reverted
+        });
+
+        it('preserves off-page selections when ticking rows on another page (non-echoing host)', () => {
+            init({columns: cols(), rowData: [{id: 1}, {id: 2}]});
+            component.selection = []; // controlled, host does not round-trip selectionChanged back
+            component.toggleItem(component.flatRows[0]); // tick id 1 on page 1
+            component.rowData = [{id: 3}, {id: 4}]; // page 2 arrives
+            component.toggleItem(component.flatRows[0]); // tick id 3 on page 2
+            component.rowData = [{id: 1}, {id: 2}]; // page back
+            expect(component.rowData[0].selected).toBeTrue(); // id 1 is still selected
+            component.rowData = [{id: 3}, {id: 4}];
+            expect(component.rowData[0].selected).toBeTrue(); // id 3 is still selected
+        });
+
+        it('stamps lazily-loaded children from the controlled selection', fakeAsync(() => {
+            component.loadChildren = () => Promise.resolve([{id: 's1', name: 's1', leaf: true}]);
+            init({columns: cols(), options: {tree: true, selectChildren: true}, rowData: [{id: 'g1', name: 'g1'}]});
+            component.selection = ['s1']; // host pre-selects a child that is not loaded yet
+            const g1 = component.flatRows.find((r) => r.id === 'g1');
+            component.toggleNode(g1);
+            tick(); // flush the loader promise
+            const s1 = component.flatRows.find((r) => r.id === 's1');
+            expect(s1).toBeTruthy();
+            expect(s1.selected).toBeTrue();
+        }));
+
+        it('clears stamped marks when selection goes back to undefined (uncontrolled)', () => {
+            init({columns: cols(), rowData: [{id: 1}, {id: 2}]});
+            component.selection = [1, 2];
+            expect(component.rowData.every((r) => r.selected)).toBeTrue();
+            component.selection = undefined; // host drops controlled mode
+            expect(component.rowData.some((r) => r.selected)).toBeFalse();
+            expect(component.allToggled).toBeFalse();
         });
     });
 });

@@ -165,6 +165,10 @@ export interface ListTableToolbarOptions {
  * A full-width, host-rendered block a row can reveal under itself, toggled from a cell via
  * {@link ListCellContext.toggleDetail}. Distinct from tree children: panels are presentation
  * slots, not data rows, and several can be open on the same row at once.
+ *
+ * Open state is tracked per row by a stable key (the row's tree key in tree mode, otherwise its
+ * `id` then `name`), so a row that panels are used on needs a unique `id` or `name`; rows without
+ * one share state and cannot keep a panel open across a refresh.
  */
 export interface ListDetailPanel<T = any> {
     /** Stable id a cell references via `ctx.toggleDetail(key)` / `ctx.isDetailOpen(key)`. */
