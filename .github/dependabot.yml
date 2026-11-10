@@ -4,12 +4,37 @@ updates:
     directory: "/projects/ziti-console-lib"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 1
+    # Two version-update groups means up to two grouped PRs can be open at once,
+    # so the limit has to be at least two or the second group gets blocked. Five
+    # leaves headroom without risking a flood, since grouping collapses every
+    # update into these groups.
+    open-pull-requests-limit: 5
     groups:
+      # Angular and the packages it pins (TypeScript, RxJS, zone.js, the build
+      # tooling) have to move together or npm rejects the result as an
+      # incompatible peer dependency. Keeping them in their own group means a
+      # failed Angular bump no longer blocks every other update.
+      angular:
+        applies-to: version-updates
+        patterns:
+          - "@angular*"
+          - "@ngtools/*"
+          - "ng-packagr"
+          - "zone.js"
+          - "rxjs"
+          - "typescript"
+      # Everything that is not part of the Angular set, grouped into one PR.
       all-deps:
         applies-to: version-updates
         patterns:
           - "*"
+        exclude-patterns:
+          - "@angular*"
+          - "@ngtools/*"
+          - "ng-packagr"
+          - "zone.js"
+          - "rxjs"
+          - "typescript"
       all-security:
         applies-to: security-updates
         patterns:
@@ -19,12 +44,28 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 1
+    open-pull-requests-limit: 5
     groups:
+      angular:
+        applies-to: version-updates
+        patterns:
+          - "@angular*"
+          - "@ngtools/*"
+          - "ng-packagr"
+          - "zone.js"
+          - "rxjs"
+          - "typescript"
       all-deps:
         applies-to: version-updates
         patterns:
           - "*"
+        exclude-patterns:
+          - "@angular*"
+          - "@ngtools/*"
+          - "ng-packagr"
+          - "zone.js"
+          - "rxjs"
+          - "typescript"
       all-security:
         applies-to: security-updates
         patterns:
