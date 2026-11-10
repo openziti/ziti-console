@@ -10,6 +10,7 @@
     <button type="button" [class.active]="activeTab === 'card'" (click)="activeTab = 'card'">Contained (card)</button>
     <button type="button" [class.active]="activeTab === 'loading'" (click)="activeTab = 'loading'">Loading states</button>
     <button type="button" [class.active]="activeTab === 'empty'" (click)="activeTab = 'empty'">Empty states</button>
+    <button type="button" [class.active]="activeTab === 'detail'" (click)="activeTab = 'detail'">Detail panels</button>
   </div>
 
   @if (activeTab === 'flat') {
@@ -63,6 +64,29 @@
       [rowData]="loadRows"
       [isLoading]="loading"
       [skeletonRowCount]="8">
+    </lib-list-table>
+  } @else if (activeTab === 'detail') {
+    <p style="margin: 0 0 1rem; color: var(--groupText, #6b7280);">
+      A row reveals host-rendered detail blocks, each toggled from its own in-cell chip; both can be
+      open at once, and they work at any tree depth (expand a gateway, then open a sensor's panels).
+      Selection is host-controlled &mdash; "Clear" resets the select-all checkbox. The Status column
+      renders a custom legend in its header. Selected: {{ detailSelection.length }}.
+    </p>
+    <div class="demo-tabs" style="margin-bottom: 1rem;">
+      <button type="button" (click)="clearDetailSelection()">Clear selection</button>
+    </div>
+    <lib-list-table
+      class="lt-skin"
+      tableId="list-table-demo-detail"
+      [columns]="detailColumns"
+      [rowData]="detailRows"
+      [options]="{ tree: true, selectChildren: true, detailPanels: detailPanels }"
+      [childColumnsByLevel]="detailChildColumns"
+      [loadChildren]="loadChildren"
+      [selection]="detailSelection"
+      (selectionChanged)="onDetailSelectionChanged($event)"
+      (detailToggled)="onDetailToggled($event)"
+      treeVariant="flat">
     </lib-list-table>
   } @else {
     <p style="margin: 0 0 1rem; color: var(--groupText, #6b7280);">

@@ -15,7 +15,8 @@
 */
 
 import {Component} from '@angular/core';
-import {ListColumn, ListTableComponent} from 'ziti-console-lib/table-core';
+import {ListColumn, ListDetailPanel, ListTableComponent} from 'ziti-console-lib/table-core';
+import {DemoDetailPanelComponent, DemoLegendHeaderComponent, DemoToggleCellComponent} from './demo-detail-cells';
 
 type EmptyMode = 'empty' | 'no-results' | 'access-denied' | 'custom';
 
@@ -32,7 +33,7 @@ type EmptyMode = 'empty' | 'no-results' | 'access-denied' | 'custom';
     imports: [ListTableComponent],
 })
 export class AppComponent {
-    activeTab: 'flat' | 'card' | 'loading' | 'empty' = 'flat';
+    activeTab: 'flat' | 'card' | 'loading' | 'empty' | 'detail' = 'flat';
 
     // ---- empty-states demo ----
     emptyRows: any[] = [];
@@ -152,5 +153,68 @@ export class AppComponent {
 
     onSelectionChanged(rows: any[]): void {
         this.selectedCount = rows.length;
+    }
+
+    // ---- detail panels + controlled selection + custom header demo ----
+    private detailToggleCell = (ctx: any) => ({
+        appsOpen: ctx.isDetailOpen('apps'),
+        connOpen: ctx.isDetailOpen('connections'),
+        toggleApps: () => ctx.toggleDetail('apps'),
+        toggleConn: () => ctx.toggleDetail('connections'),
+    });
+
+    detailColumns: ListColumn[] = [
+        {key: 'gateway', label: 'Gateway', treeColumn: true, sortable: true},
+        {key: 'site', label: 'Site'},
+        {key: 'details', label: 'Details', cell: DemoToggleCellComponent, cellInputs: this.detailToggleCell},
+        {
+            key: 'status',
+            label: 'Status',
+            width: 220,
+            sortable: true,
+            // custom header content (a status legend) rendered beside the sort affordance
+            headerCell: DemoLegendHeaderComponent,
+            headerInputs: (col) => ({label: col.label}),
+        },
+    ];
+
+    // nested rows get their own toggle cell too, so a detail panel can open at any depth
+    detailChildColumns: ListColumn[][] = [
+        [],
+        [
+            {key: 'sensor', label: 'Sensor', treeColumn: true},
+            {key: 'type', label: 'Type'},
+            {key: 'details', label: 'Details', cell: DemoToggleCellComponent, cellInputs: this.detailToggleCell},
+        ],
+    ];
+
+    detailRows: any[] = JSON.parse(JSON.stringify(this.rows));
+
+    detailPanels: ListDetailPanel[] = [
+        {
+            key: 'apps',
+            component: DemoDetailPanelComponent,
+            inputs: (ctx) => ({title: 'Apps', parentId: ctx.row.gateway ?? ctx.row.sensor, items: ['web-app', 'db-service', 'cache']}),
+        },
+        {
+            key: 'connections',
+            component: DemoDetailPanelComponent,
+            inputs: (ctx) => ({title: 'Connections', parentId: ctx.row.gateway ?? ctx.row.sensor, items: ['tcp:443 -> edge-1', 'tcp:5432 -> db-2']}),
+        },
+    ];
+
+    /** Controlled selection: a reference-stable array the host owns, so "Clear" can reset the table. */
+    detailSelection: any[] = [];
+
+    onDetailToggled(e: {row: any; key: string; open: boolean}): void {
+        console.log('[demo] detailToggled', e.key, e.open, e.row.gateway ?? e.row.sensor);
+    }
+
+    onDetailSelectionChanged(rows: any[]): void {
+        this.detailSelection = [...rows]; // rebuild on the discrete event; stable between events
+    }
+
+    clearDetailSelection(): void {
+        this.detailSelection = [];
     }
 }

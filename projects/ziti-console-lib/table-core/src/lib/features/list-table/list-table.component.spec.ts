@@ -399,4 +399,127 @@ describe('ListTableComponent', () => {
             expect(component.allColumns.find((c) => c.key === 'os')!.sortDir).toBe('desc');
         });
     });
+
+    describe('detail panels', () => {
+        class AppsPanel {}
+        class ConnPanel {}
+        const twoPanels = () => ({
+            detailPanels: [
+                {key: 'apps', component: AppsPanel as any},
+                {key: 'connections', component: ConnPanel as any},
+            ],
+        });
+
+        it('toggles each panel independently, several open on one row at once', () => {
+            init({columns: cols(), options: twoPanels(), rowData: [{id: 1}, {id: 2}]});
+            const row = component.rowData[0];
+            expect(component.isDetailOpen(row, 'apps')).toBeFalse();
+
+            component.toggleDetail(row, 'apps');
+            component.toggleDetail(row, 'connections');
+            expect(component.isDetailOpen(row, 'apps')).toBeTrue();
+            expect(component.isDetailOpen(row, 'connections')).toBeTrue();
+
+            component.toggleDetail(row, 'apps');
+            expect(component.isDetailOpen(row, 'apps')).toBeFalse();
+            expect(component.isDetailOpen(row, 'connections')).toBeTrue(); // the other stays open
+        });
+
+        it('scopes open panels to their own row', () => {
+            init({columns: cols(), options: twoPanels(), rowData: [{id: 1}, {id: 2}]});
+            component.toggleDetail(component.rowData[0], 'apps');
+            expect(component.isDetailOpen(component.rowData[1], 'apps')).toBeFalse();
+        });
+
+        it('emits detailToggled on open and on close', () => {
+            init({columns: cols(), options: twoPanels(), rowData: [{id: 1}]});
+            const events: any[] = [];
+            component.detailToggled.subscribe((e) => events.push(e));
+            const row = component.rowData[0];
+            component.toggleDetail(row, 'apps');
+            component.toggleDetail(row, 'apps');
+            expect(events).toEqual([
+                {row, key: 'apps', open: true},
+                {row, key: 'apps', open: false},
+            ]);
+        });
+
+        it('keeps a panel open across a rowData refresh (new row object, same id)', () => {
+            init({columns: cols(), options: twoPanels(), rowData: [{id: 1}]});
+            component.toggleDetail(component.rowData[0], 'apps');
+            // a background refresh replaces the row object with a fresh one of the same id
+            component.rowData = [{id: 1}];
+            expect(component.isDetailOpen(component.rowData[0], 'apps')).toBeTrue();
+            expect(component.hasOpenDetails(component.rowData[0])).toBeTrue();
+        });
+
+        it('opens a panel on a nested row, keyed by its branch-unique tree key', () => {
+            const data = [{id: 'g1', name: 'g1', children: [{id: 's1', name: 's1', leaf: true}]}];
+            init({columns: cols(), options: {tree: true, ...twoPanels()}, rowData: data});
+            const g1 = component.flatRows.find((r) => r.id === 'g1');
+            component.toggleNode(g1);
+            const s1 = component.flatRows.find((r) => r.id === 's1');
+            expect(s1.__treeRowKey).toBeTruthy();
+            component.toggleDetail(s1, 'apps');
+            expect(component.isDetailOpen(s1, 'apps')).toBeTrue();
+            expect(component.hasOpenDetails(s1)).toBeTrue();
+        });
+
+        it('treats an unavailable panel as not open', () => {
+            const opts = {detailPanels: [{key: 'apps', component: AppsPanel as any, available: (r: any) => r.id !== 1}]};
+            init({columns: cols(), options: opts, rowData: [{id: 1}, {id: 2}]});
+            component.toggleDetail(component.rowData[0], 'apps'); // id 1 -> unavailable
+            expect(component.hasOpenDetails(component.rowData[0])).toBeFalse();
+            component.toggleDetail(component.rowData[1], 'apps'); // id 2 -> available
+            expect(component.hasOpenDetails(component.rowData[1])).toBeTrue();
+        });
+
+        it('builds panel inputs from the parent row context', () => {
+            const opts = {detailPanels: [{key: 'apps', component: AppsPanel as any, inputs: (ctx: any) => ({parentId: ctx.row.id})}]};
+            init({columns: cols(), options: opts, rowData: [{id: 7}]});
+            expect(component.detailInputs(opts.detailPanels[0] as any, component.rowData[0], 0)).toEqual({parentId: 7});
+        });
+    });
+
+    describe('controlled selection', () => {
+        it('derives row.selected and select-all from the selection input (row objects)', () => {
+            init({columns: cols(), rowData: [{id: 1}, {id: 2}, {id: 3}]});
+            component.selection = [{id: 1}, {id: 2}, {id: 3}];
+            expect(component.rowData.every((r) => r.selected)).toBeTrue();
+            expect(component.allToggled).toBeTrue();
+        });
+
+        it('accepts bare ids and leaves select-all off when only some are selected', () => {
+            init({columns: cols(), rowData: [{id: 1}, {id: 2}]});
+            component.selection = [1];
+            expect(component.rowData[0].selected).toBeTrue();
+            expect(component.rowData[1].selected).toBeFalse();
+            expect(component.allToggled).toBeFalse();
+            expect(component.someSelected).toBeTrue();
+        });
+
+        it('lets a host clear the selection and reset select-all', () => {
+            init({columns: cols(), rowData: [{id: 1}, {id: 2}]});
+            component.selection = [1, 2];
+            expect(component.allToggled).toBeTrue();
+            component.selection = []; // a page "Clear" button
+            expect(component.rowData.some((r) => r.selected)).toBeFalse();
+            expect(component.allToggled).toBeFalse();
+        });
+
+        it('re-stamps the selection across a rowData refresh', () => {
+            init({columns: cols(), rowData: [{id: 1}, {id: 2}]});
+            component.selection = [1];
+            component.rowData = [{id: 1}, {id: 2}]; // refreshed objects, same ids
+            expect(component.rowData[0].selected).toBeTrue();
+            expect(component.rowData[1].selected).toBeFalse();
+        });
+
+        it('stays uncontrolled (table-owned) when selection is never set', () => {
+            init({columns: cols(), rowData: [{id: 1}, {id: 2}]});
+            component.toggleAll();
+            expect(component.allToggled).toBeTrue();
+            expect(component.rowData.every((r) => r.selected)).toBeTrue();
+        });
+    });
 });
