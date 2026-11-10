@@ -29,7 +29,8 @@ export class SelectCellComponent {
             _.get(this.item, 'typeId') === 'Router' ||
             _.get(this.item, 'exclusiveTo') ||
             _.get(this.item, 'reserved') === true ||
-            _.get(this.item, 'isSystem') === true;
+            _.get(this.item, 'isSystem') === true ||
+            _.get(this.item, 'disableSelect') === true;
     }
 
     /** Host callback invoked with the row when a selectable row is toggled. */
@@ -44,7 +45,9 @@ export class SelectCellComponent {
 
     get tooltip(): string {
         let tooltip = '';
-        if (this.item?.isSystem) {
+        if (this.item?.disableSelect && this.item?.selectDisabledReason) {
+            tooltip = this.item.selectDisabledReason;
+        } else if (this.item?.isSystem) {
             tooltip = 'Deleting "system" entities is not allowed';
         } else if (this.item?.typeId === 'Router') {
             tooltip = 'Unable to delete "Router" Identities. Please delete the associated Router instead.';
