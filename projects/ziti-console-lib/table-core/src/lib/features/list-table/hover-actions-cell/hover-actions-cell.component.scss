@@ -1,0 +1,178 @@
+:host {
+  align-items: center;
+  display: flex;
+  min-width: 0;
+  position: relative;
+  width: 100%;
+}
+
+/* The text line, with the subtext below it. Both give way to an ellipsis before the icons when they show. */
+.lt-hover-value {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.lt-hover-line {
+  align-items: center;
+  display: flex;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+/* Leading status dots, such as a router's verified/online state. Kept out of the flow that the ellipsis cuts. */
+.lt-hover-status {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 0.25rem;
+}
+
+.lt-hover-text {
+  display: block;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lt-hover-text--muted {
+  color: var(--placeholder, #9ca3af);
+}
+
+/* The name as a link: keeps the cell's text colour, underlines on hover, and takes keyboard focus. */
+.lt-hover-link {
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.lt-hover-link:hover {
+  text-decoration: underline;
+}
+
+.lt-hover-link:focus-visible {
+  outline: 2px solid var(--lt-link, var(--primary, #0027ab));
+  outline-offset: 1px;
+}
+
+.lt-hover-sub {
+  color: var(--subText, #78859f);
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Out of the flow at rest, so the text has the full width, yet still reachable by Tab. On hover or focus
+   the icons join the flow, and the text shrinks to an ellipsis before them. */
+.lt-hover-actions {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 0.125rem;
+  opacity: 0;
+  padding-left: 0.875rem;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: opacity 0.12s;
+}
+
+:host-context(.lt-row:hover) .lt-hover-actions,
+:host(:focus-within) .lt-hover-actions {
+  opacity: 1;
+  pointer-events: auto;
+  position: static;
+  transform: none;
+}
+
+.lt-hover-action {
+  align-items: center;
+  background-color: var(--lt-control-bg, var(--background, #fff));
+  border: 1px solid color-mix(in srgb, var(--lt-cell-text, #000) 20%, transparent);
+  border-radius: var(--lt-radius, 0.375rem);
+  box-sizing: border-box;
+  color: var(--lt-icon, #658292);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 0.75rem;
+  height: 1.75rem;
+  justify-content: center;
+  min-width: 1.75rem;
+  padding: 0 0.25rem;
+}
+
+.lt-hover-action:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--lt-cell-text, #000) 8%, var(--lt-control-bg, var(--background, #fff)));
+  color: var(--lt-icon-active, var(--primary, #0027ab));
+}
+
+.lt-hover-action--danger:hover:not(:disabled) {
+  color: var(--lt-negative, #dc2626);
+}
+
+.lt-hover-action:focus-visible {
+  outline: 2px solid var(--lt-link, var(--primary, #0027ab));
+  outline-offset: 1px;
+}
+
+.lt-hover-action:disabled {
+  color: var(--placeholder, #9ca3af);
+  cursor: default;
+}
+
+/* An icon-font glyph or an injected inline SVG. The SVG carries its own size, so this just centres it. */
+.lt-hover-icon {
+  align-items: center;
+  display: inline-flex;
+  font-size: 0.875rem;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* A spinning ring while the action runs, so no icon font is needed for the busy state. */
+.lt-hover-spinner {
+  animation: lt-hover-spin 0.7s linear infinite;
+  border: 2px solid color-mix(in srgb, currentColor 35%, transparent);
+  border-radius: 50%;
+  border-top-color: currentColor;
+  box-sizing: border-box;
+  display: inline-block;
+  height: 0.875rem;
+  width: 0.875rem;
+}
+
+@keyframes lt-hover-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Reserved: the icons hold their slot right after the text at all times, so the text never reflows. */
+:host(.lt-hover--reserve) .lt-hover-value {
+  flex: 0 1 auto;
+}
+
+:host(.lt-hover--reserve) .lt-hover-actions {
+  opacity: 1;
+  padding-left: 0.25rem;
+  pointer-events: auto;
+  position: static;
+  transform: none;
+}
+
+/* No hover to reveal them, so the icons take their own space after the text. */
+@media (hover: none) {
+  .lt-hover-actions {
+    opacity: 1;
+    pointer-events: auto;
+    position: static;
+    transform: none;
+  }
+}

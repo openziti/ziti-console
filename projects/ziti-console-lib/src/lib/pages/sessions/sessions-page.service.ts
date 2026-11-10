@@ -32,6 +32,7 @@ import {TableCellNameComponent} from "../../features/data-table/cells/table-cell
 import {Router} from "@angular/router";
 import {ListColumn} from "../../features/list-table/list-column";
 import {NameCellComponent} from "../../features/list-table/name-cell/name-cell.component";
+import {hoverActionsCell, menuActionIcons} from "@openziti/ziti-console-lib/table-core";
 import {BooleanCellComponent} from "../../features/list-table/boolean-cell/boolean-cell.component";
 
 @Injectable({
@@ -59,6 +60,12 @@ export class SessionsPageService extends ListPageServiceClass {
         {name: 'View', action: 'update', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M1.5 8s2.3-4.5 6.5-4.5S14.5 8 14.5 8s-2.3 4.5-6.5 4.5S1.5 8 1.5 8zM8 6.2a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 0 0 0-3.6z"/></svg>'},
         {name: 'Delete', action: 'delete', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M3.4 4.6h9.2M6.4 4.6V3.2h3.2v1.4M4.6 4.6 5 13h6l.4-8.4"/></svg>'},
     ]
+
+    /** Primary-cell action icons, filtered per row by actionList; the menu keeps the full set. */
+    private readonly nameActionButtons = menuActionIcons(this.menuItems, [
+        {action: 'update'},
+        {action: 'delete', danger: true},
+    ]);
 
     override tableHeaderActions = [
         {name: 'Download All', action: 'download-all', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
@@ -225,11 +232,12 @@ export class SessionsPageService extends ListPageServiceClass {
                 field: 'id',
                 label: 'ID',
                 filterType: 'TEXTINPUT',
-                cell: NameCellComponent,
-                cellInputs: (ctx) => ({
-                    row: ctx.row,
-                    cellValue: ctx.value,
-                    cellConfig: {pathRoot: this.basePath},
+                ...hoverActionsCell({
+                    menuItems: this.menuItems,
+                    text: (row) => row?.id,
+                    href: (row) => `./${this.basePath}/${row?.id}`,
+                    cellId: (row) => `SessionActions_${row?.id}`,
+                    buttons: () => this.nameActionButtons,
                 }),
                 onCellClick: openForm,
                 resizable: true,

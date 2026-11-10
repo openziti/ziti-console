@@ -34,7 +34,7 @@ import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {firstValueFrom} from "rxjs";
 import {MatDialog} from "@angular/material/dialog";
 import {ListColumn} from "../../features/list-table/list-column";
-import {NameCellComponent} from "../../features/list-table/name-cell/name-cell.component";
+import {hoverActionsCell, menuActionIcons} from "@openziti/ziti-console-lib/table-core";
 import {BooleanCellComponent} from "../../features/list-table/boolean-cell/boolean-cell.component";
 
 @Injectable({
@@ -53,6 +53,13 @@ export class CertificateAuthoritiesPageService extends ListPageServiceClass {
         {name: 'Verify', action: 'verify', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11zM5.6 8.2 7.3 9.9l3.2-3.4"/></svg>'},
         {name: 'Delete', action: 'delete', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M3.4 4.6h9.2M6.4 4.6V3.2h3.2v1.4M4.6 4.6 5 13h6l.4-8.4"/></svg>'},
     ]
+
+    /** Primary-cell action icons, filtered per row by actionList; the menu keeps the full set. */
+    private readonly nameActionButtons = menuActionIcons(this.menuItems, [
+        {action: 'update'},
+        {action: 'verify'},
+        {action: 'delete', danger: true},
+    ]);
 
     override tableHeaderActions = [
         {name: 'Download All', action: 'download-all', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
@@ -236,11 +243,12 @@ export class CertificateAuthoritiesPageService extends ListPageServiceClass {
                 field: 'name',
                 label: 'Name',
                 filterType: 'TEXTINPUT',
-                cell: NameCellComponent,
-                cellInputs: (ctx) => ({
-                    row: ctx.row,
-                    cellValue: ctx.value,
-                    cellConfig: {pathRoot: this.basePath, showIdentityIcons: false},
+                ...hoverActionsCell({
+                    menuItems: this.menuItems,
+                    text: (row) => row?.name || row?.id,
+                    href: (row) => `./${this.basePath}/${row?.id}`,
+                    cellId: (row) => `CertificateAuthorityActions_${row?.id}`,
+                    buttons: () => this.nameActionButtons,
                 }),
                 onCellClick: (ctx) => {
                     if (this.hasSelectedText()) {

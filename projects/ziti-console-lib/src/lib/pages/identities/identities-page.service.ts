@@ -41,7 +41,8 @@ import {Router} from "@angular/router";
 import {TableCellNameComponent} from "../../features/data-table/cells/table-cell-name/table-cell-name.component";
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {ListColumn} from "../../features/list-table/list-column";
-import {NameCellComponent} from "../../features/list-table/name-cell/name-cell.component";
+import {hoverActionsCell, ListActionButtonSpec, menuActionIcons} from "@openziti/ziti-console-lib/table-core";
+import {enrollmentTokenStatus} from "../../features/list-table/enrollment-status";
 import {OsInfoTooltipComponent} from "../../features/list-table/os-info-tooltip/os-info-tooltip.component";
 import {SdkInfoTooltipComponent} from "../../features/list-table/sdk-info-tooltip/sdk-info-tooltip.component";
 import {BooleanCellComponent} from "../../features/list-table/boolean-cell/boolean-cell.component";
@@ -96,6 +97,17 @@ export class IdentitiesPageService extends ListPageServiceClass {
         {name: 'Override', action: 'override', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" d="M2.8 5h10.4M2.8 11h10.4"/><circle cx="6" cy="5" r="1.7" fill="currentColor"/><circle cx="10" cy="11" r="1.7" fill="currentColor"/></svg>'},
         {name: 'Delete', action: 'delete', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M3.4 4.6h9.2M6.4 4.6V3.2h3.2v1.4M4.6 4.6 5 13h6l.4-8.4"/></svg>'},
     ];
+
+    /** Name-cell action icon specs for an identity row; the enrollment icon follows the row's token, Download
+     *  JWT while it is valid and Reissue Enrollment once it has expired. Delete reads as danger. */
+    private identityNameSpecs(row: any): ListActionButtonSpec[] {
+        const enroll = enrollmentTokenStatus(row) === 'expired' ? 'reissue-enrollment' : 'download-enrollment';
+        return menuActionIcons(this.menuItems, [
+            {action: 'update'},
+            {action: enroll},
+            {action: 'delete', danger: true},
+        ]);
+    }
 
     override tableHeaderActions = [
         {name: 'Download All', action: 'download-all', icon: '<svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2.5v7M5 6.6 8 9.6l3-3M3.2 12.6h9.6"/></svg>'},
@@ -441,13 +453,12 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 field: 'name',
                 label: 'Name',
                 filterType: 'TEXTINPUT',
-                cell: NameCellComponent,
-                cellInputs: (ctx) => ({
-                    row: ctx.row,
-                    cellValue: ctx.value,
-                    // status now lives in its own Status column (skinned), so the
-                    // name cell no longer carries the connection dots
-                    cellConfig: {pathRoot: this.basePath, showIdentityIcons: false},
+                ...hoverActionsCell({
+                    menuItems: this.menuItems,
+                    text: (row) => row?.name || row?.id,
+                    href: (row) => `./${this.basePath}/${row?.id}`,
+                    cellId: (row) => `IdentityActions_${row?.id}`,
+                    buttons: (row) => this.identityNameSpecs(row),
                 }),
                 onCellClick: (ctx) => {
                     if (this.hasSelectedText()) {
