@@ -5,13 +5,19 @@
   id="TableHeaderContainer_{{ column.key }}"
 >
   <div class="lt-header-label">
-    <span
-      [title]="column.label || null"
-      class="lt-header-text"
-      [class.is-sorted]="sortDir === 'asc' || sortDir === 'desc'"
-      id="HeaderName_{{ column.key }}"
-      unselectable="on"
-    >{{ column.label }}</span>
+    @if (column.headerCell) {
+      <span class="lt-header-custom">
+        <ng-container *ngComponentOutlet="column.headerCell; inputs: headerInputs"></ng-container>
+      </span>
+    } @else {
+      <span
+        [title]="column.label || null"
+        class="lt-header-text"
+        [class.is-sorted]="sortDir === 'asc' || sortDir === 'desc'"
+        id="HeaderName_{{ column.key }}"
+        unselectable="on"
+      >{{ column.label }}</span>
+    }
     @if (enableSorting) {
       <span class="lt-sort" [class.asc]="sortDir === 'asc'" [class.desc]="sortDir === 'desc'">
         <svg viewBox="0 0 8 14" width="8" height="13" aria-hidden="true">

@@ -428,6 +428,18 @@
   }
 }
 
+// host-rendered detail block shown full width under a row. The host content owns its own
+// padding and grid, so the cell adds none. Not a .lt-row, so it stays off hover/zebra/selection.
+.lt-detail-row {
+  background-color: var(--lt-row-bg);
+}
+
+.lt-detail-cell {
+  padding: 0;
+  border-bottom: 1px solid var(--lt-border);
+  vertical-align: top;
+}
+
 .lt-cell {
   height: var(--lt-row-height);
   padding: 0 0.625rem 0 1.25rem;

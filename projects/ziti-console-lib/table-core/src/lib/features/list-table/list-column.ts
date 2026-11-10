@@ -28,6 +28,10 @@ export interface ListCellContext<T = any> {
     rowIndex: number;
     /** Emit a row action (flows to the table's `actionRequested` → the page handler). */
     emitAction: (action: string, item?: any) => void;
+    /** Open or close the named detail panel for this row (each key toggles independently). */
+    toggleDetail: (key: string) => void;
+    /** Whether the named detail panel is currently open for this row. */
+    isDetailOpen: (key: string) => boolean;
 }
 
 /**
@@ -84,6 +88,13 @@ export interface ListColumn<T = any> {
     onSort?: (colId: string, dir: ListSortDir) => void;
     /** Called on cell click (was ag-grid `onCellClicked`). */
     onCellClick?: (ctx: ListCellContext<T>) => void;
+
+    // ---- header content -------------------------------------------------------
+    /** Component rendered in the header cell beside the sort affordance, in place of a plain
+     *  label (for a legend popover, a responsive label, etc.). */
+    headerCell?: Type<any>;
+    /** Maps the column to the `headerCell` component's `@Input()`s. */
+    headerInputs?: (col: ListColumn<T>) => Record<string, unknown>;
 
     // ---- header filter plumbing (reuses the existing filter overlays) ---------
     filterType?: 'TEXTINPUT' | 'SELECT' | 'COMBO' | 'DATETIME' | 'ATTRIBUTE' | 'MULTISELECT' | 'CUSTOM' | string;
@@ -150,6 +161,26 @@ export interface ListTableToolbarOptions {
     pagination?: ToolbarControlOptions;
 }
 
+/**
+ * A full-width, host-rendered block a row can reveal under itself, toggled from a cell via
+ * {@link ListCellContext.toggleDetail}. Distinct from tree children: panels are presentation
+ * slots, not data rows, and several can be open on the same row at once.
+ *
+ * Open state is tracked per row by a stable key (the row's tree key in tree mode, otherwise its
+ * `id` then `name`), so a row that panels are used on needs a unique `id` or `name`; rows without
+ * one share state and cannot keep a panel open across a refresh.
+ */
+export interface ListDetailPanel<T = any> {
+    /** Stable id a cell references via `ctx.toggleDetail(key)` / `ctx.isDetailOpen(key)`. */
+    key: string;
+    /** Component rendered full-width under the row while this panel is open. */
+    component: Type<any>;
+    /** Maps the parent row's cell context to the panel component's `@Input()`s. */
+    inputs?: (ctx: ListCellContext<T>) => Record<string, unknown>;
+    /** Optional per-row suppress; when it returns false the panel cannot open. Defaults to available. */
+    available?: (row: T) => boolean;
+}
+
 /** Structural options for {@link ListTableComponent}. */
 export interface ListTableOptions {
     noSelect?: boolean;
@@ -160,4 +191,7 @@ export interface ListTableOptions {
     selectChildren?: boolean;
     fitColumns?: boolean;
     toolbar?: ListTableToolbarOptions;
+    /** Full-width detail slots a cell can toggle open under its row (several at once), distinct
+     *  from tree children. */
+    detailPanels?: ListDetailPanel[];
 }

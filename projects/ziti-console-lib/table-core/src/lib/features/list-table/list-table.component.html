@@ -288,6 +288,21 @@
         }
       </ng-template>
 
+      <!-- a row's open detail panels, full width, emitted right after the row at any tree level -->
+      <ng-template #detailRows let-row="row" let-i="i">
+        @if (hasOpenDetails(row)) {
+          @for (panel of detailPanels; track panel.key) {
+            @if (isDetailOpen(row, panel.key) && (panel.available?.(row) ?? true)) {
+              <tr class="lt-detail-row">
+                <td [attr.colspan]="treeSpanCount" class="lt-detail-cell">
+                  <ng-container *ngComponentOutlet="panel.component; inputs: detailInputs(panel, row, i)"></ng-container>
+                </td>
+              </tr>
+            }
+          }
+        }
+      </ng-template>
+
       <table class="lt-table">
         <colgroup>
           @if (!options.noSelect) { <col class="lt-col-select" /> }
@@ -436,6 +451,7 @@
                   </div>
                 </td>
               </tr>
+              <ng-container *ngTemplateOutlet="detailRows; context: {row: row, i: i}"></ng-container>
             } @else {
               <tr
                 class="lt-row"
@@ -487,6 +503,7 @@
                   </td>
                 }
               </tr>
+              <ng-container *ngTemplateOutlet="detailRows; context: {row: row, i: i}"></ng-container>
             }
           }
           }

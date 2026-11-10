@@ -37,7 +37,7 @@ import {CdkDragDrop, DragDropModule, moveItemInArray} from '@angular/cdk/drag-dr
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 
 import {DataTableFilterService, FilterObj} from '../data-table/data-table-filter.service';
-import {ListColumn, ListCellContext, ListLegacyCellShim, ListSortDir, ListTableOptions, ListTableToolbarOptions, TreeVariant} from './list-column';
+import {ListColumn, ListCellContext, ListDetailPanel, ListLegacyCellShim, ListSortDir, ListTableOptions, ListTableToolbarOptions, TreeVariant} from './list-column';
 import {ListTableService} from './list-table.service';
 import {ListMenuComponent, ListMenuItem} from './list-menu/list-menu.component';
 import {ClickOutsideDirective} from './click-outside.directive';
@@ -96,11 +96,43 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         }
         this.updateSkeleton();
         this.rebuildFlatRows();
+        // controlled selection: a refresh brings fresh row objects, so re-stamp `selected` from
+        // the host's selection and resync select-all
+        this.applyControlledSelection();
     }
     get rowData(): any[] {
         return this._rowData;
     }
     private _rowData: any[] = [];
+
+    /** Host-owned selection (rows or their ids). When set, the table derives each row's `selected`
+     *  and the select-all state from it, so a page control (e.g. "Clear") can reset the table.
+     *  Omit it to keep the default, table-owned selection. Keep the array reference-stable, rebuilt
+     *  on discrete events, to avoid re-stamping every change-detection pass. */
+    @Input() set selection(value: any[] | undefined) {
+        if (value === undefined) {
+            const wasControlled = this._selectionControlled;
+            this._selectionControlled = false;
+            this._selectedKeys = new Set();
+            // leaving controlled mode: clear the marks the host's selection stamped so none sticks
+            if (wasControlled) {
+                const walk = (rows: any[]) => (rows || []).forEach((r) => {
+                    r.selected = false;
+                    if (Array.isArray(r.children)) {
+                        walk(r.children);
+                    }
+                });
+                walk(this._rowData);
+                this.syncSelectAll();
+            }
+            return;
+        }
+        this._selectionControlled = true;
+        this._selectedKeys = new Set(value.map((entry) => this.selectionKeyOf(entry)));
+        this.applyControlledSelection();
+    }
+    private _selectionControlled = false;
+    private _selectedKeys = new Set<any>();
 
     @Input() set isLoading(value: boolean) {
         this._isLoading = value;
@@ -310,6 +342,8 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     }
 
     @Output() nodeToggled = new EventEmitter<{row: any; expanded: boolean}>();
+    /** A row's named detail panel opened or closed, so a host can lazy-fetch its content on open. */
+    @Output() detailToggled = new EventEmitter<{row: any; key: string; open: boolean}>();
     @Input() hasNext = false;
     @Input() hasPrev = false;
     @Input() startCount: any = '-';
@@ -463,6 +497,11 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     // (auto-refresh, paging, filter) keeps the tree open instead of collapsing it
     private _expandedKeys = new Set<string>();
     private _childrenCache = new Map<string, any[]>();
+    // open detail panels per row, keyed by a stable row id (not the row object) so a rowData
+    // refresh keeps panels open; value is the set of open panel keys for that row. Kept across
+    // refreshes and server-fed pages on purpose (so paging away and back keeps a panel open), so
+    // it is not pruned to the current page; it is bounded by the distinct row ids ever opened.
+    private _openDetails = new Map<string, Set<string>>();
     private _destroyed = false;
 
     constructor(
@@ -731,6 +770,8 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
             colId: col.key,
             rowIndex: i,
             emitAction: (action: string, item: any = row) => this.actionRequested.emit({action, item}),
+            toggleDetail: (key: string) => this.toggleDetail(row, key),
+            isDetailOpen: (key: string) => this.isDetailOpen(row, key),
         };
     }
 
@@ -776,6 +817,78 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
 
     tooltipInputs(col: ListColumn, row: any, i: number): Record<string, unknown> {
         return col.tooltipInputs ? col.tooltipInputs(this.cellContext(col, row, i)) : {row};
+    }
+
+    // ---------------------------------------------------------------- detail panels
+    /** The detail panels declared on the table, in the order the template renders them. */
+    get detailPanels(): ListDetailPanel[] {
+        return this.options?.detailPanels ?? [];
+    }
+
+    /** Stable key for a row's open-panel set. Uses the row's id (branch-unique in tree mode),
+     *  not the row object, so a background rowData refresh keeps its panels open. */
+    private detailRowKey(row: any): string {
+        return String(row?.__treeRowKey ?? row?.id ?? row?.name ?? '');
+    }
+
+    /** Whether `key` names a declared panel that is available for this row. A panel the host
+     *  suppressed via `available` can neither open nor report open, so the cell's toggle state
+     *  and what actually renders below never disagree. */
+    private detailAvailable(row: any, key: string): boolean {
+        const panel = this.detailPanels.find((p) => p.key === key);
+        return !!panel && (panel.available?.(row) ?? true);
+    }
+
+    /** Open or close one named panel for a row. Independent per key, so several can be open at once. */
+    toggleDetail(row: any, key: string): void {
+        const rowKey = this.detailRowKey(row);
+        if (!rowKey || !this.detailAvailable(row, key)) {
+            return;
+        }
+        let open = this._openDetails.get(rowKey);
+        if (!open) {
+            open = new Set<string>();
+            this._openDetails.set(rowKey, open);
+        }
+        let nowOpen: boolean;
+        if (open.has(key)) {
+            open.delete(key);
+            nowOpen = false;
+        } else {
+            open.add(key);
+            nowOpen = true;
+        }
+        if (!open.size) {
+            this._openDetails.delete(rowKey);
+        }
+        this.detailToggled.emit({row, key, open: nowOpen});
+    }
+
+    isDetailOpen(row: any, key: string): boolean {
+        if (!this.detailAvailable(row, key)) {
+            return false;
+        }
+        return this._openDetails.get(this.detailRowKey(row))?.has(key) ?? false;
+    }
+
+    /** True when the row has at least one open panel that is still available, so the template can
+     *  skip the inner `@for` for the common no-detail row. */
+    hasOpenDetails(row: any): boolean {
+        if (!this._openDetails.size) {
+            return false; // common case: no panels have ever been opened
+        }
+        const open = this._openDetails.get(this.detailRowKey(row));
+        if (!open?.size) {
+            return false;
+        }
+        return this.detailPanels.some((panel) => open.has(panel.key) && (panel.available?.(row) ?? true));
+    }
+
+    /** Builds the `@Input()`s for a panel from the parent row's cell context. Detail panels are
+     *  row-scoped, not column-scoped, so the context carries a neutral column (empty `colId`,
+     *  no `value`) rather than borrowing the first column's. */
+    detailInputs(panel: ListDetailPanel, row: any, i: number): Record<string, unknown> {
+        return panel.inputs ? panel.inputs(this.cellContext({key: ''} as ListColumn, row, i)) : {row};
     }
 
     // ---------------------------------------------------------------- hover tooltip
@@ -836,6 +949,9 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     toggleItem = (item: any): void => {
         item.selected = !item.selected;
         this.syncSelectAll();
+        // controlled mode: fold this click into the key set too, so the next rowData refresh
+        // re-stamps from the user's real choice rather than reverting to the stale host array
+        this.updateSelectedKey(item);
         this.actionRequested.emit({action: 'toggleItem', item});
         this.emitSelection();
     };
@@ -849,6 +965,7 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         const newState = !this.allToggled;
         this.allToggled = newState;
         this.selectableRows.forEach((row) => (row.selected = newState));
+        this.captureSelectedKeysForPage(newState); // keep controlled-mode key set in step with the toggle
         this.actionRequested.emit({action: 'toggleAll'});
         this.emitSelection();
     }
@@ -874,6 +991,64 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         };
         walk(this._rowData);
         this.selectionChanged.emit(out);
+    }
+
+    /** The id a selection entry is matched by: an id/name on a row object, or the entry itself (a bare id). */
+    private selectionKeyOf(entry: any): any {
+        if (entry && typeof entry === 'object') {
+            return entry.id ?? entry.name ?? entry;
+        }
+        return entry;
+    }
+
+    /** Controlled mode: stamp every row's `selected` from the host's selection (all depths), then
+     *  resync the select-all checkbox. No-op when the host has not provided `selection`. */
+    private applyControlledSelection(): void {
+        if (!this._selectionControlled) {
+            return;
+        }
+        const keys = this._selectedKeys;
+        const walk = (rows: any[]) => {
+            (rows || []).forEach((r) => {
+                r.selected = keys.has(this.selectionKeyOf(r));
+                if (Array.isArray(r.children)) {
+                    walk(r.children);
+                }
+            });
+        };
+        walk(this._rowData);
+        this.syncSelectAll();
+    }
+
+    /** Controlled mode: reflect one row's new `selected` state in the key set, adding or removing
+     *  just that row's key. Updated in place (not rebuilt from the page) so selections made on
+     *  other pages of a server-fed table survive. */
+    private updateSelectedKey(row: any): void {
+        if (!this._selectionControlled) {
+            return;
+        }
+        const key = this.selectionKeyOf(row);
+        if (row.selected) {
+            this._selectedKeys.add(key);
+        } else {
+            this._selectedKeys.delete(key);
+        }
+    }
+
+    /** Controlled mode: add or remove every row on the current page from the key set after a
+     *  select-all/none, leaving keys for rows on other pages untouched. */
+    private captureSelectedKeysForPage(selected: boolean): void {
+        if (!this._selectionControlled) {
+            return;
+        }
+        this.selectableRows.forEach((row) => {
+            const key = this.selectionKeyOf(row);
+            if (selected) {
+                this._selectedKeys.add(key);
+            } else {
+                this._selectedKeys.delete(key);
+            }
+        });
     }
 
     // ---------------------------------------------------------------- tree rows
@@ -1138,6 +1313,9 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         }
         this._expandedKeys.add(row.__treeRowKey);
         this.rebuildFlatRows();
+        // controlled mode: stamp the freshly-loaded children so any that the host's
+        // selection covers render checked right away, not only after the next refresh
+        this.applyControlledSelection();
         this.nodeToggled.emit({row, expanded: true});
     }
 

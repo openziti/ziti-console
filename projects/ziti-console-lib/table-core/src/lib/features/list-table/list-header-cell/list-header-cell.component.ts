@@ -36,6 +36,11 @@ export class ListHeaderCellComponent {
         return !!(this.column?.sortable || this.column?.enableSorting);
     }
 
+    /** `@Input()`s for a column's custom `headerCell`, defaulting to the column itself. */
+    get headerInputs(): Record<string, unknown> {
+        return this.column?.headerInputs ? this.column.headerInputs(this.column) : {column: this.column};
+    }
+
     sort(): void {
         if (!this.enableSorting) {
             return;
