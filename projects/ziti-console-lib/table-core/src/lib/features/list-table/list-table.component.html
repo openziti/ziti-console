@@ -63,6 +63,23 @@
         }
         <!-- Consumer-supplied toolbar controls (e.g. page-specific filters), rendered inline beside search. -->
         <ng-content select="[toolbar-filters]"></ng-content>
+        @if (toolbarControls.clearFilters.show && hasClearableFilters) {
+          <button
+            type="button"
+            class="lt-clear-filters"
+            [disabled]="toolbarControls.clearFilters.disabled"
+            (click)="clearTableFilters()"
+            id="ClearFiltersButton"
+          >
+            <svg class="lt-clear-filters-icon" viewBox="0 0 24 24" width="14" height="14"
+                 fill="none" stroke="currentColor" stroke-width="2.2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 6 6 18"/>
+              <path d="m6 6 12 12"/>
+            </svg>
+            <span>Clear filters</span>
+          </button>
+        }
       </div>
       <div class="lt-toolbar-right">
         <ng-template #refreshIcon>

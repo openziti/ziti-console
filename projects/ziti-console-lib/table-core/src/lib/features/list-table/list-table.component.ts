@@ -274,6 +274,7 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         return {
             search: resolve(toolbar?.search),
             filters: resolve(toolbar?.filters),
+            clearFilters: resolve(toolbar?.clearFilters),
             refresh: resolve(toolbar?.refresh),
             autoRefresh: resolve(toolbar?.autoRefresh),
             columns: resolve(toolbar?.columns),
@@ -367,6 +368,8 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     @Input() filterColumn = 'name';
 
     @Output() actionRequested = new EventEmitter<{action: string; item?: any}>();
+    /** The empty state's "clear filters" action, for a host that owns its own filters. */
+    @Output() clearFilters = new EventEmitter<void>();
     @Output() tableReady = new EventEmitter<any>();
     /** Full set of selected rows (all depths) whenever the selection changes. */
     @Output() selectionChanged = new EventEmitter<any[]>();
@@ -1789,11 +1792,18 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         this.actionRequested.emit({action: 'create'});
     }
 
+    /** True when there is something a Clear filters action would reset: search text, an
+     *  active built-in filter, or a host-owned filter the host flags via filterApplied. */
+    get hasClearableFilters(): boolean {
+        return !!this.searchString || this.activeFilters.length > 0 || this.filterApplied;
+    }
+
     /** Clear the search box and every active filter, which drives the host to refetch
      *  unfiltered (used by the "no results" empty state's Clear filters action). */
     clearTableFilters(): void {
         this.searchString = '';
         this.tableFilterService.clearAllFilters();
+        this.clearFilters.emit();
     }
 
     // ---------------------------------------------------------------- toolbar search + pagination
