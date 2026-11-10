@@ -38,13 +38,15 @@
     }
 
     &.disabled {
-      opacity: 0.3;
+      opacity: 0.75;
       cursor: not-allowed;
       transform: translate(-50%, -50%) !important;
+      border-color: var(--lt-icon);
+      background-color: var(--lt-border);
 
       &:hover {
-        border-color: var(--lt-border);
-        background-color: var(--lt-control-bg);
+        border-color: var(--lt-icon);
+        background-color: var(--lt-border);
       }
     }
   }
