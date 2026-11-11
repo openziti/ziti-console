@@ -154,6 +154,7 @@ export interface ToolbarControlOptions {
 export interface ListTableToolbarOptions {
     search?: ToolbarControlOptions;
     filters?: ToolbarControlOptions;
+    clearFilters?: ToolbarControlOptions;
     refresh?: ToolbarControlOptions;
     autoRefresh?: ToolbarControlOptions;
     columns?: ToolbarControlOptions;

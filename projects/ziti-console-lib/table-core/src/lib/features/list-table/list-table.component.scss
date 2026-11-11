@@ -824,6 +824,52 @@
   @extend %lt-toolbar-count;
 }
 
+// A reset action set apart from the neutral filter dropdowns, but not alarm-red: clearing
+// filters is reversible, so the danger colour stays quiet at rest (only the small x carries
+// it) and warms in on hover to confirm intent. Colour chains to the theme's danger token,
+// with a fallback so the standalone package still renders it without one.
+.lt-clear-filters {
+  --lt-clear-danger: var(--lt-danger, var(--red, #d92d20));
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: var(--lt-toolbar-height);
+  padding: 0 0.625rem;
+  margin-left: 0.125rem;
+  font-family: var(--lt-font);
+  font-size: var(--lt-control-font-size);
+  font-weight: var(--lt-control-font-weight);
+  color: var(--lt-cell-text);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--lt-clear-danger) 28%, var(--lt-border));
+  border-radius: var(--lt-radius);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+
+  // the only red at rest: a small cue that this removes something, not an alarm
+  .lt-clear-filters-icon {
+    display: block;
+    color: var(--lt-clear-danger);
+  }
+
+  &:hover {
+    color: var(--lt-clear-danger);
+    background: color-mix(in srgb, var(--lt-clear-danger) 9%, var(--lt-control-bg));
+    border-color: color-mix(in srgb, var(--lt-clear-danger) 50%, var(--lt-control-bg));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--lt-clear-danger);
+    outline-offset: 1px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
 // right-aligned dropdown holding the condensed filter controls
 .lt-filter-overflow {
   position: absolute;
