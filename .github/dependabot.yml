@@ -4,16 +4,37 @@ updates:
     directory: "/projects/ziti-console-lib"
     schedule:
       interval: "weekly"
-    # Two version-update groups means up to two grouped PRs can be open at once,
-    # so the limit has to be at least two or the second group gets blocked. Five
-    # leaves headroom without risking a flood, since grouping collapses every
-    # update into these groups.
+    # Two version-update groups can each open a PR, so the limit must be >= 2.
     open-pull-requests-limit: 5
+    # The library requires these Angular and UI packages at their current major, so
+    # a major bump breaks the install and stops Dependabot. Skip majors for them.
+    ignore:
+      - dependency-name: "@angular*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@ngtools/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "ng-packagr"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "ag-grid-community"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "ag-grid-angular"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "primeng"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "angular-oauth2-oidc"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "ngx-lottie"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "angularx-qrcode"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "zone.js"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "rxjs"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     groups:
-      # Angular and the packages it pins (TypeScript, RxJS, zone.js, the build
-      # tooling) have to move together or npm rejects the result as an
-      # incompatible peer dependency. Keeping them in their own group means a
-      # failed Angular bump no longer blocks every other update.
+      # Angular and the packages tied to it have to update together, or the install fails.
       angular:
         applies-to: version-updates
         patterns:
@@ -23,7 +44,6 @@ updates:
           - "zone.js"
           - "rxjs"
           - "typescript"
-      # Everything that is not part of the Angular set, grouped into one PR.
       all-deps:
         applies-to: version-updates
         patterns:
@@ -45,6 +65,32 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    # Same library requirement as above, so skip the major bumps here too.
+    ignore:
+      - dependency-name: "@angular*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@ngtools/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "ng-packagr"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "ag-grid-community"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "ag-grid-angular"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "primeng"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "angular-oauth2-oidc"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "ngx-lottie"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "angularx-qrcode"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "zone.js"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "rxjs"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     groups:
       angular:
         applies-to: version-updates
