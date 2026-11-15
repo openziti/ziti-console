@@ -262,8 +262,10 @@
   right: 0;
   top: 50%;
   transform: translateY(-50%);
-  width: 0.75rem;
-  // taller grab target than the visible mark, so the handle is easier to catch
+  // wider + taller grab target than the visible mark, so the handle is easier to catch for both
+  // a drag-resize and a double-click; the visible separator lines stay pinned to the right edge
+  // (via their own `right` offsets below), so only the invisible hitbox grows leftward
+  width: 1.25rem;
   height: 2.25rem;
   cursor: col-resize;
 
@@ -1317,6 +1319,9 @@
 
 .lt-chooser-footer {
   flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
   padding: 0.5rem 0.75rem;
   border-top: 1px solid var(--lt-border);
 }

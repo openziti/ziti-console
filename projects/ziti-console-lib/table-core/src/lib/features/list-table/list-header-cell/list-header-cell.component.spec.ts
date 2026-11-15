@@ -14,6 +14,8 @@
     limitations under the License.
 */
 
+import {fakeAsync, tick} from '@angular/core/testing';
+
 import {ListHeaderCellComponent} from './list-header-cell.component';
 import {ListColumn} from '../list-column';
 
@@ -73,5 +75,33 @@ describe('ListHeaderCellComponent', () => {
         component.sort();
         expect(component.sortDir).toBeUndefined();
         expect(emitted).toEqual([]);
+    });
+
+    describe('click-to-sort debounce (so a double-click can fit instead)', () => {
+        it('commits a lone click to a sort once the double-click window passes', fakeAsync(() => {
+            component.column = {key: 'name', label: 'Name', sortable: true};
+            component.onHeaderClick({detail: 1} as MouseEvent);
+            expect(component.sortDir).toBeUndefined(); // not yet - still inside the window
+            tick(230);
+            expect(component.sortDir).toBe('asc');
+        }));
+
+        it('cancels the pending sort when a second click lands (a double-click)', fakeAsync(() => {
+            const emitted: any[] = [];
+            component.column = {key: 'name', label: 'Name', sortable: true};
+            component.sortChanged.subscribe((e) => emitted.push(e));
+            component.onHeaderClick({detail: 1} as MouseEvent); // first press schedules the sort
+            component.onHeaderClick({detail: 2} as MouseEvent); // second press cancels it
+            tick(230);
+            expect(component.sortDir).toBeUndefined();
+            expect(emitted).toEqual([]);
+        }));
+
+        it('ignores clicks on a non-sortable column', fakeAsync(() => {
+            component.column = {key: 'name', label: 'Name'};
+            component.onHeaderClick({detail: 1} as MouseEvent);
+            tick(230);
+            expect(component.sortDir).toBeUndefined();
+        }));
     });
 });
