@@ -89,20 +89,22 @@
                   [title]="'LINK LISTENER'"
                   class="form-field-advanced"
                   >
-                  <div class="config-item disabled">
+                  <div
+                    class="config-item disabled link-listener-row"
+                    matTooltip="This value is reported by the router and can't be changed here."
+                    matTooltipPosition="above"
+                    >
                     <div class="config-container toggle-container">
-                      <div class="config-container-label">ENABLE LINK LISTENER</div>
+                      <div class="config-container-label">LINK LISTENER ENABLED</div>
                       <div
-                        [ngClass]="{ on: formData.linkListener, disabled: true }"
+                        [ngClass]="{ on: isLinkListenerActive, disabled: true }"
                         class="toggle"
                         role="switch"
                         aria-disabled="true"
-                        [attr.aria-checked]="!!formData.linkListener"
-                        matTooltip="This value is reported by the router and can't be changed here."
-                        matTooltipPosition="above"
+                        [attr.aria-checked]="isLinkListenerActive"
                         >
-                        <span [hidden]="!formData.linkListener" class="on-label">YES</span>
-                        <span [hidden]="formData.linkListener" class="off-label">NO</span>
+                        <span [hidden]="!isLinkListenerActive" class="on-label">YES</span>
+                        <span [hidden]="isLinkListenerActive" class="off-label">NO</span>
                         <div class="switch"></div>
                       </div>
                     </div>
