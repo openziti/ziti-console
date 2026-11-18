@@ -480,6 +480,9 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         startX: number;
         startWidth: number;
         persist: boolean;
+        // true once a drag actually changed the width; a click that never moves (including each
+        // click of a double-click) stays false and is not persisted
+        moved?: boolean;
         level?: number;
         // fitColumns: the one column that absorbs the opposite change so the table width stays constant.
         sink?: ListColumn;
@@ -1567,6 +1570,10 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         if (col.resizable === false) {
             return;
         }
+        // the second press of a double-click (detail === 2) is the autosize gesture, not a drag
+        if (event.detail >= 2) {
+            return;
+        }
         event.preventDefault();
         event.stopPropagation();
         const th = (event.target as HTMLElement)?.closest('th') as HTMLElement;
@@ -1582,6 +1589,10 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
      *  the grid reflows live because its template reads each column's width. */
     startChildResize(col: ListColumn, level: number, event: PointerEvent): void {
         if (col.resizable === false) {
+            return;
+        }
+        // the second press of a double-click (detail === 2) is the autosize gesture, not a drag
+        if (event.detail >= 2) {
             return;
         }
         event.preventDefault();
@@ -1601,6 +1612,9 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         }
         const r = this.resizing;
         const delta = event.clientX - r.startX;
+        if (delta !== 0) {
+            r.moved = true;
+        }
         if (r.sink && r.sinkStart != null) {
             // fitColumns: the column grows and the sink shrinks by the same amount, so the table stays
             // the same width and no other column (notably the tree column) shifts. The drag stops once
@@ -1681,7 +1695,9 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
         // columns frozen only to steady the drag go back to flexible, so the table keeps
         // filling the viewport and their temporary px widths are not persisted by saveState
         r?.frozen?.forEach((c) => (c.width = undefined));
-        if (r?.persist) {
+        // only a resize that actually moved writes state; a bare click on the grip (or either click
+        // of a double-click, which is the autosize gesture) leaves the width untouched and unsaved
+        if (r?.persist && r.moved) {
             if (r.level != null) {
                 const set = this._childColumnsByLevel?.[r.level];
                 if (set) {
@@ -1698,6 +1714,197 @@ export class ListTableComponent implements OnInit, AfterViewInit, AfterViewCheck
     private detachResizeListeners(): void {
         document.removeEventListener('pointermove', this.onPointerMove);
         document.removeEventListener('pointerup', this.onPointerUp);
+    }
+
+    // ---------------------------------------------------------------- autosize
+    /** Extra width added past the measured content so text does not sit flush against the
+     *  edge and a one-pixel rounding never re-clips the widest cell. */
+    private static readonly AUTOSIZE_PADDING = 4;
+
+    /** Snap a top-level column to the width of its widest rendered content (header + the
+     *  cells currently on screen), the way double-clicking a column border does in a
+     *  spreadsheet. Measures only the rows in the DOM right now, which for a paged table is
+     *  the current page - the same tradeoff other data grids make.
+     *
+     *  Wired to a double-click on the column's resize grip. Honors `resizable === false` and
+     *  the column's `minWidth`, persists the result like a drag-resize, and when `fitColumns`
+     *  is on trades the width against a sink column so the table stays its current width. */
+    autoSizeColumn(col: ListColumn, event?: Event): void {
+        if (col.resizable === false) {
+            return;
+        }
+        event?.preventDefault();
+        event?.stopPropagation();
+        const desired = this.measureColumnContentWidth(col);
+        if (desired == null) {
+            return;
+        }
+        const min = col.minWidth ?? 40;
+        const target = Math.max(min, desired);
+        if (this.options?.fitColumns) {
+            this.applyAutoSizeWithinFit(col, target, this.visibleColumns, (key) => this.measuredHeaderWidth(key));
+        } else {
+            col.width = target;
+        }
+        if (col.width != null) {
+            this.svc.saveWidth(col.key, col.width, this.allColumns);
+        }
+    }
+
+    /** Autosize a nested row's column (per-level child columns), the double-click counterpart of
+     *  {@link startChildResize}. Measures the cells across every nested grid at that depth, so one
+     *  double-click fits the column consistently for all expanded parents at that level. */
+    autoSizeChildColumn(col: ListColumn, level: number, event?: Event): void {
+        if (col.resizable === false) {
+            return;
+        }
+        event?.preventDefault();
+        event?.stopPropagation();
+        const desired = this.measureChildColumnContentWidth(col, level);
+        if (desired == null) {
+            return;
+        }
+        const target = Math.max(col.minWidth ?? 40, desired);
+        const columns = this.columnsForLevel(level);
+        if (this.options?.fitColumns) {
+            this.applyAutoSizeWithinFit(col, target, columns, (key) => this.firstMeasuredChildWidth(level, key));
+        } else {
+            col.width = target;
+        }
+        const set = this._childColumnsByLevel?.[level];
+        if (set && col.width != null) {
+            this.svc.saveChildWidth(level, col.key, col.width, set);
+        }
+    }
+
+    /** Autosize every resizable top-level column (the "fit columns to content" menu action).
+     *  Skipped when `fitColumns` is on, where growing every column at once has no slack to take
+     *  from - fit mode keeps the table pinned to the viewport, so per-column autosize is the
+     *  sensible unit there. */
+    autoSizeAllColumns(): void {
+        if (this.options?.fitColumns) {
+            return;
+        }
+        this.visibleColumns.forEach((col) => this.autoSizeColumn(col));
+    }
+
+    /** fitColumns: grow/shrink the column toward `target`, moving the opposite amount onto a sink
+     *  column so the table width is unchanged. The move is capped so the sink never drops below its
+     *  minimum, which means a column cannot always reach its full natural width in fit mode.
+     *  `measure(key)` supplies a column's current rendered width when it is still flexible. */
+    private applyAutoSizeWithinFit(
+        col: ListColumn,
+        target: number,
+        columns: ListColumn[],
+        measure: (key: string) => number
+    ): void {
+        const sink = this.pickSink(col, columns);
+        const current = col.width ?? measure(col.key);
+        if (!sink || !current) {
+            col.width = target;
+            return;
+        }
+        const sinkCurrent = sink.width ?? measure(sink.key);
+        const sinkMin = sink.minWidth ?? 60;
+        // the column can only grow by as much as the sink can give up before hitting its floor
+        const maxDelta = Math.max(0, sinkCurrent - sinkMin);
+        const minDelta = (col.minWidth ?? 40) - current; // negative when the column may shrink
+        const delta = Math.min(maxDelta, Math.max(minDelta, target - current));
+        col.width = Math.round(current + delta);
+        sink.width = Math.round(sinkCurrent - delta);
+    }
+
+    /** Widest natural content width (box, including cell padding) across the header cell and
+     *  every rendered body cell of a top-level column, or null when the column is not on screen. */
+    private measureColumnContentWidth(col: ListColumn): number | null {
+        const host = this.el?.nativeElement as HTMLElement | undefined;
+        if (!host) {
+            return null;
+        }
+        const colIndex = this.visibleColumns.indexOf(col);
+        if (colIndex < 0) {
+            return null;
+        }
+        const cells: HTMLElement[] = [];
+        const header = host.querySelector(`[id="Header_${col.key}"]`) as HTMLElement | null;
+        if (header) {
+            cells.push(header);
+        }
+        host.querySelectorAll('tr.lt-row').forEach((row) => {
+            // :scope > td.lt-cell keeps us on this row's own cells, not any nested grid inside a cell
+            const cell = row.querySelectorAll(':scope > td.lt-cell')[colIndex] as HTMLElement | undefined;
+            if (cell) {
+                cells.push(cell);
+            }
+        });
+        return this.measureNaturalWidth(host, cells);
+    }
+
+    /** Widest natural content width across the subhead and body cells of a nested column, gathered
+     *  from every `.lt-tree-grid` rendered at `level`, or null when none is on screen. The grids
+     *  share one column set per level, so sizing one applies to all of them (via `gridTemplate`). */
+    private measureChildColumnContentWidth(col: ListColumn, level: number): number | null {
+        const host = this.el?.nativeElement as HTMLElement | undefined;
+        if (!host) {
+            return null;
+        }
+        const colIndex = this.columnsForLevel(level).indexOf(col);
+        if (colIndex < 0) {
+            return null;
+        }
+        const cells: HTMLElement[] = [];
+        host.querySelectorAll(`.lt-tree-grid[data-level="${level}"]`).forEach((grid) => {
+            // skip the leading select cell; the remaining cells line up with columnsForLevel order
+            const cell = grid.querySelectorAll(
+                ':scope > .lt-tree-subhead-cell:not(.lt-tree-select-cell),' +
+                    ' :scope > .lt-tree-cellbox:not(.lt-tree-select-cell)'
+            )[colIndex] as HTMLElement | undefined;
+            if (cell) {
+                cells.push(cell);
+            }
+        });
+        return this.measureNaturalWidth(host, cells);
+    }
+
+    /** Rendered width of a nested column in the first grid at `level`, used as its current width
+     *  when it is still flexible (fitColumns compensation needs a concrete starting width). */
+    private firstMeasuredChildWidth(level: number, key: string): number {
+        const host = this.el?.nativeElement as HTMLElement | undefined;
+        const grid = host?.querySelector(`.lt-tree-grid[data-level="${level}"]`) as HTMLElement | null;
+        return this.measuredCellWidth(grid, level, key);
+    }
+
+    /** Measure the widest natural width among `cells` by cloning each into an offscreen probe with
+     *  its width clamp removed, so the clone lays out at its natural width. That is what lets
+     *  autosize SHRINK an over-wide column as well as grow a clipped one: the live cells are capped
+     *  by `table-layout: fixed`/CSS-grid tracks and `overflow: hidden`, so their on-screen width
+     *  cannot reveal content narrower than the column. Cloning keeps the Angular view-encapsulation
+     *  attributes, so component cells (chips, badges) measure correctly. Returns null for no cells. */
+    private measureNaturalWidth(host: HTMLElement, cells: HTMLElement[]): number | null {
+        if (cells.length === 0) {
+            return null;
+        }
+        const probe = document.createElement('div');
+        probe.style.cssText =
+            'position:absolute;left:-99999px;top:0;visibility:hidden;' +
+            'display:inline-block;white-space:nowrap;';
+        host.appendChild(probe);
+        let max = 0;
+        try {
+            cells.forEach((cell) => {
+                const clone = cell.cloneNode(true) as HTMLElement;
+                // the resize grip is absolutely positioned chrome, not content to size around
+                clone.querySelectorAll('.lt-resize').forEach((grip) => grip.remove());
+                clone.style.width = 'auto';
+                clone.style.maxWidth = 'none';
+                probe.innerHTML = '';
+                probe.appendChild(clone);
+                max = Math.max(max, probe.getBoundingClientRect().width);
+            });
+        } finally {
+            host.removeChild(probe);
+        }
+        return max > 0 ? Math.ceil(max + ListTableComponent.AUTOSIZE_PADDING) : null;
     }
 
     // ---------------------------------------------------------------- action menus

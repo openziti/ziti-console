@@ -1,5 +1,5 @@
 <div
-  (click)="sort()"
+  (click)="onHeaderClick($event)"
   [ngClass]="{ 'nf-can-sort': enableSorting }"
   class="lt-header-container"
   id="TableHeaderContainer_{{ column.key }}"

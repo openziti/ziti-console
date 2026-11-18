@@ -575,4 +575,107 @@ describe('ListTableComponent', () => {
             expect(component.allToggled).toBeFalse();
         });
     });
+
+    describe('autosize', () => {
+        const colObj = (key: string): ListColumn => component.allColumns.find((c) => c.key === key)!;
+
+        it('sizes a column to its measured content width and persists it', () => {
+            init({columns: cols(), rowData: [{id: 1}]});
+            spyOn(component as any, 'measureColumnContentWidth').and.returnValue(123);
+            const save = spyOn(component.svc, 'saveWidth');
+            component.autoSizeColumn(colObj('os'));
+            expect(colObj('os').width).toBe(123);
+            expect(save).toHaveBeenCalledWith('os', 123, component.allColumns);
+        });
+
+        it('clamps to the column minWidth when the content is narrower', () => {
+            const c = cols();
+            c[1].minWidth = 90;
+            init({columns: c, rowData: [{id: 1}]});
+            spyOn(component as any, 'measureColumnContentWidth').and.returnValue(30);
+            component.autoSizeColumn(colObj('os'));
+            expect(colObj('os').width).toBe(90);
+        });
+
+        it('does nothing for a non-resizable column', () => {
+            const c = cols();
+            c[1].resizable = false;
+            init({columns: c, rowData: [{id: 1}]});
+            const measure = spyOn(component as any, 'measureColumnContentWidth');
+            const save = spyOn(component.svc, 'saveWidth');
+            component.autoSizeColumn(colObj('os'));
+            expect(measure).not.toHaveBeenCalled();
+            expect(colObj('os').width).toBeUndefined();
+            expect(save).not.toHaveBeenCalled();
+        });
+
+        it('leaves the column unchanged when nothing is on screen to measure', () => {
+            init({columns: cols(), rowData: [{id: 1}]});
+            spyOn(component as any, 'measureColumnContentWidth').and.returnValue(null);
+            const save = spyOn(component.svc, 'saveWidth');
+            component.autoSizeColumn(colObj('os'));
+            expect(colObj('os').width).toBeUndefined();
+            expect(save).not.toHaveBeenCalled();
+        });
+
+        it('fitColumns: trades the delta with a sink column so total width is unchanged', () => {
+            init({columns: cols(), options: {fitColumns: true}, rowData: [{id: 1}]});
+            spyOn(component as any, 'measureColumnContentWidth').and.returnValue(100);
+            spyOn(component as any, 'measuredHeaderWidth').and.callFake((k: string) => (k === 'os' ? 200 : 150));
+            spyOn(component.svc, 'saveWidth');
+            component.autoSizeColumn(colObj('os'));
+            // os shrinks 200 -> 100; the sink ('type') grows by the same 100, so the table is unchanged
+            expect(colObj('os').width).toBe(100);
+            expect(colObj('type').width).toBe(250);
+        });
+
+        it('autoSizeAllColumns fits every visible column, but is a no-op in fitColumns mode', () => {
+            init({columns: cols(), rowData: [{id: 1}]});
+            const one = spyOn(component, 'autoSizeColumn');
+            component.autoSizeAllColumns();
+            expect(one).toHaveBeenCalledTimes(component.visibleColumns.length);
+
+            one.calls.reset();
+            component.options = {fitColumns: true};
+            component.autoSizeAllColumns();
+            expect(one).not.toHaveBeenCalled();
+        });
+
+        it('autoSizeChildColumn persists the width under its level', () => {
+            component.childColumnsByLevel = [[], [{key: 'sensor', label: 'Sensor'}, {key: 'reading', label: 'Reading'}]];
+            init({columns: cols(), options: {tree: true}, rowData: [{id: 'g1', name: 'g1'}]});
+            spyOn(component as any, 'measureChildColumnContentWidth').and.returnValue(88);
+            const save = spyOn(component.svc, 'saveChildWidth');
+            const child = component.columnsForLevel(1).find((c) => c.key === 'reading')!;
+            component.autoSizeChildColumn(child, 1);
+            expect(child.width).toBe(88);
+            expect(save).toHaveBeenCalledWith(1, 'reading', 88, (component as any)._childColumnsByLevel[1]);
+        });
+    });
+
+    describe('resize persistence', () => {
+        const colObj = (key: string): ListColumn => component.allColumns.find((c) => c.key === key)!;
+        const press = (detail: number): any => ({
+            detail,
+            clientX: 10,
+            preventDefault: () => {},
+            stopPropagation: () => {},
+            target: null,
+        });
+
+        it('does not persist a grip press that never moved', () => {
+            init({columns: cols(), rowData: [{id: 1}]});
+            const save = spyOn(component.svc, 'saveWidth');
+            component.startResize(colObj('os'), press(1));
+            (component as any).handleResizeEnd();
+            expect(save).not.toHaveBeenCalled();
+            expect(colObj('os').width).toBeUndefined();
+        });
+
+        it('ignores the second press of a double-click (detail 2) so autosize can handle it', () => {
+            init({columns: cols(), rowData: [{id: 1}]});
+            component.startResize(colObj('os'), press(2));
+            expect((component as any).resizing).toBeUndefined();
+        });
+    });
 });
