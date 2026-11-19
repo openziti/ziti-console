@@ -200,6 +200,16 @@
                 <button
                   type="button"
                   class="lt-chooser-reset"
+                  [disabled]="options?.fitColumns"
+                  title="Size every column to the width of its widest cell on this page"
+                  (click)="autoSizeAllColumns(); closeColumnChooser()"
+                  id="FitColumnsButton"
+                >
+                  Fit to content
+                </button>
+                <button
+                  type="button"
+                  class="lt-chooser-reset"
                   [disabled]="columnsAtDefault"
                   (click)="resetTableColumns()"
                   id="ResetColumnsButton"
@@ -349,6 +359,7 @@
                 [class.lt-th-tree]="isTreeCell(col)"
                 [ngClass]="col.cellClass"
                 id="Header_{{ col.key }}"
+                (dblclick)="autoSizeColumn(col, $event)"
               >
                 <lib-list-header-cell
                   [column]="col"
@@ -356,7 +367,12 @@
                   (sortChanged)="onHeaderSort($event)"
                 ></lib-list-header-cell>
                 @if (col.resizable !== false) {
-                  <span class="lt-resize" (pointerdown)="startResize(col, $event)"></span>
+                  <span
+                    class="lt-resize"
+                    title="Drag to resize, double-click to fit contents"
+                    (pointerdown)="startResize(col, $event)"
+                    (dblclick)="autoSizeColumn(col, $event)"
+                  ></span>
                 }
               </th>
             }
@@ -407,16 +423,27 @@
                   >
                     <div
                       class="lt-tree-grid"
+                      [attr.data-level]="row.__treeLevel"
                       [style.grid-template-columns]="gridTemplate(row.__treeLevel)"
                     >
                       @if (childSelectEnabled) {
                         <span class="lt-tree-subhead-cell lt-tree-select-cell"></span>
                       }
                       @for (col of columnsForLevel(row.__treeLevel); track col.key; let last = $last) {
-                        <span class="lt-tree-subhead-cell" [class.lt-tree-indent-col]="isTreeColumn(col, row.__treeLevel)" [ngClass]="cellClass(col)">
+                        <span
+                          class="lt-tree-subhead-cell"
+                          [class.lt-tree-indent-col]="isTreeColumn(col, row.__treeLevel)"
+                          [ngClass]="cellClass(col)"
+                          (dblclick)="autoSizeChildColumn(col, row.__treeLevel, $event)"
+                        >
                           {{ col.label }}
                           @if (!last && col.resizable !== false) {
-                            <span class="lt-resize lt-tree-resize" (pointerdown)="startChildResize(col, row.__treeLevel, $event)"></span>
+                            <span
+                              class="lt-resize lt-tree-resize"
+                              title="Drag to resize, double-click to fit contents"
+                              (pointerdown)="startChildResize(col, row.__treeLevel, $event)"
+                              (dblclick)="autoSizeChildColumn(col, row.__treeLevel, $event)"
+                            ></span>
                           }
                         </span>
                       }
@@ -441,6 +468,7 @@
                 >
                   <div
                     class="lt-tree-grid"
+                    [attr.data-level]="row.__treeLevel"
                     [style.grid-template-columns]="gridTemplate(row.__treeLevel)"
                   >
                     @if (childSelectEnabled) {

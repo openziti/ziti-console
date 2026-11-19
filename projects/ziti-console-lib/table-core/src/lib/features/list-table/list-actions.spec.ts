@@ -28,9 +28,13 @@ interface Row {
 /** A cell context over `row`, with a spy for the table's action channel. */
 function context(row: Row): ListCellContext<Row> & {emitAction: jasmine.Spy} {
     return {
-        row, value: undefined, colId: 'name', rowIndex: 0,
-        toggleDetail: () => undefined, isDetailOpen: () => false,
+        row,
+        value: undefined,
+        colId: 'name',
+        rowIndex: 0,
         emitAction: jasmine.createSpy('emitAction'),
+        toggleDetail: () => {},
+        isDetailOpen: () => false,
     };
 }
 
