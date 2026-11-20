@@ -25,6 +25,10 @@
     pointer-events: auto;
 }
 
+.link-listener-row.disabled {
+  pointer-events: auto;
+}
+
 ::ng-deep .admin-toggle {
   width: 100%;
   width: 35%;
