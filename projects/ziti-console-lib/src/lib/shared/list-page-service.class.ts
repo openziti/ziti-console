@@ -332,9 +332,11 @@ export abstract class ListPageServiceClass {
         if (!this.menuTemplateSnapshot || !this.tableHeaderActionsSnapshot) {
             return;
         }
-        this.menuItems = cloneDeep(this.menuTemplateSnapshot).filter((item: { action?: string }) =>
+        // Mutate in place so hover-action columns holding this array reference see the filtered items.
+        const allowedMenuItems = cloneDeep(this.menuTemplateSnapshot).filter((item: { action?: string }) =>
             perm.isMenuActionAllowed(this.resourceType, item.action),
         );
+        this.menuItems.splice(0, this.menuItems.length, ...allowedMenuItems);
         this.tableHeaderActions = cloneDeep(this.tableHeaderActionsSnapshot).filter((item: { action?: string }) =>
             perm.isTableHeaderActionAllowed(this.resourceType, item.action),
         );
