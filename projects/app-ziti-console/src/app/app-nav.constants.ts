@@ -67,6 +67,12 @@ export const ZITI_CONSOLE_NAVIGATOR = {
                     route: URLS.ZITI_POSTURE_CHECKS,
                     iconClass: 'icon-posturechecks',
                     selectedRoutes: [URLS.ZITI_POSTURE_CHECKS]
+                },
+                {
+                    label: 'Access Canvas',
+                    route: URLS.ACCESS_CANVAS,
+                    iconClass: 'icon-access-canvas',
+                    selectedRoutes: [URLS.ACCESS_CANVAS]
                 }
             ]
         },

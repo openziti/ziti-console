@@ -1,0 +1,112 @@
+// Free-form board: a pannable, zoomable world of group boxes, free cards and policy pills,
+// with policy lines drawn in an SVG layer underneath. Uses the --ac-* palette defined by
+// lib-access-canvas, so it follows the console's light/dark theme.
+
+lib-canvas-board {
+  position: relative;
+  display: block;
+  height: 100%;
+  min-height: 420px;
+  outline: none;
+  border: 1px solid var(--ac-line);
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: var(--ac-bg);
+  background-image: radial-gradient(color-mix(in srgb, var(--ac-ink) 14%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+  user-select: none;
+  -webkit-user-select: none;
+  &:focus-visible { box-shadow: 0 0 0 2px var(--ac-dial); }
+}
+
+.ab-viewport { position: absolute; inset: 0; cursor: grab; touch-action: none; outline: none;
+  &:active { cursor: grabbing; }
+}
+.ab-world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+
+.ab-edges { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none;
+  path { fill: none; stroke-width: 2; opacity: .75; transition: opacity .12s; }
+  .dial { stroke: var(--ac-dial); }
+  .bind { stroke: var(--ac-bind); }
+  .erp { stroke: var(--ac-router); }
+  .serp { stroke: var(--ac-router); }
+  .byname { stroke-dasharray: 2 5; }
+  .pending { stroke: var(--ac-pending); stroke-dasharray: 6 4; opacity: 1; }
+  .hot { stroke-width: 3; opacity: 1; }
+}
+lib-canvas-board:has(.ab-node.hot) .ab-edges path:not(.hot) { opacity: .15; }
+
+.ab-node { position: absolute; box-sizing: border-box; background: var(--ac-surface); color: var(--ac-ink);
+  border: 1px solid var(--ac-line); border-radius: 10px; box-shadow: var(--ac-shadow); cursor: default; font-size: 13px;
+  &.sel { outline: 2px solid var(--ac-dial); outline-offset: 1px; }
+  &.drop { outline: 2px dashed var(--ac-ok); outline-offset: 3px; background: var(--ac-ok-soft); }
+  &.dim { opacity: .35; }
+  &.hit { box-shadow: 0 0 0 3px color-mix(in srgb, var(--ac-pending) 45%, transparent), var(--ac-shadow); }
+  :focus-visible { outline: 2px solid var(--ac-dial); outline-offset: -2px; }
+}
+lib-canvas-board:has(.ab-node.hot) .ab-node:not(.hot) { opacity: .45; }
+
+.ab-kind { flex: none; display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; font-size: 11px; font-weight: 700;
+  background: var(--ac-dial-soft); color: var(--ac-dial); }
+[data-kind="service"] .ab-kind { background: color-mix(in srgb, var(--ac-bind) 14%, var(--ac-surface)); color: var(--ac-bind); }
+[data-kind="router"] .ab-kind { background: color-mix(in srgb, var(--ac-router) 14%, var(--ac-surface)); color: var(--ac-router); }
+
+.ab-group { overflow: hidden; border-top: 3px solid var(--ac-dial);
+  &[data-kind="service"] { border-top-color: var(--ac-bind); }
+  &[data-kind="router"] { border-top-color: var(--ac-router); }
+  &.pending { border-style: dashed; border-color: var(--ac-pending); }
+}
+.ab-gh { display: flex; align-items: center; gap: 8px; height: 35px; padding: 0 10px; cursor: move; border-bottom: 1px solid var(--ac-line); background: var(--ac-surface-2); }
+.ab-attr { font-weight: 600; font-family: var(--ac-mono); font-size: 12.5px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ab-count { font-size: 12px; color: var(--ac-muted); }
+.ab-prob { font-size: 11px; font-weight: 700; color: #fff; background: var(--ac-bad); border-radius: 9px; padding: 0 6px; line-height: 17px; }
+
+.ab-row { display: flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; cursor: grab; outline: none;
+  &:hover { background: var(--ac-surface-2); }
+  &.sel { background: var(--ac-dial-soft); box-shadow: inset 3px 0 0 var(--ac-dial); }
+  &.drop { background: var(--ac-ok-soft); box-shadow: inset 0 0 0 2px var(--ac-ok); }
+  &.pending { background: var(--ac-pending-soft); }
+  &.hit .ab-name { text-decoration: underline 2px var(--ac-pending); text-underline-offset: 3px; }
+}
+.ab-grip { color: var(--ac-muted); font-size: 11px; }
+.ab-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ab-dot { flex: none; width: 8px; height: 8px; border-radius: 50%;
+  &.bad { background: var(--ac-bad); }
+  &.pend { background: var(--ac-pending); }
+}
+.ab-empty-row { height: 26px; line-height: 26px; padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; color: var(--ac-muted); }
+.ab-more { display: block; width: 100%; height: 26px; border: 0; border-top: 1px solid var(--ac-line); background: none; color: var(--ac-dial); cursor: pointer; font-size: 12.5px; }
+
+.ab-free { display: flex; align-items: center; gap: 8px; padding: 0 10px; cursor: move; border-style: dashed;
+  &.pending { border-color: var(--ac-pending); }
+}
+
+.ab-hub { display: flex; align-items: center; gap: 6px; padding: 0 10px; border-radius: 13px; cursor: move; font-size: 12px; white-space: nowrap;
+  border: 1.5px solid var(--ac-dial); background: var(--ac-dial-soft);
+  &[data-family="bind"] { border-color: var(--ac-bind); background: color-mix(in srgb, var(--ac-bind) 12%, var(--ac-surface)); }
+  &[data-family="erp"], &[data-family="serp"] { border-color: var(--ac-router); background: color-mix(in srgb, var(--ac-router) 12%, var(--ac-surface)); }
+  &.pending { border-style: dashed; border-color: var(--ac-pending); background: var(--ac-pending-soft); }
+  &.bad { box-shadow: 0 0 0 2px var(--ac-bad-soft); }
+}
+.ab-fam { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--ac-muted); }
+.ab-pname { overflow: hidden; text-overflow: ellipsis; }
+.ab-all { font-size: 10.5px; border-radius: 6px; padding: 0 5px; background: var(--ac-surface); border: 1px solid var(--ac-line); }
+
+.ab-marquee { position: absolute; border: 1px dashed var(--ac-dial); background: color-mix(in srgb, var(--ac-dial) 10%, transparent); pointer-events: none; }
+.ab-ghost { position: absolute; pointer-events: none; padding: 4px 10px; border-radius: 8px; font-size: 13px; white-space: nowrap;
+  background: var(--ac-surface); border: 1px solid var(--ac-dial); box-shadow: var(--ac-shadow); }
+
+.ab-zoom { position: absolute; right: 12px; bottom: 12px; display: flex; align-items: center; gap: 2px; padding: 3px;
+  background: var(--ac-surface); border: 1px solid var(--ac-line); border-radius: 8px; box-shadow: var(--ac-shadow); font-size: 12px;
+  button { border: 0; background: none; min-width: 28px; height: 26px; border-radius: 6px; cursor: pointer; color: var(--ac-ink);
+    &:hover { background: var(--ac-surface-2); } }
+  span { min-width: 42px; text-align: center; color: var(--ac-muted); }
+}
+
+.ab-menu-catch { position: absolute; inset: 0; z-index: 5; }
+.ab-menu { position: absolute; z-index: 6; min-width: 210px; padding: 5px; display: grid;
+  background: var(--ac-surface); border: 1px solid var(--ac-line); border-radius: 9px; box-shadow: 0 8px 28px rgb(0 0 0 / .18);
+  button { display: flex; justify-content: space-between; gap: 18px; text-align: left; border: 0; background: none; padding: 7px 10px; border-radius: 6px; cursor: pointer; font: inherit; font-size: 13px; color: var(--ac-ink);
+    &:hover, &:focus-visible { background: var(--ac-dial-soft); outline: none; } }
+  kbd { font-family: var(--ac-mono); font-size: 11px; color: var(--ac-muted); }
+}

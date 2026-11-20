@@ -165,3 +165,6 @@ export * from './lib/ZAC_VERSION';
 export * from './lib/features/visualizer/visualizer-service.class';
 export * from './lib/features/visualizer/identity-service-path/identity-service-path.component';
 export * from './lib/features/visualizer/network-visualizer/network-visualizer.component';
+export * from './lib/features/access-canvas/access-canvas.component';
+export * from './lib/features/access-canvas/access-canvas.service';
+export * from './lib/features/access-canvas/access-canvas.logic';

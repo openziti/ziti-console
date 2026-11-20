@@ -2743,6 +2743,18 @@ p-calendar {
   content: '\e968';
 }
 
+// Access Canvas: identity nodes → policy box → service, drawn as a mask so it takes the text colour.
+.icon-access-canvas:before {
+  content: '';
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='4' cy='6' r='2.2'/%3E%3Ccircle cx='4' cy='18' r='2.2'/%3E%3Crect x='9.6' y='9.6' width='4.8' height='4.8' rx='1.2'/%3E%3Ccircle cx='20' cy='12' r='2.4'/%3E%3Cpath d='M6.2 6c2.6 0 2.4 6 3.4 6M6.2 18c2.6 0 2.4-6 3.4-6M14.4 12h3.2'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='4' cy='6' r='2.2'/%3E%3Ccircle cx='4' cy='18' r='2.2'/%3E%3Crect x='9.6' y='9.6' width='4.8' height='4.8' rx='1.2'/%3E%3Ccircle cx='20' cy='12' r='2.4'/%3E%3Cpath d='M6.2 6c2.6 0 2.4 6 3.4 6M6.2 18c2.6 0 2.4-6 3.4-6M14.4 12h3.2'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
 .icon-close:before {
   content: "\e905";
 }

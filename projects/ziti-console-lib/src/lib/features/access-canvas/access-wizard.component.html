@@ -1,0 +1,176 @@
+<div class="ac-backdrop" (click)="closed.emit()"></div>
+<div class="ac-dialog ac-dialog-wide ac-wiz" role="dialog" aria-modal="true" aria-labelledby="ac-wiz-title" (keydown.escape)="closed.emit()">
+  <div class="ac-dialog-h">
+    <h2 id="ac-wiz-title">Set up a service</h2>
+    <button type="button" class="ac-icon-btn" (click)="closed.emit()" aria-label="Close">✕</button>
+  </div>
+
+  <ol class="ac-wiz-steps" aria-label="Steps">
+    @for (s of steps; track $index) {
+      <li [class.on]="step === $index" [class.done]="step > $index">
+        <button type="button" (click)="goTo($index)" [attr.aria-current]="step === $index ? 'step' : null">
+          <span class="ac-wiz-n">{{ step > $index ? '✓' : $index + 1 }}</span>{{ s }}</button>
+      </li>
+    }
+  </ol>
+
+  <div class="ac-wiz-body">
+    <!-- 1. Service -->
+    @if (step === 0) {
+      <p class="ac-lede">What do people need to reach? Pick the closest kind; you can change any name or port.</p>
+      <div class="ac-wiz-templates" role="radiogroup" aria-label="Kind of service">
+        @for (g of templateGroups; track g) {
+          <div class="ac-wiz-tgroup">
+            <div class="ac-wiz-glabel">{{ g }}</div>
+            @for (t of templatesIn(g); track t.id) {
+              <button type="button" role="radio" class="ac-wiz-tpl" [class.on]="w.templateId === t.id" [attr.aria-checked]="w.templateId === t.id" (click)="pickTemplate(t.id)">
+                <span>{{ t.label }}</span><span class="ac-small">{{ t.id === 'custom' ? 'TCP' : 'port ' + t.port }}</span></button>
+            }
+          </div>
+        }
+      </div>
+      @if (template.note) { <p class="ac-small">{{ template.note }}</p> }
+      <div class="ac-wiz-grid">
+        <label class="ac-field">System or server name
+          <input [(ngModel)]="w.system" (ngModelChange)="onSystem()" placeholder="e.g. loft-50, billing, crm-prod" autocomplete="off">
+          <span class="ac-hint">Names below are built from this, e.g. {{ w.system ? w.serviceName : 'crm-' + template.slug }}.</span>
+          @if (errorFor('system')) { <span class="ac-err">{{ errorFor('system') }}</span> }
+        </label>
+        <label class="ac-field">Service name
+          <input [(ngModel)]="w.serviceName" (ngModelChange)="onServiceName()" (blur)="clean('serviceName')" autocomplete="off">
+          @if (errorFor('serviceName')) { <span class="ac-err">{{ errorFor('serviceName') }}</span> }
+        </label>
+        <label class="ac-field">Users connect to (address)
+          <input [(ngModel)]="w.interceptHost" (ngModelChange)="touch('interceptHost')" autocomplete="off">
+          <span class="ac-hint">A name that only exists on Ziti, such as {{ w.interceptHost || 'crm.ziti' }}, or the server's usual hostname.</span>
+          @if (errorFor('interceptHost')) { <span class="ac-err">{{ errorFor('interceptHost') }}</span> }
+        </label>
+        <label class="ac-field">Port
+          <input type="number" min="1" max="65535" [(ngModel)]="w.interceptPort" (ngModelChange)="touch('interceptPort')">
+          @if (errorFor('interceptPort')) { <span class="ac-err">{{ errorFor('interceptPort') }}</span> }
+        </label>
+      </div>
+    }
+
+    <!-- 2. Server -->
+    @if (step === 1) {
+      <p class="ac-lede">An identity on (or next to) the server receives the traffic and passes it to the real service. It runs a tunneler such as ziti-edge-tunnel.</p>
+      <div class="ac-seg" role="radiogroup" aria-label="Hosting identity">
+        <button type="button" role="radio" class="ac-chipbtn" [class.on]="w.hostMode === 'new'" [attr.aria-checked]="w.hostMode === 'new'" (click)="setHostMode('new')">New identity</button>
+        <button type="button" role="radio" class="ac-chipbtn" [class.on]="w.hostMode === 'existing'" [attr.aria-checked]="w.hostMode === 'existing'" (click)="setHostMode('existing')">Existing identity</button>
+      </div>
+      <div class="ac-wiz-grid">
+        @if (w.hostMode === 'new') {
+          <label class="ac-field">Identity name
+            <input [(ngModel)]="w.hostName" (ngModelChange)="touch('hostName')" (blur)="clean('hostName')" autocomplete="off">
+            <span class="ac-hint">Usually the machine's name. You'll enroll it on that machine.</span>
+            @if (errorFor('hostName')) { <span class="ac-err">{{ errorFor('hostName') }}</span> }
+          </label>
+        } @else {
+          <label class="ac-field">Identity
+            <select [(ngModel)]="w.hostId">
+              <option value="">Choose…</option>
+              @for (i of people; track i.id) { <option [value]="i.id">{{ i.name }}{{ i.attrs.length ? '  (#' + i.attrs.join(', #') + ')' : '' }}{{ i.enrolled ? '' : '  · not enrolled' }}</option> }
+            </select>
+            @if (errorFor('hostId')) { <span class="ac-err">{{ errorFor('hostId') }}</span> }
+          </label>
+        }
+        <label class="ac-field">Role attribute for hosts
+          <input [(ngModel)]="w.hostsAttr" (ngModelChange)="touch('hostsAttr')" (blur)="clean('hostsAttr')" autocomplete="off">
+          <span class="ac-hint">The Bind policy selects hosts by this, so you can add a second server later just by giving it #{{ w.hostsAttr }}.</span>
+          @if (errorFor('hostsAttr')) { <span class="ac-err">{{ errorFor('hostsAttr') }}</span> }
+        </label>
+        <label class="ac-field">Server address (from the hosting identity)
+          <input [(ngModel)]="w.hostAddress" (ngModelChange)="touch('hostAddress')" autocomplete="off">
+          <span class="ac-hint">127.0.0.1 when the tunneler runs on the server itself; otherwise the server's address on that network, e.g. 10.0.0.25.</span>
+          @if (errorFor('hostAddress')) { <span class="ac-err">{{ errorFor('hostAddress') }}</span> }
+        </label>
+        <label class="ac-field">Server port
+          <input type="number" min="1" max="65535" [(ngModel)]="w.hostPort" (ngModelChange)="touch('hostPort')">
+          @if (errorFor('hostPort')) { <span class="ac-err">{{ errorFor('hostPort') }}</span> }
+        </label>
+      </div>
+    }
+
+    <!-- 3. Users -->
+    @if (step === 2) {
+      <p class="ac-lede">Who may use {{ w.serviceName }}? Access is granted to a group (a role attribute), so adding someone later is just giving them the attribute.</p>
+      <div class="ac-field">User group
+        <div class="ac-wiz-groups" role="radiogroup" aria-label="User group">
+          @for (g of userGroups; track g.attr) {
+            <button type="button" role="radio" class="ac-chipbtn" [class.on]="w.usersAttr === g.attr" [attr.aria-checked]="w.usersAttr === g.attr" (click)="w.usersAttr = g.attr; touch('usersAttr')">
+              {{ g.label }}@if (g.count) { <span class="ac-small">{{ g.count }}</span> }@if (isSuggested(g.attr)) { <span class="ac-wiz-sug">suggested</span> }</button>
+          }
+        </div>
+      </div>
+      <div class="ac-wiz-grid">
+        <label class="ac-field">Role attribute
+          <input [(ngModel)]="w.usersAttr" (ngModelChange)="touch('usersAttr')" (blur)="clean('usersAttr')" autocomplete="off">
+          <span class="ac-hint">Pick a group above or type your own, e.g. ssh-users.</span>
+          @if (errorFor('usersAttr')) { <span class="ac-err">{{ errorFor('usersAttr') }}</span> }
+        </label>
+      </div>
+      <div class="ac-field">Who will use it
+        <div class="ac-seg" role="radiogroup" aria-label="Users">
+          <button type="button" role="radio" class="ac-chipbtn" [class.on]="w.userMode === 'new'" [attr.aria-checked]="w.userMode === 'new'" (click)="setUserMode('new')">New user device</button>
+          <button type="button" role="radio" class="ac-chipbtn" [class.on]="w.userMode === 'existing'" [attr.aria-checked]="w.userMode === 'existing'" (click)="setUserMode('existing')">Existing identities</button>
+        </div>
+      </div>
+      @if (w.userMode === 'new') {
+        <div class="ac-wiz-grid">
+          <label class="ac-field">Device identity name
+            <input [(ngModel)]="w.newUserName" (blur)="clean('newUserName')" placeholder="e.g. jdoe-laptop" autocomplete="off">
+            <span class="ac-hint">One identity per device, usually &lt;person&gt;-&lt;device&gt;. It gets #{{ w.usersAttr }}, and you enroll it on that device with Ziti Desktop Edge.</span>
+            @if (errorFor('newUserName')) { <span class="ac-err">{{ errorFor('newUserName') }}</span> }
+          </label>
+        </div>
+      } @else {
+        @if (usersInGroup().length) {
+          <p class="ac-small">Already in #{{ w.usersAttr }}: {{ usersInGroupNames }}. Pick more to add them.</p>
+        }
+        <div class="ac-wiz-people" role="group" aria-label="Identities to add">
+          @for (i of people; track i.id) {
+            @if (!i.attrs.includes(w.usersAttr) && !(w.hostMode === 'existing' && w.hostId === i.id)) {
+              <button type="button" class="ac-attropt" [class.on]="w.userIds.includes(i.id)" [attr.aria-pressed]="w.userIds.includes(i.id)" (click)="toggleUser(i.id)">
+                <span class="ac-check" aria-hidden="true">{{ w.userIds.includes(i.id) ? '✓' : '' }}</span>
+                <span>{{ i.name }}</span><span class="ac-small">{{ i.attrs.length ? '#' + i.attrs.join(' #') : '' }}</span></button>
+            }
+          }
+        </div>
+        @if (errorFor('userIds')) { <span class="ac-err">{{ errorFor('userIds') }}</span> }
+      }
+    }
+
+    <!-- 4. Review -->
+    @if (step === 3 && result) {
+      <p class="ac-lede"><b>{{ result.summary }}</b> These are added to Pending changes; nothing is sent until you apply.</p>
+      <div class="ac-wiz-count">
+        <span><b>{{ result.created.length }}</b> new {{ result.created.length === 1 ? 'identity' : 'identities' }}@if (result.created.length) {: {{ result.created.join(', ') }}}</span>
+        @if (result.updated.length) { <span><b>{{ result.updated.length }}</b> existing updated: {{ result.updated.join(', ') }}</span> }
+      </div>
+      <div class="ac-ptable-wrap">
+        <table class="ac-ptable">
+          <thead><tr><th scope="col"><span>Creates</span></th><th scope="col"><span>Name</span></th><th scope="col"><span>Details</span></th></tr></thead>
+          <tbody>
+            @for (it of result.items; track $index) {
+              <tr><td>{{ it.what }}@if (it.existing) { <span class="ac-small"> (existing, updated)</span> }</td>
+                <td class="ac-pname-cell"><code>{{ it.name }}</code></td><td class="ac-small">{{ it.detail }}</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="ac-wiz-next">
+        <b>After you apply</b>
+        <ol>@for (n of result.next; track $index) { <li>{{ n }}</li> }</ol>
+      </div>
+    }
+  </div>
+
+  <div class="ac-btns ac-wiz-foot">
+    @if (step > 0) { <button type="button" class="ac-btn" (click)="back()">Back</button> }
+    <span class="ac-grow"></span>
+    <button type="button" class="ac-btn" (click)="closed.emit()">Cancel</button>
+    @if (step < 3) { <button type="button" class="ac-btn primary" (click)="next()">Next</button> }
+    @else { <button type="button" class="ac-btn primary" (click)="finish()">Add to pending changes</button> }
+  </div>
+</div>

@@ -42,5 +42,6 @@ export const URLS = {
     ZITI_CONFIG_BUILDER: '/config-builder',
     ZITI_CUSTOM_FIELDS: '/custom-fields',
     ZAC_LOGIN: '/login',
-    NETWORK_VISUALIZER: '/network-visualizer'
+    NETWORK_VISUALIZER: '/network-visualizer',
+    ACCESS_CANVAS: '/access-canvas'
 };

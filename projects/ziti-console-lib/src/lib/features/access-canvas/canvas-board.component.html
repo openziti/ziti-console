@@ -1,0 +1,124 @@
+<div class="ab-viewport" #viewport
+     (pointerdown)="onBgDown($event)" (wheel)="onWheel($event)" (contextmenu)="onContext($event, null)">
+  <div class="ab-world" [style.transform]="worldTransform">
+    <svg class="ab-edges" width="1" height="1" aria-hidden="true">
+      @for (p of paths; track p.id) { <path [attr.d]="p.d" [attr.class]="p.cls"></path> }
+    </svg>
+
+    @for (n of board.nodes; track n.key) {
+      @switch (n.type) {
+        @case ('group') {
+          <section class="ab-node ab-group" [attr.data-kind]="n.kind" data-drop [attr.data-node]="n.key"
+                   [style.left.px]="n.x" [style.top.px]="n.y" [style.width.px]="n.w" [style.height.px]="n.h"
+                   [class.sel]="selected.has(n.key)" [class.hot]="hot.has(n.key)" [class.dim]="n.dim"
+                   [class.drop]="dropKey === n.key" [class.pending]="n.pending"
+                   [class.hit]="n.hit && !n.dim"
+                   (pointerdown)="onNodeDown($event, n)" (contextmenu)="onContext($event, n.key)"
+                   (mouseenter)="hover(n.key)" (mouseleave)="hover(null)"
+                   [attr.aria-label]="n.kind + ' group #' + n.attr + ', ' + n.members.length + ' members'">
+            <header class="ab-gh" tabindex="0" (focus)="focusNode(n)">
+              <span class="ab-kind" [attr.title]="n.kind + ' group'">{{ kindLetter(n.kind) }}</span>
+              <span class="ab-attr">#{{ n.attr }}</span>
+              <span class="ab-count">{{ n.members.length }}</span>
+              @if (n.problemCount) { <span class="ab-prob" [attr.title]="n.problems.join('; ')">{{ n.problemCount }}</span> }
+            </header>
+            @for (m of n.shown; track m.id) {
+              <div class="ab-row" data-drop [attr.data-node]="n.key" [attr.data-member]="m.id" tabindex="0"
+                   [class.sel]="selected.has(mk(n.key, m.id))" [class.drop]="dropKey === mk(n.key, m.id)"
+                   [class.pending]="m.pending" [class.hit]="m.hit"
+                   (pointerdown)="onMemberDown($event, n, m)" (dblclick)="run('advise')"
+                   (contextmenu)="onContext($event, mk(n.key, m.id))" (focus)="focusMember(n, m)"
+                   [attr.title]="m.problems.length ? m.problems.join('; ') : null">
+                @if (!readOnly) { <span class="ab-grip" aria-hidden="true">⠿</span> }
+                <span class="ab-name">{{ m.name }}</span>
+                @if (m.problems.length) { <span class="ab-dot bad" [attr.aria-label]="m.problems.join('; ')"></span> }
+                @if (m.pending) { <span class="ab-dot pend" aria-label="pending change"></span> }
+              </div>
+            } @empty {
+              <div class="ab-empty-row" [attr.title]="'Nothing has #' + n.attr + ' yet. Drag or paste ' + (n.kind === 'service' ? 'services' : n.kind === 'router' ? 'routers' : 'identities') + ' here.'">Empty: drag {{ n.kind === 'service' ? 'services' : n.kind === 'router' ? 'routers' : 'identities' }} here</div>
+            }
+            @if (n.more) {
+              <button type="button" class="ab-more" (pointerdown)="$event.stopPropagation()" (click)="command.emit({cmd: 'expand', node: n.key})">+{{ n.more }} more</button>
+            }
+          </section>
+        }
+        @case ('free') {
+          <div class="ab-node ab-free" [attr.data-kind]="n.kind" data-drop [attr.data-node]="n.key" tabindex="0"
+               [style.left.px]="n.x" [style.top.px]="n.y" [style.width.px]="n.w" [style.height.px]="n.h"
+               [class.sel]="selected.has(n.key)" [class.hot]="hot.has(n.key)" [class.dim]="n.dim"
+               [class.drop]="dropKey === n.key" [class.pending]="n.pending" [class.hit]="n.hit && !n.dim"
+               (pointerdown)="onNodeDown($event, n)" (dblclick)="run('advise')" (contextmenu)="onContext($event, n.key)"
+               (mouseenter)="hover(n.key)" (mouseleave)="hover(null)" (focus)="focusNode(n)"
+               [attr.title]="n.problems.length ? n.problems.join('; ') : 'In no group yet. Drag it onto a group to add it there.'">
+            <span class="ab-kind">{{ kindLetter(n.kind) }}</span>
+            <span class="ab-name">{{ n.entity!.name }}</span>
+            @if (n.problemCount) { <span class="ab-dot bad"></span> }
+            @if (n.pending) { <span class="ab-dot pend"></span> }
+          </div>
+        }
+        @case ('hub') {
+          <div class="ab-node ab-hub" [attr.data-family]="n.policy!.family" [attr.data-node]="n.key" tabindex="0"
+               [style.left.px]="n.x" [style.top.px]="n.y" [style.width.px]="n.w" [style.height.px]="n.h"
+               [class.sel]="selected.has(n.key)" [class.hot]="hot.has(n.key)" [class.dim]="n.dim"
+               [class.pending]="n.pending" [class.hit]="n.hit && !n.dim" [class.bad]="n.problemCount"
+               (pointerdown)="onNodeDown($event, n)" (contextmenu)="onContext($event, n.key)"
+               (mouseenter)="hover(n.key)" (mouseleave)="hover(null)" (focus)="focusNode(n)"
+               [attr.title]="famLabel(n) + ' policy ' + n.policy!.name + ' (' + n.policy!.semantic + ')'
+                 + (n.policy!.all.length ? '; ' + n.policy!.all.join(', ') : '')
+                 + (n.policy!.posture.length ? '; posture: ' + n.policy!.posture.join(', ') : '')
+                 + (n.problems.length ? '; ' + n.problems.join('; ') : '')">
+            <span class="ab-fam">{{ famLabel(n) }}</span>
+            <span class="ab-pname">{{ n.policy!.name }}</span>
+            @if (n.policy!.all.length) { <span class="ab-all">all</span> }
+            @if (n.policy!.posture.length) { <span class="ab-all">posture</span> }
+          </div>
+        }
+      }
+    }
+
+    @if (marquee) {
+      <div class="ab-marquee" [style.left.px]="marquee.x" [style.top.px]="marquee.y" [style.width.px]="marquee.w" [style.height.px]="marquee.h"></div>
+    }
+    @if (ghost) {
+      <div class="ab-ghost" [style.left.px]="ghost.x" [style.top.px]="ghost.y">{{ ghost.copy ? '+ ' : '' }}{{ ghost.label }}</div>
+    }
+  </div>
+</div>
+
+<div class="ab-zoom" role="group" aria-label="Zoom">
+  <button type="button" (click)="zoomBy(1 / 1.2)" aria-label="Zoom out">−</button>
+  <span>{{ zoomPct }}%</span>
+  <button type="button" (click)="zoomBy(1.2)" aria-label="Zoom in">+</button>
+  <button type="button" (click)="fit()">Fit</button>
+</div>
+
+@if (menu) {
+  <div class="ab-menu-catch" (pointerdown)="closeMenu()" (contextmenu)="$event.preventDefault(); closeMenu()"></div>
+  <div class="ab-menu" role="menu" [style.left.px]="menu.x" [style.top.px]="menu.y" (keydown.escape)="closeMenu()">
+    @if (menu.items.length) {
+      @if (menuHas('entity') || menuHas('group')) {
+        <button type="button" role="menuitem" (click)="run('copy')">Copy <kbd>⌘C</kbd></button>
+        @if (!readOnly && menuHas('entity')) { <button type="button" role="menuitem" (click)="run('cut')">Cut <kbd>⌘X</kbd></button> }
+      }
+      @if (!readOnly && hasClip) {
+        <button type="button" role="menuitem" (click)="run('paste')">{{ menuHas('group') ? 'Paste into group' : 'Paste access onto this' }} <kbd>⌘V</kbd></button>
+      }
+      @if (!readOnly && menuHas('member')) { <button type="button" role="menuitem" (click)="run('delete')">Remove from group <kbd>⌫</kbd></button> }
+      @if (!readOnly && menuHas('identity')) { <button type="button" role="menuitem" (click)="run('give')">Give access…</button> }
+      @if (menuSingleEntity) {
+        <button type="button" role="menuitem" (click)="run('advise')">Check in the advisor <kbd>↵</kbd></button>
+        <button type="button" role="menuitem" (click)="run('open')">Open details</button>
+      }
+      @if (menuHas('group')) {
+        <button type="button" role="menuitem" (click)="run('select')">Select its members</button>
+        <button type="button" role="menuitem" (click)="run('expand')">Show / hide all members</button>
+      }
+      @if (menuHas('hub')) { <button type="button" role="menuitem" (click)="run('open')">Open policy</button> }
+    } @else {
+      @if (!readOnly && hasClip) { <button type="button" role="menuitem" (click)="run('paste')">Paste as new <kbd>⌘V</kbd></button> }
+      @if (!readOnly) { <button type="button" role="menuitem" (click)="run('newGroup')">New group here…</button> }
+      <button type="button" role="menuitem" (click)="run('fit')">Fit to screen</button>
+      @if (!readOnly) { <button type="button" role="menuitem" (click)="run('arrange')">Auto-arrange</button> }
+    }
+  </div>
+}

@@ -34,6 +34,7 @@ import {
   ServicePoliciesListPageComponent,
   ServicePoliciesPageComponent,
   NetworkVisualizerComponent,
+  AccessCanvasComponent,
   EdgeRouterPoliciesListPageComponent,
   EdgeRouterPoliciesPageComponent,
   IdentityFormComponent,
@@ -455,6 +456,12 @@ const routes: Routes = [
   {
     path: 'profile',
     component: ProfileComponent,
+    canActivate: mapToCanActivate([AuthenticationGuard]),
+    runGuardsAndResolvers: 'always',
+  },
+  {
+    path: 'access-canvas',
+    component: AccessCanvasComponent,
     canActivate: mapToCanActivate([AuthenticationGuard]),
     runGuardsAndResolvers: 'always',
   },

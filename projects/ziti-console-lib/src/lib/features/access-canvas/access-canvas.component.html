@@ -1,0 +1,344 @@
+<div class="ac-page">
+  <header class="ac-top">
+    <h1>Access Canvas</h1>
+    <p class="ac-sub">Drag cards between groups, or an identity onto a service. Lines are policies. Nothing changes until you apply.</p>
+    <span class="ac-grow"></span>
+    @if (!loading && !loadError && !readOnly) {
+      <button type="button" class="ac-btn primary" (click)="openWizard()">＋ Set up a service</button>
+    }
+    <div class="ac-pop">
+      <button type="button" class="ac-q ac-qbig" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen" aria-label="How to use the canvas">?</button>
+      @if (helpOpen) {
+        <div class="ac-menu-catch" (click)="helpOpen = false"></div>
+        <div class="ac-popmenu ac-help" (keydown.escape)="helpOpen = false">
+          <div class="ac-pophead">Using the canvas</div>
+          <ul>
+            <li><b>Zoom:</b> mouse wheel, pinch, ⌘/Ctrl+scroll, or + and −. 0 fits everything.</li>
+            <li><b>Pan:</b> drag empty space, or scroll with two fingers. Shift+drag selects several.</li>
+            <li><b>Group membership:</b> drag a card into another group to move it (hold Alt/Option to copy), onto empty space to take it out, or a loose card onto a group to add it.</li>
+            <li><b>Access:</b> drag an identity (or a whole identity group) onto a service.</li>
+            <li><b>Copy access:</b> ⌘/Ctrl+C a card, select another card or a group, ⌘/Ctrl+V. Paste on empty space makes a copy.</li>
+            <li><b>More:</b> right-click anything. Double-click a card to check its access.</li>
+          </ul>
+          <div class="ac-pophead">How access works</div>
+          @for (c of ['identities', 'services', 'dial', 'bind', 'routers']; track c) { @if (concepts[c]) { <p class="ac-concept">{{ concepts[c] }}</p> } }
+        </div>
+      }
+    </div>
+  </header>
+
+  @if (loading) {
+    <div class="ac-empty">Loading identities, services, routers and policies…</div>
+  } @else if (loadError) {
+    <div class="ac-empty ac-bad">Couldn't load the network: {{ loadError }} <button type="button" class="ac-linkish" (click)="reload()">Try again</button></div>
+  } @else {
+
+  <!-- Filters -->
+  <div class="ac-toolbar" role="toolbar" aria-label="Canvas filters">
+    <div class="ac-search">
+      <input id="ac-search" type="search" placeholder="Filter by name, e.g. loft" autocomplete="off" aria-label="Filter by name"
+             [(ngModel)]="filters.search" (ngModelChange)="onSearch()" (keydown.enter)="revealFirstHit()">
+      @if (filters.search.trim()) { <span class="ac-small">{{ plural(searchMatches, 'match', 'matches') }}</span> }
+    </div>
+
+    <div class="ac-pop">
+      <button type="button" class="ac-btn" (click)="filterMenu = !filterMenu" [attr.aria-expanded]="filterMenu" aria-haspopup="true">
+        Filters @if (narrowCount) { <span class="ac-pill">{{ narrowCount }}</span> } ▾
+      </button>
+      @if (filterMenu) {
+        <div class="ac-menu-catch" (click)="filterMenu = false"></div>
+        <div class="ac-popmenu" (keydown.escape)="filterMenu = false">
+          <div class="ac-popsec">
+            <div class="ac-pophead">Show</div>
+            <div class="ac-seg" role="group" aria-label="Show these kinds">
+              @for (k of kinds; track k) {
+                <button type="button" class="ac-chipbtn" [attr.data-kind]="k" [class.on]="filters.types[k]" [attr.aria-pressed]="filters.types[k]" (click)="toggleType(k)">
+                  <span class="ac-check" aria-hidden="true">{{ filters.types[k] ? '✓' : '' }}</span>{{ kindLabel[k][1] | titlecase }}</button>
+              }
+            </div>
+          </div>
+          <div class="ac-popsec">
+            <div class="ac-pophead">Attributes <span class="ac-small">Shows these groups and what their policies connect them to</span></div>
+            <input type="search" class="ac-popfind" placeholder="Find an attribute" [(ngModel)]="attrQuery" autocomplete="off" aria-label="Find an attribute">
+            <div class="ac-attrlist" role="group" aria-label="Attributes">
+              @for (a of allAttrs; track a.attr) {
+                <button type="button" class="ac-attropt" [class.on]="filters.attrs.includes(a.attr)" [attr.aria-pressed]="filters.attrs.includes(a.attr)" (click)="toggleAttr(a.attr)">
+                  <span class="ac-check" aria-hidden="true">{{ filters.attrs.includes(a.attr) ? '✓' : '' }}</span>
+                  <span class="ac-attr">#{{ a.attr }}</span><span class="ac-small">{{ a.count }} · {{ a.kinds }}</span></button>
+              } @empty { <div class="ac-small">No attributes{{ attrQuery ? ' match' : ' yet' }}.</div> }
+            </div>
+          </div>
+          @if (filtersActive) { <button type="button" class="ac-linkish" (click)="clearFilters()">Clear all filters</button> }
+        </div>
+      }
+    </div>
+
+    @if (problemTotal || filters.problemsOnly) {
+      <button type="button" class="ac-probbtn" [class.on]="filters.problemsOnly" (click)="openProblems()" aria-haspopup="dialog"
+              title="Things that stop access from working. Click for the list.">
+        ⚠ {{ problemTotal === 1 ? '1 item needs attention' : problemTotal + ' items need attention' }}{{ filters.problemsOnly ? ' · showing only these' : '' }}
+      </button>
+    }
+    @if (filtersActive) { <button type="button" class="ac-linkish" (click)="clearFilters()">Clear filters</button> }
+    <span class="ac-grow"></span>
+    @if (clip) { <span class="ac-clip" [attr.title]="'Paste with ⌘V / Ctrl+V'">{{ clipLabel }} <button type="button" class="ac-icon-btn" (click)="clip = null" aria-label="Clear clipboard">✕</button></span> }
+    <div class="ac-pop">
+      <button type="button" class="ac-btn" (click)="layoutMenu = !layoutMenu" [attr.aria-expanded]="layoutMenu" aria-haspopup="true"
+              title="Card positions are kept in this browser">Layout ▾</button>
+      @if (layoutMenu) {
+        <div class="ac-menu-catch" (click)="layoutMenu = false"></div>
+        <div class="ac-popmenu ac-popmenu-end ac-layoutmenu" (keydown.escape)="layoutMenu = false">
+          <p class="ac-small">Where you put cards is kept in this browser, for this controller. It never changes access.</p>
+          @if (!readOnly) { <button type="button" class="ac-btn" (click)="autoArrange()">Arrange automatically</button> }
+          <button type="button" class="ac-btn" (click)="exportLayout()">Export layout…</button>
+          <label class="ac-btn ac-filebtn">Import layout…
+            <input type="file" accept="application/json,.json" (change)="importLayout($event)"></label>
+          <p class="ac-small">Export saves the arrangement to a file you can share; Import loads one, e.g. from another admin.</p>
+        </div>
+      }
+    </div>
+    <button type="button" class="ac-btn" (click)="refreshAndFit()" [disabled]="busy" title="Reload from the controller and fit the canvas to the screen">Refresh</button>
+  </div>
+  @if (readOnly) {
+    <div class="ac-ro">Read-only: your role can't change identities or policies. You can explore, filter and use the advisor.</div>
+  }
+
+  <!-- Board, with the pending changes and the advisor floating over it -->
+  <section class="ac-board-wrap" aria-label="Canvas">
+    <lib-canvas-board [board]="board" [readOnly]="readOnly" [hasClip]="!!clip"
+                      (moved)="onMoved($event)" (memberDrop)="onMemberDrop($event)" (nodeDrop)="onNodeDrop($event)" (command)="onCommand($event)"></lib-canvas-board>
+
+    @if (draft && !draft.services.length && !pending.length && !readOnly) {
+      <div class="ac-empty-board">
+        <h2>No services yet</h2>
+        <p>Set up the first one: the service, the identity that hosts it, who may use it, and the policies between them.</p>
+        <button type="button" class="ac-btn primary" (click)="openWizard()">＋ Set up a service</button>
+      </div>
+    }
+
+    <div class="ac-dock" role="toolbar" aria-label="Changes and checks">
+      <button type="button" class="ac-dockbtn" [class.on]="drawer === 'advisor'" [attr.aria-expanded]="drawer === 'advisor'" (click)="toggleDrawer('advisor')"
+              title="Why can't an identity reach a service? Double-click a card to check it.">
+        @if (advisorIdentity && advisorService) { <span class="ac-dot" [class.bad]="adviceFail" [class.ok]="!adviceFail"></span> } Check access</button>
+      <button type="button" class="ac-dockbtn" [class.on]="drawer === 'pending'" [class.has]="pending.length" [class.pulse]="pulse"
+              [attr.aria-expanded]="drawer === 'pending'" (click)="toggleDrawer('pending')">
+        @if (pending.length) { <span class="ac-dot pend"></span> {{ plural(pending.length, 'pending change', 'pending changes') }} · Review }
+        @else { No pending changes }</button>
+      @if (pending.length && !readOnly) {
+        <button type="button" class="ac-btn primary ac-dockapply" (click)="applyAll()" [disabled]="busy">{{ busy ? 'Applying…' : 'Apply' }}</button>
+      }
+    </div>
+
+    @if (drawer) {
+      <aside class="ac-drawer" [attr.aria-label]="drawer === 'pending' ? 'Pending changes' : 'Check access'" (keydown.escape)="drawer = null">
+        <div class="ac-drawer-h">
+          <h2>{{ drawer === 'pending' ? 'Pending changes' : 'Why can\'t they connect?' }}</h2>
+          <button type="button" class="ac-icon-btn" (click)="drawer = null" aria-label="Close">✕</button>
+        </div>
+        <div class="ac-drawer-b">
+        @if (drawer === 'advisor') {
+          <p class="ac-lede">Checks every piece OpenZiti needs for one identity to reach one service, and names the missing one. Double-click a card, or press Enter on it, to check it here.</p>
+          @if (!advisorIdentity || !advisorService) {
+            <div class="ac-empty">Add at least one identity and one service, and the advisor will check the path between them.</div>
+          } @else {
+            <div class="ac-pick">
+              <label for="ac-adv-id">Identity
+                <select id="ac-adv-id" [(ngModel)]="advisorI" (ngModelChange)="runAdvisor()">
+                  @for (g of advisorClients; track g.attr) {
+                    <optgroup [label]="g.attr ? '#' + g.attr : 'no attributes'">@for (i of g.members; track i.id) { <option [value]="i.id">{{ i.name }}</option> }</optgroup>
+                  }
+                </select></label>
+              <span class="ac-arrow">→</span>
+              <label for="ac-adv-svc">Service
+                <select id="ac-adv-svc" [(ngModel)]="advisorS" (ngModelChange)="runAdvisor()">
+                  @for (s of draft?.services; track s.id) { <option [value]="s.id">{{ s.name }}</option> }
+                </select></label>
+            </div>
+            <div class="ac-verdict" [class.ok]="!adviceFail" [class.bad]="adviceFail">
+              @if (adviceFail) { ✕ {{ advisorIdentity.name }} can't reach {{ advisorService.name }}: {{ adviceFail.t | lowercase }} }
+              @else { ✓ {{ advisorIdentity.name }} can reach {{ advisorService.name }}@if (advicePosture) { (after the posture check)} }
+            </div>
+            <ol class="ac-steps">
+              @for (x of advice; track $index) {
+                <li [class]="x.st"><span class="ac-mark">{{ x.st === 'ok' ? '✓' : x.st === 'bad' ? '✕' : '!' }}</span>
+                  <div><b>{{ x.t }}</b>@if (x.d) {<div class="ac-detail">{{ x.d }}</div>}@if (x.fix) {<div class="ac-fix">Fix: {{ x.fix }}</div>}</div></li>
+              }
+            </ol>
+            @if (!adviceFail) { <button type="button" class="ac-btn" (click)="openIdentity()">Open {{ advisorIdentity.name }} (Identity Service Path is there)</button> }
+          }
+
+        } @else {
+          @for (f of followUps; track $index) {
+            <div class="ac-follow">
+              <div class="ac-change-h"><b>To finish: {{ f.title }}</b>
+                <button type="button" class="ac-icon-btn" (click)="dismissFollowUp($index)">Done</button></div>
+              <ol>@for (st of f.steps; track $index) { <li>{{ st }}</li> }</ol>
+            </div>
+          }
+          <p class="ac-lede">Nothing is sent to the controller until you apply. Changes go in this order. (Moving cards isn't a change: positions are kept in this browser.)</p>
+          @for (c of pending; track c.id) {
+            <div class="ac-change">
+              <div class="ac-change-h"><div><b>{{ c.title }}</b><div class="ac-small">{{ c.summary }}</div>
+                @if (c.next?.length) { <div class="ac-small">After applying: {{ plural(c.next!.length, 'step', 'steps') }} by hand (shown here once applied).</div> }</div>
+                <button type="button" class="ac-icon-btn" (click)="discard(c.id)" [disabled]="busy">Discard</button></div>
+              <details class="ac-api"><summary>{{ plural(c.calls.length, 'API call', 'API calls') }}</summary><pre>{{ c.calls.join('\n\n') }}</pre></details>
+            </div>
+          } @empty {
+            <div class="ac-empty">No pending changes. Drag an identity onto a service, move a card to another group, or copy one card's access onto another.</div>
+          }
+          <div class="ac-btns">
+            <button type="button" class="ac-btn primary" (click)="applyAll()" [disabled]="!pending.length || readOnly || busy">
+              {{ busy ? 'Working…' : pending.length ? 'Apply ' + plural(pending.length, 'change', 'changes') + ' (' + plural(pendingCalls, 'call', 'calls') + ')' : 'Apply changes' }}</button>
+            <button type="button" class="ac-btn" (click)="discardAll()" [disabled]="!pending.length || busy">Discard all</button>
+            <button type="button" class="ac-btn" (click)="undoLast()" [disabled]="!history.length || busy">Undo last apply</button>
+          </div>
+          @if (history.length) { <div class="ac-small">{{ plural(history.length, 'applied change set', 'applied change sets') }} can be undone in this session.</div> }
+
+        }
+        </div>
+      </aside>
+    }
+
+    <div class="ac-legend" aria-label="Legend">
+      <span><svg width="22" height="8"><path d="M1 4h20" class="lg-dial"/></svg>Dial (use)</span>
+      <span><svg width="22" height="8"><path d="M1 4h20" class="lg-bind"/></svg>Bind (host)</span>
+      <span><svg width="22" height="8"><path d="M1 4h20" class="lg-router"/></svg>Routers</span>
+      <span><svg width="22" height="8"><path d="M1 4h20" class="lg-dial lg-byname"/></svg>By name (&#64;)</span>
+      <span><svg width="22" height="8"><path d="M1 4h20" class="lg-pending"/></svg>Pending</span>
+    </div>
+  </section>
+  }
+</div>
+
+<!-- Set-up wizard -->
+@if (wizardOpen && draft) {
+  <lib-access-wizard [model]="draft" [newId]="wizardId" (queued)="onWizardQueued($event)" (closed)="wizardOpen = false"></lib-access-wizard>
+}
+
+<!-- Problems dialog -->
+@if (problemsOpen) {
+  <div class="ac-backdrop" (click)="problemsOpen = false"></div>
+  <div class="ac-dialog ac-dialog-wide" role="dialog" aria-modal="true" aria-labelledby="ac-prob-title" (keydown.escape)="problemsOpen = false">
+    <div class="ac-dialog-h">
+      <h2 id="ac-prob-title">{{ problemTotal === 1 ? '1 item needs attention' : problemTotal + ' items need attention' }}
+        <span class="ac-h2sub">{{ plural(problemRowsAll.length, 'problem', 'problems') }}</span></h2>
+      <button type="button" class="ac-icon-btn" (click)="problemsOpen = false" aria-label="Close">✕</button>
+    </div>
+    <p class="ac-lede">Things that stop access from working, from the whole network (canvas filters don't apply here). An item can have more than one problem, and fixing one cause often clears several rows.</p>
+    <div class="ac-ptools">
+      <input type="search" class="ac-pfind" placeholder="Filter by name or problem" [(ngModel)]="pf.q" autocomplete="off" aria-label="Filter problems">
+      <div class="ac-seg" role="group" aria-label="Type">
+        @for (k of probKinds; track k.v) {
+          <button type="button" class="ac-chipbtn" [class.on]="pf.kind === k.v" [attr.aria-pressed]="pf.kind === k.v" (click)="pf.kind = k.v">{{ k.label }} <span class="ac-small">{{ k.n }}</span></button>
+        }
+      </div>
+      <select class="ac-psel" [(ngModel)]="pf.type" aria-label="Problem">
+        <option value="">All problems</option>
+        @for (t of probTypes; track t) { <option [value]="t">{{ t }}</option> }
+      </select>
+    </div>
+    <div class="ac-ptable-wrap">
+      <table class="ac-ptable">
+        <thead><tr>
+          <th scope="col"><button type="button" (click)="sortProblems('type')">Type <span>{{ sortMark('type') }}</span></button></th>
+          <th scope="col"><button type="button" (click)="sortProblems('name')">Name <span>{{ sortMark('name') }}</span></button></th>
+          <th scope="col"><button type="button" (click)="sortProblems('problem')">Problem <span>{{ sortMark('problem') }}</span></button></th>
+          <th scope="col">What to do</th>
+          <th scope="col"><span class="ac-sr">Actions</span></th>
+        </tr></thead>
+        <tbody>
+          @for (r of problemRows; track r.id) {
+            <tr>
+              <td><span class="ac-kindtag" [attr.data-kind]="r.kind">{{ r.typeLabel }}</span></td>
+              <td class="ac-pname-cell">{{ r.name }}</td>
+              <td><b>{{ r.problem }}</b>@if (r.detail) {<div class="ac-small">{{ r.detail }}</div>}</td>
+              <td class="ac-small">{{ r.hint }}</td>
+              <td class="ac-ract">
+                <button type="button" class="ac-btn ac-btn-sm" (click)="showProblem(r)">Show</button>
+                <button type="button" class="ac-btn ac-btn-sm" (click)="openProblem(r)">Open</button>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="5" class="ac-pempty">No problems match these filters.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="ac-btns">
+      <button type="button" class="ac-btn" (click)="toggleProblemsOnly()">{{ filters.problemsOnly ? 'Show everything on the canvas' : 'Show only these on the canvas' }}</button>
+      <button type="button" class="ac-btn" (click)="problemsOpen = false">Close</button>
+    </div>
+  </div>
+}
+
+<!-- New group dialog -->
+@if (newGroup) {
+  <div class="ac-backdrop" (click)="newGroup = null"></div>
+  <form class="ac-dialog ac-dialog-sm" role="dialog" aria-modal="true" aria-labelledby="ac-ng-title" (keydown.escape)="newGroup = null" (ngSubmit)="createGroup()">
+    <h2 id="ac-ng-title">New group</h2>
+    <p class="ac-lede">A group is a role attribute. It's empty until you drag or paste cards into it, and until then it's kept with the canvas layout in this browser.</p>
+    <label class="ac-field" for="ac-ng-kind">Holds
+      <select id="ac-ng-kind" name="kind" [(ngModel)]="newGroup.kind">
+        @for (k of kinds; track k) { <option [value]="k">{{ kindLabel[k][1] }}</option> }
+      </select></label>
+    <label class="ac-field" for="ac-ng-attr">Attribute name
+      <input id="ac-ng-attr" name="attr" [(ngModel)]="newGroup.attr" placeholder="e.g. sales" autocomplete="off" autofocus></label>
+    <div class="ac-btns">
+      <button type="submit" class="ac-btn primary" [disabled]="!newGroup.attr.trim()">Add group</button>
+      <button type="button" class="ac-btn" (click)="newGroup = null">Cancel</button>
+    </div>
+  </form>
+}
+
+<!-- Grant dialog -->
+@if (dialog) {
+  <div class="ac-backdrop" (click)="closeGrant()"></div>
+  <div class="ac-dialog" role="dialog" aria-modal="true" aria-labelledby="ac-grant-title" (keydown.escape)="closeGrant()">
+    @if (!dialog.result) {
+      <h2 id="ac-grant-title">Give {{ dialogSourceLabel }} access</h2>
+    } @else {
+      <h2 id="ac-grant-title">How should {{ dialog.result.srcLabel }} get {{ dialog.result.tgtLabel }}?</h2>
+      <div class="ac-route"><span class="ac-chip">{{ dialog.result.srcLabel }}</span><span>{{ plural(dialog.result.srcCount, 'identity', 'identities') }}</span>
+        <span>→ dial →</span><span class="ac-chip">{{ dialog.result.tgtLabel }}</span><span>{{ plural(dialog.result.tgtCount, 'service', 'services') }}</span></div>
+    }
+    <label class="ac-field" for="ac-grant-target">Service or service group
+      <select id="ac-grant-target" [(ngModel)]="dialogTarget" (ngModelChange)="onTargetChange()">
+        @if (!dialog.tgt) { <option value="">Choose…</option> }
+        <optgroup label="Service groups">@for (t of targetChoices; track t.value) { @if (t.group === 'Service groups') { <option [value]="t.value">{{ t.label }}</option> } }</optgroup>
+        <optgroup label="Services">@for (t of targetChoices; track t.value) { @if (t.group === 'Services') { <option [value]="t.value">{{ t.label }}</option> } }</optgroup>
+      </select>
+    </label>
+    @if (dialog.result; as r) {
+      <p class="ac-lede">OpenZiti grants access through attribute-based policies. Pick the change that matches your intent. Nothing is sent until you apply it in Pending changes.</p>
+      @if (r.unhosted.length) {
+        <div class="ac-warnbox">{{ r.unhosted.join(', ') }} {{ r.unhosted.length === 1 ? 'has' : 'have' }} no hosting identity. Access will be granted, but connections won't complete until a Bind policy exists.</div>
+      }
+      @if (r.already) {
+        <div class="ac-already">✓ Already allowed by {{ r.allowedBy.join(', ') }}. Nothing to change.</div>
+        <div class="ac-btns"><button type="button" class="ac-btn" (click)="closeGrant()">Close</button></div>
+      } @else {
+        <fieldset class="ac-opts"><legend class="ac-lede">Options</legend>
+          @for (o of r.opts; track $index) {
+            <label class="ac-opt" [class.sel]="dialog.selected === $index">
+              <input type="radio" name="ac-grant-opt" [value]="$index" [(ngModel)]="dialog.selected">
+              <div>
+                <div class="ac-opt-t">{{ o.title }} @if (o.recommended) { <span class="ac-rec">Recommended</span> } @if (o.exception) { <span class="ac-exc">Exception</span> }</div>
+                <div class="ac-small">{{ o.why }}</div>
+                <div class="ac-imp">{{ impactText(o) }}</div>
+                @if (o.impact.outside.length) { <div class="ac-warn">Also grants: {{ o.impact.outside.join(', ') }}</div> }
+                @if (o.impact.noRoute) { <div class="ac-warn">{{ o.impact.noRoute }} of them can't reach a router for it yet (no edge router policy).</div> }
+                <details class="ac-api"><summary>{{ plural(o.calls.length, 'API call', 'API calls') }}</summary><pre>{{ o.calls.join('\n\n') }}</pre></details>
+              </div>
+            </label>
+          }
+        </fieldset>
+        <div class="ac-btns">
+          <button type="button" class="ac-btn primary" (click)="queueSelected()">Add to pending changes</button>
+          <button type="button" class="ac-btn" (click)="closeGrant()">Cancel</button>
+        </div>
+      }
+    } @else {
+      <div class="ac-btns"><button type="button" class="ac-btn" (click)="closeGrant()">Cancel</button></div>
+    }
+  </div>
+}
