@@ -1,4 +1,4 @@
-FROM node:20-bookworm-slim as zac-builder
+FROM node:24-bookworm-slim as zac-builder
 
 WORKDIR /usr/src/app
 
@@ -13,7 +13,7 @@ RUN npm install --omit=optional
 RUN ng build ziti-console-lib && ng build ziti-console --base-href ./ && node ./scripts/rewrite-bundle-css.mjs
 
 
-FROM node:20-bookworm-slim
+FROM node:24-bookworm-slim
 WORKDIR /usr/src/app
 
 COPY --from=zac-builder /usr/src/app/dist ./dist
