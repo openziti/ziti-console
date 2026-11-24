@@ -64,7 +64,7 @@ To build and run the application from source, you'll also need to make sure you 
 
 | Tool        |      Version |
 | :---:       | :---:        |
-| Node.js     | >=18         |
+| Node.js     | >=24         |
 | npm         | >=8.1        |
 | ng          |  =16         |
 
