@@ -136,6 +136,7 @@ export class ServicePolicyFormV2Component extends ServicePolicyFormComponent {
     };
     const liveTokens = (roles: string[], named: string[], saved: string[]): string[] =>
       this.attributesReady ? [...(roles || []).map((x) => '#' + x), ...(named || []).filter(Boolean).map((x) => '@' + x)] : saved;
+    const tagList = (o: any) => Object.entries(o?.tags || {}).map(([k, v]) => (v === '' || v == null ? k : `${k}: ${v}`));
     const attrRow = (label: string, selRoles: string[], selNamed: string[], roles: string[], nameToId: any): FormSummaryRow => {
       const saved = savedTokens(roles, nameToId);
       return {label, value: '', list: liveTokens(selRoles, selNamed, saved), savedList: s ? saved : undefined};
@@ -147,6 +148,7 @@ export class ServicePolicyFormV2Component extends ServicePolicyFormComponent {
       attrRow('Service attributes', this.selectedServiceRoleAttributes, this.selectedServiceNamedAttributes, s ? s.serviceRoles : d.serviceRoles, this.svc.serviceNamedAttributesMap),
       attrRow('Identity attributes', this.selectedIdentityRoleAttributes, this.selectedIdentityNamedAttributes, s ? s.identityRoles : d.identityRoles, this.svc.identityNamedAttributesMap),
       attrRow('Posture attributes', this.selectedPostureRoleAttributes, this.selectedPostureNamedAttributes, s ? s.postureCheckRoles : d.postureCheckRoles, this.svc.postureNamedAttributesMap),
+      {label: 'Custom Tags', value: '', list: tagList(d), savedList: s ? tagList(s) : undefined},
     ];
   }
 }
