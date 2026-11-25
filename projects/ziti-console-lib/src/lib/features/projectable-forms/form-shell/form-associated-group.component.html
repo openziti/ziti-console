@@ -1,0 +1,52 @@
+<div class="fag">
+  <div class="fag-head">
+    <button type="button" class="fag-toggle" [attr.aria-expanded]="open" (click)="open = !open">
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" [class.open]="open"><path d="M9 6l6 6-6 6" /></svg>
+      <span class="fag-label">{{label}}</span>
+    </button>
+    @if (helpText) {
+      <mat-icon class="fag-info" [matTooltip]="helpText" [matTooltipShowDelay]="0" matTooltipPosition="above" tabindex="0" [attr.aria-label]="helpText">info</mat-icon>
+    }
+  </div>
+  @if (open) {
+    <div class="fll">
+  @if (showFilter) {
+    <div class="fll-filterbar">
+      <div class="fll-search">
+        <input class="fll-search-input" type="text" [placeholder]="'Search ' + label.toLowerCase()" [attr.aria-label]="'Search ' + label" [ngModel]="filterText" (ngModelChange)="onFilter($event)" />
+      </div>
+    </div>
+  }
+  @if (loading) {
+    <div class="fll-skeleton" aria-busy="true"><span></span><span></span><span></span></div>
+  } @else {
+    @if (!items.length) {
+      <p class="fll-empty">{{filterText ? 'No matches' : emptyText}}</p>
+    }
+    <ul class="fll-list">
+      @for (item of items; track item) {
+        <li class="fll-item">
+          @if (clickable) {
+            <button type="button" class="fll-name fll-link" [matTooltip]="item" [matTooltipShowDelay]="0" matTooltipPosition="below" (click)="itemSelected.emit(item)">{{item}}</button>
+          } @else {
+            <span class="fll-name" [matTooltip]="item" [matTooltipShowDelay]="0" matTooltipPosition="below">{{item}}</span>
+          }
+        </li>
+      }
+    </ul>
+    <div class="fll-foot">
+      <span class="fll-range">{{total ? from + '–' + to : 0}} of {{total}}</span>
+      <span class="fll-nav">
+          <button type="button" aria-label="Previous page" [disabled]="page <= 1" (click)="go(-1)">
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6" /></svg>
+          </button>
+          <span class="fll-page">{{page}} / {{pages}}</span>
+          <button type="button" aria-label="Next page" [disabled]="page >= pages" (click)="go(1)">
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+          </button>
+        </span>
+    </div>
+  }
+</div>
+  }
+</div>

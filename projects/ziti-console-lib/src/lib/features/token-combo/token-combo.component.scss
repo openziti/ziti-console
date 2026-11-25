@@ -1,0 +1,226 @@
+:host { display: block; width: 100%; }
+
+.tc { position: relative; width: 100%; }
+
+// Chip tones: matte hues mixed with the theme text colour so they stay readable in light and dark.
+$tones: (
+  'green': var(--lt-positive, #16a34a),
+  'blue': var(--primaryColor),
+  'violet': #7c3aed,
+  'amber': var(--lt-warning, #f5a93d),
+);
+
+@mixin tone($name, $hue) {
+  &[data-tone='#{$name}'] {
+    color: color-mix(in srgb, #{$hue} 70%, var(--tableText));
+    background: color-mix(in srgb, #{$hue} 12%, var(--navigation));
+    border-color: color-mix(in srgb, #{$hue} 40%, var(--inputBorder));
+  }
+}
+
+// The ring is an inset box-shadow, not a border, so global border-colour overrides cannot flatten it.
+.tc-box {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  min-height: 2.375rem;
+  padding: 0.25rem 2rem 0.25rem 0.5rem;
+  box-sizing: border-box;
+  background: var(--navigation);
+  border: 0;
+  border-radius: var(--radius-control, 0.45rem);
+  box-shadow: inset 0 0 0 1px var(--inputBorder);
+  cursor: text;
+  transition: box-shadow 0.12s ease;
+}
+.tc--focus .tc-box { box-shadow: inset 0 0 0 1px var(--primaryColor), 0 0 0 3px color-mix(in srgb, var(--primaryColor) 16%, transparent); }
+.tc--disabled .tc-box { background: color-mix(in srgb, var(--tableText) 4%, var(--navigation)); cursor: not-allowed; pointer-events: none; opacity: 0.7; }
+
+.tc-token {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  flex: 0 0 auto;
+  max-width: 100%;
+  padding: 0.1875rem 0.3125rem 0.1875rem 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--tableText);
+  background: color-mix(in srgb, var(--tableText) 5%, var(--navigation));
+  border: 1px solid var(--inputBorder);
+  border-radius: 0.4rem;
+
+  @each $name, $hue in $tones { @include tone($name, $hue); }
+}
+.tc-token__label { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.tc-token__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.125rem;
+  font-size: 1rem;
+  line-height: 1;
+  color: currentColor;
+  background: transparent;
+  border: 0;
+  opacity: 0.5;
+  cursor: pointer;
+  &:hover { opacity: 1; }
+}
+
+// "+N more" / "Show less": a small pill at the end of the chips that expands or collapses the rest.
+.tc-more {
+  flex: none;
+  padding: 0.1875rem 0.5rem;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--primaryColor);
+  background: color-mix(in srgb, var(--primaryColor) 8%, var(--navigation));
+  border: 1px dashed color-mix(in srgb, var(--primaryColor) 45%, var(--inputBorder));
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  &:hover { background: color-mix(in srgb, var(--primaryColor) 14%, var(--navigation)); }
+  &:focus-visible { outline: 0.125rem solid var(--primaryColor); outline-offset: 0.125rem; }
+}
+
+// Beats the global `input {}` reset; the box draws the focus ring, so the inner field stays bare.
+.tc-input {
+  flex: 1 1 2rem;
+  min-width: 2rem;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 0.0625rem !important;
+  width: 100% !important;
+  font-size: 0.8125rem;
+  color: var(--tableText);
+  background: transparent !important;
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  &::placeholder { color: var(--placeholder, var(--subText)); }
+}
+// Only while typing does the input claim room for text (wrapping to its own line if needed); at rest it stays
+// in the chip row so a narrow field does not grow an empty extra line.
+.tc--focus .tc-input { min-width: 6rem; }
+
+.tc-toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 100%;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: var(--subText);
+  cursor: pointer;
+  &:hover { color: var(--tableText); }
+}
+.tc-chev {
+  width: 0;
+  height: 0;
+  border-left: 0.25rem solid transparent;
+  border-right: 0.25rem solid transparent;
+  border-top: 0.3125rem solid currentColor;
+  transition: transform 0.12s ease;
+}
+.tc--open .tc-chev { transform: rotate(180deg); }
+
+.tc-spinner {
+  position: absolute;
+  top: 50%;
+  right: 0.625rem;
+  width: 0.875rem;
+  height: 0.875rem;
+  margin-top: -0.4375rem;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0%, var(--primaryColor) 100%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  animation: tc-spin 0.6s linear infinite;
+}
+@keyframes tc-spin { to { transform: rotate(360deg); } }
+
+.tc-panel {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  min-width: 100%;
+  width: max-content;
+  max-width: 24rem;
+  max-height: 15rem;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  overflow-y: auto;
+  z-index: 1200;
+  background: var(--navigation);
+  border: 1px solid var(--inputBorder);
+  border-radius: 0.625rem;
+  box-shadow: 0 0.75rem 2rem var(--shadow, rgba(0, 0, 0, 0.14));
+
+  &.tc-panel--up { top: auto; bottom: calc(100% + 0.25rem); }
+}
+
+.tc-opt {
+  padding: 0.375rem 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--tableText);
+  border-radius: 0.4rem;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:hover { background: color-mix(in srgb, var(--tableText) 6%, transparent); }
+  &.is-active { background: color-mix(in srgb, var(--primaryColor) 12%, transparent); color: var(--primaryColor); }
+  &.is-chosen { color: var(--subText); }
+}
+.tc-opt__plus { margin-right: 0.25rem; font-weight: 700; }
+.tc-opt__check { width: 0.72rem; height: 0.72rem; margin-right: 0.25rem; vertical-align: -0.12em; color: var(--lt-positive, #16a34a); }
+.tc-empty { padding: 0.5rem; font-size: 0.8125rem; color: var(--subText); text-align: center; }
+
+// Chip-style dropdown: options are the same tinted pills as the selected chips and wrap within the control width.
+.tc-panel--chips {
+  width: 100%;
+  max-width: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 0.3rem;
+  padding: 0.4rem;
+
+  .tc-opt {
+    width: fit-content;
+    max-width: 100%;
+    padding: 0.1875rem 0.5rem;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--tableText);
+    background: color-mix(in srgb, var(--tableText) 5%, var(--navigation));
+    border: 1px solid var(--inputBorder);
+    border-radius: 0.4rem;
+    white-space: normal;
+    overflow: visible;
+    overflow-wrap: anywhere;
+
+    @each $name, $hue in $tones { @include tone($name, $hue); }
+
+    &:hover, &.is-active { border-color: currentColor; }
+    &.is-chosen { opacity: 0.65; }
+    &.tc-opt--create {
+      color: var(--primaryColor);
+      background: color-mix(in srgb, var(--primaryColor) 8%, transparent);
+      border: 1px dashed color-mix(in srgb, var(--primaryColor) 45%, transparent);
+      font-weight: 600;
+    }
+  }
+}

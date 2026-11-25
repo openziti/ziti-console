@@ -124,7 +124,8 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         protected dialogForm?: MatDialog,
     ) {
         super();
-        this.previousRoute = this.router.getCurrentNavigation().previousNavigation?.finalUrl?.toString();
+        this.previousRoute = this.router.getCurrentNavigation()?.previousNavigation?.finalUrl?.toString();
+        this.updateBasePath();
         this.subscription.add(
             this.route?.params?.subscribe(params => {
                 const id = params['id'];
@@ -138,13 +139,7 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         this.subscription.add(
             router.events.subscribe((event: any) => {
                 if (event instanceof NavigationEnd) {
-                    const snapshot = this.router.routerState.snapshot.root;
-                    const routeConfig = snapshot.firstChild?.routeConfig;
-                    if (!routeConfig?.path) {
-                      return;
-                    }
-                    const pathSegments = routeConfig.path.split('/');
-                    this.basePath = pathSegments[0];
+                    this.updateBasePath();
                 }
             })
         );
@@ -167,6 +162,52 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
             })
         );
         this.initBaseHref();
+    }
+
+    private saveMenuKey = '';
+    private saveMenuCache: any[] = [];
+
+    // Same list the legacy header feeds its split Save button: a hidden primary 'save', the extra multi-actions,
+    // and Delete (whether it is configured as a multi-action or a more-action) in the dropdown.
+    get saveMenuActions(): any[] {
+        const extras = (this.multiActions || []).filter(a => a.id !== 'save' && !this.actionHidden(a));
+        const del = (this.moreActions || []).find(a => a.name === 'delete' && !this.actionHidden(a));
+        const items = del && !extras.some(a => a.id === 'delete')
+            ? [...extras, {id: 'delete', label: del.label, icon: del.icon, style: 'danger'}]
+            : extras;
+        const key = items.map(a => a.id + ':' + a.label).join('|');
+        if (key !== this.saveMenuKey) {
+            this.saveMenuKey = key;
+            this.saveMenuCache = [{id: 'save', label: 'Save', hidden: true}, ...items];
+        }
+        return this.saveMenuCache;
+    }
+
+    onSaveMenuAction(action: any) {
+        if (action?.id === 'save' && this.formPermissionSaveDisabled) {
+            return;
+        }
+        const self = this as any;
+        const moreDelete = action?.id === 'delete' && !(this.multiActions || []).some(a => a.id === 'delete')
+            ? (this.moreActions || []).find(a => a.name === 'delete')
+            : undefined;
+        if (moreDelete) {
+            self.headerActionRequested(moreDelete);
+        } else {
+            self.multiActionRequested({id: action?.id});
+        }
+    }
+
+    actionHidden(action: any): boolean {
+        return typeof action?.hidden === 'function' ? action.hidden() : !!action?.hidden;
+    }
+
+    get headerMoreActions(): any[] {
+        return this.isEdit ? (this.moreActions || []).filter(a => a.name !== 'delete' && !this.actionHidden(a)) : [];
+    }
+
+    get headerMultiActions(): any[] {
+        return this.isEdit ? (this.multiActions || []).filter(a => a.id !== 'save' && !this.actionHidden(a)) : [];
     }
 
     get isEdit() {
@@ -282,6 +323,15 @@ export abstract class ProjectableForm extends ExtendableComponent implements DoC
         if (event) {
             event.stopPropagation();
         }
+    }
+
+    // Also runs at construction, since forms created after navigation ends never see that NavigationEnd.
+    protected updateBasePath() {
+        const routeConfig = this.router?.routerState?.snapshot?.root?.firstChild?.routeConfig;
+        if (!routeConfig?.path) {
+            return;
+        }
+        this.basePath = routeConfig.path.split('/')[0];
     }
 
     returnToListPage() {

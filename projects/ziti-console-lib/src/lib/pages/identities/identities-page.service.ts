@@ -427,13 +427,12 @@ export class IdentitiesPageService extends ListPageServiceClass {
             ]
         };
 
-        // Online when any of the connection signals is live (the status icon is drawn
-        // via CSS ::before, since [innerHTML] strips inline <svg>).
-        const isOnline = (v: any) => v === true || /online|connected|true/i.test(String(v ?? ''));
+        // Status follows the form header rule (see getConnectionStatus); the icon is
+        // drawn via CSS ::before, since [innerHTML] strips inline <svg>.
         const statusRenderer = (row) => {
-            const d = row?.data || {};
-            const online = isOnline(d.edgeRouterConnectionStatus) || isOnline(d.hasEdgeRouterConnection) || isOnline(d.hasApiSession);
-            return `<span class="lt-status lt-status-${online ? 'online' : 'offline'}">${online ? 'Online' : 'Offline'}</span>`;
+            const status = this.getConnectionStatus(row?.data);
+            const label = status === 'online' ? 'Online' : status === 'offline' ? 'Offline' : 'Unknown';
+            return `<span class="lt-status lt-status-${status}">${label}</span>`;
         };
 
         // Color-coded Type pill with an icon: Default = blue, Router = green. Icon drawn
@@ -749,6 +748,14 @@ export class IdentitiesPageService extends ListPageServiceClass {
             );
             this.growlerService.show(growlerData);
         });
+    }
+
+    getConnectionStatus(identity: any): 'online' | 'offline' | 'unknown' {
+        if (identity && Object.prototype.hasOwnProperty.call(identity, 'edgeRouterConnectionStatus')) {
+            const status = identity.edgeRouterConnectionStatus;
+            return status === 'online' ? 'online' : status === 'offline' ? 'offline' : 'unknown';
+        }
+        return identity?.hasApiSession && identity?.hasEdgeRouterConnection ? 'online' : 'offline';
     }
 
     getJWT(identity: any) {

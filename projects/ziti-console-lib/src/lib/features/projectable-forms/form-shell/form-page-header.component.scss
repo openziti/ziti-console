@@ -1,0 +1,126 @@
+:host { display: block; }
+
+.fph {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 0.0625rem solid var(--inputBorder);
+}
+
+.fph-back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--primaryColor);
+
+  // the chevron glyph has built-in left space; pull it so the arrow tip sits on the left edge
+  svg { margin-left: -0.33rem; transition: transform 0.12s ease; }
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.125rem;
+    svg { transform: translateX(-0.125rem); }
+  }
+
+  &:focus-visible {
+    outline: 0.125rem solid var(--primaryColor);
+    outline-offset: 0.125rem;
+    border-radius: 0.125rem;
+  }
+}
+
+.fph-titlerow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 1rem;
+
+  @media (max-width: 700px) { flex-wrap: wrap; }
+}
+
+.fph-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  min-width: 0;
+  margin: 0 0 0 -0.04em;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--tableText);
+}
+
+.fph-heading { flex: none; white-space: nowrap; }
+.fph-sep { flex: none; color: var(--subText); }
+
+.fph-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--primaryColor);
+  cursor: default;
+}
+
+.fph-actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.fph-titlegroup {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex: 1 1 0;
+}
+
+.fph-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.625rem;
+  margin-top: 0.625rem;
+}
+
+.fph-badge { flex: none; }
+
+.fph-badge {
+  --fph-tone: var(--subText);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 1.625rem;
+  padding: 0 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--fph-tone);
+  background: color-mix(in srgb, var(--fph-tone) 12%, var(--navigation));
+  border: 1px solid color-mix(in srgb, var(--fph-tone) 30%, var(--inputBorder));
+  border-radius: 999px;
+
+  &.verified { --fph-tone: var(--green); }
+  &.unreg { --fph-tone: var(--red); }
+  &.warning, &.unknown { --fph-tone: var(--highlighted, #d9930d); }
+  &.online { --fph-tone: var(--lt-positive, #16a34a); color: var(--lt-positive-text, #166534); }
+  &.offline { --fph-tone: var(--tableText); }
+}
+
+.fph-badge-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
+}

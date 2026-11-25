@@ -1,0 +1,296 @@
+<div class="projectable-form-wrapper form-shell-wrapper"
+  (keyup.enter)="save($event)"
+  (keyup.escape)="closeModal(false)"
+  [class.projectable-form-hidden]="!dataInit"
+  >
+  <div class="form-shell-top">
+    <lib-form-page-header
+      backLabel="Back to Identities"
+      [heading]="formData.id ? 'Edit identity' : 'Create identity'"
+      [name]="formData.id ? (initData?.name || formData.name) : ''"
+      [badges]="formData.badges || []"
+      (back)="headerActionRequested({name: 'close'})"
+      >
+      @if (!hideHeaderActions) {
+        <lib-form-segmented ariaLabel="Form view" [options]="viewOptions" [value]="formView" (valueChange)="formView = $event"></lib-form-segmented>
+        @if (!useStrictReadonlyForm) {
+          @for (action of headerMoreActions; track action.name) {
+            <button type="button" class="hdr-btn" (click)="headerActionRequested(action)">{{action.label}}</button>
+          }
+        }
+        @if (!useStrictReadonlyForm) {
+          @if (saveMenuActions.length > 1) {
+            <lib-multi-action-button
+              [actions]="saveMenuActions"
+              (actionRequested)="onSaveMenuAction($event)"
+            ></lib-multi-action-button>
+          } @else {
+            <button type="button" class="hdr-save" [class.disabled]="formPermissionSaveDisabled" [attr.title]="formPermissionSaveTooltip || null" (click)="!formPermissionSaveDisabled && headerActionRequested({name: 'save'})">Save</button>
+          }
+        }
+      }
+    </lib-form-page-header>
+  </div>
+  <ng-content select="[slot=tabs-slot]"></ng-content>
+  <div class="form-shell-container projectable-form-container" #formContainer>
+    @if (formView === 'simple') {
+      <div class="form-shell-page form-shell-grid">
+        <div class="form-shell-main">
+          <lib-form-section>
+            <lib-form-row label="Identity Name" [badge]="useStrictReadonlyForm ? '' : 'required'" forId="identityName" [error]="errors['name'] ? 'Name is required' : ''">
+              <input
+                id="identityName"
+                class="form-field-input"
+                placeholder="Name this identity"
+                [ngClass]="{error: errors['name']}"
+                [attr.aria-invalid]="!!errors['name']"
+                [(ngModel)]="formData.name"
+                autofocus
+                #nameFieldInput
+                [disabled]="useStrictReadonlyForm"
+                />
+            </lib-form-row>
+            <lib-form-row label="Select or create Identity attributes" [badge]="useStrictReadonlyForm ? '' : 'optional'" hint="Attributes are tags applied to an resource. Apply the same tag to other Identities to form a group of Identities.">
+              <lib-token-combo
+                [maxVisibleChips]="3"
+                allowCustom
+                chipOptions
+                keepChosenVisible
+                [filterSuggestionsLocally]="true"
+                [searchDelay]="0"
+                [ngModel]="attributeTokens"
+                (ngModelChange)="onAttributeTokensChange($event)"
+                [suggestions]="attributeSuggestions"
+                [normalizeToken]="normalizeAttribute"
+                [toneFor]="attributeTone"
+                [disabled]="useStrictReadonlyForm"
+                placeholder="Add attributes to group Identities"
+              ></lib-token-combo>
+            </lib-form-row>
+            <ng-content select="[slot=column-1-slot-1]"></ng-content>
+            @if (canReadRelated('auth-policies')) {
+              <lib-form-row label="Auth Policy" [badge]="useStrictReadonlyForm ? '' : 'optional'" forId="authPolicyId" hint="Authentication Policies restrict the authentication methods available to identities.">
+                <select [(ngModel)]="formData.authPolicyId" id="authPolicyId" class="form-field-dropdown" [disabled]="useStrictReadonlyForm">
+                  <option value="">Select an Authentication Policy</option>
+                  @for (policy of authPolicies; track policy) {
+                    <option [value]="policy.id">{{ policy.name }}</option>
+                  }
+                </select>
+              </lib-form-row>
+              <lib-form-row label="External ID" [badge]="useStrictReadonlyForm ? '' : 'optional'">
+                <input class="form-field-input" placeholder="Optional External ID" [(ngModel)]="formData.externalId" [disabled]="useStrictReadonlyForm" />
+              </lib-form-row>
+            }
+            <ng-content select="[slot=column-1-slot-2]"></ng-content>
+          </lib-form-section>
+
+          <button type="button" class="more-link" [attr.aria-expanded]="showMore" (click)="showMore = !showMore; showMoreChanged(showMore)">
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" [class.open]="showMore"><path d="M9 6l6 6-6 6" /></svg>
+            Show More Options
+          </button>
+
+          <div class="form-shell-main" [hidden]="!showMore">
+            <lib-form-section>
+              <div class="form-shell-pair">
+                <lib-form-row label="Enrollment Type" forId="EnrollmentType">
+                  <select
+                    id="EnrollmentType"
+                    class="form-field-dropdown"
+                    [ngClass]="{disabled: isEditing}"
+                    [disabled]="useStrictReadonlyForm || isEditing"
+                    [(ngModel)]="enrollmentType"
+                    (change)="updateEnrollment()"
+                    >
+                    <option value="ott">One Time Token</option>
+                    <option value="CA" [hidden]="!canReadRelated('cas')">Certificate Authority</option>
+                    <option value="updb">UPDB</option>
+                    <option value="none">None</option>
+                  </select>
+                </lib-form-row>
+                <lib-form-row label="Admin">
+                  <lib-form-segmented ariaLabel="Is admin" [options]="adminOptions" [value]="!!formData.isAdmin" [disabled]="useStrictReadonlyForm" (valueChange)="onAdminChange($event)"></lib-form-segmented>
+                </lib-form-row>
+              </div>
+              @if (enrollmentTypeTitle) {
+                <lib-form-row [label]="enrollmentSecondLabel" [error]="enrollmentType === 'CA' && errors.enrollmentCA ? 'Select a certificate authority' : (enrollmentType === 'updb' && errors.enrollmentUPDB ? 'Enter a name' : '')">
+                  @if (enrollmentType === 'CA' && canReadRelated('cas')) {
+                    <select
+                      id="CertAuthorities"
+                      class="form-field-dropdown"
+                      [ngClass]="{disabled: isEditing, error: errors.enrollmentCA}"
+                      [disabled]="useStrictReadonlyForm || isEditing"
+                      [(ngModel)]="enrollmentCA"
+                      (change)="updateEnrollment()"
+                      >
+                      @for (ca of cas; track ca) {
+                        <option [value]="ca.id">{{ca.name}}</option>
+                      }
+                    </select>
+                  }
+                  @if (enrollmentType === 'updb' && !isEditing) {
+                    <input
+                      id="UPDBName"
+                      class="form-field-input"
+                      [ngClass]="{disabled: isEditing, error: errors.enrollmentUPDB}"
+                      [(ngModel)]="enrollmentUPDB"
+                      (keyup)="updateEnrollment()"
+                      type="text"
+                      maxlength="500"
+                      placeholder="Enter a name"
+                      [disabled]="useStrictReadonlyForm"
+                      >
+                  }
+                </lib-form-row>
+              }
+              <div class="form-shell-pair">
+                <lib-form-row label="Hosting Cost" forId="hostingCost">
+                  <input id="hostingCost" class="form-field-input" [(ngModel)]="formData.defaultHostingCost" type="number" [disabled]="useStrictReadonlyForm" />
+                </lib-form-row>
+                <lib-form-row label="Precedence" forId="hostingPrecedence">
+                  <select [(ngModel)]="formData.defaultHostingPrecedence" id="hostingPrecedence" class="form-field-dropdown" [disabled]="useStrictReadonlyForm">
+                    <option value="default">Default</option>
+                    <option value="required">Required</option>
+                    <option value="failed">Failed</option>
+                  </select>
+                </lib-form-row>
+              </div>
+              @for (tagElement of tagElements; track tagElement) {
+                <lib-form-row [label]="tagElement.label" [badge]="useStrictReadonlyForm ? '' : 'optional'">
+                  <div [innerHTML]="tagElement.content | safe"></div>
+                </lib-form-row>
+              }
+              @if (!hideTags) {
+                <lib-form-row label="Custom Tags" [badge]="useStrictReadonlyForm ? '' : 'optional'">
+                  <lib-custom-tags [(tags)]="formData.tags" [readOnly]="useStrictReadonlyForm"></lib-custom-tags>
+                </lib-form-row>
+              }
+              <lib-form-row label="App Data" [badge]="useStrictReadonlyForm ? '' : 'optional'">
+                <lib-json-view [(data)]="formData.appData" [readOnly]="useStrictReadonlyForm"></lib-json-view>
+              </lib-form-row>
+            </lib-form-section>
+          </div>
+        </div>
+        <aside class="form-shell-aside">
+          <lib-form-summary
+            [rows]="summaryRows"
+            [isNew]="!isEdit"
+          ></lib-form-summary>
+          <ng-content select="[slot=column-2-slot-1]"></ng-content>
+          @if (isEdit && (hasEnrolmentToken || hasAuthenticator)) {
+            <lib-form-section heading="Enrollment">
+              @if (jwtExpired !== undefined && !showResetToken) {
+                <span class="enroll-expiry" [class.expired-text]="jwtExpired">
+                  {{jwtExpired ? 'EXPIRED' : 'EXPIRES'}} {{expirationDate}}
+                </span>
+              }
+              @if (!useStrictReadonlyForm) {
+                <lib-qr-code
+                  [identity]="formData"
+                  [jwt]="jwt"
+                  [expiration]="enrollmentExpiration"
+                  [authenticators]="formData.authenticators"
+                  [type]="'identity'"
+                  [canExpand]="true"
+                  (doRefresh)="refreshIdentity(true)"
+                ></lib-qr-code>
+              }
+            </lib-form-section>
+          }
+          @if (isEdit && !useStrictReadonlyForm) {
+            <lib-form-section heading="Enable / Disable">
+              @if (entityDisabled) {
+                <div class="disable-identity-button-container is-enable" (click)="enableIdentity()">
+                  <div class="disable-identity-background"></div>
+                  <button class="download-button disable-identity-button">Enable Identity</button>
+                </div>
+              } @else {
+                <div class="disable-identity-button-container" (click)="disableIdentity()">
+                  <div class="disable-identity-background"></div>
+                  <button class="download-button disable-identity-button">Disable Identity</button>
+                </div>
+                <lib-form-row label="Disable Until" forId="DurationType">
+                  <div class="disable-identity-duration-container">
+                    <select [(ngModel)]="disableDurationType" id="DurationType" class="form-field-dropdown">
+                      <option value="indefinite">Indefinite</option>
+                      <option value="pick-date">Pick a Date & Time</option>
+                    </select>
+                    @if (disableDurationType === 'pick-date') {
+                      <div class="disable-identity-datetime-inputs">
+                        <lib-date-time-picker
+                          class="disable-identity-date-time-picker"
+                          [refined]="true"
+                          [(ngModel)]="disableDuration"
+                          [minDate]="minDate"
+                          [closeOnDateSelect]="true"
+                        ></lib-date-time-picker>
+                      </div>
+                    }
+                  </div>
+                </lib-form-row>
+              }
+            </lib-form-section>
+          }
+          @if (formData.id && (canReadRelated('services') || canReadRelated('service-policies'))) {
+            <lib-form-section heading="Associated entities">
+              @if (canReadRelated('services')) {
+                <lib-form-associated-group
+                  label="Services"
+                  helpText="Preview list of all services that this Identity is associated with."
+                  emptyText="No services"
+                  [clickable]="true"
+                  [loading]="servicesPager.loading"
+                  [items]="servicesPager.names"
+                  [total]="servicesPager.total"
+                  [page]="servicesPager.page"
+                  (pageChange)="servicesPager.goTo($event)"
+                  (searchChange)="servicesPager.find($event)"
+                  (itemSelected)="serviceSelected($event)"
+                ></lib-form-associated-group>
+              }
+              @if (canReadRelated('service-policies')) {
+                <lib-form-associated-group
+                  label="Service Policies"
+                  helpText="Preview list of all service policies that this Identity is associated with."
+                  emptyText="No service policies"
+                  [loading]="servicePoliciesPager.loading"
+                  [items]="servicePoliciesPager.names"
+                  [total]="servicePoliciesPager.total"
+                  [page]="servicePoliciesPager.page"
+                  (pageChange)="servicePoliciesPager.goTo($event)"
+                  (searchChange)="servicePoliciesPager.find($event)"
+                ></lib-form-associated-group>
+              }
+              @if (testResultOpen) {
+                <div class="svc-test-result test-result-open">
+                  <div class="close icon-close" (click)="closeTestResult()"></div>
+                  <div class="result-container" [innerHTML]="testResult" ></div>
+                </div>
+              }
+            </lib-form-section>
+          }
+          @if (showApiCalls) {
+            <lib-form-section heading="API Calls">
+              <div class="api-url-row">
+                <input class="form-field-input" [value]="apiCallURL" readonly/>
+                <div class="url-copy icon-copy copy-text" (click)="copyToClipboard(apiCallURL)"></div>
+              </div>
+              @if (formData) {
+                <lib-json-view [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
+              }
+            </lib-form-section>
+          }
+        </aside>
+      </div>
+    }
+    @if (formView === 'raw') {
+      <div class="form-shell-page">
+        @if (formData) {
+          <lib-json-view [(data)]="formData" [readOnly]="useStrictReadonlyForm"></lib-json-view>
+        }
+      </div>
+    }
+  </div>
+</div>
+@if (isLoading || !dataInit) {
+  <lib-loading-indicator [isLoading]="isLoading || !dataInit"></lib-loading-indicator>
+}

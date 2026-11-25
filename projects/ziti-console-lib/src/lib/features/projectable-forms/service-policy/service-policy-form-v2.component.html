@@ -1,0 +1,213 @@
+<div class="projectable-form-wrapper form-shell-wrapper"
+  (keyup.enter)="save($event)"
+  (keyup.escape)="closeModal(false)"
+  [class.projectable-form-hidden]="!dataInit"
+  >
+  <div class="form-shell-top">
+    <lib-form-page-header
+      backLabel="Back to Service Policies"
+      [heading]="formData.id ? 'Edit service policy' : 'Create service policy'"
+      [name]="formData.id ? (initData?.name || formData.name) : ''"
+      [badges]="formData.badges || []"
+      (back)="headerActionRequested({name: 'close'})"
+      >
+      <lib-form-segmented ariaLabel="Form view" [options]="viewOptions" [value]="formView" (valueChange)="formView = $event"></lib-form-segmented>
+      @if (!useStrictReadonlyForm) {
+        @for (action of headerMoreActions; track action.name) {
+          <button type="button" class="hdr-btn" (click)="headerActionRequested(action)">{{action.label}}</button>
+        }
+      }
+      @if (!useStrictReadonlyForm) {
+        @if (saveMenuActions.length > 1) {
+          <lib-multi-action-button
+            [actions]="saveMenuActions"
+            (actionRequested)="onSaveMenuAction($event)"
+          ></lib-multi-action-button>
+        } @else {
+          <button type="button" class="hdr-save" [class.disabled]="formPermissionSaveDisabled" [attr.title]="formPermissionSaveTooltip || null" (click)="!formPermissionSaveDisabled && headerActionRequested({name: 'save'})">Save</button>
+        }
+      }
+    </lib-form-page-header>
+  </div>
+  <ng-content select="[slot=tabs-slot]"></ng-content>
+  <div class="form-shell-container projectable-form-container" #formContainer>
+    @if (formView === 'simple') {
+      <div class="form-shell-page form-shell-grid">
+        <div class="form-shell-main">
+          <lib-form-section>
+            <lib-form-row label="Service Policy Name" [badge]="useStrictReadonlyForm ? '' : 'required'" forId="servicePolicyName" [error]="errors['name'] ? 'Name is required' : ''">
+              <input
+                id="servicePolicyName"
+                class="form-field-input"
+                placeholder="Name this service policy"
+                [ngClass]="{error: errors['name']}"
+                [attr.aria-invalid]="!!errors['name']"
+                [(ngModel)]="formData.name"
+                autofocus
+                #nameFieldInput
+                [disabled]="useStrictReadonlyForm"
+                />
+            </lib-form-row>
+            <lib-form-row label="Select Service Attributes" [badge]="'optional'" hint="Choose which services to associate to this policy by picking from the list of available attributes">
+              <lib-token-combo
+                [maxVisibleChips]="3"
+                allowCustom
+                chipOptions
+                keepChosenVisible
+                [filterSuggestionsLocally]="true"
+                [searchDelay]="250"
+                [ngModel]="serviceTokens"
+                (ngModelChange)="onServiceTokensChange($event)"
+                [suggestions]="serviceSuggestions"
+                (search)="getServiceNamedAttributesDebounced($event)"
+                [normalizeToken]="normalizeAttribute"
+                [toneFor]="attributeTone"
+                [disabled]="useStrictReadonlyForm"
+                placeholder="Select service attributes"
+              ></lib-token-combo>
+            </lib-form-row>
+            <lib-form-row label="Select Identity Attributes" [badge]="'optional'" hint="Choose which identities to associate to this policy by picking from the list of available attributes">
+              <lib-token-combo
+                [maxVisibleChips]="3"
+                allowCustom
+                chipOptions
+                keepChosenVisible
+                [filterSuggestionsLocally]="true"
+                [searchDelay]="250"
+                [ngModel]="identityTokens"
+                (ngModelChange)="onIdentityTokensChange($event)"
+                [suggestions]="identitySuggestions"
+                (search)="getIdentityNamedAttributesDebounced($event)"
+                [normalizeToken]="normalizeAttribute"
+                [toneFor]="attributeTone"
+                [disabled]="useStrictReadonlyForm"
+                placeholder="Select identity attributes"
+              ></lib-token-combo>
+            </lib-form-row>
+            <lib-form-row label="Select Posture Check Attributes" [badge]="'optional'" hint="Choose which posture checks to associate to this policy by picking from the list of available attributes">
+              <lib-token-combo
+                [maxVisibleChips]="3"
+                allowCustom
+                chipOptions
+                keepChosenVisible
+                [filterSuggestionsLocally]="true"
+                [searchDelay]="250"
+                [ngModel]="postureTokens"
+                (ngModelChange)="onPostureTokensChange($event)"
+                [suggestions]="postureSuggestions"
+                (search)="getPostureNamedAttributesDebounced($event)"
+                [normalizeToken]="normalizeAttribute"
+                [toneFor]="attributeTone"
+                [disabled]="useStrictReadonlyForm"
+                placeholder="Select posture check attributes"
+              ></lib-token-combo>
+            </lib-form-row>
+            <div class="form-shell-pair">
+              <lib-form-row label="Type" forId="PolicyType">
+                <select
+                  [(ngModel)]="formData.type"
+                  (change)="onPolicyTypeChanged()"
+                  id="PolicyType"
+                  class="form-field-dropdown"
+                  [disabled]="useStrictReadonlyForm"
+                  >
+                  <option value="Bind">Bind</option>
+                  <option value="Dial">Dial</option>
+                </select>
+              </lib-form-row>
+              <lib-form-row label="Semantic" forId="PolicySemantic">
+                <select
+                  [(ngModel)]="formData.semantic"
+                  (change)="onPolicySemanticChanged()"
+                  id="PolicySemantic"
+                  class="form-field-dropdown"
+                  [disabled]="useStrictReadonlyForm"
+                  >
+                  <option value="AnyOf">AnyOf</option>
+                  <option value="AllOf">AllOf</option>
+                </select>
+              </lib-form-row>
+            </div>
+            <ng-content select="[slot=column-1-slot-1]"></ng-content>
+          </lib-form-section>
+          <button type="button" class="more-link" [attr.aria-expanded]="showMore" (click)="showMore = !showMore; showMoreChanged(showMore)">
+            <svg [class.open]="showMore" aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+            Show More Options
+          </button>
+          <div class="form-shell-main" [hidden]="!showMore">
+            @if (!hideTags) {
+              <lib-form-section>
+                <lib-form-row label="Custom Tags" [badge]="'optional'">
+                  <lib-custom-tags [(tags)]="formData.tags" [readOnly]="useStrictReadonlyForm"></lib-custom-tags>
+                </lib-form-row>
+              </lib-form-section>
+            }
+          </div>
+        </div>
+        <aside class="form-shell-aside">
+          <lib-form-summary
+            [rows]="summaryRows"
+            [isNew]="!formData.id"
+          ></lib-form-summary>
+          <ng-content select="[slot=column-2-slot-1]"></ng-content>
+          <lib-form-section heading="Associated entities">
+            <lib-form-associated-group
+              label="Services"
+              helpText="Preview list of all services that this Service Policy is associated with."
+              emptyText="No services"
+              [loading]="servicesPager.loading"
+              [items]="servicesPager.names"
+              [total]="servicesPager.total"
+              [page]="servicesPager.page"
+              (pageChange)="servicesPager.goTo($event)"
+              (searchChange)="servicesPager.find($event)"
+            ></lib-form-associated-group>
+            <lib-form-associated-group
+              label="Identities"
+              helpText="Preview list of all Identities that this Service Policy is associated with."
+              emptyText="No identities"
+              [loading]="identitiesPager.loading"
+              [items]="identitiesPager.names"
+              [total]="identitiesPager.total"
+              [page]="identitiesPager.page"
+              (pageChange)="identitiesPager.goTo($event)"
+              (searchChange)="identitiesPager.find($event)"
+            ></lib-form-associated-group>
+            <lib-form-associated-group
+              label="Posture Checks"
+              helpText="Preview list of all Posture Checks that this Service Policy is associated with."
+              emptyText="No posture checks"
+              [loading]="postureChecksPager.loading"
+              [items]="postureChecksPager.names"
+              [total]="postureChecksPager.total"
+              [page]="postureChecksPager.page"
+              (pageChange)="postureChecksPager.goTo($event)"
+              (searchChange)="postureChecksPager.find($event)"
+            ></lib-form-associated-group>
+          </lib-form-section>
+          @if (showApiCalls) {
+            <lib-form-section heading="API Calls">
+              <div class="api-url-row">
+                <input class="form-field-input" [value]="apiCallURL" readonly/>
+                <div class="url-copy icon-copy copy-text" (click)="copyToClipboard(apiCallURL)"></div>
+              </div>
+              @if (formData) {
+                <lib-json-view [(data)]="apiData" [readOnly]="true" [showCopy]="true"></lib-json-view>
+              }
+            </lib-form-section>
+          }
+        </aside>
+      </div>
+    }
+    @if (formView === 'raw') {
+      <div class="form-shell-page">
+        @if (formData) {
+          <lib-json-view [(data)]="formData" [readOnly]="useStrictReadonlyForm"></lib-json-view>
+        }
+      </div>
+    }
+  </div>
+</div>
+@if (isLoading || !dataInit) {
+  <lib-loading-indicator [isLoading]="isLoading || !dataInit"></lib-loading-indicator>
+}

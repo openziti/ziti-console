@@ -1,0 +1,26 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.fsec {
+  position: relative;
+  padding: 1.25rem;
+  background: var(--navigation);
+  border: 1px solid var(--inputBorder);
+  border-radius: 0.75rem;
+}
+
+.fsec-title {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--tableText);
+  text-transform: none;
+}
+
+.fsec-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}

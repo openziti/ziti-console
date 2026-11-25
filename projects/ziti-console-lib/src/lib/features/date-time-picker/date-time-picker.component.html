@@ -32,6 +32,7 @@
 >
   <div
     class="dtp-overlay"
+    [class.dtp-overlay-refined]="refined"
     [style.--dtp-panel-width]="panelWidth"
     (keydown.escape)="$event.stopPropagation(); close()"
   >

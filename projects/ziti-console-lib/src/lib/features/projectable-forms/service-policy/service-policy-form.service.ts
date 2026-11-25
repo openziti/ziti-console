@@ -108,6 +108,34 @@ export class ServicePolicyFormService {
         });
     }
 
+    // One page of the entities a policy attribute selection matches: role matches OR the explicitly picked ids.
+    async getAssociatedPage(type: string, roles: string[], ids: string[], semantic: string, page: number, size: number, search: string) {
+        const hasAll = (roles || []).includes('all');
+        const clauses: string[] = [];
+        if (!hasAll) {
+            if (roles?.length) {
+                clauses.push(roles.map((r) => `anyOf(roleAttributes) = "${r}"`).join(semantic === 'AllOf' ? ' and ' : ' or '));
+            }
+            if (ids?.length) {
+                clauses.push(`id in [${ids.map((id) => `"${id}"`).join(',')}]`);
+            }
+            if (!clauses.length) {
+                return {items: [], total: 0};
+            }
+        }
+        const filters: any[] = [];
+        if (clauses.length) {
+            filters.push({columnId: 'roleAttributes', value: clauses.map((c) => `(${c})`).join(' or '), label: '', filterName: 'Attributes', type: 'RAW'});
+        }
+        if (search) {
+            filters.push({columnId: 'name', value: search, label: search, filterName: 'Name', type: 'TEXTINPUT', verb: 'icontains'});
+        }
+        const paging = {...this.zitiService.DEFAULT_PAGING, page, total: size, noSearch: filters.length === 0};
+        const result: any = await this.zitiService.get(type, paging, filters);
+        const items = result?.data || [];
+        return {items, total: result?.meta?.pagination?.totalCount ?? items.length};
+    }
+
     getAssociatedServicesByAttribute(roleAttributes, namedAttributes, semantic = 'AnyOf') {
         this.associatedServiceNames = [];
         if (isEmpty(roleAttributes)) {

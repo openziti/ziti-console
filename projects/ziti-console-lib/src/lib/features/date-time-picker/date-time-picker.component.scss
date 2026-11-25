@@ -150,3 +150,76 @@
   }
 }
 
+
+// Refined look (opt-in via [refined]): matches the redesigned form controls
+:host(.dtp-refined) {
+  .dtp-field { position: relative; }
+
+  .dtp-input {
+    height: 2.375rem !important;
+    padding: 0 2.5rem 0 0.75rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    color: var(--tableText);
+    background-color: var(--navigation) !important;
+    border: 1px solid var(--inputBorder) !important;
+    border-radius: var(--radius-control, 0.45rem) !important;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: var(--primaryColor) !important;
+      box-shadow: 0 0 0 0.1875rem color-mix(in srgb, var(--primaryColor) 18%, transparent) !important;
+      outline: none;
+    }
+  }
+
+  .dtp-button {
+    position: absolute;
+    right: 0.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 1.875rem;
+    width: 1.875rem;
+    min-width: 0;
+    border: 0;
+    border-radius: var(--radius-control, 0.45rem);
+    background: transparent;
+    color: var(--icon);
+
+    &:hover:not(:disabled) { filter: none; background: color-mix(in srgb, var(--primaryColor) 12%, transparent); color: var(--primaryColor); }
+
+    .pi { font-size: 1rem; }
+  }
+}
+
+.dtp-overlay.dtp-overlay-refined {
+  background-color: var(--navigation);
+  border-color: var(--inputBorder);
+  border-width: 1px;
+  border-radius: 0.75rem;
+  box-shadow: 0 0.5rem 1.5rem var(--shadow, rgba(0, 0, 0, 0.12));
+
+  .dtp-time {
+    padding: 0.5rem 0 0.25rem;
+    border-top: 1px solid var(--inputBorder);
+  }
+
+  .dtp-time-value {
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.25rem 0;
+    background: color-mix(in srgb, var(--primaryColor) 8%, transparent);
+    border-radius: 0.4rem;
+  }
+
+  .dtp-time-btn {
+    height: 1.75rem;
+    width: 1.75rem;
+    background: transparent;
+    color: var(--icon);
+
+    &:hover { filter: none; background: color-mix(in srgb, var(--primaryColor) 12%, transparent); color: var(--primaryColor); }
+
+    .pi { font-size: 1rem; }
+  }
+}

@@ -2497,7 +2497,8 @@ a {
 }
 
 // small dot centered in the shared icon slot (keeps the theme color via currentColor)
-.lt-cell .lt-status-offline::before {
+.lt-cell .lt-status-offline::before,
+.lt-cell .lt-status-unknown::before {
   background: radial-gradient(circle at center, currentColor 0 0.225rem, transparent 0.243rem);
 }
 
@@ -2573,6 +2574,12 @@ a {
   color: color-mix(in srgb, var(--groupText) 55%, var(--text));
   background: color-mix(in srgb, var(--groupText) 16%, transparent);
   border-color: color-mix(in srgb, var(--groupText) 42%, var(--background));
+}
+
+.lt-cell .lt-status-unknown {
+  color: var(--lt-warning-text, #92400e);
+  background: color-mix(in srgb, var(--lt-warning, #f5a93d) 16%, transparent);
+  border-color: color-mix(in srgb, var(--lt-warning, #f5a93d) 45%, var(--background));
 }
 
 .cert {

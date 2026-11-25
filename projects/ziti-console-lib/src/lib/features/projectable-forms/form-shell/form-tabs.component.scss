@@ -1,0 +1,61 @@
+:host { display: block; min-width: 0; }
+
+.ftabs {
+  display: flex;
+  gap: 0;
+  width: 100%;
+  margin: 0.75rem 0 1.25rem;
+  position: relative;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  // the divider is a layer under the tabs so the active underline sits on top of it
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--inputBorder);
+  }
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+// Tabs are projected anchors/buttons, so they are styled through ng-deep
+:host ::ng-deep .ftabs > * {
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding: 0.7rem 1.1rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  white-space: nowrap;
+  text-decoration: none !important;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  color: var(--subText) !important;
+  transition: color 0.15s, border-color 0.15s;
+
+  &:first-child { padding-left: 0; }
+  &:hover { color: var(--tableText) !important; }
+
+  &:focus-visible {
+    outline: 2px solid var(--primaryColor);
+    outline-offset: -2px;
+    border-radius: 0.25rem;
+  }
+
+  &.active {
+    color: var(--primaryColor) !important;
+    border-bottom-color: var(--primaryColor);
+    font-weight: 600;
+  }
+}

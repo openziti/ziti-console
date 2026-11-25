@@ -1,0 +1,14 @@
+@use '../form-shell/form-shell';
+@use '../form-shell/form-controls';
+
+.enroll-expiry {
+  font-size: 0.75rem;
+  color: var(--groupText);
+
+  &.expired-text {
+    color: var(--red);
+  }
+}
+
+.disable-identity-duration-container { gap: 0.5rem; }
+.disable-identity-datetime-inputs { gap: 0.5rem; }
