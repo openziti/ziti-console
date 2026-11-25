@@ -148,6 +148,20 @@ describe('list-actions helpers', () => {
             expect(inputs.buttons.map((b: any) => b.action)).toEqual(['edit']);
         });
 
+        it('drops a button when its menu item is later removed from the captured array in place', () => {
+            const menuItems = [
+                {name: 'Edit', action: 'edit'},
+                {name: 'Delete', action: 'delete'},
+            ];
+            const cell = hoverActionsCell({...config, menuItems});
+            const row: Row = {id: 'a', name: 'edge-01', actionList: ['edit', 'delete']};
+            expect((cell.cellInputs!(context(row)) as any).buttons.map((b: any) => b.action)).toEqual(['edit', 'delete']);
+
+            menuItems.splice(1, 1);
+
+            expect((cell.cellInputs!(context(row)) as any).buttons.map((b: any) => b.action)).toEqual(['edit']);
+        });
+
         it('passes leading status markup through, kept apart from the text', () => {
             const cell = hoverActionsCell({...config, statusHtml: (row: Row) => `<span class="dot ${row.id}"></span>`});
             const inputs: any = cell.cellInputs!(context({id: 'a', name: 'edge-01'}));
