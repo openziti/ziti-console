@@ -152,19 +152,13 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   updateBadges() {
     if (this.formData.id) {
       this.formData.badges = [];
-      const hasERConnectionProp = has(this.formData, 'edgeRouterConnectionStatus')
-      if (hasERConnectionProp) {
-        if (this.formData.edgeRouterConnectionStatus === 'online') {
-          this.formData.badges.push({label: 'Online', class: 'online', circle: 'true'});
-        } else if (this.formData.edgeRouterConnectionStatus === 'offline') {
-          this.formData.badges.push({label: 'Offline', class: 'offline', circle: 'false'});
-        } else {
-          this.formData.badges.push({label: 'Connection Status Unknown', class: 'unknown', circle: 'false'});
-        }
-      } else if (this.formData.hasApiSession || this.formData.hasEdgeRouterConnection) {
+      const connection = this.identitiesService.getConnectionStatus(this.formData);
+      if (connection === 'online') {
         this.formData.badges.push({label: 'Online', class: 'online', circle: 'true'});
-      } else {
+      } else if (connection === 'offline') {
         this.formData.badges.push({label: 'Offline', class: 'offline', circle: 'false'});
+      } else {
+        this.formData.badges.push({label: 'Unknown', class: 'unknown', circle: 'false'});
       }
       if (this.formData.enrollment?.ott) {
         this.formData.badges.push({label: 'Unregistered', class: 'unreg'});

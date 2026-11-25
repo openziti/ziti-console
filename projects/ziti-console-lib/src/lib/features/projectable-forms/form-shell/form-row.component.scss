@@ -1,0 +1,64 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.frow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.frow-label-row {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+
+  label {
+    flex: 0 1 auto;
+    width: auto;
+    margin: 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--tableText);
+  }
+}
+
+.frow-badge {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+
+  &.required {
+    color: var(--red);
+    background: color-mix(in srgb, var(--red) 12%, transparent);
+  }
+
+  &.optional {
+    color: var(--icon);
+    background: color-mix(in srgb, var(--icon) 12%, transparent);
+  }
+}
+
+.frow-spacer { flex: 1; }
+
+.frow-info {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  font-size: 1rem;
+  color: var(--subText);
+  cursor: help;
+
+  &:hover, &:focus-visible { color: var(--primaryColor); outline: 0; }
+}
+
+.form-field-error {
+  display: block;
+  color: var(--red);
+  font-size: 0.75rem;
+}

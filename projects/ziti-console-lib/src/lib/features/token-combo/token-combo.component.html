@@ -1,0 +1,78 @@
+<div
+  #root
+  class="tc"
+  [class.tc--open]="open"
+  [class.tc--focus]="focused"
+  [class.tc--busy]="busy"
+  [class.tc--disabled]="disabled"
+  [attr.aria-disabled]="disabled"
+>
+  <div class="tc-box" (click)="focusField()">
+    @for (chip of visibleTokens; track chip; let i = $index) {
+      <span class="tc-token" [attr.data-tone]="toneOf(chip)">
+        <span class="tc-token__label" [title]="chip">{{ chip }}</span>
+        <button type="button" class="tc-token__remove" aria-label="Remove" [disabled]="disabled" (click)="remove(i, $event)">&times;</button>
+      </span>
+    }
+    @if (hiddenTokenCount > 0) {
+      <button type="button" class="tc-more" [attr.title]="hiddenTitle" (click)="toggleChips($event)">+{{ hiddenTokenCount }} more</button>
+    } @else if (maxVisibleChips != null && chipsExpanded && value.length > maxVisibleChips) {
+      <button type="button" class="tc-more" (click)="toggleChips($event)">Show less</button>
+    }
+    <input
+      #field
+      class="tc-input"
+      type="text"
+      role="combobox"
+      aria-autocomplete="list"
+      [attr.aria-expanded]="open"
+      [disabled]="disabled"
+      [placeholder]="value.length || disabled ? '' : placeholder"
+      [value]="query"
+      (input)="onInput($any($event.target).value)"
+      (focus)="onFocus()"
+      (blur)="onBlur()"
+      (keydown)="onKeydown($event)"
+      (paste)="onPaste($event)"
+      autocomplete="off"
+      spellcheck="false"
+    />
+  </div>
+  @if (busy) {
+    <span class="tc-spinner" role="status" aria-label="Loading"></span>
+  } @else {
+    <button type="button" class="tc-toggle" tabindex="-1" [disabled]="disabled" [attr.aria-label]="open ? 'Hide suggestions' : 'Show suggestions'" (click)="togglePanel()">
+      <span class="tc-chev" aria-hidden="true"></span>
+    </button>
+  }
+
+  @if (open && (visibleSuggestions.length || createCandidate)) {
+    <ul class="tc-panel" [class.tc-panel--chips]="chipOptions" [class.tc-panel--up]="panelUp" [style.max-height.px]="panelMaxHeightPx" role="listbox">
+      @if (createCandidate; as cand) {
+        <li class="tc-opt tc-opt--create" role="option" [title]="'Create ' + cand" (mousedown)="$event.preventDefault(); createFromQuery()">
+          <span class="tc-opt__plus" aria-hidden="true">+</span>{{ cand }}
+        </li>
+      }
+      @for (s of visibleSuggestions; track s; let i = $index) {
+        <li
+          class="tc-opt"
+          role="option"
+          [class.is-active]="i === activeIndex"
+          [class.is-chosen]="keepChosenVisible && isChosen(s)"
+          [attr.aria-selected]="keepChosenVisible ? isChosen(s) : i === activeIndex"
+          [attr.data-tone]="toneOf(s)"
+          [title]="s"
+          (mouseenter)="activeIndex = i"
+          (mousedown)="$event.preventDefault(); selectSuggestion(s)"
+        >
+          @if (keepChosenVisible && isChosen(s)) {
+            <svg class="tc-opt__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-11" /></svg>
+          }
+          {{ s }}
+        </li>
+      }
+    </ul>
+  } @else if (open && !allowCustom) {
+    <ul class="tc-panel" role="listbox"><li class="tc-empty">{{ query ? 'No matches' : 'Type to search' }}</li></ul>
+  }
+</div>

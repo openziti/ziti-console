@@ -502,6 +502,10 @@ export class ZitiControllerDataService extends ZitiDataService {
                 case 'BOOLEAN':
                     filterVal = `${filter.columnId}=${filter.value}`;
                     break;
+                case 'RAW':
+                    // caller supplies a ready filter expression (e.g. role OR id-list), grouped so it can be AND-ed with others
+                    filterVal = `(${filter.value})`;
+                    break;
                 default:
                     filterVal = `${filter.columnId} icontains "${filter.value}"`;
                     break;

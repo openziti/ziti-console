@@ -1,0 +1,43 @@
+@if (changedCount > 0) {
+<section class="fs" [class.collapsed]="!expanded">
+  <button type="button" class="fs-head" [attr.aria-expanded]="expanded" (click)="toggle()">
+    <svg class="fs-chev" aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" [class.open]="expanded"><path d="M9 6l6 6-6 6" /></svg>
+    <span class="fs-title">{{heading}}</span>
+    <span class="fs-state" role="status"><span class="fs-state-dot"></span>{{stateLabel}}</span>
+  </button>
+  @if (expanded) {
+  <ul class="fs-list">
+    @for (row of changedRows; track row.label) {
+      <li class="fs-line" [class.list]="!!row.list">
+        <span class="fs-label">{{row.label}}@if (row.list) { <span class="fs-delta">{{delta(row)}}</span> }</span>
+        @if (row.list) {
+          <span class="fs-chips">
+            @for (chip of shownChips(row); track chip.state + chip.text) {
+              <span class="fs-chip {{chip.state}}" [matTooltip]="chip.state === 'added' ? 'Added: ' + chip.text : chip.state === 'removed' ? 'Removed: ' + chip.text : chip.text" [matTooltipShowDelay]="0" matTooltipPosition="above">{{chip.state === 'added' ? '+ ' : chip.state === 'removed' ? '− ' : ''}}{{chip.text}}</span>
+            } @empty {
+              <span class="fs-empty">Not set</span>
+            }
+            @if (hiddenChips(row) > 0) {
+              <button type="button" class="fs-more" (click)="toggleChips(row)">+{{hiddenChips(row)}} more</button>
+            } @else if (canCollapse(row)) {
+              <button type="button" class="fs-more" (click)="toggleChips(row)">Show less</button>
+            }
+          </span>
+        } @else {
+          <span class="fs-val">
+            @if (row.tone) {
+              <span class="fs-pill {{row.tone}}"><span class="fs-dot"></span>{{row.value}}</span>
+            } @else if (row.value === '-') {
+              <span class="fs-empty">Not set</span>
+            } @else {
+              <span class="v" [matTooltip]="'' + row.value" [matTooltipShowDelay]="0" matTooltipPosition="above">{{row.value}}</span>
+            }
+          </span>
+        }
+      </li>
+    }
+  </ul>
+  }
+  <ng-content></ng-content>
+</section>
+}

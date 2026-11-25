@@ -1,0 +1,18 @@
+<div class="frow">
+  @if (label) {
+    <div class="frow-label-row">
+      <label [attr.for]="forId || null">{{label}}</label>
+      @if (hint) {
+        <mat-icon class="frow-info" [matTooltip]="hint" [matTooltipShowDelay]="0" matTooltipPosition="above" tabindex="0" [attr.aria-label]="hint">info</mat-icon>
+      }
+      <span class="frow-spacer"></span>
+      @if (badge) {
+        <span class="frow-badge" [ngClass]="badge">{{badge | uppercase}}</span>
+      }
+    </div>
+  }
+  <ng-content></ng-content>
+  @if (error) {
+    <span class="form-field-error" role="alert">{{error}}</span>
+  }
+</div>

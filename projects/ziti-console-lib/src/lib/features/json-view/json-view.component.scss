@@ -6,12 +6,50 @@
   position: relative;
 }
 
+// Matte syntax palette built from the app's status greens/yellows and theme text, so it flips with dark mode.
+@mixin jv-tokens {
+  --jv-green: color-mix(in srgb, var(--lt-positive, #16a34a) 78%, var(--tableText));
+  --jv-amber: color-mix(in srgb, var(--lt-warning, #f5a93d) 70%, var(--tableText));
+  --jv-blue: color-mix(in srgb, var(--primaryColor) 80%, var(--tableText));
+  --jv-violet: color-mix(in srgb, #7c3aed 65%, var(--tableText));
+
+  --jse-background-color: var(--navigation);
+  --jse-text-color: var(--tableText);
+  --jse-main-border: none;
+  --jse-panel-background: color-mix(in srgb, var(--tableText) 4%, var(--navigation));
+  --jse-panel-background-border: 1px solid var(--inputBorder);
+  --jse-panel-border: 1px solid var(--inputBorder);
+  --jse-panel-color: var(--subText);
+  --jse-panel-color-readonly: var(--subText);
+  --jse-active-line-background-color: color-mix(in srgb, var(--primaryColor) 6%, transparent);
+  --jse-selection-background-color: color-mix(in srgb, var(--primaryColor) 22%, transparent);
+  --jse-font-family-mono: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+  --jse-font-size-mono: 0.8125rem;
+
+  --jse-key-color: var(--jv-blue);
+  --jse-value-color: var(--tableText);
+  --jse-value-color-string: var(--jv-green);
+  --jse-value-color-number: var(--jv-amber);
+  --jse-value-color-boolean: var(--jv-violet);
+  --jse-value-color-null: var(--jv-violet);
+  --jse-value-color-url: var(--jv-green);
+  --jse-delimiter-color: var(--subText);
+}
+
 #jsoneditor {
+  @include jv-tokens;
   height: 100%;
-  min-height: 12.5rem;
-  border: var(--jsonEditorBorder);
-  border-radius: var(--inputBorderRadius);
+  min-height: 9rem;
+  border: 1px solid var(--inputBorder);
+  border-radius: var(--radius-control, 0.45rem);
+  background: var(--navigation);
   overflow: hidden;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+
+  &:focus-within {
+    border-color: var(--primaryColor);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primaryColor) 16%, transparent);
+  }
 
   &.read-only {
     .jse-menu {
@@ -20,13 +58,52 @@
   }
 }
 
-.copy {
-  &.icon-copy {
-    position: absolute;
-    top: 0.625rem;
-    right: 0.625rem;
-    background: transparent;
+// existing copy icon, restyled as a small outline button
+.icon-copy.copy-text {
+  top: 0.5rem;
+  right: 0.75rem;
+  width: 1.875rem;
+  height: 1.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--subText);
+  background: var(--navigation);
+  background-image: none;
+  border: 1px solid var(--inputBorder);
+  border-radius: var(--radius-control, 0.45rem);
+
+  // outline copy glyph replaces the old icon-font / bitmap icon
+  &::before {
+    content: '';
+    display: block;
+    width: 1.125rem;
+    height: 1.125rem;
+    background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='11' height='11' rx='2.5'/%3E%3Cpath d='M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='11' height='11' rx='2.5'/%3E%3Cpath d='M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15'/%3E%3C/svg%3E") center / contain no-repeat;
   }
+
+  &:hover {
+    color: var(--primaryColor);
+    border-color: var(--primaryColor);
+    background: color-mix(in srgb, var(--primaryColor) 8%, var(--navigation));
+    filter: none;
+    transform: none;
+  }
+}
+
+::ng-deep #jsoneditor {
+  .jse-main { @include jv-tokens; }
+
+  .jse-menu { border-bottom: 1px solid var(--inputBorder); background: var(--jse-panel-background); }
+  .jse-status-bar { font-size: 0.75rem; border-top: 1px solid var(--inputBorder); }
+
+  .cm-editor { background: transparent; }
+  .cm-gutters { background: transparent; border-right: 0; color: var(--subText); }
+  .cm-activeLine, .cm-activeLineGutter { background: var(--jse-active-line-background-color); }
+  .cm-content { padding: 0.5rem 0; caret-color: var(--primaryColor); }
 }
 
 ::ng-deep #jsoneditor .jse-json-node.svelte-1wlxti1 .jse-insert-area.svelte-1wlxti1.svelte-1wlxti1.svelte-1wlxti1 {

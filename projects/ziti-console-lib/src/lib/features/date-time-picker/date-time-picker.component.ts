@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef } from '@angular/core';
+import { Component, Input, forwardRef, HostBinding } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import moment from 'moment';
 import { CommonModule } from '@angular/common';
@@ -21,6 +21,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 })
 export class DateTimePickerComponent implements ControlValueAccessor {
   @Input() minDate: Date | null = null;
+  @Input() @HostBinding('class.dtp-refined') refined = false;
   @Input() placeholder = 'MM/DD/YYYY HH:mm';
   @Input() displayFormat = 'MM/DD/YYYY HH:mm';
   @Input() ariaLabel = 'Open date & time picker';

@@ -96,6 +96,16 @@ import {onAppInit} from "./app.initializer";
 import { LottieComponent } from "ngx-lottie";
 import { SideModalComponent } from './features/side-modal/side-modal.component';
 import { IdentityFormComponent } from "./features/projectable-forms/identity/identity-form.component";
+import { IdentityFormV2Component } from "./features/projectable-forms/identity/identity-form-v2.component";
+import { FormSectionComponent } from "./features/projectable-forms/form-shell/form-section.component";
+import { FormRowComponent } from "./features/projectable-forms/form-shell/form-row.component";
+import { FormPageHeaderComponent } from "./features/projectable-forms/form-shell/form-page-header.component";
+import { FormSummaryComponent } from "./features/projectable-forms/form-shell/form-summary.component";
+import { ServicePolicyFormV2Component } from "./features/projectable-forms/service-policy/service-policy-form-v2.component";
+import { FormSegmentedComponent } from "./features/projectable-forms/form-shell/form-segmented.component";
+import { TokenComboComponent } from "./features/token-combo/token-combo.component";
+import { FormAssociatedGroupComponent } from "./features/projectable-forms/form-shell/form-associated-group.component";
+import { FormTabsComponent } from "./features/projectable-forms/form-shell/form-tabs.component";
 import { FormHeaderComponent } from './features/projectable-forms/form-header/form-header.component';
 import { FormFieldContainerComponent } from './features/projectable-forms/form-field-container/form-field-container.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -243,6 +253,16 @@ import {
         TableColumnDefaultComponent,
         TableColumnFilterComponent,
         IdentityFormComponent,
+        IdentityFormV2Component,
+        FormSectionComponent,
+        FormRowComponent,
+        FormPageHeaderComponent,
+        FormSummaryComponent,
+        ServicePolicyFormV2Component,
+        FormSegmentedComponent,
+        FormAssociatedGroupComponent,
+        TokenComboComponent,
+        FormTabsComponent,
         EdgeRouterFormComponent,
         TransitRouterFormComponent,
         HiddenColumnsBarComponent,
@@ -371,6 +391,16 @@ import {
         ZacRoutingModule,
         SideModalComponent,
         IdentityFormComponent,
+        IdentityFormV2Component,
+        FormSectionComponent,
+        FormRowComponent,
+        FormPageHeaderComponent,
+        FormSummaryComponent,
+        ServicePolicyFormV2Component,
+        FormSegmentedComponent,
+        FormAssociatedGroupComponent,
+        TokenComboComponent,
+        FormTabsComponent,
         LoadingIndicatorComponent,
         GrowlerModule,
         FormFieldContainerComponent,
