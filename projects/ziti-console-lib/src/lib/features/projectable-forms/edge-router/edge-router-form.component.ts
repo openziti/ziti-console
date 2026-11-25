@@ -268,4 +268,10 @@ export class EdgeRouterFormComponent extends ProjectableForm implements OnInit, 
       item => item.key === 'customer-hosted'
     );
   }
+
+  get isLinkListenerActive(): boolean {
+    return this.extService.disabledComponents.some(
+      item => item.key === 'link-listener-active'
+    );
+  }
 }
